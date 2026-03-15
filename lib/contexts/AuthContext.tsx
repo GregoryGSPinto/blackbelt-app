@@ -20,6 +20,7 @@ import {
 } from '@/lib/security';
 import * as authService from '@/lib/api/auth.service';
 import { useRouter } from 'next/navigation';
+import { identifyUser, resetAnalytics, trackEvent, AnalyticsEvents } from '@/lib/analytics/posthog';
 
 interface AuthState {
   profile: Profile | null;
@@ -83,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       isAuthenticated: true,
     });
+    trackEvent(AnalyticsEvents.USER_LOGGED_IN, { email });
 
     return response.profiles;
   }, []);
@@ -98,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile: response.profile,
         isAuthenticated: true,
       }));
+      identifyUser(response.profile.id, { role: response.profile.role, display_name: response.profile.display_name });
 
       const dashboard = ROLE_DASHBOARD[response.profile.role] ?? '/dashboard';
       router.push(dashboard);
@@ -107,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await authService.logout();
+    resetAnalytics();
     clearTokens();
     setState({
       profile: null,

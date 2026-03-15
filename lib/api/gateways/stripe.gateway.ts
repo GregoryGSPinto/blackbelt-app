@@ -73,8 +73,36 @@ export class StripeGateway implements PaymentGateway {
     };
   }
 
-  async processWebhook(payload: string, _signature: string): Promise<WebhookEvent> {
-    // In production, verify signature with stripe.webhooks.constructEvent
+  async processWebhook(payload: string, signature: string): Promise<WebhookEvent> {
+    // Validate Stripe webhook signature if secret is configured
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (webhookSecret && signature) {
+      // Stripe uses timestamp + payload for signature (simplified check)
+      const parts = signature.split(',');
+      const timestampPart = parts.find((p) => p.startsWith('t='));
+      const sigPart = parts.find((p) => p.startsWith('v1='));
+      if (timestampPart && sigPart) {
+        const timestamp = timestampPart.replace('t=', '');
+        const expectedSig = sigPart.replace('v1=', '');
+        const signedPayload = `${timestamp}.${payload}`;
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey(
+          'raw',
+          encoder.encode(webhookSecret),
+          { name: 'HMAC', hash: 'SHA-256' },
+          false,
+          ['sign']
+        );
+        const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
+        const computed = Array.from(new Uint8Array(sig))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        if (computed !== expectedSig) {
+          throw new ServiceError(401, 'stripe', 'Invalid webhook signature');
+        }
+      }
+    }
+
     const body = JSON.parse(payload) as { id: string; type: string; data?: { object?: { id: string } } };
     const typeMap: Record<string, WebhookEvent['type']> = {
       'invoice.paid': 'payment.confirmed',

@@ -10,7 +10,9 @@ import type {
 } from '@/lib/types/payment';
 import { ServiceError } from '@/lib/api/errors';
 
-const ASAAS_BASE = process.env.ASAAS_API_URL ?? 'https://sandbox.asaas.com/api/v3';
+const ASAAS_BASE = process.env.ASAAS_SANDBOX === 'false'
+  ? 'https://api.asaas.com/api/v3'
+  : 'https://sandbox.asaas.com/api/v3';
 const ASAAS_KEY = process.env.ASAAS_API_KEY ?? '';
 
 async function asaasFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -76,7 +78,27 @@ export class AsaasGateway implements PaymentGateway {
     };
   }
 
-  async processWebhook(payload: string, _signature: string): Promise<WebhookEvent> {
+  async processWebhook(payload: string, signature: string): Promise<WebhookEvent> {
+    // Validate HMAC signature if webhook token is configured
+    const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
+    if (webhookToken && signature) {
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(webhookToken),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+      const computed = Array.from(new Uint8Array(sig))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      if (computed !== signature) {
+        throw new ServiceError(401, 'asaas', 'Invalid webhook signature');
+      }
+    }
+
     const body = JSON.parse(payload) as { event: string; payment?: { id: string }; id?: string };
     const typeMap: Record<string, WebhookEvent['type']> = {
       PAYMENT_CONFIRMED: 'payment.confirmed',
