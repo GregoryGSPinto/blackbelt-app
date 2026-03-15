@@ -1,0 +1,74 @@
+import { isMock } from '@/lib/env';
+import { ServiceError, handleServiceError } from '@/lib/api/errors';
+
+export interface ImportRow {
+  name: string;
+  email: string;
+  phone: string;
+  modality: string;
+  belt: string;
+}
+
+export interface ParsedCSVResult {
+  headers: string[];
+  rows: ImportRow[];
+  totalRows: number;
+}
+
+export interface DuplicateCheckResult {
+  duplicates: number[];
+  matchDetails: Record<number, string>;
+}
+
+export interface ImportResult {
+  imported: number;
+  skipped: number;
+  errors: number;
+  errorDetails: { row: number; reason: string }[];
+}
+
+export async function parseCSV(file: File): Promise<ParsedCSVResult> {
+  try {
+    if (isMock()) {
+      const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
+      return mockParseCSV(file);
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch('/api/import/parse', { method: 'POST', body: formData });
+    if (!res.ok) throw new ServiceError(res.status, 'importacao.parseCSV');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'importacao.parseCSV'); }
+}
+
+export async function detectDuplicates(rows: ImportRow[], academyId: string): Promise<DuplicateCheckResult> {
+  try {
+    if (isMock()) {
+      const { mockDetectDuplicates } = await import('@/lib/mocks/importacao.mock');
+      return mockDetectDuplicates(rows, academyId);
+    }
+    const res = await fetch('/api/import/duplicates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows, academyId }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'importacao.detectDuplicates');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'importacao.detectDuplicates'); }
+}
+
+export async function importStudents(rows: ImportRow[], academyId: string): Promise<ImportResult> {
+  try {
+    if (isMock()) {
+      const { mockImportStudents } = await import('@/lib/mocks/importacao.mock');
+      return mockImportStudents(rows, academyId);
+    }
+    const res = await fetch('/api/import/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows, academyId }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'importacao.importStudents');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'importacao.importStudents'); }
+}

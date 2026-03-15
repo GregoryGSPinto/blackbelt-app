@@ -2,18 +2,32 @@ import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, ScheduleSlot } from '@/lib/types';
 
+// ── Base DTOs ──────────────────────────────────────────────────────────
+
 export interface AlunoDashboardDTO {
+  student_name: string;
+  avatar_url: string | null;
+  ranking_position: number;
+  total_academy_students: number;
+  membro_desde: string;
   proximaAula: ProximaAulaDTO | null;
+  aulaAgora: boolean;
+  proximaAulaAmanha: ProximaAulaDTO | null;
   progressoFaixa: ProgressoFaixaDTO;
   frequenciaMes: FrequenciaMesDTO;
+  frequenciaMesAnteriorPct: number;
   streak: number;
   conteudoRecomendado: ConteudoRecomendadoDTO[];
+  continuarAssistindo: ContinuarAssistindoDTO | null;
   ultimasConquistas: ConquistaRecenteDTO[];
+  proximaConquista: ProximaConquistaDTO | null;
+  semana: DiaSemanaDTO[];
 }
 
 export interface ProximaAulaDTO {
   class_id: string;
   modality_name: string;
+  level_label: string;
   professor_name: string;
   start_time: string;
   end_time: string;
@@ -26,12 +40,21 @@ export interface ProgressoFaixaDTO {
   percentual: number;
   aulas_necessarias: number;
   aulas_concluidas: number;
+  requisitos: RequisitoFaixaDTO[];
+}
+
+export interface RequisitoFaixaDTO {
+  label: string;
+  atual: number;
+  necessario: number;
+  completo: boolean;
 }
 
 export interface FrequenciaMesDTO {
   total_aulas: number;
   presencas: number;
   dias_presentes: number[];
+  mes_label: string;
 }
 
 export interface ConteudoRecomendadoDTO {
@@ -41,11 +64,39 @@ export interface ConteudoRecomendadoDTO {
   belt_level: BeltLevel;
 }
 
+export interface ContinuarAssistindoDTO {
+  video_id: string;
+  title: string;
+  thumbnail_url: string;
+  duration: number;
+  watched_seconds: number;
+  progress_pct: number;
+}
+
 export interface ConquistaRecenteDTO {
   id: string;
   name: string;
+  icon: string;
   type: string;
   granted_at: string;
+}
+
+export interface ProximaConquistaDTO {
+  name: string;
+  icon: string;
+  description: string;
+  progress_current: number;
+  progress_target: number;
+}
+
+export type DiaStatus = 'done' | 'scheduled' | 'rest' | 'missed';
+
+export interface DiaSemanaDTO {
+  day_label: string;
+  day_short: string;
+  date: string;
+  status: DiaStatus;
+  classes: string[];
 }
 
 const BELT_ORDER: BeltLevel[] = ['white', 'gray', 'yellow', 'orange', 'green', 'blue', 'purple', 'brown', 'black'] as BeltLevel[];

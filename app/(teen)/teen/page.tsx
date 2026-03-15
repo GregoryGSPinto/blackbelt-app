@@ -1,24 +1,35 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getXP, getLeaderboard } from '@/lib/api/xp.service';
-import type { XPDTO, RankedStudent } from '@/lib/api/xp.service';
-import { Card } from '@/components/ui/Card';
+import { getTeenDashboard } from '@/lib/api/teen.service';
+import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 
+// ────────────────────────────────────────────────────────────
+// Belt border color map
+// ────────────────────────────────────────────────────────────
+const BELT_RING_COLORS: Record<string, string> = {
+  white: 'ring-gray-200',
+  gray: 'ring-gray-400',
+  yellow: 'ring-yellow-400',
+  orange: 'ring-orange-500',
+  green: 'ring-green-500',
+  blue: 'ring-blue-500',
+  purple: 'ring-purple-500',
+  brown: 'ring-amber-700',
+  black: 'ring-gray-900',
+};
+
 export default function TeenDashboardPage() {
-  const [xp, setXp] = useState<XPDTO | null>(null);
-  const [ranking, setRanking] = useState<RankedStudent[]>([]);
+  const [data, setData] = useState<TeenDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [x, r] = await Promise.all([getXP('stu-teen'), getLeaderboard('academy-1')]);
-        setXp(x);
-        setRanking(r);
+        const d = await getTeenDashboard('stu-teen-lucas');
+        setData(d);
       } finally {
         setLoading(false);
       }
@@ -28,99 +39,215 @@ export default function TeenDashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4 p-4">
-        <Skeleton variant="card" className="h-40" />
-        <Skeleton variant="card" className="h-32" />
-        <Skeleton variant="card" className="h-48" />
+      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 p-4">
+        <div className="mx-auto max-w-lg space-y-4">
+          <Skeleton variant="card" className="h-52 bg-gray-800" />
+          <Skeleton variant="card" className="h-28 bg-gray-800" />
+          <Skeleton variant="card" className="h-36 bg-gray-800" />
+          <Skeleton variant="card" className="h-48 bg-gray-800" />
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-4 p-4">
-      {/* Hero: Sua Jornada */}
-      <Card className="bg-gradient-to-br from-bb-gray-900 to-bb-gray-700 p-6 text-center text-white">
-        <Avatar name="Bruna Alves" size="lg" />
-        <h2 className="mt-2 text-xl font-bold">Bruna Alves</h2>
-        <Badge variant="belt" size="sm" className="mt-1">orange</Badge>
-        {xp && (
-          <div className="mt-3">
-            <p className="text-sm opacity-80">Nível {xp.level} · #{xp.rank} no ranking</p>
-            <p className="text-3xl font-bold text-bb-warning">{xp.xp.toLocaleString()} XP</p>
-          </div>
-        )}
-      </Card>
+  if (!data) return null;
 
-      {/* Conquistas recentes */}
-      <section>
-        <h2 className="mb-2 font-semibold text-bb-white">Conquistas Recentes</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {[
-            { name: 'Streak 7 dias', icon: '🔥' },
-            { name: 'Faixa Laranja', icon: '🥋' },
-            { name: '30 aulas', icon: '💪' },
-          ].map((a) => (
-            <Card key={a.name} className="flex-shrink-0 bg-bb-gray-700 p-3 text-center shadow-lg shadow-bb-warning/10">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-bb-warning/20">
-                <span className="text-2xl">{a.icon}</span>
+  const xpPercent = Math.round((data.xp / data.next_level_xp) * 100);
+  const ringColor = BELT_RING_COLORS[data.profile.belt] ?? 'ring-gray-400';
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 pb-24">
+      {/* ─── HERO: Avatar + XP Bar ─── */}
+      <section className="relative overflow-hidden px-4 pb-6 pt-8">
+        {/* Background glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-bb-red-500/20 via-transparent to-transparent" />
+
+        <div className="relative mx-auto max-w-lg text-center">
+          {/* Avatar with belt-colored ring */}
+          <div className={`mx-auto inline-block rounded-full p-1 ring-4 ${ringColor}`}>
+            <Avatar name={data.profile.display_name} size="xl" />
+          </div>
+
+          <h1 className="mt-3 text-2xl font-extrabold text-bb-white">
+            {data.profile.display_name}
+          </h1>
+          <p className="text-sm text-gray-400">
+            Level {data.level} &middot; {data.profile.title}
+          </p>
+          {data.profile.bio && (
+            <p className="mt-1 text-xs italic text-gray-500">&ldquo;{data.profile.bio}&rdquo;</p>
+          )}
+
+          {/* XP Bar */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span className="font-bold text-bb-white">
+                {data.xp.toLocaleString('pt-BR')} XP
+              </span>
+              <span>{data.next_level_xp.toLocaleString('pt-BR')} XP</span>
+            </div>
+            <div className="mt-1.5 h-4 overflow-hidden rounded-full bg-gray-800 shadow-inner">
+              <div
+                className="flex h-full items-center justify-end rounded-full bg-gradient-to-r from-bb-red-500 via-orange-500 to-yellow-400 pr-2 transition-all duration-700"
+                style={{ width: `${Math.max(xpPercent, 8)}%` }}
+              >
+                <span className="text-[10px] font-bold text-white drop-shadow">
+                  {xpPercent}%
+                </span>
               </div>
-              <p className="mt-1 text-xs font-medium text-bb-white">{a.name}</p>
-            </Card>
-          ))}
+            </div>
+            <p className="mt-1 text-center text-xs text-gray-500">
+              {data.profile.display_name} &middot; Level {data.level} &middot;{' '}
+              {data.xp.toLocaleString('pt-BR')}/{data.next_level_xp.toLocaleString('pt-BR')}
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Ranking */}
-      <section>
-        <h2 className="mb-2 font-semibold text-bb-white">Ranking da Academia</h2>
-        <Card className="bg-bb-gray-700 p-3">
-          <div className="space-y-2">
-            {ranking.map((student) => (
-              <div
-                key={student.student_id}
-                className={`flex items-center gap-3 rounded-lg p-2 ${
-                  student.student_id === 'stu-teen' ? 'bg-bb-red/20 ring-1 ring-bb-red/40' : ''
-                }`}
-              >
-                <span className={`w-6 text-center text-sm font-bold ${student.rank <= 3 ? 'text-bb-warning' : 'text-bb-gray-500'}`}>
-                  {student.rank}
+      <div className="mx-auto max-w-lg space-y-5 px-4">
+        {/* ─── STREAK ─── */}
+        {data.streak.is_active && data.streak.current_days > 3 && (
+          <section className="rounded-2xl bg-gradient-to-r from-orange-600/30 to-red-600/30 p-4 ring-1 ring-orange-500/30">
+            <div className="flex items-center gap-3">
+              <span className="animate-pulse text-4xl">🔥</span>
+              <div>
+                <p className="text-lg font-extrabold text-orange-300">
+                  {data.streak.current_days} dias seguidos!
+                </p>
+                <p className="text-xs text-orange-200/70">
+                  Recorde pessoal: {data.streak.best_ever} dias &middot; Não quebre o streak!
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ─── ACTIVE CHALLENGE ─── */}
+        {data.active_challenge && (
+          <section className="rounded-2xl bg-gradient-to-br from-indigo-900/60 to-purple-900/40 p-5 ring-1 ring-indigo-500/20">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
+                  Desafio Ativo
+                </p>
+                <h2 className="mt-1 text-lg font-extrabold text-bb-white">
+                  {data.active_challenge.emoji} {data.active_challenge.title}
+                </h2>
+              </div>
+              <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-300">
+                +{data.active_challenge.reward_xp} XP
+              </span>
+            </div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs text-gray-400">
+                <span>
+                  {data.active_challenge.progress}/{data.active_challenge.target}
                 </span>
-                <Avatar name={student.display_name} size="sm" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-bb-white">{student.display_name}</p>
-                  <p className="text-xs text-bb-gray-500">Nível {student.level}</p>
+                <span>Faltam {data.active_challenge.target - data.active_challenge.progress} em {data.active_challenge.days_remaining} dias!</span>
+              </div>
+              <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-gray-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700"
+                  style={{
+                    width: `${(data.active_challenge.progress / data.active_challenge.target) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ─── RANKING ─── */}
+        <section>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+            <span>🏆</span> Ranking
+          </h2>
+          <div className="space-y-2">
+            {data.ranking.map((entry) => {
+              const isMe = entry.is_current_user;
+              const medalEmojis: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+              return (
+                <div
+                  key={entry.student_id}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
+                    isMe
+                      ? 'bg-gradient-to-r from-bb-red-500/20 to-orange-500/10 ring-1 ring-bb-red-500/40'
+                      : 'bg-gray-800/50'
+                  }`}
+                >
+                  <span className="w-8 text-center text-base font-extrabold">
+                    {medalEmojis[entry.rank] ?? `#${entry.rank}`}
+                  </span>
+                  <Avatar name={entry.display_name} size="sm" />
+                  <span
+                    className={`flex-1 text-sm font-semibold ${
+                      isMe ? 'text-bb-white' : 'text-gray-300'
+                    }`}
+                  >
+                    {isMe ? 'VOCÊ' : entry.display_name}
+                  </span>
+                  <span className="text-sm font-bold text-yellow-400">
+                    {entry.xp.toLocaleString('pt-BR')}
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-bb-warning">{student.xp.toLocaleString()} XP</span>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ─── ACHIEVEMENTS (glowing badges) ─── */}
+        <section>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+            <span>🎖️</span> Conquistas
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {data.achievements.map((ach) => (
+              <div
+                key={ach.id}
+                className={`flex flex-shrink-0 flex-col items-center rounded-2xl p-4 transition-all ${
+                  ach.unlocked
+                    ? 'bg-gray-800/80 shadow-lg'
+                    : 'bg-gray-800/30 opacity-40 grayscale'
+                }`}
+                style={
+                  ach.unlocked
+                    ? { boxShadow: `0 0 20px ${ach.glow_color}40, 0 0 60px ${ach.glow_color}15` }
+                    : undefined
+                }
+              >
+                <span className="text-3xl">{ach.icon}</span>
+                <p className="mt-1.5 max-w-[5rem] text-center text-[10px] font-semibold text-gray-300">
+                  {ach.name}
+                </p>
               </div>
             ))}
           </div>
-        </Card>
-      </section>
 
-      {/* Desafios ativos */}
-      <section>
-        <h2 className="mb-2 font-semibold text-bb-white">Desafios Ativos</h2>
-        <div className="space-y-2">
-          {[
-            { name: '3 aulas esta semana', progress: 2, target: 3, reward: '50 XP' },
-            { name: 'Nota 80+ na avaliação', progress: 0, target: 1, reward: '100 XP' },
-          ].map((d) => (
-            <Card key={d.name} className="bg-bb-gray-700 p-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-bb-white">{d.name}</p>
-                <span className="text-xs font-bold text-bb-warning">{d.reward}</span>
+          {/* Next achievement progress */}
+          {data.next_achievement && (
+            <div className="mt-3 rounded-xl bg-gray-800/50 p-4 ring-1 ring-gray-700/50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl opacity-50">{data.next_achievement.icon}</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-gray-300">{data.next_achievement.name}</p>
+                  <p className="text-[10px] text-gray-500">{data.next_achievement.description}</p>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-700">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400"
+                      style={{
+                        width: `${(data.next_achievement.progress / data.next_achievement.target) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-0.5 text-right text-[10px] text-gray-500">
+                    {data.next_achievement.progress}/{data.next_achievement.target}
+                  </p>
+                </div>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-bb-gray-500">
-                <div
-                  className="h-full rounded-full bg-bb-warning"
-                  style={{ width: `${(d.progress / d.target) * 100}%` }}
-                />
-              </div>
-              <p className="mt-1 text-xs text-bb-gray-500">{d.progress}/{d.target}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

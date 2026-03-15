@@ -2,107 +2,270 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { listVideos, getSeries } from '@/lib/api/content.service';
-import type { VideoCardDTO, SeriesDTO } from '@/lib/api/content.service';
-import { Badge } from '@/components/ui/Badge';
+import { getStreamingHome, getTrails } from '@/lib/api/streaming.service';
+import type { StreamingSection, StreamingVideoCard, TrailDTO } from '@/lib/api/streaming.service';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { BeltLevel } from '@/lib/types';
 
-const BELTS = Object.values(BeltLevel);
+// ────────────────────────────────────────────────────────────
+// Belt label helpers
+// ────────────────────────────────────────────────────────────
+const BELT_LABEL: Record<string, string> = {
+  white: 'Branca', gray: 'Cinza', yellow: 'Amarela', orange: 'Laranja',
+  green: 'Verde', blue: 'Azul', purple: 'Roxa', brown: 'Marrom', black: 'Preta',
+};
 
+function formatDuration(min: number): string {
+  if (min < 60) return `${min}min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m > 0 ? `${h}h${m}min` : `${h}h`;
+}
+
+// ────────────────────────────────────────────────────────────
+// Video card component
+// ────────────────────────────────────────────────────────────
+function VideoCard({ video }: { video: StreamingVideoCard }) {
+  return (
+    <Link
+      href={video.is_locked ? '#' : `/dashboard/conteudo/${video.id}`}
+      className="group flex-shrink-0 w-44 sm:w-52"
+    >
+      <div className="relative overflow-hidden rounded-lg">
+        {/* Thumbnail */}
+        <div
+          className="aspect-video w-full transition-transform duration-300 group-hover:scale-110"
+          style={{ backgroundColor: video.thumbnail_color }}
+        >
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/20" />
+
+          {/* Play button on hover */}
+          {!video.is_locked && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bb-white/90 shadow-lg">
+                <svg className="h-5 w-5 text-bb-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          )}
+
+          {/* Duration badge */}
+          <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-bb-white">
+            {formatDuration(video.duration_minutes)}
+          </span>
+
+          {/* Lock overlay */}
+          {video.is_locked && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+              <svg className="h-6 w-6 text-bb-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <p className="mt-1 px-2 text-center text-[9px] font-medium text-bb-white/80">
+                {video.lock_reason}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {video.progress_percent > 0 && !video.is_locked && (
+          <div className="h-0.5 bg-bb-gray-700">
+            <div
+              className="h-full bg-bb-red-500 transition-all"
+              style={{ width: `${video.progress_percent}%` }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Meta */}
+      <div className="mt-1.5 px-0.5">
+        <p className="truncate text-xs font-medium text-bb-white group-hover:text-bb-red-500 transition-colors">
+          {video.title}
+        </p>
+        <p className="truncate text-[10px] text-bb-gray-400">
+          {video.professor_name} &middot; {BELT_LABEL[video.belt_level] ?? video.belt_level}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Trail card component
+// ────────────────────────────────────────────────────────────
+function TrailCard({ trail }: { trail: TrailDTO }) {
+  const completionPercent = trail.total_videos > 0
+    ? Math.round((trail.completed_videos / trail.total_videos) * 100)
+    : 0;
+
+  return (
+    <div className="group flex-shrink-0 w-56 sm:w-64">
+      <div className="relative overflow-hidden rounded-lg">
+        <div
+          className="flex h-32 flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105"
+          style={{
+            backgroundColor: trail.thumbnail_color,
+            backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 100%)`,
+          }}
+        >
+          {trail.is_completed && (
+            <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-500">
+              <svg className="h-3.5 w-3.5 text-bb-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          )}
+          <p className="text-sm font-bold text-bb-white">{trail.title}</p>
+          <p className="text-[10px] text-bb-white/70">{trail.description}</p>
+        </div>
+        {/* Trail progress */}
+        <div className="h-1 bg-bb-gray-700">
+          <div
+            className="h-full transition-all"
+            style={{
+              width: `${completionPercent}%`,
+              backgroundColor: trail.is_completed ? '#22C55E' : trail.thumbnail_color,
+            }}
+          />
+        </div>
+      </div>
+      <div className="mt-1 flex items-center justify-between px-0.5">
+        <p className="text-[10px] text-bb-gray-400">
+          {trail.completed_videos}/{trail.total_videos} videos
+        </p>
+        <p className="text-[10px] text-bb-gray-400">
+          {BELT_LABEL[trail.belt_level] ?? trail.belt_level}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Section component
+// ────────────────────────────────────────────────────────────
+function StreamingRow({ section }: { section: StreamingSection }) {
+  return (
+    <section>
+      <h2 className="mb-3 text-base font-bold text-bb-white">{section.title}</h2>
+      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+        {section.videos.map((video) => (
+          <VideoCard key={video.id} video={video} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Main page
+// ────────────────────────────────────────────────────────────
 export default function ConteudoPage() {
-  const [videos, setVideos] = useState<VideoCardDTO[]>([]);
-  const [series, setSeries] = useState<SeriesDTO[]>([]);
+  const [sections, setSections] = useState<StreamingSection[]>([]);
+  const [trails, setTrails] = useState<TrailDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterBelt, setFilterBelt] = useState<string>('');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     async function load() {
       try {
-        const [v, s] = await Promise.all([listVideos('academy-1'), getSeries('academy-1')]);
-        setVideos(v); setSeries(s);
-      } finally { setLoading(false); }
+        const [sec, tr] = await Promise.all([
+          getStreamingHome('stu-1'),
+          getTrails('academy-1'),
+        ]);
+        setSections(sec);
+        setTrails(tr);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
 
-  const filtered = videos.filter((v) => {
-    if (filterBelt && v.belt_level !== filterBelt) return false;
-    if (search && !v.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  // Simple search filter across all sections
+  const filteredSections = search.trim()
+    ? sections
+        .map((s) => ({
+          ...s,
+          videos: s.videos.filter((v) =>
+            v.title.toLowerCase().includes(search.toLowerCase()) ||
+            v.professor_name.toLowerCase().includes(search.toLowerCase())
+          ),
+        }))
+        .filter((s) => s.videos.length > 0)
+    : sections;
 
-  const continueWatching = videos.filter((v) => v.progress && v.progress > 0 && v.progress < 100);
-
-  if (loading) return <div className="space-y-4 p-4"><Skeleton variant="text" className="h-8 w-48" /><div className="grid grid-cols-2 gap-3">{[1,2,3,4].map((i)=><Skeleton key={i} variant="card" className="h-40" />)}</div></div>;
-
-  return (
-    <div className="space-y-6 p-4">
-      <h1 className="text-xl font-bold text-bb-black">Conteúdo</h1>
-      <input type="text" placeholder="Buscar vídeos..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full rounded-lg border border-bb-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-bb-red" />
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => setFilterBelt('')} className={`rounded-full px-3 py-1 text-xs font-medium ${!filterBelt ? 'bg-bb-red text-white' : 'bg-bb-gray-100 text-bb-gray-500'}`}>Todas</button>
-        {BELTS.map((b) => (
-          <button key={b} onClick={() => setFilterBelt(b)} className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${filterBelt === b ? 'bg-bb-red text-white' : 'bg-bb-gray-100 text-bb-gray-500'}`}>{b}</button>
+  // ── Loading ───────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bb-gray-900 p-4 space-y-6">
+        <Skeleton variant="text" className="h-10 w-full bg-bb-gray-800" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="space-y-2">
+            <Skeleton variant="text" className="h-6 w-40 bg-bb-gray-800" />
+            <div className="flex gap-3">
+              {[1, 2, 3, 4].map((j) => (
+                <Skeleton key={j} variant="card" className="h-28 w-44 flex-shrink-0 bg-bb-gray-800" />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
+    );
+  }
 
-      {continueWatching.length > 0 && (
-        <section>
-          <h2 className="mb-2 font-semibold text-bb-black">Continuar Assistindo</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {continueWatching.map((v) => (
-              <Link key={v.id} href={`/dashboard/conteudo/${v.id}`} className="flex-shrink-0 w-48">
-                <Card className="overflow-hidden">
-                  <div className="h-24 w-full" style={{ backgroundColor: v.thumbnail_color }} />
-                  <div className="h-1 bg-bb-gray-300"><div className="h-full bg-bb-red" style={{ width: `${v.progress}%` }} /></div>
-                  <div className="p-2"><p className="text-xs font-medium text-bb-black truncate">{v.title}</p></div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {series.length > 0 && (
-        <section>
-          <h2 className="mb-2 font-semibold text-bb-black">Séries</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {series.map((s) => (
-              <Card key={s.id} className="flex-shrink-0 w-40 overflow-hidden">
-                <div className="h-20 w-full" style={{ backgroundColor: s.thumbnail_color }} />
-                <div className="p-2"><p className="text-xs font-medium text-bb-black truncate">{s.title}</p><p className="text-[10px] text-bb-gray-500">{s.video_count} vídeos</p></div>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section>
-        <h2 className="mb-2 font-semibold text-bb-black">Todos os Vídeos</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((v) => (
-            <Link key={v.id} href={v.is_locked ? '#' : `/dashboard/conteudo/${v.id}`} className={v.is_locked ? 'opacity-50' : ''}>
-              <Card className="overflow-hidden">
-                <div className="relative h-32 w-full" style={{ backgroundColor: v.thumbnail_color }}>
-                  <span className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-xs text-white">{v.duration}min</span>
-                  {v.is_locked && <div className="absolute inset-0 flex items-center justify-center bg-black/40"><span className="text-2xl">🔒</span></div>}
-                </div>
-                <div className="p-3">
-                  <Badge variant="belt" size="sm">{v.belt_level}</Badge>
-                  <p className="mt-1 text-sm font-medium text-bb-black">{v.title}</p>
-                  <p className="text-xs text-bb-gray-500">{v.professor_name}</p>
-                  {v.progress !== undefined && v.progress > 0 && (
-                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-bb-gray-300"><div className="h-full bg-bb-red" style={{ width: `${v.progress}%` }} /></div>
-                  )}
-                </div>
-              </Card>
-            </Link>
-          ))}
+  return (
+    <div className="min-h-screen bg-bb-gray-900 pb-8">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-bb-gray-900/95 backdrop-blur-sm px-4 pt-4 pb-3">
+        <div className="flex items-center gap-3 mb-3">
+          <h1 className="text-xl font-bold text-bb-white">Conteudo</h1>
         </div>
-      </section>
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bb-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar videos, professores..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-bb-gray-700 bg-bb-gray-800 py-2.5 pl-10 pr-4 text-sm text-bb-white placeholder-bb-gray-500 outline-none focus:border-bb-red-500"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-6 px-4 pt-2">
+        {/* Trails section */}
+        {trails.length > 0 && !search.trim() && (
+          <section>
+            <h2 className="mb-3 text-base font-bold text-bb-white">Trilhas Oficiais</h2>
+            <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+              {trails.map((trail) => (
+                <TrailCard key={trail.id} trail={trail} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Video sections */}
+        {filteredSections.map((section) => (
+          <StreamingRow key={section.id} section={section} />
+        ))}
+
+        {/* Empty state for search */}
+        {search.trim() && filteredSections.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <svg className="h-12 w-12 text-bb-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <p className="mt-3 text-sm text-bb-gray-500">Nenhum video encontrado para &ldquo;{search}&rdquo;</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -46,31 +46,46 @@ export type Database = {
       }
       achievements: {
         Row: {
+          category: string | null
           created_at: string
+          description: string | null
           granted_at: string
           granted_by: string
           id: string
+          name: string | null
+          rarity: string | null
           student_id: string
           type: string
           updated_at: string
+          xp_reward: number | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
+          description?: string | null
           granted_at?: string
           granted_by: string
           id?: string
+          name?: string | null
+          rarity?: string | null
           student_id: string
           type: string
           updated_at?: string
+          xp_reward?: number | null
         }
         Update: {
+          category?: string | null
           created_at?: string
+          description?: string | null
           granted_at?: string
           granted_by?: string
           id?: string
+          name?: string | null
+          rarity?: string | null
           student_id?: string
           type?: string
           updated_at?: string
+          xp_reward?: number | null
         }
         Relationships: [
           {
@@ -134,6 +149,98 @@ export type Database = {
           },
         ]
       }
+      challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed: boolean
+          completed_at: string | null
+          current: number
+          id: string
+          student_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean
+          completed_at?: string | null
+          current?: number
+          id?: string
+          student_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          current?: number
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          academy_id: string
+          active: boolean
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          metric: string
+          start_date: string
+          target: number
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          academy_id: string
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          metric: string
+          start_date: string
+          target: number
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          academy_id?: string
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          metric?: string
+          start_date?: string
+          target?: number
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_academy_id_fkey"
+            columns: ["academy_id"]
+            isOneToOne: false
+            referencedRelation: "academies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_enrollments: {
         Row: {
           class_id: string
@@ -172,6 +279,61 @@ export type Database = {
           },
           {
             foreignKeyName: "class_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_notes: {
+        Row: {
+          class_id: string
+          content: string
+          created_at: string
+          id: string
+          note_date: string
+          professor_id: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          content: string
+          created_at?: string
+          id?: string
+          note_date?: string
+          professor_id: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          note_date?: string
+          professor_id?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_notes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_notes_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_notes_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
@@ -250,27 +412,33 @@ export type Database = {
       evaluations: {
         Row: {
           class_id: string
+          consistency: number | null
           created_at: string
           criteria: string
           id: string
+          observation: string | null
           score: number
           student_id: string
           updated_at: string
         }
         Insert: {
           class_id: string
+          consistency?: number | null
           created_at?: string
           criteria: string
           id?: string
+          observation?: string | null
           score: number
           student_id: string
           updated_at?: string
         }
         Update: {
           class_id?: string
+          consistency?: number | null
           created_at?: string
           criteria?: string
           id?: string
+          observation?: string | null
           score?: number
           student_id?: string
           updated_at?: string
@@ -288,6 +456,227 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_registrations: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_registrations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          academy_id: string
+          created_at: string
+          date: string
+          description: string | null
+          end_date: string | null
+          id: string
+          location: string | null
+          max_slots: number | null
+          price: number | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          academy_id: string
+          created_at?: string
+          date: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          location?: string | null
+          max_slots?: number | null
+          price?: number | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          academy_id?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          location?: string | null
+          max_slots?: number | null
+          price?: number | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_academy_id_fkey"
+            columns: ["academy_id"]
+            isOneToOne: false
+            referencedRelation: "academies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_likes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_posts: {
+        Row: {
+          academy_id: string
+          author_id: string | null
+          comments_count: number
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          likes_count: number
+          pinned: boolean
+          type: string
+        }
+        Insert: {
+          academy_id: string
+          author_id?: string | null
+          comments_count?: number
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          likes_count?: number
+          pinned?: boolean
+          type: string
+        }
+        Update: {
+          academy_id?: string
+          author_id?: string | null
+          comments_count?: number
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          likes_count?: number
+          pinned?: boolean
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_posts_academy_id_fkey"
+            columns: ["academy_id"]
+            isOneToOne: false
+            referencedRelation: "academies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -371,6 +760,69 @@ export type Database = {
             columns: ["subscription_id"]
             isOneToOne: false
             referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          academy_id: string
+          created_at: string
+          email: string | null
+          experimental_date: string | null
+          id: string
+          modality: string | null
+          name: string
+          notes: string | null
+          origin: string
+          phone: string | null
+          referred_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          academy_id: string
+          created_at?: string
+          email?: string | null
+          experimental_date?: string | null
+          id?: string
+          modality?: string | null
+          name: string
+          notes?: string | null
+          origin: string
+          phone?: string | null
+          referred_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          academy_id?: string
+          created_at?: string
+          email?: string | null
+          experimental_date?: string | null
+          id?: string
+          modality?: string | null
+          name?: string
+          notes?: string | null
+          origin?: string
+          phone?: string | null
+          referred_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_academy_id_fkey"
+            columns: ["academy_id"]
+            isOneToOne: false
+            referencedRelation: "academies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -532,6 +984,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      nps_responses: {
+        Row: {
+          academy_id: string
+          created_at: string
+          feedback: string | null
+          id: string
+          score: number
+          student_id: string
+        }
+        Insert: {
+          academy_id: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          score: number
+          student_id: string
+        }
+        Update: {
+          academy_id?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          score?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nps_responses_academy_id_fkey"
+            columns: ["academy_id"]
+            isOneToOne: false
+            referencedRelation: "academies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nps_responses_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plans: {
         Row: {
@@ -737,6 +1231,41 @@ export type Database = {
             columns: ["video_id"]
             isOneToOne: false
             referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_xp: {
+        Row: {
+          id: string
+          level: number
+          student_id: string
+          title: string | null
+          updated_at: string
+          xp: number
+        }
+        Insert: {
+          id?: string
+          level?: number
+          student_id: string
+          title?: string | null
+          updated_at?: string
+          xp?: number
+        }
+        Update: {
+          id?: string
+          level?: number
+          student_id?: string
+          title?: string | null
+          updated_at?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_xp_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
