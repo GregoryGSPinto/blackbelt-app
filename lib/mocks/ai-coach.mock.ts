@@ -1,4 +1,11 @@
-import type { PerformanceAnalysis, ClassPlan } from '@/lib/api/ai-coach.service';
+import type {
+  PerformanceAnalysis,
+  ClassPlan,
+  GeneratedTrainingPlan,
+  PlanAdjustment,
+  GeneratedPeriodization,
+  WeeklyCheckInResult,
+} from '@/lib/api/ai-coach.service';
 
 const delay = () => new Promise((r) => setTimeout(r, 500));
 
@@ -45,4 +52,108 @@ export async function mockAnswerQuestion(_studentId: string, question: string): 
     return 'A promoção de faixa depende de vários fatores: frequência mínima, avaliação técnica, tempo na faixa atual e maturidade no tatame. Continue treinando com regularidade e foque nas áreas que seu professor indicou para melhoria.';
   }
   return responses.default;
+}
+
+export async function mockGenerateTrainingPlan(_studentId: string, goal: string, weeks: number): Promise<GeneratedTrainingPlan> {
+  await delay();
+  const weekThemes = [
+    'Adaptação e fundamentos',
+    'Guarda fechada ofensiva',
+    'Passagem de guarda',
+    'Controle lateral e montada',
+    'Finalizações e transições',
+    'Takedowns e clinch',
+    'Situacional competitivo',
+    'Polimento e simulação',
+  ];
+
+  return {
+    name: `Plano IA: ${goal}`,
+    goal,
+    duration_weeks: weeks,
+    weeks: Array.from({ length: Math.min(weeks, 8) }, (_, i) => ({
+      week_number: i + 1,
+      theme: weekThemes[i % weekThemes.length],
+      sessions: [
+        {
+          day_of_week: 1,
+          label: 'Segunda — Técnica',
+          exercises: [
+            { name: 'Aquecimento funcional BJJ', duration_min: 10 },
+            { name: 'Técnica principal com progressão', sets: 3, reps: '5 cada lado', notes: 'Foco na precisão' },
+            { name: 'Drill posicional', duration_min: 15 },
+            { name: 'Sparring temático', duration_min: 20, notes: 'Começar da posição trabalhada' },
+          ],
+        },
+        {
+          day_of_week: 3,
+          label: 'Quarta — Condicionamento',
+          exercises: [
+            { name: 'Circuito funcional', sets: 4, reps: '40s/20s', notes: 'Sprawl, burpee, animal flow' },
+            { name: 'Grip training na barra', sets: 4, reps: '30 segundos' },
+            { name: 'Drill de velocidade', duration_min: 10 },
+            { name: 'Sparring livre', duration_min: 25, notes: '5 rounds de 5min' },
+          ],
+        },
+        {
+          day_of_week: 5,
+          label: 'Sexta — Competição',
+          exercises: [
+            { name: 'Solo drills aquecimento', duration_min: 10 },
+            { name: 'Simulação de luta com regras', duration_min: 6, sets: 4 },
+            { name: 'Revisão de vídeo com professor', duration_min: 15 },
+            { name: 'Recuperação ativa', duration_min: 10 },
+          ],
+        },
+      ],
+    })),
+    reasoning: `Plano gerado pela IA com base no objetivo "${goal}". Estruturado em ${weeks} semanas com progressão de intensidade. Cada semana tem 3 sessões (técnica, condicionamento, competição) para equilibrar desenvolvimento técnico e físico. Ajuste conforme feedback do aluno.`,
+  };
+}
+
+export async function mockAdjustPlan(_planId: string, feedback: string): Promise<PlanAdjustment> {
+  await delay();
+  return {
+    changes: [
+      { week: 3, description: 'Reduzi volume de sparring baseado no feedback de cansaço excessivo' },
+      { week: 4, description: 'Adicionei mais drills de recuperação e mobilidade' },
+      { week: 5, description: 'Aumentei tempo de técnica e reduzi condicionamento pesado' },
+    ],
+    reasoning: `Ajustes realizados com base no feedback: "${feedback}". A IA identificou sinais de overtraining e rebalanceou a carga para priorizar recuperação sem perder progressão técnica.`,
+    updated_plan_id: _planId,
+  };
+}
+
+export async function mockGeneratePeriodization(_studentId: string, competitionDate: string): Promise<GeneratedPeriodization> {
+  await delay();
+  return {
+    competition_name: 'Competição',
+    competition_date: competitionDate,
+    phases: [
+      { name: 'base', weeks: 5, intensity: 4, volume: 8, focus: ['Condicionamento aeróbico', 'Base técnica', 'Mobilidade', 'Hábito de treino'] },
+      { name: 'build', weeks: 5, intensity: 7, volume: 7, focus: ['Jogo ofensivo', 'Passagem sob pressão', 'Takedowns', 'Sparring intenso'] },
+      { name: 'peak', weeks: 3, intensity: 9, volume: 5, focus: ['Simulação de competição', 'Estratégia', 'Rounds com regra', 'Explosão'] },
+      { name: 'taper', weeks: 2, intensity: 4, volume: 3, focus: ['Técnica leve', 'Recuperação', 'Mentalização', 'Controle de peso'] },
+      { name: 'recovery', weeks: 1, intensity: 2, volume: 2, focus: ['Descanso ativo', 'Avaliação', 'Planejamento próximo ciclo'] },
+    ],
+    reasoning: `Periodização de 16 semanas gerada pela IA para competição em ${new Date(competitionDate).toLocaleDateString('pt-BR')}. Modelo clássico linear com fases de base, construção, pico, polimento e recuperação. Intensidade cresce gradualmente até o pico (3 semanas antes) e reduz no taper para chegar descansado na competição.`,
+  };
+}
+
+export async function mockWeeklyCheckIn(_planId: string): Promise<WeeklyCheckInResult> {
+  await delay();
+  return {
+    summary: 'Semana 3 concluída com 72% de aderência. Você completou 11 de 15 exercícios planejados. Desempenho acima da média para esta fase do plano.',
+    adherence_pct: 72,
+    highlights: [
+      'Completou todas as sessões de técnica (100%)',
+      'Sparring: 4 de 5 rounds realizados',
+      'Condicionamento: melhora de 15% no circuito funcional',
+    ],
+    adjustments: [
+      'Considere adicionar 5min de mobilidade pós-treino — seu feedback indicou rigidez no quadril',
+      'Aumente gradualmente o tempo de sparring para 6min na próxima semana',
+    ],
+    motivation: 'Você está no caminho certo! Manter 70%+ de aderência nas primeiras semanas é um ótimo sinal. Lembre-se: consistência supera intensidade. Vamos juntos para a semana 4!',
+  };
 }

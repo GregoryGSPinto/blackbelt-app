@@ -16,6 +16,49 @@ export interface ClassPlan {
   cooldown: string;
 }
 
+export interface GeneratedTrainingPlan {
+  name: string;
+  goal: string;
+  duration_weeks: number;
+  weeks: {
+    week_number: number;
+    theme: string;
+    sessions: {
+      day_of_week: number;
+      label: string;
+      exercises: { name: string; sets?: number; reps?: string; duration_min?: number; notes?: string }[];
+    }[];
+  }[];
+  reasoning: string;
+}
+
+export interface PlanAdjustment {
+  changes: { week: number; description: string }[];
+  reasoning: string;
+  updated_plan_id: string;
+}
+
+export interface GeneratedPeriodization {
+  competition_name: string;
+  competition_date: string;
+  phases: {
+    name: string;
+    weeks: number;
+    intensity: number;
+    volume: number;
+    focus: string[];
+  }[];
+  reasoning: string;
+}
+
+export interface WeeklyCheckInResult {
+  summary: string;
+  adherence_pct: number;
+  highlights: string[];
+  adjustments: string[];
+  motivation: string;
+}
+
 export async function getTrainingSuggestion(studentId: string): Promise<string> {
   try {
     if (isMock()) {
@@ -58,4 +101,48 @@ export async function answerQuestion(studentId: string, question: string): Promi
     const res = await fetch('/api/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, question }) });
     return res.json().then((r: { answer: string }) => r.answer);
   } catch (error) { handleServiceError(error, 'aiCoach.answer'); }
+}
+
+export async function generateTrainingPlan(studentId: string, goal: string, weeks: number): Promise<GeneratedTrainingPlan> {
+  try {
+    if (isMock()) {
+      const { mockGenerateTrainingPlan } = await import('@/lib/mocks/ai-coach.mock');
+      return mockGenerateTrainingPlan(studentId, goal, weeks);
+    }
+    const res = await fetch('/api/ai/generate-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, goal, weeks }) });
+    return res.json();
+  } catch (error) { handleServiceError(error, 'aiCoach.generatePlan'); }
+}
+
+export async function adjustPlan(planId: string, feedback: string): Promise<PlanAdjustment> {
+  try {
+    if (isMock()) {
+      const { mockAdjustPlan } = await import('@/lib/mocks/ai-coach.mock');
+      return mockAdjustPlan(planId, feedback);
+    }
+    const res = await fetch('/api/ai/adjust-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId, feedback }) });
+    return res.json();
+  } catch (error) { handleServiceError(error, 'aiCoach.adjustPlan'); }
+}
+
+export async function generatePeriodization(studentId: string, competitionDate: string): Promise<GeneratedPeriodization> {
+  try {
+    if (isMock()) {
+      const { mockGeneratePeriodization } = await import('@/lib/mocks/ai-coach.mock');
+      return mockGeneratePeriodization(studentId, competitionDate);
+    }
+    const res = await fetch('/api/ai/generate-periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, competitionDate }) });
+    return res.json();
+  } catch (error) { handleServiceError(error, 'aiCoach.generatePeriodization'); }
+}
+
+export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult> {
+  try {
+    if (isMock()) {
+      const { mockWeeklyCheckIn } = await import('@/lib/mocks/ai-coach.mock');
+      return mockWeeklyCheckIn(planId);
+    }
+    const res = await fetch('/api/ai/weekly-checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId }) });
+    return res.json();
+  } catch (error) { handleServiceError(error, 'aiCoach.weeklyCheckIn'); }
 }
