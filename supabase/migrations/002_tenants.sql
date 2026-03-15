@@ -53,6 +53,19 @@ CREATE TRIGGER memberships_updated_at
   BEFORE UPDATE ON public.memberships
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
+-- Helper function (depends on profiles from 001 + memberships above)
+CREATE OR REPLACE FUNCTION public.is_member_of(p_academy_id uuid)
+RETURNS boolean AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.memberships
+    WHERE profile_id IN (
+      SELECT id FROM public.profiles WHERE user_id = auth.uid()
+    )
+    AND academy_id = p_academy_id
+    AND status = 'active'
+  )
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
 -- RLS
 ALTER TABLE public.academies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.units ENABLE ROW LEVEL SECURITY;

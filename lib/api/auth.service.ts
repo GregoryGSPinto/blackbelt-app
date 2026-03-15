@@ -1,6 +1,6 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
-import type { Profile, User } from '@/lib/types';
+import type { Profile } from '@/lib/types';
 
 export interface LoginRequest {
   email: string;
@@ -20,7 +20,7 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-  user: User;
+  user: { id: string; email: string };
   profile: Profile;
 }
 
@@ -39,13 +39,27 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
       const { mockLogin } = await import('@/lib/mocks/auth.mock');
       return mockLogin(data);
     }
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
     });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.login');
-    return res.json();
+    if (error) throw new ServiceError(401, 'auth.login', error.message);
+
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', authData.user.id);
+    if (profileError) throw new ServiceError(500, 'auth.login', profileError.message);
+
+    return {
+      accessToken: authData.session?.access_token ?? '',
+      refreshToken: authData.session?.refresh_token ?? '',
+      profiles: (profiles ?? []) as Profile[],
+    };
   } catch (error) {
     handleServiceError(error, 'auth.login');
   }
@@ -57,31 +71,59 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
       const { mockRegister } = await import('@/lib/mocks/auth.mock');
       return mockRegister(data);
     }
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: { data: { name: data.name } },
     });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.register');
-    return res.json();
+    if (error) throw new ServiceError(400, 'auth.register', error.message);
+    if (!authData.user) throw new ServiceError(500, 'auth.register', 'User not created');
+
+    // The DB trigger auto-creates a profile; fetch it
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', authData.user.id)
+      .limit(1);
+    if (profileError) throw new ServiceError(500, 'auth.register', profileError.message);
+
+    const profile = (profiles?.[0] ?? {
+      id: authData.user.id,
+      user_id: authData.user.id,
+      role: 'admin',
+      display_name: data.name,
+      avatar: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }) as Profile;
+
+    return {
+      user: { id: authData.user.id, email: authData.user.email ?? data.email },
+      profile,
+    };
   } catch (error) {
     handleServiceError(error, 'auth.register');
   }
 }
 
-export async function refreshToken(token: string): Promise<RefreshResponse> {
+export async function refreshToken(_token: string): Promise<RefreshResponse> {
   try {
     if (isMock()) {
       const { mockRefreshToken } = await import('@/lib/mocks/auth.mock');
-      return mockRefreshToken(token);
+      return mockRefreshToken(_token);
     }
-    const res = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: token }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.refresh');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) throw new ServiceError(401, 'auth.refresh', error.message);
+
+    return { accessToken: data.session?.access_token ?? '' };
   } catch (error) {
     handleServiceError(error, 'auth.refresh');
   }
@@ -93,13 +135,26 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
       const { mockSelectProfile } = await import('@/lib/mocks/auth.mock');
       return mockSelectProfile(profileId);
     }
-    const res = await fetch('/api/auth/select-profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profileId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.selectProfile');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', profileId)
+      .single();
+    if (error) throw new ServiceError(404, 'auth.selectProfile', error.message);
+
+    // Store selected role in cookie for middleware
+    document.cookie = `bb-active-role=${profile.role};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+
+    const { data: sessionData } = await supabase.auth.getSession();
+
+    return {
+      accessToken: sessionData.session?.access_token ?? '',
+      profile: profile as Profile,
+    };
   } catch (error) {
     handleServiceError(error, 'auth.selectProfile');
   }
@@ -111,7 +166,13 @@ export async function logout(): Promise<void> {
       const { mockLogout } = await import('@/lib/mocks/auth.mock');
       return mockLogout();
     }
-    await fetch('/api/auth/logout', { method: 'POST' });
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
+
+    // Clear role cookie
+    document.cookie = 'bb-active-role=;path=/;max-age=0';
   } catch (error) {
     handleServiceError(error, 'auth.logout');
   }
@@ -123,29 +184,29 @@ export async function forgotPassword(email: string): Promise<void> {
       const { mockForgotPassword } = await import('@/lib/mocks/auth.mock');
       return mockForgotPassword(email);
     }
-    const res = await fetch('/api/auth/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.forgotPassword');
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw new ServiceError(400, 'auth.forgotPassword', error.message);
   } catch (error) {
     handleServiceError(error, 'auth.forgotPassword');
   }
 }
 
-export async function resetPassword(token: string, newPassword: string): Promise<void> {
+export async function resetPassword(_token: string, newPassword: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockResetPassword } = await import('@/lib/mocks/auth.mock');
-      return mockResetPassword(token, newPassword);
+      return mockResetPassword(_token, newPassword);
     }
-    const res = await fetch('/api/auth/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, newPassword }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'auth.resetPassword');
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new ServiceError(400, 'auth.resetPassword', error.message);
   } catch (error) {
     handleServiceError(error, 'auth.resetPassword');
   }

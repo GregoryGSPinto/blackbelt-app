@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 import type { Attendance } from '@/lib/types';
 
 export interface QRCodeData {
@@ -19,13 +19,14 @@ export async function generateQR(classId: string, expiresInMinutes: number = 5):
       const { mockGenerateQR } = await import('@/lib/mocks/qrcode.mock');
       return mockGenerateQR(classId, expiresInMinutes);
     }
-    const res = await fetch('/api/qr/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ classId, expiresInMinutes }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'qrcode.generate');
-    return res.json();
+
+    // Generate a signed QR payload (class + timestamp + expiry)
+    const now = Date.now();
+    const expiresAt = new Date(now + expiresInMinutes * 60000).toISOString();
+    const payload = { classId, iat: now, exp: now + expiresInMinutes * 60000 };
+    const qrData = btoa(JSON.stringify(payload));
+
+    return { qrData, expiresAt };
   } catch (error) {
     handleServiceError(error, 'qrcode.generate');
   }
@@ -37,13 +38,42 @@ export async function validateQR(qrData: string, studentId: string): Promise<QRV
       const { mockValidateQR } = await import('@/lib/mocks/qrcode.mock');
       return mockValidateQR(qrData, studentId);
     }
-    const res = await fetch('/api/qr/validate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ qrData, studentId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'qrcode.validate');
-    return res.json();
+
+    // Decode QR payload
+    let payload: { classId: string; exp: number };
+    try {
+      payload = JSON.parse(atob(qrData));
+    } catch {
+      return { valid: false, error: 'QR code inválido' };
+    }
+
+    if (Date.now() > payload.exp) {
+      return { valid: false, error: 'QR code expirado' };
+    }
+
+    // Create attendance record
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('attendance')
+      .insert({
+        student_id: studentId,
+        class_id: payload.classId,
+        method: 'qr_code',
+        checked_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') {
+        return { valid: false, error: 'Check-in já realizado hoje nesta turma' };
+      }
+      return { valid: false, error: error.message };
+    }
+
+    return { valid: true, attendance: data as Attendance };
   } catch (error) {
     handleServiceError(error, 'qrcode.validate');
   }

@@ -18,17 +18,7 @@ RETURNS text AS $$
   SELECT auth.jwt() -> 'app_metadata' ->> 'role'
 $$ LANGUAGE sql STABLE SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION public.is_member_of(p_academy_id uuid)
-RETURNS boolean AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.memberships
-    WHERE profile_id IN (
-      SELECT id FROM public.profiles WHERE user_id = auth.uid()
-    )
-    AND academy_id = p_academy_id
-    AND status = 'active'
-  )
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+-- NOTE: is_member_of() moved to 002_tenants.sql (after memberships table exists)
 
 -- Profiles table
 CREATE TABLE public.profiles (

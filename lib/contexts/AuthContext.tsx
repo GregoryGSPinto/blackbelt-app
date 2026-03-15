@@ -10,6 +10,7 @@ import {
 } from 'react';
 import type { Profile } from '@/lib/types';
 import { Role, ROLE_DASHBOARD } from '@/lib/types';
+import { isMock } from '@/lib/env';
 import {
   setTokens,
   clearTokens,
@@ -48,35 +49,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // Bootstrap: check existing token on mount
+  // Bootstrap: check existing session on mount
   useEffect(() => {
-    const token = getAccessToken();
-    if (token && !isTokenExpired(token)) {
-      const payload = decodeJWT(token);
-      if (payload) {
-        setState({
-          profile: {
-            id: payload.profile_id,
-            user_id: payload.sub,
-            role: payload.role as Role,
-            display_name: payload.display_name,
-            avatar: null,
-            created_at: '',
-            updated_at: '',
-          },
-          profiles: [],
-          isLoading: false,
-          isAuthenticated: true,
-        });
+    async function bootstrap() {
+      if (isMock()) {
+        // Mock mode: use custom token store
+        const token = getAccessToken();
+        if (token && !isTokenExpired(token)) {
+          const payload = decodeJWT(token);
+          if (payload) {
+            setState({
+              profile: {
+                id: payload.profile_id,
+                user_id: payload.sub,
+                role: payload.role as Role,
+                display_name: payload.display_name,
+                avatar: null,
+                created_at: '',
+                updated_at: '',
+              },
+              profiles: [],
+              isLoading: false,
+              isAuthenticated: true,
+            });
+            return;
+          }
+        }
+        setState((prev) => ({ ...prev, isLoading: false }));
         return;
       }
+
+      // Real Supabase mode
+      try {
+        const { createBrowserClient } = await import('@/lib/supabase/client');
+        const supabase = createBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.id);
+
+          const profileList = (profiles ?? []) as Profile[];
+
+          // Check for stored active profile
+          const activeRole = document.cookie
+            .split('; ')
+            .find((c) => c.startsWith('bb-active-role='))
+            ?.split('=')[1];
+
+          const activeProfile = activeRole
+            ? profileList.find((p) => p.role === activeRole) ?? profileList[0] ?? null
+            : profileList[0] ?? null;
+
+          if (activeProfile) {
+            identifyUser(activeProfile.id, {
+              role: activeProfile.role,
+              display_name: activeProfile.display_name,
+            });
+          }
+
+          setState({
+            profile: activeProfile,
+            profiles: profileList,
+            isLoading: false,
+            isAuthenticated: true,
+          });
+          return;
+        }
+      } catch {
+        // Session expired or invalid
+      }
+
+      setState((prev) => ({ ...prev, isLoading: false }));
     }
-    setState((prev) => ({ ...prev, isLoading: false }));
+
+    bootstrap();
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<Profile[]> => {
     const response = await authService.login({ email, password });
-    setTokens(response.accessToken, response.refreshToken);
+
+    if (isMock()) {
+      setTokens(response.accessToken, response.refreshToken);
+    }
 
     setState({
       profile: null,
@@ -92,15 +149,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const selectProfile = useCallback(
     async (profileId: string) => {
       const response = await authService.selectProfile(profileId);
-      const refreshTok = getRefreshToken();
-      setTokens(response.accessToken, refreshTok ?? '');
+
+      if (isMock()) {
+        const refreshTok = getRefreshToken();
+        setTokens(response.accessToken, refreshTok ?? '');
+      }
 
       setState((prev) => ({
         ...prev,
         profile: response.profile,
         isAuthenticated: true,
       }));
-      identifyUser(response.profile.id, { role: response.profile.role, display_name: response.profile.display_name });
+      identifyUser(response.profile.id, {
+        role: response.profile.role,
+        display_name: response.profile.display_name,
+      });
 
       const dashboard = ROLE_DASHBOARD[response.profile.role] ?? '/dashboard';
       router.push(dashboard);
@@ -111,7 +174,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await authService.logout();
     resetAnalytics();
-    clearTokens();
+
+    if (isMock()) {
+      clearTokens();
+    }
+
     setState({
       profile: null,
       profiles: [],
@@ -122,12 +189,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const refreshSession = useCallback(async () => {
-    const refresh = getRefreshToken();
-    if (!refresh) return;
+    if (isMock()) {
+      const refresh = getRefreshToken();
+      if (!refresh) return;
 
+      try {
+        const response = await authService.refreshToken(refresh);
+        setTokens(response.accessToken, refresh);
+      } catch {
+        await logout();
+      }
+      return;
+    }
+
+    // Real mode: Supabase handles token refresh automatically
     try {
-      const response = await authService.refreshToken(refresh);
-      setTokens(response.accessToken, refresh);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase.auth.refreshSession();
+      if (error) await logout();
     } catch {
       await logout();
     }

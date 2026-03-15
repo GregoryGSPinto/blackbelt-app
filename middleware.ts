@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil'];
+const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar'];
 
 const ROLE_DASHBOARD: Record<string, string> = {
   admin: '/admin',
@@ -30,13 +31,16 @@ function decodeTokenPayload(token: string): Record<string, string | number> | nu
   }
 }
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+// Mock mode: original bb-token logic
+function handleMockAuth(request: NextRequest): NextResponse {
+  const { pathname } = request.nextUrl;
+  const isPublic = isPublicPath(pathname);
   const token = request.cookies.get('bb-token')?.value;
 
-  // Authenticated user on public page → redirect to dashboard
   if (isPublic && token) {
     const payload = decodeTokenPayload(token);
     if (payload && typeof payload.exp === 'number' && Date.now() < payload.exp * 1000) {
@@ -48,17 +52,12 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Public pages don't need further checks
-  if (isPublic) {
-    return NextResponse.next();
-  }
+  if (isPublic) return NextResponse.next();
 
-  // Protected route: no token → redirect to login
   if (!token) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Decode & validate token
   const payload = decodeTokenPayload(token);
   if (!payload || typeof payload.exp !== 'number' || Date.now() >= payload.exp * 1000) {
     const response = NextResponse.redirect(new URL('/login', request.url));
@@ -66,7 +65,6 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  // Check role vs route
   const role = payload.role as string;
   const matchedRoute = Object.keys(ROUTE_ROLE).find(
     (route) => pathname === route || pathname.startsWith(route + '/'),
@@ -81,6 +79,83 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+// Real Supabase auth
+async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
+  const { pathname } = request.nextUrl;
+  const isPublic = isPublicPath(pathname);
+  const response = NextResponse.next({ request: { headers: request.headers } });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: Record<string, unknown>) {
+          request.cookies.set({ name, value, ...options });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: Record<string, unknown>) {
+          request.cookies.set({ name, value: '', ...options });
+          response.cookies.set({ name, value: '', ...options });
+        },
+      },
+    },
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Authenticated user on public page → redirect to dashboard
+  if (isPublic && user) {
+    const activeRole = request.cookies.get('bb-active-role')?.value;
+    if (activeRole) {
+      const dashboard = ROLE_DASHBOARD[activeRole];
+      if (dashboard) {
+        return NextResponse.redirect(new URL(dashboard, request.url));
+      }
+    }
+    return response;
+  }
+
+  if (isPublic) return response;
+
+  // Protected route: no user → redirect to login
+  if (!user) {
+    const redirectUrl = new URL('/login', request.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Role-based route guard
+  const activeRole = request.cookies.get('bb-active-role')?.value;
+  if (activeRole) {
+    const matchedRoute = Object.keys(ROUTE_ROLE).find(
+      (route) => pathname === route || pathname.startsWith(route + '/'),
+    );
+
+    if (matchedRoute) {
+      const expectedRole = ROUTE_ROLE[matchedRoute];
+      if (expectedRole !== activeRole) {
+        const correctDashboard = ROLE_DASHBOARD[activeRole] ?? '/login';
+        return NextResponse.redirect(new URL(correctDashboard, request.url));
+      }
+    }
+  }
+
+  return response;
+}
+
+export async function middleware(request: NextRequest) {
+  const useMock = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
+
+  if (useMock) {
+    return handleMockAuth(request);
+  }
+
+  return handleSupabaseAuth(request);
 }
 
 export const config = {

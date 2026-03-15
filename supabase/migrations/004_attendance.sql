@@ -12,9 +12,15 @@ CREATE TABLE public.attendance (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Helper: immutable date extraction (timestamptz::date is only STABLE)
+CREATE OR REPLACE FUNCTION public.date_utc(ts timestamptz)
+RETURNS date AS $$
+  SELECT (ts AT TIME ZONE 'UTC')::date
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE;
+
 -- Unique: 1 check-in per student per class per day
 CREATE UNIQUE INDEX idx_attendance_unique_daily
-  ON public.attendance(student_id, class_id, (checked_at::date));
+  ON public.attendance(student_id, class_id, public.date_utc(checked_at));
 
 CREATE INDEX idx_attendance_student ON public.attendance(student_id);
 CREATE INDEX idx_attendance_class ON public.attendance(class_id);
