@@ -115,10 +115,14 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
     // Get student info
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .select('belt, academy_id')
+      .select('belt, academy_id, started_at, profiles!students_profile_id_fkey(display_name, avatar)')
       .eq('id', studentId)
       .single();
     if (studentError) throw new ServiceError(404, 'aluno.dashboard', studentError.message);
+
+    const studentProfile = student.profiles as Record<string, unknown> | null;
+    const studentName = ((studentProfile?.display_name ?? 'Aluno') as string).split(' ')[0];
+    const avatarUrl = (studentProfile?.avatar ?? null) as string | null;
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -167,6 +171,7 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
             proximaAula = {
               class_id: cls.id as string,
               modality_name: (modalities?.name ?? '') as string,
+              level_label: '',
               professor_name: (profiles?.display_name ?? '') as string,
               start_time: slot.start_time,
               end_time: slot.end_time,
@@ -226,15 +231,22 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
 
     // Achievements
     const achievementNames: Record<string, string> = {
-      attendance_streak: 'Sequência de Presenças',
-      belt_promotion: 'Promoção de Faixa',
+      attendance_streak: 'Sequencia de Presencas',
+      belt_promotion: 'Promocao de Faixa',
       class_milestone: 'Marco de Aulas',
       custom: 'Conquista Especial',
+    };
+    const achievementIcons: Record<string, string> = {
+      attendance_streak: '\uD83D\uDD25',
+      belt_promotion: '\uD83E\uDD4B',
+      class_milestone: '\uD83C\uDFC5',
+      custom: '\u2B50',
     };
 
     const ultimasConquistas: ConquistaRecenteDTO[] = (achievementsRes.data ?? []).map((a: Record<string, unknown>) => ({
       id: a.id as string,
       name: achievementNames[a.type as string] ?? (a.type as string),
+      icon: achievementIcons[a.type as string] ?? '\u2B50',
       type: a.type as string,
       granted_at: a.granted_at as string,
     }));
@@ -247,23 +259,124 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       belt_level: v.belt_level as BeltLevel,
     }));
 
+    // Ranking (simple count of students with more attendance)
+    const { count: studentsAbove } = await supabase
+      .rpc('count_students_above_attendance', {
+        p_academy_id: student.academy_id,
+        p_attendance_count: totalAttendance,
+      });
+    const rankingPosition = (studentsAbove ?? 0) + 1;
+
+    const { count: totalAcademyStudents } = await supabase
+      .from('students')
+      .select('id', { count: 'exact', head: true })
+      .eq('academy_id', student.academy_id);
+
+    // Previous month frequency %
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    const { data: prevMonthAttendance } = await supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId)
+      .gte('checked_at', prevMonth.toISOString())
+      .lte('checked_at', prevMonthEnd.toISOString());
+    const prevMonthCount = (prevMonthAttendance as unknown as { count: number })?.count ?? 0;
+    const prevMonthTotal = (enrollmentsRes.data ?? []).length * 4;
+    const frequenciaMesAnteriorPct = prevMonthTotal > 0
+      ? Math.round((prevMonthCount / prevMonthTotal) * 100)
+      : 0;
+
+    // Month label
+    const monthNames = ['Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+    // Build week schedule (Mon-Sat)
+    const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    const weekFull = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+    const monday = new Date(now);
+    const dayOfWeek = now.getDay();
+    const mondayDiff = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+    monday.setDate(now.getDate() + mondayDiff);
+
+    const semana: DiaSemanaDTO[] = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dDay = d.getDay();
+      const isPast = d < now && d.toDateString() !== now.toDateString();
+
+      // Check enrolled classes for this day
+      const dayClasses: string[] = [];
+      for (const enrollment of enrollmentsRes.data ?? []) {
+        const cls = enrollment.classes as Record<string, unknown> | null;
+        if (!cls) continue;
+        const schedule = (cls.schedule as ScheduleSlot[]) ?? [];
+        const mod = cls.modalities as Record<string, unknown> | null;
+        for (const slot of schedule) {
+          if (slot.day_of_week === dDay) {
+            dayClasses.push(`${(mod?.name ?? '') as string} ${slot.start_time}`);
+          }
+        }
+      }
+
+      let status: DiaStatus;
+      if (dayClasses.length === 0) {
+        status = 'rest';
+      } else if (isPast) {
+        // Check if attended
+        const dateStr = d.toISOString().split('T')[0];
+        const attended = diasPresentes.includes(d.getDate()) && d.getMonth() === now.getMonth();
+        status = attended ? 'done' : 'missed';
+      } else {
+        status = 'scheduled';
+      }
+
+      return {
+        day_label: weekFull[dDay],
+        day_short: weekDays[dDay],
+        date: d.toISOString().split('T')[0],
+        status,
+        classes: dayClasses,
+      };
+    });
+
     return {
+      student_name: studentName,
+      avatar_url: avatarUrl,
+      ranking_position: rankingPosition,
+      total_academy_students: totalAcademyStudents ?? 0,
+      membro_desde: student.started_at as string,
       proximaAula,
+      aulaAgora: proximaAula ? false : false, // computed client-side
+      proximaAulaAmanha: null, // TODO: compute tomorrow's class
       progressoFaixa: {
         faixa_atual: currentBelt,
         proxima_faixa: nextBelt,
         percentual,
         aulas_necessarias: requiredForNext - requiredForCurrent,
         aulas_concluidas: Math.max(0, currentProgress),
+        requisitos: [
+          {
+            label: 'Presencas',
+            atual: Math.max(0, currentProgress),
+            necessario: requiredForNext - requiredForCurrent,
+            completo: currentProgress >= (requiredForNext - requiredForCurrent),
+          },
+        ],
       },
       frequenciaMes: {
-        total_aulas: (enrollmentsRes.data ?? []).length * 4, // Approximate monthly classes
+        total_aulas: (enrollmentsRes.data ?? []).length * 4,
         presencas: monthAttendance.length,
         dias_presentes: diasPresentes,
+        mes_label: monthNames[now.getMonth()],
       },
+      frequenciaMesAnteriorPct,
       streak,
       conteudoRecomendado,
+      continuarAssistindo: null, // TODO: fetch from video_watch_history
       ultimasConquistas,
+      proximaConquista: null, // TODO: compute next achievement
+      semana,
     };
   } catch (error) {
     handleServiceError(error, 'aluno.dashboard');
