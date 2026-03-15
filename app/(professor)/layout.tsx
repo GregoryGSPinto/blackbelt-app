@@ -1,3 +1,5 @@
+import { ProfessorShell } from '@/components/shell/ProfessorShell';
+
 export default function ProfessorLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-bb-white pb-16">{children}</div>;
+  return <ProfessorShell>{children}</ProfessorShell>;
 }

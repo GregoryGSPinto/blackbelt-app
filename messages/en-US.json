@@ -1,0 +1,74 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "noResults": "No results found",
+    "required": "Required"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password",
+    "register": "Sign Up",
+    "welcomeBack": "Welcome back"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "nextClass": "Next Class",
+    "attendance": "Attendance",
+    "belt": "Belt",
+    "achievements": "Achievements",
+    "messages": "Messages",
+    "progress": "Progress"
+  },
+  "classes": {
+    "title": "Classes",
+    "schedule": "Schedule",
+    "students": "Students",
+    "professor": "Instructor",
+    "modality": "Modality",
+    "capacity": "Capacity",
+    "enrolled": "Enrolled"
+  },
+  "financial": {
+    "title": "Financial",
+    "plans": "Plans",
+    "invoices": "Invoices",
+    "revenue": "Revenue",
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "pending": "Pending",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly"
+  },
+  "belts": {
+    "white": "White",
+    "gray": "Gray",
+    "yellow": "Yellow",
+    "orange": "Orange",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "brown": "Brown",
+    "black": "Black"
+  }
+}

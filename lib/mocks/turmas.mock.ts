@@ -11,8 +11,6 @@ import type {
 
 const delay = () => new Promise((r) => setTimeout(r, 300));
 
-const ACADEMY_ID = 'academy-1';
-
 const MODALITIES = [
   { id: 'mod-bjj', name: 'Brazilian Jiu-Jitsu', belt_required: BeltLevel.White },
   { id: 'mod-judo', name: 'Judô', belt_required: BeltLevel.White },
@@ -124,7 +122,7 @@ export async function mockListClasses(_academyId: string, filters?: ClassFilters
   if (filters?.modalityId) result = result.filter((c) => c.modality_id === filters.modalityId);
   if (filters?.unitId) result = result.filter((c) => c.unit_id === filters.unitId);
   if (filters?.professorId) result = result.filter((c) => c.professor_id === filters.professorId);
-  return result.map(({ enrolled_students, ...rest }) => rest);
+  return result.map(({ enrolled_students: _, ...rest }) => rest);
 }
 
 export async function mockGetClassById(id: string): Promise<ClassDetail> {
@@ -136,7 +134,6 @@ export async function mockGetClassById(id: string): Promise<ClassDetail> {
 
 export async function mockCreateClass(data: CreateClassRequest): Promise<Class> {
   await delay();
-  const modality = MODALITIES.find((m) => m.id === data.modality_id);
   return {
     id: `class-${Date.now()}`,
     modality_id: data.modality_id,
@@ -173,7 +170,7 @@ export async function mockGetClassesByProfessor(professorId: string): Promise<Cl
   await delay();
   return MOCK_CLASSES
     .filter((c) => c.professor_id === professorId)
-    .map(({ enrolled_students, ...rest }) => rest);
+    .map(({ enrolled_students: _, ...rest }) => rest);
 }
 
 export { MOCK_CLASSES, MODALITIES, PROFESSORS, UNITS, MOCK_STUDENTS };

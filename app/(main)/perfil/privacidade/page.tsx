@@ -1,0 +1,114 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
+import type { ConsentRecord } from '@/lib/api/privacy.service';
+import { getConsents, updateConsent, requestDataExport, requestAccountDeletion } from '@/lib/api/privacy.service';
+
+export default function PrivacyPage() {
+  const [consents, setConsents] = useState<ConsentRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    getConsents('current-user').then((c) => { setConsents(c); setLoading(false); });
+  }, []);
+
+  async function handleToggle(type: ConsentRecord['type'], accepted: boolean) {
+    const updated = await updateConsent('current-user', type, accepted);
+    setConsents((prev) => prev.map((c) => (c.type === updated.type ? updated : c)));
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    await requestDataExport('current-user');
+    setExporting(false);
+    alert('Solicitação enviada! Você receberá um email quando seus dados estiverem prontos.');
+  }
+
+  async function handleDeleteRequest() {
+    await requestAccountDeletion('current-user');
+    setShowDeleteConfirm(false);
+    alert('Solicitação registrada. Sua conta será excluída em 30 dias. Você pode cancelar entrando em contato com o suporte.');
+  }
+
+  const consentLabels: Record<string, { title: string; desc: string }> = {
+    terms: { title: 'Termos de Uso', desc: 'Aceite dos termos de uso da plataforma' },
+    privacy: { title: 'Política de Privacidade', desc: 'Aceite da política de privacidade e tratamento de dados' },
+    marketing: { title: 'Comunicações de Marketing', desc: 'Receber emails promocionais e novidades' },
+    cookies: { title: 'Cookies Analíticos', desc: 'Permitir cookies para análise de uso da plataforma' },
+  };
+
+  if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-8 p-6">
+      <PageHeader title="Privacidade e Dados" subtitle="Gerencie seus consentimentos e dados pessoais (LGPD)" />
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-bb-gray-900">Consentimentos</h2>
+        <div className="space-y-3">
+          {consents.map((c) => {
+            const label = consentLabels[c.type];
+            return (
+              <div key={c.id} className="flex items-center justify-between rounded-xl border border-bb-gray-200 p-4">
+                <div>
+                  <p className="font-medium text-bb-gray-900">{label?.title ?? c.type}</p>
+                  <p className="text-sm text-bb-gray-500">{label?.desc}</p>
+                  {c.acceptedAt && (
+                    <p className="mt-1 text-xs text-bb-gray-400">Aceito em {new Date(c.acceptedAt).toLocaleDateString('pt-BR')}</p>
+                  )}
+                </div>
+                <label className="relative inline-flex cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    checked={c.accepted}
+                    onChange={(e) => handleToggle(c.type, e.target.checked)}
+                    disabled={c.type === 'terms' || c.type === 'privacy'}
+                    className="peer sr-only"
+                  />
+                  <div className="h-6 w-11 rounded-full bg-bb-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-bb-red peer-checked:after:translate-x-full peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-bb-gray-900">Seus Dados</h2>
+        <div className="rounded-xl border border-bb-gray-200 p-4">
+          <p className="mb-3 text-sm text-bb-gray-600">
+            Conforme a LGPD, você tem direito a solicitar uma cópia de todos os seus dados pessoais armazenados.
+          </p>
+          <Button variant="secondary" onClick={handleExport} disabled={exporting}>
+            {exporting ? 'Solicitando...' : 'Exportar Meus Dados'}
+          </Button>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-bb-red">Zona de Perigo</h2>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="mb-3 text-sm text-bb-gray-600">
+            Solicitar a exclusão da sua conta e todos os dados. Este processo é irreversível após o período de 30 dias.
+          </p>
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-3">
+              <p className="text-sm font-medium text-bb-red">Tem certeza?</p>
+              <Button variant="danger" onClick={handleDeleteRequest}>Sim, excluir minha conta</Button>
+              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
+            </div>
+          ) : (
+            <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
+              Solicitar Exclusão da Conta
+            </Button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}

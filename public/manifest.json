@@ -1,0 +1,25 @@
+{
+  "name": "BlackBelt — Gestão de Academias",
+  "short_name": "BlackBelt",
+  "description": "Plataforma completa para gestão de academias de artes marciais",
+  "start_url": "/login",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#C62828",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "education", "business"]
+}

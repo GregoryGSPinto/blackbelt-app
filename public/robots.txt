@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /professor/
+Disallow: /dashboard/
+Disallow: /teen/
+Disallow: /kids/
+Disallow: /parent/
+Disallow: /api/
+
+Sitemap: https://blackbelt.app/sitemap.xml

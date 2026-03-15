@@ -1,6 +1,6 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
-import type { Class, ScheduleSlot, Student, BeltLevel, EnrollmentStatus } from '@/lib/types';
+import type { Class, ScheduleSlot, BeltLevel, EnrollmentStatus } from '@/lib/types';
 
 export interface ClassFilters {
   modalityId?: string;

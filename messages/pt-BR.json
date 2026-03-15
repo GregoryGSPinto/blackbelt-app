@@ -1,0 +1,74 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "back": "Voltar",
+    "next": "Próximo",
+    "close": "Fechar",
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "none": "Nenhum",
+    "noResults": "Nenhum resultado encontrado",
+    "required": "Obrigatório"
+  },
+  "auth": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "email": "Email",
+    "password": "Senha",
+    "forgotPassword": "Esqueci minha senha",
+    "register": "Cadastrar",
+    "welcomeBack": "Bem-vindo de volta"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "nextClass": "Próxima Aula",
+    "attendance": "Presença",
+    "belt": "Faixa",
+    "achievements": "Conquistas",
+    "messages": "Mensagens",
+    "progress": "Progresso"
+  },
+  "classes": {
+    "title": "Turmas",
+    "schedule": "Horários",
+    "students": "Alunos",
+    "professor": "Professor",
+    "modality": "Modalidade",
+    "capacity": "Capacidade",
+    "enrolled": "Matriculados"
+  },
+  "financial": {
+    "title": "Financeiro",
+    "plans": "Planos",
+    "invoices": "Faturas",
+    "revenue": "Receita",
+    "overdue": "Atrasado",
+    "paid": "Pago",
+    "pending": "Pendente",
+    "monthly": "Mensal",
+    "quarterly": "Trimestral",
+    "yearly": "Anual"
+  },
+  "belts": {
+    "white": "Branca",
+    "gray": "Cinza",
+    "yellow": "Amarela",
+    "orange": "Laranja",
+    "green": "Verde",
+    "blue": "Azul",
+    "purple": "Roxa",
+    "brown": "Marrom",
+    "black": "Preta"
+  }
+}

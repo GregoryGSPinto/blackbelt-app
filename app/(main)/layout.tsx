@@ -1,3 +1,5 @@
+import { MainShell } from '@/components/shell/MainShell';
+
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-bb-white pb-16">{children}</div>;
+  return <MainShell>{children}</MainShell>;
 }
