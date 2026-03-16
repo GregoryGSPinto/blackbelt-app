@@ -61,12 +61,12 @@ interface StatusDoDiaProps<R extends Role = Role> {
 
 // ── Gradient themes per role ──────────────────────────────────────────
 const ROLE_GRADIENTS: Record<Role, string> = {
-  admin: 'bg-gradient-to-r from-bb-gray-900 to-bb-gray-700',
-  professor: 'bg-gradient-to-r from-bb-gray-900 to-bb-gray-700',
-  aluno_adulto: 'bg-gradient-to-r from-bb-gray-900 to-bb-gray-700',
-  aluno_teen: 'bg-gradient-to-r from-purple-900 to-bb-gray-900',
-  aluno_kids: 'bg-gradient-to-r from-yellow-700 to-bb-gray-900',
-  responsavel: 'bg-gradient-to-r from-bb-gray-700 to-bb-gray-900',
+  admin: 'bg-gradient-to-r from-[var(--bb-depth-3)] to-[var(--bb-depth-5)]',
+  professor: 'bg-gradient-to-r from-[var(--bb-depth-3)] to-[var(--bb-depth-5)]',
+  aluno_adulto: 'bg-gradient-to-r from-[var(--bb-depth-3)] to-[var(--bb-depth-5)]',
+  aluno_teen: 'bg-gradient-to-r from-purple-900 to-[var(--bb-depth-3)]',
+  aluno_kids: 'bg-gradient-to-r from-yellow-700 to-[var(--bb-depth-3)]',
+  responsavel: 'bg-gradient-to-r from-[var(--bb-depth-5)] to-[var(--bb-depth-3)]',
 };
 
 // ── Builders for each role ────────────────────────────────────────────
@@ -108,7 +108,7 @@ const StatusDoDia = forwardRef<HTMLDivElement, StatusDoDiaProps>(
     return (
       <div
         ref={ref}
-        className={`flex items-center gap-2 rounded-lg p-3 text-sm text-bb-white ${ROLE_GRADIENTS[role]}`}
+        className={`flex items-center gap-2 rounded-lg p-3 text-sm text-[var(--bb-ink-100)] ${ROLE_GRADIENTS[role]}`}
       >
         <span className="truncate">{message}</span>
       </div>

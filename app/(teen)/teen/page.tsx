@@ -68,7 +68,7 @@ export default function TeenDashboardPage() {
             <Avatar name={data.profile.display_name} size="xl" />
           </div>
 
-          <h1 className="mt-3 text-2xl font-extrabold text-bb-white">
+          <h1 className="mt-3 text-2xl font-extrabold text-[var(--bb-ink-100)]">
             {data.profile.display_name}
           </h1>
           <p className="text-sm text-[var(--bb-ink-60)]">
@@ -81,7 +81,7 @@ export default function TeenDashboardPage() {
           {/* XP Bar */}
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs text-[var(--bb-ink-60)]">
-              <span className="font-bold text-bb-white">
+              <span className="font-bold text-[var(--bb-ink-100)]">
                 {data.xp.toLocaleString('pt-BR')} XP
               </span>
               <span>{data.next_level_xp.toLocaleString('pt-BR')} XP</span>
@@ -130,7 +130,7 @@ export default function TeenDashboardPage() {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
                   Desafio Ativo
                 </p>
-                <h2 className="mt-1 text-lg font-extrabold text-bb-white">
+                <h2 className="mt-1 text-lg font-extrabold text-[var(--bb-ink-100)]">
                   {data.active_challenge.emoji} {data.active_challenge.title}
                 </h2>
               </div>
@@ -181,7 +181,7 @@ export default function TeenDashboardPage() {
                   <Avatar name={entry.display_name} size="sm" />
                   <span
                     className={`flex-1 text-sm font-semibold ${
-                      isMe ? 'text-bb-white' : 'text-[var(--bb-ink-80)]'
+                      isMe ? 'text-[var(--bb-ink-100)]' : 'text-[var(--bb-ink-80)]'
                     }`}
                   >
                     {isMe ? 'VOCÊ' : entry.display_name}

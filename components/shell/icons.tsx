@@ -30,3 +30,6 @@ export const BellIcon = makeIcon('BellIcon', <><path d="M18 8A6 6 0 006 8c0 7-3 
 export const SearchIcon = makeIcon('SearchIcon', <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>);
 export const CheckSquareIcon = makeIcon('CheckSquareIcon', <><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" /></>);
 export const HeartIcon = makeIcon('HeartIcon', <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />);
+export const LogOutIcon = makeIcon('LogOutIcon', <><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>);
+export const ChevronRightIcon = makeIcon('ChevronRightIcon', <polyline points="9 18 15 12 9 6" />);
+export const XIcon = makeIcon('XIcon', <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>);

@@ -128,12 +128,12 @@ const DayRecap = forwardRef<HTMLDivElement, DayRecapProps>(
     return (
       <div
         ref={ref}
-        className="relative rounded-lg border border-bb-gray-500 bg-bb-gray-700/80 p-4 text-sm text-bb-white"
+        className="relative rounded-lg border border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)]/80 p-4 text-sm text-[var(--bb-ink-100)]"
       >
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-bb-gray-300 transition-colors hover:bg-bb-gray-500 hover:text-bb-white"
+          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-[var(--bb-ink-40)] transition-colors hover:bg-[var(--bb-depth-3)] hover:text-[var(--bb-ink-100)]"
           aria-label="Fechar resumo do dia"
         >
           ✕

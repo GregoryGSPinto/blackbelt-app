@@ -251,7 +251,7 @@ export default function ParentDashboardPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
                 Consolidado Familiar
               </p>
-              <p className="mt-2 text-2xl font-extrabold text-white">
+              <p className="mt-2 text-2xl font-extrabold text-[var(--bb-ink-100)]">
                 R${data.consolidated.total_monthly}/mês
               </p>
               <p className="mt-0.5 text-xs text-[var(--bb-ink-40)]">

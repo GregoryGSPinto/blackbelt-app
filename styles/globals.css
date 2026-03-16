@@ -165,12 +165,6 @@
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--bb-ink-40); }
 
-  /* Global dark overrides for legacy Tailwind utilities */
-  .dark .bg-white { background-color: var(--bb-depth-3); }
-  .dark .bg-gray-50, .dark .bg-gray-100 { background-color: var(--bb-depth-4); }
-  .dark .border-gray-200, .dark .border-gray-300 { border-color: var(--bb-glass-border); }
-  .dark .text-gray-900, .dark .text-gray-800 { color: var(--bb-ink-100); }
-  .dark .text-gray-700, .dark .text-gray-600, .dark .text-gray-500 { color: var(--bb-ink-80); }
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -283,3 +277,120 @@
 [data-stagger] > *:nth-child(6) { animation-delay: 0.3s; }
 [data-stagger] > *:nth-child(7) { animation-delay: 0.35s; }
 [data-stagger] > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE GLOBAL OVERRIDES
+   Outside @layer for maximum specificity over Tailwind utilities
+   ══════════════════════════════════════════════════════════════ */
+
+/* Backgrounds */
+.dark .bg-white,
+.dark .bg-bb-white { background-color: var(--bb-depth-3) !important; }
+
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-bb-gray-100 { background-color: var(--bb-depth-4) !important; }
+
+.dark .bg-gray-200,
+.dark .bg-bb-gray-200 { background-color: var(--bb-depth-5) !important; }
+
+/* Borders */
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-bb-gray-200,
+.dark .border-bb-gray-300 { border-color: var(--bb-glass-border) !important; }
+
+/* Text — dark on light → light on dark */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-bb-gray-900,
+.dark .text-bb-gray-800,
+.dark .text-bb-black { color: var(--bb-ink-100) !important; }
+
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-bb-gray-700,
+.dark .text-bb-gray-600 { color: var(--bb-ink-80) !important; }
+
+.dark .text-gray-500,
+.dark .text-gray-400,
+.dark .text-bb-gray-500,
+.dark .text-bb-gray-400 { color: var(--bb-ink-60) !important; }
+
+/* Inputs */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--bb-depth-5) !important;
+  color: var(--bb-ink-100) !important;
+  border-color: var(--bb-glass-border) !important;
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: var(--bb-ink-40) !important;
+}
+
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
+.dark select option {
+  background-color: var(--bb-depth-4);
+  color: var(--bb-ink-100);
+}
+
+/* Tables */
+.dark table { background-color: var(--bb-depth-3) !important; }
+.dark thead { background-color: var(--bb-depth-4) !important; }
+.dark thead th { background-color: var(--bb-depth-4) !important; color: var(--bb-ink-80) !important; }
+.dark tbody td { color: var(--bb-ink-100) !important; }
+.dark tbody tr { background-color: var(--bb-depth-3) !important; border-color: var(--bb-glass-border) !important; }
+.dark tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.02) !important; }
+.dark tbody tr:hover { background-color: var(--bb-depth-5) !important; }
+
+/* Shadows */
+.dark .shadow,
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Recharts */
+.dark .recharts-default-tooltip {
+  background-color: var(--bb-depth-4) !important;
+  border-color: var(--bb-glass-border) !important;
+}
+.dark .recharts-tooltip-label,
+.dark .recharts-tooltip-item {
+  color: var(--bb-ink-100) !important;
+}
+
+/* Contextual badges */
+.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15) !important; }
+.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; }
+.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.15) !important; }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; }
+.dark .bg-yellow-100 { background-color: rgba(234, 179, 8, 0.15) !important; }
+.dark .bg-yellow-50 { background-color: rgba(234, 179, 8, 0.1) !important; }
+.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.15) !important; }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; }
+.dark .bg-purple-100 { background-color: rgba(139, 92, 246, 0.15) !important; }
+.dark .bg-red-200 { background-color: rgba(239, 68, 68, 0.2) !important; }
+
+.dark .text-green-700,
+.dark .text-green-800 { color: #4ade80 !important; }
+.dark .text-red-700,
+.dark .text-red-800 { color: #f87171 !important; }
+.dark .text-yellow-700,
+.dark .text-yellow-800 { color: #fbbf24 !important; }
+.dark .text-blue-700,
+.dark .text-blue-800 { color: #60a5fa !important; }
+.dark .text-purple-700,
+.dark .text-purple-800 { color: #a78bfa !important; }

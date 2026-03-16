@@ -73,7 +73,7 @@ const QuickActions = forwardRef<HTMLDivElement, QuickActionsProps>(
               key={action.key}
               type="button"
               onClick={() => onAction(action.key)}
-              className="relative flex min-w-[5rem] flex-shrink-0 flex-col items-center justify-center gap-1 rounded-xl bg-bb-gray-700 p-4 text-bb-white transition-colors hover:bg-bb-gray-500"
+              className="relative flex min-w-[5rem] flex-shrink-0 flex-col items-center justify-center gap-1 rounded-xl bg-[var(--bb-depth-5)] p-4 text-[var(--bb-ink-100)] transition-colors hover:bg-[var(--bb-depth-3)]"
             >
               {badgeCount > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-bb-red px-1 text-[10px] font-bold text-white">
