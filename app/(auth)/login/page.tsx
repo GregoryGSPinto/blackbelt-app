@@ -138,12 +138,7 @@ export default function LoginPage() {
       <div
         className="fixed inset-0 z-40 flex items-center justify-center overflow-hidden"
         style={{
-          backgroundColor: '#06070A',
-          backgroundImage: [
-            'radial-gradient(ellipse 50% 50% at 50% 40%, rgba(239, 68, 68, 0.06) 0%, transparent 60%)',
-            'radial-gradient(ellipse 40% 40% at 20% 60%, rgba(139, 92, 246, 0.03) 0%, transparent 50%)',
-            'radial-gradient(ellipse 40% 40% at 80% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%)',
-          ].join(', '),
+          backgroundColor: 'var(--bb-depth-1)',
         }}
       >
         {/* Cinematic glassmorphism card */}
@@ -151,14 +146,13 @@ export default function LoginPage() {
           className={`bb-stagger w-[95%] ${shake ? '' : success ? '' : 'bb-stagger-card'}`}
           style={{
             maxWidth: 420,
-            background: 'rgba(12, 14, 20, 0.7)',
+            background: 'var(--bb-depth-3)',
             backdropFilter: 'blur(24px) saturate(1.3)',
             WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: '1px solid var(--bb-glass-border)',
             borderRadius: 24,
             padding: '48px 40px',
-            boxShadow:
-              '0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            boxShadow: 'var(--bb-shadow-xl)',
             ...(shake
               ? { animation: 'bb-login-shake 0.3s ease-in-out', opacity: 1 }
               : success

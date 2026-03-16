@@ -31,19 +31,19 @@ export default function EsqueciSenhaPage() {
   }
 
   return (
-    <div className="rounded-lg bg-bb-gray-900 p-8 shadow-xl">
-      <h1 className="mb-1 text-center text-2xl font-bold text-bb-white">BlackBelt</h1>
-      <p className="mb-6 text-center text-sm text-bb-gray-500">Recuperar senha</p>
+    <div className="rounded-lg bg-[var(--bb-depth-3)] p-8" style={{ boxShadow: 'var(--bb-shadow-xl)', border: '1px solid var(--bb-glass-border)' }}>
+      <h1 className="mb-1 text-center text-2xl font-bold text-[var(--bb-ink-100)]">BlackBelt</h1>
+      <p className="mb-6 text-center text-sm text-[var(--bb-ink-60)]">Recuperar senha</p>
 
       {sent ? (
         <div className="text-center">
-          <p className="text-bb-success">Email de recuperação enviado!</p>
-          <p className="mt-2 text-sm text-bb-gray-500">
+          <p className="text-[var(--bb-success)]">Email de recuperação enviado!</p>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
             Verifique sua caixa de entrada e siga as instruções.
           </p>
           <Link
             href="/login"
-            className="mt-4 inline-block text-sm text-bb-red hover:underline"
+            className="mt-4 inline-block text-sm text-[var(--bb-brand)] hover:underline"
           >
             Voltar ao login
           </Link>
@@ -56,7 +56,7 @@ export default function EsqueciSenhaPage() {
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-bb-gray-700 text-bb-white placeholder:text-bb-gray-500 border-bb-gray-700"
+            className="bg-[var(--bb-depth-5)] text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] border-[var(--bb-glass-border)]"
           />
 
           <Button type="submit" loading={loading} className="w-full">
@@ -65,7 +65,7 @@ export default function EsqueciSenhaPage() {
 
           <Link
             href="/login"
-            className="text-center text-sm text-bb-gray-500 hover:text-bb-red transition-colors"
+            className="text-center text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-brand)] transition-colors"
           >
             Voltar ao login
           </Link>
