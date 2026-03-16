@@ -213,8 +213,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
   if (loading) {
     return (
       <div
-        className="min-h-screen flex flex-col gap-4 p-4"
-        style={{ backgroundColor: '#0A0A0E' }}
+        className="min-h-screen flex flex-col gap-4 p-4 bg-[var(--bb-depth-1)]"
       >
         <Skeleton className="w-full h-[50vh] rounded-xl" />
         <Skeleton className="w-3/4 h-8" />
@@ -229,11 +228,10 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
   if (!detail || !currentEpisode) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0A0A0E' }}
+        className="min-h-screen flex items-center justify-center bg-[var(--bb-depth-1)]"
       >
         <div className="text-center">
-          <p className="text-gray-400 text-lg mb-4">
+          <p className="text-[var(--bb-ink-60)] text-lg mb-4">
             Série não encontrada
           </p>
           <Link
@@ -258,8 +256,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
 
   return (
     <div
-      className="min-h-screen flex flex-col"
-      style={{ backgroundColor: '#0A0A0E' }}
+      className="min-h-screen flex flex-col bg-[var(--bb-depth-1)]"
     >
       {/* ==================== PLAYER AREA ==================== */}
       <div
@@ -382,13 +379,13 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
       {/* ==================== CONTENT BELOW PLAYER ==================== */}
       <div className="flex flex-col lg:flex-row flex-1">
         <div className="flex-1 p-5 lg:w-[60%]">
-          <h1 className="text-2xl font-extrabold text-white mb-2">
+          <h1 className="text-2xl font-extrabold text-[var(--bb-ink-100)] mb-2">
             {detail.series.title}
           </h1>
 
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {detail.series.professor_name && (
-              <span className="text-xs bg-white/10 text-gray-300 px-2 py-1 rounded-full">
+              <span className="text-xs bg-[var(--bb-depth-3)] text-[var(--bb-ink-80)] px-2 py-1 rounded-full">
                 Prof. {detail.series.professor_name}
               </span>
             )}
@@ -402,20 +399,20 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                 {detail.series.min_belt}
               </span>
             )}
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[var(--bb-ink-40)]">
               {formatTime(detail.series.videos.reduce((acc, v) => acc + v.duration_seconds, 0))} total
             </span>
           </div>
 
           {detail.series.description && (
-            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+            <p className="text-sm text-[var(--bb-ink-60)] leading-relaxed mb-6">
               {detail.series.description}
             </p>
           )}
 
           {/* Episode list (mobile) */}
           <div className="lg:hidden">
-            <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-bold text-[var(--bb-ink-80)] uppercase tracking-wider mb-3">
               Episódios
             </h2>
             <div className="flex flex-col gap-2">
@@ -429,7 +426,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                     className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
                       isCurrent
                         ? `${accentBgLight} border ${accentBorder}`
-                        : 'bg-white/5 border border-transparent hover:bg-white/10'
+                        : 'bg-[var(--bb-glass)] border border-transparent hover:bg-[var(--bb-depth-4)]'
                     }`}
                   >
                     <div
@@ -438,19 +435,19 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                           ? 'bg-green-500/20 text-green-400'
                           : isCurrent
                             ? `${accentBgLight} ${accentText}`
-                            : 'bg-white/10 text-gray-400'
+                            : 'bg-[var(--bb-depth-4)] text-[var(--bb-ink-60)]'
                       }`}
                     >
                       {completed ? '✓' : idx + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${isCurrent ? 'text-white' : 'text-gray-300'}`}>
+                      <p className={`text-sm font-medium truncate ${isCurrent ? 'text-[var(--bb-ink-100)]' : 'text-[var(--bb-ink-80)]'}`}>
                         {video.title}
                       </p>
-                      <p className="text-xs text-gray-500">{formatTime(video.duration_seconds)}</p>
+                      <p className="text-xs text-[var(--bb-ink-40)]">{formatTime(video.duration_seconds)}</p>
                     </div>
                     {!isCurrent && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-gray-500 flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--bb-ink-40)] flex-shrink-0">
                         <polygon points="8,5 19,12 8,19" />
                       </svg>
                     )}
@@ -462,8 +459,8 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
         </div>
 
         {/* Episode list sidebar (desktop) */}
-        <div className="hidden lg:block lg:w-[40%] border-l border-white/10 p-5 overflow-y-auto max-h-[calc(100vh-50vh)]">
-          <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4">
+        <div className="hidden lg:block lg:w-[40%] border-l border-[var(--bb-glass-border)] p-5 overflow-y-auto max-h-[calc(100vh-50vh)]">
+          <h2 className="text-sm font-bold text-[var(--bb-ink-80)] uppercase tracking-wider mb-4">
             Episódios ({detail.series.videos.length})
           </h2>
           <div className="flex flex-col gap-2">
@@ -477,7 +474,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                   className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
                     isCurrent
                       ? `${accentBgLight} border ${accentBorder}`
-                      : 'bg-white/5 border border-transparent hover:bg-white/10'
+                      : 'bg-[var(--bb-glass)] border border-transparent hover:bg-[var(--bb-depth-4)]'
                   }`}
                 >
                   <div
@@ -486,19 +483,19 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                         ? 'bg-green-500/20 text-green-400'
                         : isCurrent
                           ? `${accentBgLight} ${accentText}`
-                          : 'bg-white/10 text-gray-400'
+                          : 'bg-[var(--bb-depth-4)] text-[var(--bb-ink-60)]'
                     }`}
                   >
                     {completed ? '✓' : idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${isCurrent ? 'text-white' : 'text-gray-300'}`}>
+                    <p className={`text-sm font-medium truncate ${isCurrent ? 'text-[var(--bb-ink-100)]' : 'text-[var(--bb-ink-80)]'}`}>
                       {video.title}
                     </p>
-                    <p className="text-xs text-gray-500">{formatTime(video.duration_seconds)}</p>
+                    <p className="text-xs text-[var(--bb-ink-40)]">{formatTime(video.duration_seconds)}</p>
                   </div>
                   {!isCurrent && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-gray-500 flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--bb-ink-40)] flex-shrink-0">
                       <polygon points="8,5 19,12 8,19" />
                     </svg>
                   )}

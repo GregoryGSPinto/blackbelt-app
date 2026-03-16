@@ -85,7 +85,7 @@ function VideoCard({
 
         {/* Progress bar */}
         {progressPct > 0 && (
-          <div className="h-1 bg-gray-800">
+          <div className="h-1 bg-[var(--bb-depth-4)]">
             <div
               className="h-full bg-red-600 transition-all"
               style={{ width: `${progressPct}%` }}
@@ -95,8 +95,8 @@ function VideoCard({
       </div>
 
       <div className="mt-2 px-0.5">
-        <p className="text-xs font-semibold text-white truncate">{video.title}</p>
-        <p className="text-[10px] text-gray-400 truncate">
+        <p className="text-xs font-semibold text-[var(--bb-ink-100)] truncate">{video.title}</p>
+        <p className="text-[10px] text-[var(--bb-ink-60)] truncate">
           {video.professor_name} · {remaining}min restantes
         </p>
       </div>
@@ -155,7 +155,7 @@ function TrailCard({
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-gray-800">
+        <div className="h-1 bg-[var(--bb-depth-4)]">
           <div
             className="h-full bg-red-600 transition-all"
             style={{ width: `${progressPct}%` }}
@@ -174,7 +174,7 @@ function TrailCard({
       </div>
 
       <div className="mt-2 px-0.5">
-        <p className="text-[10px] text-gray-400 truncate">{trail.description}</p>
+        <p className="text-[10px] text-[var(--bb-ink-60)] truncate">{trail.description}</p>
       </div>
     </div>
   );
@@ -196,9 +196,9 @@ function HorizontalSection({
   return (
     <section className="mt-8">
       <div className="px-4 mb-3">
-        <h2 className="text-base font-bold text-white">{title}</h2>
+        <h2 className="text-base font-bold text-[var(--bb-ink-100)]">{title}</h2>
         {subtitle && (
-          <p className="text-[11px] text-gray-500 mt-0.5">{subtitle}</p>
+          <p className="text-[11px] text-[var(--bb-ink-40)] mt-0.5">{subtitle}</p>
         )}
       </div>
       <div
@@ -217,17 +217,14 @@ function HorizontalSection({
 
 function LibrarySkeleton() {
   return (
-    <div
-      className="min-h-screen px-4 pt-16 pb-24"
-      style={{ background: '#0A0A0E' }}
-    >
+    <div className="min-h-screen px-4 pt-16 pb-24 bg-[var(--bb-depth-1)]">
       {/* Hero skeleton */}
-      <Skeleton className="w-full h-56 rounded-2xl bg-gray-800/50 mb-8" />
+      <Skeleton className="w-full h-56 rounded-2xl bg-[var(--bb-depth-3)] mb-8" />
 
       {/* Section skeletons */}
       {[1, 2, 3].map((s) => (
         <div key={s} className="mb-8">
-          <Skeleton className="w-36 h-4 rounded bg-gray-800/50 mb-3" />
+          <Skeleton className="w-36 h-4 rounded bg-[var(--bb-depth-3)] mb-3" />
           <div className="flex gap-3 overflow-hidden">
             {[1, 2, 3, 4].map((c) => (
               <div
@@ -235,9 +232,9 @@ function LibrarySkeleton() {
                 className="flex-shrink-0"
                 style={{ width: 'clamp(160px, 30vw, 240px)' }}
               >
-                <Skeleton className="aspect-video w-full rounded-xl bg-gray-800/50" />
-                <Skeleton className="w-24 h-3 mt-2 rounded bg-gray-800/50" />
-                <Skeleton className="w-16 h-2 mt-1 rounded bg-gray-800/50" />
+                <Skeleton className="aspect-video w-full rounded-xl bg-[var(--bb-depth-3)]" />
+                <Skeleton className="w-24 h-3 mt-2 rounded bg-[var(--bb-depth-3)]" />
+                <Skeleton className="w-16 h-2 mt-1 rounded bg-[var(--bb-depth-3)]" />
               </div>
             ))}
           </div>
@@ -347,15 +344,12 @@ export default function BibliotecaStreamingPage() {
 
   if (!library || allVideos.length === 0) {
     return (
-      <div
-        className="min-h-screen flex flex-col items-center justify-center px-6"
-        style={{ background: '#0A0A0E' }}
-      >
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-[var(--bb-depth-1)]">
         <span className="text-5xl mb-4">🥋</span>
-        <h2 className="text-lg font-bold text-white mb-1">
+        <h2 className="text-lg font-bold text-[var(--bb-ink-100)] mb-1">
           Nenhum conteúdo disponível
         </h2>
-        <p className="text-sm text-gray-500 text-center mb-6">
+        <p className="text-sm text-[var(--bb-ink-40)] text-center mb-6">
           A biblioteca será atualizada em breve com aulas exclusivas.
         </p>
         <Link
@@ -369,7 +363,7 @@ export default function BibliotecaStreamingPage() {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#0A0A0E' }}>
+    <div className="min-h-screen pb-28 bg-[var(--bb-depth-1)]">
       {/* Global animation keyframes */}
       <style jsx global>{`
         @keyframes fadeSlideUp {
@@ -394,12 +388,12 @@ export default function BibliotecaStreamingPage() {
       {/* ── HEADER ─────────────────────────────────────────── */}
       <header
         className="sticky top-0 z-50 backdrop-blur-md"
-        style={{ background: 'rgba(10,10,14,.85)' }}
+        style={{ backgroundColor: 'color-mix(in srgb, var(--bb-depth-1) 85%, transparent)' }}
       >
         <div className="flex items-center justify-between px-4 pt-3 pb-2">
           <div className="flex items-center gap-2">
             <span className="text-xl font-black text-red-600">BB</span>
-            <span className="text-base font-semibold text-white">
+            <span className="text-base font-semibold text-[var(--bb-ink-100)]">
               Biblioteca
             </span>
           </div>
@@ -410,15 +404,15 @@ export default function BibliotecaStreamingPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar aula ou professor..."
-                className="bg-gray-800 text-white text-xs rounded-lg px-3 py-1.5 w-44 outline-none placeholder-gray-500 transition-all"
+                className="bg-[var(--bb-depth-3)] text-[var(--bb-ink-100)] text-xs rounded-lg px-3 py-1.5 w-44 outline-none placeholder-[var(--bb-ink-40)] transition-all"
               />
             )}
             <button
               onClick={toggleSearch}
-              className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-lg hover:bg-[var(--bb-depth-3)] transition-colors"
             >
               <svg
-                className="h-5 w-5 text-gray-300"
+                className="h-5 w-5 text-[var(--bb-ink-80)]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -440,7 +434,7 @@ export default function BibliotecaStreamingPage() {
               className={`flex-shrink-0 text-xs font-semibold px-4 py-1.5 rounded-full transition-colors ${
                 modalityFilter === f
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-60)] hover:bg-[var(--bb-depth-4)]'
               }`}
             >
               {f}
@@ -473,10 +467,10 @@ export default function BibliotecaStreamingPage() {
               <h1 className="text-3xl font-extrabold text-white leading-tight mb-1">
                 {heroSeries.title}
               </h1>
-              <p className="text-xs text-gray-300 line-clamp-2 mb-2">
+              <p className="text-xs text-white/80 line-clamp-2 mb-2">
                 {heroSeries.description}
               </p>
-              <p className="text-[11px] text-gray-400 mb-3">
+              <p className="text-[11px] text-white/60 mb-3">
                 Prof. {heroVideo.professor_name} ·{' '}
                 {heroSeries.videos.length} aulas
                 {heroProgress && (
@@ -591,7 +585,7 @@ export default function BibliotecaStreamingPage() {
 
       {/* ── SECTION 4: Por Modalidade ──────────────────────── */}
       <section className="mt-8 px-4">
-        <h2 className="text-base font-bold text-white mb-3">Por Modalidade</h2>
+        <h2 className="text-base font-bold text-[var(--bb-ink-100)] mb-3">Por Modalidade</h2>
         <div className="flex gap-2 mb-4">
           {['BJJ', 'Judô', 'Prep. Física'].map((tab) => (
             <button
@@ -600,7 +594,7 @@ export default function BibliotecaStreamingPage() {
               className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors ${
                 activeTab === tab
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-60)] hover:bg-[var(--bb-depth-4)]'
               }`}
             >
               {tab}
@@ -623,7 +617,7 @@ export default function BibliotecaStreamingPage() {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-600 py-6 text-center">
+          <p className="text-xs text-[var(--bb-ink-40)] py-6 text-center">
             Nenhum vídeo encontrado para {activeTab}
           </p>
         )}
@@ -633,14 +627,14 @@ export default function BibliotecaStreamingPage() {
       {Object.keys(professorGroups).length > 0 && (
         <section className="mt-8">
           <div className="px-4 mb-3">
-            <h2 className="text-base font-bold text-white">Por Professor</h2>
+            <h2 className="text-base font-bold text-[var(--bb-ink-100)]">Por Professor</h2>
           </div>
           <div className="flex gap-2 px-4 mb-4 overflow-x-auto scrollbar-hide">
             {Object.entries(professorGroups).map(([name, videos]) => (
               <button
                 key={name}
                 onClick={() => setSearch(name)}
-                className="flex-shrink-0 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium px-4 py-2 rounded-full transition-colors"
+                className="flex-shrink-0 bg-[var(--bb-depth-3)] hover:bg-[var(--bb-depth-4)] text-[var(--bb-ink-80)] text-xs font-medium px-4 py-2 rounded-full transition-colors"
               >
                 {name} ({videos.length})
               </button>

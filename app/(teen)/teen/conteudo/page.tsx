@@ -58,7 +58,7 @@ export default function TeenBibliotecaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0E] px-4 py-6">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] px-4 py-6">
         <Skeleton className="h-40 w-full rounded-2xl mb-6 bg-purple-900/20" />
         <Skeleton className="h-6 w-48 mb-4 bg-purple-900/20" />
         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -95,7 +95,7 @@ export default function TeenBibliotecaPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0E] text-white pb-28">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28">
       {/* Hero Banner */}
       <div
         className="relative mx-4 mt-4 rounded-2xl overflow-hidden"
@@ -120,22 +120,22 @@ export default function TeenBibliotecaPage() {
 
       {/* Desafios da Semana */}
       <section className="px-4 mt-6">
-        <h2 className="text-lg font-extrabold text-white mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3 flex items-center gap-2">
           <span className="text-xl">🏆</span> Desafios da Semana
         </h2>
         <div className="space-y-3">
           {weeklyChallenge.map((challenge, idx) => (
             <div
               key={idx}
-              className="bg-[#161622] border border-purple-500/20 rounded-xl p-4 transition-all duration-200 hover:border-purple-500/40"
+              className="bg-[var(--bb-depth-2)] border border-purple-500/20 rounded-xl p-4 transition-all duration-200 hover:border-purple-500/40"
             >
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-bold text-white">{challenge.description}</p>
+                <p className="text-sm font-bold text-[var(--bb-ink-100)]">{challenge.description}</p>
                 <span className="text-xs font-bold text-purple-400 bg-purple-500/15 px-2 py-1 rounded-full">
                   +{challenge.xpReward} XP
                 </span>
               </div>
-              <div className="w-full bg-[#1E1E2E] rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-[var(--bb-depth-3)] rounded-full h-2.5 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-200"
                   style={{
@@ -144,7 +144,7 @@ export default function TeenBibliotecaPage() {
                   }}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1.5 font-semibold">
+              <p className="text-xs text-[var(--bb-ink-40)] mt-1.5 font-semibold">
                 {challenge.current}/{challenge.target}
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function TeenBibliotecaPage() {
       {/* Continuar Assistindo */}
       {continueWatching.length > 0 && (
         <section className="px-4 mt-8">
-          <h2 className="text-lg font-extrabold text-white mb-3">
+          <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3">
             Continuar Assistindo
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
@@ -168,7 +168,7 @@ export default function TeenBibliotecaPage() {
                   href={`/teen/conteudo/series-fund`}
                   className="flex-shrink-0 w-44 group"
                 >
-                  <div className="relative bg-[#161622] rounded-xl overflow-hidden border border-purple-500/10 transition-all duration-200 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.3)] group-hover:border-purple-500/30">
+                  <div className="relative bg-[var(--bb-depth-2)] rounded-xl overflow-hidden border border-purple-500/10 transition-all duration-200 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.3)] group-hover:border-purple-500/30">
                     <div className="relative h-24 bg-gradient-to-br from-purple-600/40 to-cyan-600/40 flex items-center justify-center">
                       <span className="text-4xl">🎬</span>
                       <span className="absolute top-2 right-2 bg-purple-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
@@ -176,9 +176,9 @@ export default function TeenBibliotecaPage() {
                       </span>
                     </div>
                     <div className="p-3">
-                      <p className="text-xs font-bold text-white truncate">{item.video_id}</p>
-                      <p className="text-[10px] text-gray-500 mt-1">{remaining}min restantes</p>
-                      <div className="w-full bg-[#1E1E2E] rounded-full h-1.5 mt-2 overflow-hidden">
+                      <p className="text-xs font-bold text-[var(--bb-ink-100)] truncate">{item.video_id}</p>
+                      <p className="text-[10px] text-[var(--bb-ink-40)] mt-1">{remaining}min restantes</p>
+                      <div className="w-full bg-[var(--bb-depth-3)] rounded-full h-1.5 mt-2 overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -198,14 +198,14 @@ export default function TeenBibliotecaPage() {
 
       {/* Ranking de Vídeos */}
       <section className="px-4 mt-8">
-        <h2 className="text-lg font-extrabold text-white mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3 flex items-center gap-2">
           <span className="text-xl">🔥</span> Ranking da Turma
         </h2>
-        <div className="bg-[#161622] border border-purple-500/20 rounded-xl p-4 flex items-center justify-around">
+        <div className="bg-[var(--bb-depth-2)] border border-purple-500/20 rounded-xl p-4 flex items-center justify-around">
           {rankingData.map((r, idx) => (
             <div key={idx} className="text-center">
               <span className="text-2xl">{r.emoji}</span>
-              <p className="text-sm font-bold text-white mt-1">{r.name}</p>
+              <p className="text-sm font-bold text-[var(--bb-ink-100)] mt-1">{r.name}</p>
               <p className="text-xs text-purple-400 font-semibold">{r.videos} vídeos</p>
             </div>
           ))}
@@ -215,7 +215,7 @@ export default function TeenBibliotecaPage() {
       {/* Trilhas */}
       {trails.length > 0 && (
         <section className="px-4 mt-8">
-          <h2 className="text-lg font-extrabold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3 flex items-center gap-2">
             <span className="text-xl">🗺️</span> Trilhas de Aprendizado
           </h2>
           <div className="space-y-3">
@@ -227,18 +227,18 @@ export default function TeenBibliotecaPage() {
               return (
                 <div
                   key={trail.id}
-                  className="bg-[#161622] border border-purple-500/10 rounded-xl p-4 transition-all duration-200 hover:border-purple-500/30"
+                  className="bg-[var(--bb-depth-2)] border border-purple-500/10 rounded-xl p-4 transition-all duration-200 hover:border-purple-500/30"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-sm font-bold text-white">{trail.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{trail.description}</p>
+                      <p className="text-sm font-bold text-[var(--bb-ink-100)]">{trail.name}</p>
+                      <p className="text-xs text-[var(--bb-ink-40)] mt-0.5">{trail.description}</p>
                     </div>
                     <span className="text-xs font-bold text-cyan-400 bg-cyan-500/15 px-2 py-1 rounded-full">
                       +{trail.total_videos * 10} XP
                     </span>
                   </div>
-                  <div className="w-full bg-[#1E1E2E] rounded-full h-2 overflow-hidden mt-2">
+                  <div className="w-full bg-[var(--bb-depth-3)] rounded-full h-2 overflow-hidden mt-2">
                     <div
                       className="h-full rounded-full transition-all duration-200"
                       style={{
@@ -247,7 +247,7 @@ export default function TeenBibliotecaPage() {
                       }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1.5 font-semibold">
+                  <p className="text-xs text-[var(--bb-ink-40)] mt-1.5 font-semibold">
                     {trail.series.length} séries · {trail.total_videos} vídeos
                   </p>
                   <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1">
@@ -257,15 +257,15 @@ export default function TeenBibliotecaPage() {
                         href={`/teen/conteudo/${series.id}`}
                         className="flex-shrink-0"
                       >
-                        <div className="w-28 bg-[#1E1E2E] rounded-lg p-2 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-200">
+                        <div className="w-28 bg-[var(--bb-depth-3)] rounded-lg p-2 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-200">
                           <div className="h-16 rounded-md flex items-center justify-center mb-2 relative" style={{ background: series.gradient_css }}>
                             <span className="text-2xl">🎥</span>
                             <span className="absolute top-1 right-1 bg-purple-600 text-white text-[8px] font-bold px-1 py-0.5 rounded">
                               +{series.videos.length * 10} XP
                             </span>
                           </div>
-                          <p className="text-[10px] font-bold text-white truncate">{series.title}</p>
-                          <p className="text-[9px] text-gray-500">{series.videos.length} eps</p>
+                          <p className="text-[10px] font-bold text-[var(--bb-ink-100)] truncate">{series.title}</p>
+                          <p className="text-[9px] text-[var(--bb-ink-40)]">{series.videos.length} eps</p>
                         </div>
                       </Link>
                     ))}
@@ -280,7 +280,7 @@ export default function TeenBibliotecaPage() {
       {/* Por Modalidade */}
       {allSeries.length > 0 && (
         <section className="px-4 mt-8">
-          <h2 className="text-lg font-extrabold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3 flex items-center gap-2">
             <span className="text-xl">🥋</span> Por Modalidade
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -289,26 +289,26 @@ export default function TeenBibliotecaPage() {
               const emoji = mod === 'BJJ' ? '🥋' : mod === 'Judô' ? '🏋️' : '🎯';
               return (
                 <div key={mod} className="group">
-                  <div className="bg-[#161622] border border-purple-500/10 rounded-xl overflow-hidden transition-all duration-200 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.25)] group-hover:border-purple-500/30">
+                  <div className="bg-[var(--bb-depth-2)] border border-purple-500/10 rounded-xl overflow-hidden transition-all duration-200 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.25)] group-hover:border-purple-500/30">
                     <div className="h-20 bg-gradient-to-br from-purple-600/30 to-cyan-600/30 flex items-center justify-center">
                       <span className="text-3xl">{emoji}</span>
                     </div>
                     <div className="p-3">
-                      <p className="text-sm font-bold text-white">{mod}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{modSeries.length} séries</p>
+                      <p className="text-sm font-bold text-[var(--bb-ink-100)]">{mod}</p>
+                      <p className="text-xs text-[var(--bb-ink-40)] mt-0.5">{modSeries.length} séries</p>
                     </div>
                   </div>
                   <div className="mt-2 space-y-2">
                     {modSeries.slice(0, 3).map((series) => (
                       <Link key={series.id} href={`/teen/conteudo/${series.id}`} className="block">
-                        <div className="bg-[#1E1E2E] rounded-lg p-3 flex items-center gap-3 border border-purple-500/5 transition-all duration-200 hover:border-purple-500/20">
+                        <div className="bg-[var(--bb-depth-3)] rounded-lg p-3 flex items-center gap-3 border border-purple-500/5 transition-all duration-200 hover:border-purple-500/20">
                           <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative" style={{ background: series.gradient_css }}>
                             <span className="text-xl">🎬</span>
                             <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[8px] font-bold px-1 rounded">+15 XP</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-white truncate">{series.title}</p>
-                            <p className="text-[10px] text-gray-500 mt-0.5">{series.videos.length} episódios</p>
+                            <p className="text-xs font-bold text-[var(--bb-ink-100)] truncate">{series.title}</p>
+                            <p className="text-[10px] text-[var(--bb-ink-40)] mt-0.5">{series.videos.length} episódios</p>
                           </div>
                         </div>
                       </Link>
@@ -323,22 +323,22 @@ export default function TeenBibliotecaPage() {
 
       {/* Badges Desbloqueáveis */}
       <section className="px-4 mt-8 mb-8">
-        <h2 className="text-lg font-extrabold text-white mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)] mb-3 flex items-center gap-2">
           <span className="text-xl">🏅</span> Badges Desbloqueáveis
         </h2>
         <div className="grid grid-cols-3 gap-3">
           {badges.map((badge, idx) => (
             <div
               key={idx}
-              className={`bg-[#161622] border rounded-xl p-4 text-center transition-all duration-200 ${
+              className={`bg-[var(--bb-depth-2)] border rounded-xl p-4 text-center transition-all duration-200 ${
                 badge.unlocked
                   ? 'border-purple-500/30 shadow-[0_0_15px_rgba(124,58,237,0.2)]'
-                  : 'border-gray-800/50 opacity-50'
+                  : 'border-[var(--bb-glass-border)] opacity-50'
               }`}
             >
               <span className="text-3xl">{badge.icon}</span>
-              <p className="text-xs font-bold text-white mt-2">{badge.label}</p>
-              <p className="text-[10px] text-gray-500 mt-1">{badge.desc}</p>
+              <p className="text-xs font-bold text-[var(--bb-ink-100)] mt-2">{badge.label}</p>
+              <p className="text-[10px] text-[var(--bb-ink-40)] mt-1">{badge.desc}</p>
               {badge.unlocked && (
                 <span className="inline-block mt-2 text-[9px] font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">
                   Desbloqueado

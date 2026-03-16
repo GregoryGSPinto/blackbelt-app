@@ -83,7 +83,7 @@ export default function KidsAventurasPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F0F1E] px-4 py-6">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] px-4 py-6">
         <div className="flex justify-center mb-6">
           <Skeleton className="h-20 w-48 rounded-3xl bg-blue-900/20" />
         </div>
@@ -121,7 +121,7 @@ export default function KidsAventurasPage() {
   const movementSeries = allSeries.slice(4, 7);
 
   return (
-    <div className="min-h-screen bg-[#0F0F1E] text-white pb-28" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Stars Header */}
       <div className="pt-6 pb-2 px-4">
         <div className="flex items-center justify-center">
@@ -143,20 +143,20 @@ export default function KidsAventurasPage() {
 
       {/* Star system explanation */}
       <div className="px-4 mt-3 mb-2">
-        <div className="bg-[#1A1A30] rounded-2xl p-3 flex items-center justify-around text-center border border-yellow-500/10">
+        <div className="bg-[var(--bb-depth-2)] rounded-2xl p-3 flex items-center justify-around text-center border border-yellow-500/10">
           <div>
             <p className="text-lg font-black">+2 ⭐</p>
-            <p className="text-[10px] text-gray-400 font-bold">Assistir tudo</p>
+            <p className="text-[10px] text-[var(--bb-ink-60)] font-bold">Assistir tudo</p>
           </div>
-          <div className="w-px h-8 bg-gray-700" />
+          <div className="w-px h-8 bg-[var(--bb-depth-4)]" />
           <div>
             <p className="text-lg font-black">+1 ⭐</p>
-            <p className="text-[10px] text-gray-400 font-bold">Quiz certo</p>
+            <p className="text-[10px] text-[var(--bb-ink-60)] font-bold">Quiz certo</p>
           </div>
-          <div className="w-px h-8 bg-gray-700" />
+          <div className="w-px h-8 bg-[var(--bb-depth-4)]" />
           <div>
             <p className="text-lg font-black">+5 ⭐</p>
-            <p className="text-[10px] text-gray-400 font-bold">Série completa</p>
+            <p className="text-[10px] text-[var(--bb-ink-60)] font-bold">Série completa</p>
           </div>
         </div>
       </div>
@@ -178,12 +178,12 @@ export default function KidsAventurasPage() {
             return (
               <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
-                  className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
+                  className="rounded-[20px] overflow-hidden border-2 border-[var(--bb-glass-border)] transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}
                 >
                   {/* Star badge */}
                   <div className="relative">
-                    <div className="absolute top-2 right-2 bg-[#0F0F1E]/70 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 z-10">
+                    <div className="absolute top-2 right-2 bg-[var(--bb-depth-1)]/70 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 z-10">
                       <span className="text-xs">⭐</span>
                       <span className="text-xs font-black text-yellow-300">{starsEarned}</span>
                     </div>
@@ -236,7 +236,7 @@ export default function KidsAventurasPage() {
             return (
               <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
-                  className="rounded-[20px] p-4 flex items-center gap-4 border-2 border-white/10 transition-transform duration-200 active:scale-[0.98]"
+                  className="rounded-[20px] p-4 flex items-center gap-4 border-2 border-[var(--bb-glass-border)] transition-transform duration-200 active:scale-[0.98]"
                   style={{ background: theme.gradient }}
                 >
                   <span
@@ -250,7 +250,7 @@ export default function KidsAventurasPage() {
                       <p className="text-base font-black text-white drop-shadow-lg truncate pr-2">
                         {funName.name}
                       </p>
-                      <span className="flex-shrink-0 bg-[#0F0F1E]/60 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1">
+                      <span className="flex-shrink-0 bg-[var(--bb-depth-1)]/60 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1">
                         <span className="text-xs">⭐</span>
                         <span className="text-xs font-black text-yellow-300">{starsEarned}</span>
                       </span>
@@ -289,11 +289,11 @@ export default function KidsAventurasPage() {
             return (
               <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="flex-shrink-0 w-40">
                 <div
-                  className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
+                  className="rounded-[20px] overflow-hidden border-2 border-[var(--bb-glass-border)] transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}
                 >
                   <div className="relative">
-                    <div className="absolute top-2 right-2 bg-[#0F0F1E]/60 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 z-10">
+                    <div className="absolute top-2 right-2 bg-[var(--bb-depth-1)]/60 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 z-10">
                       <span className="text-[10px]">⭐</span>
                       <span className="text-[10px] font-black text-yellow-300">{starsEarned}</span>
                     </div>
@@ -342,11 +342,11 @@ export default function KidsAventurasPage() {
             return (
               <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
-                  className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
+                  className="rounded-[20px] overflow-hidden border-2 border-[var(--bb-glass-border)] transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}
                 >
                   <div className="relative">
-                    <div className="absolute top-2 right-2 bg-[#0F0F1E]/60 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 z-10">
+                    <div className="absolute top-2 right-2 bg-[var(--bb-depth-1)]/60 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 z-10">
                       <span className="text-[10px]">⭐</span>
                       <span className="text-[10px] font-black text-yellow-300">{starsEarned}</span>
                     </div>
