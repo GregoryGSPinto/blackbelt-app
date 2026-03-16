@@ -65,11 +65,11 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
     const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
 
-    // Current month invoices
+    // Current month invoices (join through subscriptions → plans for academy_id)
     const { data: currentInvoices, error: invErr } = await supabase
       .from('invoices')
-      .select('id, amount, status, due_date, subscription_id')
-      .eq('academy_id', academyId)
+      .select('id, amount, status, due_date, subscription_id, subscriptions!inner(plans!inner(academy_id))')
+      .eq('subscriptions.plans.academy_id', academyId)
       .gte('due_date', startOfMonth)
       .lte('due_date', endOfMonth);
     if (invErr) throw new ServiceError(500, 'financeiro', invErr.message);
@@ -77,8 +77,8 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
     // Previous month invoices
     const { data: prevInvoices } = await supabase
       .from('invoices')
-      .select('id, amount, status')
-      .eq('academy_id', academyId)
+      .select('id, amount, status, subscriptions!inner(plans!inner(academy_id))')
+      .eq('subscriptions.plans.academy_id', academyId)
       .gte('due_date', startOfPrevMonth)
       .lte('due_date', endOfPrevMonth);
 
@@ -96,18 +96,18 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
 
     const ticketMedio = paidCurrent.length > 0 ? Math.round(receitaMes / paidCurrent.length) : 0;
 
-    // Overdue invoices (debtors)
+    // Overdue invoices (debtors) — join through subscriptions → plans for academy filter
     const { data: overdueInvoices } = await supabase
       .from('invoices')
       .select(`
         id, amount, due_date, status,
-        subscriptions(
+        subscriptions!inner(
           student_id,
           students(profiles(display_name)),
-          plans(name)
+          plans!inner(name, academy_id)
         )
       `)
-      .eq('academy_id', academyId)
+      .eq('subscriptions.plans.academy_id', academyId)
       .in('status', ['open', 'uncollectible'])
       .lt('due_date', now.toISOString().slice(0, 10));
 
@@ -127,17 +127,17 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
       };
     });
 
-    // Recent paid invoices
+    // Recent paid invoices — join through subscriptions → plans for academy filter
     const { data: recentPaid } = await supabase
       .from('invoices')
       .select(`
         id, amount, due_date, status,
-        subscriptions(
+        subscriptions!inner(
           students(profiles(display_name)),
-          plans(name)
+          plans!inner(name, academy_id)
         )
       `)
-      .eq('academy_id', academyId)
+      .eq('subscriptions.plans.academy_id', academyId)
       .eq('status', 'paid')
       .order('updated_at', { ascending: false })
       .limit(10);
@@ -158,11 +158,11 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
       };
     });
 
-    // Plan analysis
+    // Plan analysis — subscriptions don't have academy_id, join through plans
     const { data: subscriptions } = await supabase
       .from('subscriptions')
-      .select('id, plan_id, plans(name, price)')
-      .eq('academy_id', academyId)
+      .select('id, plan_id, plans!inner(name, price, academy_id)')
+      .eq('plans.academy_id', academyId)
       .eq('status', 'active');
 
     const planMap = new Map<string, { name: string; count: number; revenue: number }>();
@@ -191,8 +191,8 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
       const { data: monthInv } = await supabase
         .from('invoices')
-        .select('amount')
-        .eq('academy_id', academyId)
+        .select('amount, subscriptions!inner(plans!inner(academy_id))')
+        .eq('subscriptions.plans.academy_id', academyId)
         .eq('status', 'paid')
         .gte('due_date', d.toISOString().slice(0, 10))
         .lte('due_date', monthEnd.toISOString().slice(0, 10));
