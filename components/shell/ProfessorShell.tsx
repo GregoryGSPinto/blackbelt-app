@@ -13,7 +13,7 @@ interface ProfessorShellProps {
 
 const navItems: NavItem[] = [
   { href: '/professor', label: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
-  { href: '/professor/turma-ativa', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" /> },
+  { href: '/professor/turmas', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" /> },
   { href: '/professor/alunos', label: 'Alunos', icon: <UsersIcon className="h-5 w-5" /> },
   { href: '/professor/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" /> },
   { href: '/professor/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" /> },
