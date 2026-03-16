@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getThemeMode, toggleTheme, initTheme, type ThemeMode } from '@/lib/utils/theme';
+import { useTheme } from '@/lib/contexts/ThemeContext';
+
+type ThemeMode = 'system' | 'light' | 'dark';
 
 const ICONS: Record<ThemeMode, { label: string; path: string }> = {
   light: {
@@ -12,48 +13,41 @@ const ICONS: Record<ThemeMode, { label: string; path: string }> = {
     label: 'Modo escuro',
     path: 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z',
   },
-  auto: {
+  system: {
     label: 'Automatico',
     path: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
   },
 };
 
-export function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>('light');
-  const [mounted, setMounted] = useState(false);
+const CYCLE: ThemeMode[] = ['system', 'light', 'dark'];
 
-  useEffect(() => {
-    initTheme();
-    setMode(getThemeMode());
-    setMounted(true);
-  }, []);
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
 
   function handleToggle() {
-    const next = toggleTheme();
-    setMode(next);
+    const idx = CYCLE.indexOf(theme);
+    const next = CYCLE[(idx + 1) % CYCLE.length];
+    setTheme(next);
   }
 
-  // Avoid hydration mismatch
-  if (!mounted) {
-    return (
-      <button
-        className="rounded-lg p-2 text-bb-gray-500 transition-all duration-300 hover:bg-bb-gray-100"
-        aria-label="Tema"
-        disabled
-      >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d={ICONS.light.path} />
-        </svg>
-      </button>
-    );
-  }
-
-  const icon = ICONS[mode];
+  const icon = ICONS[theme];
 
   return (
     <button
       onClick={handleToggle}
-      className="rounded-lg p-2 text-bb-gray-500 transition-all duration-300 hover:bg-bb-gray-100 dark:text-bb-gray-300 dark:hover:bg-bb-gray-700"
+      className="rounded-lg p-2 transition-all duration-300"
+      style={{
+        backgroundColor: 'transparent',
+        color: 'var(--bb-ink-60)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--bb-depth-4)';
+        e.currentTarget.style.color = 'var(--bb-ink-80)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'transparent';
+        e.currentTarget.style.color = 'var(--bb-ink-60)';
+      }}
       aria-label={icon.label}
       title={`Tema: ${icon.label}`}
     >
@@ -69,3 +63,5 @@ export function ThemeToggle() {
     </button>
   );
 }
+
+ThemeToggle.displayName = 'ThemeToggle';

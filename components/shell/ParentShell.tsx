@@ -3,6 +3,7 @@
 import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { UsersIcon, CheckSquareIcon, MessageIcon, DollarIcon, UserIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
@@ -21,8 +22,8 @@ const navItems: NavItem[] = [
 const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
   function ParentShell({ children }, ref) {
     return (
-      <div ref={ref} className="min-h-screen bg-bb-gray-100 pb-16">
-        <ShellHeader title="BlackBelt" subtitle="Responsável" />
+      <div ref={ref} className="min-h-screen pb-16" style={{ background: 'var(--bb-depth-1)' }}>
+        <ShellHeader title="BlackBelt" subtitle="Responsável" rightContent={<ThemeToggle />} />
         <main>{children}</main>
         <BottomNav items={navItems} />
       </div>

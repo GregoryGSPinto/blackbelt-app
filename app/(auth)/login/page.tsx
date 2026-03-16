@@ -74,81 +74,129 @@ export default function LoginPage() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            /* === CHOREOGRAPHED ANIMATION SEQUENCE === */
+            @keyframes bb-login-card-in {
+              0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
+              100% { opacity: 1; transform: scale(1); filter: blur(0); }
+            }
+            @keyframes bb-login-element-in {
+              0% { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+              100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            }
             @keyframes bb-login-fade-in {
-              0% { opacity: 0; transform: translateY(12px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes bb-login-shake {
-              0%, 100% { transform: translateX(0); }
-              10%, 50%, 90% { transform: translateX(-4px); }
-              30%, 70% { transform: translateX(4px); }
-            }
-            @keyframes bb-login-success {
-              0% { transform: scale(1); opacity: 1; }
-              100% { transform: scale(0.96); opacity: 0.7; }
-            }
-            @keyframes bb-login-tagline {
               0% { opacity: 0; }
               100% { opacity: 1; }
             }
-            @keyframes bb-login-spinner {
-              to { transform: rotate(360deg); }
+            @keyframes bb-login-shake {
+              0%, 100% { transform: translateX(0); }
+              12% { transform: translateX(-8px); }
+              25% { transform: translateX(8px); }
+              37% { transform: translateX(-4px); }
+              50% { transform: translateX(4px); }
+              62% { transform: translateX(-2px); }
+              75% { transform: translateX(2px); }
+              87% { transform: translateX(0); }
+            }
+            @keyframes bb-login-success {
+              0% { transform: scale(1); opacity: 1; }
+              100% { transform: scale(0.97); opacity: 0; }
+            }
+            @keyframes bb-login-shimmer {
+              0% { transform: translateX(-100%); }
+              100% { transform: translateX(100%); }
+            }
+
+            /* Stagger items — each with opacity 0 until animated */
+            .bb-stagger { opacity: 0; animation-fill-mode: forwards; }
+            .bb-stagger-card { animation: bb-login-card-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.0s forwards; }
+            .bb-stagger-logo { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
+            .bb-stagger-tagline { animation: bb-login-fade-in 0.5s ease-out 0.4s forwards; }
+            .bb-stagger-email { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards; }
+            .bb-stagger-password { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards; }
+            .bb-stagger-button { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards; }
+            .bb-stagger-links { animation: bb-login-fade-in 0.5s ease-out 1.1s forwards; }
+
+            /* Button shimmer on loading */
+            .bb-btn-shimmer { position: relative; overflow: hidden; }
+            .bb-btn-shimmer::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.15) 50%,
+                transparent 100%
+              );
+              animation: bb-login-shimmer 1.5s ease-in-out infinite;
             }
           `,
         }}
       />
 
-      {/*
-        Fullscreen wrapper — breaks out of the auth layout's centering
-        by using fixed positioning to own the entire viewport.
-      */}
+      {/* Fullscreen wrapper with mesh gradient background */}
       <div
         className="fixed inset-0 z-40 flex items-center justify-center overflow-hidden"
         style={{
-          background: `
-            repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 39px,
-              rgba(255,255,255,0.02) 39px,
-              rgba(255,255,255,0.02) 40px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 39px,
-              rgba(255,255,255,0.02) 39px,
-              rgba(255,255,255,0.02) 40px
-            ),
-            linear-gradient(180deg, #0A0A0A 0%, #111111 100%)
-          `,
+          backgroundColor: '#06070A',
+          backgroundImage: [
+            'radial-gradient(ellipse 50% 50% at 50% 40%, rgba(239, 68, 68, 0.06) 0%, transparent 60%)',
+            'radial-gradient(ellipse 40% 40% at 20% 60%, rgba(139, 92, 246, 0.03) 0%, transparent 50%)',
+            'radial-gradient(ellipse 40% 40% at 80% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%)',
+          ].join(', '),
         }}
       >
-        {/* Glassmorphism card */}
+        {/* Cinematic glassmorphism card */}
         <div
-          className="w-[95%] max-w-md rounded-2xl border border-white/10 p-8 sm:p-10"
+          className={`bb-stagger w-[95%] ${shake ? '' : success ? '' : 'bb-stagger-card'}`}
           style={{
-            background: 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            animation: shake
-              ? 'bb-login-shake 0.5s ease-in-out'
+            maxWidth: 420,
+            background: 'rgba(12, 14, 20, 0.7)',
+            backdropFilter: 'blur(24px) saturate(1.3)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderRadius: 24,
+            padding: '48px 40px',
+            boxShadow:
+              '0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            ...(shake
+              ? { animation: 'bb-login-shake 0.3s ease-in-out', opacity: 1 }
               : success
-                ? 'bb-login-success 0.4s ease-in-out forwards'
-                : 'bb-login-fade-in 0.5s ease-out forwards',
+                ? { animation: 'bb-login-success 0.3s ease-in-out forwards', opacity: 1 }
+                : {}),
           }}
         >
           {/* Logo */}
-          <h1 className="text-center text-3xl font-bold tracking-tight text-white">
-            Black<span className="text-[#DC2626]">Belt</span>
-          </h1>
+          <div className="bb-stagger bb-stagger-logo flex flex-col items-center">
+            <h1
+              className="font-display text-4xl font-extrabold"
+              style={{
+                letterSpacing: '-0.03em',
+                color: 'var(--bb-brand)',
+                filter: 'drop-shadow(0 0 30px rgba(239, 68, 68, 0.3))',
+              }}
+            >
+              BLACKBELT
+            </h1>
+            {/* Red stripe below logo */}
+            <div
+              className="mt-3"
+              style={{
+                width: 40,
+                height: 3,
+                borderRadius: 2,
+                background: 'var(--bb-brand)',
+              }}
+            />
+          </div>
 
-          {/* Tagline with delayed fade */}
+          {/* Tagline */}
           <p
-            className="mt-2 text-center text-sm text-neutral-500"
+            className="bb-stagger bb-stagger-tagline mt-4 text-center font-sans uppercase"
             style={{
-              animation: 'bb-login-tagline 0.6s ease-out 0.3s forwards',
-              opacity: 0,
+              fontSize: 13,
+              letterSpacing: '0.08em',
+              color: 'var(--bb-ink-60)',
             }}
           >
             O sistema operacional da sua academia
@@ -157,12 +205,15 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
             {/* Email field */}
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-[38px] text-neutral-500">
+            <div className="bb-stagger bb-stagger-email relative">
+              <span
+                className="pointer-events-none absolute left-4 top-[38px] z-10"
+                style={{ color: 'var(--bb-ink-40)' }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -183,17 +234,20 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 error={error && !email.trim() ? 'Campo obrigatório' : undefined}
-                className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-neutral-600 focus-visible:ring-[#DC2626] focus-visible:ring-offset-0"
+                className="h-12 border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
               />
             </div>
 
             {/* Password field */}
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-[38px] text-neutral-500">
+            <div className="bb-stagger bb-stagger-password relative">
+              <span
+                className="pointer-events-none absolute left-4 top-[38px] z-10"
+                style={{ color: 'var(--bb-ink-40)' }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -213,47 +267,97 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 error={error && !password.trim() ? 'Campo obrigatório' : undefined}
-                className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-neutral-600 focus-visible:ring-[#DC2626] focus-visible:ring-offset-0"
+                className="h-12 border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
               />
             </div>
 
             {/* Error message */}
             {error && email.trim() && password.trim() && (
-              <p className="rounded-md bg-red-500/10 px-3 py-2 text-center text-sm text-red-400">
+              <p
+                className="text-center text-[13px]"
+                style={{ color: 'var(--bb-brand)' }}
+              >
                 {error}
               </p>
             )}
 
             {/* Submit button */}
-            <Button
-              type="submit"
-              loading={loading}
-              className="mt-1 h-12 w-full bg-[#DC2626] text-base font-semibold text-white hover:bg-[#B91C1C] active:bg-[#991B1B]"
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </Button>
+            <div className="bb-stagger bb-stagger-button mt-1">
+              <Button
+                type="submit"
+                loading={loading}
+                className={`h-12 w-full text-[15px] font-bold text-white transition-all duration-200 ${
+                  loading ? 'bb-btn-shimmer' : ''
+                }`}
+                style={{
+                  background: 'var(--bb-brand-gradient)',
+                  borderRadius: 'var(--bb-radius-md)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.boxShadow = 'var(--bb-brand-glow)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.filter = 'brightness(0.9)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.filter = 'brightness(1)';
+                }}
+              >
+                {loading ? 'Entrando...' : 'Entrar'}
+              </Button>
+            </div>
           </form>
 
           {/* Links */}
-          <div className="mt-6 flex items-center justify-center gap-3 text-sm">
+          <div
+            className="bb-stagger bb-stagger-links mt-6 flex items-center justify-center gap-3 text-sm"
+          >
             <Link
               href="/esqueci-senha"
-              className="text-neutral-500 transition-colors hover:text-white"
+              className="transition-colors duration-200"
+              style={{ color: 'var(--bb-ink-60)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--bb-ink-100)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--bb-ink-60)';
+              }}
             >
               Esqueci senha
             </Link>
-            <span className="text-neutral-700">|</span>
+            <span style={{ color: 'var(--bb-ink-20)' }}>|</span>
             <Link
               href="/cadastro"
-              className="text-neutral-500 transition-colors hover:text-white"
+              className="transition-colors duration-200"
+              style={{ color: 'var(--bb-ink-60)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--bb-ink-100)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--bb-ink-60)';
+              }}
             >
               Criar conta
             </Link>
           </div>
 
           {/* Demo credentials */}
-          <div className="mt-6 border-t border-white/5 pt-4">
-            <p className="text-center text-xs text-neutral-600">
+          <div
+            className="bb-stagger bb-stagger-links mt-6 pt-4"
+            style={{ borderTop: '1px solid var(--bb-glass-border)' }}
+          >
+            <p
+              className="text-center text-xs"
+              style={{ color: 'var(--bb-ink-40)' }}
+            >
               Demo: roberto@guerreiros.com / BlackBelt@2026
             </p>
           </div>

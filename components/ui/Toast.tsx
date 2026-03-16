@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useEffect, type HTMLAttributes, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
@@ -15,23 +15,32 @@ export interface ToastProps extends HTMLAttributes<HTMLDivElement> {
   variant?: ToastVariant;
 }
 
-const variantStyles: Record<ToastVariant, string> = {
-  success: 'bg-bb-success text-bb-white',
-  error: 'bg-bb-error text-bb-white',
-  warning: 'bg-bb-warning text-bb-white',
-  info: 'bg-bb-info text-bb-white',
+const contextualBorderColor: Record<ToastVariant, string> = {
+  success: 'var(--bb-success)',
+  error: 'var(--bb-brand)',
+  warning: 'var(--bb-warning)',
+  info: 'var(--bb-info)',
 };
 
 export const Toast = forwardRef<HTMLDivElement, ToastProps>(
-  ({ variant = 'info', className, children, ...props }, ref) => (
+  ({ variant = 'info', className, children, style, ...props }, ref) => (
     <div
       ref={ref}
       role="alert"
       className={cn(
-        'cursor-pointer rounded-md px-4 py-3 text-sm font-medium shadow-lg transition-opacity hover:opacity-90',
-        variantStyles[variant],
+        'cursor-pointer px-4 py-3 text-sm font-medium transition-opacity hover:opacity-90',
         className,
       )}
+      style={{
+        backgroundColor: 'var(--bb-depth-3)',
+        border: '1px solid var(--bb-glass-border)',
+        borderLeft: `3px solid ${contextualBorderColor[variant]}`,
+        borderRadius: 'var(--bb-radius-md)',
+        boxShadow: 'var(--bb-shadow-lg)',
+        color: 'var(--bb-ink-100)',
+        animation: 'slideInRight 0.3s ease-out',
+        ...style,
+      } as CSSProperties}
       {...props}
     >
       {children}

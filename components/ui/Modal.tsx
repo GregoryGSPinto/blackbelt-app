@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useEffect, type HTMLAttributes, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export type ModalVariant = 'default' | 'confirm' | 'fullscreen';
@@ -12,14 +12,14 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
 }
 
-const containerStyles: Record<ModalVariant, string> = {
-  default: 'max-w-lg rounded-lg',
-  confirm: 'max-w-md rounded-lg border-l-4 border-bb-error',
+const containerClasses: Record<ModalVariant, string> = {
+  default: 'max-w-lg',
+  confirm: 'max-w-md',
   fullscreen: 'h-full w-full',
 };
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  ({ open, onClose, variant = 'default', title, className, children, ...props }, ref) => {
+  ({ open, onClose, variant = 'default', title, className, children, style, ...props }, ref) => {
     useEffect(() => {
       if (!open) return;
       const handler = (e: KeyboardEvent) => {
@@ -33,20 +33,52 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="fixed inset-0 bg-bb-black/50" onClick={onClose} aria-hidden="true" />
+        {/* Overlay */}
+        <div
+          className="fixed inset-0"
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            animation: 'fadeIn 0.2s ease-out',
+          }}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        {/* Card */}
         <div
           ref={ref}
           role="dialog"
           aria-modal="true"
           aria-label={title}
           className={cn(
-            'relative z-50 w-full bg-bb-white p-6 shadow-xl',
-            containerStyles[variant],
+            'relative z-50 w-full p-6',
+            containerClasses[variant],
             className,
           )}
+          style={{
+            backgroundColor: 'var(--bb-depth-3)',
+            border: variant === 'confirm'
+              ? '1px solid var(--bb-glass-border)'
+              : '1px solid var(--bb-glass-border)',
+            borderLeft: variant === 'confirm'
+              ? '4px solid var(--bb-error)'
+              : '1px solid var(--bb-glass-border)',
+            borderRadius: variant === 'fullscreen' ? undefined : 'var(--bb-radius-xl)',
+            boxShadow: 'var(--bb-shadow-xl)',
+            animation: 'scaleIn 0.25s ease-out',
+            ...style,
+          } as CSSProperties}
           {...props}
         >
-          {title && <h2 className="mb-4 text-lg font-semibold text-bb-gray-900">{title}</h2>}
+          {title && (
+            <h2
+              className="mb-4 text-lg font-semibold"
+              style={{ color: 'var(--bb-ink-100)' }}
+            >
+              {title}
+            </h2>
+          )}
           {children}
         </div>
       </div>

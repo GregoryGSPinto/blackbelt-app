@@ -2,11 +2,14 @@
 
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 import { ToastProvider } from '@/lib/contexts/ToastContext';
+import { ThemeProvider } from '@/lib/contexts/ThemeContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <ToastProvider>{children}</ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

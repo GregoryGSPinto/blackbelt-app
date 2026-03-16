@@ -36,14 +36,16 @@ const config: Config = {
         'belt-black': '#0A0A0A',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        sans: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {
         sm: '4px',
         md: '8px',
         lg: '12px',
         xl: '16px',
+        '2xl': '24px',
         pill: '9999px',
       },
       screens: {

@@ -15,12 +15,16 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
     return (
       <header
         ref={ref}
-        className="sticky top-0 z-20 border-b border-bb-gray-300 bg-white px-4 py-3"
+        className="sticky top-0 z-20 px-4 py-3"
+        style={{
+          background: 'var(--bb-depth-2)',
+          borderBottom: '1px solid var(--bb-glass-border)',
+        }}
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-bb-black">{title}</h1>
-            {subtitle && <p className="text-xs text-bb-gray-500">{subtitle}</p>}
+            <h1 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{title}</h1>
+            {subtitle && <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{subtitle}</p>}
           </div>
           <div className="flex items-center gap-3">
             {rightContent}

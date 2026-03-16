@@ -2,6 +2,7 @@
 
 import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { HomeIcon, AwardIcon, HeartIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
@@ -18,9 +19,28 @@ const navItems: NavItem[] = [
 const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
   function KidsShell({ children }, ref) {
     return (
-      <div ref={ref} className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 pb-20">
-        <header className="sticky top-0 z-20 bg-white/80 px-4 py-3 backdrop-blur-sm">
-          <h1 className="text-center text-xl font-bold text-bb-red">BlackBelt Kids</h1>
+      <div
+        ref={ref}
+        className="min-h-screen pb-20"
+        style={{
+          background: 'var(--bb-depth-2)',
+          borderRadius: 'var(--bb-radius-2xl)',
+        }}
+      >
+        <header
+          className="sticky top-0 z-20 px-4 py-3 backdrop-blur-sm"
+          style={{ background: 'var(--bb-depth-2)' }}
+        >
+          <div className="flex items-center justify-between">
+            <div />
+            <h1
+              className="text-xl font-bold"
+              style={{ color: 'var(--bb-brand)' }}
+            >
+              BlackBelt Kids
+            </h1>
+            <ThemeToggle />
+          </div>
         </header>
         <main>{children}</main>
         <BottomNav items={navItems} />

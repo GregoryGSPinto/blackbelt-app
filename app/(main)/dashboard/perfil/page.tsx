@@ -111,11 +111,11 @@ const TABS: TabConfig[] = [
 
 function AttendanceHeatmapGrid({ days }: { days: HeatmapDayDTO[] }) {
   const levelColors = [
-    'bg-bb-gray-100',
-    'bg-green-200',
-    'bg-green-400',
-    'bg-green-600',
-    'bg-green-800',
+    'bg-[var(--bb-depth-3)]',
+    'bg-[var(--bb-success-light,#bbf7d0)]',
+    'bg-[var(--bb-success)]',
+    'bg-[var(--bb-success-dark,#16a34a)]',
+    'bg-[var(--bb-success-darker,#166534)]',
   ];
 
   const weeks: HeatmapDayDTO[][] = [];
@@ -146,7 +146,7 @@ function AttendanceHeatmapGrid({ days }: { days: HeatmapDayDTO[] }) {
           </div>
         ))}
       </div>
-      <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-bb-gray-500">
+      <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-[var(--bb-ink-40)]">
         <span>Menos</span>
         {levelColors.map((c, i) => (
           <div key={i} className={cn('h-[10px] w-[10px] rounded-[2px]', c)} />
@@ -165,14 +165,14 @@ function ModalityBar({ distribution }: { distribution: ModalityDistributionDTO[]
       {distribution.map((mod) => (
         <div key={mod.modality} className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full" style={{ backgroundColor: mod.color }} />
-          <span className="flex-1 text-xs text-bb-gray-700">{mod.modality}</span>
-          <div className="h-2 w-24 overflow-hidden rounded-full bg-bb-gray-300">
+          <span className="flex-1 text-xs text-[var(--bb-ink-60)]">{mod.modality}</span>
+          <div className="h-2 w-24 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
             <div
               className="h-full rounded-full"
               style={{ width: `${mod.percentage}%`, backgroundColor: mod.color }}
             />
           </div>
-          <span className="w-10 text-right text-xs font-medium text-bb-gray-700">{mod.percentage}%</span>
+          <span className="w-10 text-right text-xs font-medium text-[var(--bb-ink-60)]">{mod.percentage}%</span>
         </div>
       ))}
     </div>
@@ -183,20 +183,20 @@ function ModalityBar({ distribution }: { distribution: ModalityDistributionDTO[]
 
 function TabResumo({ events }: { events: TimelineEventDTO[] }) {
   if (events.length === 0) {
-    return <p className="py-8 text-center text-sm text-bb-gray-500">Nenhum evento registrado.</p>;
+    return <p className="py-8 text-center text-sm text-[var(--bb-ink-40)]">Nenhum evento registrado.</p>;
   }
 
   return (
-    <div className="relative ml-4 border-l-2 border-bb-gray-300 pl-6">
+    <div className="relative ml-4 border-l-2 border-[var(--bb-glass-border)] pl-6">
       {events.slice(0, 8).map((event) => (
         <div key={event.id} className="relative pb-8 last:pb-0">
-          <div className="absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full border-2 border-bb-gray-300 bg-bb-white text-sm">
+          <div className="absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] text-sm">
             {event.icon}
           </div>
           <div>
-            <p className="text-sm font-semibold text-bb-black">{event.title}</p>
-            <p className="mt-0.5 text-xs text-bb-gray-500">{event.description}</p>
-            <p className="mt-1 text-[10px] text-bb-gray-500">
+            <p className="text-sm font-semibold text-[var(--bb-ink-100)]">{event.title}</p>
+            <p className="mt-0.5 text-xs text-[var(--bb-ink-40)]">{event.description}</p>
+            <p className="mt-1 text-[10px] text-[var(--bb-ink-40)]">
               {new Date(event.date).toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: 'short',
@@ -232,7 +232,7 @@ function TabEvolucao({ data }: { data: EvolutionDataDTO }) {
   return (
     <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold text-bb-black">Radar de Tecnicas</h3>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--bb-ink-100)]">Radar de Tecnicas</h3>
         <div className="flex justify-center">
           <ResponsiveContainer width="100%" height={280}>
             <RadarChart data={radarData}>
@@ -251,9 +251,9 @@ function TabEvolucao({ data }: { data: EvolutionDataDTO }) {
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {data.current_scores.map((score) => (
-            <div key={score.criteria} className="rounded-lg bg-bb-gray-100 p-2 text-center">
-              <p className="text-xs text-bb-gray-500">{score.label}</p>
-              <p className="text-xl font-bold text-bb-black">{score.score}</p>
+            <div key={score.criteria} className="rounded-lg bg-[var(--bb-depth-3)] p-2 text-center">
+              <p className="text-xs text-[var(--bb-ink-40)]">{score.label}</p>
+              <p className="text-xl font-bold text-[var(--bb-ink-100)]">{score.score}</p>
             </div>
           ))}
         </div>
@@ -269,30 +269,30 @@ function TabPresencas({ data }: { data: AttendanceHeatmapDTO }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-bb-black">{data.total_year}</p>
-          <p className="text-[10px] text-bb-gray-500">Total no ano</p>
+          <p className="text-2xl font-bold text-[var(--bb-ink-100)]">{data.total_year}</p>
+          <p className="text-[10px] text-[var(--bb-ink-40)]">Total no ano</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-bb-red">{data.current_streak}</p>
-          <p className="text-[10px] text-bb-gray-500">Streak atual</p>
+          <p className="text-2xl font-bold text-[var(--bb-brand-primary)]">{data.current_streak}</p>
+          <p className="text-[10px] text-[var(--bb-ink-40)]">Streak atual</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-bb-black">{data.longest_streak}</p>
-          <p className="text-[10px] text-bb-gray-500">Maior streak</p>
+          <p className="text-2xl font-bold text-[var(--bb-ink-100)]">{data.longest_streak}</p>
+          <p className="text-[10px] text-[var(--bb-ink-40)]">Maior streak</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-bb-black">{data.average_per_week}</p>
-          <p className="text-[10px] text-bb-gray-500">Media/semana</p>
+          <p className="text-2xl font-bold text-[var(--bb-ink-100)]">{data.average_per_week}</p>
+          <p className="text-[10px] text-[var(--bb-ink-40)]">Media/semana</p>
         </Card>
       </div>
 
       <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold text-bb-black">Mapa de Presencas (365 dias)</h3>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--bb-ink-100)]">Mapa de Presencas (365 dias)</h3>
         <AttendanceHeatmapGrid days={data.days} />
       </Card>
 
       <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold text-bb-black">Distribuicao por Modalidade</h3>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--bb-ink-100)]">Distribuicao por Modalidade</h3>
         <ModalityBar distribution={data.distribution} />
       </Card>
     </div>
@@ -306,9 +306,9 @@ function TabFinanceiro({ data }: { data: FinanceiroPerfilDTO }) {
     <div className="space-y-4">
       {data.plan ? (
         <Card variant="elevated" className="border-l-4 border-bb-red p-4">
-          <p className="text-xs font-semibold uppercase text-bb-gray-500">Plano Atual</p>
-          <p className="mt-1 text-lg font-bold text-bb-black">{data.plan.plan_name}</p>
-          <div className="mt-1 flex items-center gap-3 text-sm text-bb-gray-500">
+          <p className="text-xs font-semibold uppercase font-mono text-[var(--bb-ink-40)]">Plano Atual</p>
+          <p className="mt-1 text-lg font-bold text-[var(--bb-ink-100)]">{data.plan.plan_name}</p>
+          <div className="mt-1 flex items-center gap-3 text-sm text-[var(--bb-ink-60)]">
             <span>
               R$ {data.plan.price.toFixed(2).replace('.', ',')}/
               {data.plan.interval === 'monthly' ? 'mes' : data.plan.interval === 'quarterly' ? 'tri' : 'ano'}
@@ -317,20 +317,20 @@ function TabFinanceiro({ data }: { data: FinanceiroPerfilDTO }) {
               {data.plan.status === 'active' ? 'Ativo' : data.plan.status}
             </Badge>
           </div>
-          <p className="mt-1 text-xs text-bb-gray-500">
+          <p className="mt-1 text-xs text-[var(--bb-ink-40)]">
             Proxima cobranca:{' '}
             {new Date(data.plan.current_period_end).toLocaleDateString('pt-BR')}
           </p>
         </Card>
       ) : (
         <Card className="p-4 text-center">
-          <p className="text-bb-gray-500">Sem plano ativo.</p>
+          <p className="text-[var(--bb-ink-40)]">Sem plano ativo.</p>
         </Card>
       )}
 
       {data.invoices.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-bb-black">Faturas</h3>
+          <h3 className="mb-2 text-sm font-semibold text-[var(--bb-ink-100)]">Faturas</h3>
           <div className="space-y-2">
             {data.invoices.map((inv) => {
               const statusInfo = INVOICE_STATUS_MAP[inv.status] ?? {
@@ -340,13 +340,13 @@ function TabFinanceiro({ data }: { data: FinanceiroPerfilDTO }) {
               return (
                 <Card key={inv.id} variant="outlined" className="flex items-center justify-between p-3">
                   <div>
-                    <p className="text-sm font-medium text-bb-black">{inv.description}</p>
-                    <p className="text-xs text-bb-gray-500">
+                    <p className="text-sm font-medium text-[var(--bb-ink-100)]">{inv.description}</p>
+                    <p className="text-xs text-[var(--bb-ink-40)]">
                       Vencimento: {new Date(inv.due_date).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-bb-black">
+                    <p className="text-sm font-bold text-[var(--bb-ink-100)]">
                       R$ {inv.amount.toFixed(2).replace('.', ',')}
                     </p>
                     <p className={cn('text-xs font-medium', statusInfo.color)}>
@@ -373,18 +373,18 @@ function SettingsLinks() {
   ];
 
   return (
-    <Card className="divide-y divide-bb-gray-100">
+    <Card className="divide-y divide-[var(--bb-glass-border)]">
       {items.map((item) => (
         <button
           key={item.label}
-          className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-bb-gray-50"
+          className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[var(--bb-depth-1)]"
         >
           <div>
-            <p className="text-sm font-medium text-bb-black">{item.label}</p>
-            <p className="text-xs text-bb-gray-500">{item.description}</p>
+            <p className="text-sm font-medium text-[var(--bb-ink-100)]">{item.label}</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">{item.description}</p>
           </div>
           <svg
-            className="h-4 w-4 text-bb-gray-400"
+            className="h-4 w-4 text-[var(--bb-ink-40)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -505,10 +505,10 @@ export default function DashboardPerfilPage() {
   if (loading) return <ProfileSkeleton />;
   if (!profile) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] p-4">
         <p className="text-4xl">👤</p>
-        <h2 className="mt-4 text-lg font-bold text-bb-gray-900">Perfil indisponivel</h2>
-        <p className="mt-1 text-sm text-bb-gray-500">Nao foi possivel carregar seus dados.</p>
+        <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
+        <p className="mt-1 text-sm text-[var(--bb-ink-40)]">Nao foi possivel carregar seus dados.</p>
       </div>
     );
   }
@@ -552,7 +552,7 @@ export default function DashboardPerfilPage() {
       </div>
 
       {/* ── Tab Navigation ────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 border-b border-bb-gray-300 bg-bb-white">
+      <div className="sticky top-0 z-10 border-b border-[var(--bb-glass-border)] bg-[var(--bb-depth-1)]">
         <div className="flex overflow-x-auto">
           {TABS.map((tab) => (
             <button
@@ -561,8 +561,8 @@ export default function DashboardPerfilPage() {
               className={cn(
                 'flex-shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors',
                 activeTab === tab.key
-                  ? 'border-bb-red text-bb-red'
-                  : 'border-transparent text-bb-gray-500 hover:text-bb-gray-700',
+                  ? 'border-[var(--bb-brand-primary)] text-[var(--bb-brand-primary)]'
+                  : 'border-transparent text-[var(--bb-ink-40)] hover:text-[var(--bb-ink-80)]',
               )}
             >
               {tab.label}
@@ -590,7 +590,7 @@ export default function DashboardPerfilPage() {
 
       {/* ── Settings ──────────────────────────────────────────── */}
       <div className="mt-6 px-4">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-bb-gray-500">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
           Configuracoes
         </h3>
         <SettingsLinks />

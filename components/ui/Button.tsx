@@ -1,4 +1,4 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -10,11 +10,28 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-bb-red text-bb-white hover:bg-bb-red-dark',
-  secondary: 'bg-bb-gray-100 text-bb-gray-900 hover:bg-bb-gray-300',
-  ghost: 'bg-transparent text-bb-gray-700 hover:bg-bb-gray-100',
-  danger: 'bg-bb-error text-bb-white hover:opacity-90',
+const variantClasses: Record<ButtonVariant, string> = {
+  primary: 'text-white',
+  secondary: '',
+  ghost: '',
+  danger: 'text-white',
+};
+
+const variantInlineStyles: Record<ButtonVariant, CSSProperties> = {
+  primary: {
+    background: 'var(--bb-brand-gradient)',
+  },
+  secondary: {
+    backgroundColor: 'var(--bb-depth-4)',
+    color: 'var(--bb-ink-100)',
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    color: 'var(--bb-ink-60)',
+  },
+  danger: {
+    backgroundColor: 'var(--bb-error)',
+  },
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -24,18 +41,70 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading, disabled, children, ...props }, ref) => (
+  ({ className, variant = 'primary', size = 'md', loading, disabled, children, style, ...props }, ref) => (
     <button
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-red focus-visible:ring-offset-2',
-        'disabled:pointer-events-none disabled:opacity-50',
-        variantStyles[variant],
+        'bb-button inline-flex items-center justify-center font-medium transition-all duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        variantClasses[variant],
         sizeStyles[size],
         className,
       )}
+      style={{
+        borderRadius: 'var(--bb-radius-md)',
+        '--bb-focus-ring': 'var(--bb-brand)',
+        ...variantInlineStyles[variant],
+        ...style,
+      } as CSSProperties}
       disabled={disabled || loading}
+      onMouseEnter={(e) => {
+        if (disabled || loading) return;
+        const el = e.currentTarget;
+        if (variant === 'primary') {
+          el.style.boxShadow = 'var(--bb-brand-glow)';
+          el.style.transform = 'translateY(-1px)';
+        } else if (variant === 'secondary') {
+          el.style.backgroundColor = 'var(--bb-depth-5)';
+        } else if (variant === 'ghost') {
+          el.style.backgroundColor = 'var(--bb-depth-4)';
+          el.style.color = 'var(--bb-ink-80)';
+        }
+        props.onMouseEnter?.(e);
+      }}
+      onMouseLeave={(e) => {
+        if (disabled || loading) return;
+        const el = e.currentTarget;
+        if (variant === 'primary') {
+          el.style.boxShadow = '';
+          el.style.transform = '';
+        } else if (variant === 'secondary') {
+          el.style.backgroundColor = 'var(--bb-depth-4)';
+        } else if (variant === 'ghost') {
+          el.style.backgroundColor = 'transparent';
+          el.style.color = 'var(--bb-ink-60)';
+        }
+        props.onMouseLeave?.(e);
+      }}
+      onMouseDown={(e) => {
+        if (disabled || loading) return;
+        const el = e.currentTarget;
+        if (variant === 'primary') {
+          el.style.transform = 'translateY(0)';
+          el.style.filter = 'brightness(0.9)';
+        }
+        props.onMouseDown?.(e);
+      }}
+      onMouseUp={(e) => {
+        if (disabled || loading) return;
+        const el = e.currentTarget;
+        if (variant === 'primary') {
+          el.style.transform = 'translateY(-1px)';
+          el.style.filter = '';
+        }
+        props.onMouseUp?.(e);
+      }}
       {...props}
     >
       {loading && (

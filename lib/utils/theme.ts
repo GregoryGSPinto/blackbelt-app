@@ -1,76 +1,37 @@
-const STORAGE_KEY = 'bb-theme-preference';
+/**
+ * Theme utilities — used by the FOUC prevention inline script.
+ * The ThemeContext is the source of truth at runtime.
+ *
+ * The new design system uses `:root` as dark (default) and `.light` class
+ * on <html> for light mode. We also keep `dark` class for Tailwind compat.
+ */
 
-export type ThemeMode = 'light' | 'dark' | 'auto';
+export const THEME_STORAGE_KEY = 'bb-theme';
 
-function getStoredPreference(): ThemeMode {
-  if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored;
-  return 'auto';
-}
+export type ThemeMode = 'light' | 'dark' | 'system';
 
-function shouldBeDark(mode: ThemeMode): boolean {
-  if (mode === 'dark') return true;
-  if (mode === 'light') return false;
-
-  // Auto: dark after 19h (7pm), light before
-  const hour = new Date().getHours();
-  return hour >= 19 || hour < 6;
-}
-
-function applyTheme(dark: boolean): void {
-  if (typeof document === 'undefined') return;
-  const root = document.documentElement;
-  if (dark) {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
-}
-
-export function getThemeMode(): ThemeMode {
-  return getStoredPreference();
-}
-
-export function isDarkActive(): boolean {
-  return shouldBeDark(getStoredPreference());
-}
-
-export function setThemeMode(mode: ThemeMode): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, mode);
-  applyTheme(shouldBeDark(mode));
-}
-
-export function toggleTheme(): ThemeMode {
-  const current = getStoredPreference();
-  let next: ThemeMode;
-
-  if (current === 'light') {
-    next = 'dark';
-  } else if (current === 'dark') {
-    next = 'auto';
-  } else {
-    next = 'light';
-  }
-
-  setThemeMode(next);
-  return next;
-}
-
-export function initTheme(): void {
-  const mode = getStoredPreference();
-  applyTheme(shouldBeDark(mode));
-
-  // If auto, re-check every minute
-  if (mode === 'auto') {
-    const interval = setInterval(() => {
-      const currentMode = getStoredPreference();
-      if (currentMode !== 'auto') {
-        clearInterval(interval);
-        return;
-      }
-      applyTheme(shouldBeDark('auto'));
-    }, 60_000);
-  }
+/**
+ * Returns the inline script string for FOUC prevention.
+ * Must be inserted as a blocking <script> in <head>.
+ */
+export function getThemeInitScript(): string {
+  return `
+(function(){
+  try {
+    var stored = localStorage.getItem('${THEME_STORAGE_KEY}');
+    var isLight = stored === 'light' ||
+      (stored !== 'dark' && !window.matchMedia('(prefers-color-scheme: dark)').matches && stored !== 'system');
+    var isDark = stored === 'dark' ||
+      (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var root = document.documentElement;
+    if (isLight) {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+  } catch(e){}
+})();
+`.trim();
 }

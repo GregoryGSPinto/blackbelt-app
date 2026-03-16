@@ -15,7 +15,7 @@ function BeltRibbon({ color, label, faded }: { color: string; label: string; fad
         className="h-5 w-24 rounded-md shadow-md"
         style={{ backgroundColor: color }}
       />
-      <p className="mt-1 text-xs font-bold text-gray-600">{label}</p>
+      <p className="mt-1 text-xs font-bold text-[var(--bb-ink-60)]">{label}</p>
     </div>
   );
 }
@@ -58,16 +58,16 @@ export default function KidsPerfilPage() {
   // ── Loading ───────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-sky-50 to-amber-50 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
           <div className="flex flex-col items-center gap-3">
-            <Skeleton variant="circle" className="h-28 w-28 bg-sky-100" />
-            <Skeleton variant="text" className="h-8 w-40 bg-sky-100" />
-            <Skeleton variant="text" className="h-5 w-32 bg-sky-100" />
+            <Skeleton variant="circle" className="h-28 w-28 bg-[var(--bb-depth-3)]" />
+            <Skeleton variant="text" className="h-8 w-40 bg-[var(--bb-depth-3)]" />
+            <Skeleton variant="text" className="h-5 w-32 bg-[var(--bb-depth-3)]" />
           </div>
-          <Skeleton variant="card" className="h-24 bg-sky-100" />
-          <Skeleton variant="card" className="h-36 bg-sky-100" />
-          <Skeleton variant="card" className="h-24 bg-sky-100" />
+          <Skeleton variant="card" className="h-24 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-36 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-24 bg-[var(--bb-depth-3)]" />
         </div>
       </div>
     );
@@ -76,10 +76,10 @@ export default function KidsPerfilPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-pink-50 px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
         <span className="text-6xl">👤</span>
-        <h2 className="mt-4 text-xl font-extrabold text-gray-800">Perfil indisponivel</h2>
-        <p className="mt-2 text-center text-sm text-gray-500">
+        <h2 className="mt-4 text-xl font-extrabold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
+        <p className="mt-2 text-center text-sm text-[var(--bb-ink-40)]">
           Nao foi possivel carregar seus dados. Tente novamente!
         </p>
       </div>
@@ -92,7 +92,7 @@ export default function KidsPerfilPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-yellow-50 to-pink-50 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* Hero */}
       <section className="px-4 pb-2 pt-8 text-center">
         <div className="mx-auto max-w-lg">
@@ -101,7 +101,7 @@ export default function KidsPerfilPage() {
             <span className="text-6xl">🥋</span>
           </div>
 
-          <h1 className="mt-4 text-3xl font-extrabold text-gray-800">
+          <h1 className="mt-4 text-3xl font-extrabold text-[var(--bb-ink-100)]">
             {data.display_name}
           </h1>
 
@@ -111,30 +111,30 @@ export default function KidsPerfilPage() {
               className="h-4 w-20 rounded shadow-sm"
               style={{ backgroundColor: data.belt.current_color }}
             />
-            <span className="text-sm font-bold text-gray-600">{data.belt.current_label}</span>
+            <span className="text-sm font-bold text-[var(--bb-ink-60)]">{data.belt.current_label}</span>
           </div>
 
           {/* Stars count */}
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-6 py-3 shadow-lg shadow-amber-100/50">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--bb-depth-3)] px-6 py-3 shadow-[var(--bb-shadow-md)]">
             <span className="animate-pulse text-3xl">⭐</span>
-            <span className="text-3xl font-extrabold text-amber-600">{data.stars.total}</span>
-            <span className="text-sm text-gray-500">estrelas</span>
+            <span className="text-3xl font-extrabold text-[var(--bb-warning)]">{data.stars.total}</span>
+            <span className="text-sm text-[var(--bb-ink-40)]">estrelas</span>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Stars this week */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-amber-100/50 ring-1 ring-amber-200/30">
+        <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-yellow-200">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bb-warning)]/10">
               <span className="text-2xl">🌟</span>
             </div>
             <div>
-              <p className="text-xl font-extrabold text-gray-800">
+              <p className="text-xl font-extrabold text-[var(--bb-ink-100)]">
                 {data.stars.new_this_week} novas essa semana!
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--bb-ink-40)]">
                 Total: {data.stars.total} estrelas
               </p>
             </div>
@@ -142,44 +142,44 @@ export default function KidsPerfilPage() {
         </section>
 
         {/* Quick stats */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-blue-100/50 ring-1 ring-blue-200/30">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-gray-800">
+        <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
             <span>📊</span> Meus Numeros
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 p-4 text-center ring-1 ring-green-200/50">
               <span className="text-2xl">🤸</span>
               <p className="mt-1 text-2xl font-extrabold text-green-600">{MOCK_STATS.total_classes}</p>
-              <p className="text-xs text-gray-500">Treinos totais</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Treinos totais</p>
             </div>
             <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 p-4 text-center ring-1 ring-blue-200/50">
               <span className="text-2xl">📅</span>
               <p className="mt-1 text-2xl font-extrabold text-blue-600">{MOCK_STATS.classes_this_month}</p>
-              <p className="text-xs text-gray-500">Este mes</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Este mes</p>
             </div>
             <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 p-4 text-center ring-1 ring-purple-200/50">
               <span className="text-2xl">📒</span>
               <p className="mt-1 text-2xl font-extrabold text-purple-600">{MOCK_STATS.stickers_collected}</p>
-              <p className="text-xs text-gray-500">Figurinhas</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Figurinhas</p>
             </div>
             <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 p-4 text-center ring-1 ring-orange-200/50">
               <span className="text-2xl">💫</span>
               <p className="mt-1 text-2xl font-extrabold text-orange-600">{data.stars.total}</p>
-              <p className="text-xs text-gray-500">Estrelas</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Estrelas</p>
             </div>
           </div>
         </section>
 
         {/* Belt progress */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-sky-100/50 ring-1 ring-sky-200/30">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-gray-800">
+        <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
             <span>🎯</span> Minha Faixa
           </h2>
           <div className="flex items-center justify-center gap-8">
             <BeltRibbon color={data.belt.current_color} label={data.belt.current_label} />
             <div className="flex flex-col items-center">
-              <span className="text-xl text-gray-300">→</span>
-              <p className="text-[10px] text-gray-400">
+              <span className="text-xl text-[var(--bb-ink-40)]">→</span>
+              <p className="text-[10px] text-[var(--bb-ink-40)]">
                 {data.belt.stars_to_next} estrelas
               </p>
             </div>
@@ -196,21 +196,21 @@ export default function KidsPerfilPage() {
               }}
             />
           </div>
-          <p className="mt-2 text-center text-xs text-gray-500">
+          <p className="mt-2 text-center text-xs text-[var(--bb-ink-40)]">
             Faltam {data.belt.stars_to_next} estrelas para a proxima faixa!
           </p>
         </section>
 
         {/* Favorite move */}
-        <section className="rounded-3xl bg-gradient-to-r from-pink-100 to-purple-100 p-5 text-center shadow-lg">
+        <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 text-center shadow-[var(--bb-shadow-md)]">
           <span className="text-3xl">🥷</span>
-          <p className="mt-2 text-sm font-bold text-gray-700">Movimento favorito</p>
-          <p className="text-xl font-extrabold text-gray-800">{MOCK_STATS.favorite_move}</p>
+          <p className="mt-2 text-sm font-bold text-[var(--bb-ink-60)]">Movimento favorito</p>
+          <p className="text-xl font-extrabold text-[var(--bb-ink-100)]">{MOCK_STATS.favorite_move}</p>
         </section>
 
         {/* Member info */}
-        <section className="rounded-3xl bg-white/70 p-4 text-center">
-          <p className="text-xs text-gray-500">
+        <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-4 text-center">
+          <p className="text-xs text-[var(--bb-ink-40)]">
             Treinando desde {memberSinceDate}
           </p>
         </section>

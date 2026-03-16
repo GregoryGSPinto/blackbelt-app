@@ -22,15 +22,15 @@ function ProfileHeader({ name, email }: { name: string; email: string }) {
           <p className="text-sm text-bb-gray-400">{email}</p>
         </div>
       </div>
-      <div className="-mt-4 mx-4 mb-4 rounded-xl bg-white p-4 shadow-md">
+      <div className="-mt-4 mx-4 mb-4 rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-4 shadow-[var(--bb-shadow-md)]">
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
-            <p className="text-xs text-bb-gray-500">Perfil</p>
-            <p className="mt-0.5 text-sm font-bold text-bb-gray-900">Responsavel</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Perfil</p>
+            <p className="mt-0.5 text-sm font-bold text-[var(--bb-ink-100)]">Responsavel</p>
           </div>
           <div>
-            <p className="text-xs text-bb-gray-500">Conta</p>
-            <p className="mt-0.5 text-sm font-bold text-green-600">Ativa</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Conta</p>
+            <p className="mt-0.5 text-sm font-bold text-[var(--bb-success)]">Ativa</p>
           </div>
         </div>
       </div>
@@ -41,7 +41,7 @@ function ProfileHeader({ name, email }: { name: string; email: string }) {
 function LinkedChildrenSection({ data }: { data: GuardianDashboardDTO }) {
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-bb-gray-500">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
         Filhos Vinculados ({data.children.length})
       </h3>
       <div className="space-y-3">
@@ -50,36 +50,36 @@ function LinkedChildrenSection({ data }: { data: GuardianDashboardDTO }) {
             <div className="flex items-center gap-3">
               <Avatar name={child.display_name} size="md" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-bb-gray-900">{child.display_name}</p>
+                <p className="text-sm font-bold text-[var(--bb-ink-100)]">{child.display_name}</p>
                 <div className="mt-0.5 flex items-center gap-2">
                   <Badge variant="belt" size="sm">{child.belt_label}</Badge>
-                  <span className="text-xs text-bb-gray-500">{child.age} anos</span>
+                  <span className="text-xs text-[var(--bb-ink-40)]">{child.age} anos</span>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-bb-gray-900">{child.frequency_percent}%</p>
-                <p className="text-[10px] text-bb-gray-500">Freq.</p>
+                <p className="text-sm font-bold text-[var(--bb-ink-100)]">{child.frequency_percent}%</p>
+                <p className="text-[10px] text-[var(--bb-ink-40)]">Freq.</p>
               </div>
             </div>
             <div className="mt-3 flex gap-2">
-              <div className="flex-1 rounded-lg bg-bb-gray-100 p-2 text-center">
-                <p className="text-[10px] text-bb-gray-500">Pagamento</p>
+              <div className="flex-1 rounded-lg bg-[var(--bb-depth-3)] p-2 text-center">
+                <p className="text-[10px] text-[var(--bb-ink-40)]">Pagamento</p>
                 <p className={`text-xs font-semibold ${
-                  child.payment.status === 'em_dia' ? 'text-green-600' :
-                  child.payment.status === 'pendente' ? 'text-yellow-600' :
-                  'text-red-600'
+                  child.payment.status === 'em_dia' ? 'text-[var(--bb-success)]' :
+                  child.payment.status === 'pendente' ? 'text-[var(--bb-warning)]' :
+                  'text-[var(--bb-brand-primary)]'
                 }`}>
                   {child.payment.status === 'em_dia' ? 'Em dia' :
                    child.payment.status === 'pendente' ? 'Pendente' : 'Atrasado'}
                 </p>
               </div>
-              <div className="flex-1 rounded-lg bg-bb-gray-100 p-2 text-center">
-                <p className="text-[10px] text-bb-gray-500">Plano</p>
-                <p className="text-xs font-semibold text-bb-gray-900">{child.payment.plan_name}</p>
+              <div className="flex-1 rounded-lg bg-[var(--bb-depth-3)] p-2 text-center">
+                <p className="text-[10px] text-[var(--bb-ink-40)]">Plano</p>
+                <p className="text-xs font-semibold text-[var(--bb-ink-100)]">{child.payment.plan_name}</p>
               </div>
-              <div className="flex-1 rounded-lg bg-bb-gray-100 p-2 text-center">
-                <p className="text-[10px] text-bb-gray-500">Valor</p>
-                <p className="text-xs font-semibold text-bb-gray-900">R${child.payment.price}</p>
+              <div className="flex-1 rounded-lg bg-[var(--bb-depth-3)] p-2 text-center">
+                <p className="text-[10px] text-[var(--bb-ink-40)]">Valor</p>
+                <p className="text-xs font-semibold text-[var(--bb-ink-100)]">R${child.payment.price}</p>
               </div>
             </div>
           </Card>

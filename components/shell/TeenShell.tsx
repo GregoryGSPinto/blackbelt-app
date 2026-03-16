@@ -3,6 +3,7 @@
 import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { HomeIcon, CalendarIcon, AwardIcon, StarIcon, UserIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
@@ -21,18 +22,27 @@ const navItems: NavItem[] = [
 const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
   function TeenShell({ children }, ref) {
     return (
-      <div ref={ref} className="min-h-screen bg-bb-gray-900 pb-16">
+      <div ref={ref} className="min-h-screen pb-16" style={{ background: 'var(--bb-depth-1)' }}>
         {/* XP Bar */}
-        <div className="sticky top-0 z-30 bg-bb-gray-900 px-4 pt-2">
-          <div className="flex items-center justify-between text-xs text-bb-gray-500">
-            <span className="font-bold text-bb-white">Nível 7</span>
+        <div className="sticky top-0 z-30 px-4 pt-2" style={{ background: 'var(--bb-depth-1)' }}>
+          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+            <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Nível 7</span>
             <span>2.450 / 3.000 XP</span>
           </div>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-bb-gray-700">
-            <div className="h-full rounded-full bg-gradient-to-r from-bb-red to-bb-warning" style={{ width: '81.7%' }} />
+          <div
+            className="mt-1 h-2 overflow-hidden rounded-full"
+            style={{ background: 'var(--bb-depth-4)' }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: '81.7%',
+                background: 'linear-gradient(to right, var(--bb-brand), var(--bb-warning))',
+              }}
+            />
           </div>
         </div>
-        <ShellHeader title="BlackBelt" subtitle="Teen" />
+        <ShellHeader title="BlackBelt" subtitle="Teen" rightContent={<ThemeToggle />} />
         <main>{children}</main>
         <BottomNav items={navItems} />
       </div>

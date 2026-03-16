@@ -7,6 +7,7 @@ import { getAdminDashboard, getAdminMetrics } from '@/lib/api/admin.service';
 import type { AdminDashboardDTO, AdminMetrics } from '@/lib/api/admin.service';
 import { handleServiceError } from '@/lib/api/errors';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useCountUp } from '@/lib/hooks/useCountUp';
 import { StatusDoDia } from '@/components/shared/StatusDoDia';
 import { QuickActions } from '@/components/shared/QuickActions';
 import { DayRecap } from '@/components/shared/DayRecap';
@@ -18,6 +19,7 @@ const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false })
 const XAxis = dynamic(() => import('recharts').then((m) => m.XAxis), { ssr: false });
 const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis), { ssr: false });
 const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then((m) => m.CartesianGrid), { ssr: false });
 const ResponsiveContainer = dynamic(
   () => import('recharts').then((m) => m.ResponsiveContainer),
   { ssr: false },
@@ -112,6 +114,84 @@ const FALLBACK_RECEITA_MESES = [
   { month: 'Mar', receita: 3847 },
 ];
 
+// ── KPI Card component ──────────────────────────────────────────────
+interface KpiCardProps {
+  label: string;
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  trend?: { value: number; label: string };
+  decimals?: number;
+  bar?: { percent: number };
+}
+
+function KpiCard({ label, value, prefix, suffix, trend, decimals = 0, bar }: KpiCardProps) {
+  const animatedValue = useCountUp(value, 800, decimals);
+
+  return (
+    <div
+      className="p-6"
+      style={{
+        background: 'var(--bb-depth-3)',
+        border: '1px solid var(--bb-glass-border)',
+        borderRadius: 'var(--bb-radius-lg)',
+      }}
+    >
+      <p
+        className="font-mono uppercase"
+        style={{
+          fontSize: '11px',
+          letterSpacing: '0.08em',
+          color: 'var(--bb-ink-40)',
+        }}
+      >
+        {label}
+      </p>
+      <p
+        className="mt-2 font-mono font-bold"
+        style={{
+          fontSize: '44px',
+          letterSpacing: '-0.04em',
+          color: 'var(--bb-ink-100)',
+          lineHeight: 1.1,
+        }}
+      >
+        {prefix}{animatedValue}{suffix}
+      </p>
+
+      {bar && (
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full"
+          style={{ background: 'var(--bb-ink-20)' }}
+        >
+          <div
+            className="h-full rounded-full transition-all"
+            style={{
+              width: `${Math.min(bar.percent, 100)}%`,
+              background: bar.percent >= 70 ? 'var(--bb-success)' : 'var(--bb-warning)',
+            }}
+          />
+        </div>
+      )}
+
+      {trend && (
+        <div className="mt-3">
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-xs font-medium"
+            style={{
+              color: trend.value >= 0 ? 'var(--bb-success)' : 'var(--bb-warning)',
+              background: trend.value >= 0 ? 'var(--bb-success-surface)' : 'var(--bb-warning-surface)',
+            }}
+          >
+            {trend.value >= 0 ? '\u2191' : '\u2193'}
+            {Math.abs(trend.value)}% {trend.label}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Loading skeleton ────────────────────────────────────────────────
 function DashboardSkeleton() {
   return (
@@ -153,6 +233,15 @@ function DashboardSkeleton() {
     </div>
   );
 }
+
+// ── Chart tooltip style ─────────────────────────────────────────────
+const chartTooltipStyle: React.CSSProperties = {
+  backgroundColor: 'var(--bb-depth-4)',
+  border: '1px solid var(--bb-glass-border)',
+  borderRadius: 'var(--bb-radius-sm)',
+  boxShadow: 'var(--bb-shadow-md)',
+  color: 'var(--bb-ink-100)',
+};
 
 // ── Main page component ─────────────────────────────────────────────
 export default function AdminDashboardPage() {
@@ -250,219 +339,346 @@ export default function AdminDashboardPage() {
       ? 'Sua academia esta saudavel hoje.'
       : `${attentionAlerts.length} situac${attentionAlerts.length === 1 ? 'ao precisa' : 'oes precisam'} de atencao.`;
 
+  // Inadimplencia trend label
+  const inadimplenciaTrend = dashboard.inadimplencia > 5
+    ? { value: dashboard.inadimplencia - 5, label: 'acima do limite' }
+    : { value: -(5 - dashboard.inadimplencia), label: 'dentro do aceitavel' };
+
   return (
-    <div className="min-h-screen space-y-6 p-6">
+    <div className="min-h-screen space-y-6 p-6" data-stagger>
       {/* ── SECTION 1: Contextual greeting ──────────────────────────── */}
-      <section>
-        <h1 className="text-2xl font-bold text-bb-white">
+      <section className="animate-reveal">
+        <h1
+          className="font-display font-bold"
+          style={{
+            fontSize: '28px',
+            color: 'var(--bb-ink-100)',
+          }}
+        >
           {getGreeting()}, {userName}.
         </h1>
         <p
-          className={`mt-1 text-sm ${
-            attentionAlerts.length === 0 ? 'text-green-400' : 'text-yellow-400'
-          }`}
+          className="mt-1 text-sm"
+          style={{ color: 'var(--bb-ink-60)' }}
         >
           {healthText}
         </p>
       </section>
 
       {/* ── Shared components: StatusDoDia + QuickActions ───────────── */}
-      <StatusDoDia role="admin" data={statusData} />
+      <div className="animate-reveal">
+        <StatusDoDia role="admin" data={statusData} />
+      </div>
 
-      <QuickActions
-        role="admin"
-        badges={{ riscos: attentionAlerts.length }}
-        onAction={handleQuickAction}
-      />
+      <div className="animate-reveal">
+        <QuickActions
+          role="admin"
+          badges={{ riscos: attentionAlerts.length }}
+          onAction={handleQuickAction}
+        />
+      </div>
 
-      <DayRecap role="admin" data={recapData} onDismiss={() => {}} />
+      <div className="animate-reveal">
+        <DayRecap role="admin" data={recapData} onDismiss={() => {}} />
+      </div>
 
       {/* ── SECTION 2: KPI Cards ────────────────────────────────────── */}
-      <section>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="animate-reveal">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
           {/* Alunos Ativos */}
-          <div className="rounded-xl bg-bb-gray-700 p-4">
-            <p className="text-3xl font-bold text-bb-white">{dashboard.alunosAtivos}</p>
-            <p className="mt-1 text-sm text-bb-gray-500">ativos</p>
-            <p className="mt-2 text-xs text-green-400">
-              +{dashboard.novosEsteMes} este mes
-            </p>
-          </div>
+          <KpiCard
+            label="Alunos Ativos"
+            value={dashboard.alunosAtivos}
+            trend={{ value: dashboard.novosEsteMes, label: 'este mes' }}
+          />
 
           {/* Receita */}
-          <div className="rounded-xl bg-bb-gray-700 p-4">
-            <p className="text-3xl font-bold text-bb-white">
-              R$ {formatCurrency(dashboard.receitaMensal)}
-            </p>
-            <p className="mt-1 text-sm text-bb-gray-500">receita</p>
-            <p
-              className={`mt-2 text-xs ${
-                receitaTrend >= 0 ? 'text-green-400' : 'text-bb-error'
-              }`}
-            >
-              {receitaTrend >= 0 ? '\u2191' : '\u2193'}
-              {Math.abs(receitaTrend)}%
-            </p>
-          </div>
+          <KpiCard
+            label="Receita Mensal"
+            value={dashboard.receitaMensal}
+            prefix="R$ "
+            trend={{ value: receitaTrend, label: 'vs mes anterior' }}
+          />
 
           {/* Presenca */}
-          <div className="rounded-xl bg-bb-gray-700 p-4">
-            <p className="text-3xl font-bold text-bb-white">{dashboard.presencaMedia}%</p>
-            <p className="mt-1 text-sm text-bb-gray-500">presenca</p>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bb-gray-900">
-              <div
-                className={`h-full rounded-full transition-all ${
-                  dashboard.presencaMedia >= 70 ? 'bg-green-400' : 'bg-yellow-400'
-                }`}
-                style={{ width: `${Math.min(dashboard.presencaMedia, 100)}%` }}
-              />
-            </div>
-          </div>
+          <KpiCard
+            label="Presenca Media"
+            value={dashboard.presencaMedia}
+            suffix="%"
+            bar={{ percent: dashboard.presencaMedia }}
+          />
 
           {/* Inadimplencia */}
-          <div className="rounded-xl bg-bb-gray-700 p-4">
-            <p
-              className={`text-3xl font-bold ${
-                dashboard.inadimplencia > 5 ? 'text-bb-error' : 'text-bb-white'
-              }`}
-            >
-              {dashboard.inadimplencia}%
-            </p>
-            <p className="mt-1 text-sm text-bb-gray-500">inadimplencia</p>
-            {dashboard.inadimplencia > 5 && (
-              <p className="mt-2 text-xs text-bb-error">Acima do limite</p>
-            )}
-            {dashboard.inadimplencia <= 5 && (
-              <p className="mt-2 text-xs text-green-400">Dentro do aceitavel</p>
-            )}
-          </div>
+          <KpiCard
+            label="Inadimplencia"
+            value={dashboard.inadimplencia}
+            suffix="%"
+            trend={inadimplenciaTrend}
+          />
         </div>
       </section>
 
       {/* ── SECTION 3: Central de Atencao ───────────────────────────── */}
-      <section className="rounded-xl bg-bb-gray-700 p-5">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-bb-red">
-          Precisa de acao agora
-        </h2>
+      <section className="animate-reveal">
+        <div
+          className="p-5"
+          style={{
+            background: attentionAlerts.length > 0
+              ? 'var(--bb-brand-surface)'
+              : 'var(--bb-success-surface)',
+            borderLeft: attentionAlerts.length > 0
+              ? '3px solid var(--bb-brand)'
+              : '3px solid var(--bb-success)',
+            borderRadius: 'var(--bb-radius-lg)',
+            boxShadow: attentionAlerts.length > 0
+              ? 'var(--bb-brand-glow)'
+              : 'none',
+          }}
+        >
+          <h2
+            className="mb-4 font-mono uppercase"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.12em',
+              color: attentionAlerts.length > 0
+                ? 'var(--bb-brand)'
+                : 'var(--bb-success)',
+            }}
+          >
+            {attentionAlerts.length > 0 ? 'ACAO NECESSARIA' : 'TUDO EM ORDEM'}
+          </h2>
 
-        {attentionAlerts.length === 0 ? (
-          <div className="flex items-center gap-2 rounded-lg bg-bb-gray-900/50 px-4 py-3 text-sm text-green-400">
-            <span>\u2705</span>
-            <span>Tudo em ordem hoje!</span>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {attentionAlerts.map((alert) => (
-              <div
-                key={alert.id}
-                className="flex items-center justify-between rounded-lg bg-bb-gray-900/50 px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">
-                    {alert.level === 'red' ? '\uD83D\uDD34' : '\uD83D\uDFE1'}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-bb-white">{alert.name}</p>
-                    <p className="text-xs text-bb-gray-500">{alert.issue}</p>
+          {attentionAlerts.length === 0 ? (
+            <div
+              className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm"
+              style={{ color: 'var(--bb-success)' }}
+            >
+              <span>{'\u2705'}</span>
+              <span>Tudo em ordem hoje!</span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {attentionAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className="flex items-center justify-between rounded-lg px-4 py-3"
+                  style={{
+                    background: 'var(--bb-depth-3)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">
+                      {alert.level === 'red' ? '\uD83D\uDD34' : '\uD83D\uDFE1'}
+                    </span>
+                    <div>
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--bb-ink-100)' }}
+                      >
+                        {alert.name}
+                      </p>
+                      <p
+                        className="text-xs"
+                        style={{ color: 'var(--bb-ink-60)' }}
+                      >
+                        {alert.issue}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                      style={{
+                        background: 'var(--bb-depth-5)',
+                        color: 'var(--bb-ink-100)',
+                      }}
+                    >
+                      Mensagem
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                      style={{
+                        background: 'var(--bb-brand)',
+                        color: 'var(--bb-ink-100)',
+                      }}
+                    >
+                      Perfil
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="rounded-lg bg-bb-gray-500 px-3 py-1.5 text-xs font-medium text-bb-white transition-colors hover:bg-bb-gray-900"
-                  >
-                    Mensagem
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-lg bg-bb-red px-3 py-1.5 text-xs font-medium text-bb-white transition-colors hover:bg-bb-red/80"
-                  >
-                    Perfil
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── SECTION 4: Timeline do Dia ──────────────────────────────── */}
-      <section className="rounded-xl bg-bb-gray-700 p-5">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-bb-white">
-          Timeline do Dia
-        </h2>
+      <section className="animate-reveal">
+        <div
+          className="p-5"
+          style={{
+            background: 'var(--bb-depth-3)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <h2
+            className="mb-4 font-mono uppercase"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: 'var(--bb-ink-40)',
+            }}
+          >
+            Timeline do Dia
+          </h2>
 
-        {dashboard.proximasAulas.length === 0 ? (
-          <p className="text-sm text-bb-gray-500">Nenhuma aula programada para hoje.</p>
-        ) : (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {dashboard.proximasAulas.map((aula, i) => {
-              const isNext = aula.time > currentTime;
-              const isPast = aula.time <= currentTime;
+          {dashboard.proximasAulas.length === 0 ? (
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Nenhuma aula programada para hoje.
+            </p>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {dashboard.proximasAulas.map((aula, i) => {
+                const isNext = aula.time > currentTime;
+                const isPast = aula.time <= currentTime;
 
-              return (
-                <div
-                  key={i}
-                  className={`flex flex-shrink-0 flex-col items-center rounded-xl px-5 py-3 text-center transition-all ${
-                    isNext && !isPast
-                      ? 'border-2 border-bb-red bg-bb-red/10 ring-1 ring-bb-red/30'
-                      : 'bg-bb-gray-900/50'
-                  }`}
-                  style={{ minWidth: '140px' }}
-                >
-                  <p
-                    className={`text-lg font-bold ${
-                      isNext && !isPast ? 'text-bb-red' : 'text-bb-white'
-                    }`}
+                return (
+                  <div
+                    key={i}
+                    className="flex flex-shrink-0 flex-col items-center px-5 py-3 text-center transition-all"
+                    style={{
+                      minWidth: '140px',
+                      borderRadius: 'var(--bb-radius-lg)',
+                      ...(isNext && !isPast
+                        ? {
+                            border: '2px solid var(--bb-brand)',
+                            background: 'var(--bb-brand-surface)',
+                            boxShadow: 'var(--bb-brand-glow)',
+                          }
+                        : {
+                            background: 'var(--bb-depth-4)',
+                            border: '1px solid var(--bb-glass-border)',
+                          }),
+                    }}
                   >
-                    {aula.time}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-bb-white">{aula.class_name}</p>
-                  <p className="text-xs text-bb-gray-500">{aula.professor_name}</p>
-                  <p className="mt-1 text-xs text-bb-gray-500">{aula.enrolled} alunos</p>
-                  {isNext && !isPast && (
-                    <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-bb-red">
-                      Proxima
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    <p
+                      className="text-lg font-bold font-mono"
+                      style={{
+                        color: isNext && !isPast ? 'var(--bb-brand)' : 'var(--bb-ink-100)',
+                      }}
+                    >
+                      {aula.time}
+                    </p>
+                    <p
+                      className="mt-1 text-sm font-medium"
+                      style={{ color: 'var(--bb-ink-100)' }}
+                    >
+                      {aula.class_name}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      {aula.professor_name}
+                    </p>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      {aula.enrolled} alunos
+                    </p>
+                    {isNext && !isPast && (
+                      <span
+                        className="mt-1 font-mono font-bold uppercase"
+                        style={{
+                          fontSize: '10px',
+                          letterSpacing: '0.08em',
+                          color: 'var(--bb-brand)',
+                        }}
+                      >
+                        Proxima
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── SECTION 5: Feed de Atividade ────────────────────────────── */}
-      <section className="rounded-xl bg-bb-gray-700 p-5">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-bb-white">
-          Atividade Recente
-        </h2>
+      <section className="animate-reveal">
+        <div
+          className="p-5"
+          style={{
+            background: 'var(--bb-depth-3)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <h2
+            className="mb-4 font-mono uppercase"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: 'var(--bb-ink-40)',
+            }}
+          >
+            Atividade Recente
+          </h2>
 
-        {activityFeed.length === 0 ? (
-          <p className="text-sm text-bb-gray-500">Nenhuma atividade recente.</p>
-        ) : (
-          <div className="space-y-2">
-            {activityFeed.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 rounded-lg bg-bb-gray-900/50 px-4 py-3"
-              >
-                <span className="text-lg">{item.icon}</span>
-                <div className="flex-1">
-                  <p className="text-sm text-bb-white">{item.text}</p>
+          {activityFeed.length === 0 ? (
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Nenhuma atividade recente.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {activityFeed.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 rounded-lg px-4 py-3"
+                  style={{
+                    background: 'var(--bb-depth-4)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <div className="flex-1">
+                    <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                      {item.text}
+                    </p>
+                  </div>
+                  <span
+                    className="flex-shrink-0 font-mono text-xs"
+                    style={{ color: 'var(--bb-ink-40)' }}
+                  >
+                    {item.time}
+                  </span>
                 </div>
-                <span className="flex-shrink-0 text-xs text-bb-gray-500">{item.time}</span>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── SECTION 6: Charts ───────────────────────────────────────── */}
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <section className="animate-reveal grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Presenca por Modalidade */}
-        <div className="rounded-xl bg-bb-gray-700 p-5">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-bb-white">
+        <div
+          className="p-5"
+          style={{
+            background: 'var(--bb-depth-3)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <h2
+            className="mb-4 font-mono uppercase"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: 'var(--bb-ink-40)',
+            }}
+          >
             Presenca por Modalidade
           </h2>
           <div className="h-64">
@@ -472,31 +688,58 @@ export default function AdminDashboardPage() {
                 layout="vertical"
                 margin={{ top: 0, right: 20, bottom: 0, left: 0 }}
               >
-                <XAxis type="number" domain={[0, 100]} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--bb-ink-20)"
+                  strokeOpacity={0.5}
+                  horizontal={false}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  tick={{
+                    fill: 'var(--bb-ink-40)',
+                    fontSize: 11,
+                    fontFamily: '"JetBrains Mono", monospace',
+                  }}
+                />
                 <YAxis
                   type="category"
                   dataKey="name"
                   width={90}
-                  tick={{ fill: '#e5e7eb', fontSize: 12 }}
+                  tick={{
+                    fill: 'var(--bb-ink-40)',
+                    fontSize: 11,
+                    fontFamily: '"JetBrains Mono", monospace',
+                  }}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1f2937',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#fff',
-                  }}
+                  contentStyle={chartTooltipStyle}
                   formatter={(value) => [`${value}%`, 'Presenca']}
                 />
-                <Bar dataKey="presenca" fill="#ef4444" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="presenca" fill="var(--bb-brand)" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Receita 6 meses */}
-        <div className="rounded-xl bg-bb-gray-700 p-5">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-bb-white">
+        <div
+          className="p-5"
+          style={{
+            background: 'var(--bb-depth-3)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <h2
+            className="mb-4 font-mono uppercase"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: 'var(--bb-ink-40)',
+            }}
+          >
             Receita 6 Meses
           </h2>
           <div className="h-64">
@@ -505,21 +748,35 @@ export default function AdminDashboardPage() {
                 data={receitaMesesData}
                 margin={{ top: 0, right: 10, bottom: 0, left: 0 }}
               >
-                <XAxis dataKey="month" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1f2937',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#fff',
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--bb-ink-20)"
+                  strokeOpacity={0.5}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="month"
+                  tick={{
+                    fill: 'var(--bb-ink-40)',
+                    fontSize: 11,
+                    fontFamily: '"JetBrains Mono", monospace',
                   }}
+                />
+                <YAxis
+                  tick={{
+                    fill: 'var(--bb-ink-40)',
+                    fontSize: 11,
+                    fontFamily: '"JetBrains Mono", monospace',
+                  }}
+                />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
                   formatter={(value) => [
                     `R$ ${formatCurrency(Number(value))}`,
                     'Receita',
                   ]}
                 />
-                <Bar dataKey="receita" fill="#ef4444" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="receita" fill="var(--bb-brand)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
