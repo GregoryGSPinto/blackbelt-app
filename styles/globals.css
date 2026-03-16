@@ -4,21 +4,21 @@
 
 @layer base {
   :root {
-    /* === ATMOSFERA ESCURA (default) === */
+    /* === ATMOSFERA CLARA (default — padrão Tailwind) === */
 
     /* Profundidade — 5 níveis de elevação */
-    --bb-depth-1: #06070A;
-    --bb-depth-2: #0C0E14;
-    --bb-depth-3: #12141C;
-    --bb-depth-4: #1A1D28;
-    --bb-depth-5: #242836;
+    --bb-depth-1: #F5F6FA;
+    --bb-depth-2: #FFFFFF;
+    --bb-depth-3: #FFFFFF;
+    --bb-depth-4: #F0F1F5;
+    --bb-depth-5: #E8E9EF;
 
-    /* Texto — warmth controlado */
-    --bb-ink-100: #F4F4F7;
-    --bb-ink-80: #B8BCC8;
-    --bb-ink-60: #7C8194;
-    --bb-ink-40: #4A4F63;
-    --bb-ink-20: #2A2E3E;
+    /* Texto */
+    --bb-ink-100: #0F1117;
+    --bb-ink-80: #3D4155;
+    --bb-ink-60: #6B7085;
+    --bb-ink-40: #9CA0B0;
+    --bb-ink-20: #D5D7E0;
 
     /* A Marca — Vermelho BlackBelt */
     --bb-brand: #EF4444;
@@ -51,16 +51,16 @@
     --bb-belt-black: #1C1917;
 
     /* Superfícies */
-    --bb-glass: rgba(255, 255, 255, 0.03);
-    --bb-glass-border: rgba(255, 255, 255, 0.06);
-    --bb-glass-border-hover: rgba(255, 255, 255, 0.12);
+    --bb-glass: rgba(0, 0, 0, 0.02);
+    --bb-glass-border: rgba(0, 0, 0, 0.06);
+    --bb-glass-border-hover: rgba(0, 0, 0, 0.12);
 
-    /* Sombras atmosféricas */
-    --bb-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --bb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --bb-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --bb-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-    --bb-shadow-xl: 0 16px 60px rgba(0, 0, 0, 0.6);
+    /* Sombras */
+    --bb-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --bb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --bb-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --bb-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
+    --bb-shadow-xl: 0 16px 60px rgba(0, 0, 0, 0.12);
 
     /* Radius */
     --bb-radius-sm: 8px;
@@ -79,34 +79,29 @@
     --bb-surface: var(--bb-depth-4);
   }
 
-  /* === ATMOSFERA CLARA === */
-  .light {
-    --bb-depth-1: #F5F6FA;
-    --bb-depth-2: #FFFFFF;
-    --bb-depth-3: #FFFFFF;
-    --bb-depth-4: #F0F1F5;
-    --bb-depth-5: #E8E9EF;
-    --bb-ink-100: #0F1117;
-    --bb-ink-80: #3D4155;
-    --bb-ink-60: #6B7085;
-    --bb-ink-40: #9CA0B0;
-    --bb-ink-20: #D5D7E0;
-    --bb-glass: rgba(0, 0, 0, 0.02);
-    --bb-glass-border: rgba(0, 0, 0, 0.06);
-    --bb-glass-border-hover: rgba(0, 0, 0, 0.12);
-    --bb-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --bb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-    --bb-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --bb-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
-    --bb-shadow-xl: 0 16px 60px rgba(0, 0, 0, 0.12);
+  /* === ATMOSFERA ESCURA (.dark — padrão Tailwind darkMode: 'class') === */
+  .dark {
+    --bb-depth-1: #06070A;
+    --bb-depth-2: #0C0E14;
+    --bb-depth-3: #12141C;
+    --bb-depth-4: #1A1D28;
+    --bb-depth-5: #242836;
 
-    /* Legacy compat */
-    --bb-bg: var(--bb-depth-1);
-    --bb-card: var(--bb-depth-3);
-    --bb-text: var(--bb-ink-100);
-    --bb-text-secondary: var(--bb-ink-60);
-    --bb-border: var(--bb-ink-20);
-    --bb-surface: var(--bb-depth-4);
+    --bb-ink-100: #F4F4F7;
+    --bb-ink-80: #B8BCC8;
+    --bb-ink-60: #7C8194;
+    --bb-ink-40: #4A4F63;
+    --bb-ink-20: #2A2E3E;
+
+    --bb-glass: rgba(255, 255, 255, 0.03);
+    --bb-glass-border: rgba(255, 255, 255, 0.06);
+    --bb-glass-border-hover: rgba(255, 255, 255, 0.12);
+
+    --bb-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --bb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --bb-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --bb-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+    --bb-shadow-xl: 0 16px 60px rgba(0, 0, 0, 0.6);
   }
 
   *,
@@ -140,13 +135,12 @@
     min-height: 100vh;
     background-color: var(--bb-depth-1);
     color: var(--bb-ink-100);
+  }
+
+  .dark body {
     background-image:
       radial-gradient(ellipse 80% 50% at 20% 40%, rgba(239, 68, 68, 0.015) 0%, transparent 70%),
       radial-gradient(ellipse 60% 60% at 80% 30%, rgba(59, 130, 246, 0.01) 0%, transparent 70%);
-  }
-
-  .light body {
-    background-image: none;
   }
 
   /* Focus ring */

@@ -24,24 +24,22 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 const STORAGE_KEY = 'bb-theme';
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined') return 'dark';
+  if (typeof window === 'undefined') return 'light';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function applyTheme(resolved: ResolvedTheme) {
   const root = document.documentElement;
-  if (resolved === 'light') {
-    root.classList.add('light');
-    root.classList.remove('dark');
-  } else {
+  if (resolved === 'dark') {
     root.classList.add('dark');
-    root.classList.remove('light');
+  } else {
+    root.classList.remove('dark');
   }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('dark');
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
 
   // Initialize from localStorage
   useEffect(() => {

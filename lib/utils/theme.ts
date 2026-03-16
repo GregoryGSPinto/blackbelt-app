@@ -2,8 +2,8 @@
  * Theme utilities — used by the FOUC prevention inline script.
  * The ThemeContext is the source of truth at runtime.
  *
- * The new design system uses `:root` as dark (default) and `.light` class
- * on <html> for light mode. We also keep `dark` class for Tailwind compat.
+ * Standard Tailwind pattern: :root = light (default), .dark = dark override.
+ * Only the `dark` class is toggled on <html>.
  */
 
 export const THEME_STORAGE_KEY = 'bb-theme';
@@ -19,17 +19,12 @@ export function getThemeInitScript(): string {
 (function(){
   try {
     var stored = localStorage.getItem('${THEME_STORAGE_KEY}');
-    var isLight = stored === 'light' ||
-      (stored !== 'dark' && !window.matchMedia('(prefers-color-scheme: dark)').matches && stored !== 'system');
-    var isDark = stored === 'dark' ||
-      (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    var root = document.documentElement;
-    if (isLight) {
-      root.classList.add('light');
-      root.classList.remove('dark');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = stored === 'dark' || (stored !== 'light' && prefersDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
     } else {
-      root.classList.add('dark');
-      root.classList.remove('light');
+      document.documentElement.classList.remove('dark');
     }
   } catch(e){}
 })();
