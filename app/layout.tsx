@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   description: 'Plataforma completa para gestão de academias de artes marciais. Check-in, turmas, progresso, pagamentos.',
   manifest: '/manifest.json',
   themeColor: '#C62828',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icons/icon-192x192.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
