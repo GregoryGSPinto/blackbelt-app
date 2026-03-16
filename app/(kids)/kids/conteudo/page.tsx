@@ -176,7 +176,7 @@ export default function KidsAventurasPage() {
             const starsEarned = sWatched * 2 + (sTotal > 0 && sWatched === sTotal ? 5 : 0);
 
             return (
-              <Link key={series.id} href={`/dashboard/conteudo/${series.id}`} className="block">
+              <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
                   className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}
@@ -234,7 +234,7 @@ export default function KidsAventurasPage() {
             const starsEarned = sWatched * 2;
 
             return (
-              <Link key={series.id} href={`/dashboard/conteudo/${series.id}`} className="block">
+              <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
                   className="rounded-[20px] p-4 flex items-center gap-4 border-2 border-white/10 transition-transform duration-200 active:scale-[0.98]"
                   style={{ background: theme.gradient }}
@@ -287,7 +287,7 @@ export default function KidsAventurasPage() {
             const starsEarned = sWatched * 2;
 
             return (
-              <Link key={series.id} href={`/dashboard/conteudo/${series.id}`} className="flex-shrink-0 w-40">
+              <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="flex-shrink-0 w-40">
                 <div
                   className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}
@@ -340,7 +340,7 @@ export default function KidsAventurasPage() {
             const starsEarned = sWatched * 2;
 
             return (
-              <Link key={series.id} href={`/dashboard/conteudo/${series.id}`} className="block">
+              <Link key={series.id} href={`/kids/conteudo/${series.id}`} className="block">
                 <div
                   className="rounded-[20px] overflow-hidden border-2 border-white/10 transition-transform duration-200 active:scale-95"
                   style={{ background: theme.gradient }}

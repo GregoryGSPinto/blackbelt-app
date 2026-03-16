@@ -165,7 +165,7 @@ export default function TeenBibliotecaPage() {
               return (
                 <Link
                   key={item.video_id}
-                  href={`/dashboard/conteudo/series-fund`}
+                  href={`/teen/conteudo/series-fund`}
                   className="flex-shrink-0 w-44 group"
                 >
                   <div className="relative bg-[#161622] rounded-xl overflow-hidden border border-purple-500/10 transition-all duration-200 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.3)] group-hover:border-purple-500/30">
@@ -254,7 +254,7 @@ export default function TeenBibliotecaPage() {
                     {trail.series.map((series: StreamingSeries) => (
                       <Link
                         key={series.id}
-                        href={`/dashboard/conteudo/${series.id}`}
+                        href={`/teen/conteudo/${series.id}`}
                         className="flex-shrink-0"
                       >
                         <div className="w-28 bg-[#1E1E2E] rounded-lg p-2 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-200">
@@ -300,7 +300,7 @@ export default function TeenBibliotecaPage() {
                   </div>
                   <div className="mt-2 space-y-2">
                     {modSeries.slice(0, 3).map((series) => (
-                      <Link key={series.id} href={`/dashboard/conteudo/${series.id}`} className="block">
+                      <Link key={series.id} href={`/teen/conteudo/${series.id}`} className="block">
                         <div className="bg-[#1E1E2E] rounded-lg p-3 flex items-center gap-3 border border-purple-500/5 transition-all duration-200 hover:border-purple-500/20">
                           <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative" style={{ background: series.gradient_css }}>
                             <span className="text-xl">🎬</span>
