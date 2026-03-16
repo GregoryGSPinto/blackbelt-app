@@ -69,7 +69,7 @@ export default function RankingPage() {
   return (
     <div className="min-h-screen bg-bb-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-bb-black to-gray-800 px-4 py-8 text-white sm:px-6">
+      <div className="bg-gradient-to-r from-bb-black to-[var(--bb-depth-5)] px-4 py-8 text-[var(--bb-ink-100)] sm:px-6">
         <div className="mx-auto max-w-6xl">
           <PageHeader title="Ranking da Federação" subtitle="Classificação oficial de atletas e academias - últimos 12 meses" />
         </div>

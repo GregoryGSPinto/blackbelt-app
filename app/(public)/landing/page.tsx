@@ -46,15 +46,15 @@ const TESTIMONIALS = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-bb-gray-900 text-white">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)]">
       {/* Nav */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <span className="text-2xl font-bold text-white">Black<span className="text-bb-red">Belt</span></span>
+        <span className="text-2xl font-bold text-[var(--bb-ink-100)]">Black<span className="text-bb-red">Belt</span></span>
         <div className="hidden items-center gap-6 sm:flex">
-          <a href="#features" className="text-sm text-gray-300 hover:text-white">Funcionalidades</a>
-          <a href="#pricing" className="text-sm text-gray-300 hover:text-white">Planos</a>
-          <a href="#faq" className="text-sm text-gray-300 hover:text-white">FAQ</a>
-          <Link href="/login" className="text-sm text-gray-300 hover:text-white">Login</Link>
+          <a href="#features" className="text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-100)]">Funcionalidades</a>
+          <a href="#pricing" className="text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-100)]">Planos</a>
+          <a href="#faq" className="text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-100)]">FAQ</a>
+          <Link href="/login" className="text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-100)]">Login</Link>
           <Link href="/cadastrar-academia" className="rounded-lg bg-bb-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Começar Grátis</Link>
         </div>
       </nav>
@@ -64,14 +64,14 @@ export default function LandingPage() {
         <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight sm:text-6xl">
           A plataforma completa para sua <span className="text-bb-red">academia de artes marciais</span>
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-400">
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-[var(--bb-ink-60)]">
           Gerencie alunos, turmas, pagamentos, presenças e faixas. Automatize cobranças, envie comunicações e acompanhe tudo com inteligência artificial.
         </p>
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link href="/cadastrar-academia" className="rounded-xl bg-bb-red px-8 py-4 text-lg font-bold text-white shadow-lg shadow-red-900/30 hover:bg-red-700">
             Cadastre sua academia grátis
           </Link>
-          <a href="#features" className="rounded-xl border border-gray-600 px-8 py-4 text-lg font-medium text-gray-300 hover:border-gray-400">
+          <a href="#features" className="rounded-xl border border-[var(--bb-glass-border)] px-8 py-4 text-lg font-medium text-[var(--bb-ink-60)] hover:border-[var(--bb-ink-40)]">
             Conheça as funcionalidades
           </a>
         </div>
@@ -82,10 +82,10 @@ export default function LandingPage() {
         <h2 className="mb-12 text-center text-3xl font-bold">Tudo que sua academia precisa</h2>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
-            <div key={f.title} className="rounded-2xl border border-gray-700 bg-gray-800/50 p-6">
+            <div key={f.title} className="rounded-2xl border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] p-6">
               <span className="text-4xl">{f.icon}</span>
               <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm text-gray-400">{f.desc}</p>
+              <p className="mt-2 text-sm text-[var(--bb-ink-40)]">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -99,7 +99,7 @@ export default function LandingPage() {
             <div key={s.num} className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-bb-red text-2xl font-bold">{s.num}</div>
               <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-gray-400">{s.desc}</p>
+              <p className="mt-2 text-sm text-[var(--bb-ink-40)]">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -110,18 +110,18 @@ export default function LandingPage() {
         <h2 className="mb-12 text-center text-3xl font-bold">Planos e Preços</h2>
         <div className="grid gap-8 sm:grid-cols-3">
           {PLANS.map((p) => (
-            <div key={p.name} className={`relative rounded-2xl border p-6 ${p.popular ? 'border-bb-red bg-gray-800' : 'border-gray-700 bg-gray-800/50'}`}>
+            <div key={p.name} className={`relative rounded-2xl border p-6 ${p.popular ? 'border-bb-red bg-[var(--bb-depth-3)]' : 'border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)]'}`}>
               {p.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-bb-red px-4 py-1 text-xs font-bold">MAIS POPULAR</span>}
               <h3 className="text-xl font-bold">{p.name}</h3>
-              <p className="mt-2"><span className="text-3xl font-extrabold">{p.price}</span><span className="text-gray-400">{p.period}</span></p>
+              <p className="mt-2"><span className="text-3xl font-extrabold">{p.price}</span><span className="text-[var(--bb-ink-40)]">{p.period}</span></p>
               <ul className="mt-6 space-y-3">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-300">
+                  <li key={f} className="flex items-center gap-2 text-sm text-[var(--bb-ink-60)]">
                     <span className="text-green-400">✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <Link href="/cadastrar-academia" className={`mt-6 block rounded-lg py-3 text-center font-semibold ${p.popular ? 'bg-bb-red text-white hover:bg-red-700' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}>
+              <Link href="/cadastrar-academia" className={`mt-6 block rounded-lg py-3 text-center font-semibold ${p.popular ? 'bg-bb-red text-white hover:bg-red-700' : 'bg-[var(--bb-depth-4)] text-[var(--bb-ink-80)] hover:bg-[var(--bb-depth-5)]'}`}>
                 {p.cta}
               </Link>
             </div>
@@ -134,11 +134,11 @@ export default function LandingPage() {
         <h2 className="mb-12 text-center text-3xl font-bold">O que dizem nossos clientes</h2>
         <div className="grid gap-8 sm:grid-cols-3">
           {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-gray-700 bg-gray-800/50 p-6">
-              <p className="text-gray-300">&ldquo;{t.quote}&rdquo;</p>
+            <div key={t.name} className="rounded-2xl border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] p-6">
+              <p className="text-[var(--bb-ink-60)]">&ldquo;{t.quote}&rdquo;</p>
               <div className="mt-4">
                 <p className="font-semibold">{t.name}</p>
-                <p className="text-sm text-gray-400">{t.academy}</p>
+                <p className="text-sm text-[var(--bb-ink-40)]">{t.academy}</p>
               </div>
             </div>
           ))}
@@ -150,49 +150,49 @@ export default function LandingPage() {
         <h2 className="mb-12 text-center text-3xl font-bold">Perguntas Frequentes</h2>
         <div className="space-y-4">
           {FAQ.map((item) => (
-            <details key={item.q} className="group rounded-xl border border-gray-700 bg-gray-800/50">
+            <details key={item.q} className="group rounded-xl border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)]">
               <summary className="flex cursor-pointer items-center justify-between p-4 font-medium">
                 {item.q}
-                <span className="text-gray-400 transition-transform group-open:rotate-45">+</span>
+                <span className="text-[var(--bb-ink-40)] transition-transform group-open:rotate-45">+</span>
               </summary>
-              <p className="px-4 pb-4 text-sm text-gray-400">{item.a}</p>
+              <p className="px-4 pb-4 text-sm text-[var(--bb-ink-40)]">{item.a}</p>
             </details>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 px-6 py-12">
+      <footer className="border-t border-[var(--bb-glass-border)] px-6 py-12">
         <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-4">
           <div>
             <span className="text-xl font-bold">Black<span className="text-bb-red">Belt</span></span>
-            <p className="mt-2 text-sm text-gray-400">Plataforma de gestão para academias de artes marciais.</p>
+            <p className="mt-2 text-sm text-[var(--bb-ink-40)]">Plataforma de gestão para academias de artes marciais.</p>
           </div>
           <div>
             <h4 className="mb-3 font-semibold">Produto</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#features" className="hover:text-white">Funcionalidades</a></li>
-              <li><a href="#pricing" className="hover:text-white">Planos</a></li>
-              <li><a href="#faq" className="hover:text-white">FAQ</a></li>
+            <ul className="space-y-2 text-sm text-[var(--bb-ink-40)]">
+              <li><a href="#features" className="hover:text-[var(--bb-ink-100)]">Funcionalidades</a></li>
+              <li><a href="#pricing" className="hover:text-[var(--bb-ink-100)]">Planos</a></li>
+              <li><a href="#faq" className="hover:text-[var(--bb-ink-100)]">FAQ</a></li>
             </ul>
           </div>
           <div>
             <h4 className="mb-3 font-semibold">Empresa</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/sobre" className="hover:text-white">Sobre</Link></li>
-              <li><Link href="/contato" className="hover:text-white">Contato</Link></li>
-              <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+            <ul className="space-y-2 text-sm text-[var(--bb-ink-40)]">
+              <li><Link href="/sobre" className="hover:text-[var(--bb-ink-100)]">Sobre</Link></li>
+              <li><Link href="/contato" className="hover:text-[var(--bb-ink-100)]">Contato</Link></li>
+              <li><Link href="/blog" className="hover:text-[var(--bb-ink-100)]">Blog</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="mb-3 font-semibold">Legal</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/termos" className="hover:text-white">Termos de Uso</Link></li>
-              <li><Link href="/privacidade" className="hover:text-white">Privacidade</Link></li>
+            <ul className="space-y-2 text-sm text-[var(--bb-ink-40)]">
+              <li><Link href="/termos" className="hover:text-[var(--bb-ink-100)]">Termos de Uso</Link></li>
+              <li><Link href="/privacidade" className="hover:text-[var(--bb-ink-100)]">Privacidade</Link></li>
             </ul>
           </div>
         </div>
-        <p className="mt-8 text-center text-sm text-gray-500">&copy; 2026 BlackBelt. Todos os direitos reservados.</p>
+        <p className="mt-8 text-center text-sm text-[var(--bb-ink-40)]">&copy; 2026 BlackBelt. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

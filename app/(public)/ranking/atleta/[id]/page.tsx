@@ -50,9 +50,9 @@ export default function AtletaProfilePage() {
   return (
     <div className="min-h-screen bg-bb-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-bb-black to-gray-800 px-4 py-10 text-white sm:px-6">
+      <div className="bg-gradient-to-r from-bb-black to-[var(--bb-depth-5)] px-4 py-10 text-[var(--bb-ink-100)] sm:px-6">
         <div className="mx-auto max-w-4xl">
-          <Link href="/ranking" className="mb-4 inline-flex items-center gap-1 text-sm text-white/70 hover:text-white">
+          <Link href="/ranking" className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-100)]">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -60,24 +60,24 @@ export default function AtletaProfilePage() {
           </Link>
 
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-xl font-bold">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--bb-glass)] text-xl font-bold">
               {profile.athlete_name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold">{profile.athlete_name}</h1>
-              <p className="mt-1 text-sm text-white/70">{profile.academy}</p>
+              <p className="mt-1 text-sm text-[var(--bb-ink-60)]">{profile.academy}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <span className={`rounded px-2 py-0.5 text-xs font-bold ${BELT_COLORS[profile.belt] ?? 'bg-bb-gray-200 text-bb-gray-600'}`}>
                   {profile.belt}
                 </span>
-                <span className="rounded bg-white/10 px-2 py-0.5 text-xs">{profile.weight_class}</span>
-                <span className="rounded bg-white/10 px-2 py-0.5 text-xs">{profile.region}</span>
-                <span className="rounded bg-white/10 px-2 py-0.5 text-xs">{profile.age} anos</span>
+                <span className="rounded bg-[var(--bb-glass)] px-2 py-0.5 text-xs">{profile.weight_class}</span>
+                <span className="rounded bg-[var(--bb-glass)] px-2 py-0.5 text-xs">{profile.region}</span>
+                <span className="rounded bg-[var(--bb-glass)] px-2 py-0.5 text-xs">{profile.age} anos</span>
               </div>
             </div>
             <div className="text-right">
               <p className="text-3xl font-bold">#{profile.ranking_position}</p>
-              <p className="text-sm text-white/60">Ranking</p>
+              <p className="text-sm text-[var(--bb-ink-40)]">Ranking</p>
             </div>
           </div>
         </div>

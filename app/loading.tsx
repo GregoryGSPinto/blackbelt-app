@@ -34,12 +34,11 @@ export default function Loading() {
         }}
       />
       <div
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-        style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%)' }}
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--bb-depth-1)]"
       >
         {/* Logo */}
         <h1
-          className="text-4xl font-bold tracking-tight text-white"
+          className="text-4xl font-bold tracking-tight text-[var(--bb-ink-100)]"
           style={{
             animation: 'bb-fade-in-scale 0.8s ease-out forwards',
             opacity: 0,
@@ -51,7 +50,7 @@ export default function Loading() {
 
         {/* Message */}
         <p
-          className="mt-4 text-sm text-neutral-500"
+          className="mt-4 text-sm text-[var(--bb-ink-40)]"
           style={{
             animation: 'bb-fade-in 0.6s ease-out 0.4s forwards',
             opacity: 0,
@@ -61,7 +60,7 @@ export default function Loading() {
         </p>
 
         {/* Progress bar at bottom */}
-        <div className="absolute bottom-0 left-0 h-[2px] w-full overflow-hidden bg-neutral-900">
+        <div className="absolute bottom-0 left-0 h-[2px] w-full overflow-hidden bg-[var(--bb-depth-3)]">
           <div
             className="h-full bg-[#DC2626]"
             style={{
