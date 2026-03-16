@@ -86,8 +86,8 @@ const BELT_LABEL_MAP: Record<string, string> = {
 const INVOICE_STATUS_MAP: Record<string, { label: string; color: string }> = {
   paid: { label: 'Pago', color: 'text-bb-success' },
   open: { label: 'Aberto', color: 'text-bb-warning' },
-  draft: { label: 'Rascunho', color: 'text-bb-gray-500' },
-  void: { label: 'Cancelado', color: 'text-bb-gray-500' },
+  draft: { label: 'Rascunho', color: 'text-[var(--bb-ink-40)]' },
+  void: { label: 'Cancelado', color: 'text-[var(--bb-ink-40)]' },
   uncollectible: { label: 'Inadimplente', color: 'text-bb-error' },
 };
 
@@ -335,7 +335,7 @@ function TabFinanceiro({ data }: { data: FinanceiroPerfilDTO }) {
             {data.invoices.map((inv) => {
               const statusInfo = INVOICE_STATUS_MAP[inv.status] ?? {
                 label: inv.status,
-                color: 'text-bb-gray-500',
+                color: 'text-[var(--bb-ink-40)]',
               };
               return (
                 <Card key={inv.id} variant="outlined" className="flex items-center justify-between p-3">

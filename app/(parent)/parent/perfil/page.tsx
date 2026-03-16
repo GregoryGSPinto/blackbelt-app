@@ -15,11 +15,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 function ProfileHeader({ name, email }: { name: string; email: string }) {
   return (
     <Card className="overflow-hidden">
-      <div className="bg-gradient-to-r from-bb-gray-900 to-bb-gray-700 px-4 pb-12 pt-8">
+      <div className="bg-gradient-to-r from-[var(--bb-depth-1)] to-[var(--bb-depth-3)] px-4 pb-12 pt-8">
         <div className="flex flex-col items-center">
           <Avatar name={name} size="xl" className="ring-4 ring-white/30" />
           <h2 className="mt-3 text-lg font-bold text-white">{name}</h2>
-          <p className="text-sm text-bb-gray-400">{email}</p>
+          <p className="text-sm text-[var(--bb-ink-60)]">{email}</p>
         </div>
       </div>
       <div className="-mt-4 mx-4 mb-4 rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-4 shadow-[var(--bb-shadow-md)]">
@@ -92,47 +92,47 @@ function LinkedChildrenSection({ data }: { data: GuardianDashboardDTO }) {
 function ContactInfoSection() {
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-bb-gray-500">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
         Informacoes de Contato
       </h3>
-      <Card className="divide-y divide-bb-gray-100">
+      <Card className="divide-y divide-[var(--bb-glass-border)]">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-gray-100">
-              <svg className="h-4 w-4 text-bb-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--bb-depth-3)]">
+              <svg className="h-4 w-4 text-[var(--bb-ink-40)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <p className="text-xs text-bb-gray-500">Email</p>
-              <p className="text-sm font-medium text-bb-gray-900">responsavel@email.com</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Email</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">responsavel@email.com</p>
             </div>
           </div>
         </div>
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-gray-100">
-              <svg className="h-4 w-4 text-bb-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--bb-depth-3)]">
+              <svg className="h-4 w-4 text-[var(--bb-ink-40)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
             </div>
             <div>
-              <p className="text-xs text-bb-gray-500">Telefone</p>
-              <p className="text-sm font-medium text-bb-gray-900">(11) 98765-4321</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Telefone</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">(11) 98765-4321</p>
             </div>
           </div>
         </div>
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-gray-100">
-              <svg className="h-4 w-4 text-bb-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--bb-depth-3)]">
+              <svg className="h-4 w-4 text-[var(--bb-ink-40)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div>
-              <p className="text-xs text-bb-gray-500">Endereco</p>
-              <p className="text-sm font-medium text-bb-gray-900">Sao Paulo, SP</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">Endereco</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">Sao Paulo, SP</p>
             </div>
           </div>
         </div>
@@ -150,21 +150,21 @@ function SettingsSection() {
 
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-bb-gray-500">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
         Configuracoes
       </h3>
-      <Card className="divide-y divide-bb-gray-100">
+      <Card className="divide-y divide-[var(--bb-glass-border)]">
         {items.map((item) => (
           <button
             key={item.label}
-            className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-bb-gray-50"
+            className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[var(--bb-depth-1)]"
           >
             <div>
-              <p className="text-sm font-medium text-bb-gray-900">{item.label}</p>
-              <p className="text-xs text-bb-gray-500">{item.description}</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{item.label}</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">{item.description}</p>
             </div>
             <svg
-              className="h-4 w-4 text-bb-gray-400"
+              className="h-4 w-4 text-[var(--bb-ink-40)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -201,7 +201,7 @@ export default function ParentPerfilPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bb-gray-50 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
           <Skeleton variant="card" className="h-48" />
           <Skeleton variant="card" className="h-32" />
@@ -214,11 +214,11 @@ export default function ParentPerfilPage() {
 
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-bb-gray-50 p-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] p-4">
         <div className="text-center">
           <p className="text-4xl">👤</p>
-          <h2 className="mt-4 text-lg font-bold text-bb-gray-900">Perfil indisponivel</h2>
-          <p className="mt-1 text-sm text-bb-gray-500">
+          <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
+          <p className="mt-1 text-sm text-[var(--bb-ink-40)]">
             Nao foi possivel carregar seus dados.
           </p>
         </div>
@@ -227,7 +227,7 @@ export default function ParentPerfilPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bb-gray-50 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         <ProfileHeader
           name={data.guardian_name}
@@ -238,7 +238,7 @@ export default function ParentPerfilPage() {
         <SettingsSection />
 
         {/* Logout */}
-        <button className="w-full rounded-xl border border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100">
+        <button className="w-full rounded-[var(--bb-radius-lg)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] py-3 text-sm font-semibold text-[var(--bb-brand-primary)] transition-colors hover:bg-[var(--bb-depth-1)]">
           Sair da conta
         </button>
       </div>

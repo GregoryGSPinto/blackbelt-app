@@ -171,9 +171,9 @@ export default function ProfessorDashboardPage() {
           variant="elevated"
           className={`p-4 ${
             headerInfo.type === 'active'
-              ? 'border-l-4 border-bb-red bg-red-50'
+              ? 'border-l-4 border-[var(--bb-brand-primary)] bg-[var(--bb-brand-primary)]/5'
               : headerInfo.type === 'soon'
-                ? 'border-l-4 border-yellow-500 bg-yellow-50'
+                ? 'border-l-4 border-[var(--bb-warning)] bg-[var(--bb-warning)]/5'
                 : ''
           }`}
         >
@@ -185,8 +185,8 @@ export default function ProfessorDashboardPage() {
                   Ao vivo
                 </span>
               )}
-              <p className="text-lg font-bold text-bb-gray-900">{headerInfo.message}</p>
-              <p className="text-sm text-bb-gray-500">{headerInfo.detail}</p>
+              <p className="text-lg font-bold text-[var(--bb-ink-100)]">{headerInfo.message}</p>
+              <p className="text-sm text-[var(--bb-ink-40)]">{headerInfo.detail}</p>
             </div>
             {headerInfo.type === 'active' && (
               <Link href="/turma-ativa">
@@ -212,7 +212,7 @@ export default function ProfessorDashboardPage() {
       {/* ── SECTION 1: Alunos que Precisam de Atencao ───────────── */}
       {atRiskStudents.length > 0 && (
         <section>
-          <h2 className="mb-3 font-semibold text-bb-gray-900">
+          <h2 className="mb-3 font-semibold text-[var(--bb-ink-100)]">
             Alunos que Precisam de Atencao
             <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-bb-red px-1 text-xs font-bold text-white">
               {atRiskStudents.length}
@@ -224,13 +224,13 @@ export default function ProfessorDashboardPage() {
                 ? Math.floor((Date.now() - new Date(aluno.ultima_presenca).getTime()) / 86400000)
                 : null;
               return (
-                <Card key={aluno.student_id} className="flex items-center gap-3 border-l-4 border-yellow-400 p-3">
+                <Card key={aluno.student_id} className="flex items-center gap-3 border-l-4 border-[var(--bb-warning)] p-3">
                   <Avatar name={aluno.display_name} size="md" />
                   <div className="flex-1">
-                    <p className="font-medium text-bb-gray-900">{aluno.display_name}</p>
+                    <p className="font-medium text-[var(--bb-ink-100)]">{aluno.display_name}</p>
                     <div className="flex items-center gap-2">
                       <Badge variant="belt" size="sm">{aluno.belt}</Badge>
-                      <span className="text-xs text-bb-gray-500">
+                      <span className="text-xs text-[var(--bb-ink-40)]">
                         {daysSince !== null ? `${daysSince}d sem treinar` : 'Nunca treinou'}
                       </span>
                     </div>
@@ -247,18 +247,18 @@ export default function ProfessorDashboardPage() {
 
       {/* ── SECTION 2: Proximas Aulas ───────────────────────────── */}
       <section>
-        <h2 className="mb-3 font-semibold text-bb-gray-900">Proximas Aulas</h2>
+        <h2 className="mb-3 font-semibold text-[var(--bb-ink-100)]">Proximas Aulas</h2>
         {upcomingClasses.length > 0 ? (
           <div className="space-y-2">
             {upcomingClasses.map((cls) => (
               <Card key={cls.class_id} className="flex items-center justify-between p-3">
                 <div>
-                  <p className="font-medium text-bb-gray-900">{cls.modality_name}</p>
-                  <p className="text-xs text-bb-gray-500">{cls.schedule_text}</p>
+                  <p className="font-medium text-[var(--bb-ink-100)]">{cls.modality_name}</p>
+                  <p className="text-xs text-[var(--bb-ink-40)]">{cls.schedule_text}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-bb-gray-900">{cls.enrolled_count} alunos</p>
-                  <span className={`text-xs font-medium ${cls.isToday ? 'text-bb-red' : 'text-bb-gray-500'}`}>
+                  <p className="text-sm font-semibold text-[var(--bb-ink-100)]">{cls.enrolled_count} alunos</p>
+                  <span className={`text-xs font-medium ${cls.isToday ? 'text-bb-red' : 'text-[var(--bb-ink-40)]'}`}>
                     {cls.isToday ? 'Hoje' : 'Amanha'}
                   </span>
                 </div>
@@ -266,7 +266,7 @@ export default function ProfessorDashboardPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-4 text-center text-sm text-bb-gray-500">
+          <Card className="p-4 text-center text-sm text-[var(--bb-ink-40)]">
             Nenhuma aula programada para hoje ou amanha.
           </Card>
         )}
@@ -275,12 +275,12 @@ export default function ProfessorDashboardPage() {
       {/* ── SECTION 3: Prontos para Avaliacao ───────────────────── */}
       {readyForEval.length > 0 && (
         <section>
-          <h2 className="mb-3 font-semibold text-bb-gray-900">Prontos para Avaliacao</h2>
+          <h2 className="mb-3 font-semibold text-[var(--bb-ink-100)]">Prontos para Avaliacao</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {readyForEval.map((aluno) => (
               <Card key={aluno.student_id} className="flex flex-col items-center p-3 text-center">
                 <Avatar name={aluno.display_name} size="md" />
-                <p className="mt-1 text-sm font-medium text-bb-gray-900">{aluno.display_name}</p>
+                <p className="mt-1 text-sm font-medium text-[var(--bb-ink-100)]">{aluno.display_name}</p>
                 <Badge variant="belt" size="sm" className="mt-0.5">{aluno.belt}</Badge>
                 <Button size="sm" variant="ghost" className="mt-2 text-xs text-bb-red">
                   Avaliar
@@ -294,7 +294,7 @@ export default function ProfessorDashboardPage() {
       {/* ── SECTION 4: Mensagens Nao Lidas ──────────────────────── */}
       {unreadMessages.length > 0 && (
         <section>
-          <h2 className="mb-3 font-semibold text-bb-gray-900">
+          <h2 className="mb-3 font-semibold text-[var(--bb-ink-100)]">
             Mensagens Nao Lidas
             <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-bb-red px-1 text-xs font-bold text-white">
               {unreadMessages.length}
@@ -304,10 +304,10 @@ export default function ProfessorDashboardPage() {
             {unreadMessages.map((msg) => (
               <Card key={msg.conversation_id} className="border-l-2 border-bb-red p-3">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-bb-gray-900">{msg.from_name}</p>
-                  <span className="text-xs text-bb-gray-500">{msg.time}</span>
+                  <p className="font-medium text-[var(--bb-ink-100)]">{msg.from_name}</p>
+                  <span className="text-xs text-[var(--bb-ink-40)]">{msg.time}</span>
                 </div>
-                <p className="mt-0.5 truncate text-sm text-bb-gray-500">{msg.preview}</p>
+                <p className="mt-0.5 truncate text-sm text-[var(--bb-ink-40)]">{msg.preview}</p>
               </Card>
             ))}
           </div>
@@ -316,27 +316,27 @@ export default function ProfessorDashboardPage() {
 
       {/* ── SECTION 5: Minhas Turmas ────────────────────────────── */}
       <section>
-        <h2 className="mb-3 font-semibold text-bb-gray-900">Minhas Turmas</h2>
+        <h2 className="mb-3 font-semibold text-[var(--bb-ink-100)]">Minhas Turmas</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {data.minhasTurmas.map((turma) => (
             <Card key={turma.class_id} className="p-3">
-              <p className="font-medium text-bb-gray-900">{turma.modality_name}</p>
-              <p className="text-xs text-bb-gray-500">{turma.schedule_text}</p>
+              <p className="font-medium text-[var(--bb-ink-100)]">{turma.modality_name}</p>
+              <p className="text-xs text-[var(--bb-ink-40)]">{turma.schedule_text}</p>
               <div className="mt-2 flex items-center justify-between text-sm">
-                <span className="text-bb-gray-500">{turma.enrolled_count} alunos</span>
+                <span className="text-[var(--bb-ink-40)]">{turma.enrolled_count} alunos</span>
                 <span
                   className={`font-medium ${
-                    turma.presenca_media >= 70 ? 'text-green-600' : 'text-yellow-600'
+                    turma.presenca_media >= 70 ? 'text-[var(--bb-success)]' : 'text-[var(--bb-warning)]'
                   }`}
                 >
                   {turma.presenca_media}% presenca
                 </span>
               </div>
               {/* Attendance bar */}
-              <div className="mt-1 h-1.5 w-full rounded-full bg-bb-gray-100">
+              <div className="mt-1 h-1.5 w-full rounded-full bg-[var(--bb-depth-3)]">
                 <div
                   className={`h-1.5 rounded-full ${
-                    turma.presenca_media >= 70 ? 'bg-green-500' : 'bg-yellow-500'
+                    turma.presenca_media >= 70 ? 'bg-[var(--bb-success)]' : 'bg-[var(--bb-warning)]'
                   }`}
                   style={{ width: `${turma.presenca_media}%` }}
                 />

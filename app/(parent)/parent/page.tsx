@@ -52,12 +52,12 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
           <Avatar name={child.display_name} size="lg" />
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-bb-gray-900">{child.display_name}</h2>
-              <span className="text-sm text-bb-gray-500">{child.age} anos</span>
+              <h2 className="text-lg font-bold text-[var(--bb-ink-100)]">{child.display_name}</h2>
+              <span className="text-sm text-[var(--bb-ink-40)]">{child.age} anos</span>
             </div>
             <div className="mt-0.5 flex items-center gap-2">
               <Badge variant="belt" size="sm">{child.belt_label}</Badge>
-              <span className="text-xs text-bb-gray-500">
+              <span className="text-xs text-[var(--bb-ink-40)]">
                 Frequência: {child.frequency_percent}%
               </span>
             </div>
@@ -70,20 +70,20 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
             >
               {child.health_score.score}
             </div>
-            <p className="mt-0.5 text-[10px] text-bb-gray-500">{child.health_score.label}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">{child.health_score.label}</p>
           </div>
         </div>
       </Card>
 
       {/* Weekly Attendance */}
       <Card className="p-4">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-bb-gray-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
           Presença da Semana
         </p>
         <div className="flex justify-between">
           {WEEKDAY_LABELS.map((day, i) => (
             <div key={day} className="flex flex-col items-center gap-1">
-              <span className="text-xs font-medium text-bb-gray-500">{day}</span>
+              <span className="text-xs font-medium text-[var(--bb-ink-40)]">{day}</span>
               <span className="text-lg">{ATTENDANCE_ICON[attendance[i]]}</span>
             </div>
           ))}
@@ -93,7 +93,7 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
       {/* Evolution: last 3 milestones */}
       <Card className="p-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wider text-bb-gray-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
             Evolução
           </p>
           <button className="text-xs font-semibold text-bb-red-500 transition-colors hover:text-bb-red-500/80">
@@ -105,8 +105,8 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
             <div key={ms.id} className="flex items-center gap-3">
               <span className="text-lg">{ms.emoji}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-bb-gray-900">{ms.title}</p>
-                <p className="text-[10px] text-bb-gray-500">
+                <p className="text-sm font-medium text-[var(--bb-ink-100)]">{ms.title}</p>
+                <p className="text-[10px] text-[var(--bb-ink-40)]">
                   {new Date(ms.date).toLocaleDateString('pt-BR')}
                 </p>
               </div>
@@ -117,7 +117,7 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
 
       {/* Messages */}
       <Card className="p-4">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-bb-gray-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
           Mensagens do Professor
         </p>
         <div className="space-y-2">
@@ -125,14 +125,14 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
             <div
               key={msg.id}
               className={`rounded-lg p-3 ${
-                msg.unread ? 'bg-bb-red-500/5 ring-1 ring-bb-red-500/20' : 'bg-bb-gray-100'
+                msg.unread ? 'bg-bb-red-500/5 ring-1 ring-bb-red-500/20' : 'bg-[var(--bb-depth-3)]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-bb-gray-900">{msg.teacher_name}</p>
-                <span className="text-[10px] text-bb-gray-500">{msg.time}</span>
+                <p className="text-xs font-bold text-[var(--bb-ink-100)]">{msg.teacher_name}</p>
+                <span className="text-[10px] text-[var(--bb-ink-40)]">{msg.time}</span>
               </div>
-              <p className="mt-1 text-sm text-bb-gray-700 line-clamp-2">{msg.preview}</p>
+              <p className="mt-1 text-sm text-[var(--bb-ink-60)] line-clamp-2">{msg.preview}</p>
               {msg.unread && (
                 <button className="mt-2 text-xs font-semibold text-bb-red-500">
                   Responder
@@ -147,10 +147,10 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-bb-gray-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
               Pagamento
             </p>
-            <p className="mt-1 text-sm text-bb-gray-900">
+            <p className="mt-1 text-sm text-[var(--bb-ink-100)]">
               {child.payment.plan_name}{' '}
               <span className="font-bold">R${child.payment.price}</span>
             </p>
@@ -158,10 +158,10 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
           <span className={`text-sm font-bold ${payStatus.text}`}>{payStatus.label}</span>
         </div>
         <div className="mt-3 flex gap-2">
-          <button className="flex-1 rounded-lg bg-bb-gray-100 py-2 text-xs font-semibold text-bb-gray-700 transition-colors hover:bg-bb-gray-200">
+          <button className="flex-1 rounded-lg bg-[var(--bb-depth-3)] py-2 text-xs font-semibold text-[var(--bb-ink-60)] transition-colors hover:bg-[var(--bb-depth-1)]">
             Faturas
           </button>
-          <button className="flex-1 rounded-lg bg-bb-gray-100 py-2 text-xs font-semibold text-bb-gray-700 transition-colors hover:bg-bb-gray-200">
+          <button className="flex-1 rounded-lg bg-[var(--bb-depth-3)] py-2 text-xs font-semibold text-[var(--bb-ink-60)] transition-colors hover:bg-[var(--bb-depth-1)]">
             Trocar plano
           </button>
         </div>
@@ -194,7 +194,7 @@ export default function ParentDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bb-gray-50 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
           <Skeleton variant="card" className="h-16" />
           <Skeleton variant="card" className="h-32" />
@@ -211,13 +211,13 @@ export default function ParentDashboardPage() {
   const hasMultipleChildren = data.children.length > 1;
 
   return (
-    <div className="min-h-screen bg-bb-gray-50 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg px-4 pt-6">
         {/* Header */}
-        <h1 className="text-xl font-bold text-bb-gray-900">
+        <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">
           Olá, {data.guardian_name.split(' ')[0]}!
         </h1>
-        <p className="text-sm text-bb-gray-500">Acompanhe seus filhos</p>
+        <p className="text-sm text-[var(--bb-ink-40)]">Acompanhe seus filhos</p>
 
         {/* Child tabs (if 2+ children) */}
         {hasMultipleChildren && (
@@ -229,7 +229,7 @@ export default function ParentDashboardPage() {
                 className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                   selectedChildId === child.student_id
                     ? 'bg-bb-red-500 text-white shadow-md shadow-bb-red-500/20'
-                    : 'bg-white text-bb-gray-700 ring-1 ring-bb-gray-200'
+                    : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-60)] ring-1 ring-[var(--bb-glass-border)]'
                 }`}
               >
                 <Avatar name={child.display_name} size="sm" />
@@ -247,20 +247,20 @@ export default function ParentDashboardPage() {
         {/* Consolidated (2+ children) */}
         {hasMultipleChildren && data.consolidated && (
           <section className="mt-6">
-            <Card className="bg-gradient-to-r from-bb-gray-900 to-bb-gray-700 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-bb-gray-400">
+            <Card className="bg-gradient-to-r from-[var(--bb-depth-1)] to-[var(--bb-depth-3)] p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
                 Consolidado Familiar
               </p>
               <p className="mt-2 text-2xl font-extrabold text-white">
                 R${data.consolidated.total_monthly}/mês
               </p>
-              <p className="mt-0.5 text-xs text-bb-gray-400">
+              <p className="mt-0.5 text-xs text-[var(--bb-ink-40)]">
                 {data.consolidated.child_count} filhos matriculados
               </p>
 
               {/* Mini calendar preview */}
-              <div className="mt-4 rounded-lg bg-white/10 p-3">
-                <p className="mb-2 text-xs font-semibold text-bb-gray-300">
+              <div className="mt-4 rounded-lg bg-[var(--bb-depth-3)]/10 p-3">
+                <p className="mb-2 text-xs font-semibold text-[var(--bb-ink-80)]">
                   Agenda da Semana
                 </p>
                 <div className="space-y-1">
@@ -268,7 +268,7 @@ export default function ParentDashboardPage() {
                     const days = getAttendanceArray(child);
                     return (
                       <div key={child.student_id} className="flex items-center gap-2">
-                        <span className="w-16 text-xs font-medium text-bb-gray-300">
+                        <span className="w-16 text-xs font-medium text-[var(--bb-ink-80)]">
                           {child.display_name}
                         </span>
                         <div className="flex gap-1">
@@ -282,7 +282,7 @@ export default function ParentDashboardPage() {
                                     ? 'bg-bb-warning/20 text-bb-warning'
                                     : days[i] === 'absent'
                                       ? 'bg-bb-error/20 text-bb-error'
-                                      : 'bg-white/5 text-bb-gray-500'
+                                      : 'bg-[var(--bb-depth-3)]/5 text-[var(--bb-ink-40)]'
                               }`}
                             >
                               {day.charAt(0)}

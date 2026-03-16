@@ -42,8 +42,8 @@ function VideoCard({ video }: { video: StreamingVideoCard }) {
           {/* Play button on hover */}
           {!video.is_locked && (
             <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bb-white/90 shadow-lg">
-                <svg className="h-5 w-5 text-bb-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bb-depth-3)] shadow-lg">
+                <svg className="h-5 w-5 text-[var(--bb-ink-100)] ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -51,17 +51,17 @@ function VideoCard({ video }: { video: StreamingVideoCard }) {
           )}
 
           {/* Duration badge */}
-          <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-bb-white">
+          <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-[var(--bb-ink-100)]">
             {formatDuration(video.duration_minutes)}
           </span>
 
           {/* Lock overlay */}
           {video.is_locked && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
-              <svg className="h-6 w-6 text-bb-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-6 w-6 text-[var(--bb-ink-100)]/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <p className="mt-1 px-2 text-center text-[9px] font-medium text-bb-white/80">
+              <p className="mt-1 px-2 text-center text-[9px] font-medium text-[var(--bb-ink-100)]/80">
                 {video.lock_reason}
               </p>
             </div>
@@ -70,7 +70,7 @@ function VideoCard({ video }: { video: StreamingVideoCard }) {
 
         {/* Progress bar */}
         {video.progress_percent > 0 && !video.is_locked && (
-          <div className="h-0.5 bg-bb-gray-700">
+          <div className="h-0.5 bg-[var(--bb-depth-3)]">
             <div
               className="h-full bg-bb-red-500 transition-all"
               style={{ width: `${video.progress_percent}%` }}
@@ -81,10 +81,10 @@ function VideoCard({ video }: { video: StreamingVideoCard }) {
 
       {/* Meta */}
       <div className="mt-1.5 px-0.5">
-        <p className="truncate text-xs font-medium text-bb-white group-hover:text-bb-red-500 transition-colors">
+        <p className="truncate text-xs font-medium text-[var(--bb-ink-100)] group-hover:text-bb-red-500 transition-colors">
           {video.title}
         </p>
-        <p className="truncate text-[10px] text-bb-gray-400">
+        <p className="truncate text-[10px] text-[var(--bb-ink-40)]">
           {video.professor_name} &middot; {BELT_LABEL[video.belt_level] ?? video.belt_level}
         </p>
       </div>
@@ -112,16 +112,16 @@ function TrailCard({ trail }: { trail: TrailDTO }) {
         >
           {trail.is_completed && (
             <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-500">
-              <svg className="h-3.5 w-3.5 text-bb-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <svg className="h-3.5 w-3.5 text-[var(--bb-ink-100)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
           )}
-          <p className="text-sm font-bold text-bb-white">{trail.title}</p>
-          <p className="text-[10px] text-bb-white/70">{trail.description}</p>
+          <p className="text-sm font-bold text-[var(--bb-ink-100)]">{trail.title}</p>
+          <p className="text-[10px] text-[var(--bb-ink-100)]/70">{trail.description}</p>
         </div>
         {/* Trail progress */}
-        <div className="h-1 bg-bb-gray-700">
+        <div className="h-1 bg-[var(--bb-depth-3)]">
           <div
             className="h-full transition-all"
             style={{
@@ -132,10 +132,10 @@ function TrailCard({ trail }: { trail: TrailDTO }) {
         </div>
       </div>
       <div className="mt-1 flex items-center justify-between px-0.5">
-        <p className="text-[10px] text-bb-gray-400">
+        <p className="text-[10px] text-[var(--bb-ink-40)]">
           {trail.completed_videos}/{trail.total_videos} videos
         </p>
-        <p className="text-[10px] text-bb-gray-400">
+        <p className="text-[10px] text-[var(--bb-ink-40)]">
           {BELT_LABEL[trail.belt_level] ?? trail.belt_level}
         </p>
       </div>
@@ -149,7 +149,7 @@ function TrailCard({ trail }: { trail: TrailDTO }) {
 function StreamingRow({ section }: { section: StreamingSection }) {
   return (
     <section>
-      <h2 className="mb-3 text-base font-bold text-bb-white">{section.title}</h2>
+      <h2 className="mb-3 text-base font-bold text-[var(--bb-ink-100)]">{section.title}</h2>
       <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
         {section.videos.map((video) => (
           <VideoCard key={video.id} video={video} />
@@ -200,14 +200,14 @@ export default function ConteudoPage() {
   // ── Loading ───────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-bb-gray-900 p-4 space-y-6">
-        <Skeleton variant="text" className="h-10 w-full bg-bb-gray-800" />
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4 space-y-6">
+        <Skeleton variant="text" className="h-10 w-full bg-[var(--bb-depth-3)]" />
         {[1, 2, 3].map((i) => (
           <div key={i} className="space-y-2">
-            <Skeleton variant="text" className="h-6 w-40 bg-bb-gray-800" />
+            <Skeleton variant="text" className="h-6 w-40 bg-[var(--bb-depth-3)]" />
             <div className="flex gap-3">
               {[1, 2, 3, 4].map((j) => (
-                <Skeleton key={j} variant="card" className="h-28 w-44 flex-shrink-0 bg-bb-gray-800" />
+                <Skeleton key={j} variant="card" className="h-28 w-44 flex-shrink-0 bg-[var(--bb-depth-3)]" />
               ))}
             </div>
           </div>
@@ -217,14 +217,14 @@ export default function ConteudoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bb-gray-900 pb-8">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-8">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bb-gray-900/95 backdrop-blur-sm px-4 pt-4 pb-3">
+      <div className="sticky top-0 z-10 bg-[var(--bb-depth-1)]/95 backdrop-blur-sm px-4 pt-4 pb-3">
         <div className="flex items-center gap-3 mb-3">
-          <h1 className="text-xl font-bold text-bb-white">Conteudo</h1>
+          <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Conteudo</h1>
         </div>
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bb-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bb-ink-40)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -232,7 +232,7 @@ export default function ConteudoPage() {
             placeholder="Buscar videos, professores..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-bb-gray-700 bg-bb-gray-800 py-2.5 pl-10 pr-4 text-sm text-bb-white placeholder-bb-gray-500 outline-none focus:border-bb-red-500"
+            className="w-full rounded-lg border border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] py-2.5 pl-10 pr-4 text-sm text-[var(--bb-ink-100)] placeholder-[var(--bb-ink-40)] outline-none focus:border-bb-red-500"
           />
         </div>
       </div>
@@ -241,7 +241,7 @@ export default function ConteudoPage() {
         {/* Trails section */}
         {trails.length > 0 && !search.trim() && (
           <section>
-            <h2 className="mb-3 text-base font-bold text-bb-white">Trilhas Oficiais</h2>
+            <h2 className="mb-3 text-base font-bold text-[var(--bb-ink-100)]">Trilhas Oficiais</h2>
             <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
               {trails.map((trail) => (
                 <TrailCard key={trail.id} trail={trail} />
@@ -258,10 +258,10 @@ export default function ConteudoPage() {
         {/* Empty state for search */}
         {search.trim() && filteredSections.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16">
-            <svg className="h-12 w-12 text-bb-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg className="h-12 w-12 text-[var(--bb-ink-40)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <p className="mt-3 text-sm text-bb-gray-500">Nenhum video encontrado para &ldquo;{search}&rdquo;</p>
+            <p className="mt-3 text-sm text-[var(--bb-ink-40)]">Nenhum video encontrado para &ldquo;{search}&rdquo;</p>
           </div>
         )}
       </div>

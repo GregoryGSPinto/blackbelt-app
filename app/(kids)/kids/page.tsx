@@ -15,7 +15,7 @@ function BeltRibbon({ color, label, faded }: { color: string; label: string; fad
         className="h-5 w-24 rounded-md shadow-md"
         style={{ backgroundColor: color }}
       />
-      <p className="mt-1 text-xs font-bold text-gray-600">{label}</p>
+      <p className="mt-1 text-xs font-bold text-[var(--bb-ink-60)]">{label}</p>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export default function KidsDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-sky-50 to-amber-50 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
           <Skeleton variant="card" className="h-44 bg-sky-100" />
           <Skeleton variant="card" className="h-28 bg-sky-100" />
@@ -56,7 +56,7 @@ export default function KidsDashboardPage() {
     : data.sticker_album.stickers.slice(0, 12);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-yellow-50 to-pink-50 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* ─── HERO: Mascot + Name + Belt Ribbon ─── */}
       <section className="px-4 pb-2 pt-8 text-center">
         <div className="mx-auto max-w-lg">
@@ -65,7 +65,7 @@ export default function KidsDashboardPage() {
             <span className="text-5xl">🥋</span>
           </div>
 
-          <h1 className="mt-3 text-3xl font-extrabold text-gray-800">
+          <h1 className="mt-3 text-3xl font-extrabold text-[var(--bb-ink-100)]">
             {data.display_name}
           </h1>
 
@@ -75,34 +75,34 @@ export default function KidsDashboardPage() {
               className="h-4 w-20 rounded shadow-sm"
               style={{ backgroundColor: data.belt.current_color }}
             />
-            <span className="text-sm font-bold text-gray-600">
+            <span className="text-sm font-bold text-[var(--bb-ink-60)]">
               {data.belt.current_label}
             </span>
           </div>
 
           {/* Stars count */}
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-2 shadow-md">
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[var(--bb-depth-3)] px-5 py-2 shadow-md">
             <span className="animate-pulse text-2xl">⭐</span>
             <span className="text-2xl font-extrabold text-amber-600">
               {data.stars.total}
             </span>
-            <span className="text-sm text-gray-500">estrelas</span>
+            <span className="text-sm text-[var(--bb-ink-40)]">estrelas</span>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-4">
         {/* ─── STARS THIS WEEK ─── */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-amber-100/50 ring-1 ring-amber-200/30">
+        <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-yellow-200">
               <span className="text-3xl">🌟</span>
             </div>
             <div>
-              <p className="text-2xl font-extrabold text-gray-800">
+              <p className="text-2xl font-extrabold text-[var(--bb-ink-100)]">
                 {data.stars.new_this_week} novas essa semana!
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--bb-ink-40)]">
                 Total: {data.stars.total} estrelas
               </p>
             </div>
@@ -111,7 +111,7 @@ export default function KidsDashboardPage() {
 
         {/* ─── NEXT CLASS ─── */}
         {data.next_class && (
-          <section className="overflow-hidden rounded-3xl bg-white/90 shadow-lg shadow-green-100/50 ring-1 ring-green-200/30">
+          <section className="overflow-hidden rounded-3xl bg-[var(--bb-depth-3)] shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
             <div className="bg-gradient-to-r from-green-400 to-emerald-500 px-5 py-3">
               <p className="text-xs font-bold uppercase tracking-wider text-white/80">
                 Tatame te esperando!
@@ -122,10 +122,10 @@ export default function KidsDashboardPage() {
                 <span className="text-3xl">🤸</span>
               </div>
               <div>
-                <p className="text-lg font-extrabold text-gray-800">
+                <p className="text-lg font-extrabold text-[var(--bb-ink-100)]">
                   {data.next_class.class_name}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[var(--bb-ink-60)]">
                   {data.next_class.day_label} {data.next_class.time}
                 </p>
                 <p className="mt-0.5 text-xs font-bold text-green-600">
@@ -137,11 +137,11 @@ export default function KidsDashboardPage() {
         )}
 
         {/* ─── STICKER ALBUM ─── */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-purple-100/50 ring-1 ring-purple-200/30">
+        <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl">📒</span>
-              <h2 className="text-lg font-extrabold text-gray-800">Figurinhas</h2>
+              <h2 className="text-lg font-extrabold text-[var(--bb-ink-100)]">Figurinhas</h2>
             </div>
             <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-bold text-purple-600">
               {data.sticker_album.collected}/{data.sticker_album.total}
@@ -166,13 +166,13 @@ export default function KidsDashboardPage() {
                 className={`flex flex-col items-center rounded-xl p-2 transition-all ${
                   st.collected
                     ? 'bg-gradient-to-br from-amber-50 to-pink-50 shadow-sm'
-                    : 'bg-gray-100 opacity-40'
+                    : 'bg-[var(--bb-depth-1)] opacity-40'
                 }`}
               >
                 <span className={`text-2xl ${st.collected ? '' : 'grayscale'}`}>
                   {st.image_emoji}
                 </span>
-                <p className="mt-0.5 text-center text-[9px] font-medium leading-tight text-gray-600">
+                <p className="mt-0.5 text-center text-[9px] font-medium leading-tight text-[var(--bb-ink-60)]">
                   {st.name}
                 </p>
               </div>
@@ -190,15 +190,15 @@ export default function KidsDashboardPage() {
         </section>
 
         {/* ─── BELT VISUAL: Current + Next ─── */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-blue-100/50 ring-1 ring-blue-200/30">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-gray-800">
+        <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
             <span>🎯</span> Sua Faixa
           </h2>
           <div className="flex items-center justify-center gap-8">
             <BeltRibbon color={data.belt.current_color} label={data.belt.current_label} />
             <div className="flex flex-col items-center">
-              <span className="text-xl text-gray-300">→</span>
-              <p className="text-[10px] text-gray-400">
+              <span className="text-xl text-[var(--bb-ink-40)]">→</span>
+              <p className="text-[10px] text-[var(--bb-ink-40)]">
                 {data.belt.stars_to_next} estrelas
               </p>
             </div>
@@ -207,8 +207,8 @@ export default function KidsDashboardPage() {
         </section>
 
         {/* ─── EXCHANGE STORE ─── */}
-        <section className="rounded-3xl bg-white/90 p-5 shadow-lg shadow-rose-100/50 ring-1 ring-rose-200/30">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-gray-800">
+        <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
             <span>🎁</span> Trocar Estrelas
           </h2>
           <div className="space-y-2">
@@ -218,20 +218,20 @@ export default function KidsDashboardPage() {
                 className={`flex items-center gap-3 rounded-2xl p-3 transition-all ${
                   opt.available
                     ? 'bg-gradient-to-r from-amber-50 to-yellow-50 ring-1 ring-amber-200/50'
-                    : 'bg-gray-50 opacity-60'
+                    : 'bg-[var(--bb-depth-1)] opacity-60'
                 }`}
               >
                 <span className="text-2xl">{opt.emoji}</span>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-800">{opt.label}</p>
-                  <p className="text-xs text-gray-500">{opt.stars_cost} estrelas</p>
+                  <p className="text-sm font-bold text-[var(--bb-ink-100)]">{opt.label}</p>
+                  <p className="text-xs text-[var(--bb-ink-40)]">{opt.stars_cost} estrelas</p>
                 </div>
                 {opt.available ? (
                   <button className="rounded-full bg-amber-400 px-4 py-1.5 text-xs font-bold text-white shadow-md transition-all hover:bg-amber-500">
                     Trocar!
                   </button>
                 ) : (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[var(--bb-ink-40)]">
                     Faltam {opt.stars_cost - data.stars.total}
                   </span>
                 )}
@@ -243,7 +243,7 @@ export default function KidsDashboardPage() {
         {/* ─── MOTIVATIONAL MESSAGE ─── */}
         <section className="rounded-3xl bg-gradient-to-r from-pink-100 to-yellow-100 p-5 text-center shadow-lg">
           <span className="text-3xl">🌈</span>
-          <p className="mt-2 text-lg font-extrabold text-gray-800">
+          <p className="mt-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
             {data.motivational_message}
           </p>
         </section>

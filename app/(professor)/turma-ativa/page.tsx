@@ -13,15 +13,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 
 // ── Belt color mapping ─────────────────────────────────────────────
 const BELT_BG: Record<string, string> = {
-  white: 'bg-white border border-gray-300',
-  gray: 'bg-gray-400',
-  yellow: 'bg-yellow-400',
-  orange: 'bg-orange-500',
-  green: 'bg-green-600',
-  blue: 'bg-blue-600',
-  purple: 'bg-purple-600',
-  brown: 'bg-amber-800',
-  black: 'bg-gray-900',
+  white: 'bg-[var(--bb-belt-white,#FAFAFA)] border border-[var(--bb-glass-border)]',
+  gray: 'bg-[var(--bb-belt-gray,#9CA3AF)]',
+  yellow: 'bg-[var(--bb-belt-yellow,#EAB308)]',
+  orange: 'bg-[var(--bb-belt-orange,#EA580C)]',
+  green: 'bg-[var(--bb-belt-green,#16A34A)]',
+  blue: 'bg-[var(--bb-belt-blue,#2563EB)]',
+  purple: 'bg-[var(--bb-belt-purple,#9333EA)]',
+  brown: 'bg-[var(--bb-belt-brown,#92400E)]',
+  black: 'bg-[var(--bb-belt-black,#0A0A0A)]',
 };
 
 // ── Timer formatting ───────────────────────────────────────────────
@@ -166,7 +166,7 @@ export default function TurmaAtivaPage() {
   // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bb-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bb-depth-1)]">
         <Spinner size="lg" className="text-bb-white" />
       </div>
     );
@@ -175,7 +175,7 @@ export default function TurmaAtivaPage() {
   // ── No active class ────────────────────────────────────────────
   if (!classData) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bb-gray-900 p-4">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bb-depth-1)] p-4">
         <EmptyState
           title="Nenhuma aula ativa"
           description="Voce nao tem aula em andamento no momento."
@@ -185,16 +185,16 @@ export default function TurmaAtivaPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-bb-gray-900 text-bb-white">
+    <div className="flex min-h-screen flex-col bg-[var(--bb-depth-1)] text-bb-white">
       {/* ── HEADER: Sticky dark bar ───────────────────────────────── */}
-      <header className="sticky top-0 z-20 border-b border-bb-gray-700 bg-bb-gray-900/95 px-4 py-3 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-[var(--bb-glass-border)] bg-[var(--bb-depth-1)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center justify-between gap-3">
           {/* Left: class info */}
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-bold text-bb-white">
               {classData.modality_name}
             </h1>
-            <p className="text-xs text-bb-gray-500">
+            <p className="text-xs text-[var(--bb-ink-40)]">
               {classData.start_time} - {classData.end_time} | {classData.unit_name}
             </p>
           </div>
@@ -210,7 +210,7 @@ export default function TurmaAtivaPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleGenerateQR}
-              className="flex h-10 w-10 items-center justify-center rounded-lg bg-bb-gray-700 text-lg transition-colors hover:bg-bb-gray-500"
+              className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bb-depth-3)] text-lg transition-colors hover:bg-[var(--bb-depth-1)]"
               title="Gerar QR Code"
             >
               QR
@@ -226,7 +226,7 @@ export default function TurmaAtivaPage() {
 
         {/* Presence counter bar */}
         <div className="mt-2 flex items-center gap-3">
-          <div className="h-2 flex-1 rounded-full bg-bb-gray-700">
+          <div className="h-2 flex-1 rounded-full bg-[var(--bb-depth-3)]">
             <div
               className="h-2 rounded-full bg-green-500 transition-all duration-300"
               style={{ width: `${presencePct}%` }}
@@ -247,7 +247,7 @@ export default function TurmaAtivaPage() {
             className={`flex w-full items-center gap-4 rounded-xl p-4 text-left transition-all duration-200 ${
               student.is_present
                 ? 'bg-green-900/40 ring-2 ring-green-500/50'
-                : 'bg-bb-gray-700/60 hover:bg-bb-gray-700'
+                : 'bg-[var(--bb-depth-3)]/60 hover:bg-[var(--bb-depth-3)]'
             }`}
           >
             {/* Presence indicator */}
@@ -255,7 +255,7 @@ export default function TurmaAtivaPage() {
               className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl transition-all ${
                 student.is_present
                   ? 'bg-green-500 text-white'
-                  : 'border-2 border-bb-gray-500 text-transparent'
+                  : 'border-2 border-[var(--bb-glass-border)] text-transparent'
               }`}
             >
               {student.is_present && (
@@ -267,10 +267,10 @@ export default function TurmaAtivaPage() {
 
             {/* Belt color indicator + Name */}
             <div className="flex flex-1 items-center gap-3">
-              <div className={`h-10 w-2 shrink-0 rounded-full ${BELT_BG[student.belt] ?? 'bg-gray-500'}`} />
+              <div className={`h-10 w-2 shrink-0 rounded-full ${BELT_BG[student.belt] ?? 'bg-[var(--bb-ink-40)]'}`} />
               <div>
                 <p className="text-base font-semibold text-bb-white">{student.display_name}</p>
-                <p className="text-xs capitalize text-bb-gray-500">
+                <p className="text-xs capitalize text-[var(--bb-ink-40)]">
                   Faixa {student.belt}
                 </p>
               </div>
@@ -290,7 +290,7 @@ export default function TurmaAtivaPage() {
       <Modal open={showQR} onClose={() => setShowQR(false)} title="QR Code Check-in">
         <div className="flex flex-col items-center gap-5 py-4">
           {/* QR Code display */}
-          <div className="flex h-56 w-56 items-center justify-center rounded-2xl bg-white p-4 shadow-lg">
+          <div className="flex h-56 w-56 items-center justify-center rounded-2xl bg-[var(--bb-depth-3)] p-4 shadow-[var(--bb-shadow-lg)]">
             {qrData ? (
               <div className="flex h-full w-full items-center justify-center">
                 {/* In production, render an actual QR image. Here we show the encoded data visually. */}
@@ -300,8 +300,8 @@ export default function TurmaAtivaPage() {
                       key={i}
                       className={`rounded-sm ${
                         qrData.charCodeAt(i % qrData.length) % 2 === 0
-                          ? 'bg-gray-900'
-                          : 'bg-white'
+                          ? 'bg-[var(--bb-ink-100)]'
+                          : 'bg-[var(--bb-depth-1)]'
                       }`}
                     />
                   ))}
@@ -312,21 +312,21 @@ export default function TurmaAtivaPage() {
             )}
           </div>
 
-          <p className="text-center text-sm text-bb-gray-500">
+          <p className="text-center text-sm text-[var(--bb-ink-40)]">
             Peca aos alunos para escanear este QR Code
           </p>
 
           {/* Expiry timer */}
           {qrRemainingSeconds > 0 ? (
-            <div className="flex items-center gap-2 rounded-full bg-bb-gray-100 px-4 py-2">
+            <div className="flex items-center gap-2 rounded-full bg-[var(--bb-depth-3)] px-4 py-2">
               <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-              <span className="text-sm font-medium text-bb-gray-700">
+              <span className="text-sm font-medium text-[var(--bb-ink-60)]">
                 Expira em {Math.floor(qrRemainingSeconds / 60)}:{(qrRemainingSeconds % 60).toString().padStart(2, '0')}
               </span>
             </div>
           ) : qrExpiresAt ? (
-            <div className="rounded-full bg-red-100 px-4 py-2">
-              <span className="text-sm font-medium text-red-700">QR Code expirado</span>
+            <div className="rounded-full bg-[var(--bb-brand-primary)]/10 px-4 py-2">
+              <span className="text-sm font-medium text-[var(--bb-brand-primary)]">QR Code expirado</span>
             </div>
           ) : null}
 
@@ -341,26 +341,26 @@ export default function TurmaAtivaPage() {
       <Modal open={showConfirm} onClose={() => setShowConfirm(false)} title="Encerrar Aula" variant="confirm">
         <div className="space-y-4">
           {/* Summary */}
-          <div className="rounded-lg bg-bb-gray-100 p-4 text-center">
-            <p className="text-3xl font-bold text-bb-gray-900">
+          <div className="rounded-lg bg-[var(--bb-depth-3)] p-4 text-center">
+            <p className="text-3xl font-bold text-[var(--bb-ink-100)]">
               {presentCount}/{students.length}{' '}
-              <span className="text-base font-normal text-bb-gray-500">presentes</span>
+              <span className="text-base font-normal text-[var(--bb-ink-40)]">presentes</span>
             </p>
-            <p className="mt-1 text-lg font-semibold text-bb-gray-700">({presencePct}%)</p>
+            <p className="mt-1 text-lg font-semibold text-[var(--bb-ink-60)]">({presencePct}%)</p>
           </div>
 
           {/* Absent list */}
           {absentStudents.length > 0 && (
             <div>
-              <p className="mb-1 text-xs font-medium uppercase text-bb-gray-500">Ausentes:</p>
-              <p className="text-sm text-bb-gray-700">
+              <p className="mb-1 text-xs font-medium uppercase text-[var(--bb-ink-40)]">Ausentes:</p>
+              <p className="text-sm text-[var(--bb-ink-60)]">
                 {absentStudents.map((s) => s.display_name).join(', ')}
               </p>
             </div>
           )}
 
           {/* Duration */}
-          <p className="text-center text-sm text-bb-gray-500">
+          <p className="text-center text-sm text-[var(--bb-ink-40)]">
             Duracao: {formatTimer(elapsedSeconds)}
           </p>
 

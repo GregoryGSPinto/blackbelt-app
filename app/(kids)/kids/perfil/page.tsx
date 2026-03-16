@@ -185,7 +185,7 @@ export default function KidsPerfilPage() {
             </div>
             <BeltRibbon color={data.belt.next_color} label={data.belt.next_label} faded />
           </div>
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-sky-100">
+          <div className="mt-4 h-3 overflow-hidden rounded-full bg-[var(--bb-depth-1)]">
             <div
               className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-500 transition-all duration-700"
               style={{

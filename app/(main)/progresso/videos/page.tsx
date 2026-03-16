@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 const STATUS_LABEL: Record<string, string> = { processing: 'Processando', ready: 'Pronto', failed: 'Falhou' };
-const STATUS_COLOR: Record<string, string> = { processing: 'bg-yellow-100 text-yellow-700', ready: 'bg-green-100 text-green-700', failed: 'bg-red-100 text-red-700' };
+const STATUS_COLOR: Record<string, string> = { processing: 'bg-[var(--bb-warning)]/10 text-[var(--bb-warning)]', ready: 'bg-[var(--bb-success)]/10 text-[var(--bb-success)]', failed: 'bg-[var(--bb-brand-primary)]/10 text-[var(--bb-brand-primary)]' };
 
 export default function VideosGalleryPage() {
   const [videos, setVideos] = useState<TrainingVideoDTO[]>([]);
@@ -65,12 +65,12 @@ export default function VideosGalleryPage() {
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
           placeholder="Filtrar por mês"
-          className="rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--bb-glass-border)] px-3 py-2 text-sm"
         />
         <select
           value={classFilter}
           onChange={(e) => setClassFilter(e.target.value)}
-          className="rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--bb-glass-border)] px-3 py-2 text-sm"
         >
           <option value="">Todas as turmas</option>
           {classes.map((c) => (
@@ -80,7 +80,7 @@ export default function VideosGalleryPage() {
         <select
           value={professorFilter}
           onChange={(e) => setProfessorFilter(e.target.value)}
-          className="rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--bb-glass-border)] px-3 py-2 text-sm"
         >
           <option value="">Todos os professores</option>
           {professors.map((p) => (
@@ -108,12 +108,12 @@ export default function VideosGalleryPage() {
             <a
               key={video.id}
               href={`/progresso/videos/${video.id}`}
-              className="group overflow-hidden rounded-xl border border-bb-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+              className="group overflow-hidden rounded-[var(--bb-radius-lg)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] shadow-[var(--bb-shadow-sm)] transition-shadow hover:shadow-[var(--bb-shadow-md)]"
             >
               {/* Thumbnail */}
-              <div className="relative aspect-video bg-bb-gray-100">
+              <div className="relative aspect-video bg-[var(--bb-depth-1)]">
                 <div className="flex h-full items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-bb-gray-400 group-hover:text-bb-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[var(--bb-ink-40)] group-hover:text-bb-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -131,12 +131,12 @@ export default function VideosGalleryPage() {
               {/* Info */}
               <div className="p-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-bb-black">{video.class_name}</h3>
+                  <h3 className="text-sm font-bold text-[var(--bb-ink-100)]">{video.class_name}</h3>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[video.status]}`}>
                     {STATUS_LABEL[video.status]}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-bb-gray-500">
+                <p className="mt-1 text-xs text-[var(--bb-ink-40)]">
                   {video.uploaded_by_name} &middot; {formatDate(video.created_at)}
                 </p>
                 {video.annotations.length > 0 && (

@@ -39,12 +39,12 @@ export default function TeenDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
-          <Skeleton variant="card" className="h-52 bg-gray-800" />
-          <Skeleton variant="card" className="h-28 bg-gray-800" />
-          <Skeleton variant="card" className="h-36 bg-gray-800" />
-          <Skeleton variant="card" className="h-48 bg-gray-800" />
+          <Skeleton variant="card" className="h-52 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-28 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-36 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-48 bg-[var(--bb-depth-3)]" />
         </div>
       </div>
     );
@@ -56,11 +56,11 @@ export default function TeenDashboardPage() {
   const ringColor = BELT_RING_COLORS[data.profile.belt] ?? 'ring-gray-400';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* ─── HERO: Avatar + XP Bar ─── */}
       <section className="relative overflow-hidden px-4 pb-6 pt-8">
         {/* Background glow */}
-        <div className="absolute inset-0 bg-gradient-to-b from-bb-red-500/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--bb-brand-primary)]/20 via-transparent to-transparent" />
 
         <div className="relative mx-auto max-w-lg text-center">
           {/* Avatar with belt-colored ring */}
@@ -71,22 +71,22 @@ export default function TeenDashboardPage() {
           <h1 className="mt-3 text-2xl font-extrabold text-bb-white">
             {data.profile.display_name}
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-[var(--bb-ink-60)]">
             Level {data.level} &middot; {data.profile.title}
           </p>
           {data.profile.bio && (
-            <p className="mt-1 text-xs italic text-gray-500">&ldquo;{data.profile.bio}&rdquo;</p>
+            <p className="mt-1 text-xs italic text-[var(--bb-ink-40)]">&ldquo;{data.profile.bio}&rdquo;</p>
           )}
 
           {/* XP Bar */}
           <div className="mt-5">
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center justify-between text-xs text-[var(--bb-ink-60)]">
               <span className="font-bold text-bb-white">
                 {data.xp.toLocaleString('pt-BR')} XP
               </span>
               <span>{data.next_level_xp.toLocaleString('pt-BR')} XP</span>
             </div>
-            <div className="mt-1.5 h-4 overflow-hidden rounded-full bg-gray-800 shadow-inner">
+            <div className="mt-1.5 h-4 overflow-hidden rounded-full bg-[var(--bb-depth-3)] shadow-inner">
               <div
                 className="flex h-full items-center justify-end rounded-full bg-gradient-to-r from-bb-red-500 via-orange-500 to-yellow-400 pr-2 transition-all duration-700"
                 style={{ width: `${Math.max(xpPercent, 8)}%` }}
@@ -96,7 +96,7 @@ export default function TeenDashboardPage() {
                 </span>
               </div>
             </div>
-            <p className="mt-1 text-center text-xs text-gray-500">
+            <p className="mt-1 text-center text-xs text-[var(--bb-ink-40)]">
               {data.profile.display_name} &middot; Level {data.level} &middot;{' '}
               {data.xp.toLocaleString('pt-BR')}/{data.next_level_xp.toLocaleString('pt-BR')}
             </p>
@@ -139,13 +139,13 @@ export default function TeenDashboardPage() {
               </span>
             </div>
             <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center justify-between text-xs text-[var(--bb-ink-60)]">
                 <span>
                   {data.active_challenge.progress}/{data.active_challenge.target}
                 </span>
                 <span>Faltam {data.active_challenge.target - data.active_challenge.progress} em {data.active_challenge.days_remaining} dias!</span>
               </div>
-              <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-gray-800">
+              <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700"
                   style={{
@@ -159,7 +159,7 @@ export default function TeenDashboardPage() {
 
         {/* ─── RANKING ─── */}
         <section>
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[var(--bb-ink-60)]">
             <span>🏆</span> Ranking
           </h2>
           <div className="space-y-2">
@@ -172,7 +172,7 @@ export default function TeenDashboardPage() {
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                     isMe
                       ? 'bg-gradient-to-r from-bb-red-500/20 to-orange-500/10 ring-1 ring-bb-red-500/40'
-                      : 'bg-gray-800/50'
+                      : 'bg-[var(--bb-depth-3)]'
                   }`}
                 >
                   <span className="w-8 text-center text-base font-extrabold">
@@ -181,7 +181,7 @@ export default function TeenDashboardPage() {
                   <Avatar name={entry.display_name} size="sm" />
                   <span
                     className={`flex-1 text-sm font-semibold ${
-                      isMe ? 'text-bb-white' : 'text-gray-300'
+                      isMe ? 'text-bb-white' : 'text-[var(--bb-ink-80)]'
                     }`}
                   >
                     {isMe ? 'VOCÊ' : entry.display_name}
@@ -197,7 +197,7 @@ export default function TeenDashboardPage() {
 
         {/* ─── ACHIEVEMENTS (glowing badges) ─── */}
         <section>
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[var(--bb-ink-60)]">
             <span>🎖️</span> Conquistas
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2">
@@ -206,8 +206,8 @@ export default function TeenDashboardPage() {
                 key={ach.id}
                 className={`flex flex-shrink-0 flex-col items-center rounded-2xl p-4 transition-all ${
                   ach.unlocked
-                    ? 'bg-gray-800/80 shadow-lg'
-                    : 'bg-gray-800/30 opacity-40 grayscale'
+                    ? 'bg-[var(--bb-depth-3)] shadow-lg'
+                    : 'bg-[var(--bb-depth-3)]/30 opacity-40 grayscale'
                 }`}
                 style={
                   ach.unlocked
@@ -216,7 +216,7 @@ export default function TeenDashboardPage() {
                 }
               >
                 <span className="text-3xl">{ach.icon}</span>
-                <p className="mt-1.5 max-w-[5rem] text-center text-[10px] font-semibold text-gray-300">
+                <p className="mt-1.5 max-w-[5rem] text-center text-[10px] font-semibold text-[var(--bb-ink-80)]">
                   {ach.name}
                 </p>
               </div>
@@ -225,13 +225,13 @@ export default function TeenDashboardPage() {
 
           {/* Next achievement progress */}
           {data.next_achievement && (
-            <div className="mt-3 rounded-xl bg-gray-800/50 p-4 ring-1 ring-gray-700/50">
+            <div className="mt-3 rounded-xl bg-[var(--bb-depth-3)] p-4 ring-1 ring-[var(--bb-glass-border)]">
               <div className="flex items-center gap-3">
                 <span className="text-2xl opacity-50">{data.next_achievement.icon}</span>
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-gray-300">{data.next_achievement.name}</p>
-                  <p className="text-[10px] text-gray-500">{data.next_achievement.description}</p>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-700">
+                  <p className="text-xs font-bold text-[var(--bb-ink-80)]">{data.next_achievement.name}</p>
+                  <p className="text-[10px] text-[var(--bb-ink-40)]">{data.next_achievement.description}</p>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400"
                       style={{
@@ -239,7 +239,7 @@ export default function TeenDashboardPage() {
                       }}
                     />
                   </div>
-                  <p className="mt-0.5 text-right text-[10px] text-gray-500">
+                  <p className="mt-0.5 text-right text-[10px] text-[var(--bb-ink-40)]">
                     {data.next_achievement.progress}/{data.next_achievement.target}
                   </p>
                 </div>

@@ -78,7 +78,7 @@ function getDayStatusClass(status: DiaStatus): string {
   switch (status) {
     case 'done': return 'bg-bb-success/10 border-bb-success text-bb-success';
     case 'scheduled': return 'bg-bb-warning/10 border-bb-warning text-bb-warning';
-    case 'rest': return 'bg-bb-gray-100 border-bb-gray-300 text-bb-gray-500';
+    case 'rest': return 'bg-[var(--bb-depth-3)] border-[var(--bb-glass-border)] text-[var(--bb-ink-40)]';
     case 'missed': return 'bg-bb-error/10 border-bb-error text-bb-error';
   }
 }
@@ -97,7 +97,7 @@ function MiniHeatmap({ diasPresentes, totalDays }: { diasPresentes: number[]; to
             key={day}
             className={cn(
               'h-3 w-3 rounded-sm',
-              isPresent ? 'bg-bb-success' : 'bg-bb-gray-300',
+              isPresent ? 'bg-bb-success' : 'bg-[var(--bb-depth-3)]',
             )}
             title={`Dia ${day}: ${isPresent ? 'Presente' : 'Ausente'}`}
           />
@@ -212,10 +212,10 @@ export default function StudentDashboardPage() {
 
       {/* ── Emotional Header ────────────────────────────────────── */}
       <section>
-        <h1 className="text-2xl font-bold text-bb-black">
+        <h1 className="text-2xl font-bold text-[var(--bb-ink-100)]">
           Fala, {data.student_name}! {'\uD83D\uDD25'} {daysActive} dias. Top {data.ranking_position} da academia.
         </h1>
-        <p className="mt-1 text-sm text-bb-gray-500">
+        <p className="mt-1 text-sm text-[var(--bb-ink-40)]">
           {data.ranking_position}/{data.total_academy_students} alunos
         </p>
       </section>
@@ -231,13 +231,13 @@ export default function StudentDashboardPage() {
               </span>
             </div>
           )}
-          <p className="text-xs font-semibold uppercase text-bb-gray-500">
+          <p className="text-xs font-semibold uppercase text-[var(--bb-ink-40)]">
             {classIsNow ? 'Aula Agora' : 'Proxima Aula'}
           </p>
-          <p className="mt-1 text-lg font-bold text-bb-black">
+          <p className="mt-1 text-lg font-bold text-[var(--bb-ink-100)]">
             {data.proximaAula.modality_name} {data.proximaAula.level_label && `\u00B7 ${data.proximaAula.level_label}`}
           </p>
-          <p className="text-sm text-bb-gray-500">
+          <p className="text-sm text-[var(--bb-ink-40)]">
             {data.proximaAula.start_time} \u00B7 Prof. {data.proximaAula.professor_name} \u00B7{' '}
             {classIsNow ? 'AGORA' : formatTimeUntil(data.proximaAula.start_time)}
           </p>
@@ -255,13 +255,13 @@ export default function StudentDashboardPage() {
       ) : (
         <Card variant="elevated" className="p-4 text-center">
           <p className="text-lg">{'\uD83D\uDE34'}</p>
-          <p className="font-semibold text-bb-black">Descansa!</p>
+          <p className="font-semibold text-[var(--bb-ink-100)]">Descansa!</p>
           {data.proximaAulaAmanha ? (
-            <p className="mt-1 text-sm text-bb-gray-500">
+            <p className="mt-1 text-sm text-[var(--bb-ink-40)]">
               Amanha: {data.proximaAulaAmanha.modality_name} {data.proximaAulaAmanha.start_time}
             </p>
           ) : (
-            <p className="mt-1 text-sm text-bb-gray-500">Sem aulas agendadas para amanha.</p>
+            <p className="mt-1 text-sm text-[var(--bb-ink-40)]">Sem aulas agendadas para amanha.</p>
           )}
         </Card>
       )}
@@ -270,7 +270,7 @@ export default function StudentDashboardPage() {
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase text-bb-gray-500">Progressao de Faixa</p>
+            <p className="text-xs font-semibold uppercase text-[var(--bb-ink-40)]">Progressao de Faixa</p>
             <div className="mt-1 flex items-center gap-2">
               <Badge
                 variant="belt"
@@ -279,7 +279,7 @@ export default function StudentDashboardPage() {
               >
                 {BELT_LABEL_MAP[data.progressoFaixa.faixa_atual]}
               </Badge>
-              <span className="text-bb-gray-500">{'\u2192'}</span>
+              <span className="text-[var(--bb-ink-40)]">{'\u2192'}</span>
               <Badge
                 variant="belt"
                 beltColor={BELT_COLOR_MAP[data.progressoFaixa.proxima_faixa]}
@@ -289,11 +289,11 @@ export default function StudentDashboardPage() {
               </Badge>
             </div>
           </div>
-          <span className="text-3xl font-bold text-bb-red">{data.progressoFaixa.percentual}%</span>
+          <span className="text-3xl font-bold text-[var(--bb-brand-primary)]">{data.progressoFaixa.percentual}%</span>
         </div>
 
         {/* Progress bar */}
-        <div className="mt-3 h-3 overflow-hidden rounded-full bg-bb-gray-300">
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
           <div
             className="h-full rounded-full transition-all duration-700 ease-out"
             style={{
@@ -302,7 +302,7 @@ export default function StudentDashboardPage() {
             }}
           />
         </div>
-        <p className="mt-1 text-xs text-bb-gray-500">
+        <p className="mt-1 text-xs text-[var(--bb-ink-40)]">
           {data.progressoFaixa.aulas_concluidas}/{data.progressoFaixa.aulas_necessarias} aulas
         </p>
 
@@ -312,10 +312,10 @@ export default function StudentDashboardPage() {
             {data.progressoFaixa.requisitos.map((req) => (
               <div key={req.label} className="flex items-center gap-2 text-xs">
                 <span>{req.completo ? '\u2705' : '\u26AA'}</span>
-                <span className={cn('flex-1', req.completo ? 'text-bb-success' : 'text-bb-gray-700')}>
+                <span className={cn('flex-1', req.completo ? 'text-bb-success' : 'text-[var(--bb-ink-60)]')}>
                   {req.label}
                 </span>
-                <span className="font-mono text-bb-gray-500">
+                <span className="font-mono text-[var(--bb-ink-40)]">
                   {req.atual}/{req.necessario}
                 </span>
               </div>
@@ -328,12 +328,12 @@ export default function StudentDashboardPage() {
       <Card className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase text-bb-gray-500">Frequencia</p>
+            <p className="text-xs font-semibold uppercase text-[var(--bb-ink-40)]">Frequencia</p>
             <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-bb-black">
+              <span className="text-2xl font-bold text-[var(--bb-ink-100)]">
                 {data.frequenciaMes.presencas}/{data.frequenciaMes.total_aulas}
               </span>
-              <span className="text-sm text-bb-gray-500">({freqPct}%)</span>
+              <span className="text-sm text-[var(--bb-ink-40)]">({freqPct}%)</span>
               <span
                 className={cn(
                   'text-sm font-medium',
@@ -343,12 +343,12 @@ export default function StudentDashboardPage() {
                 {freqDeltaStr}
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-bb-gray-500">{data.frequenciaMes.mes_label}</p>
+            <p className="mt-0.5 text-xs text-[var(--bb-ink-40)]">{data.frequenciaMes.mes_label}</p>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-2xl">{'\uD83D\uDD25'}</span>
-            <span className="text-xl font-bold text-bb-red">{data.streak}</span>
-            <span className="text-[10px] text-bb-gray-500">streak</span>
+            <span className="text-xl font-bold text-[var(--bb-brand-primary)]">{data.streak}</span>
+            <span className="text-[10px] text-[var(--bb-ink-40)]">streak</span>
           </div>
         </div>
         <div className="mt-3">
@@ -362,12 +362,12 @@ export default function StudentDashboardPage() {
       {/* ── Achievements ────────────────────────────────────────── */}
       {data.ultimasConquistas.length > 0 && (
         <section>
-          <h2 className="mb-2 font-semibold text-bb-black">Conquistas</h2>
+          <h2 className="mb-2 font-semibold text-[var(--bb-ink-100)]">Conquistas</h2>
           <div className="flex gap-3 overflow-x-auto pb-2">
             {data.ultimasConquistas.map((conquista) => (
               <Card key={conquista.id} className="flex w-20 flex-shrink-0 flex-col items-center p-3 text-center">
                 <span className="text-2xl">{conquista.icon}</span>
-                <p className="mt-1 text-[10px] font-medium leading-tight text-bb-black">{conquista.name}</p>
+                <p className="mt-1 text-[10px] font-medium leading-tight text-[var(--bb-ink-100)]">{conquista.name}</p>
               </Card>
             ))}
           </div>
@@ -375,10 +375,10 @@ export default function StudentDashboardPage() {
             <Card variant="outlined" className="mt-2 flex items-center gap-3 p-3">
               <span className="text-xl opacity-50">{data.proximaConquista.icon}</span>
               <div className="flex-1">
-                <p className="text-xs font-semibold text-bb-black">
+                <p className="text-xs font-semibold text-[var(--bb-ink-100)]">
                   Proxima: {data.proximaConquista.name}
                 </p>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-bb-gray-300">
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
                   <div
                     className="h-full rounded-full bg-bb-warning"
                     style={{
@@ -386,7 +386,7 @@ export default function StudentDashboardPage() {
                     }}
                   />
                 </div>
-                <p className="mt-0.5 text-[10px] text-bb-gray-500">
+                <p className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">
                   Faltam {data.proximaConquista.progress_target - data.proximaConquista.progress_current} dias
                 </p>
               </div>
@@ -398,20 +398,20 @@ export default function StudentDashboardPage() {
       {/* ── Continue Watching ───────────────────────────────────── */}
       {data.continuarAssistindo && (
         <section>
-          <h2 className="mb-2 font-semibold text-bb-black">Continuar Assistindo</h2>
+          <h2 className="mb-2 font-semibold text-[var(--bb-ink-100)]">Continuar Assistindo</h2>
           <Card variant="outlined" className="flex items-center gap-3 p-3">
-            <div className="flex h-14 w-20 flex-shrink-0 items-center justify-center rounded bg-bb-gray-300 text-sm text-bb-gray-500">
+            <div className="flex h-14 w-20 flex-shrink-0 items-center justify-center rounded bg-[var(--bb-depth-3)] text-sm text-[var(--bb-ink-40)]">
               {'\u25B6\uFE0F'}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-bb-black">{data.continuarAssistindo.title}</p>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bb-gray-300">
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{data.continuarAssistindo.title}</p>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
                 <div
                   className="h-full rounded-full bg-bb-red"
                   style={{ width: `${data.continuarAssistindo.progress_pct}%` }}
                 />
               </div>
-              <p className="mt-0.5 text-[10px] text-bb-gray-500">
+              <p className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">
                 {Math.round(data.continuarAssistindo.watched_seconds / 60)}min de{' '}
                 {Math.round(data.continuarAssistindo.duration / 60)}min
               </p>
@@ -425,22 +425,22 @@ export default function StudentDashboardPage() {
 
       {/* ── My Week ─────────────────────────────────────────────── */}
       <section>
-        <h2 className="mb-2 font-semibold text-bb-black">Minha Semana</h2>
+        <h2 className="mb-2 font-semibold text-[var(--bb-ink-100)]">Minha Semana</h2>
         <WeekCalendar semana={data.semana} />
       </section>
 
       {/* ── Recommended Content ─────────────────────────────────── */}
       {data.conteudoRecomendado.length > 0 && (
         <section>
-          <h2 className="mb-2 font-semibold text-bb-black">Recomendado para Voce</h2>
+          <h2 className="mb-2 font-semibold text-[var(--bb-ink-100)]">Recomendado para Voce</h2>
           <div className="space-y-2">
             {data.conteudoRecomendado.map((video) => (
               <Card key={video.video_id} className="flex items-center gap-3 p-3">
-                <div className="flex h-12 w-16 flex-shrink-0 items-center justify-center rounded bg-bb-gray-300 text-xs text-bb-gray-500">
+                <div className="flex h-12 w-16 flex-shrink-0 items-center justify-center rounded bg-[var(--bb-depth-3)] text-xs text-[var(--bb-ink-40)]">
                   {video.duration}min
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-bb-black">{video.title}</p>
+                  <p className="text-sm font-medium text-[var(--bb-ink-100)]">{video.title}</p>
                   <Badge
                     variant="belt"
                     beltColor={BELT_COLOR_MAP[video.belt_level]}
