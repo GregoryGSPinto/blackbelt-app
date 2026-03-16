@@ -49,7 +49,10 @@ function createMockToken(
 // Mock Data — 7 users, 8 profiles
 // ────────────────────────────────────────────────────────────
 
+const SEED_PASSWORD = 'BlackBelt@2026';
+
 const MOCK_USERS: (User & { raw_password: string })[] = [
+  // Original mock users (senha123)
   { id: 'user-admin', email: 'admin@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
   { id: 'user-prof', email: 'professor@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
   { id: 'user-adulto', email: 'adulto@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
@@ -57,9 +60,17 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-resp', email: 'responsavel@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
   { id: 'user-reviewer', email: 'reviewer@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
   { id: 'user-multi', email: 'multiperfil@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  // Seed users matching Supabase (BlackBelt@2026)
+  { id: 'user-roberto', email: 'roberto@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-andre', email: 'andre@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-joao', email: 'joao@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-lucas-teen', email: 'lucas.teen@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-helena-kids', email: 'helena.kids@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-patricia', email: 'patricia@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
 ];
 
 const MOCK_PROFILES: Profile[] = [
+  // Original mock profiles
   { id: 'prof-admin', user_id: 'user-admin', role: Role.Admin, display_name: 'Admin Master', avatar: null, ...AUDIT },
   { id: 'prof-professor', user_id: 'user-prof', role: Role.Professor, display_name: 'Sensei Carlos', avatar: null, ...AUDIT },
   { id: 'prof-adulto', user_id: 'user-adulto', role: Role.AlunoAdulto, display_name: 'João Silva', avatar: null, ...AUDIT },
@@ -68,6 +79,13 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-reviewer', user_id: 'user-reviewer', role: Role.Admin, display_name: 'Reviewer Admin', avatar: null, ...AUDIT },
   { id: 'prof-multi-adulto', user_id: 'user-multi', role: Role.AlunoAdulto, display_name: 'Pedro Costa', avatar: null, ...AUDIT },
   { id: 'prof-multi-resp', user_id: 'user-multi', role: Role.Responsavel, display_name: 'Pedro Costa', avatar: null, ...AUDIT },
+  // Seed profiles (matching Supabase users)
+  { id: 'prof-roberto', user_id: 'user-roberto', role: Role.Admin, display_name: 'Roberto Guerreiro', avatar: null, ...AUDIT },
+  { id: 'prof-andre', user_id: 'user-andre', role: Role.Professor, display_name: 'André Santos', avatar: null, ...AUDIT },
+  { id: 'prof-joao', user_id: 'user-joao', role: Role.AlunoAdulto, display_name: 'João Mendes', avatar: null, ...AUDIT },
+  { id: 'prof-lucas-teen', user_id: 'user-lucas-teen', role: Role.AlunoTeen, display_name: 'Lucas Ferreira', avatar: null, ...AUDIT },
+  { id: 'prof-helena-kids', user_id: 'user-helena-kids', role: Role.AlunoKids, display_name: 'Helena Costa', avatar: null, ...AUDIT },
+  { id: 'prof-patricia', user_id: 'user-patricia', role: Role.Responsavel, display_name: 'Patrícia Oliveira', avatar: null, ...AUDIT },
 ];
 
 function getProfilesByUserId(userId: string): Profile[] {

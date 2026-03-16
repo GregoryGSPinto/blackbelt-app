@@ -254,7 +254,7 @@ export default function LoginPage() {
           {/* Demo credentials */}
           <div className="mt-6 border-t border-white/5 pt-4">
             <p className="text-center text-xs text-neutral-600">
-              Demo: admin@blackbelt.com / senha123
+              Demo: roberto@guerreiros.com / BlackBelt@2026
             </p>
           </div>
         </div>
