@@ -5,7 +5,7 @@ import { getFeed, likePost, type FeedPost, type PostType } from '@/lib/api/feed.
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 
-const TYPE_ICON: Record<PostType, string> = { achievement: '🏆', class_photo: '📸', event: '📅', milestone: '🎯', coach_tip: '💡', student_post: '💬' };
+const TYPE_ICON: Record<PostType, string> = { achievement: '🏆', class_photo: '📸', event: '📅', milestone: '🎯', coach_tip: '💡', promotion: '🥋' };
 const FILTERS: { id: PostType | ''; label: string }[] = [
   { id: '', label: 'Todos' }, { id: 'achievement', label: 'Conquistas' }, { id: 'coach_tip', label: 'Dicas' }, { id: 'event', label: 'Eventos' },
 ];
