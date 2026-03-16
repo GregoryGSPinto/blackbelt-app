@@ -26,7 +26,7 @@ export default function AlunoMensagensPage() {
     setSending(true);
     try {
       await sendMessage(selectedConv, newMessage);
-      setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, from_id: 'stu-1', from_name: 'Eu', content: newMessage, sent_at: new Date().toISOString(), is_mine: true }]);
+      setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, from_id: 'stu-1', from_name: 'Eu', from_avatar: null, content: newMessage, sent_at: new Date().toISOString(), read_at: null, is_mine: true }]);
       setNewMessage('');
     } finally { setSending(false); }
   }
