@@ -18,7 +18,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
-import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/lib/hooks/useToast';
 
 const STATUS_COLOR: Record<CampaignStatus, string> = {
