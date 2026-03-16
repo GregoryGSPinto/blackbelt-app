@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Avatar } from '@/components/ui/Avatar';
@@ -193,6 +194,38 @@ export default function TeenDashboardPage() {
               );
             })}
           </div>
+        </section>
+
+        {/* ─── VIDEOS — +XP ─── */}
+        <section>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[var(--bb-ink-60)]">
+            <span>🎮</span> Vídeos — +XP
+          </h2>
+          <Link href="/teen/conteudo">
+            <div className="rounded-2xl bg-gradient-to-br from-indigo-900/60 to-purple-900/40 p-4 ring-1 ring-indigo-500/20 transition-all hover:ring-indigo-500/40">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-16 w-24 flex-shrink-0 items-center justify-center rounded-xl text-3xl"
+                  style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}
+                >
+                  🥋
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-[var(--bb-ink-100)]">Postura base e equilíbrio</p>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
+                    <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+                  </div>
+                  <p className="mt-1 text-xs text-indigo-300">+30 XP ao completar</p>
+                </div>
+                <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-300">
+                  +30 XP
+                </span>
+              </div>
+              <p className="mt-3 text-xs text-[var(--bb-ink-40)]">
+                Desafio: 3 vídeos esta semana (1/3)
+              </p>
+            </div>
+          </Link>
         </section>
 
         {/* ─── ACHIEVEMENTS (glowing badges) ─── */}

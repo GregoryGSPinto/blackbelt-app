@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import { getAlunoDashboard } from '@/lib/api/aluno.service';
 import type {
   AlunoDashboardDTO,
@@ -395,31 +396,46 @@ export default function StudentDashboardPage() {
         </section>
       )}
 
-      {/* ── Continue Watching ───────────────────────────────────── */}
+      {/* ── Continue Watching — Streaming ────────────────────────── */}
       {data.continuarAssistindo && (
         <section>
-          <h2 className="mb-2 font-semibold text-[var(--bb-ink-100)]">Continuar Assistindo</h2>
-          <Card variant="outlined" className="flex items-center gap-3 p-3">
-            <div className="flex h-14 w-20 flex-shrink-0 items-center justify-center rounded bg-[var(--bb-depth-3)] text-sm text-[var(--bb-ink-40)]">
-              {'\u25B6\uFE0F'}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{data.continuarAssistindo.title}</p>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
-                <div
-                  className="h-full rounded-full bg-bb-red"
-                  style={{ width: `${data.continuarAssistindo.progress_pct}%` }}
-                />
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-semibold text-[var(--bb-ink-100)]">Continuar Assistindo</h2>
+            <Link href="/dashboard/conteudo" className="text-xs font-medium text-[var(--bb-brand-primary)] hover:underline">
+              Ver biblioteca →
+            </Link>
+          </div>
+          <Link href="/dashboard/conteudo">
+            <Card variant="outlined" className="flex items-center gap-3 p-3 transition-all hover:ring-1 hover:ring-[var(--bb-brand-primary)]/40">
+              <div
+                className="flex h-14 w-20 flex-shrink-0 items-center justify-center rounded-lg text-2xl"
+                style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}
+              >
+                🥋
               </div>
-              <p className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">
-                {Math.round(data.continuarAssistindo.watched_seconds / 60)}min de{' '}
-                {Math.round(data.continuarAssistindo.duration / 60)}min
-              </p>
-            </div>
-            <Button variant="primary" size="sm">
-              Continuar
-            </Button>
-          </Card>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-[var(--bb-ink-100)]">{data.continuarAssistindo.title}</p>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--bb-depth-3)]">
+                  <div
+                    className="h-full rounded-full bg-bb-red"
+                    style={{ width: `${data.continuarAssistindo.progress_pct}%` }}
+                  />
+                </div>
+                <p className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">
+                  {Math.round(data.continuarAssistindo.watched_seconds / 60)}min de{' '}
+                  {Math.round(data.continuarAssistindo.duration / 60)}min
+                </p>
+              </div>
+              <Button variant="primary" size="sm">
+                Continuar
+              </Button>
+            </Card>
+          </Link>
+          {data.conteudoRecomendado.length > 0 && (
+            <p className="mt-1.5 text-[10px] text-[var(--bb-ink-40)]">
+              Sugestão: {data.conteudoRecomendado[0].title}
+            </p>
+          )}
         </section>
       )}
 

@@ -143,6 +143,30 @@ function ChildSection({ child }: { child: GuardianChildDTO }) {
         </div>
       </Card>
 
+      {/* Video Activity */}
+      <Card className="p-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--bb-ink-40)]">
+          Biblioteca de Vídeos
+        </p>
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-xl"
+            style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }}
+          >
+            📺
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-[var(--bb-ink-100)]">
+              {child.display_name} assistiu 5 vídeos este mês
+            </p>
+            <p className="text-xs text-[var(--bb-ink-40)]">
+              Completou a trilha Fundamentos!
+            </p>
+          </div>
+          <span className="text-lg">🎓</span>
+        </div>
+      </Card>
+
       {/* Payment */}
       <Card className="p-4">
         <div className="flex items-center justify-between">

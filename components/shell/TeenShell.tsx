@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { HomeIcon, CalendarIcon, AwardIcon, StarIcon, UserIcon } from './icons';
+import { HomeIcon, CalendarIcon, VideoIcon, StarIcon, UserIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
 interface TeenShellProps {
@@ -14,7 +14,7 @@ interface TeenShellProps {
 const navItems: NavItem[] = [
   { href: '/teen', label: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
   { href: '/teen/turmas', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" /> },
-  { href: '/teen/conquistas', label: 'Conquistas', icon: <AwardIcon className="h-5 w-5" /> },
+  { href: '/teen/conteudo', label: 'Vídeos', icon: <VideoIcon className="h-5 w-5" /> },
   { href: '/teen/ranking', label: 'Ranking', icon: <StarIcon className="h-5 w-5" /> },
   { href: '/teen/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" /> },
 ];

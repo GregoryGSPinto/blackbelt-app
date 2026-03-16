@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { getKidsDashboard } from '@/lib/api/kids.service';
 import type { KidsDashboardDTO, KidsExchangeOptionDTO } from '@/lib/api/kids.service';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -135,6 +136,34 @@ export default function KidsDashboardPage() {
             </div>
           </section>
         )}
+
+        {/* ─── ASSISTIR AVENTURA ─── */}
+        <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-[var(--bb-ink-100)]">
+            <span className="text-2xl" style={{ animation: 'float 3s ease-in-out infinite' }}>🌟</span> Assistir Aventura!
+          </h2>
+          <Link href="/kids/conteudo">
+            <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 ring-1 ring-blue-400/30 transition-all hover:ring-blue-400/50">
+              <div
+                className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl text-3xl"
+                style={{
+                  background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+                  animation: 'float 3s ease-in-out infinite',
+                }}
+              >
+                🐊
+              </div>
+              <div className="flex-1">
+                <p className="text-base font-extrabold text-[var(--bb-ink-100)]">O Rolo do Jacaré</p>
+                <p className="text-xs text-[var(--bb-ink-40)]">Nova aventura!</p>
+                <div className="mt-1.5 flex items-center gap-1">
+                  <span>⭐</span><span>⭐</span>
+                  <span className="text-xs font-bold text-amber-500">+2 estrelas!</span>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </section>
 
         {/* ─── STICKER ALBUM ─── */}
         <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">

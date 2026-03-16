@@ -10,6 +10,7 @@ import {
   HomeIcon,
   AwardIcon,
   HeartIcon,
+  StarIcon,
   BellIcon,
   CalendarIcon,
   CheckSquareIcon,
@@ -25,6 +26,7 @@ interface KidsShellProps {
 
 const navItems: NavItem[] = [
   { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" /> },
+  { href: '/kids/conteudo', label: 'Aventuras', icon: <StarIcon className="h-6 w-6" /> },
   { href: '/kids/conquistas', label: 'Conquistas', icon: <AwardIcon className="h-6 w-6" /> },
   { href: '/kids/perfil', label: 'Eu', icon: <HeartIcon className="h-6 w-6" /> },
 ];
