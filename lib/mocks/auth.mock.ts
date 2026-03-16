@@ -46,7 +46,7 @@ function createMockToken(
 }
 
 // ────────────────────────────────────────────────────────────
-// Mock Data — 7 users, 8 profiles
+// Mock Data — 16 users, 17 profiles
 // ────────────────────────────────────────────────────────────
 
 const SEED_PASSWORD = 'BlackBelt@2026';
@@ -67,6 +67,9 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-lucas-teen', email: 'lucas.teen@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-helena-kids', email: 'helena.kids@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-patricia', email: 'patricia@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-camila', email: 'camila@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-fernanda', email: 'fernanda@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-thiago', email: 'thiago@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
 ];
 
 const MOCK_PROFILES: Profile[] = [
@@ -86,6 +89,9 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-lucas-teen', user_id: 'user-lucas-teen', role: Role.AlunoTeen, display_name: 'Lucas Ferreira', avatar: null, ...AUDIT },
   { id: 'prof-helena-kids', user_id: 'user-helena-kids', role: Role.AlunoKids, display_name: 'Helena Costa', avatar: null, ...AUDIT },
   { id: 'prof-patricia', user_id: 'user-patricia', role: Role.Responsavel, display_name: 'Patrícia Oliveira', avatar: null, ...AUDIT },
+  { id: 'prof-camila', user_id: 'user-camila', role: Role.Admin, display_name: 'Camila Ferreira Santos', avatar: null, ...AUDIT },
+  { id: 'prof-fernanda', user_id: 'user-fernanda', role: Role.Professor, display_name: 'Fernanda Oliveira', avatar: null, ...AUDIT },
+  { id: 'prof-thiago', user_id: 'user-thiago', role: Role.Professor, display_name: 'Thiago Nakamura', avatar: null, ...AUDIT },
 ];
 
 function getProfilesByUserId(userId: string): Profile[] {
