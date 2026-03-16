@@ -78,18 +78,18 @@ export default function TeenConquistasPage() {
   // ── Loading ───────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
-          <Skeleton variant="text" className="h-8 w-48 bg-gray-800" />
-          <Skeleton variant="card" className="h-20 bg-gray-800" />
+          <Skeleton variant="text" className="h-8 w-48 bg-[var(--bb-depth-3)]" />
+          <Skeleton variant="card" className="h-20 bg-[var(--bb-depth-3)]" />
           <div className="flex gap-2">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} variant="text" className="h-8 w-20 bg-gray-800" />
+              <Skeleton key={i} variant="text" className="h-8 w-20 bg-[var(--bb-depth-3)]" />
             ))}
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} variant="card" className="h-32 bg-gray-800" />
+              <Skeleton key={i} variant="card" className="h-32 bg-[var(--bb-depth-3)]" />
             ))}
           </div>
         </div>
@@ -100,10 +100,10 @@ export default function TeenConquistasPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
         <span className="text-6xl">🎖️</span>
-        <h2 className="mt-4 text-xl font-bold text-bb-white">Nenhuma conquista ainda</h2>
-        <p className="mt-2 text-sm text-gray-400">
+        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma conquista ainda</h2>
+        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
           Continue treinando para desbloquear suas primeiras conquistas!
         </p>
       </div>
@@ -122,12 +122,12 @@ export default function TeenConquistasPage() {
   const categories: FilterCategory[] = ['all', 'treino', 'faixa', 'social', 'streak', 'competicao'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-extrabold text-bb-white">Conquistas</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="text-2xl font-extrabold text-[var(--bb-ink-100)]">Conquistas</h1>
+          <p className="mt-1 text-sm text-[var(--bb-ink-60)]">
             {unlockedCount}/{FULL_ACHIEVEMENTS.length} desbloqueadas
           </p>
         </div>
@@ -136,36 +136,36 @@ export default function TeenConquistasPage() {
         <section className="flex gap-3">
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 p-4 text-center ring-1 ring-yellow-500/20">
             <p className="text-2xl font-extrabold text-yellow-400">{unlockedCount}</p>
-            <p className="text-xs text-gray-400">Conquistas</p>
+            <p className="text-xs text-[var(--bb-ink-60)]">Conquistas</p>
           </div>
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 p-4 text-center ring-1 ring-cyan-500/20">
             <p className="text-2xl font-extrabold text-cyan-400">
               {totalXpEarned.toLocaleString('pt-BR')}
             </p>
-            <p className="text-xs text-gray-400">XP ganho</p>
+            <p className="text-xs text-[var(--bb-ink-60)]">XP ganho</p>
           </div>
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/10 p-4 text-center ring-1 ring-purple-500/20">
             <p className="text-2xl font-extrabold text-purple-400">
               {Math.round((unlockedCount / FULL_ACHIEVEMENTS.length) * 100)}%
             </p>
-            <p className="text-xs text-gray-400">Completo</p>
+            <p className="text-xs text-[var(--bb-ink-60)]">Completo</p>
           </div>
         </section>
 
         {/* Next achievement progress */}
         {nextAch && (
-          <section className="rounded-2xl bg-gray-800/50 p-4 ring-1 ring-gray-700/50">
+          <section className="rounded-2xl bg-[var(--bb-depth-3)] p-4 ring-1 ring-[var(--bb-glass-border)]">
             <div className="flex items-center gap-3">
               <span className="text-2xl opacity-60">{nextAch.icon}</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-bold text-gray-300">{nextAch.name}</p>
-                  <span className="text-xs text-gray-500">
+                  <p className="text-sm font-bold text-[var(--bb-ink-60)]">{nextAch.name}</p>
+                  <span className="text-xs text-[var(--bb-ink-40)]">
                     {nextAch.progress}/{nextAch.target}
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-500">{nextAch.description}</p>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-700">
+                <p className="text-[10px] text-[var(--bb-ink-40)]">{nextAch.description}</p>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--bb-depth-5)]">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400 transition-all duration-700"
                     style={{ width: `${(nextAch.progress / nextAch.target) * 100}%` }}
@@ -184,8 +184,8 @@ export default function TeenConquistasPage() {
               onClick={() => setFilter(cat)}
               className={`flex-shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
                 filter === cat
-                  ? 'bg-bb-red-500 text-bb-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  ? 'bg-bb-red-500 text-white'
+                  : 'bg-[var(--bb-depth-4)] text-[var(--bb-ink-60)] hover:bg-[var(--bb-depth-5)]'
               }`}
             >
               {cat === 'all' ? 'Todas' : CATEGORY_LABELS[cat]}
@@ -201,8 +201,8 @@ export default function TeenConquistasPage() {
               onClick={() => setSelectedAch(ach)}
               className={`relative flex flex-col items-center rounded-2xl p-4 text-center transition-all ${
                 ach.unlocked
-                  ? `bg-gradient-to-br ${CATEGORY_COLORS[ach.category]} ring-1 ring-white/10`
-                  : 'bg-gray-800/30 opacity-40 grayscale'
+                  ? `bg-gradient-to-br ${CATEGORY_COLORS[ach.category]} ring-1 ring-[var(--bb-glass-border)]`
+                  : 'bg-[var(--bb-depth-4)]/30 opacity-40 grayscale'
               }`}
               style={
                 ach.unlocked
@@ -211,14 +211,14 @@ export default function TeenConquistasPage() {
               }
             >
               <span className="text-4xl">{ach.icon}</span>
-              <p className="mt-2 text-sm font-bold text-bb-white">{ach.name}</p>
+              <p className="mt-2 text-sm font-bold text-[var(--bb-ink-100)]">{ach.name}</p>
               {ach.unlocked && (
                 <span className={`mt-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${CATEGORY_BADGE[ach.category]}`}>
                   +{ach.xp_reward} XP
                 </span>
               )}
               {!ach.unlocked && (
-                <span className="mt-1 text-[10px] text-gray-500">Bloqueada</span>
+                <span className="mt-1 text-[10px] text-[var(--bb-ink-40)]">Bloqueada</span>
               )}
             </button>
           ))}
@@ -227,7 +227,7 @@ export default function TeenConquistasPage() {
         {filtered.length === 0 && (
           <div className="py-12 text-center">
             <span className="text-4xl">🔍</span>
-            <p className="mt-3 text-sm text-gray-400">Nenhuma conquista nesta categoria.</p>
+            <p className="mt-3 text-sm text-[var(--bb-ink-60)]">Nenhuma conquista nesta categoria.</p>
           </div>
         )}
       </div>
@@ -239,10 +239,10 @@ export default function TeenConquistasPage() {
           onClick={() => setSelectedAch(null)}
         >
           <div
-            className="w-full max-w-lg rounded-t-3xl bg-gray-900 p-6 pb-10"
+            className="w-full max-w-lg rounded-t-3xl bg-[var(--bb-depth-2)] p-6 pb-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-gray-700" />
+            <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-[var(--bb-depth-5)]" />
             <div className="text-center">
               <span
                 className={`inline-block text-5xl ${selectedAch.unlocked ? '' : 'grayscale opacity-40'}`}
@@ -254,15 +254,15 @@ export default function TeenConquistasPage() {
               >
                 {selectedAch.icon}
               </span>
-              <h3 className="mt-3 text-xl font-extrabold text-bb-white">{selectedAch.name}</h3>
+              <h3 className="mt-3 text-xl font-extrabold text-[var(--bb-ink-100)]">{selectedAch.name}</h3>
               <span className={`mt-1 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${CATEGORY_BADGE[selectedAch.category]}`}>
                 {CATEGORY_LABELS[selectedAch.category]}
               </span>
-              <p className="mt-3 text-sm text-gray-400">{selectedAch.description}</p>
+              <p className="mt-3 text-sm text-[var(--bb-ink-60)]">{selectedAch.description}</p>
               <div className="mt-4 flex items-center justify-center gap-4 text-sm">
                 <span className="font-bold text-yellow-400">+{selectedAch.xp_reward} XP</span>
                 {selectedAch.unlocked && selectedAch.unlocked_at && (
-                  <span className="text-gray-500">
+                  <span className="text-[var(--bb-ink-40)]">
                     {new Date(selectedAch.unlocked_at).toLocaleDateString('pt-BR', {
                       day: '2-digit',
                       month: 'short',
@@ -272,8 +272,8 @@ export default function TeenConquistasPage() {
                 )}
               </div>
               {!selectedAch.unlocked && (
-                <div className="mt-4 rounded-xl bg-gray-800/50 px-4 py-3">
-                  <p className="text-xs text-gray-500">
+                <div className="mt-4 rounded-xl bg-[var(--bb-depth-3)] px-4 py-3">
+                  <p className="text-xs text-[var(--bb-ink-40)]">
                     Continue treinando para desbloquear esta conquista!
                   </p>
                 </div>
@@ -281,7 +281,7 @@ export default function TeenConquistasPage() {
             </div>
             <button
               onClick={() => setSelectedAch(null)}
-              className="mt-6 w-full rounded-xl bg-gray-800 py-3 text-sm font-bold text-gray-300 transition-colors hover:bg-gray-700"
+              className="mt-6 w-full rounded-xl bg-[var(--bb-depth-4)] py-3 text-sm font-bold text-[var(--bb-ink-60)] transition-colors hover:bg-[var(--bb-depth-5)]"
             >
               Fechar
             </button>
