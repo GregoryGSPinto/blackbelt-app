@@ -2,6 +2,7 @@ import type {
   AchievementV2DTO,
   AchievementProgressDTO,
 } from '@/lib/api/conquistas-v2.service';
+import { RARITY_ORDER } from '@/lib/api/conquistas-v2.service';
 
 const delay = () => new Promise((r) => setTimeout(r, 300));
 
