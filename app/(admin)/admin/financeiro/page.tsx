@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { getFinanceiroData } from '@/lib/api/financeiro.service';
 import type { FinanceiroData } from '@/lib/api/financeiro.service';
@@ -27,13 +27,25 @@ export default function AdminFinanceiroPremiumPage() {
   const { toast } = useToast();
   const [data, setData] = useState<FinanceiroData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
+    setLoading(true);
+    setError(null);
     getFinanceiroData('academy-1')
       .then(setData)
-      .catch(() => toast('Erro ao carregar dados financeiros', 'error'))
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+        console.error('[financeiro] Falha ao carregar:', msg, err);
+        setError(msg);
+        toast('Erro ao carregar dados financeiros', 'error');
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -49,7 +61,19 @@ export default function AdminFinanceiroPremiumPage() {
     );
   }
 
-  if (!data) return null;
+  if (error || !data) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 p-12 text-center">
+        <p className="text-lg font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+          Erro ao carregar dados financeiros
+        </p>
+        <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+          {error ?? 'Dados indisponiveis'}
+        </p>
+        <Button onClick={loadData}>Tentar novamente</Button>
+      </div>
+    );
+  }
 
   const trendPct = data.receitaMesAnterior > 0
     ? Math.round(((data.receitaMes - data.receitaMesAnterior) / data.receitaMesAnterior) * 100)
@@ -64,28 +88,29 @@ export default function AdminFinanceiroPremiumPage() {
   return (
     <div className="space-y-6 p-6">
       {/* ── TOP: Receita Hero ───────────────────────────────────────── */}
-      <div className="rounded-xl bg-gradient-to-r from-bb-gray-900 to-bb-gray-700 p-6 text-bb-white">
-        <p className="text-sm font-medium uppercase tracking-wide opacity-70">
+      <div
+        className="rounded-xl p-6"
+        style={{ background: 'var(--bb-brand-gradient)', color: '#fff' }}
+      >
+        <p className="text-sm font-medium uppercase tracking-wide opacity-80">
           Receita Marco
         </p>
         <p className="mt-1 text-4xl font-extrabold tracking-tight">
           R$ {data.receitaMes.toLocaleString('pt-BR')}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
-          <span className={trendUp ? 'text-green-400' : 'text-red-400'}>
+          <span className={trendUp ? 'opacity-90' : 'opacity-70'}>
             {trendUp ? '\u2191' : '\u2193'}{Math.abs(trendPct)}% vs fev
           </span>
-          <span className="opacity-70">|</span>
-          <span>
-            <span className={goalPct >= 90 ? 'text-green-400' : 'text-yellow-400'}>
-              {goalPct}% da meta
-            </span>
+          <span className="opacity-60">|</span>
+          <span className={goalPct >= 90 ? 'opacity-90' : 'opacity-70'}>
+            {goalPct}% da meta
           </span>
           {/* Progress bar */}
           <div className="flex flex-1 items-center gap-2">
-            <div className="h-2 flex-1 rounded-full bg-bb-gray-500">
+            <div className="h-2 flex-1 rounded-full bg-white/20">
               <div
-                className="h-2 rounded-full bg-green-400 transition-all"
+                className="h-2 rounded-full bg-white/80 transition-all"
                 style={{ width: `${Math.min(goalPct, 100)}%` }}
               />
             </div>
@@ -103,38 +128,38 @@ export default function AdminFinanceiroPremiumPage() {
           { label: 'Previsao Abril', value: `R$ ${data.previsaoProximoMes.toLocaleString('pt-BR')}`, sub: 'Estimativa' },
         ].map((kpi) => (
           <Card key={kpi.label} className="p-4">
-            <p className="text-xs font-medium uppercase text-bb-gray-500">{kpi.label}</p>
-            <p className={`mt-1 text-2xl font-bold ${kpi.danger ? 'text-bb-red' : 'text-bb-gray-900'}`}>
+            <p className="text-xs font-medium uppercase text-[var(--bb-ink-60)]">{kpi.label}</p>
+            <p className={`mt-1 text-2xl font-bold ${kpi.danger ? 'text-[var(--bb-brand)]' : 'text-[var(--bb-ink-100)]'}`}>
               {kpi.value}
             </p>
-            <p className="mt-0.5 text-xs text-bb-gray-500">{kpi.sub}</p>
+            <p className="mt-0.5 text-xs text-[var(--bb-ink-60)]">{kpi.sub}</p>
           </Card>
         ))}
       </div>
 
       {/* ── RED: Quem esta devendo ──────────────────────────────────── */}
       {data.debtors.length > 0 && (
-        <div className="rounded-xl border-2 border-bb-red bg-red-50 p-5">
-          <h2 className="mb-3 text-lg font-bold text-bb-red">
+        <div className="rounded-xl border-2 border-[var(--bb-brand)] bg-[var(--bb-brand-surface)] p-5">
+          <h2 className="mb-3 text-lg font-bold text-[var(--bb-brand)]">
             QUEM ESTA DEVENDO ({data.debtors.length})
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-red-200">
-                  <th className="px-3 py-2 text-left font-medium text-bb-red">Nome</th>
-                  <th className="px-3 py-2 text-left font-medium text-bb-red">Plano</th>
-                  <th className="px-3 py-2 text-right font-medium text-bb-red">Valor</th>
-                  <th className="px-3 py-2 text-right font-medium text-bb-red">Dias atraso</th>
-                  <th className="px-3 py-2 text-right font-medium text-bb-red">Acao</th>
+                <tr className="border-b border-[var(--bb-brand)]/20">
+                  <th className="px-3 py-2 text-left font-medium text-[var(--bb-brand)]">Nome</th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--bb-brand)]">Plano</th>
+                  <th className="px-3 py-2 text-right font-medium text-[var(--bb-brand)]">Valor</th>
+                  <th className="px-3 py-2 text-right font-medium text-[var(--bb-brand)]">Dias atraso</th>
+                  <th className="px-3 py-2 text-right font-medium text-[var(--bb-brand)]">Acao</th>
                 </tr>
               </thead>
               <tbody>
                 {data.debtors.map((d) => (
-                  <tr key={d.student_id} className="border-b border-red-100">
-                    <td className="px-3 py-3 font-medium text-bb-gray-900">{d.name}</td>
-                    <td className="px-3 py-3 text-bb-gray-700">{d.plan}</td>
-                    <td className="px-3 py-3 text-right font-semibold text-bb-gray-900">
+                  <tr key={d.student_id} className="border-b border-[var(--bb-brand)]/10">
+                    <td className="px-3 py-3 font-medium text-[var(--bb-ink-100)]">{d.name}</td>
+                    <td className="px-3 py-3 text-[var(--bb-ink-80)]">{d.plan}</td>
+                    <td className="px-3 py-3 text-right font-semibold text-[var(--bb-ink-100)]">
                       R$ {d.amount.toLocaleString('pt-BR')}
                     </td>
                     <td className="px-3 py-3 text-right">
@@ -159,18 +184,18 @@ export default function AdminFinanceiroPremiumPage() {
 
       {/* ── Chart: Receita 6 meses ──────────────────────────────────── */}
       <Card className="p-4">
-        <h2 className="mb-4 font-semibold text-bb-gray-900">Receita - Ultimos 6 Meses</h2>
+        <h2 className="mb-4 font-semibold text-[var(--bb-ink-100)]">Receita - Ultimos 6 Meses</h2>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.monthlyRevenue} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--bb-ink-20)" strokeOpacity={0.5} vertical={false} />
+              <XAxis dataKey="month" tick={{ fill: 'var(--bb-ink-40)', fontSize: 12 }} />
+              <YAxis tick={{ fill: 'var(--bb-ink-40)', fontSize: 12 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}k`} />
               <Tooltip
                 formatter={(value) => [`R$ ${Number(value).toLocaleString('pt-BR')}`, 'Receita']}
-                contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                contentStyle={{ backgroundColor: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', borderRadius: 12, color: 'var(--bb-ink-100)' }}
               />
-              <Bar dataKey="receita" fill="#dc2626" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="receita" fill="var(--bb-brand)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -178,26 +203,26 @@ export default function AdminFinanceiroPremiumPage() {
 
       {/* ── Payments Table ──────────────────────────────────────────── */}
       <Card className="overflow-hidden">
-        <div className="border-b border-bb-gray-300 p-4">
-          <h2 className="font-semibold text-bb-gray-900">Pagamentos Recentes</h2>
+        <div className="border-b border-[var(--bb-glass-border)] p-4">
+          <h2 className="font-semibold text-[var(--bb-ink-100)]">Pagamentos Recentes</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-bb-gray-300 bg-bb-gray-100">
-                <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Plano</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Valor</th>
-                <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Metodo</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Data</th>
+              <tr className="border-b border-[var(--bb-glass-border)] bg-[var(--bb-depth-4)]">
+                <th className="px-4 py-3 text-left font-medium text-[var(--bb-ink-60)]">Nome</th>
+                <th className="px-4 py-3 text-left font-medium text-[var(--bb-ink-60)]">Plano</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--bb-ink-60)]">Valor</th>
+                <th className="px-4 py-3 text-center font-medium text-[var(--bb-ink-60)]">Metodo</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--bb-ink-60)]">Data</th>
               </tr>
             </thead>
             <tbody>
               {data.recentPayments.map((p) => (
-                <tr key={p.id} className="border-b border-bb-gray-100">
-                  <td className="px-4 py-3 font-medium text-bb-gray-900">{p.name}</td>
-                  <td className="px-4 py-3 text-bb-gray-500">{p.plan}</td>
-                  <td className="px-4 py-3 text-right text-bb-gray-900">
+                <tr key={p.id} className="border-b border-[var(--bb-glass-border)]">
+                  <td className="px-4 py-3 font-medium text-[var(--bb-ink-100)]">{p.name}</td>
+                  <td className="px-4 py-3 text-[var(--bb-ink-60)]">{p.plan}</td>
+                  <td className="px-4 py-3 text-right text-[var(--bb-ink-100)]">
                     R$ {p.amount.toLocaleString('pt-BR')}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -211,7 +236,7 @@ export default function AdminFinanceiroPremiumPage() {
                       {METHOD_LABEL[p.method]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-bb-gray-500">
+                  <td className="px-4 py-3 text-right text-[var(--bb-ink-60)]">
                     {new Date(p.date).toLocaleDateString('pt-BR')}
                   </td>
                 </tr>
@@ -223,36 +248,36 @@ export default function AdminFinanceiroPremiumPage() {
 
       {/* ── Plan Analysis ───────────────────────────────────────────── */}
       <Card className="overflow-hidden">
-        <div className="border-b border-bb-gray-300 p-4">
-          <h2 className="font-semibold text-bb-gray-900">Analise por Plano</h2>
+        <div className="border-b border-[var(--bb-glass-border)] p-4">
+          <h2 className="font-semibold text-[var(--bb-ink-100)]">Analise por Plano</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-bb-gray-300 bg-bb-gray-100">
-                <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Plano</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Assinantes</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Receita</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">% do Total</th>
+              <tr className="border-b border-[var(--bb-glass-border)] bg-[var(--bb-depth-4)]">
+                <th className="px-4 py-3 text-left font-medium text-[var(--bb-ink-60)]">Plano</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--bb-ink-60)]">Assinantes</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--bb-ink-60)]">Receita</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--bb-ink-60)]">% do Total</th>
               </tr>
             </thead>
             <tbody>
               {data.planAnalysis.map((plan) => (
-                <tr key={plan.plan_id} className="border-b border-bb-gray-100">
-                  <td className="px-4 py-3 font-medium text-bb-gray-900">{plan.plan_name}</td>
-                  <td className="px-4 py-3 text-right text-bb-gray-700">{plan.subscriber_count}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-bb-gray-900">
+                <tr key={plan.plan_id} className="border-b border-[var(--bb-glass-border)]">
+                  <td className="px-4 py-3 font-medium text-[var(--bb-ink-100)]">{plan.plan_name}</td>
+                  <td className="px-4 py-3 text-right text-[var(--bb-ink-80)]">{plan.subscriber_count}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-[var(--bb-ink-100)]">
                     R$ {plan.revenue.toLocaleString('pt-BR')}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="h-2 w-20 rounded-full bg-bb-gray-100">
+                      <div className="h-2 w-20 rounded-full bg-[var(--bb-depth-4)]">
                         <div
-                          className="h-2 rounded-full bg-bb-red"
+                          className="h-2 rounded-full bg-[var(--bb-brand)]"
                           style={{ width: `${plan.pct_of_total}%` }}
                         />
                       </div>
-                      <span className="text-bb-gray-500">{plan.pct_of_total}%</span>
+                      <span className="text-[var(--bb-ink-60)]">{plan.pct_of_total}%</span>
                     </div>
                   </td>
                 </tr>
