@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Role } from '@/lib/types';
@@ -42,7 +42,6 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 
 const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
   function ShellHeader({ title, subtitle, userName: userNameProp, rightContent }, ref) {
-    const router = useRouter();
     const { profile, logout } = useAuth();
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -277,44 +276,36 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
 
                   {/* Menu items */}
                   <div className="py-1">
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        router.push(`${getProfilePrefix()}/perfil`);
-                      }}
-                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                    <Link
+                      href={`${getProfilePrefix()}/perfil`}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                       style={{ color: 'var(--bb-ink-80)' }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--bb-depth-4)';
                         e.currentTarget.style.color = 'var(--bb-ink-100)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
                         e.currentTarget.style.color = 'var(--bb-ink-80)';
                       }}
                     >
                       <UserIcon className="h-4 w-4" />
                       Meu perfil
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        router.push(`${getProfilePrefix()}/configuracoes`);
-                      }}
-                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                    </Link>
+                    <Link
+                      href={`${getProfilePrefix()}/configuracoes`}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                       style={{ color: 'var(--bb-ink-80)' }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--bb-depth-4)';
                         e.currentTarget.style.color = 'var(--bb-ink-100)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
                         e.currentTarget.style.color = 'var(--bb-ink-80)';
                       }}
                     >
                       <SettingsIcon className="h-4 w-4" />
                       Configurações
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Separator + Logout */}

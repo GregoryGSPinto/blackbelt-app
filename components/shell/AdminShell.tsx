@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { CommandPalette } from '@/components/shared/CommandPalette';
@@ -55,7 +55,6 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
   function AdminShell({ children }, ref) {
     const pathname = usePathname();
-    const router = useRouter();
     const { profile, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -429,44 +428,36 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
 
                     {/* Menu items */}
                     <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          router.push('/admin/perfil');
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      <Link
+                        href="/admin/perfil"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                         style={{ color: 'var(--bb-ink-80)' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-depth-4)';
                           e.currentTarget.style.color = 'var(--bb-ink-100)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.color = 'var(--bb-ink-80)';
                         }}
                       >
                         <UserIcon className="h-4 w-4" />
                         Meu perfil
-                      </button>
-                      <button
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          router.push('/admin/configuracoes');
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      </Link>
+                      <Link
+                        href="/admin/configuracoes"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                         style={{ color: 'var(--bb-ink-80)' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-depth-4)';
                           e.currentTarget.style.color = 'var(--bb-ink-100)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.color = 'var(--bb-ink-80)';
                         }}
                       >
                         <SettingsIcon className="h-4 w-4" />
                         Configurações
-                      </button>
+                      </Link>
                     </div>
 
                     {/* Separator + Logout */}

@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { BottomNav } from './BottomNav';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
@@ -49,7 +49,6 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 
 const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
   function KidsShell({ children }, ref) {
-    const router = useRouter();
     const { profile, logout } = useAuth();
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -265,44 +264,36 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
 
                     {/* Menu items */}
                     <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          router.push('/kids/perfil');
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      <Link
+                        href="/kids/perfil"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                         style={{ color: 'var(--bb-ink-80)' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-depth-4)';
                           e.currentTarget.style.color = 'var(--bb-ink-100)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.color = 'var(--bb-ink-80)';
                         }}
                       >
                         <UserIcon className="h-4 w-4" />
                         Meu perfil
-                      </button>
-                      <button
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          router.push('/kids/configuracoes');
-                        }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      </Link>
+                      <Link
+                        href="/kids/configuracoes"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
                         style={{ color: 'var(--bb-ink-80)' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-depth-4)';
                           e.currentTarget.style.color = 'var(--bb-ink-100)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.color = 'var(--bb-ink-80)';
                         }}
                       >
                         <SettingsIcon className="h-4 w-4" />
                         Configurações
-                      </button>
+                      </Link>
                     </div>
 
                     {/* Separator + Logout */}
