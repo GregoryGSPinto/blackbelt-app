@@ -20,17 +20,14 @@ import type {
   ModalityDistributionDTO,
   EvaluationHistoryItemDTO,
   ContentProgressDTO,
-  TrailProgressDTO,
   FinanceiroPerfilDTO,
-  TechniqueScoreDTO,
-  EvolutionSnapshotDTO,
 } from '@/lib/api/perfil.service';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/utils/cn';
-import type { BeltLevel, InvoiceStatus } from '@/lib/types';
+// types used inline
 
 // ── Dynamic Recharts imports (SSR disabled) ────────────────────────────
 
@@ -206,7 +203,7 @@ function TabJornada({ events }: { events: TimelineEventDTO[] }) {
 
   return (
     <div className="relative ml-4 border-l-2 border-bb-gray-300 pl-6">
-      {events.map((event, idx) => (
+      {events.map((event) => (
         <div key={event.id} className="relative pb-8 last:pb-0">
           {/* Timeline dot */}
           <div className="absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full border-2 border-bb-gray-300 bg-bb-white text-sm">

@@ -46,7 +46,7 @@ const AUTOMATIONS = [
 
 export default function WizardPage() {
   const { toast } = useToast();
-  const [progress, setProgress] = useState<WizardProgressDTO | null>(null);
+  const [_progress, setProgress] = useState<WizardProgressDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);

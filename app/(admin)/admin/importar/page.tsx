@@ -5,7 +5,6 @@ import {
   parseCSV,
   detectDuplicates,
   importStudents,
-  type ImportRow,
   type ParsedCSVResult,
   type DuplicateCheckResult,
   type ImportResult,

@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   globalSearch,
   getCommands,
-  type SearchResult,
   type SearchResultGroup,
-  type CommandItem,
 } from '@/lib/api/search.service';
 import { SearchIcon } from '@/components/shell/icons';
 

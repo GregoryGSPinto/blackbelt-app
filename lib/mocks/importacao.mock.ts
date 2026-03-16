@@ -22,7 +22,7 @@ export async function mockParseCSV(_file: File): Promise<ParsedCSVResult> {
   };
 }
 
-export async function mockDetectDuplicates(rows: ImportRow[], _academyId: string): Promise<DuplicateCheckResult> {
+export async function mockDetectDuplicates(_rows: ImportRow[], _academyId: string): Promise<DuplicateCheckResult> {
   await delay();
   const duplicates: number[] = [2];
   const matchDetails: Record<number, string> = {

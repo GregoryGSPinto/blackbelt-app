@@ -2,10 +2,8 @@ import { BeltLevel } from '@/lib/types';
 import type {
   StudentForEvaluationDTO,
   EvaluationHistoryDTO,
-  EvaluationRecordDTO,
   SaveEvaluationPayload,
   SaveEvaluationResultDTO,
-  VideoRecommendationDTO,
 } from '@/lib/api/avaliacao.service';
 
 const delay = () => new Promise((r) => setTimeout(r, 300));

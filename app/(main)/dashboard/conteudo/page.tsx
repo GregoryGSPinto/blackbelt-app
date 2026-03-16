@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getStreamingHome, getTrails } from '@/lib/api/streaming.service';
 import type { StreamingSection, StreamingVideoCard, TrailDTO } from '@/lib/api/streaming.service';
-import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 // ────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { getAchievements, getAchievementProgress, CATEGORY_META, RARITY_ORDER } from '@/lib/api/conquistas-v2.service';
+import { getAchievements, getAchievementProgress, CATEGORY_META } from '@/lib/api/conquistas-v2.service';
 import type { AchievementV2DTO, AchievementProgressDTO, AchievementCategory, AchievementRarity } from '@/lib/api/conquistas-v2.service';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';

@@ -324,7 +324,6 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
         status = 'rest';
       } else if (isPast) {
         // Check if attended
-        const dateStr = d.toISOString().split('T')[0];
         const attended = diasPresentes.includes(d.getDate()) && d.getMonth() === now.getMonth();
         status = attended ? 'done' : 'missed';
       } else {

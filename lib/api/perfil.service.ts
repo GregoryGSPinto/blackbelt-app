@@ -403,7 +403,7 @@ export async function getAttendanceHeatmap(studentId: string): Promise<Attendanc
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    const [attendanceRes, classEnrollmentsRes] = await Promise.all([
+    const [attendanceRes] = await Promise.all([
       supabase.from('attendance')
         .select('checked_at, class_id, classes(modalities(name))')
         .eq('student_id', studentId)

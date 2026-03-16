@@ -1,6 +1,6 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
-import type { Message } from '@/lib/types';
+// types defined locally
 
 export interface ConversationDTO {
   id: string;

@@ -7,7 +7,6 @@ import {
   type NPSFeedback,
 } from '@/lib/api/nps.service';
 import { Card } from '@/components/ui/Card';
-import { Spinner } from '@/components/ui/Spinner';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 
