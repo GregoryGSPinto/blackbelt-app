@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { listProducts, type Product, type ProductCategory } from '@/lib/api/store.service';
-import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
-import { PageHeader } from '@/components/shared/PageHeader';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useCart } from '@/lib/hooks/useCart';
+import { useToast } from '@/lib/hooks/useToast';
+import { SearchIcon, ShoppingCartIcon, FilterIcon, XIcon } from '@/components/shell/icons';
+
+// ── Constants ──────────────────────────────────────────────────────────
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimonos',
   faixa: 'Faixas',
   equipamento: 'Equipamentos',
-  acessorio: 'Acessórios',
-  vestuario: 'Vestuário',
+  acessorio: 'Acessorios',
+  vestuario: 'Vestuario',
   suplemento: 'Suplementos',
 };
 
@@ -22,8 +24,8 @@ const CATEGORY_TABS: { key: string; label: string }[] = [
   { key: 'quimono', label: 'Quimonos' },
   { key: 'faixa', label: 'Faixas' },
   { key: 'equipamento', label: 'Equipamentos' },
-  { key: 'acessorio', label: 'Acessórios' },
-  { key: 'vestuario', label: 'Vestuário' },
+  { key: 'acessorio', label: 'Acessorios' },
+  { key: 'vestuario', label: 'Vestuario' },
   { key: 'suplemento', label: 'Suplementos' },
 ];
 
@@ -31,16 +33,22 @@ function formatBRL(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+// ── Page ───────────────────────────────────────────────────────────────
+
 export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
   const [search, setSearch] = useState('');
   const { cartCount, addItem } = useCart();
+  const { toast } = useToast();
 
   useEffect(() => {
-    listProducts('academy-1').then(setProducts).finally(() => setLoading(false));
-  }, []);
+    listProducts('academy-1')
+      .then(setProducts)
+      .catch(() => toast('Erro ao carregar produtos', 'error'))
+      .finally(() => setLoading(false));
+  }, [toast]);
 
   const filtered = products.filter((p) => {
     if (activeCategory && p.category !== activeCategory) return false;
@@ -62,103 +70,162 @@ export default function LojaPage() {
       variant_name: variant.name,
       unit_price: variant.price ?? product.price,
     });
+    toast(`${product.name} adicionado ao carrinho`, 'success');
   }
+
+  // ── Skeleton loading ─────────────────────────────────────────────────
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Spinner size="lg" />
+      <div className="space-y-4 p-4 sm:p-6">
+        <Skeleton variant="text" className="h-8 w-48" />
+        <Skeleton variant="text" className="h-10 w-full" />
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} variant="text" className="h-8 w-24" />)}
+        </div>
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} variant="card" className="h-72" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div className="flex items-center justify-between">
-        <PageHeader title="Loja" subtitle="Produtos oficiais da academia" />
-        <Link href="/carrinho" className="relative">
-          <Button variant="secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" className="mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
-            </svg>
-            Carrinho
-          </Button>
+    <div className="min-h-screen space-y-5 p-4 sm:p-6 overflow-x-hidden" data-stagger>
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <section className="animate-reveal flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
+            Loja
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+            Produtos oficiais da academia
+          </p>
+        </div>
+        <Link
+          href="/carrinho"
+          className="relative flex items-center gap-2 rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
+          style={{
+            background: 'var(--bb-brand)',
+            color: '#fff',
+          }}
+        >
+          <ShoppingCartIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">Carrinho</span>
           {cartCount > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+            <span
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+              style={{ background: '#EF4444' }}
+            >
               {cartCount}
             </span>
           )}
         </Link>
-      </div>
+      </section>
 
-      {/* Search */}
-      <div className="relative">
-        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bb-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar produto..."
-          className="w-full rounded-lg border border-bb-gray-300 py-2.5 pl-10 pr-3 text-sm"
-        />
-      </div>
+      {/* ── Search ───────────────────────────────────────────────── */}
+      <section className="animate-reveal">
+        <div className="relative">
+          <SearchIcon
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            style={{ color: 'var(--bb-ink-40)' }}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar produto..."
+            className="w-full rounded-lg py-2.5 pl-10 pr-3 min-h-[44px] text-sm outline-none transition-all"
+            style={{
+              background: 'var(--bb-depth-2)',
+              border: '1px solid var(--bb-glass-border)',
+              color: 'var(--bb-ink-100)',
+            }}
+          />
+        </div>
+      </section>
 
-      {/* Category tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1">
-        {CATEGORY_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveCategory(tab.key)}
-            className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              activeCategory === tab.key
-                ? 'bg-bb-primary text-white'
-                : 'bg-bb-gray-100 text-bb-gray-600 hover:bg-bb-gray-200'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* ── Category filters ─────────────────────────────────────── */}
+      <section className="animate-reveal">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {CATEGORY_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveCategory(tab.key)}
+              className="flex-shrink-0 rounded-full px-4 py-1.5 min-h-[36px] text-sm font-medium transition-all"
+              style={{
+                background: activeCategory === tab.key ? 'var(--bb-brand)' : 'var(--bb-depth-3)',
+                color: activeCategory === tab.key ? '#fff' : 'var(--bb-ink-60)',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-bb-gray-500">{filtered.length} produtos</span>
+      {/* ── Results count ────────────────────────────────────────── */}
+      <section className="animate-reveal flex items-center justify-between">
+        <span className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+          {filtered.length} produto{filtered.length !== 1 ? 's' : ''}
+        </span>
         {(activeCategory || search) && (
           <button
+            type="button"
             onClick={() => { setActiveCategory(''); setSearch(''); }}
-            className="text-sm text-bb-primary hover:underline"
+            className="flex items-center gap-1 text-sm transition-all hover:opacity-80"
+            style={{ color: 'var(--bb-brand)' }}
           >
+            <XIcon className="h-3 w-3" />
             Limpar filtros
           </button>
         )}
-      </div>
+      </section>
 
-      {/* Product grid */}
+      {/* ── Product grid ─────────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-bb-gray-500">Nenhum produto encontrado.</p>
-        </div>
+        <section className="animate-reveal py-12 text-center">
+          <FilterIcon className="mx-auto mb-3 h-12 w-12" style={{ color: 'var(--bb-ink-20)' }} />
+          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+            Nenhum produto encontrado.
+          </p>
+        </section>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="animate-reveal grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((product) => (
             <div
               key={product.id}
-              className="group relative overflow-hidden rounded-xl border border-bb-gray-200 bg-white transition-shadow hover:shadow-md"
+              className="group relative overflow-hidden transition-all"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
             >
               {/* Badges */}
               <div className="absolute left-2 top-2 z-10 flex flex-col gap-1">
                 {product.status === 'out_of_stock' && (
-                  <span className="rounded bg-bb-gray-900 px-2 py-0.5 text-xs font-bold text-white">
+                  <span
+                    className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                    style={{ background: 'var(--bb-ink-60)' }}
+                  >
                     Esgotado
                   </span>
                 )}
                 {product.compare_at_price && product.status !== 'out_of_stock' && (
-                  <span className="rounded bg-green-600 px-2 py-0.5 text-xs font-bold text-white">
-                    Promoção
+                  <span
+                    className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                    style={{ background: '#22C55E' }}
+                  >
+                    Promocao
                   </span>
                 )}
                 {product.featured && (
-                  <span className="rounded bg-bb-primary px-2 py-0.5 text-xs font-bold text-white">
+                  <span
+                    className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                    style={{ background: 'var(--bb-brand)' }}
+                  >
                     Destaque
                   </span>
                 )}
@@ -166,56 +233,88 @@ export default function LojaPage() {
 
               {/* Image placeholder */}
               <Link href={`/loja/${product.id}`}>
-                <div className="flex aspect-square items-center justify-center bg-bb-gray-100 group-hover:bg-bb-gray-50">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-bb-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <div
+                  className="flex aspect-square items-center justify-center transition-colors"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 sm:h-16 sm:w-16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1}
+                    style={{ color: 'var(--bb-ink-20)' }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
               </Link>
 
               {/* Info */}
               <div className="p-3">
-                <span className="text-xs font-medium text-bb-gray-400">
+                <span className="text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>
                   {CATEGORY_LABEL[product.category]}
                 </span>
                 <Link href={`/loja/${product.id}`}>
-                  <h3 className="mt-1 font-bold text-bb-black group-hover:text-bb-primary line-clamp-2">
+                  <h3
+                    className="mt-1 text-sm font-bold leading-tight line-clamp-2 transition-colors"
+                    style={{ color: 'var(--bb-ink-100)' }}
+                  >
                     {product.name}
                   </h3>
                 </Link>
 
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-lg font-extrabold text-bb-black">
+                  <span className="text-base font-extrabold sm:text-lg" style={{ color: 'var(--bb-ink-100)' }}>
                     {formatBRL(product.price)}
                   </span>
                   {product.compare_at_price && (
-                    <span className="text-sm text-bb-gray-400 line-through">
+                    <span className="text-xs line-through" style={{ color: 'var(--bb-ink-40)' }}>
                       {formatBRL(product.compare_at_price)}
                     </span>
                   )}
                 </div>
 
                 {product.variants.length > 1 && (
-                  <p className="mt-1 text-xs text-bb-gray-400">
-                    {product.variants.length} tamanhos disponíveis
+                  <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                    {product.variants.length} opcoes
                   </p>
                 )}
 
                 <div className="mt-3">
                   {product.status === 'out_of_stock' ? (
-                    <Button variant="secondary" className="w-full" disabled>
-                      Indisponível
-                    </Button>
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium opacity-50"
+                      style={{
+                        background: 'var(--bb-depth-3)',
+                        color: 'var(--bb-ink-40)',
+                        border: '1px solid var(--bb-glass-border)',
+                      }}
+                    >
+                      Indisponivel
+                    </button>
                   ) : (
-                    <Button className="w-full" onClick={() => handleQuickAdd(product)}>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickAdd(product)}
+                      className="w-full rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
+                      style={{ background: 'var(--bb-brand)', color: '#fff' }}
+                    >
                       Comprar
-                    </Button>
+                    </button>
                   )}
                 </div>
               </div>
             </div>
           ))}
-        </div>
+        </section>
       )}
     </div>
   );

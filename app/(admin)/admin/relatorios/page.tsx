@@ -8,6 +8,11 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { ReportViewer } from '@/components/reports/ReportViewer';
+import { generateMonthlyReport } from '@/lib/reports/monthly-report';
+import { generateAttendanceReport } from '@/lib/reports/attendance-report';
+import { generateFinancialReport } from '@/lib/reports/financial-report';
+import type { ReportData, ReportType as ReportViewType } from '@/lib/types/report';
 
 const ReportChart = dynamic(() => import('./ReportChart'), { ssr: false });
 
@@ -26,6 +31,9 @@ export default function AdminRelatoriosPage() {
   const [loading, setLoading] = useState(true);
   const [from, setFrom] = useState('2025-10-01');
   const [to, setTo] = useState('2026-03-15');
+  const [reportViewData, setReportViewData] = useState<ReportData | null>(null);
+  const [reportViewType, setReportViewType] = useState<ReportViewType>('monthly');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -35,8 +43,35 @@ export default function AdminRelatoriosPage() {
       .finally(() => setLoading(false));
   }, [selectedType, from, to]);
 
-  function handleExport(format: 'pdf' | 'excel') {
-    toast(`Exportando ${format.toUpperCase()}... (placeholder)`, 'success');
+  async function handleExport(format: 'pdf' | 'excel') {
+    if (format === 'excel') {
+      toast('Exportacao Excel em desenvolvimento', 'info');
+      return;
+    }
+    setExporting(true);
+    try {
+      const period = `${from} a ${to}`;
+      let data: ReportData;
+      let viewType: ReportViewType;
+
+      if (selectedType === 'presenca' || selectedType === 'performance') {
+        data = await generateAttendanceReport('academy-1', period);
+        viewType = 'attendance';
+      } else if (selectedType === 'financeiro') {
+        data = await generateFinancialReport('academy-1', period);
+        viewType = 'financial';
+      } else {
+        data = await generateMonthlyReport('academy-1', period);
+        viewType = 'monthly';
+      }
+
+      setReportViewData(data);
+      setReportViewType(viewType);
+    } catch {
+      toast('Erro ao gerar relatorio', 'error');
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -63,7 +98,7 @@ export default function AdminRelatoriosPage() {
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 rounded border border-bb-gray-300 px-3 py-1.5 text-sm" />
         </div>
         <div className="ml-auto flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleExport('pdf')}>Exportar PDF</Button>
+          <Button variant="ghost" size="sm" onClick={() => handleExport('pdf')} disabled={exporting}>{exporting ? 'Gerando...' : 'Exportar PDF'}</Button>
           <Button variant="ghost" size="sm" onClick={() => handleExport('excel')}>Exportar Excel</Button>
         </div>
       </Card>
@@ -115,6 +150,15 @@ export default function AdminRelatoriosPage() {
           </Card>
         </>
       ) : null}
+
+      {/* ── Report Viewer (PDF/Print) ──────────────────────────────── */}
+      {reportViewData && (
+        <ReportViewer
+          type={reportViewType}
+          data={reportViewData}
+          onClose={() => setReportViewData(null)}
+        />
+      )}
     </div>
   );
 }

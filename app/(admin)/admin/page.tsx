@@ -19,7 +19,11 @@ import {
   StarIcon,
   UserIcon,
   AwardIcon,
+  DownloadIcon,
 } from '@/components/shell/icons';
+import { ReportViewer } from '@/components/reports/ReportViewer';
+import { generateMonthlyReport } from '@/lib/reports/monthly-report';
+import type { MonthlyReportData } from '@/lib/types/report';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
@@ -369,6 +373,8 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
+  const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
+  const [reportExporting, setReportExporting] = useState(false);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();
@@ -435,6 +441,30 @@ export default function AdminDashboardPage() {
         <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
           {greeting.academy_name} &middot; {getDayOfWeek()}, {getFormattedDate()}
         </p>
+        <button
+          type="button"
+          disabled={reportExporting}
+          onClick={async () => {
+            setReportExporting(true);
+            try {
+              const report = await generateMonthlyReport('academy-1', 'Marco 2026');
+              setMonthlyReportData(report);
+            } catch {
+              // handled
+            } finally {
+              setReportExporting(false);
+            }
+          }}
+          className="mt-3 inline-flex items-center gap-2 rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
+          style={{
+            background: 'var(--bb-depth-3)',
+            color: 'var(--bb-ink-100)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <DownloadIcon className="h-4 w-4" />
+          {reportExporting ? 'Gerando...' : 'Exportar PDF'}
+        </button>
       </section>
 
       {/* ═══ SECTION 2: HEADLINES ══════════════════════════════════════ */}
@@ -1079,6 +1109,17 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </section>
+
+      {/* ═══ REPORT VIEWER (PDF/Print overlay) ═══════════════════════ */}
+      {monthlyReportData && (
+        <section className="animate-reveal">
+          <ReportViewer
+            type="monthly"
+            data={monthlyReportData}
+            onClose={() => setMonthlyReportData(null)}
+          />
+        </section>
+      )}
     </div>
   );
 }

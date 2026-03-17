@@ -18,3 +18,7 @@ export * from './student-management';
 export * from './graduation';
 export * from './notification';
 export * from './class';
+export * from './store';
+export * from './event';
+export * from './report';
+export * from './evaluation';

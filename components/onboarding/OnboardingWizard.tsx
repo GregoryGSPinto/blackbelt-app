@@ -1,270 +1,494 @@
 'use client';
 
-import { forwardRef, useState, useCallback } from 'react';
+import { forwardRef, useState, useCallback, type CSSProperties } from 'react';
 import { Button } from '@/components/ui/Button';
+
+// ── Types ─────────────────────────────────────────────────────
 
 interface OnboardingWizardProps {
   onComplete: () => void;
   academyId?: string;
 }
 
+interface AcademyFormData {
+  name: string;
+  address: string;
+}
+
+interface ClassFormData {
+  name: string;
+  modality: string;
+  schedule: string;
+}
+
 interface StepConfig {
   title: string;
   subtitle: string;
+  skippable: boolean;
 }
 
+// ── Constants ────────────────────────────────────────────────
+
+const TOTAL_STEPS = 6;
+
 const STEPS: StepConfig[] = [
-  { title: 'Boas-vindas ao BlackBelt!', subtitle: 'Vamos configurar sua academia em poucos minutos.' },
-  { title: 'Configure sua academia', subtitle: 'Informações básicas e identidade visual.' },
-  { title: 'Adicione modalidades', subtitle: 'Selecione as artes marciais oferecidas.' },
-  { title: 'Crie sua primeira turma', subtitle: 'Configure horário e capacidade.' },
-  { title: 'Adicione alunos', subtitle: 'Convide alunos ou adicione manualmente.' },
-  { title: 'Tudo pronto!', subtitle: 'Sua academia está configurada.' },
+  { title: 'Bem-vindo ao BlackBelt!', subtitle: 'Sua jornada de gestao inteligente comeca agora.', skippable: false },
+  { title: 'Configure sua academia', subtitle: 'Nome, logo e endereco da sua academia.', skippable: true },
+  { title: 'Crie sua primeira turma', subtitle: 'Configure uma turma para comecar.', skippable: true },
+  { title: 'Convide um professor', subtitle: 'Compartilhe o link para seu professor se cadastrar.', skippable: true },
+  { title: 'Gere links para alunos', subtitle: 'Crie um link de convite para seus alunos.', skippable: true },
+  { title: 'Tudo pronto!', subtitle: 'Sua academia esta configurada e pronta para uso.', skippable: false },
 ];
 
-const MODALITIES = ['BJJ', 'Muay Thai', 'Judô', 'Karatê', 'MMA', 'Boxe', 'Wrestling', 'Outro'];
+const MODALITIES = ['BJJ', 'Muay Thai', 'Judo', 'Karate', 'MMA', 'Boxe', 'Wrestling', 'Taekwondo'];
+
+// ── Styles ───────────────────────────────────────────────────
+
+const inputStyle: CSSProperties = {
+  background: 'var(--bb-depth-2)',
+  color: 'var(--bb-ink-100)',
+  border: '1px solid var(--bb-glass-border)',
+  borderRadius: 'var(--bb-radius-sm)',
+};
+
+const labelStyle: CSSProperties = {
+  color: 'var(--bb-ink-80)',
+};
+
+const subtextStyle: CSSProperties = {
+  color: 'var(--bb-ink-60)',
+};
+
+const mutedStyle: CSSProperties = {
+  color: 'var(--bb-ink-40)',
+};
+
+// ── Component ────────────────────────────────────────────────
 
 const OnboardingWizard = forwardRef<HTMLDivElement, OnboardingWizardProps>(
   function OnboardingWizard({ onComplete }, ref) {
     const [step, setStep] = useState(0);
-    const [academyName, setAcademyName] = useState('');
-    const [selectedModalities, setSelectedModalities] = useState<string[]>(['BJJ']);
-    const [className, setClassName] = useState('');
-    const [classSchedule, setClassSchedule] = useState('');
-    const [inviteMethod, setInviteMethod] = useState<'manual' | 'csv' | 'link'>('link');
-    const [manualEmail, setManualEmail] = useState('');
-    const [inviteLink] = useState(`https://app.blackbelt.com/convite/${Math.random().toString(36).slice(2, 8)}`);
+
+    // Step 2: Academy form
+    const [academy, setAcademy] = useState<AcademyFormData>({ name: '', address: '' });
+
+    // Step 3: Class form
+    const [classData, setClassData] = useState<ClassFormData>({ name: '', modality: 'BJJ', schedule: '' });
+
+    // Step 4: Professor invite link
+    const [professorLink] = useState(
+      `https://app.blackbelt.com/convite/prof-${Math.random().toString(36).slice(2, 8)}`,
+    );
+    const [professorLinkCopied, setProfessorLinkCopied] = useState(false);
+
+    // Step 5: Student invite link
+    const [studentLink] = useState(
+      `https://app.blackbelt.com/convite/aluno-${Math.random().toString(36).slice(2, 8)}`,
+    );
+    const [studentLinkCopied, setStudentLinkCopied] = useState(false);
+
+    // ── Navigation ────────────────────────────────────────────
 
     const canAdvance = useCallback((): boolean => {
       switch (step) {
-        case 0: return true; // Welcome
-        case 1: return academyName.length > 0;
-        case 2: return selectedModalities.length > 0;
-        case 3: return className.length > 0;
-        case 4: return true; // Optional
-        case 5: return true; // Done
+        case 0: return true;
+        case 1: return academy.name.trim().length > 0;
+        case 2: return classData.name.trim().length > 0;
+        case 3: return true;
+        case 4: return true;
+        case 5: return true;
         default: return true;
       }
-    }, [step, academyName, selectedModalities, className]);
-
-    const toggleModality = (mod: string) => {
-      setSelectedModalities((prev) =>
-        prev.includes(mod) ? prev.filter((m) => m !== mod) : [...prev, mod],
-      );
-    };
+    }, [step, academy.name, classData.name]);
 
     const next = () => {
-      if (step < STEPS.length - 1) setStep(step + 1);
+      if (step < TOTAL_STEPS - 1) setStep(step + 1);
     };
 
     const prev = () => {
       if (step > 0) setStep(step - 1);
     };
 
+    const skip = () => {
+      if (step < TOTAL_STEPS - 1) setStep(step + 1);
+    };
+
+    const copyToClipboard = async (text: string, setter: (v: boolean) => void) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        setter(true);
+        setTimeout(() => setter(false), 2000);
+      } catch {
+        // Fallback: silent fail
+      }
+    };
+
     const currentStep = STEPS[step];
+    const progress = ((step + 1) / TOTAL_STEPS) * 100;
+
+    // ── Render ──────────────────────────────────────────────────
 
     return (
       <div ref={ref} className="mx-auto w-full max-w-lg space-y-6">
-        {/* Progress */}
+        {/* Progress bar */}
         <div className="text-center">
-          <p className="text-sm text-bb-gray-500">Passo {step + 1} de {STEPS.length}</p>
-          <div className="mt-2 flex justify-center gap-1">
-            {STEPS.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 w-8 rounded-full transition-colors ${
-                  i <= step ? 'bg-bb-red' : 'bg-bb-gray-200'
-                }`}
-              />
-            ))}
+          <p className="text-sm font-medium" style={subtextStyle}>
+            Passo {step + 1} de {TOTAL_STEPS}
+          </p>
+          <div
+            className="mt-3 h-2 w-full overflow-hidden"
+            style={{
+              background: 'var(--bb-depth-4)',
+              borderRadius: 'var(--bb-radius-full)',
+            }}
+          >
+            <div
+              className="h-full transition-all duration-500 ease-out"
+              style={{
+                width: `${progress}%`,
+                background: 'var(--bb-brand-gradient)',
+                borderRadius: 'var(--bb-radius-full)',
+              }}
+            />
           </div>
         </div>
 
-        {/* Content */}
-        <div className="rounded-xl border border-bb-gray-200 bg-white p-6">
-          <h2 className="text-xl font-bold text-bb-gray-900">{currentStep.title}</h2>
-          <p className="mt-1 text-sm text-bb-gray-500">{currentStep.subtitle}</p>
+        {/* Card */}
+        <div
+          className="animate-reveal"
+          key={step}
+          style={{
+            background: 'var(--bb-depth-3)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+            padding: '24px',
+          }}
+        >
+          {/* Header */}
+          <h2
+            className="text-xl font-bold"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            {currentStep.title}
+          </h2>
+          <p className="mt-1 text-sm" style={subtextStyle}>
+            {currentStep.subtitle}
+          </p>
 
+          {/* Step content */}
           <div className="mt-6">
+            {/* ── Step 1: Welcome ──────────────────────────────── */}
             {step === 0 && (
               <div className="space-y-4 text-center">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-50 text-4xl">
-                  🥋
+                <div
+                  className="mx-auto flex h-24 w-24 items-center justify-center text-5xl"
+                  style={{
+                    background: 'var(--bb-brand-surface)',
+                    borderRadius: 'var(--bb-radius-xl)',
+                  }}
+                >
+                  <span style={{ filter: 'grayscale(0)' }}>&#129355;</span>
                 </div>
-                <p className="text-sm text-bb-gray-600">
-                  O BlackBelt vai ajudar você a gerenciar sua academia de artes marciais
-                  com check-in, turmas, progresso de alunos, financeiro e muito mais.
+                <p className="text-sm leading-relaxed" style={subtextStyle}>
+                  O BlackBelt vai ajudar voce a gerenciar sua academia de artes marciais
+                  com check-in inteligente, gestao de turmas, progresso de alunos,
+                  financeiro e muito mais.
                 </p>
+                <div className="grid grid-cols-3 gap-3 pt-2">
+                  {[
+                    { icon: '&#128203;', label: 'Turmas' },
+                    { icon: '&#127942;', label: 'Faixas' },
+                    { icon: '&#128176;', label: 'Financeiro' },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex flex-col items-center gap-1 rounded-lg py-3"
+                      style={{ background: 'var(--bb-depth-4)' }}
+                    >
+                      <span className="text-xl" dangerouslySetInnerHTML={{ __html: item.icon }} />
+                      <span className="text-xs font-medium" style={subtextStyle}>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
+            {/* ── Step 2: Configure Academy ────────────────────── */}
             {step === 1 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-bb-gray-700">Nome da academia</label>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Nome da academia *
+                  </label>
                   <input
-                    value={academyName}
-                    onChange={(e) => setAcademyName(e.target.value)}
+                    value={academy.name}
+                    onChange={(e) => setAcademy({ ...academy, name: e.target.value })}
                     placeholder="Ex: Academia Fight Club"
-                    className="mt-1 w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm focus:border-bb-red focus:outline-none focus:ring-1 focus:ring-bb-red"
+                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
+                    style={inputStyle}
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-bb-gray-700">Logo (opcional)</label>
-                  <div className="mt-1 flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-bb-gray-300 text-sm text-bb-gray-400">
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Logo (opcional)
+                  </label>
+                  <div
+                    className="flex h-24 cursor-pointer items-center justify-center text-sm"
+                    style={{
+                      border: '2px dashed var(--bb-glass-border)',
+                      borderRadius: 'var(--bb-radius-md)',
+                      color: 'var(--bb-ink-40)',
+                    }}
+                  >
                     Clique para fazer upload
                   </div>
                 </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Endereco
+                  </label>
+                  <input
+                    value={academy.address}
+                    onChange={(e) => setAcademy({ ...academy, address: e.target.value })}
+                    placeholder="Rua, numero, bairro, cidade - UF"
+                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
+                    style={inputStyle}
+                  />
+                </div>
               </div>
             )}
 
+            {/* ── Step 3: Create First Class ───────────────────── */}
             {step === 2 && (
-              <div className="grid grid-cols-2 gap-2">
-                {MODALITIES.map((mod) => (
-                  <button
-                    key={mod}
-                    onClick={() => toggleModality(mod)}
-                    className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
-                      selectedModalities.includes(mod)
-                        ? 'border-bb-red bg-red-50 text-bb-red font-medium'
-                        : 'border-bb-gray-200 text-bb-gray-600 hover:border-bb-gray-300'
-                    }`}
-                  >
-                    {mod}
-                  </button>
-                ))}
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Nome da turma *
+                  </label>
+                  <input
+                    value={classData.name}
+                    onChange={(e) => setClassData({ ...classData, name: e.target.value })}
+                    placeholder="Ex: BJJ Iniciante - Noturno"
+                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Modalidade
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {MODALITIES.map((mod) => (
+                      <button
+                        key={mod}
+                        onClick={() => setClassData({ ...classData, modality: mod })}
+                        className="px-2 py-2 text-xs font-medium transition-all duration-200"
+                        style={{
+                          background: classData.modality === mod
+                            ? 'var(--bb-brand-surface)'
+                            : 'var(--bb-depth-4)',
+                          color: classData.modality === mod
+                            ? 'var(--bb-brand)'
+                            : 'var(--bb-ink-60)',
+                          border: `1px solid ${classData.modality === mod ? 'var(--bb-brand)' : 'var(--bb-glass-border)'}`,
+                          borderRadius: 'var(--bb-radius-sm)',
+                        }}
+                      >
+                        {mod}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Horario
+                  </label>
+                  <input
+                    value={classData.schedule}
+                    onChange={(e) => setClassData({ ...classData, schedule: e.target.value })}
+                    placeholder="Ex: Seg/Qua/Sex 19:00-20:30"
+                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
+                    style={inputStyle}
+                  />
+                  <p className="mt-1 text-xs" style={mutedStyle}>
+                    Voce pode criar mais turmas depois no painel administrativo.
+                  </p>
+                </div>
               </div>
             )}
 
+            {/* ── Step 4: Invite Professor ─────────────────────── */}
             {step === 3 && (
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-bb-gray-700">Nome da turma</label>
-                  <input
-                    value={className}
-                    onChange={(e) => setClassName(e.target.value)}
-                    placeholder="Ex: BJJ Iniciante"
-                    className="mt-1 w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm focus:border-bb-red focus:outline-none focus:ring-1 focus:ring-bb-red"
-                  />
+                <p className="text-sm" style={subtextStyle}>
+                  Compartilhe este link com seu professor para que ele possa criar uma conta
+                  e comecar a gerenciar turmas.
+                </p>
+
+                <div
+                  className="rounded-lg p-4"
+                  style={{ background: 'var(--bb-depth-4)' }}
+                >
+                  <p className="mb-2 text-xs font-medium" style={mutedStyle}>
+                    Link de convite para professor:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={professorLink}
+                      className="flex-1 px-3 py-2 text-xs focus:outline-none"
+                      style={{
+                        ...inputStyle,
+                        background: 'var(--bb-depth-3)',
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => copyToClipboard(professorLink, setProfessorLinkCopied)}
+                    >
+                      {professorLinkCopied ? 'Copiado!' : 'Copiar'}
+                    </Button>
+                  </div>
+                  <p className="mt-3 text-xs" style={mutedStyle}>
+                    O professor recebera acesso ao painel com visualizacao de turmas,
+                    presencas e avaliacoes.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-bb-gray-700">Horário</label>
-                  <input
-                    value={classSchedule}
-                    onChange={(e) => setClassSchedule(e.target.value)}
-                    placeholder="Ex: Seg/Qua/Sex 19:00-20:30"
-                    className="mt-1 w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm focus:border-bb-red focus:outline-none focus:ring-1 focus:ring-bb-red"
-                  />
-                </div>
-                <p className="text-xs text-bb-gray-400">Você pode criar mais turmas depois.</p>
               </div>
             )}
 
+            {/* ── Step 5: Student Invite Links ─────────────────── */}
             {step === 4 && (
               <div className="space-y-4">
-                <div className="flex gap-2">
-                  {(['manual', 'csv', 'link'] as const).map((method) => (
-                    <button
-                      key={method}
-                      onClick={() => setInviteMethod(method)}
-                      className={`flex-1 rounded-lg border px-2 py-1.5 text-xs transition-colors ${
-                        inviteMethod === method
-                          ? 'border-bb-red bg-red-50 text-bb-red font-medium'
-                          : 'border-bb-gray-200 text-bb-gray-600'
-                      }`}
-                    >
-                      {method === 'manual' ? 'Manual' : method === 'csv' ? 'Importar CSV' : 'Link de convite'}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-sm" style={subtextStyle}>
+                  Gere um link de auto-cadastro para compartilhar com seus alunos
+                  via WhatsApp, email ou redes sociais.
+                </p>
 
-                {inviteMethod === 'manual' && (
-                  <div>
+                <div
+                  className="rounded-lg p-4"
+                  style={{ background: 'var(--bb-depth-4)' }}
+                >
+                  <p className="mb-2 text-xs font-medium" style={mutedStyle}>
+                    Link de convite para alunos:
+                  </p>
+                  <div className="flex items-center gap-2">
                     <input
-                      value={manualEmail}
-                      onChange={(e) => setManualEmail(e.target.value)}
-                      placeholder="Email do aluno"
-                      type="email"
-                      className="w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm focus:border-bb-red focus:outline-none focus:ring-1 focus:ring-bb-red"
+                      readOnly
+                      value={studentLink}
+                      className="flex-1 px-3 py-2 text-xs focus:outline-none"
+                      style={{
+                        ...inputStyle,
+                        background: 'var(--bb-depth-3)',
+                      }}
                     />
-                    <p className="mt-1 text-xs text-bb-gray-400">Adicione 1-3 alunos agora, mais depois.</p>
+                    <Button
+                      size="sm"
+                      onClick={() => copyToClipboard(studentLink, setStudentLinkCopied)}
+                    >
+                      {studentLinkCopied ? 'Copiado!' : 'Copiar'}
+                    </Button>
                   </div>
-                )}
-
-                {inviteMethod === 'csv' && (
-                  <div className="rounded-lg border-2 border-dashed border-bb-gray-300 p-4 text-center text-sm text-bb-gray-400">
-                    <p>Arraste um CSV com colunas: nome, email</p>
-                    <button className="mt-2 text-xs text-bb-red underline">Baixar template</button>
-                  </div>
-                )}
-
-                {inviteMethod === 'link' && (
-                  <div className="rounded-lg bg-bb-gray-50 p-3">
-                    <p className="text-xs text-bb-gray-500">Link de auto-cadastro:</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <input
-                        readOnly
-                        value={inviteLink}
-                        className="flex-1 rounded border border-bb-gray-200 bg-white px-2 py-1 text-xs text-bb-gray-700"
-                      />
-                      <button
-                        onClick={() => navigator.clipboard?.writeText(inviteLink)}
-                        className="rounded bg-bb-red px-2 py-1 text-xs text-white"
-                      >
-                        Copiar
-                      </button>
-                    </div>
-                    <p className="mt-2 text-xs text-bb-gray-400">
-                      Compartilhe via WhatsApp para seus alunos se cadastrarem sozinhos.
-                    </p>
-                  </div>
-                )}
+                  <p className="mt-3 text-xs" style={mutedStyle}>
+                    Alunos que acessarem este link poderao criar sua conta
+                    e ja estarao vinculados a sua academia.
+                  </p>
+                </div>
               </div>
             )}
 
+            {/* ── Step 6: All Done ─────────────────────────────── */}
             {step === 5 && (
-              <div className="space-y-3 text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-2xl">
-                  ✓
+              <div className="space-y-4 text-center">
+                <div
+                  className="mx-auto flex h-20 w-20 items-center justify-center text-3xl"
+                  style={{
+                    background: 'var(--bb-success-surface)',
+                    borderRadius: 'var(--bb-radius-full)',
+                    color: 'var(--bb-success)',
+                  }}
+                >
+                  &#10003;
                 </div>
-                <div className="space-y-1">
-                  <p className="flex items-center justify-center gap-2 text-sm text-green-600">
-                    <span>✓</span> Academia configurada
-                  </p>
-                  {selectedModalities.length > 0 && (
-                    <p className="flex items-center justify-center gap-2 text-sm text-green-600">
-                      <span>✓</span> {selectedModalities.length} modalidade(s) adicionada(s)
-                    </p>
+
+                <div className="space-y-2">
+                  {academy.name && (
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
+                      style={{ background: 'var(--bb-success-surface)' }}
+                    >
+                      <span style={{ color: 'var(--bb-success)' }}>&#10003;</span>
+                      <span style={{ color: 'var(--bb-ink-80)' }}>
+                        Academia <strong>{academy.name}</strong> configurada
+                      </span>
+                    </div>
                   )}
-                  {className && (
-                    <p className="flex items-center justify-center gap-2 text-sm text-green-600">
-                      <span>✓</span> Turma criada
-                    </p>
+                  {classData.name && (
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
+                      style={{ background: 'var(--bb-success-surface)' }}
+                    >
+                      <span style={{ color: 'var(--bb-success)' }}>&#10003;</span>
+                      <span style={{ color: 'var(--bb-ink-80)' }}>
+                        Turma <strong>{classData.name}</strong> criada
+                      </span>
+                    </div>
                   )}
-                  <p className="flex items-center justify-center gap-2 text-sm text-green-600">
-                    <span>✓</span> Pronto para começar
-                  </p>
+                  <div
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
+                    style={{ background: 'var(--bb-success-surface)' }}
+                  >
+                    <span style={{ color: 'var(--bb-success)' }}>&#10003;</span>
+                    <span style={{ color: 'var(--bb-ink-80)' }}>Links de convite gerados</span>
+                  </div>
+                  <div
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
+                    style={{ background: 'var(--bb-success-surface)' }}
+                  >
+                    <span style={{ color: 'var(--bb-success)' }}>&#10003;</span>
+                    <span style={{ color: 'var(--bb-ink-80)' }}>Pronto para comecar!</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Navigation */}
-          <div className="mt-6 flex gap-3">
-            {step > 0 && step < STEPS.length - 1 && (
-              <Button variant="ghost" onClick={prev}>Voltar</Button>
+          {/* ── Navigation ──────────────────────────────────────── */}
+          <div className="mt-6 flex items-center gap-3">
+            {step > 0 && step < TOTAL_STEPS - 1 && (
+              <Button variant="ghost" onClick={prev}>
+                Voltar
+              </Button>
             )}
-            {step < STEPS.length - 1 ? (
+
+            {currentStep.skippable && (
+              <button
+                onClick={skip}
+                className="text-sm font-medium transition-colors duration-200"
+                style={{ color: 'var(--bb-ink-40)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bb-ink-60)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bb-ink-40)'; }}
+              >
+                Pular
+              </button>
+            )}
+
+            <div className="flex-1" />
+
+            {step < TOTAL_STEPS - 1 ? (
               <Button
-                className="flex-1"
                 onClick={next}
                 disabled={!canAdvance()}
               >
-                {step === 0 ? 'Começar' : step === 4 ? 'Pular / Continuar' : 'Próximo'}
+                {step === 0 ? 'Comecar' : 'Proximo'}
               </Button>
             ) : (
               <Button className="flex-1" onClick={onComplete}>
-                Explorar o dashboard
+                Acessar Dashboard
               </Button>
             )}
           </div>
@@ -277,3 +501,4 @@ const OnboardingWizard = forwardRef<HTMLDivElement, OnboardingWizardProps>(
 OnboardingWizard.displayName = 'OnboardingWizard';
 
 export { OnboardingWizard };
+export type { OnboardingWizardProps };

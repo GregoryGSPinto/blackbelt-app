@@ -11,6 +11,7 @@ import { getAlerts } from '@/lib/api/billing.service';
 import {
   HomeIcon,
   CalendarIcon,
+  CalendarCheckIcon,
   UsersIcon,
   DollarIcon,
   BarChartIcon,
@@ -25,6 +26,8 @@ import {
   AwardIcon,
   HeartIcon,
   ClockIcon,
+  ShoppingBagIcon,
+  MegaphoneIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
@@ -42,6 +45,9 @@ const sidebarItems = [
   { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon },
   { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon },
   { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon },
+  { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon },
+  { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon },
+  { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon },
   { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
   { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
 ];

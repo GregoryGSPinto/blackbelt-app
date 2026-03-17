@@ -1,9 +1,18 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import { getProfessorDashboard } from '@/lib/api/professor.service';
-import type { AlunoResumoDTO, TurmaResumoDTO } from '@/lib/api/professor.service';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  getEvaluableStudents,
+  getStudentEvaluationTimeline,
+  createEvaluation,
+  getProfessorClasses,
+} from '@/lib/api/evaluation.service';
+import type {
+  EvaluableStudent,
+  StudentEvaluation,
+  EvaluationTimeline,
+  CreateEvaluationPayload,
+} from '@/lib/types/evaluation';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -37,129 +46,233 @@ const BELT_LABEL: Record<string, string> = {
   black: 'Preta',
 };
 
-// ── Mock evaluation metadata per student ────────────────────────────
-// Extends the dashboard data with evaluation-specific fields for the listing
+// ── SVG Radar Chart ─────────────────────────────────────────────────
 
-interface StudentEvalRow {
-  student_id: string;
-  display_name: string;
-  avatar: string | null;
-  belt: string;
-  ultima_presenca: string | null;
-  last_evaluation: string | null;
-  status: 'pendente' | 'em_dia' | 'atrasada';
-  attendance_pct: number;
-  technical_score: number;
-  behavior_note: string;
-  turma: string;
-  modalidade: string;
+interface RadarChartProps {
+  technique: number;
+  posture: number;
+  evolution: number;
+  behavior: number;
+  size?: number;
 }
 
-const MOCK_EVAL_EXTRA: Record<
-  string,
-  {
-    last_evaluation: string | null;
-    status: 'pendente' | 'em_dia' | 'atrasada';
-    attendance_pct: number;
-    technical_score: number;
-    behavior_note: string;
-    turma: string;
-    modalidade: string;
-  }
-> = {
-  'stu-1': {
-    last_evaluation: '2026-02-10',
-    status: 'pendente',
-    attendance_pct: 92,
-    technical_score: 76,
-    behavior_note: 'Excelente disciplina e respeito aos colegas',
-    turma: 'BJJ Noite',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-  'stu-2': {
-    last_evaluation: '2026-01-20',
-    status: 'atrasada',
-    attendance_pct: 88,
-    technical_score: 84,
-    behavior_note: 'Lideranca positiva no tatame',
-    turma: 'BJJ Noite',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-  'stu-3': {
-    last_evaluation: null,
-    status: 'pendente',
-    attendance_pct: 65,
-    technical_score: 42,
-    behavior_note: 'Precisa melhorar pontualidade',
-    turma: 'BJJ Manhã',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-  'stu-5': {
-    last_evaluation: '2026-03-01',
-    status: 'em_dia',
-    attendance_pct: 95,
-    technical_score: 70,
-    behavior_note: 'Dedicado e proativo nos treinos',
-    turma: 'BJJ Manhã',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-  'stu-7': {
-    last_evaluation: '2026-02-25',
-    status: 'em_dia',
-    attendance_pct: 85,
-    technical_score: 90,
-    behavior_note: 'Referencia tecnica para a turma',
-    turma: 'BJJ Noite',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-  'stu-8': {
-    last_evaluation: '2025-12-10',
-    status: 'atrasada',
-    attendance_pct: 58,
-    technical_score: 62,
-    behavior_note: 'Boa atitude mas frequencia irregular',
-    turma: 'BJJ Manhã',
-    modalidade: 'Brazilian Jiu-Jitsu',
-  },
-};
+function RadarChart({ technique, posture, evolution, behavior, size = 200 }: RadarChartProps) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const maxRadius = size * 0.38;
+  const labels = ['Tecnica', 'Postura', 'Evolucao', 'Comportamento'];
+  const values = [technique, posture, evolution, behavior];
+  const angles = values.map((_, i) => (Math.PI * 2 * i) / 4 - Math.PI / 2);
 
-// ── Status helpers ──────────────────────────────────────────────────
+  // Grid levels
+  const gridLevels = [2, 4, 6, 8, 10];
 
-function statusLabel(s: StudentEvalRow['status']): { text: string; className: string } {
-  switch (s) {
-    case 'em_dia':
-      return { text: 'Em dia', className: 'bg-green-100 text-green-700' };
-    case 'pendente':
-      return { text: 'Pendente', className: 'bg-yellow-100 text-yellow-700' };
-    case 'atrasada':
-      return { text: 'Atrasada', className: 'bg-red-100 text-red-700' };
-  }
+  // Calculate polygon points
+  const polygonPoints = values
+    .map((v, i) => {
+      const r = (v / 10) * maxRadius;
+      const x = cx + r * Math.cos(angles[i]);
+      const y = cy + r * Math.sin(angles[i]);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto">
+      {/* Grid polygons */}
+      {gridLevels.map((level) => {
+        const r = (level / 10) * maxRadius;
+        const points = angles
+          .map((a) => `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`)
+          .join(' ');
+        return (
+          <polygon
+            key={level}
+            points={points}
+            fill="none"
+            stroke="var(--bb-glass-border)"
+            strokeWidth="1"
+          />
+        );
+      })}
+
+      {/* Axis lines */}
+      {angles.map((a, i) => (
+        <line
+          key={i}
+          x1={cx}
+          y1={cy}
+          x2={cx + maxRadius * Math.cos(a)}
+          y2={cy + maxRadius * Math.sin(a)}
+          stroke="var(--bb-glass-border)"
+          strokeWidth="1"
+        />
+      ))}
+
+      {/* Data polygon */}
+      <polygon
+        points={polygonPoints}
+        fill="var(--bb-brand-surface)"
+        stroke="var(--bb-brand)"
+        strokeWidth="2"
+        opacity="0.85"
+      />
+
+      {/* Data points */}
+      {values.map((v, i) => {
+        const r = (v / 10) * maxRadius;
+        const x = cx + r * Math.cos(angles[i]);
+        const y = cy + r * Math.sin(angles[i]);
+        return <circle key={i} cx={x} cy={y} r="4" fill="var(--bb-brand)" />;
+      })}
+
+      {/* Labels */}
+      {labels.map((label, i) => {
+        const labelR = maxRadius + 20;
+        const x = cx + labelR * Math.cos(angles[i]);
+        const y = cy + labelR * Math.sin(angles[i]);
+        return (
+          <text
+            key={i}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="var(--bb-ink-60)"
+            fontSize="11"
+            fontWeight="500"
+          >
+            {label}
+          </text>
+        );
+      })}
+
+      {/* Score values near data points */}
+      {values.map((v, i) => {
+        const r = (v / 10) * maxRadius;
+        const offsetR = r + 14;
+        const x = cx + offsetR * Math.cos(angles[i]);
+        const y = cy + offsetR * Math.sin(angles[i]);
+        return (
+          <text
+            key={`val-${i}`}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="var(--bb-brand)"
+            fontSize="12"
+            fontWeight="700"
+          >
+            {v}
+          </text>
+        );
+      })}
+    </svg>
+  );
 }
 
-function scoreBadgeClass(score: number): string {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-yellow-600';
-  return 'text-red-600';
+// ── Score Slider Component ──────────────────────────────────────────
+
+interface ScoreSliderProps {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
 }
+
+function ScoreSlider({ label, value, onChange }: ScoreSliderProps) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-[var(--bb-ink-80)]">{label}</span>
+        <span
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-white"
+          style={{ background: 'var(--bb-brand-gradient)' }}
+        >
+          {value}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={1}
+        max={10}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-[var(--bb-brand)]"
+      />
+      <div className="flex justify-between text-[10px] text-[var(--bb-ink-40)]">
+        <span>1</span>
+        <span>5</span>
+        <span>10</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Skeleton Loading ────────────────────────────────────────────────
+
+function EvaluationSkeleton() {
+  return (
+    <div className="space-y-5 p-4">
+      <div className="space-y-2">
+        <div className="h-6 w-40 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
+        <div className="h-4 w-64 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {[1, 2].map((i) => (
+          <div key={i} className="h-12 animate-pulse rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-4)]" />
+        ))}
+      </div>
+      <div className="h-10 animate-pulse rounded-lg bg-[var(--bb-depth-4)]" />
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-24 animate-pulse rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-4)]" />
+      ))}
+    </div>
+  );
+}
+
+// ── Views ───────────────────────────────────────────────────────────
+
+type ViewMode = 'list' | 'evaluate' | 'history';
 
 // ── Page Component ──────────────────────────────────────────────────
 
 export default function ProfessorAvaliacoesPage() {
-  const [alunos, setAlunos] = useState<AlunoResumoDTO[]>([]);
-  const [turmas, setTurmas] = useState<TurmaResumoDTO[]>([]);
+  const [students, setStudents] = useState<EvaluableStudent[]>([]);
+  const [classes, setClasses] = useState<Array<{ class_id: string; class_name: string }>>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
   const [search, setSearch] = useState('');
-  const [filterTurma, setFilterTurma] = useState('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pendente' | 'em_dia' | 'atrasada'>('all');
+  const [filterClass, setFilterClass] = useState('all');
 
+  // View mode
+  const [view, setView] = useState<ViewMode>('list');
+  const [selectedStudent, setSelectedStudent] = useState<EvaluableStudent | null>(null);
+
+  // Evaluation form
+  const [technique, setTechnique] = useState(5);
+  const [posture, setPosture] = useState(5);
+  const [evolution, setEvolution] = useState(5);
+  const [behavior, setBehavior] = useState(5);
+  const [comment, setComment] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // History
+  const [timeline, setTimeline] = useState<EvaluationTimeline | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Load data
   useEffect(() => {
     async function load() {
       try {
-        const data = await getProfessorDashboard('prof-1');
-        setAlunos(data.meusAlunos);
-        setTurmas(data.minhasTurmas);
+        const [studentData, classData] = await Promise.all([
+          getEvaluableStudents('prof-1'),
+          getProfessorClasses('prof-1'),
+        ]);
+        setStudents(studentData);
+        setClasses(classData);
       } finally {
         setLoading(false);
       }
@@ -167,65 +280,71 @@ export default function ProfessorAvaliacoesPage() {
     load();
   }, []);
 
-  // Build enriched rows with evaluation metadata
-  const rows: StudentEvalRow[] = useMemo(() => {
-    return alunos.map((a) => {
-      const extra = MOCK_EVAL_EXTRA[a.student_id] ?? {
-        last_evaluation: null,
-        status: 'pendente' as const,
-        attendance_pct: 50,
-        technical_score: 50,
-        behavior_note: 'Sem observacoes',
-        turma: turmas[0]?.modality_name ?? 'Turma',
-        modalidade: turmas[0]?.modality_name ?? 'Modalidade',
-      };
-
-      return {
-        student_id: a.student_id,
-        display_name: a.display_name,
-        avatar: a.avatar,
-        belt: a.belt,
-        ultima_presenca: a.ultima_presenca,
-        ...extra,
-      };
+  // Filter students
+  const filteredStudents = useMemo(() => {
+    return students.filter((s) => {
+      const matchSearch = s.display_name.toLowerCase().includes(search.toLowerCase());
+      const matchClass = filterClass === 'all' || s.class_id === filterClass;
+      return matchSearch && matchClass;
     });
-  }, [alunos, turmas]);
+  }, [students, search, filterClass]);
 
-  // Unique turma names for filter
-  const turmaNames = useMemo(() => {
-    const names = new Set(rows.map((r) => r.turma));
-    return Array.from(names).sort();
-  }, [rows]);
+  // Open evaluation form
+  const openEvaluation = useCallback((student: EvaluableStudent) => {
+    setSelectedStudent(student);
+    setTechnique(5);
+    setPosture(5);
+    setEvolution(5);
+    setBehavior(5);
+    setComment('');
+    setView('evaluate');
+  }, []);
 
-  // Filtered list
-  const filteredRows = useMemo(() => {
-    return rows.filter((r) => {
-      const matchSearch = r.display_name.toLowerCase().includes(search.toLowerCase());
-      const matchTurma = filterTurma === 'all' || r.turma === filterTurma;
-      const matchStatus = filterStatus === 'all' || r.status === filterStatus;
-      return matchSearch && matchTurma && matchStatus;
-    });
-  }, [rows, search, filterTurma, filterStatus]);
+  // Open history
+  const openHistory = useCallback(async (student: EvaluableStudent) => {
+    setSelectedStudent(student);
+    setLoadingHistory(true);
+    setView('history');
+    try {
+      const data = await getStudentEvaluationTimeline(student.student_id);
+      setTimeline(data);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
 
-  // Summary counts
-  const summary = useMemo(() => {
-    const pendente = rows.filter((r) => r.status === 'pendente').length;
-    const atrasada = rows.filter((r) => r.status === 'atrasada').length;
-    const emDia = rows.filter((r) => r.status === 'em_dia').length;
-    return { pendente, atrasada, emDia, total: rows.length };
-  }, [rows]);
+  // Submit evaluation
+  const handleSubmit = useCallback(async () => {
+    if (!selectedStudent) return;
+    setSaving(true);
+    try {
+      const payload: CreateEvaluationPayload = {
+        student_id: selectedStudent.student_id,
+        class_id: selectedStudent.class_id,
+        technique,
+        posture,
+        evolution,
+        behavior,
+        comment,
+      };
+      await createEvaluation(payload);
+      // Refresh students
+      const updated = await getEvaluableStudents('prof-1');
+      setStudents(updated);
+      setView('list');
+      setSelectedStudent(null);
+    } finally {
+      setSaving(false);
+    }
+  }, [selectedStudent, technique, posture, evolution, behavior, comment]);
 
   // ── Loading ─────────────────────────────────────────────────────────
 
   if (loading) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <EvaluationSkeleton />;
   }
 
-  if (alunos.length === 0) {
+  if (students.length === 0) {
     return (
       <div className="p-4">
         <EmptyState
@@ -236,174 +355,356 @@ export default function ProfessorAvaliacoesPage() {
     );
   }
 
+  // ── Evaluation Form View ──────────────────────────────────────────
+
+  if (view === 'evaluate' && selectedStudent) {
+    const avg = ((technique + posture + evolution + behavior) / 4).toFixed(1);
+
+    return (
+      <div className="space-y-5 p-4 pb-24">
+        {/* Back button */}
+        <button
+          onClick={() => setView('list')}
+          className="flex items-center gap-1.5 text-sm font-medium text-[var(--bb-brand)]"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Voltar
+        </button>
+
+        {/* Student Header */}
+        <div className="flex items-center gap-3">
+          <Avatar name={selectedStudent.display_name} src={selectedStudent.avatar} size="lg" />
+          <div>
+            <h1 className="text-lg font-bold text-[var(--bb-ink-100)]">
+              {selectedStudent.display_name}
+            </h1>
+            <div className="mt-0.5 flex items-center gap-2">
+              <Badge
+                variant="belt"
+                beltColor={BELT_COLORS[selectedStudent.belt] ?? '#D4D4D4'}
+                size="sm"
+              >
+                {BELT_LABEL[selectedStudent.belt] ?? selectedStudent.belt}
+              </Badge>
+              <span className="text-xs text-[var(--bb-ink-40)]">{selectedStudent.class_name}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Radar Chart Preview */}
+        <Card className="p-4">
+          <h2 className="mb-2 text-center text-sm font-semibold text-[var(--bb-ink-80)]">
+            Grafico de Avaliacao
+          </h2>
+          <RadarChart
+            technique={technique}
+            posture={posture}
+            evolution={evolution}
+            behavior={behavior}
+            size={220}
+          />
+          <p className="mt-2 text-center text-xs text-[var(--bb-ink-40)]">
+            Media: <span className="font-bold text-[var(--bb-brand)]">{avg}</span>/10
+          </p>
+        </Card>
+
+        {/* Score Sliders */}
+        <Card className="space-y-5 p-4">
+          <h2 className="text-sm font-semibold text-[var(--bb-ink-80)]">Pontuacoes</h2>
+          <ScoreSlider label="Tecnica" value={technique} onChange={setTechnique} />
+          <ScoreSlider label="Postura" value={posture} onChange={setPosture} />
+          <ScoreSlider label="Evolucao" value={evolution} onChange={setEvolution} />
+          <ScoreSlider label="Comportamento" value={behavior} onChange={setBehavior} />
+        </Card>
+
+        {/* Comment */}
+        <Card className="p-4">
+          <h2 className="mb-2 text-sm font-semibold text-[var(--bb-ink-80)]">Observacoes</h2>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Comentarios sobre o desempenho do aluno..."
+            rows={4}
+            className="w-full resize-none rounded-[var(--bb-radius-sm)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-2 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
+          />
+        </Card>
+
+        {/* Submit */}
+        <div className="fixed bottom-0 left-0 right-0 border-t border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] p-4">
+          <Button
+            size="lg"
+            loading={saving}
+            onClick={handleSubmit}
+            className="w-full"
+          >
+            Salvar Avaliacao
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── History View ──────────────────────────────────────────────────
+
+  if (view === 'history' && selectedStudent) {
+    return (
+      <div className="space-y-5 p-4">
+        {/* Back button */}
+        <button
+          onClick={() => { setView('list'); setTimeline(null); }}
+          className="flex items-center gap-1.5 text-sm font-medium text-[var(--bb-brand)]"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Voltar
+        </button>
+
+        {/* Student Header */}
+        <div className="flex items-center gap-3">
+          <Avatar name={selectedStudent.display_name} src={selectedStudent.avatar} size="lg" />
+          <div>
+            <h1 className="text-lg font-bold text-[var(--bb-ink-100)]">
+              Historico: {selectedStudent.display_name}
+            </h1>
+            <div className="mt-0.5 flex items-center gap-2">
+              <Badge
+                variant="belt"
+                beltColor={BELT_COLORS[selectedStudent.belt] ?? '#D4D4D4'}
+                size="sm"
+              >
+                {BELT_LABEL[selectedStudent.belt] ?? selectedStudent.belt}
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        {loadingHistory ? (
+          <div className="flex items-center justify-center py-12">
+            <Spinner size="lg" />
+          </div>
+        ) : !timeline || timeline.evaluations.length === 0 ? (
+          <EmptyState
+            title="Sem avaliacoes"
+            description="Este aluno ainda nao possui avaliacoes registradas."
+          />
+        ) : (
+          <>
+            {/* Latest Radar Chart */}
+            <Card className="p-4">
+              <h2 className="mb-2 text-center text-sm font-semibold text-[var(--bb-ink-80)]">
+                Ultima Avaliacao
+              </h2>
+              <RadarChart
+                technique={timeline.evaluations[0].technique}
+                posture={timeline.evaluations[0].posture}
+                evolution={timeline.evaluations[0].evolution}
+                behavior={timeline.evaluations[0].behavior}
+                size={220}
+              />
+            </Card>
+
+            {/* Timeline */}
+            <div className="space-y-0">
+              <h2 className="mb-3 text-sm font-semibold text-[var(--bb-ink-80)]">
+                Historico de Avaliacoes ({timeline.evaluations.length})
+              </h2>
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-[var(--bb-glass-border)]" />
+
+                {timeline.evaluations.map((ev, idx) => (
+                  <TimelineCard key={ev.id} evaluation={ev} isFirst={idx === 0} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // ── Student List View (default) ───────────────────────────────────
+
   return (
     <div className="space-y-5 p-4">
-      {/* ── Header ────────────────────────────────────────────────────── */}
+      {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Avaliacoes</h1>
         <p className="text-sm text-[var(--bb-ink-60)]">
-          Gerencie as avaliacoes dos seus alunos
+          Avalie seus alunos em 4 eixos de desempenho
         </p>
       </div>
 
-      {/* ── Summary Cards ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Summary */}
+      <div className="grid grid-cols-2 gap-3">
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-yellow-600">{summary.pendente}</p>
-          <p className="text-xs text-[var(--bb-ink-40)]">Pendentes</p>
+          <p className="text-2xl font-bold text-[var(--bb-brand)]">{students.length}</p>
+          <p className="text-xs text-[var(--bb-ink-40)]">Alunos</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-red-600">{summary.atrasada}</p>
-          <p className="text-xs text-[var(--bb-ink-40)]">Atrasadas</p>
-        </Card>
-        <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-green-600">{summary.emDia}</p>
-          <p className="text-xs text-[var(--bb-ink-40)]">Em dia</p>
+          <p className="text-2xl font-bold text-[var(--bb-ink-80)]">{classes.length}</p>
+          <p className="text-xs text-[var(--bb-ink-40)]">Turmas</p>
         </Card>
       </div>
 
-      {/* ── Filters ───────────────────────────────────────────────────── */}
+      {/* Filters */}
       <div className="space-y-3">
-        {/* Search */}
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar aluno..."
-          className="w-full rounded-lg border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-4 py-2 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand-primary)]"
+          className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-4 py-2.5 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
         />
 
-        <div className="flex flex-wrap gap-2">
-          {/* Turma filter */}
-          <select
-            value={filterTurma}
-            onChange={(e) => setFilterTurma(e.target.value)}
-            className="rounded-lg border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-1.5 text-xs text-[var(--bb-ink-100)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand-primary)]"
-          >
-            <option value="all">Todas as turmas</option>
-            {turmaNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-
-          {/* Status filter */}
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-            className="rounded-lg border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-1.5 text-xs text-[var(--bb-ink-100)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand-primary)]"
-          >
-            <option value="all">Todos os status</option>
-            <option value="pendente">Pendente</option>
-            <option value="atrasada">Atrasada</option>
-            <option value="em_dia">Em dia</option>
-          </select>
-        </div>
+        <select
+          value={filterClass}
+          onChange={(e) => setFilterClass(e.target.value)}
+          className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-2 text-sm text-[var(--bb-ink-100)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
+        >
+          <option value="all">Todas as turmas</option>
+          {classes.map((cls) => (
+            <option key={cls.class_id} value={cls.class_id}>
+              {cls.class_name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* ── Student List ──────────────────────────────────────────────── */}
-      {filteredRows.length === 0 ? (
+      {/* Student List */}
+      {filteredStudents.length === 0 ? (
         <p className="py-8 text-center text-sm text-[var(--bb-ink-40)]">
           Nenhum aluno encontrado com esses filtros.
         </p>
       ) : (
         <div className="space-y-3">
-          {filteredRows.map((row) => {
-            const status = statusLabel(row.status);
-            return (
-              <Card key={row.student_id} className="p-4">
-                {/* Top row: avatar + name + belt + status */}
-                <div className="flex items-center gap-3">
-                  <Avatar name={row.display_name} src={row.avatar} size="md" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate font-medium text-[var(--bb-ink-100)]">
-                        {row.display_name}
-                      </p>
-                      <span
-                        className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${status.className}`}
-                      >
-                        {status.text}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-2">
-                      <Badge
-                        variant="belt"
-                        beltColor={BELT_COLORS[row.belt] ?? '#D4D4D4'}
-                        size="sm"
-                      >
-                        {BELT_LABEL[row.belt] ?? row.belt}
-                      </Badge>
-                      <span className="text-xs text-[var(--bb-ink-40)]">
-                        {row.turma}
-                      </span>
-                    </div>
-                  </div>
-                  <Link href={`/avaliar/${row.student_id}`}>
-                    <Button size="sm">Avaliar</Button>
-                  </Link>
-                </div>
-
-                {/* Detail row: attendance, technical, behavior */}
-                <div className="mt-3 grid grid-cols-3 gap-3 border-t border-[var(--bb-glass-border)] pt-3">
-                  {/* Attendance */}
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
-                      Frequencia
-                    </p>
-                    <div className="mt-1 flex items-center gap-1.5">
-                      <div className="h-1.5 flex-1 rounded-full bg-[var(--bb-depth-3)]">
-                        <div
-                          className={`h-1.5 rounded-full ${
-                            row.attendance_pct >= 80
-                              ? 'bg-green-500'
-                              : row.attendance_pct >= 60
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
-                          }`}
-                          style={{ width: `${row.attendance_pct}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-semibold text-[var(--bb-ink-100)]">
-                        {row.attendance_pct}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Technical evolution */}
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
-                      Tecnica
-                    </p>
-                    <p className={`mt-1 text-sm font-bold ${scoreBadgeClass(row.technical_score)}`}>
-                      {row.technical_score}/100
-                    </p>
-                  </div>
-
-                  {/* Behavior */}
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
-                      Comportamento
-                    </p>
-                    <p className="mt-1 truncate text-xs text-[var(--bb-ink-60)]">
-                      {row.behavior_note}
-                    </p>
+          {filteredStudents.map((student) => (
+            <Card key={student.student_id} className="p-4">
+              {/* Top row: avatar + name + belt */}
+              <div className="flex items-center gap-3">
+                <Avatar name={student.display_name} src={student.avatar} size="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-[var(--bb-ink-100)]">
+                    {student.display_name}
+                  </p>
+                  <div className="mt-0.5 flex items-center gap-2">
+                    <Badge
+                      variant="belt"
+                      beltColor={BELT_COLORS[student.belt] ?? '#D4D4D4'}
+                      size="sm"
+                    >
+                      {BELT_LABEL[student.belt] ?? student.belt}
+                    </Badge>
+                    <span className="text-xs text-[var(--bb-ink-40)]">{student.class_name}</span>
                   </div>
                 </div>
+              </div>
 
-                {/* Last evaluation date */}
-                <p className="mt-2 text-[10px] text-[var(--bb-ink-40)]">
-                  Ultima avaliacao:{' '}
-                  {row.last_evaluation
-                    ? new Date(row.last_evaluation).toLocaleDateString('pt-BR')
-                    : 'Nunca avaliado'}
-                </p>
-              </Card>
-            );
-          })}
+              {/* Evaluation meta */}
+              <div className="mt-3 border-t border-[var(--bb-glass-border)] pt-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
+                      Ultima avaliacao
+                    </p>
+                    <p className="text-xs text-[var(--bb-ink-60)]">
+                      {student.last_evaluation_date
+                        ? new Date(student.last_evaluation_date).toLocaleDateString('pt-BR')
+                        : 'Nunca avaliado'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => openHistory(student)}>
+                      Historico
+                    </Button>
+                    <Button size="sm" onClick={() => openEvaluation(student)}>
+                      Avaliar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Timeline Card Component ─────────────────────────────────────────
+
+function TimelineCard({ evaluation, isFirst }: { evaluation: StudentEvaluation; isFirst: boolean }) {
+  const avg = ((evaluation.technique + evaluation.posture + evaluation.evolution + evaluation.behavior) / 4).toFixed(1);
+  const date = new Date(evaluation.created_at).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  return (
+    <div className="relative mb-4 pl-10">
+      {/* Timeline dot */}
+      <div
+        className="absolute left-[10px] top-2 h-3 w-3 rounded-full border-2"
+        style={{
+          borderColor: isFirst ? 'var(--bb-brand)' : 'var(--bb-ink-40)',
+          backgroundColor: isFirst ? 'var(--bb-brand)' : 'var(--bb-depth-2)',
+        }}
+      />
+
+      <Card className={`p-4 ${isFirst ? 'border-[var(--bb-brand)]' : ''}`}>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium text-[var(--bb-ink-60)]">{date}</p>
+          <span
+            className="rounded-full px-2 py-0.5 text-xs font-bold"
+            style={{
+              background: 'var(--bb-brand-surface)',
+              color: 'var(--bb-brand)',
+            }}
+          >
+            Media: {avg}
+          </span>
+        </div>
+
+        {/* Mini scores */}
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {[
+            { label: 'Tec', value: evaluation.technique },
+            { label: 'Pos', value: evaluation.posture },
+            { label: 'Evo', value: evaluation.evolution },
+            { label: 'Comp', value: evaluation.behavior },
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
+                {item.label}
+              </p>
+              <p
+                className="text-sm font-bold"
+                style={{
+                  color:
+                    item.value >= 8
+                      ? 'var(--bb-success)'
+                      : item.value >= 5
+                        ? 'var(--bb-warning)'
+                        : 'var(--bb-error)',
+                }}
+              >
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Comment */}
+        {evaluation.comment && (
+          <p className="mt-3 border-t border-[var(--bb-glass-border)] pt-2 text-xs text-[var(--bb-ink-60)]">
+            {evaluation.comment}
+          </p>
+        )}
+      </Card>
     </div>
   );
 }

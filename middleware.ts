@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar', '/onboarding'];
+const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar', '/onboarding', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog'];
 
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',

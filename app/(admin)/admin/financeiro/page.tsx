@@ -13,6 +13,9 @@ import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } 
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { DollarIcon, TrendingUpIcon, UsersIcon, SearchIcon } from '@/components/shell/icons';
+import { ReportViewer } from '@/components/reports/ReportViewer';
+import { generateFinancialReport } from '@/lib/reports/financial-report';
+import type { FinancialReportData } from '@/lib/types/report';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -57,6 +60,9 @@ export default function AdminFinanceiroPage() {
   const [chart, setChart] = useState<FinancialChartPoint[]>([]);
   const [mensalidades, setMensalidades] = useState<Mensalidade[]>([]);
   const [overdue, setOverdue] = useState<OverdueItem[]>([]);
+
+  const [reportData, setReportData] = useState<FinancialReportData | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   // Filters
   const [filterMonth, setFilterMonth] = useState('2026-03');
@@ -351,49 +357,68 @@ export default function AdminFinanceiroPage() {
       {/* ── Tab: Relatório ─────────────────────────────────────────── */}
       {tab === 'relatorio' && (
         <section className="animate-reveal">
-          <div
-            className="p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-              borderRadius: 'var(--bb-radius-lg)',
-            }}
-          >
-            <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-              Resumo Mensal — Março 2026
-            </h2>
-
-            <div className="space-y-3">
-              {[
-                { label: 'Receita Total', value: `R$ ${fmt(summary.revenue_this_month)}` },
-                { label: 'Receita Mês Anterior', value: `R$ ${fmt(summary.revenue_last_month)}` },
-                { label: 'Variação', value: `${trendPct >= 0 ? '+' : ''}${trendPct}%` },
-                { label: 'Pendente', value: `R$ ${fmt(summary.pending_amount)}` },
-                { label: 'Atrasado', value: `R$ ${fmt(summary.overdue_amount)}` },
-                { label: 'Total Pagos', value: `${summary.paid_count}` },
-                { label: 'Total Mensalidades', value: `${summary.total_count}` },
-                { label: 'Ticket Médio', value: `R$ ${fmt(summary.ticket_medio)}` },
-              ].map((row) => (
-                <div
-                  key={row.label}
-                  className="flex items-center justify-between py-2"
-                  style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                >
-                  <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{row.label}</span>
-                  <span className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{row.value}</span>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => toast('Exportação em desenvolvimento', 'info')}
-              className="mt-4 w-full sm:w-auto rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
-              style={{ background: 'var(--bb-brand)', color: '#fff' }}
+          {reportData ? (
+            <ReportViewer
+              type="financial"
+              data={reportData}
+              onClose={() => setReportData(null)}
+            />
+          ) : (
+            <div
+              className="p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
             >
-              Exportar Relatório
-            </button>
-          </div>
+              <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                Resumo Mensal — Março 2026
+              </h2>
+
+              <div className="space-y-3">
+                {[
+                  { label: 'Receita Total', value: `R$ ${fmt(summary.revenue_this_month)}` },
+                  { label: 'Receita Mês Anterior', value: `R$ ${fmt(summary.revenue_last_month)}` },
+                  { label: 'Variação', value: `${trendPct >= 0 ? '+' : ''}${trendPct}%` },
+                  { label: 'Pendente', value: `R$ ${fmt(summary.pending_amount)}` },
+                  { label: 'Atrasado', value: `R$ ${fmt(summary.overdue_amount)}` },
+                  { label: 'Total Pagos', value: `${summary.paid_count}` },
+                  { label: 'Total Mensalidades', value: `${summary.total_count}` },
+                  { label: 'Ticket Médio', value: `R$ ${fmt(summary.ticket_medio)}` },
+                ].map((row) => (
+                  <div
+                    key={row.label}
+                    className="flex items-center justify-between py-2"
+                    style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                  >
+                    <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{row.label}</span>
+                    <span className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                disabled={reportLoading}
+                onClick={async () => {
+                  setReportLoading(true);
+                  try {
+                    const data = await generateFinancialReport('academy-1', 'Marco 2026');
+                    setReportData(data);
+                  } catch {
+                    toast('Erro ao gerar relatorio', 'error');
+                  } finally {
+                    setReportLoading(false);
+                  }
+                }}
+                className="mt-4 w-full sm:w-auto rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                style={{ background: 'var(--bb-brand)', color: '#fff' }}
+              >
+                {reportLoading ? 'Gerando...' : 'Exportar PDF'}
+              </button>
+            </div>
+          )}
         </section>
       )}
     </div>
