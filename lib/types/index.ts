@@ -26,3 +26,4 @@ export * from './audit';
 export * from './analytics';
 export * from './branch';
 export * from './webhook';
+export * from './chat';
