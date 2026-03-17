@@ -1,7 +1,6 @@
 'use client';
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
 import { BottomNav } from './BottomNav';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
@@ -9,15 +8,13 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import {
   HomeIcon,
   AwardIcon,
-  HeartIcon,
   StarIcon,
   BellIcon,
   CalendarIcon,
   CheckSquareIcon,
-  UserIcon,
-  SettingsIcon,
   LogOutIcon,
 } from './icons';
+import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import type { NavItem } from './BottomNav';
 
 interface KidsShellProps {
@@ -28,7 +25,6 @@ const navItems: NavItem[] = [
   { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" /> },
   { href: '/kids/conteudo', label: 'Aventuras', icon: <StarIcon className="h-6 w-6" /> },
   { href: '/kids/conquistas', label: 'Conquistas', icon: <AwardIcon className="h-6 w-6" /> },
-  { href: '/kids/perfil', label: 'Eu', icon: <HeartIcon className="h-6 w-6" /> },
 ];
 
 // ── Mock notifications ──────────────────────────────────────────────────
@@ -262,41 +258,10 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                       </p>
                     </div>
 
-                    {/* Menu items */}
-                    <div className="py-1">
-                      <Link
-                        href="/kids/perfil"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
-                        style={{ color: 'var(--bb-ink-80)' }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-100)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-80)';
-                        }}
-                      >
-                        <UserIcon className="h-4 w-4" />
-                        Meu perfil
-                      </Link>
-                      <Link
-                        href="/kids/configuracoes"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
-                        style={{ color: 'var(--bb-ink-80)' }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-100)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-80)';
-                        }}
-                      >
-                        <SettingsIcon className="h-4 w-4" />
-                        Configurações
-                      </Link>
-                    </div>
+                    {/* Profile Switcher */}
+                    <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
 
-                    {/* Separator + Logout */}
+                    {/* Logout */}
                     <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
                       <button
                         onClick={handleLogout}

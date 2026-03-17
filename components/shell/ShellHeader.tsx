@@ -15,6 +15,7 @@ import {
   SettingsIcon,
   LogOutIcon,
 } from './icons';
+import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
 interface ShellHeaderProps {
   title: string;
@@ -307,6 +308,9 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
                       Configurações
                     </Link>
                   </div>
+
+                  {/* Profile Switcher */}
+                  <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
 
                   {/* Separator + Logout */}
                   <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>

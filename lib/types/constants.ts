@@ -61,6 +61,7 @@ export const SESSION_TIMEOUT_MINUTES = 30 as const;
  * Usado pelo middleware e pelo redirect pós-login.
  */
 export const ROLE_DASHBOARD: Readonly<Record<Role, string>> = {
+  [Role.Superadmin]: '/superadmin',
   [Role.Admin]: '/admin',
   [Role.Professor]: '/professor',
   [Role.AlunoAdulto]: '/dashboard',

@@ -58,17 +58,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (token && !isTokenExpired(token)) {
           const payload = decodeJWT(token);
           if (payload) {
+            const currentProfile: Profile = {
+              id: payload.profile_id,
+              user_id: payload.sub,
+              role: payload.role as Role,
+              display_name: payload.display_name,
+              avatar: null,
+              created_at: '',
+              updated_at: '',
+            };
+
+            // Load all profiles for profile switcher
+            let allProfiles: Profile[] = [currentProfile];
+            try {
+              const loaded = await authService.getMyProfiles(payload.sub);
+              if (loaded.length > 0) allProfiles = loaded;
+            } catch {
+              // fallback to single profile
+            }
+
             setState({
-              profile: {
-                id: payload.profile_id,
-                user_id: payload.sub,
-                role: payload.role as Role,
-                display_name: payload.display_name,
-                avatar: null,
-                created_at: '',
-                updated_at: '',
-              },
-              profiles: [],
+              profile: currentProfile,
+              profiles: allProfiles,
               isLoading: false,
               isAuthenticated: true,
             });

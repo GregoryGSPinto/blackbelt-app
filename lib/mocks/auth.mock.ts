@@ -70,6 +70,8 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-camila', email: 'camila@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-fernanda', email: 'fernanda@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-thiago', email: 'thiago@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Super Admin
+  { id: 'user-superadmin', email: 'super@blackbelt.app', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
 ];
 
 const MOCK_PROFILES: Profile[] = [
@@ -92,10 +94,17 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-camila', user_id: 'user-camila', role: Role.Admin, display_name: 'Camila Ferreira Santos', avatar: null, ...AUDIT },
   { id: 'prof-fernanda', user_id: 'user-fernanda', role: Role.Professor, display_name: 'Fernanda Oliveira', avatar: null, ...AUDIT },
   { id: 'prof-thiago', user_id: 'user-thiago', role: Role.Professor, display_name: 'Thiago Nakamura', avatar: null, ...AUDIT },
+  // Super Admin
+  { id: 'prof-superadmin', user_id: 'user-superadmin', role: Role.Superadmin, display_name: 'Gregory (Super Admin)', avatar: null, ...AUDIT },
 ];
 
-function getProfilesByUserId(userId: string): Profile[] {
+export function getProfilesByUserId(userId: string): Profile[] {
   return MOCK_PROFILES.filter((p) => p.user_id === userId);
+}
+
+export async function mockGetMyProfiles(userId: string): Promise<Profile[]> {
+  await delay(100);
+  return getProfilesByUserId(userId);
 }
 
 function getProfileById(profileId: string): Profile | undefined {

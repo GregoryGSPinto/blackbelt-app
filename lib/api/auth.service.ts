@@ -178,6 +178,28 @@ export async function logout(): Promise<void> {
   }
 }
 
+export async function getMyProfiles(userId: string): Promise<Profile[]> {
+  try {
+    if (isMock()) {
+      const { mockGetMyProfiles } = await import('@/lib/mocks/auth.mock');
+      return mockGetMyProfiles(userId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId);
+    if (error) throw new ServiceError(500, 'auth.getMyProfiles', error.message);
+
+    return (profiles ?? []) as Profile[];
+  } catch (error) {
+    handleServiceError(error, 'auth.getMyProfiles');
+  }
+}
+
 export async function forgotPassword(email: string): Promise<void> {
   try {
     if (isMock()) {

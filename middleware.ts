@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar'];
+const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar', '/onboarding'];
 
 const ROLE_DASHBOARD: Record<string, string> = {
+  superadmin: '/superadmin',
   admin: '/admin',
   professor: '/professor',
   aluno_adulto: '/dashboard',
@@ -13,6 +14,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 };
 
 const ROUTE_ROLE: Record<string, string> = {
+  '/superadmin': 'superadmin',
   '/admin': 'admin',
   '/professor': 'professor',
   '/dashboard': 'aluno_adulto',

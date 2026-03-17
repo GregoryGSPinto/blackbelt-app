@@ -9,6 +9,7 @@
 
 /** Perfis de acesso do sistema. Cada user pode ter 1 profile por role por academy. */
 export enum Role {
+  Superadmin = 'superadmin',
   Admin = 'admin',
   Professor = 'professor',
   AlunoAdulto = 'aluno_adulto',

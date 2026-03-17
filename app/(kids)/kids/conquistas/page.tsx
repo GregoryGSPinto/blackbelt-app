@@ -57,13 +57,13 @@ export default function KidsConquistasPage() {
   // ── Loading ───────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-sky-50 to-amber-50 p-4">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="mx-auto max-w-lg space-y-4">
-          <Skeleton variant="text" className="h-8 w-48 bg-sky-100" />
-          <Skeleton variant="card" className="h-24 bg-sky-100" />
+          <Skeleton variant="text" className="h-8 w-48" />
+          <Skeleton variant="card" className="h-24" />
           <div className="grid grid-cols-3 gap-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} variant="card" className="h-32 bg-sky-100" />
+              <Skeleton key={i} variant="card" className="h-32" />
             ))}
           </div>
         </div>
@@ -74,10 +74,10 @@ export default function KidsConquistasPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-pink-50 px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
         <span className="text-6xl">🎖️</span>
-        <h2 className="mt-4 text-xl font-extrabold text-gray-800">Nenhuma conquista ainda!</h2>
-        <p className="mt-2 text-center text-sm text-gray-500">
+        <h2 className="mt-4 text-xl font-extrabold text-[var(--bb-ink-100)]">Nenhuma conquista ainda!</h2>
+        <p className="mt-2 text-center text-sm text-[var(--bb-ink-40)]">
           Continue treinando para ganhar suas primeiras conquistas e estrelas!
         </p>
       </div>
@@ -95,46 +95,46 @@ export default function KidsConquistasPage() {
         : KIDS_ACHIEVEMENTS.filter((a) => !a.earned);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-yellow-50 to-pink-50 pb-24">
+    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-800">Minhas Conquistas</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-3xl font-extrabold text-[var(--bb-ink-100)]">Minhas Conquistas</h1>
+          <p className="mt-1 text-sm text-[var(--bb-ink-40)]">
             {earnedCount} de {KIDS_ACHIEVEMENTS.length} conquistas!
           </p>
         </div>
 
         {/* Stats cards */}
         <div className="flex gap-3">
-          <div className="flex-1 rounded-3xl bg-white/90 p-4 text-center shadow-lg shadow-amber-100/50 ring-1 ring-amber-200/30">
+          <div className="flex-1 rounded-3xl bg-[var(--bb-depth-3)] p-4 text-center shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
             <span className="text-3xl">⭐</span>
             <p className="mt-1 text-2xl font-extrabold text-amber-600">{totalStarsFromAch}</p>
-            <p className="text-xs text-gray-500">Estrelas ganhas</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Estrelas ganhas</p>
           </div>
-          <div className="flex-1 rounded-3xl bg-white/90 p-4 text-center shadow-lg shadow-purple-100/50 ring-1 ring-purple-200/30">
+          <div className="flex-1 rounded-3xl bg-[var(--bb-depth-3)] p-4 text-center shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
             <span className="text-3xl">🏅</span>
             <p className="mt-1 text-2xl font-extrabold text-purple-600">{earnedCount}</p>
-            <p className="text-xs text-gray-500">Conquistas</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Conquistas</p>
           </div>
-          <div className="flex-1 rounded-3xl bg-white/90 p-4 text-center shadow-lg shadow-green-100/50 ring-1 ring-green-200/30">
+          <div className="flex-1 rounded-3xl bg-[var(--bb-depth-3)] p-4 text-center shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
             <span className="text-3xl">🎯</span>
             <p className="mt-1 text-2xl font-extrabold text-green-600">
               {Math.round((earnedCount / KIDS_ACHIEVEMENTS.length) * 100)}%
             </p>
-            <p className="text-xs text-gray-500">Completo</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Completo</p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="rounded-3xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200/30">
+        <div className="rounded-3xl bg-[var(--bb-depth-3)] p-4 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-bold text-gray-700">Progresso</span>
+            <span className="font-bold text-[var(--bb-ink-60)]">Progresso</span>
             <span className="font-bold text-amber-600">
               {earnedCount}/{KIDS_ACHIEVEMENTS.length}
             </span>
           </div>
-          <div className="mt-2 h-4 overflow-hidden rounded-full bg-amber-100">
+          <div className="mt-2 h-4 overflow-hidden rounded-full bg-[var(--bb-depth-1)]">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 transition-all duration-700"
               style={{ width: `${(earnedCount / KIDS_ACHIEVEMENTS.length) * 100}%` }}
@@ -155,7 +155,7 @@ export default function KidsConquistasPage() {
               className={`flex-1 rounded-2xl py-2.5 text-sm font-bold transition-all ${
                 filter === tab.key
                   ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-lg shadow-amber-200/50'
-                  : 'bg-white/80 text-gray-500 shadow-sm'
+                  : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-40)] shadow-sm'
               }`}
             >
               {tab.emoji} {tab.label}
@@ -171,8 +171,8 @@ export default function KidsConquistasPage() {
               onClick={() => setSelectedAch(ach)}
               className={`flex flex-col items-center rounded-3xl p-3 transition-all ${
                 ach.earned
-                  ? 'bg-white/90 shadow-lg ring-2'
-                  : 'bg-white/40 opacity-50'
+                  ? 'bg-[var(--bb-depth-3)] shadow-lg ring-2'
+                  : 'bg-[var(--bb-depth-2)] opacity-50'
               }`}
               style={
                 ach.earned
@@ -188,7 +188,7 @@ export default function KidsConquistasPage() {
               <span className={`text-4xl ${ach.earned ? 'animate-bounce' : 'grayscale'}`} style={{ animationDuration: '3s' }}>
                 {ach.icon}
               </span>
-              <p className="mt-1.5 text-center text-xs font-bold leading-tight text-gray-700">
+              <p className="mt-1.5 text-center text-xs font-bold leading-tight text-[var(--bb-ink-60)]">
                 {ach.name}
               </p>
               {ach.earned ? (
@@ -196,7 +196,7 @@ export default function KidsConquistasPage() {
                   +{ach.stars_reward} ⭐
                 </span>
               ) : (
-                <span className="mt-1 text-[10px] text-gray-400">🔒</span>
+                <span className="mt-1 text-[10px] text-[var(--bb-ink-40)]">🔒</span>
               )}
             </button>
           ))}
@@ -205,7 +205,7 @@ export default function KidsConquistasPage() {
         {filtered.length === 0 && (
           <div className="py-12 text-center">
             <span className="text-5xl">🔍</span>
-            <p className="mt-3 text-sm text-gray-500">Nenhuma conquista nesta categoria.</p>
+            <p className="mt-3 text-sm text-[var(--bb-ink-40)]">Nenhuma conquista nesta categoria.</p>
           </div>
         )}
       </div>
@@ -217,7 +217,7 @@ export default function KidsConquistasPage() {
           onClick={() => setSelectedAch(null)}
         >
           <div
-            className="mx-4 w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+            className="mx-4 w-full max-w-sm rounded-3xl bg-[var(--bb-depth-3)] p-6 shadow-2xl ring-1 ring-[var(--bb-glass-border)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
@@ -226,8 +226,8 @@ export default function KidsConquistasPage() {
               >
                 {selectedAch.icon}
               </span>
-              <h3 className="mt-3 text-xl font-extrabold text-gray-800">{selectedAch.name}</h3>
-              <p className="mt-2 text-sm text-gray-500">{selectedAch.description}</p>
+              <h3 className="mt-3 text-xl font-extrabold text-[var(--bb-ink-100)]">{selectedAch.name}</h3>
+              <p className="mt-2 text-sm text-[var(--bb-ink-40)]">{selectedAch.description}</p>
 
               <div className="mt-4 flex items-center justify-center gap-2">
                 <span className="text-lg">⭐</span>
@@ -237,7 +237,7 @@ export default function KidsConquistasPage() {
               </div>
 
               {selectedAch.earned && selectedAch.earned_at && (
-                <p className="mt-3 rounded-2xl bg-green-50 px-4 py-2 text-xs font-bold text-green-600">
+                <p className="mt-3 rounded-2xl bg-green-500/10 px-4 py-2 text-xs font-bold text-green-600">
                   Conquistada em{' '}
                   {new Date(selectedAch.earned_at).toLocaleDateString('pt-BR', {
                     day: '2-digit',
@@ -248,7 +248,7 @@ export default function KidsConquistasPage() {
               )}
 
               {!selectedAch.earned && (
-                <p className="mt-3 rounded-2xl bg-amber-50 px-4 py-2 text-xs font-bold text-amber-600">
+                <p className="mt-3 rounded-2xl bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-600">
                   Continue treinando para desbloquear!
                 </p>
               )}
