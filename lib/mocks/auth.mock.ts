@@ -72,6 +72,23 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-thiago', email: 'thiago@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   // Recepcionista
   { id: 'user-julia', email: 'julia@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Alunos adultos extras
+  { id: 'user-rafael', email: 'rafael@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-marcos', email: 'marcos@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-luciana', email: 'luciana@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-bruno', email: 'bruno@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-juliana', email: 'juliana@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-anacarol', email: 'ana.carol@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-matheus', email: 'matheus@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Teens extras
+  { id: 'user-sophia-teen', email: 'sophia.teen@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-valentina-teen', email: 'valentina.teen@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Kids extras
+  { id: 'user-miguel-kids', email: 'miguel.kids@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-gabriel-kids', email: 'gabriel.kids@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Responsaveis extras
+  { id: 'user-carlos', email: 'carlos@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-renata', email: 'renata@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   // Super Admin
   { id: 'user-superadmin', email: 'super@blackbelt.app', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-gregory', email: 'gregoryguimaraes12@gmail.com', password_hash: 'mock', raw_password: '@Greg1994', ...AUDIT },
@@ -99,6 +116,23 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-thiago', user_id: 'user-thiago', role: Role.Professor, display_name: 'Thiago Nakamura', avatar: null, ...AUDIT },
   // Recepcionista
   { id: 'prof-julia', user_id: 'user-julia', role: Role.Recepcao, display_name: 'Julia Santos', avatar: null, ...AUDIT },
+  // Alunos adultos extras
+  { id: 'prof-rafael', user_id: 'user-rafael', role: Role.AlunoAdulto, display_name: 'Rafael Souza', avatar: null, ...AUDIT },
+  { id: 'prof-marcos', user_id: 'user-marcos', role: Role.AlunoAdulto, display_name: 'Marcos Vieira', avatar: null, ...AUDIT },
+  { id: 'prof-luciana', user_id: 'user-luciana', role: Role.AlunoAdulto, display_name: 'Luciana Ribeiro', avatar: null, ...AUDIT },
+  { id: 'prof-bruno', user_id: 'user-bruno', role: Role.AlunoAdulto, display_name: 'Bruno Almeida', avatar: null, ...AUDIT },
+  { id: 'prof-juliana', user_id: 'user-juliana', role: Role.AlunoAdulto, display_name: 'Juliana Torres', avatar: null, ...AUDIT },
+  { id: 'prof-anacarol', user_id: 'user-anacarol', role: Role.AlunoAdulto, display_name: 'Ana Carolina', avatar: null, ...AUDIT },
+  { id: 'prof-matheus', user_id: 'user-matheus', role: Role.AlunoAdulto, display_name: 'Matheus Lima', avatar: null, ...AUDIT },
+  // Teens extras
+  { id: 'prof-sophia-teen', user_id: 'user-sophia-teen', role: Role.AlunoTeen, display_name: 'Sophia Martins', avatar: null, ...AUDIT },
+  { id: 'prof-valentina-teen', user_id: 'user-valentina-teen', role: Role.AlunoTeen, display_name: 'Valentina Costa', avatar: null, ...AUDIT },
+  // Kids extras
+  { id: 'prof-miguel-kids', user_id: 'user-miguel-kids', role: Role.AlunoKids, display_name: 'Miguel Oliveira', avatar: null, ...AUDIT },
+  { id: 'prof-gabriel-kids', user_id: 'user-gabriel-kids', role: Role.AlunoKids, display_name: 'Gabriel Santos', avatar: null, ...AUDIT },
+  // Responsaveis extras
+  { id: 'prof-carlos', user_id: 'user-carlos', role: Role.Responsavel, display_name: 'Carlos Oliveira', avatar: null, ...AUDIT },
+  { id: 'prof-renata', user_id: 'user-renata', role: Role.Responsavel, display_name: 'Renata Santos', avatar: null, ...AUDIT },
   // Super Admin
   { id: 'prof-superadmin', user_id: 'user-superadmin', role: Role.Superadmin, display_name: 'Gregory (Super Admin)', avatar: null, ...AUDIT },
   { id: 'prof-gregory', user_id: 'user-gregory', role: Role.Superadmin, display_name: 'Gregory Guimarães', avatar: null, ...AUDIT },
