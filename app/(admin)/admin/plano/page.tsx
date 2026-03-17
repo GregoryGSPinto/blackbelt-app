@@ -1,136 +1,195 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, type CSSProperties } from 'react';
 import {
-  getBillingSummary,
-  getPlans,
-  getInvoices,
-  getAlerts,
-  getOverageProjection,
-  dismissAlert,
-  requestUpgrade,
-  requestDowngrade,
-} from '@/lib/api/billing.service';
-import { handleServiceError } from '@/lib/api/errors';
+  getAssinatura,
+  getModulos,
+  ativarModulo,
+  desativarModulo,
+  getHistoricoCobrancas,
+  getModulosExtrasDescoberta,
+} from '@/lib/api/pricing.service';
 import type {
-  BillingSummary,
-  PlanDefinition,
-  BillingInvoice,
-  UsageAlert,
-  UsageMetric,
-  OverageProjection,
-} from '@/lib/types/billing';
+  AssinaturaSaaS,
+  Modulo,
+  Cobranca,
+  ModuloExtra,
+  UsoDescoberta,
+} from '@/lib/api/pricing.service';
+import { handleServiceError } from '@/lib/api/errors';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function centsToReais(cents: number): string {
-  return (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+function formatCurrency(value: number): string {
+  return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function getBarColor(percent: number): string {
-  if (percent >= 100) return '#EF4444';
-  if (percent >= 90) return '#F97316';
-  if (percent >= 80) return '#F59E0B';
-  return '#22C55E';
+function formatDate(iso: string): string {
+  if (!iso) return '-';
+  return new Date(iso).toLocaleDateString('pt-BR');
 }
 
-function getStatusIcon(status: UsageMetric['status']): string {
+type ModuleState = 'paid' | 'discovery' | 'inactive_with_data' | 'never_used';
+
+function getModuleState(
+  slug: string,
+  modulosPagos: string[],
+  emPeriodoDescoberta: boolean,
+  usoDescoberta: UsoDescoberta[],
+): ModuleState {
+  if (modulosPagos.includes(slug)) return 'paid';
+  if (emPeriodoDescoberta && !modulosPagos.includes(slug)) return 'discovery';
+  const uso = usoDescoberta.find((u) => u.moduloSlug === slug);
+  if (!emPeriodoDescoberta && !modulosPagos.includes(slug) && uso && uso.vezesUsado > 0) return 'inactive_with_data';
+  return 'never_used';
+}
+
+function getUsageForSlug(usoDescoberta: UsoDescoberta[], slug: string): number {
+  return usoDescoberta.find((u) => u.moduloSlug === slug)?.vezesUsado ?? 0;
+}
+
+function statusBadgeStyle(status: AssinaturaSaaS['status']): CSSProperties {
   switch (status) {
-    case 'exceeded': return '\uD83D\uDD34';
-    case 'critical': return '\uD83D\uDD36';
-    case 'warning': return '\u26A0\uFE0F';
-    default: return '\u2705';
+    case 'trial':
+      return { background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' };
+    case 'discovery':
+      return { background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' };
+    case 'full':
+      return { background: 'rgba(34, 197, 94, 0.15)', color: '#22C55E' };
+    case 'suspended':
+    case 'cancelled':
+    case 'past_due':
+      return { background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444' };
+    default:
+      return { background: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)' };
   }
 }
 
-function getStatusLabel(status: UsageMetric['status']): string {
+function statusLabel(status: AssinaturaSaaS['status']): string {
   switch (status) {
-    case 'exceeded': return 'Excedido';
-    case 'critical': return 'Critico — proximo do limite';
-    case 'warning': return 'Alerta — proximo do limite';
-    default: return 'Normal';
+    case 'trial': return 'Trial';
+    case 'discovery': return 'Descoberta';
+    case 'full': return 'Ativo';
+    case 'suspended': return 'Suspenso';
+    case 'cancelled': return 'Cancelado';
+    case 'past_due': return 'Inadimplente';
+    default: return status;
   }
 }
 
-function getSupportLabel(level: PlanDefinition['support_level']): string {
-  switch (level) {
-    case 'email': return 'Email';
-    case 'email_chat': return 'Email + Chat';
-    case 'priority': return 'Prioritario';
-    case 'dedicated': return 'Dedicado';
-    case 'account_manager': return 'Gerente de Conta';
+function cobrancaStatusStyle(status: string): CSSProperties {
+  switch (status) {
+    case 'paid':
+      return { background: 'rgba(34, 197, 94, 0.12)', color: '#22C55E' };
+    case 'pending':
+      return { background: 'rgba(245, 158, 11, 0.12)', color: '#F59E0B' };
+    case 'failed':
+    case 'refunded':
+      return { background: 'rgba(239, 68, 68, 0.12)', color: '#EF4444' };
+    default:
+      return { background: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)' };
   }
 }
 
-function getOverageCentsForResource(
-  plan: PlanDefinition,
-  resource: UsageMetric['resource'],
-): number {
-  switch (resource) {
-    case 'students': return plan.overage.student_cents;
-    case 'professors': return plan.overage.professor_cents;
-    case 'classes': return plan.overage.class_cents;
-    case 'storage_gb': return plan.overage.storage_gb_cents;
+function cobrancaStatusLabel(status: string): string {
+  switch (status) {
+    case 'paid': return 'Pago';
+    case 'pending': return 'Pendente';
+    case 'failed': return 'Falhou';
+    case 'refunded': return 'Reembolsado';
+    default: return status;
   }
 }
 
-function getOverageLabel(resource: UsageMetric['resource']): string {
-  switch (resource) {
-    case 'students': return 'aluno';
-    case 'professors': return 'prof';
-    case 'classes': return 'turma';
-    case 'storage_gb': return 'GB';
-  }
-}
+// ── Skeleton ─────────────────────────────────────────────────────────
 
-// ── Loading skeleton ────────────────────────────────────────────────
-function PlanPageSkeleton() {
+function PlanoPageSkeleton() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <Skeleton variant="text" className="h-8 w-64" />
-      <Skeleton variant="text" className="h-4 w-48" />
       <Skeleton variant="card" className="h-48" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} variant="card" className="h-40" />
         ))}
       </div>
-      <Skeleton variant="card" className="h-48" />
       <Skeleton variant="card" className="h-64" />
     </div>
   );
 }
 
-// ── Main page ───────────────────────────────────────────────────────
+// ── Bar Component ────────────────────────────────────────────────────
+
+function UsageBar({ label, current, limit }: { label: string; current: number; limit: number }) {
+  const pct = limit > 0 ? Math.min((current / limit) * 100, 100) : 0;
+  const isWarning = pct > 80;
+  const barColor = pct >= 100 ? '#EF4444' : pct >= 80 ? '#F59E0B' : '#22C55E';
+
+  return (
+    <div
+      className="rounded-xl p-4"
+      style={{
+        background: 'var(--bb-depth-3)',
+        border: isWarning ? `1px solid ${barColor}40` : '1px solid var(--bb-glass-border)',
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+          {label}
+        </span>
+        <span className="text-sm font-mono font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+          {current}/{limit}
+        </span>
+      </div>
+      <div
+        className="mt-2.5 h-2 overflow-hidden rounded-full"
+        style={{ background: 'var(--bb-depth-1)' }}
+      >
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: barColor }}
+        />
+      </div>
+      {isWarning && (
+        <p className="mt-1.5 text-xs" style={{ color: barColor }}>
+          {pct >= 100 ? 'Limite atingido' : `${Math.round(pct)}% utilizado`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Main Page ────────────────────────────────────────────────────────
 
 export default function AdminPlanoPage() {
-  const [summary, setSummary] = useState<BillingSummary | null>(null);
-  const [plans, setPlans] = useState<PlanDefinition[]>([]);
-  const [invoices, setInvoices] = useState<BillingInvoice[]>([]);
-  const [alerts, setAlerts] = useState<UsageAlert[]>([]);
-  const [projection, setProjection] = useState<OverageProjection | null>(null);
+  const { toast } = useToast();
+  const [assinatura, setAssinatura] = useState<AssinaturaSaaS | null>(null);
+  const [modulos, setModulos] = useState<Modulo[]>([]);
+  const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
+  const [extras, setExtras] = useState<ModuloExtra[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
-  const [showPlans, setShowPlans] = useState(false);
+  const [activatingSlug, setActivatingSlug] = useState<string | null>(null);
+  const [showUsoDetalhado, setShowUsoDetalhado] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const [s, p, inv, al, proj] = await Promise.all([
-          getBillingSummary('academy-1'),
-          getPlans(),
-          getInvoices('academy-1'),
-          getAlerts('academy-1'),
-          getOverageProjection('academy-1'),
+        const [sub, mods, billing, extrasData] = await Promise.all([
+          getAssinatura('academy-1'),
+          getModulos(),
+          getHistoricoCobrancas('academy-1'),
+          getModulosExtrasDescoberta('academy-1'),
         ]);
-        setSummary(s);
-        setPlans(p);
-        setInvoices(inv);
-        setAlerts(al);
-        setProjection(proj);
+        setAssinatura(sub);
+        setModulos(mods);
+        setCobrancas(billing);
+        setExtras(extrasData);
       } catch (error) {
-        handleServiceError(error, 'billing.page');
+        handleServiceError(error, 'plano.page');
       } finally {
         setLoading(false);
       }
@@ -138,726 +197,558 @@ export default function AdminPlanoPage() {
     load();
   }, []);
 
-  async function handleDismissAlert(alertId: string) {
+  // Sorted discovery usage (extras only, by usage desc)
+  const sortedUsoDescoberta = useMemo(() => {
+    if (!assinatura) return [];
+    return [...assinatura.usoDescoberta]
+      .filter((u) => !u.inclusoNoPlano)
+      .sort((a, b) => b.vezesUsado - a.vezesUsado);
+  }, [assinatura]);
+
+  // Top 3 extra modules cost
+  const top3ExtraCost = useMemo(() => {
+    return sortedUsoDescoberta
+      .slice(0, 3)
+      .reduce((sum, u) => {
+        const mod = modulos.find((m) => m.slug === u.moduloSlug);
+        return sum + (mod?.precoMensal ?? 0);
+      }, 0);
+  }, [sortedUsoDescoberta, modulos]);
+
+  async function handleAtivar(slug: string) {
+    if (!assinatura) return;
+    setActivatingSlug(slug);
     try {
-      await dismissAlert(alertId);
-      setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+      const updated = await ativarModulo('academy-1', slug);
+      setAssinatura(updated);
+      toast('Modulo ativado com sucesso!', 'success');
     } catch (error) {
-      handleServiceError(error, 'billing.dismissAlert');
+      handleServiceError(error, 'plano.ativarModulo');
+    } finally {
+      setActivatingSlug(null);
     }
   }
 
-  async function handleUpgrade(planSlug: string) {
+  async function handleDesativar(slug: string) {
+    if (!assinatura) return;
+    setActivatingSlug(slug);
     try {
-      const result = await requestUpgrade('academy-1', planSlug);
-      if (result.success) {
-        alert(`Upgrade para ${planSlug} solicitado com sucesso!`);
-      }
+      const updated = await desativarModulo('academy-1', slug);
+      setAssinatura(updated);
+      toast('Modulo desativado.', 'info');
     } catch (error) {
-      handleServiceError(error, 'billing.upgrade');
+      handleServiceError(error, 'plano.desativarModulo');
+    } finally {
+      setActivatingSlug(null);
     }
   }
 
-  async function handleDowngrade(planSlug: string) {
-    try {
-      const result = await requestDowngrade('academy-1', planSlug);
-      if (result.success) {
-        alert(`Downgrade para ${planSlug} sera aplicado no proximo ciclo.`);
-      }
-    } catch (error) {
-      handleServiceError(error, 'billing.downgrade');
-    }
-  }
+  if (loading || !assinatura) return <PlanoPageSkeleton />;
 
-  if (loading || !summary) return <PlanPageSkeleton />;
-
-  const currentPlanIndex = plans.findIndex((p) => p.id === summary.plan.id);
+  const discoveryProgress = assinatura.emPeriodoDescoberta
+    ? ((82 - assinatura.diasRestantesDescoberta) / 82) * 100
+    : 0;
 
   return (
-    <div className="min-h-screen space-y-6 p-6" data-stagger>
-      {/* ── Header ───────────────────────────────────────────────── */}
-      <section className="animate-reveal">
-        <h1
-          className="font-display font-bold"
-          style={{ fontSize: '28px', color: 'var(--bb-ink-100)' }}
+    <div className="min-h-screen space-y-6 p-4 sm:p-6" data-stagger>
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1
+            className="text-2xl font-bold sm:text-[28px]"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            Meu Plano BlackBelt
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Gerencie modulos, acompanhe uso e historico de cobrancas
+          </p>
+        </div>
+        <span
+          className="inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide"
+          style={statusBadgeStyle(assinatura.status)}
         >
-          Meu Plano & Uso
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Monitore seu consumo e gerencie seu plano
-        </p>
+          {statusLabel(assinatura.status)}
+        </span>
       </section>
 
-      {/* ── Trial banner ─────────────────────────────────────────── */}
-      {summary.trial.is_trial && (
-        <section
-          className="animate-reveal flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"
-          style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: 'var(--bb-radius-lg)',
-          }}
-        >
-          <div>
-            <p className="text-sm font-semibold" style={{ color: '#F59E0B' }}>
-              {'\u23F0'} Seu periodo de teste termina em {summary.trial.days_remaining} dias.
-            </p>
-            <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-              Voce esta usando recursos do plano Black Belt gratuitamente.
-              Escolha um plano para continuar.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowPlans(true)}
-            className="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: '#F59E0B' }}
-          >
-            Escolher Plano
-          </button>
-        </section>
-      )}
-
-      {/* ── Active alerts ────────────────────────────────────────── */}
-      {alerts.length > 0 && (
-        <section className="animate-reveal space-y-3">
-          {alerts.map((alert) => (
+      {/* ── Status Card ─────────────────────────────────────────── */}
+      <section>
+        {assinatura.status === 'discovery' && (
+          <Card variant="elevated" className="overflow-hidden">
             <div
-              key={alert.id}
-              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="px-5 py-3 text-sm font-semibold"
               style={{
-                background: alert.level === 'exceeded'
-                  ? 'rgba(239, 68, 68, 0.08)'
-                  : alert.level === 'critical'
-                    ? 'rgba(249, 115, 22, 0.08)'
-                    : 'rgba(245, 158, 11, 0.08)',
-                border: `1px solid ${alert.level === 'exceeded' ? 'rgba(239, 68, 68, 0.3)' : alert.level === 'critical' ? 'rgba(249, 115, 22, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-                borderRadius: 'var(--bb-radius-md)',
+                background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(234,88,12,0.1))',
+                color: '#F59E0B',
               }}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-lg">
-                  {alert.level === 'exceeded' ? '\uD83D\uDD34' : alert.level === 'critical' ? '\uD83D\uDD36' : '\u26A0\uFE0F'}
-                </span>
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                    {alert.message}
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                    Ao atingir o limite, cada unidade extra sera cobrada no fim do mes.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowPlans(true)}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
-                  style={{ background: 'var(--bb-brand)' }}
-                >
-                  Fazer Upgrade
-                </button>
-                <button
-                  onClick={() => handleDismissAlert(alert.id)}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-                  style={{
-                    background: 'var(--bb-depth-4)',
-                    color: 'var(--bb-ink-80)',
-                  }}
-                >
-                  Dispensar
-                </button>
-              </div>
+              {'\uD83D\uDD13'} PERIODO DE DESCOBERTA — {assinatura.diasRestantesDescoberta} dias restantes
             </div>
-          ))}
-        </section>
-      )}
-
-      {/* ── Current plan card ────────────────────────────────────── */}
-      <section className="animate-reveal">
-        <div
-          className="p-6"
-          style={{
-            background: 'var(--bb-depth-2)',
-            border: '1px solid var(--bb-glass-border)',
-            borderRadius: 'var(--bb-radius-lg)',
-          }}
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                  Seu plano: {summary.plan.name}
-                  {summary.plan.is_popular && ' \u2B50'}
-                </h2>
-                {summary.trial.is_trial && (
-                  <span
-                    className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
-                    style={{ background: '#F59E0B' }}
-                  >
-                    TRIAL
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                {summary.plan.price_monthly > 0
-                  ? `R$${centsToReais(summary.billing_cycle === 'monthly' ? summary.plan.price_monthly : summary.plan.price_yearly)}/${summary.billing_cycle === 'monthly' ? 'mes' : 'ano'} \u00B7 Ciclo ${summary.billing_cycle === 'monthly' ? 'mensal' : 'anual'}`
-                  : 'Sob consulta'}
-              </p>
-              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                Proxima cobranca: {new Date(summary.next_invoice_date).toLocaleDateString('pt-BR')}
-              </p>
-
-              {/* Modules */}
-              <div className="mt-4 flex flex-wrap gap-3">
-                {[
-                  { key: 'streaming', label: 'Biblioteca' },
-                  { key: 'store', label: 'Loja' },
-                  { key: 'financial', label: 'Financeiro' },
-                  { key: 'events', label: 'Eventos' },
-                  { key: 'multi_branch', label: 'Multi-filial' },
-                  { key: 'api', label: 'API' },
-                ].map(({ key, label }) => {
-                  const enabled = summary.plan.modules[key as keyof typeof summary.plan.modules];
-                  return (
-                    <span
-                      key={key}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-                      style={{
-                        background: enabled ? 'rgba(34, 197, 94, 0.1)' : 'var(--bb-depth-4)',
-                        color: enabled ? '#22C55E' : 'var(--bb-ink-40)',
-                      }}
-                    >
-                      {enabled ? '\u2705' : '\u274C'} {label}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col gap-2 sm:items-end">
-              {summary.billing_cycle === 'monthly' && summary.plan.price_monthly > 0 && (
-                <button
-                  className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-                  style={{
-                    background: 'var(--bb-depth-4)',
-                    color: 'var(--bb-ink-80)',
-                  }}
-                >
-                  Mudar para Anual (20% off)
-                </button>
-              )}
-              <button
-                onClick={() => setShowPlans(true)}
-                className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: 'var(--bb-brand)' }}
-              >
-                Fazer Upgrade
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Usage bars ───────────────────────────────────────────── */}
-      <section className="animate-reveal">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
-          {summary.usage.map((metric) => {
-            const barPercent = Math.min(metric.percent, 100);
-            const barColor = getBarColor(metric.percent);
-            const overageCents = getOverageCentsForResource(summary.plan, metric.resource);
-            const overageLabel = getOverageLabel(metric.resource);
-
-            return (
-              <div
-                key={metric.resource}
-                className="p-5"
-                style={{
-                  background: 'var(--bb-depth-2)',
-                  border: `1px solid ${metric.status !== 'normal' ? barColor + '40' : 'var(--bb-glass-border)'}`,
-                  borderRadius: 'var(--bb-radius-lg)',
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                    {metric.icon} {metric.label}
-                  </span>
-                  <span className="text-sm font-mono font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                    {metric.resource === 'storage_gb' ? metric.current.toFixed(1) : metric.current}
-                    {metric.limit === -1 ? '' : ` / ${metric.limit}`}
-                    {metric.resource === 'storage_gb' ? ' GB' : ''}
-                  </span>
-                </div>
-
-                {/* Progress bar */}
+            <div className="space-y-4 p-5">
+              {/* Progress bar */}
+              <div>
                 <div
-                  className="mt-3 h-2.5 overflow-hidden rounded-full"
-                  style={{ background: 'var(--bb-depth-5)' }}
+                  className="h-2.5 overflow-hidden rounded-full"
+                  style={{ background: 'var(--bb-depth-1)' }}
                 >
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full transition-all duration-700"
                     style={{
-                      width: metric.limit === -1 ? '10%' : `${barPercent}%`,
-                      background: barColor,
+                      width: `${Math.min(discoveryProgress, 100)}%`,
+                      background: 'linear-gradient(90deg, #F59E0B, #EA580C)',
                     }}
                   />
                 </div>
+                <div className="mt-1 flex justify-between text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                  <span>Inicio</span>
+                  <span>Fim: {formatDate(assinatura.discoveryEndsAt)}</span>
+                </div>
+              </div>
 
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs" style={{ color: barColor }}>
-                    {getStatusIcon(metric.status)} {metric.limit === -1 ? 'Ilimitado' : `${metric.percent}%`}
-                  </span>
-                  <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                    {getStatusLabel(metric.status)}
-                  </span>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                  Voce paga: <strong>R$ {formatCurrency(assinatura.precoTotal)}/mes</strong> (Pacote Profissional)
+                </p>
+                <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                  {'\uD83C\uDF81'} Bonus ativo: TODOS os {modulos.length} modulos liberados ate{' '}
+                  {formatDate(assinatura.discoveryEndsAt)}
+                </p>
+              </div>
+
+              {/* Top 3 extras */}
+              {extras.length > 0 && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                    Modulos extras que voce esta usando:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {extras.slice(0, 3).map((e) => (
+                      <span
+                        key={e.slug}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{ background: 'rgba(245,158,11,0.1)', color: '#D97706' }}
+                      >
+                        {e.icone} {e.nome} ({e.vezesUsado}x)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setShowUsoDetalhado(!showUsoDetalhado)}
+                >
+                  {showUsoDetalhado ? 'Ocultar uso' : 'Ver uso detalhado'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {assinatura.status === 'trial' && (
+          <Card variant="elevated" className="overflow-hidden">
+            <div
+              className="px-5 py-3 text-sm font-semibold"
+              style={{
+                background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1))',
+                color: '#3B82F6',
+              }}
+            >
+              {'\uD83C\uDF89'} TRIAL GRATUITO — {assinatura.diasRestantesDescoberta} dias restantes
+            </div>
+            <div className="space-y-4 p-5">
+              <div
+                className="h-2.5 overflow-hidden rounded-full"
+                style={{ background: 'var(--bb-depth-1)' }}
+              >
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: '30%', background: 'linear-gradient(90deg, #3B82F6, #6366F1)' }}
+                />
+              </div>
+              <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                Tudo liberado! Seu plano inicia em breve.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {assinatura.status === 'full' && (
+          <Card variant="elevated" className="overflow-hidden">
+            <div
+              className="px-5 py-3 text-sm font-semibold"
+              style={{
+                background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1))',
+                color: '#22C55E',
+              }}
+            >
+              {'\u2705'} PLANO PROFISSIONAL — Ativo
+            </div>
+            <div className="space-y-2 p-5">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                R$ {formatCurrency(assinatura.precoTotal)}/mes &middot; Ciclo {assinatura.ciclo}
+              </p>
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Proxima cobranca: {formatDate(assinatura.currentPeriodEnd)}
+              </p>
+            </div>
+          </Card>
+        )}
+      </section>
+
+      {/* ── Modulos Grid ────────────────────────────────────────── */}
+      <section>
+        <h2
+          className="mb-4 font-mono text-xs uppercase tracking-widest"
+          style={{ color: 'var(--bb-ink-40)' }}
+        >
+          Modulos ({modulos.length})
+        </h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {modulos.map((mod) => {
+            const state = getModuleState(
+              mod.slug,
+              assinatura.modulosPagos,
+              assinatura.emPeriodoDescoberta,
+              assinatura.usoDescoberta,
+            );
+            const usage = getUsageForSlug(assinatura.usoDescoberta, mod.slug);
+            const isLoading = activatingSlug === mod.slug;
+
+            const borderColor: Record<ModuleState, string> = {
+              paid: '#22C55E',
+              discovery: '#F59E0B',
+              inactive_with_data: 'var(--bb-glass-border)',
+              never_used: 'var(--bb-glass-border)',
+            };
+
+            return (
+              <div
+                key={mod.slug}
+                className="flex flex-col rounded-xl p-4 transition-all duration-200"
+                style={{
+                  background: 'var(--bb-depth-3)',
+                  border: `1.5px solid ${borderColor[state]}`,
+                  opacity: state === 'never_used' ? 0.7 : 1,
+                }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{mod.icone}</span>
+                    <div>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                        {mod.nome}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                        R$ {formatCurrency(mod.precoMensal)}/mes
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Overage info */}
-                {metric.overage_count > 0 && (
-                  <div
-                    className="mt-3 rounded-md p-2 text-xs"
-                    style={{ background: 'rgba(239, 68, 68, 0.08)', color: '#EF4444' }}
-                  >
-                    {metric.overage_count} excedentes: R${centsToReais(metric.overage_cost_cents)}
-                  </div>
-                )}
+                {/* State labels */}
+                <div className="mt-3 flex-1">
+                  {state === 'paid' && (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={{ background: 'rgba(34,197,94,0.12)', color: '#22C55E' }}
+                    >
+                      {'\u2705'} Ativo
+                    </span>
+                  )}
+                  {state === 'discovery' && (
+                    <div>
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ background: 'rgba(245,158,11,0.12)', color: '#D97706' }}
+                      >
+                        {'\uD83D\uDD13'} Incluido na descoberta ({assinatura.diasRestantesDescoberta} dias)
+                      </span>
+                      {usage > 0 && (
+                        <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                          Usado {usage}x
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {state === 'inactive_with_data' && (
+                    <div>
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)' }}
+                      >
+                        {'\uD83D\uDD12'} Inativo
+                      </span>
+                      <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                        Usou {usage}x na descoberta
+                      </p>
+                    </div>
+                  )}
+                  {state === 'never_used' && (
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-40)' }}
+                    >
+                      {'\uD83D\uDD12'}
+                    </span>
+                  )}
+                </div>
 
-                {metric.status !== 'normal' && metric.overage_count === 0 && (
-                  <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                    Excedente: R${centsToReais(overageCents)}/{overageLabel}/mes
-                  </p>
-                )}
+                {/* Action button */}
+                <div className="mt-3">
+                  {state === 'paid' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleDesativar(mod.slug)}
+                      loading={isLoading}
+                    >
+                      Desativar
+                    </Button>
+                  )}
+                  {state === 'discovery' && (
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleAtivar(mod.slug)}
+                      loading={isLoading}
+                    >
+                      Adicionar ao plano
+                    </Button>
+                  )}
+                  {state === 'inactive_with_data' && (
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleAtivar(mod.slug)}
+                      loading={isLoading}
+                    >
+                      Reativar
+                    </Button>
+                  )}
+                  {state === 'never_used' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleAtivar(mod.slug)}
+                      loading={isLoading}
+                    >
+                      Ativar
+                    </Button>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* ── Overage projection ───────────────────────────────────── */}
-      {projection && (
-        <section className="animate-reveal">
-          <div
-            className="p-6"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-              borderRadius: 'var(--bb-radius-lg)',
-            }}
-          >
-            <h3 className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              {'\uD83D\uDCB0'} Estimativa da proxima fatura
+      {/* ── Uso na Descoberta (table) ───────────────────────────── */}
+      {assinatura.emPeriodoDescoberta && showUsoDetalhado && (
+        <section>
+          <Card variant="elevated">
+            <h3
+              className="mb-4 font-mono text-xs uppercase tracking-widest"
+              style={{ color: 'var(--bb-ink-40)' }}
+            >
+              Uso na Descoberta
             </h3>
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--bb-ink-80)' }}>
-                  Plano {summary.plan.name} ({summary.billing_cycle === 'monthly' ? 'mensal' : 'anual'})
-                </span>
-                <span className="font-mono" style={{ color: 'var(--bb-ink-100)' }}>
-                  R$ {centsToReais(projection.base_cost_cents)}
-                </span>
-              </div>
-              {projection.overage_students.count > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span style={{ color: 'var(--bb-ink-80)' }}>
-                    Excedente alunos ({projection.overage_students.count} extra)
-                  </span>
-                  <span className="font-mono" style={{ color: '#EF4444' }}>
-                    R$ {centsToReais(projection.overage_students.cost_cents)}
-                  </span>
-                </div>
-              )}
-              {projection.overage_professors.count > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span style={{ color: 'var(--bb-ink-80)' }}>
-                    Excedente profs ({projection.overage_professors.count} extra)
-                  </span>
-                  <span className="font-mono" style={{ color: '#EF4444' }}>
-                    R$ {centsToReais(projection.overage_professors.cost_cents)}
-                  </span>
-                </div>
-              )}
-              {projection.overage_classes.count === 0 && projection.overage_students.count === 0 && (
-                <>
-                  <div className="flex justify-between text-sm">
-                    <span style={{ color: 'var(--bb-ink-80)' }}>Excedente alunos (0 extra)</span>
-                    <span className="font-mono" style={{ color: 'var(--bb-ink-60)' }}>R$ 0,00</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span style={{ color: 'var(--bb-ink-80)' }}>Excedente profs (0 extra)</span>
-                    <span className="font-mono" style={{ color: 'var(--bb-ink-60)' }}>R$ 0,00</span>
-                  </div>
-                </>
-              )}
 
-              <div
-                className="my-2"
-                style={{ borderTop: '1px solid var(--bb-glass-border)' }}
-              />
-
-              <div className="flex justify-between text-sm font-bold">
-                <span style={{ color: 'var(--bb-ink-100)' }}>Total estimado</span>
-                <span className="font-mono" style={{ color: 'var(--bb-ink-100)' }}>
-                  R$ {centsToReais(projection.total_cents)}
-                </span>
-              </div>
-            </div>
-
-            {/* Upgrade suggestion */}
-            <div className="mt-4 space-y-1">
-              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                {'\u2139\uFE0F'} Se atingir {summary.usage[0].limit} alunos, cada extra = R${centsToReais(summary.plan.overage.student_cents)}/mes
-              </p>
-              {projection.upgrade_suggestion && (
-                <p className="text-xs" style={{ color: 'var(--bb-info, #3B82F6)' }}>
-                  {'\uD83D\uDCA1'} Upgrade pro {projection.upgrade_suggestion.plan.name}: R${centsToReais(projection.upgrade_suggestion.plan.price_monthly)} com {projection.upgrade_suggestion.plan.limits.students} alunos
-                  (compensa a partir de {projection.upgrade_suggestion.breakeven_overage} alunos excedentes)
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── Plan comparison ──────────────────────────────────────── */}
-      {showPlans && (
-        <section className="animate-reveal">
-          <div
-            className="p-6"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-              borderRadius: 'var(--bb-radius-lg)',
-            }}
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                Comparar Planos
-              </h3>
-              <button
-                onClick={() => setShowPlans(false)}
-                className="text-sm transition-colors"
-                style={{ color: 'var(--bb-ink-60)' }}
-              >
-                Fechar
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {plans.map((plan, idx) => {
-                const isCurrent = plan.id === summary.plan.id;
-                const isUpgrade = idx > currentPlanIndex;
-                const isDowngrade = idx < currentPlanIndex;
-
-                return (
-                  <div
-                    key={plan.id}
-                    className="flex flex-col p-5"
-                    style={{
-                      background: 'var(--bb-depth-3)',
-                      border: isCurrent ? '2px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
-                      borderRadius: 'var(--bb-radius-lg)',
-                      boxShadow: isCurrent ? 'var(--bb-brand-glow)' : 'none',
-                    }}
-                  >
-                    {/* Badge */}
-                    <div className="mb-3 flex items-center gap-2">
-                      <span
-                        className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
-                        style={{ background: plan.badge_color }}
+            {/* Desktop table */}
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                    {['Modulo', 'Usos', 'Status'].map((h) => (
+                      <th
+                        key={h}
+                        className="px-3 py-2 text-left font-mono text-xs uppercase"
+                        style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
                       >
-                        {plan.name}
-                      </span>
-                      {isCurrent && (
-                        <span
-                          className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
-                          style={{ background: 'var(--bb-brand)' }}
-                        >
-                          Seu plano
-                        </span>
-                      )}
-                      {plan.is_popular && (
-                        <span className="text-xs" style={{ color: '#F59E0B' }}>{'\u2B50'}</span>
-                      )}
-                    </div>
-
-                    {/* Price */}
-                    <div className="mb-4">
-                      {plan.price_monthly > 0 ? (
-                        <>
-                          <span className="text-2xl font-bold font-mono" style={{ color: 'var(--bb-ink-100)' }}>
-                            R${centsToReais(plan.price_monthly)}
-                          </span>
-                          <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>/mes</span>
-                        </>
-                      ) : (
-                        <span className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                          Sob consulta
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Limits */}
-                    <div className="mb-4 space-y-1.5 text-xs" style={{ color: 'var(--bb-ink-80)' }}>
-                      <p>{plan.limits.students === -1 ? 'Alunos ilimitados' : `${plan.limits.students} alunos`}</p>
-                      <p>{plan.limits.professors === -1 ? 'Profs ilimitados' : `${plan.limits.professors} professores`}</p>
-                      <p>{plan.limits.classes === -1 ? 'Turmas ilimitadas' : `${plan.limits.classes} turmas`}</p>
-                      <p>{plan.limits.storage_gb} GB storage</p>
-                    </div>
-
-                    {/* Modules */}
-                    <div className="mb-4 space-y-1 text-xs">
-                      {[
-                        { key: 'streaming', label: 'Biblioteca' },
-                        { key: 'store', label: 'Loja' },
-                        { key: 'financial', label: 'Financeiro' },
-                        { key: 'events', label: 'Eventos' },
-                        { key: 'multi_branch', label: 'Multi-filial' },
-                        { key: 'api', label: 'API' },
-                      ].map(({ key, label }) => {
-                        const enabled = plan.modules[key as keyof typeof plan.modules];
-                        return (
-                          <p key={key} style={{ color: enabled ? '#22C55E' : 'var(--bb-ink-40)' }}>
-                            {enabled ? '\u2705' : '\u274C'} {label}
-                          </p>
-                        );
-                      })}
-                    </div>
-
-                    {/* Overage prices */}
-                    <div className="mb-4 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                      <p>Excedente aluno: R${centsToReais(plan.overage.student_cents)}</p>
-                      <p>Suporte: {getSupportLabel(plan.support_level)}</p>
-                    </div>
-
-                    {/* Action button */}
-                    <div className="mt-auto">
-                      {isCurrent ? (
-                        <button
-                          disabled
-                          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold opacity-50"
-                          style={{ background: 'var(--bb-depth-5)', color: 'var(--bb-ink-60)' }}
-                        >
-                          Plano Atual
-                        </button>
-                      ) : plan.slug === 'enterprise' ? (
-                        <button
-                          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
-                          style={{ background: plan.badge_color, color: 'white' }}
-                        >
-                          Falar com Vendas
-                        </button>
-                      ) : isUpgrade ? (
-                        <button
-                          onClick={() => handleUpgrade(plan.slug)}
-                          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                          style={{ background: 'var(--bb-brand)' }}
-                        >
-                          Fazer Upgrade
-                        </button>
-                      ) : isDowngrade ? (
-                        <button
-                          onClick={() => handleDowngrade(plan.slug)}
-                          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
-                          style={{ background: 'var(--bb-depth-5)', color: 'var(--bb-ink-80)' }}
-                        >
-                          Fazer Downgrade
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {!showPlans && (
-        <section className="animate-reveal flex justify-center">
-          <button
-            onClick={() => setShowPlans(true)}
-            className="rounded-lg px-6 py-2.5 text-sm font-medium transition-colors"
-            style={{
-              background: 'var(--bb-depth-4)',
-              color: 'var(--bb-ink-80)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            Comparar todos os planos
-          </button>
-        </section>
-      )}
-
-      {/* ── Invoices ─────────────────────────────────────────────── */}
-      <section className="animate-reveal">
-        <div
-          className="p-6"
-          style={{
-            background: 'var(--bb-depth-2)',
-            border: '1px solid var(--bb-glass-border)',
-            borderRadius: 'var(--bb-radius-lg)',
-          }}
-        >
-          <h3
-            className="mb-4 font-mono uppercase"
-            style={{ fontSize: '11px', letterSpacing: '0.08em', color: 'var(--bb-ink-40)' }}
-          >
-            Historico de Faturas
-          </h3>
-
-          {/* Desktop table */}
-          <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                  {['Periodo', 'Plano', 'Base', 'Excedente', 'Total', 'Status', ''].map((h) => (
-                    <th
-                      key={h}
-                      className="px-3 py-2 text-left font-mono text-xs uppercase"
-                      style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((inv) => (
-                  <>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedUsoDescoberta.map((u) => (
                     <tr
-                      key={inv.id}
-                      className="cursor-pointer transition-colors"
+                      key={u.moduloSlug}
                       style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                      onClick={() => setExpandedInvoice(expandedInvoice === inv.id ? null : inv.id)}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <td className="px-3 py-3 font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                        {inv.period}
-                      </td>
-                      <td className="px-3 py-3" style={{ color: 'var(--bb-ink-80)' }}>
-                        {summary.plan.name}
+                        {modulos.find((m) => m.slug === u.moduloSlug)?.icone ?? ''}{' '}
+                        {u.moduloNome}
                       </td>
                       <td className="px-3 py-3 font-mono" style={{ color: 'var(--bb-ink-80)' }}>
-                        R${centsToReais(inv.base_cost_cents)}
-                      </td>
-                      <td
-                        className="px-3 py-3 font-mono"
-                        style={{ color: inv.overage_total_cents > 0 ? '#EF4444' : 'var(--bb-ink-60)' }}
-                      >
-                        R${centsToReais(inv.overage_total_cents)}
-                      </td>
-                      <td className="px-3 py-3 font-mono font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                        R${centsToReais(inv.total_cents)}
+                        {u.vezesUsado}x
                       </td>
                       <td className="px-3 py-3">
                         <span
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
-                          style={{
-                            background: inv.status === 'paid' ? 'rgba(34, 197, 94, 0.1)' : inv.status === 'overdue' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                            color: inv.status === 'paid' ? '#22C55E' : inv.status === 'overdue' ? '#EF4444' : '#F59E0B',
-                          }}
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={
+                            u.inclusoNoPlano
+                              ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                              : { background: 'rgba(245,158,11,0.12)', color: '#D97706' }
+                          }
                         >
-                          {inv.status === 'paid' ? '\u2705 Pago' : inv.status === 'overdue' ? 'Vencido' : 'Pendente'}
+                          {u.inclusoNoPlano ? 'No plano' : 'Extra'}
                         </span>
                       </td>
-                      <td className="px-3 py-3">
-                        {inv.pdf_url && (
-                          <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{'\uD83D\uDCC4'}</span>
-                        )}
-                      </td>
                     </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                    {/* Expanded details */}
-                    {expandedInvoice === inv.id && inv.overage_details.length > 0 && (
-                      <tr key={`${inv.id}-details`}>
-                        <td
-                          colSpan={7}
-                          className="px-6 py-4"
-                          style={{ background: 'var(--bb-depth-4)' }}
-                        >
-                          <p className="mb-2 text-xs font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                            Excedente {inv.period}:
-                          </p>
-                          {inv.overage_details.map((d, i) => (
-                            <p key={i} className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>
-                              {d.count} {d.resource.toLowerCase()} x R${centsToReais(d.unit_cost_cents)} = R${centsToReais(d.total_cents)}
-                            </p>
-                          ))}
-                        </td>
-                      </tr>
-                    )}
-
-                    {expandedInvoice === inv.id && inv.overage_details.length === 0 && (
-                      <tr key={`${inv.id}-details`}>
-                        <td
-                          colSpan={7}
-                          className="px-6 py-4"
-                          style={{ background: 'var(--bb-depth-4)' }}
-                        >
-                          <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                            Nenhum excedente neste periodo.
-                          </p>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="space-y-3 sm:hidden">
-            {invoices.map((inv) => (
-              <div
-                key={inv.id}
-                className="rounded-lg p-4"
-                style={{
-                  background: 'var(--bb-depth-3)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-                onClick={() => setExpandedInvoice(expandedInvoice === inv.id ? null : inv.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                    {inv.period}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
-                    style={{
-                      background: inv.status === 'paid' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                      color: inv.status === 'paid' ? '#22C55E' : '#F59E0B',
-                    }}
-                  >
-                    {inv.status === 'paid' ? '\u2705 Pago' : 'Pendente'}
-                  </span>
-                </div>
-                <div className="mt-2 flex justify-between text-sm">
-                  <span style={{ color: 'var(--bb-ink-60)' }}>Total</span>
-                  <span className="font-mono font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                    R${centsToReais(inv.total_cents)}
-                  </span>
-                </div>
-                {inv.overage_total_cents > 0 && (
-                  <div className="mt-1 flex justify-between text-xs">
-                    <span style={{ color: 'var(--bb-ink-60)' }}>Excedente</span>
-                    <span className="font-mono" style={{ color: '#EF4444' }}>
-                      R${centsToReais(inv.overage_total_cents)}
+            {/* Mobile cards */}
+            <div className="space-y-2 sm:hidden">
+              {sortedUsoDescoberta.map((u) => (
+                <div
+                  key={u.moduloSlug}
+                  className="flex items-center justify-between rounded-lg p-3"
+                  style={{ background: 'var(--bb-depth-4)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>{modulos.find((m) => m.slug === u.moduloSlug)?.icone ?? ''}</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                      {u.moduloNome}
                     </span>
                   </div>
-                )}
-                {expandedInvoice === inv.id && inv.overage_details.length > 0 && (
-                  <div className="mt-3 rounded-md p-3" style={{ background: 'var(--bb-depth-4)' }}>
-                    {inv.overage_details.map((d, i) => (
-                      <p key={i} className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>
-                        {d.count} {d.resource.toLowerCase()} x R${centsToReais(d.unit_cost_cents)} = R${centsToReais(d.total_cents)}
-                      </p>
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono" style={{ color: 'var(--bb-ink-80)' }}>
+                      {u.vezesUsado}x
+                    </span>
+                    <span
+                      className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={
+                        u.inclusoNoPlano
+                          ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                          : { background: 'rgba(245,158,11,0.12)', color: '#D97706' }
+                      }
+                    >
+                      {u.inclusoNoPlano ? 'Plano' : 'Extra'}
+                    </span>
                   </div>
-                )}
+                </div>
+              ))}
+            </div>
+
+            {top3ExtraCost > 0 && (
+              <p className="mt-4 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                {'\uD83D\uDCA1'} Os 3 modulos mais usados custariam +R$ {formatCurrency(top3ExtraCost)}/mes
+              </p>
+            )}
+          </Card>
+        </section>
+      )}
+
+      {/* ── Barras de Uso ───────────────────────────────────────── */}
+      <section>
+        <h2
+          className="mb-4 font-mono text-xs uppercase tracking-widest"
+          style={{ color: 'var(--bb-ink-40)' }}
+        >
+          Consumo
+        </h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <UsageBar label="Alunos" current={86} limit={100} />
+          <UsageBar label="Professores" current={2} limit={3} />
+          <UsageBar label="Turmas" current={8} limit={15} />
+        </div>
+      </section>
+
+      {/* ── Historico de Cobrancas ──────────────────────────────── */}
+      <section>
+        <h2
+          className="mb-4 font-mono text-xs uppercase tracking-widest"
+          style={{ color: 'var(--bb-ink-40)' }}
+        >
+          Historico de Cobrancas
+        </h2>
+
+        {/* Desktop table */}
+        <Card variant="default" className="hidden overflow-x-auto sm:block">
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                {['Data', 'Valor', 'Status', 'Metodo'].map((h) => (
+                  <th
+                    key={h}
+                    className="px-3 py-2 text-left font-mono text-xs uppercase"
+                    style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {cobrancas.map((c) => (
+                <tr
+                  key={c.id}
+                  style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                >
+                  <td className="px-3 py-3" style={{ color: 'var(--bb-ink-100)' }}>
+                    {formatDate(c.data)}
+                  </td>
+                  <td className="px-3 py-3 font-mono font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                    R$ {formatCurrency(c.valor)}
+                  </td>
+                  <td className="px-3 py-3">
+                    <span
+                      className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={cobrancaStatusStyle(c.status)}
+                    >
+                      {cobrancaStatusLabel(c.status)}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                    {c.metodo}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+
+        {/* Mobile cards */}
+        <div className="space-y-2 sm:hidden">
+          {cobrancas.map((c) => (
+            <div
+              key={c.id}
+              className="rounded-xl p-4"
+              style={{
+                background: 'var(--bb-depth-3)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {formatDate(c.data)}
+                </span>
+                <span
+                  className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                  style={cobrancaStatusStyle(c.status)}
+                >
+                  {cobrancaStatusLabel(c.status)}
+                </span>
               </div>
-            ))}
-          </div>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  {c.metodo}
+                </span>
+                <span className="text-sm font-mono font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+                  R$ {formatCurrency(c.valor)}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
