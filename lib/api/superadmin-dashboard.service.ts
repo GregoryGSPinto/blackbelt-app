@@ -75,11 +75,11 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
   try {
     if (isMock()) {
       const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
-      return mockGetMissionControl();
+      return await mockGetMissionControl();
     }
     const res = await fetch('/api/superadmin/dashboard');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    return await res.json();
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
 }
 
@@ -87,7 +87,7 @@ export async function resolverAlerta(alertaId: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockResolverAlerta } = await import('@/lib/mocks/superadmin-dashboard.mock');
-      return mockResolverAlerta(alertaId);
+      return await mockResolverAlerta(alertaId);
     }
     const res = await fetch(`/api/superadmin/alertas/${alertaId}/resolver`, { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -89,18 +89,22 @@ export default function MissionControlPage() {
   const { toast } = useToast();
   const [data, setData] = useState<MissionControlDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [resolvingIds, setResolvingIds] = useState<Set<string>>(new Set());
 
   const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const result = await getMissionControl();
       setData(result);
-    } catch {
-      toast('Erro ao carregar dados do Mission Control', 'error');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(msg);
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -161,8 +165,13 @@ export default function MissionControlPage() {
 
   if (!data) {
     return (
-      <div className="flex h-64 items-center justify-center p-6">
-        <p style={{ color: 'var(--bb-ink-60)' }}>Nenhum dado disponível.</p>
+      <div className="flex h-64 flex-col items-center justify-center gap-4 p-6">
+        <p style={{ color: 'var(--bb-ink-60)' }}>
+          {error ? `Erro ao carregar: ${error}` : 'Nenhum dado disponível.'}
+        </p>
+        <Button variant="secondary" onClick={loadData}>
+          Tentar novamente
+        </Button>
       </div>
     );
   }
