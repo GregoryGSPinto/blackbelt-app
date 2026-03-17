@@ -8,7 +8,30 @@ const COMMAND_RESPONSES: Record<string, string> = {
   '/fatura': 'Acesse suas faturas em: https://app.blackbelt.com/pagamentos',
 };
 
+/**
+ * Validates webhook request using a shared secret token.
+ * The WhatsApp provider must send this token in the X-Webhook-Token header.
+ */
+function validateWebhookToken(request: Request): boolean {
+  const expectedToken = process.env.WHATSAPP_WEBHOOK_TOKEN;
+  if (!expectedToken) {
+    logger.warn('WHATSAPP_WEBHOOK_TOKEN not configured — webhook validation skipped');
+    return true; // Allow in development when token is not set
+  }
+
+  const receivedToken = request.headers.get('X-Webhook-Token');
+  if (!receivedToken || receivedToken !== expectedToken) {
+    return false;
+  }
+  return true;
+}
+
 export async function POST(request: Request) {
+  if (!validateWebhookToken(request)) {
+    logger.warn('WhatsApp webhook rejected: invalid or missing token');
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const payload = await request.json();
     logger.info('WhatsApp webhook received', { type: payload.event });
