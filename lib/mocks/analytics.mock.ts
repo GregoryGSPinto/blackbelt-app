@@ -1,6 +1,113 @@
 import type { CohortData, ChurnRiskDTO, ForecastDTO, ProfessorMetricsDTO, OccupancyDTO } from '@/lib/api/analytics.service';
+import type { AnalyticsOverview, StudentAnalytics, ChurnPrediction } from '@/lib/types/analytics';
 
 const delay = () => new Promise((r) => setTimeout(r, 300));
+
+const MONTHS_12 = [
+  { month: '2025-04', label: 'Abr/25' },
+  { month: '2025-05', label: 'Mai/25' },
+  { month: '2025-06', label: 'Jun/25' },
+  { month: '2025-07', label: 'Jul/25' },
+  { month: '2025-08', label: 'Ago/25' },
+  { month: '2025-09', label: 'Set/25' },
+  { month: '2025-10', label: 'Out/25' },
+  { month: '2025-11', label: 'Nov/25' },
+  { month: '2025-12', label: 'Dez/25' },
+  { month: '2026-01', label: 'Jan/26' },
+  { month: '2026-02', label: 'Fev/26' },
+  { month: '2026-03', label: 'Mar/26' },
+];
+
+// ── P-053: Analytics Overview ─────────────────────────────────
+
+export function mockAnalyticsOverview(
+  _academyId: string,
+  _period?: { start: string; end: string },
+): AnalyticsOverview {
+  return {
+    studentsTimeline: MONTHS_12.map((m, i) => ({ ...m, value: 120 + i * 5 + Math.floor(Math.random() * 8) })),
+    revenueTimeline: MONTHS_12.map((m, i) => ({ ...m, value: 35000 + i * 1200 + Math.floor(Math.random() * 2000) })),
+    retentionTimeline: MONTHS_12.map((m) => ({ ...m, value: 88 + Math.floor(Math.random() * 8) })),
+    attendanceByClass: [
+      { className: 'BJJ Fundamentos', avgAttendance: 22, capacity: 30 },
+      { className: 'BJJ Avançado', avgAttendance: 15, capacity: 20 },
+      { className: 'Muay Thai', avgAttendance: 18, capacity: 25 },
+      { className: 'Judô Kids', avgAttendance: 12, capacity: 15 },
+      { className: 'No-Gi', avgAttendance: 14, capacity: 20 },
+      { className: 'Competition Team', avgAttendance: 8, capacity: 12 },
+    ],
+    popularHours: [
+      { hour: '06:00', count: 8 }, { hour: '07:00', count: 12 }, { hour: '08:00', count: 6 },
+      { hour: '10:00', count: 4 }, { hour: '12:00', count: 10 }, { hour: '17:00', count: 15 },
+      { hour: '18:00', count: 28 }, { hour: '19:00', count: 32 }, { hour: '20:00', count: 25 },
+      { hour: '21:00', count: 14 },
+    ],
+    topModalities: [
+      { name: 'Jiu-Jitsu', students: 98 }, { name: 'Muay Thai', students: 42 },
+      { name: 'Judô', students: 28 }, { name: 'No-Gi', students: 22 }, { name: 'MMA', students: 18 },
+    ],
+    comparison: {
+      currentMonth: { students: 172, revenue: 47890, retention: 94.2, attendance: 78 },
+      previousMonth: { students: 165, revenue: 45200, retention: 92.8, attendance: 75 },
+      sameMonthLastYear: { students: 128, revenue: 32100, retention: 89.1, attendance: 70 },
+    },
+  };
+}
+
+// ── P-055: Student Analytics ──────────────────────────────────
+
+export function mockStudentAnalytics(studentId: string): StudentAnalytics {
+  const last6 = MONTHS_12.slice(-6);
+  return {
+    studentId,
+    attendanceHistory: last6.map((m, i) => ({ ...m, value: 14 + i + Math.floor(Math.random() * 4) })),
+    quizScores: [
+      { quizName: 'Guarda Fechada', score: 85, date: '2026-01-15' },
+      { quizName: 'Raspagens', score: 72, date: '2026-02-01' },
+      { quizName: 'Passagem de Guarda', score: 90, date: '2026-02-20' },
+      { quizName: 'Finalizações', score: 88, date: '2026-03-05' },
+    ],
+    videoHoursPerWeek: last6.map((m) => ({ ...m, value: 2 + Math.random() * 3 })),
+    comparisonWithAvg: {
+      attendance: { student: 18, classAvg: 15 },
+      quizAvg: { student: 84, classAvg: 72 },
+      videoHours: { student: 4.2, classAvg: 2.8 },
+    },
+  };
+}
+
+// ── P-056: Churn Predictions ──────────────────────────────────
+
+function classifyChurnRisk(score: number): 'low' | 'medium' | 'high' | 'critical' {
+  if (score < 30) return 'low';
+  if (score < 60) return 'medium';
+  if (score < 80) return 'high';
+  return 'critical';
+}
+
+export function mockChurnPredictions(_academyId: string): ChurnPrediction[] {
+  const students = [
+    { id: 's-1', name: 'Bruno Lima', freq: 20, trend: 60, delinq: 80, engage: 40, lastAtt: '2026-03-10', days: 7, payment: 'late' as const },
+    { id: 's-2', name: 'Marcos Oliveira', freq: 70, trend: 50, delinq: 90, engage: 30, lastAtt: '2026-03-05', days: 12, payment: 'overdue' as const },
+    { id: 's-3', name: 'Julia Almeida', freq: 55, trend: 70, delinq: 10, engage: 60, lastAtt: '2026-03-12', days: 5, payment: 'ok' as const },
+    { id: 's-4', name: 'Pedro Henrique', freq: 30, trend: 40, delinq: 20, engage: 50, lastAtt: '2026-03-14', days: 3, payment: 'ok' as const },
+    { id: 's-5', name: 'Carla Souza', freq: 85, trend: 80, delinq: 70, engage: 75, lastAtt: '2026-02-28', days: 17, payment: 'overdue' as const },
+    { id: 's-6', name: 'Felipe Ramos', freq: 45, trend: 35, delinq: 15, engage: 25, lastAtt: '2026-03-15', days: 2, payment: 'ok' as const },
+    { id: 's-7', name: 'Luciana Martins', freq: 10, trend: 20, delinq: 5, engage: 15, lastAtt: '2026-03-16', days: 1, payment: 'ok' as const },
+    { id: 's-8', name: 'André Costa', freq: 90, trend: 85, delinq: 95, engage: 80, lastAtt: '2026-02-20', days: 25, payment: 'overdue' as const },
+  ];
+  return students
+    .map((s) => {
+      const score = Math.round(s.freq * 0.4 + s.trend * 0.25 + s.delinq * 0.2 + s.engage * 0.15);
+      return {
+        studentId: s.id, studentName: s.name, score,
+        risk: classifyChurnRisk(score),
+        factors: { frequencyScore: s.freq, trendScore: s.trend, delinquencyScore: s.delinq, engagementScore: s.engage },
+        lastAttendance: s.lastAtt, daysSinceLastVisit: s.days, paymentStatus: s.payment,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+}
 
 export async function mockGetRetentionCohort(_academyId: string, months: number): Promise<CohortData[]> {
   await delay();

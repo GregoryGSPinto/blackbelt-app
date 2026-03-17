@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import type { AuditEntry, AuditEntryFilters } from '@/lib/types/audit';
 
 export type AuditAction =
   | 'login' | 'logout' | 'password_change' | 'mfa_enable'
@@ -93,4 +94,51 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
     const res = await fetch(`/api/audit/export?${params}`);
     return res.blob();
   } catch (error) { handleServiceError(error, 'audit.export'); }
+}
+
+// ── P-049: AuditEntry CRUD ─────────────────────────────────────────
+
+export async function listAuditEntries(
+  academyId: string,
+  filters: AuditEntryFilters = {},
+): Promise<AuditEntry[]> {
+  try {
+    if (isMock()) {
+      const { mockListAuditEntries } = await import('@/lib/mocks/audit.mock');
+      return mockListAuditEntries(academyId, filters);
+    }
+    const params = new URLSearchParams({ academyId });
+    if (filters.action) params.set('action', filters.action);
+    if (filters.user_id) params.set('user_id', filters.user_id);
+    if (filters.entity_type) params.set('entity_type', filters.entity_type);
+    if (filters.start_date) params.set('start_date', filters.start_date);
+    if (filters.end_date) params.set('end_date', filters.end_date);
+    if (filters.limit) params.set('limit', String(filters.limit));
+    if (filters.offset) params.set('offset', String(filters.offset));
+    const res = await fetch(`/api/audit/entries?${params}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'audit.listEntries');
+  }
+}
+
+export async function createAuditEntry(
+  entry: Omit<AuditEntry, 'id' | 'created_at'>,
+): Promise<AuditEntry> {
+  try {
+    if (isMock()) {
+      const { mockCreateAuditEntry } = await import('@/lib/mocks/audit.mock');
+      return mockCreateAuditEntry(entry);
+    }
+    const res = await fetch('/api/audit/entries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'audit.createEntry');
+  }
 }

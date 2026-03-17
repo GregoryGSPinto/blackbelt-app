@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import type { AnalyticsOverview, StudentAnalytics, ChurnPrediction } from '@/lib/types/analytics';
 
 export interface CohortData {
   cohort_month: string;
@@ -93,6 +94,56 @@ export async function getProfessorPerformance(academyId: string): Promise<Profes
     if (!res.ok) throw new ServiceError(res.status, 'analytics.professorPerf');
     return res.json();
   } catch (error) { handleServiceError(error, 'analytics.professorPerf'); }
+}
+
+// ── Analytics Overview (P-053) ────────────────────────────────
+
+export async function getAnalyticsOverview(
+  academyId: string,
+  period?: { start: string; end: string },
+): Promise<AnalyticsOverview> {
+  try {
+    if (isMock()) {
+      const { mockAnalyticsOverview } = await import('@/lib/mocks/analytics.mock');
+      return mockAnalyticsOverview(academyId, period);
+    }
+    const params = new URLSearchParams({ academyId });
+    if (period) {
+      params.set('start', period.start);
+      params.set('end', period.end);
+    }
+    const res = await fetch(`/api/analytics/overview?${params}`);
+    if (!res.ok) throw new ServiceError(res.status, 'analytics.overview');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'analytics.overview'); }
+}
+
+// ── Student Analytics (P-055) ─────────────────────────────────
+
+export async function getStudentAnalytics(studentId: string): Promise<StudentAnalytics> {
+  try {
+    if (isMock()) {
+      const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
+      return mockStudentAnalytics(studentId);
+    }
+    const res = await fetch(`/api/analytics/students/${studentId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'analytics.student');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'analytics.student'); }
+}
+
+// ── Churn Predictions (P-056) ─────────────────────────────────
+
+export async function getChurnPredictions(academyId: string): Promise<ChurnPrediction[]> {
+  try {
+    if (isMock()) {
+      const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
+      return mockChurnPredictions(academyId);
+    }
+    const res = await fetch(`/api/analytics/churn?academyId=${academyId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'analytics.churn');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'analytics.churn'); }
 }
 
 export async function getClassOccupancy(academyId: string): Promise<OccupancyDTO[]> {

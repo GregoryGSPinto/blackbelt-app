@@ -24,6 +24,9 @@ CREATE INDEX IF NOT EXISTS idx_payments_student_date
 CREATE INDEX IF NOT EXISTS idx_invoices_academy_month
   ON invoices (academy_id, reference_month);
 
+CREATE INDEX IF NOT EXISTS idx_mensalidades_academy_status_month
+  ON mensalidades (academy_id, status, reference_month);
+
 -- ── Attendance ────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_attendance_class_date
   ON attendance (class_id, date DESC);
@@ -54,14 +57,14 @@ CREATE INDEX IF NOT EXISTS idx_events_status
 
 -- ── Content / Videos ──────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_videos_academy_published
-  ON videos (academy_id, published);
+  ON videos (academy_id, is_published);
 
 CREATE INDEX IF NOT EXISTS idx_video_views_student
   ON video_views (student_id, watched_at DESC);
 
 -- ── Notifications ─────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_notifications_user_read
-  ON notifications (user_id, read, created_at DESC);
+  ON notifications (user_id, is_read);
 
 -- ── Store ─────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_store_products_academy

@@ -1,7 +1,12 @@
+// ============================================================
+// BlackBelt v2 — Bulk Operations Service
+// Batch actions for students, attendance, communications, videos
+// ============================================================
+
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
 
-// ── Types ─────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────
 
 export interface BulkResult {
   success: number;
@@ -11,7 +16,7 @@ export interface BulkResult {
 
 export type AttendanceStatus = 'present' | 'absent' | 'justified';
 
-// ── Bulk Operations ─────────────────────────────────────────
+// ── Bulk Update Students ───────────────────────────────────────────
 
 export async function bulkUpdateStudents(
   studentIds: string[],
@@ -19,8 +24,8 @@ export async function bulkUpdateStudents(
 ): Promise<BulkResult> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Bulk update ${studentIds.length} students:`, updates);
-      return { success: studentIds.length, failed: 0, errors: [] };
+      const { mockBulkUpdateStudents } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkUpdateStudents(studentIds, updates);
     }
     const res = await fetch('/api/students/bulk', {
       method: 'PATCH',
@@ -34,14 +39,16 @@ export async function bulkUpdateStudents(
   }
 }
 
+// ── Bulk Send Communication ────────────────────────────────────────
+
 export async function bulkSendCommunication(
   studentIds: string[],
   message: string,
 ): Promise<BulkResult> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Bulk send to ${studentIds.length} students: "${message.slice(0, 50)}..."`);
-      return { success: studentIds.length, failed: 0, errors: [] };
+      const { mockBulkSendCommunication } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkSendCommunication(studentIds, message);
     }
     const res = await fetch('/api/communications/bulk', {
       method: 'POST',
@@ -55,6 +62,8 @@ export async function bulkSendCommunication(
   }
 }
 
+// ── Bulk Mark Attendance ───────────────────────────────────────────
+
 export async function bulkMarkAttendance(
   classId: string,
   date: string,
@@ -62,9 +71,8 @@ export async function bulkMarkAttendance(
 ): Promise<BulkResult> {
   try {
     if (isMock()) {
-      const count = Object.keys(statuses).length;
-      console.log(`[MOCK] Bulk attendance for class ${classId} on ${date}: ${count} students`);
-      return { success: count, failed: 0, errors: [] };
+      const { mockBulkMarkAttendance } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkMarkAttendance(classId, date, statuses);
     }
     const res = await fetch('/api/attendance/bulk', {
       method: 'POST',
@@ -78,11 +86,13 @@ export async function bulkMarkAttendance(
   }
 }
 
+// ── Bulk Publish Videos ────────────────────────────────────────────
+
 export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Bulk publish ${videoIds.length} videos`);
-      return { success: videoIds.length, failed: 0, errors: [] };
+      const { mockBulkPublishVideos } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkPublishVideos(videoIds);
     }
     const res = await fetch('/api/videos/bulk/publish', {
       method: 'POST',
@@ -96,11 +106,13 @@ export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult>
   }
 }
 
+// ── Bulk Unpublish Videos ──────────────────────────────────────────
+
 export async function bulkUnpublishVideos(videoIds: string[]): Promise<BulkResult> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Bulk unpublish ${videoIds.length} videos`);
-      return { success: videoIds.length, failed: 0, errors: [] };
+      const { mockBulkUnpublishVideos } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkUnpublishVideos(videoIds);
     }
     const res = await fetch('/api/videos/bulk/unpublish', {
       method: 'POST',
