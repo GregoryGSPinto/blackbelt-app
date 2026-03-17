@@ -72,3 +72,5 @@ export const QuoteIcon = makeIcon('QuoteIcon', <><path d="M3 21c3 0 7-1 7-8V5c0-
 export const CrownIcon = makeIcon('CrownIcon', <><path d="M2 4l3 12h14l3-12-5 4-5-6-5 6z" /><path d="M3 20h18" /></>);
 export const RocketIcon = makeIcon('RocketIcon', <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></>);
 export const MinusIcon = makeIcon('MinusIcon', <line x1="5" y1="12" x2="19" y2="12" />);
+export const UserPlusIcon = makeIcon('UserPlusIcon', <><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></>);
+export const GraduationCapIcon = makeIcon('GraduationCapIcon', <><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" /></>);

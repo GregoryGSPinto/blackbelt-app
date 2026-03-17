@@ -1,0 +1,78 @@
+import { isMock } from '@/lib/env';
+import { ServiceError, handleServiceError } from '@/lib/api/errors';
+
+export type CategoriaEstoque = 'kimono' | 'rashguard' | 'camiseta' | 'acessorio' | 'faixa' | 'outro';
+export type StatusEstoque = 'ok' | 'baixo' | 'zerado';
+export type TipoMovimentacao = 'entrada' | 'saida' | 'ajuste';
+
+export interface ProdutoEstoque {
+  id: string;
+  nome: string;
+  categoria: CategoriaEstoque;
+  tamanho?: string;
+  cor?: string;
+  quantidadeAtual: number;
+  estoqueMinimo: number;
+  precoVenda: number;
+  precoCusto: number;
+  ultimaMovimentacao: string;
+  status: StatusEstoque;
+}
+
+export interface MovimentacaoEstoque {
+  id: string;
+  produtoId: string;
+  tipo: TipoMovimentacao;
+  quantidade: number;
+  motivo: string;
+  responsavel: string;
+  data: string;
+}
+
+export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
+  try {
+    if (isMock()) {
+      const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
+      return mockGetEstoque(academyId);
+    }
+    const res = await fetch(`/api/estoque?academyId=${academyId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'estoque.list');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'estoque.list'); }
+}
+
+export async function updateEstoque(produtoId: string, quantidade: number, tipo: TipoMovimentacao, motivo: string): Promise<MovimentacaoEstoque> {
+  try {
+    if (isMock()) {
+      const { mockUpdateEstoque } = await import('@/lib/mocks/estoque.mock');
+      return mockUpdateEstoque(produtoId, quantidade, tipo, motivo);
+    }
+    const res = await fetch(`/api/estoque/${produtoId}/movimentacao`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantidade, tipo, motivo }) });
+    if (!res.ok) throw new ServiceError(res.status, 'estoque.update');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'estoque.update'); }
+}
+
+export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoEstoque[]> {
+  try {
+    if (isMock()) {
+      const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
+      return mockGetMovimentacoes(produtoId);
+    }
+    const res = await fetch(`/api/estoque/${produtoId}/movimentacoes`);
+    if (!res.ok) throw new ServiceError(res.status, 'estoque.movimentacoes');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'estoque.movimentacoes'); }
+}
+
+export async function getAlertasEstoqueBaixo(academyId: string): Promise<ProdutoEstoque[]> {
+  try {
+    if (isMock()) {
+      const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
+      return mockGetAlertasEstoqueBaixo(academyId);
+    }
+    const res = await fetch(`/api/estoque/alertas?academyId=${academyId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'estoque.alertas');
+    return res.json();
+  } catch (error) { handleServiceError(error, 'estoque.alertas'); }
+}

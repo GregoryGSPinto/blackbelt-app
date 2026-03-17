@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getDashboardData } from '@/lib/api/admin-dashboard.service';
 import type { DashboardData } from '@/lib/types/admin-dashboard';
+import { getDailyBriefing } from '@/lib/api/painel-dia.service';
+import type { DailyBriefingDTO } from '@/lib/api/painel-dia.service';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -371,6 +373,7 @@ function DashboardSkeleton() {
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [briefing, setBriefing] = useState<DailyBriefingDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
@@ -389,6 +392,8 @@ export default function AdminDashboardPage() {
       try {
         const d = await getDashboardData('academy-1');
         setData(d);
+        const b = await getDailyBriefing('academy-1');
+        setBriefing(b);
       } catch {
         // handled by service
       } finally {
@@ -433,8 +438,18 @@ export default function AdminDashboardPage() {
           {getGreetingLabel(greeting.time_of_day)}, {greeting.admin_name}.
         </h1>
         <p
-          className="mt-2 italic"
+          className="mt-2"
           style={{ fontSize: '16px', color: 'var(--bb-ink-60)', maxWidth: '500px' }}
+        >
+          {briefing && briefing.alunosRisco.length > 0
+            ? `${briefing.alunosRisco.length} alunos precisam da sua atencao.`
+            : briefing && briefing.aniversariantes.length > 0
+              ? `\uD83C\uDF82 ${briefing.aniversariantes[0].nome} faz aniversario hoje!`
+              : `Sua academia esta saudavel hoje. ${briefing?.resumo.aulasHoje ?? 0} aulas agendadas.`}
+        </p>
+        <p
+          className="mt-1 italic"
+          style={{ fontSize: '14px', color: 'var(--bb-ink-40)', maxWidth: '500px' }}
         >
           &ldquo;{greeting.motivation_quote}&rdquo;
         </p>
@@ -466,6 +481,197 @@ export default function AdminDashboardPage() {
           {reportExporting ? 'Gerando...' : 'Exportar PDF'}
         </button>
       </section>
+
+      {/* ═══ SECTION: HOJE (Daily Briefing) ═══════════════════════════ */}
+      {briefing && (
+        <section className="animate-reveal space-y-4">
+          <h2
+            className="text-lg font-bold"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            HOJE
+          </h2>
+
+          {/* Aulas de Hoje */}
+          <div
+            className="overflow-hidden"
+            style={{
+              background: 'var(--bb-depth-2)',
+              border: '1px solid var(--bb-glass-border)',
+              borderRadius: 'var(--bb-radius-lg)',
+            }}
+          >
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                {'\uD83D\uDCDA'} Aulas de Hoje ({briefing.aulasHoje.length})
+              </h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                    <th className="px-4 py-2 text-left text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>Horario</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>Turma</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>Professor</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>Alunos</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>Sala</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {briefing.aulasHoje.map((aula) => (
+                    <tr key={aula.id} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                      <td className="px-4 py-2 font-mono text-sm font-semibold" style={{ color: 'var(--bb-brand)' }}>{aula.horario}</td>
+                      <td className="px-4 py-2 text-sm" style={{ color: 'var(--bb-ink-100)' }}>{aula.turma}</td>
+                      <td className="px-4 py-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>{aula.professor}</td>
+                      <td className="px-4 py-2 text-right text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{aula.alunosEsperados}</td>
+                      <td className="px-4 py-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>{aula.sala}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Aniversariantes */}
+          {briefing.aniversariantes.length > 0 && (
+            <div
+              className="p-4"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
+            >
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                {'\uD83C\uDF82'} Aniversariantes
+              </h3>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {briefing.aniversariantes.map((a) => (
+                  <div key={a.id} className="flex items-center gap-2">
+                    <div
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style={{ background: 'var(--bb-brand)' }}
+                    >
+                      {a.nome.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{a.nome}</p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{a.idade} anos</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Atencao: Pagamentos vencendo + Alunos em risco */}
+          {(briefing.vencendoAmanha.length > 0 || briefing.alunosRisco.length > 0) && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Pagamentos vencendo */}
+              {briefing.vencendoAmanha.length > 0 && (
+                <div
+                  className="p-4"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    border: '1px solid #F59E0B',
+                    borderRadius: 'var(--bb-radius-lg)',
+                  }}
+                >
+                  <h3 className="text-sm font-semibold" style={{ color: '#F59E0B' }}>
+                    {'\u26A0\uFE0F'} Pagamentos Vencendo
+                  </h3>
+                  <div className="mt-2 space-y-2">
+                    {briefing.vencendoAmanha.map((v) => (
+                      <div key={v.id} className="flex items-center justify-between">
+                        <span className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>{v.aluno}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm font-semibold" style={{ color: '#F59E0B' }}>
+                            R$ {v.valor}
+                          </span>
+                          <span
+                            className="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                            style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B' }}
+                          >
+                            {v.diasAtraso}d
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Alunos em risco */}
+              {briefing.alunosRisco.length > 0 && (
+                <div
+                  className="p-4"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    border: '1px solid var(--bb-error)',
+                    borderRadius: 'var(--bb-radius-lg)',
+                  }}
+                >
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-error)' }}>
+                    {'\uD83D\uDEA8'} Alunos em Risco
+                  </h3>
+                  <div className="mt-2 space-y-2">
+                    {briefing.alunosRisco.map((a) => (
+                      <div key={a.id} className="flex items-center justify-between">
+                        <span className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>{a.nome}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{a.diasAusente}d ausente</span>
+                          <span
+                            className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
+                            style={{ background: getBeltColor(a.faixa) }}
+                          >
+                            {a.faixa}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Graduacoes Prontas */}
+          {briefing.graduacoesProntas.length > 0 && (
+            <div
+              className="p-4"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid #A855F7',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
+            >
+              <h3 className="text-sm font-semibold" style={{ color: '#A855F7' }}>
+                {'\uD83E\uDD4B'} Graduacoes Prontas
+              </h3>
+              <div className="mt-2 space-y-2">
+                {briefing.graduacoesProntas.map((g) => (
+                  <div key={g.id} className="flex items-center gap-3">
+                    <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{g.aluno}</span>
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="inline-block h-3 w-3 rounded-full"
+                        style={{ background: getBeltColor(g.faixaAtual), border: g.faixaAtual === 'branca' ? '1px solid var(--bb-ink-20)' : 'none' }}
+                      />
+                      <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{g.faixaAtual}</span>
+                      <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{'\u2192'}</span>
+                      <span
+                        className="inline-block h-3 w-3 rounded-full"
+                        style={{ background: getBeltColor(g.proximaFaixa) }}
+                      />
+                      <span className="text-xs font-semibold" style={{ color: '#A855F7' }}>{g.proximaFaixa}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ═══ SECTION 2: HEADLINES ══════════════════════════════════════ */}
       <section ref={headlinesObs.ref} className="animate-reveal">

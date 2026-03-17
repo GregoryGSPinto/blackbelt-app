@@ -29,6 +29,11 @@ import {
   ShoppingBagIcon,
   MegaphoneIcon,
   EyeIcon,
+  UserPlusIcon,
+  AlertTriangleIcon,
+  FileTextIcon,
+  PackageIcon,
+  GraduationCapIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
@@ -36,22 +41,68 @@ interface AdminShellProps {
   children: React.ReactNode;
 }
 
-const sidebarItems = [
-  { href: '/admin', label: 'Dashboard', icon: HomeIcon },
-  { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon },
-  { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon },
-  { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon },
-  { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
-  { href: '/admin/retencao', label: 'Retencao', icon: HeartIcon },
-  { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon },
-  { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon },
-  { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon },
-  { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon },
-  { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon },
-  { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon },
-  { href: '/admin/auditoria', label: 'Auditoria', icon: EyeIcon },
-  { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
-  { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
+interface SidebarGroup {
+  label: string;
+  items: { href: string; label: string; icon: typeof HomeIcon; badge?: number }[];
+}
+
+const sidebarGroups: SidebarGroup[] = [
+  {
+    label: 'GESTAO',
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: HomeIcon },
+      { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon },
+      { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon },
+      { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon },
+      { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon },
+    ],
+  },
+  {
+    label: 'COMERCIAL',
+    items: [
+      { href: '/admin/aula-experimental', label: 'Aula Experimental', icon: UserPlusIcon },
+      { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
+    ],
+  },
+  {
+    label: 'FINANCEIRO',
+    items: [
+      { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
+      { href: '/admin/inadimplencia', label: 'Inadimplencia', icon: AlertTriangleIcon },
+      { href: '/admin/contratos', label: 'Contratos', icon: FileTextIcon },
+    ],
+  },
+  {
+    label: 'CONTEUDO',
+    items: [
+      { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon },
+      { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon },
+      { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon },
+    ],
+  },
+  {
+    label: 'LOJA',
+    items: [
+      { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon },
+      { href: '/admin/estoque', label: 'Estoque', icon: PackageIcon },
+    ],
+  },
+  {
+    label: 'RELATORIOS',
+    items: [
+      { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon },
+      { href: '/admin/relatorio-professores', label: 'Professores', icon: GraduationCapIcon },
+      { href: '/admin/retencao', label: 'Retencao', icon: HeartIcon },
+      { href: '/admin/auditoria', label: 'Auditoria', icon: EyeIcon },
+    ],
+  },
+  {
+    label: 'CONFIGURACAO',
+    items: [
+      { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
+      { href: '/admin/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
+    ],
+  },
 ];
 
 // ── Mock notifications ──────────────────────────────────────────────────
@@ -166,55 +217,73 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               Academia Admin
             </span>
           </div>
-          <nav className="flex-1 flex flex-col gap-[2px] p-3">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-              const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 text-sm transition-colors"
+          <nav className="flex-1 overflow-y-auto p-3">
+            {sidebarGroups.map((group, gi) => (
+              <div key={group.label}>
+                <p
+                  className="uppercase tracking-widest font-semibold"
                   style={{
-                    padding: '10px 16px',
-                    borderRadius: 'var(--bb-radius-sm)',
-                    ...(isActive
-                      ? {
-                          background: 'var(--bb-brand-surface)',
-                          color: 'var(--bb-brand)',
-                          fontWeight: 600,
-                        }
-                      : {
-                          color: 'var(--bb-ink-60)',
-                        }),
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'var(--bb-depth-4)';
-                      e.currentTarget.style.color = 'var(--bb-ink-80)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = 'var(--bb-ink-60)';
-                    }
+                    fontSize: '10px',
+                    color: 'var(--bb-ink-30)',
+                    marginBottom: '4px',
+                    marginTop: gi === 0 ? '0' : '16px',
+                    paddingLeft: '16px',
                   }}
                 >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
-                  {showBadge && (
-                    <span
-                      className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                      style={{ background: '#F59E0B' }}
-                    >
-                      {billingAlertCount}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+                  {group.label}
+                </p>
+                <div className="flex flex-col gap-[2px]">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
+                    const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-3 text-sm transition-colors"
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: 'var(--bb-radius-sm)',
+                          ...(isActive
+                            ? {
+                                background: 'var(--bb-brand-surface)',
+                                color: 'var(--bb-brand)',
+                                fontWeight: 600,
+                              }
+                            : {
+                                color: 'var(--bb-ink-60)',
+                              }),
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'var(--bb-depth-4)';
+                            e.currentTarget.style.color = 'var(--bb-ink-80)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.color = 'var(--bb-ink-60)';
+                          }
+                        }}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {item.label}
+                        {showBadge && (
+                          <span
+                            className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                            style={{ background: '#F59E0B' }}
+                          >
+                            {billingAlertCount}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
         </aside>
 
@@ -243,56 +312,74 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                   Academia Admin
                 </span>
               </div>
-              <nav className="flex flex-col gap-[2px] p-3">
-                {sidebarItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-                  const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className="flex items-center gap-3 text-sm transition-colors"
+              <nav className="overflow-y-auto p-3">
+                {sidebarGroups.map((group, gi) => (
+                  <div key={group.label}>
+                    <p
+                      className="uppercase tracking-widest font-semibold"
                       style={{
-                        padding: '10px 16px',
-                        borderRadius: 'var(--bb-radius-sm)',
-                        ...(isActive
-                          ? {
-                              background: 'var(--bb-brand-surface)',
-                              color: 'var(--bb-brand)',
-                              fontWeight: 600,
-                            }
-                          : {
-                              color: 'var(--bb-ink-60)',
-                            }),
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'var(--bb-depth-4)';
-                          e.currentTarget.style.color = 'var(--bb-ink-80)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.color = 'var(--bb-ink-60)';
-                        }
+                        fontSize: '10px',
+                        color: 'var(--bb-ink-30)',
+                        marginBottom: '4px',
+                        marginTop: gi === 0 ? '0' : '16px',
+                        paddingLeft: '16px',
                       }}
                     >
-                      <Icon className="h-5 w-5" />
-                      {item.label}
-                      {showBadge && (
-                        <span
-                          className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                          style={{ background: '#F59E0B' }}
-                        >
-                          {billingAlertCount}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
+                      {group.label}
+                    </p>
+                    <div className="flex flex-col gap-[2px]">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
+                        const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className="flex items-center gap-3 text-sm transition-colors"
+                            style={{
+                              padding: '10px 16px',
+                              borderRadius: 'var(--bb-radius-sm)',
+                              ...(isActive
+                                ? {
+                                    background: 'var(--bb-brand-surface)',
+                                    color: 'var(--bb-brand)',
+                                    fontWeight: 600,
+                                  }
+                                : {
+                                    color: 'var(--bb-ink-60)',
+                                  }),
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isActive) {
+                                e.currentTarget.style.background = 'var(--bb-depth-4)';
+                                e.currentTarget.style.color = 'var(--bb-ink-80)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isActive) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--bb-ink-60)';
+                              }
+                            }}
+                          >
+                            <Icon className="h-5 w-5" />
+                            {item.label}
+                            {showBadge && (
+                              <span
+                                className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                                style={{ background: '#F59E0B' }}
+                              >
+                                {billingAlertCount}
+                              </span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </nav>
             </aside>
           </div>
