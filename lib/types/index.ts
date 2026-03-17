@@ -10,3 +10,4 @@ export * from './invite';
 export * from './superadmin';
 export * from './billing';
 export * from './content-management';
+export * from './admin-dashboard';
