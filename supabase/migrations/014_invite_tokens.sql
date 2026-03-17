@@ -64,9 +64,11 @@ CREATE POLICY "Admin manages own academy invite tokens"
   FOR ALL
   USING (
     academy_id IN (
-      SELECT p.academy_id FROM public.profiles p
+      SELECT m.academy_id FROM public.memberships m
+      JOIN public.profiles p ON p.id = m.profile_id
       WHERE p.user_id = auth.uid()
-      AND p.role IN ('admin')
+      AND m.role IN ('admin', 'gestor')
+      AND m.status = 'active'
     )
   );
 
@@ -84,9 +86,11 @@ CREATE POLICY "Admin views own academy invite uses"
     token_id IN (
       SELECT it.id FROM public.invite_tokens it
       WHERE it.academy_id IN (
-        SELECT p.academy_id FROM public.profiles p
+        SELECT m.academy_id FROM public.memberships m
+        JOIN public.profiles p ON p.id = m.profile_id
         WHERE p.user_id = auth.uid()
-        AND p.role IN ('admin')
+        AND m.role IN ('admin', 'gestor')
+        AND m.status = 'active'
       )
     )
   );

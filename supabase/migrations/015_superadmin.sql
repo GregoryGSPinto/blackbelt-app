@@ -20,6 +20,25 @@ CREATE TABLE IF NOT EXISTS public.plans (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Add missing columns to plans table (if it already exists from a prior migration)
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS slug VARCHAR(30) UNIQUE;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS max_students INTEGER NOT NULL DEFAULT 50;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS max_professors INTEGER NOT NULL DEFAULT 5;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS max_classes INTEGER NOT NULL DEFAULT 10;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS has_streaming BOOLEAN DEFAULT false;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS has_store BOOLEAN DEFAULT false;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS has_events BOOLEAN DEFAULT false;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS has_financeiro BOOLEAN DEFAULT false;
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS price_monthly DECIMAL(10,2);
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS price_yearly DECIMAL(10,2);
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+
+-- Make academy_id nullable (SaaS plans are global, not per-academy)
+ALTER TABLE public.plans ALTER COLUMN academy_id DROP NOT NULL;
+
+-- Backfill slug from name for existing plans that have null slug
+UPDATE public.plans SET slug = lower(replace(name, ' ', '_')) WHERE slug IS NULL;
+
 -- Expandir tabela academies com campos SaaS
 ALTER TABLE public.academies ADD COLUMN IF NOT EXISTS plan_id UUID REFERENCES public.plans(id);
 ALTER TABLE public.academies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'
@@ -60,13 +79,8 @@ CREATE TABLE IF NOT EXISTS public.academy_onboard_uses (
 CREATE INDEX IF NOT EXISTS idx_onboard_tokens_token ON public.academy_onboard_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_onboard_uses_token ON public.academy_onboard_uses(token_id);
 
--- Seed de planos
-INSERT INTO public.plans (name, slug, max_students, max_professors, max_classes, has_streaming, has_store, has_events, has_financeiro, price_monthly, price_yearly)
-VALUES
-  ('Starter', 'starter', 30, 3, 5, false, false, false, false, 99.90, 999.00),
-  ('Pro', 'pro', 100, 10, 20, true, true, false, true, 199.90, 1999.00),
-  ('Enterprise', 'enterprise', 500, 50, 100, true, true, true, true, 499.90, 4999.00)
-ON CONFLICT (slug) DO NOTHING;
+-- Seed de planos: skipped — existing plans already seeded via migration 008/009.
+-- Additional SaaS plans handled by seed script.
 
 -- RLS
 ALTER TABLE public.plans ENABLE ROW LEVEL SECURITY;

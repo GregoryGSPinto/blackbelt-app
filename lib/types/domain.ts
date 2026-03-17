@@ -11,11 +11,14 @@
 export enum Role {
   Superadmin = 'superadmin',
   Admin = 'admin',
+  Gestor = 'gestor',
   Professor = 'professor',
+  Recepcao = 'recepcao',
   AlunoAdulto = 'aluno_adulto',
   AlunoTeen = 'aluno_teen',
   AlunoKids = 'aluno_kids',
   Responsavel = 'responsavel',
+  Franqueador = 'franqueador',
 }
 
 /** Graduação de faixa — ordem crescente. Belt só sobe, nunca desce. */

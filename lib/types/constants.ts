@@ -63,9 +63,12 @@ export const SESSION_TIMEOUT_MINUTES = 30 as const;
 export const ROLE_DASHBOARD: Readonly<Record<Role, string>> = {
   [Role.Superadmin]: '/superadmin',
   [Role.Admin]: '/admin',
+  [Role.Gestor]: '/admin',
   [Role.Professor]: '/professor',
+  [Role.Recepcao]: '/recepcao',
   [Role.AlunoAdulto]: '/dashboard',
   [Role.AlunoTeen]: '/teen',
   [Role.AlunoKids]: '/kids',
   [Role.Responsavel]: '/parent',
+  [Role.Franqueador]: '/franqueador',
 };

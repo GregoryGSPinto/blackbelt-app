@@ -26,6 +26,7 @@ import {
 import { ReportViewer } from '@/components/reports/ReportViewer';
 import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import type { MonthlyReportData } from '@/lib/types/report';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
@@ -390,9 +391,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const d = await getDashboardData('academy-1');
+        const d = await getDashboardData(getActiveAcademyId());
         setData(d);
-        const b = await getDailyBriefing('academy-1');
+        const b = await getDailyBriefing(getActiveAcademyId());
         setBriefing(b);
       } catch {
         // handled by service
@@ -462,7 +463,7 @@ export default function AdminDashboardPage() {
           onClick={async () => {
             setReportExporting(true);
             try {
-              const report = await generateMonthlyReport('academy-1', 'Marco 2026');
+              const report = await generateMonthlyReport(getActiveAcademyId(), 'Marco 2026');
               setMonthlyReportData(report);
             } catch {
               // handled

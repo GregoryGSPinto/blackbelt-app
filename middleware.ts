@@ -6,21 +6,26 @@ const PUBLIC_PATHS = ['/login', '/cadastro', '/esqueci-senha', '/selecionar-perf
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',
   admin: '/admin',
+  gestor: '/admin',
   professor: '/professor',
+  recepcao: '/recepcao',
   aluno_adulto: '/dashboard',
   aluno_teen: '/teen',
   aluno_kids: '/kids',
   responsavel: '/parent',
+  franqueador: '/franqueador',
 };
 
 const ROUTE_ROLE: Record<string, string> = {
   '/superadmin': 'superadmin',
   '/admin': 'admin',
   '/professor': 'professor',
+  '/recepcao': 'recepcao',
   '/dashboard': 'aluno_adulto',
   '/teen': 'aluno_teen',
   '/kids': 'aluno_kids',
   '/parent': 'responsavel',
+  '/franqueador': 'franqueador',
 };
 
 function decodeTokenPayload(token: string): Record<string, string | number> | null {

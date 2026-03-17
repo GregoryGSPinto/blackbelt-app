@@ -146,8 +146,21 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
       .single();
     if (error) throw new ServiceError(404, 'auth.selectProfile', error.message);
 
-    // Store selected role in cookie for middleware
-    document.cookie = `bb-active-role=${profile.role};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+    // Get academy_id from membership
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', profileId)
+      .eq('status', 'active')
+      .limit(1)
+      .maybeSingle();
+
+    // Store selected role and academy in cookies for middleware/services
+    const cookieOpts = ';path=/;max-age=' + (60 * 60 * 24 * 30) + ';samesite=lax';
+    document.cookie = `bb-active-role=${profile.role}${cookieOpts}`;
+    if (membership?.academy_id) {
+      document.cookie = `bb-academy-id=${membership.academy_id}${cookieOpts}`;
+    }
 
     const { data: sessionData } = await supabase.auth.getSession();
 
