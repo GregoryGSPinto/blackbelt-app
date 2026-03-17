@@ -1,0 +1,70 @@
+import { isMock } from '@/lib/env';
+import { handleServiceError } from '@/lib/api/errors';
+
+// ── Types ─────────────────────────────────────────────────────
+
+export interface ContentRecommendation {
+  id: string;
+  title: string;
+  type: 'video' | 'quiz' | 'series';
+  thumbnailUrl: string;
+  reason: string;
+  relevanceScore: number;
+  duration?: string;
+}
+
+export interface RecommendationContext {
+  belt: string;
+  recentQuizScores: { topic: string; score: number }[];
+  watchedVideoIds: string[];
+  classId: string;
+}
+
+// ── Service ───────────────────────────────────────────────────
+
+export async function getRecommendations(
+  studentId: string,
+  limit = 10,
+): Promise<ContentRecommendation[]> {
+  try {
+    if (isMock()) {
+      const recs: ContentRecommendation[] = [
+        { id: 'v-1', title: 'Raspagem de Meia Guarda — Técnica Completa', type: 'video', thumbnailUrl: '', reason: 'Baseado na sua faixa (Azul)', relevanceScore: 95, duration: '12:30' },
+        { id: 'v-2', title: 'Defesa de Kimura — 5 Variações', type: 'video', thumbnailUrl: '', reason: 'Alunos similares assistiram', relevanceScore: 88, duration: '8:45' },
+        { id: 'q-1', title: 'Quiz: Guarda Fechada', type: 'quiz', thumbnailUrl: '', reason: 'Reforce seu conhecimento (score baixo)', relevanceScore: 92 },
+        { id: 's-1', title: 'Série: Passagem de Guarda Completa', type: 'series', thumbnailUrl: '', reason: 'Novo conteúdo para sua faixa', relevanceScore: 85, duration: '45:00' },
+        { id: 'v-3', title: 'Triângulo do Fundo — Setup e Finalização', type: 'video', thumbnailUrl: '', reason: 'Recomendado pelo seu professor', relevanceScore: 90, duration: '10:15' },
+        { id: 'v-4', title: 'Armlock da Guarda — Detalhes Avançados', type: 'video', thumbnailUrl: '', reason: 'Popular na sua turma', relevanceScore: 78, duration: '7:20' },
+        { id: 'q-2', title: 'Quiz: Finalizações das Costas', type: 'quiz', thumbnailUrl: '', reason: 'Complete sua trilha', relevanceScore: 75 },
+        { id: 'v-5', title: 'Berimbolo — Passo a Passo', type: 'video', thumbnailUrl: '', reason: 'Conteúdo mais assistido esta semana', relevanceScore: 70, duration: '15:00' },
+      ];
+      return recs.slice(0, limit);
+    }
+
+    const res = await fetch(`/api/recommendations?studentId=${studentId}&limit=${limit}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'recommendation.get');
+  }
+}
+
+export async function markRecommendationSeen(
+  studentId: string,
+  contentId: string,
+): Promise<void> {
+  try {
+    if (isMock()) {
+      console.log(`[MOCK] Recommendation ${contentId} marked as seen by ${studentId}`);
+      return;
+    }
+    const res = await fetch('/api/recommendations/seen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, contentId }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  } catch (error) {
+    handleServiceError(error, 'recommendation.markSeen');
+  }
+}
