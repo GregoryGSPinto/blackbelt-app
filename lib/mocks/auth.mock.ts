@@ -72,6 +72,7 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-thiago', email: 'thiago@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   // Super Admin
   { id: 'user-superadmin', email: 'super@blackbelt.app', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-gregory', email: 'gregoryguimaraes12@gmail.com', password_hash: 'mock', raw_password: '@Greg1994', ...AUDIT },
 ];
 
 const MOCK_PROFILES: Profile[] = [
@@ -96,6 +97,7 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-thiago', user_id: 'user-thiago', role: Role.Professor, display_name: 'Thiago Nakamura', avatar: null, ...AUDIT },
   // Super Admin
   { id: 'prof-superadmin', user_id: 'user-superadmin', role: Role.Superadmin, display_name: 'Gregory (Super Admin)', avatar: null, ...AUDIT },
+  { id: 'prof-gregory', user_id: 'user-gregory', role: Role.Superadmin, display_name: 'Gregory Guimarães', avatar: null, ...AUDIT },
 ];
 
 export function getProfilesByUserId(userId: string): Profile[] {
