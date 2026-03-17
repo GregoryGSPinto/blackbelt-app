@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { BottomNav } from './BottomNav';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
@@ -16,6 +17,7 @@ import {
   CalendarCheckIcon,
   AlertTriangleIcon,
   CheckSquareIcon,
+  UserIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import type { NavItem } from './BottomNav';
@@ -288,6 +290,21 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
                       <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                         Recepcionista
                       </p>
+                    </div>
+
+                    {/* Profile link */}
+                    <div style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                      <Link
+                        href="/recepcao"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                        style={{ color: 'var(--bb-ink-80)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <UserIcon className="h-4 w-4" />
+                        Meu Painel
+                      </Link>
                     </div>
 
                     {/* Profile Switcher */}

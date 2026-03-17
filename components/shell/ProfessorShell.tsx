@@ -1,12 +1,13 @@
 'use client';
 
-import { forwardRef, useState, useEffect, useCallback } from 'react';
+import { forwardRef, useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { getAlertasCount } from '@/lib/api/professor-alertas.service';
 import {
   HomeIcon,
@@ -26,6 +27,7 @@ import {
   GraduationCapIcon,
   XIcon,
   BellIcon,
+  LogOutIcon,
 } from '@/components/shell/icons';
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -133,9 +135,12 @@ function isActive(pathname: string, href: string): boolean {
 const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
   function ProfessorShell({ children }, ref) {
     const pathname = usePathname();
-    const { profile } = useAuth();
+    const { profile, logout } = useAuth();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [alertCount, setAlertCount] = useState(0);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
     const userName = profile?.display_name ?? 'Professor';
 
@@ -159,6 +164,28 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
         document.body.style.overflow = '';
       };
     }, [drawerOpen]);
+
+    // Close user menu on click outside
+    const handleClickOutside = useCallback((e: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node) &&
+        userMenuButtonRef.current &&
+        !userMenuButtonRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }, []);
+
+    useEffect(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [handleClickOutside]);
+
+    async function handleLogout() {
+      setUserMenuOpen(false);
+      await logout();
+    }
 
     const handleDrawerLinkClick = useCallback(() => {
       setDrawerOpen(false);
@@ -312,26 +339,92 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
               <ThemeToggle />
             </div>
 
-            {/* User card */}
-            <div
-              className="mx-3 mb-4 flex items-center gap-3 rounded-lg p-3"
-              style={{ background: 'var(--bb-depth-3)' }}
-            >
-              <Avatar name={userName} size="sm" />
-              <div className="min-w-0 flex-1">
-                <p
-                  className="truncate text-sm font-medium"
-                  style={{ color: 'var(--bb-ink-100)' }}
+            {/* User card with menu */}
+            <div className="relative mx-3 mb-4">
+              <button
+                ref={userMenuButtonRef}
+                onClick={() => setUserMenuOpen((prev) => !prev)}
+                className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors"
+                style={{ background: userMenuOpen ? 'var(--bb-depth-4)' : 'var(--bb-depth-3)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                onMouseLeave={(e) => {
+                  if (!userMenuOpen) e.currentTarget.style.background = 'var(--bb-depth-3)';
+                }}
+              >
+                <Avatar name={userName} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="truncate text-sm font-medium"
+                    style={{ color: 'var(--bb-ink-100)' }}
+                  >
+                    {userName}
+                  </p>
+                  <p
+                    className="text-[10px] font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--bb-brand)' }}
+                  >
+                    Professor
+                  </p>
+                </div>
+              </button>
+
+              {userMenuOpen && (
+                <div
+                  ref={userMenuRef}
+                  className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden"
+                  style={{
+                    background: 'var(--bb-depth-3)',
+                    border: '1px solid var(--bb-glass-border)',
+                    boxShadow: 'var(--bb-shadow-lg)',
+                    borderRadius: 'var(--bb-radius-lg)',
+                    animation: 'scaleIn 0.15s ease-out',
+                    transformOrigin: 'bottom left',
+                  }}
                 >
-                  {userName}
-                </p>
-                <p
-                  className="text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--bb-brand)' }}
-                >
-                  Professor
-                </p>
-              </div>
+                  {/* Profile & Settings links */}
+                  <div style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                    <Link
+                      href="/professor/perfil"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-ink-80)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <UserIcon className="h-4 w-4" />
+                      Meu Perfil
+                    </Link>
+                    <Link
+                      href="/professor/configuracoes"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-ink-80)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <SettingsIcon className="h-4 w-4" />
+                      Configurações
+                    </Link>
+                  </div>
+
+                  {/* Profile Switcher */}
+                  <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
+
+                  {/* Logout */}
+                  <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-danger, var(--bb-brand))' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <LogOutIcon className="h-4 w-4" />
+                      Sair
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
 
