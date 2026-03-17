@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { HomeIcon, CalendarIcon, UsersIcon, MessageIcon, UserIcon } from './icons';
+import { HomeIcon, CalendarIcon, UsersIcon, VideoIcon, UserIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
 interface ProfessorShellProps {
@@ -15,7 +15,7 @@ const navItems: NavItem[] = [
   { href: '/professor', label: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
   { href: '/professor/turmas', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" /> },
   { href: '/professor/alunos', label: 'Alunos', icon: <UsersIcon className="h-5 w-5" /> },
-  { href: '/professor/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" /> },
+  { href: '/professor/conteudo', label: 'Conteudo', icon: <VideoIcon className="h-5 w-5" /> },
   { href: '/professor/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" /> },
 ];
 
