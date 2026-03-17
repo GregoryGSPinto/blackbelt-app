@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import type { AcademyFull } from '@/lib/types';
 import { getAcademy, suspendAcademy, reactivateAcademy } from '@/lib/api/superadmin.service';
+import { startImpersonation } from '@/lib/api/superadmin-impersonate.service';
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   active: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'Ativa' },
@@ -28,6 +29,7 @@ function formatDate(iso: string): string {
 
 export default function AcademyDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { toast } = useToast();
   const [academy, setAcademy] = useState<AcademyFull | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,6 +127,19 @@ export default function AcademyDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            onClick={async () => {
+              try {
+                await startImpersonation(academy.id);
+                toast('Entrando como admin...', 'info');
+                router.push('/admin');
+              } catch { toast('Erro ao impersonar.', 'error'); }
+            }}
+            style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}
+          >
+            Entrar como Admin
+          </Button>
           <Button
             variant="ghost"
             onClick={handleToggleStatus}

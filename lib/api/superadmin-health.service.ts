@@ -1,0 +1,70 @@
+import { isMock } from '@/lib/env';
+import { handleServiceError } from '@/lib/api/errors';
+
+export interface HealthFator {
+  nome: string;
+  peso: number;
+  valor: number;
+  detalhe: string;
+}
+
+export interface AcademiaHealthScore {
+  academiaId: string;
+  academiaNome: string;
+  plano: string;
+  score: number;
+  tendencia: 'subindo' | 'estavel' | 'caindo';
+  fatores: HealthFator[];
+  ultimoLoginAdmin: string;
+  alunosAtivos: number;
+  alunosTotal: number;
+  inadimplencia: number;
+  featuresUsadas: string[];
+  mesesNaPlataforma: number;
+  recomendacao: string;
+}
+
+export interface HealthOverview {
+  mediaGeral: number;
+  distribuicao: { faixa: string; quantidade: number }[];
+  academiasEmRisco: number;
+  academiasSaudaveis: number;
+  evolucaoMedia: { mes: string; score: number }[];
+}
+
+export async function getHealthOverview(): Promise<HealthOverview> {
+  try {
+    if (isMock()) {
+      const { mockGetHealthOverview } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockGetHealthOverview();
+    }
+    const res = await fetch('/api/superadmin/health/overview');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) { handleServiceError(error, 'superadmin-health.getOverview'); }
+}
+
+export async function listAcademiaHealthScores(filtro?: string): Promise<AcademiaHealthScore[]> {
+  try {
+    if (isMock()) {
+      const { mockListAcademiaHealthScores } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockListAcademiaHealthScores(filtro);
+    }
+    const params = filtro ? `?filtro=${filtro}` : '';
+    const res = await fetch(`/api/superadmin/health/scores${params}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) { handleServiceError(error, 'superadmin-health.listScores'); }
+}
+
+export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHealthScore> {
+  try {
+    if (isMock()) {
+      const { mockGetAcademiaHealth } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockGetAcademiaHealth(academiaId);
+    }
+    const res = await fetch(`/api/superadmin/health/${academiaId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  } catch (error) { handleServiceError(error, 'superadmin-health.getAcademia'); }
+}

@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { CommandPalette } from '@/components/shared/CommandPalette';
@@ -36,6 +36,7 @@ import {
   GraduationCapIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
+import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -126,6 +127,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
   function AdminShell({ children }, ref) {
     const pathname = usePathname();
+    const router = useRouter();
     const { profile, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -133,6 +135,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
     const [billingAlertCount, setBillingAlertCount] = useState(0);
+    const [impersonating, setImpersonating] = useState(false);
+    const [impersonateAcademia, setImpersonateAcademia] = useState('');
 
     const notifRef = useRef<HTMLDivElement>(null);
     const notifButtonRef = useRef<HTMLButtonElement>(null);
@@ -146,6 +150,16 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
       getAlerts('academy-1')
         .then((alerts) => setBillingAlertCount(alerts.length))
         .catch(() => {});
+    }, []);
+
+    // ── Impersonation check ──────────────────────────────────────────
+    useEffect(() => {
+      const imp = isImpersonating();
+      setImpersonating(imp);
+      if (imp) {
+        const info = getImpersonationInfo();
+        if (info) setImpersonateAcademia(info.academiaNome);
+      }
     }, []);
 
     // ── Click outside handlers ─────────────────────────────────────────
@@ -190,8 +204,32 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const userName = profile?.display_name ?? 'Admin';
     const userRole = profile?.role ?? 'admin';
 
+    async function handleStopImpersonation() {
+      await stopImpersonation();
+      setImpersonating(false);
+      setImpersonateAcademia('');
+      router.push('/superadmin');
+    }
+
     return (
-      <div ref={ref} className="flex min-h-screen" style={{ background: 'var(--bb-depth-1)' }}>
+      <div ref={ref} className="flex min-h-screen flex-col" style={{ background: 'var(--bb-depth-1)' }}>
+        {/* Impersonation Banner */}
+        {impersonating && (
+          <div
+            className="fixed left-0 right-0 top-0 z-[9999] flex items-center justify-center gap-3 px-4 py-2 text-sm font-semibold"
+            style={{ background: '#f59e0b', color: '#000' }}
+          >
+            <span>Você está visualizando como: {impersonateAcademia} (Admin)</span>
+            <button
+              onClick={handleStopImpersonation}
+              className="ml-2 rounded-md px-3 py-1 text-xs font-bold"
+              style={{ background: 'rgba(0,0,0,0.2)', color: '#000' }}
+            >
+              Sair da visualização
+            </button>
+          </div>
+        )}
+        <div className="flex flex-1" style={{ marginTop: impersonating ? '40px' : '0' }}>
         {/* Sidebar - desktop */}
         <aside
           className="hidden lg:flex lg:w-64 lg:flex-col"
@@ -634,6 +672,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
 
         {/* Command Palette (Search) */}
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
+      </div>
       </div>
     );
   },
