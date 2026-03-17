@@ -63,12 +63,17 @@ export async function predictPerformance(studentId: string, championshipId: stri
       const { mockPredictPerformance } = await import('@/lib/mocks/competition-predictor.mock');
       return mockPredictPerformance(studentId, championshipId);
     }
-    const res = await fetch('/api/ai/competition-predictor/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, championshipId }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/competition-predictor/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, championshipId }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[competition-predictor.predictPerformance] API not available, using fallback');
+      return {} as Prediction;
+    }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.predict');
   }
@@ -80,12 +85,17 @@ export async function getMatchup(studentId: string, opponentId: string): Promise
       const { mockGetMatchup } = await import('@/lib/mocks/competition-predictor.mock');
       return mockGetMatchup(studentId, opponentId);
     }
-    const res = await fetch('/api/ai/competition-predictor/matchup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, opponentId }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/competition-predictor/matchup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, opponentId }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[competition-predictor.getMatchup] API not available, using fallback');
+      return {} as MatchupAnalysis;
+    }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.matchup');
   }
@@ -97,12 +107,17 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
       const { mockGetOptimalCategory } = await import('@/lib/mocks/competition-predictor.mock');
       return mockGetOptimalCategory(studentId, championshipId);
     }
-    const res = await fetch('/api/ai/competition-predictor/category', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, championshipId }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/competition-predictor/category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, championshipId }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[competition-predictor.getOptimalCategory] API not available, using fallback');
+      return {} as CategoryRecommendation;
+    }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.optimalCategory');
   }

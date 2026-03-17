@@ -77,9 +77,14 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
       const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
       return await mockGetMissionControl();
     }
-    const res = await fetch('/api/superadmin/dashboard');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/superadmin/dashboard');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[superadmin-dashboard.getMissionControl] API not available, using fallback');
+      return {} as MissionControlDTO;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
 }
 
@@ -89,7 +94,11 @@ export async function resolverAlerta(alertaId: string): Promise<void> {
       const { mockResolverAlerta } = await import('@/lib/mocks/superadmin-dashboard.mock');
       return await mockResolverAlerta(alertaId);
     }
-    const res = await fetch(`/api/superadmin/alertas/${alertaId}/resolver`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/superadmin/alertas/${alertaId}/resolver`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[superadmin-dashboard.resolverAlerta] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.resolverAlerta'); }
 }

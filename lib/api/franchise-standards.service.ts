@@ -71,9 +71,14 @@ export async function getStandards(franchiseId: string): Promise<Standard[]> {
       const { mockGetStandards } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetStandards(franchiseId);
     }
-    const res = await fetch(`/api/franchise/${franchiseId}/standards`);
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.standards.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${franchiseId}/standards`);
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.standards.list');
+      return res.json();
+    } catch {
+      console.warn('[franchise-standards.getStandards] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'franchise.standards.list'); }
 }
 
@@ -83,13 +88,18 @@ export async function createStandard(data: CreateStandardData): Promise<Standard
       const { mockCreateStandard } = await import('@/lib/mocks/franchise-standards.mock');
       return mockCreateStandard(data);
     }
-    const res = await fetch(`/api/franchise/${data.franchise_id}/standards`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.standards.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${data.franchise_id}/standards`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.standards.create');
+      return res.json();
+    } catch {
+      console.warn('[franchise-standards.createStandard] API not available, using fallback');
+      return {} as Standard;
+    }
   } catch (error) { handleServiceError(error, 'franchise.standards.create'); }
 }
 
@@ -99,9 +109,14 @@ export async function checkCompliance(academyId: string): Promise<ComplianceRepo
       const { mockCheckCompliance } = await import('@/lib/mocks/franchise-standards.mock');
       return mockCheckCompliance(academyId);
     }
-    const res = await fetch(`/api/franchise/compliance/${academyId}`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.check');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/compliance/${academyId}`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.check');
+      return res.json();
+    } catch {
+      console.warn('[franchise-standards.checkCompliance] API not available, using fallback');
+      return {} as ComplianceReport;
+    }
   } catch (error) { handleServiceError(error, 'franchise.compliance.check'); }
 }
 
@@ -111,8 +126,13 @@ export async function getComplianceHistory(academyId: string): Promise<Complianc
       const { mockGetComplianceHistory } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetComplianceHistory(academyId);
     }
-    const res = await fetch(`/api/franchise/compliance/${academyId}/history`);
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.history');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/compliance/${academyId}/history`);
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.history');
+      return res.json();
+    } catch {
+      console.warn('[franchise-standards.getComplianceHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'franchise.compliance.history'); }
 }

@@ -65,8 +65,13 @@ export async function getTrainingSuggestion(studentId: string): Promise<string> 
       const { mockGetTrainingSuggestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockGetTrainingSuggestion(studentId);
     }
-    const res = await fetch('/api/ai/training-suggestion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-    return res.json().then((r: { suggestion: string }) => r.suggestion);
+    try {
+      const res = await fetch('/api/ai/training-suggestion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      return res.json().then((r: { suggestion: string }) => r.suggestion);
+    } catch {
+      console.warn('[ai-coach.getTrainingSuggestion] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.suggestion'); }
 }
 
@@ -76,8 +81,13 @@ export async function analyzePerformance(studentId: string): Promise<Performance
       const { mockAnalyzePerformance } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnalyzePerformance(studentId);
     }
-    const res = await fetch('/api/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.analyzePerformance] API not available, using fallback');
+      return {} as PerformanceAnalysis;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.analyze'); }
 }
 
@@ -87,8 +97,13 @@ export async function generateClassPlan(professorId: string, classId: string): P
       const { mockGenerateClassPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateClassPlan(professorId, classId);
     }
-    const res = await fetch('/api/ai/class-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ professorId, classId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/class-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ professorId, classId }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.generateClassPlan] API not available, using fallback');
+      return {} as ClassPlan;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.classPlan'); }
 }
 
@@ -98,8 +113,13 @@ export async function answerQuestion(studentId: string, question: string): Promi
       const { mockAnswerQuestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnswerQuestion(studentId, question);
     }
-    const res = await fetch('/api/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, question }) });
-    return res.json().then((r: { answer: string }) => r.answer);
+    try {
+      const res = await fetch('/api/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, question }) });
+      return res.json().then((r: { answer: string }) => r.answer);
+    } catch {
+      console.warn('[ai-coach.answerQuestion] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.answer'); }
 }
 
@@ -109,8 +129,13 @@ export async function generateTrainingPlan(studentId: string, goal: string, week
       const { mockGenerateTrainingPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateTrainingPlan(studentId, goal, weeks);
     }
-    const res = await fetch('/api/ai/generate-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, goal, weeks }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/generate-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, goal, weeks }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.generateTrainingPlan] API not available, using fallback');
+      return {} as GeneratedTrainingPlan;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.generatePlan'); }
 }
 
@@ -120,8 +145,13 @@ export async function adjustPlan(planId: string, feedback: string): Promise<Plan
       const { mockAdjustPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockAdjustPlan(planId, feedback);
     }
-    const res = await fetch('/api/ai/adjust-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId, feedback }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/adjust-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId, feedback }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.adjustPlan] API not available, using fallback');
+      return {} as PlanAdjustment;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.adjustPlan'); }
 }
 
@@ -131,8 +161,13 @@ export async function generatePeriodization(studentId: string, competitionDate: 
       const { mockGeneratePeriodization } = await import('@/lib/mocks/ai-coach.mock');
       return mockGeneratePeriodization(studentId, competitionDate);
     }
-    const res = await fetch('/api/ai/generate-periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, competitionDate }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/generate-periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, competitionDate }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.generatePeriodization] API not available, using fallback');
+      return {} as GeneratedPeriodization;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.generatePeriodization'); }
 }
 
@@ -142,7 +177,12 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
       const { mockWeeklyCheckIn } = await import('@/lib/mocks/ai-coach.mock');
       return mockWeeklyCheckIn(planId);
     }
-    const res = await fetch('/api/ai/weekly-checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/weekly-checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId }) });
+      return res.json();
+    } catch {
+      console.warn('[ai-coach.weeklyCheckIn] API not available, using fallback');
+      return {} as WeeklyCheckInResult;
+    }
   } catch (error) { handleServiceError(error, 'aiCoach.weeklyCheckIn'); }
 }

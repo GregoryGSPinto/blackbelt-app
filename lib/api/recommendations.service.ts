@@ -22,9 +22,14 @@ export async function getRecommendations(studentId: string): Promise<Recommended
       const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
       return mockGetRecommendations(studentId);
     }
-    const res = await fetch(`/api/recommendations?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'recommendations.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/recommendations?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'recommendations.get');
+      return res.json();
+    } catch {
+      console.warn('[recommendations.getRecommendations] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'recommendations.get'); }
 }
 
@@ -34,8 +39,13 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
       const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
       return mockGetPersonalizedFeed(studentId);
     }
-    const res = await fetch(`/api/recommendations/feed?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'recommendations.feed');
-    return res.json();
+    try {
+      const res = await fetch(`/api/recommendations/feed?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'recommendations.feed');
+      return res.json();
+    } catch {
+      console.warn('[recommendations.getPersonalizedFeed] API not available, using fallback');
+      return {} as ContentFeed;
+    }
   } catch (error) { handleServiceError(error, 'recommendations.feed'); }
 }

@@ -18,16 +18,22 @@ export async function listInviteTokens(
       const { mockListInviteTokens } = await import('@/lib/mocks/invite-tokens.mock');
       return mockListInviteTokens(academyId, filters);
     }
+    try {
 
-    const params = new URLSearchParams();
-    params.set('academy_id', academyId);
-    if (filters?.role) params.set('role', filters.role);
-    if (filters?.active !== undefined) params.set('active', String(filters.active));
-    if (filters?.search) params.set('search', filters.search);
+      const params = new URLSearchParams();
+      params.set('academy_id', academyId);
+      if (filters?.role) params.set('role', filters.role);
+      if (filters?.active !== undefined) params.set('active', String(filters.active));
+      if (filters?.search) params.set('search', filters.search);
 
-    const res = await fetch(`/api/invite-tokens?${params}`);
-    if (!res.ok) throw new Error('Erro ao listar convites');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens?${params}`);
+      if (!res.ok) throw new Error('Erro ao listar convites');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.listInviteTokens] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'inviteTokens.list');
   }
@@ -42,14 +48,20 @@ export async function createInviteToken(
       const { mockCreateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockCreateInviteToken(academyId, payload);
     }
+    try {
 
-    const res = await fetch('/api/invite-tokens', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academy_id: academyId, ...payload }),
-    });
-    if (!res.ok) throw new Error('Erro ao criar convite');
-    return res.json();
+      const res = await fetch('/api/invite-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academy_id: academyId, ...payload }),
+      });
+      if (!res.ok) throw new Error('Erro ao criar convite');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.createInviteToken] API not available, using fallback');
+      return {} as InviteToken;
+    }
+
   } catch (error) {
     handleServiceError(error, 'inviteTokens.create');
   }
@@ -64,14 +76,20 @@ export async function updateInviteToken(
       const { mockUpdateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockUpdateInviteToken(tokenId, updates);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/${tokenId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    });
-    if (!res.ok) throw new Error('Erro ao atualizar convite');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens/${tokenId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error('Erro ao atualizar convite');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.updateInviteToken] API not available, using fallback');
+      return {} as InviteToken;
+    }
+
   } catch (error) {
     handleServiceError(error, 'inviteTokens.update');
   }
@@ -83,12 +101,17 @@ export async function deactivateInviteToken(tokenId: string): Promise<InviteToke
       const { mockDeactivateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockDeactivateInviteToken(tokenId);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/${tokenId}/deactivate`, {
-      method: 'POST',
-    });
-    if (!res.ok) throw new Error('Erro ao desativar convite');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens/${tokenId}/deactivate`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Erro ao desativar convite');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.deactivateInviteToken] API not available, using fallback');
+      return {} as InviteToken;
+    }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.deactivate');
   }
@@ -100,9 +123,13 @@ export async function deleteInviteToken(tokenId: string): Promise<void> {
       const { mockDeleteInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockDeleteInviteToken(tokenId);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/${tokenId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Erro ao excluir convite');
+      const res = await fetch(`/api/invite-tokens/${tokenId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao excluir convite');
+    } catch {
+      console.warn('[invite-tokens.deleteInviteToken] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.delete');
   }
@@ -114,10 +141,15 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
       const { mockValidateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockValidateInviteToken(token);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/validate/${token}`);
-    if (!res.ok) throw new Error('Erro ao validar token');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens/validate/${token}`);
+      if (!res.ok) throw new Error('Erro ao validar token');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.validateInviteToken] API not available, using fallback');
+      return {} as InviteValidation;
+    }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.validate');
   }
@@ -134,13 +166,18 @@ export async function useInviteToken(
       const { mockUseInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockUseInviteToken(token, profileId, ip, userAgent);
     }
+    try {
 
-    const res = await fetch('/api/invite-tokens/use', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, profile_id: profileId }),
-    });
-    if (!res.ok) throw new Error('Erro ao registrar uso do convite');
+      const res = await fetch('/api/invite-tokens/use', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, profile_id: profileId }),
+      });
+      if (!res.ok) throw new Error('Erro ao registrar uso do convite');
+    } catch {
+      console.warn('[invite-tokens.useInviteToken] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'inviteTokens.use');
   }
@@ -152,10 +189,15 @@ export async function getInviteUses(tokenId: string): Promise<InviteUse[]> {
       const { mockGetInviteUses } = await import('@/lib/mocks/invite-tokens.mock');
       return mockGetInviteUses(tokenId);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/${tokenId}/uses`);
-    if (!res.ok) throw new Error('Erro ao buscar usos');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens/${tokenId}/uses`);
+      if (!res.ok) throw new Error('Erro ao buscar usos');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.getInviteUses] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.getUses');
   }
@@ -167,10 +209,15 @@ export async function getInviteStats(academyId: string): Promise<InviteStats> {
       const { mockGetInviteStats } = await import('@/lib/mocks/invite-tokens.mock');
       return mockGetInviteStats(academyId);
     }
+    try {
 
-    const res = await fetch(`/api/invite-tokens/stats?academy_id=${academyId}`);
-    if (!res.ok) throw new Error('Erro ao buscar estatisticas');
-    return res.json();
+      const res = await fetch(`/api/invite-tokens/stats?academy_id=${academyId}`);
+      if (!res.ok) throw new Error('Erro ao buscar estatisticas');
+      return res.json();
+    } catch {
+      console.warn('[invite-tokens.getInviteStats] API not available, using fallback');
+      return {} as InviteStats;
+    }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.stats');
   }

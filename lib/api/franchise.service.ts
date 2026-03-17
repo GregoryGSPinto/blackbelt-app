@@ -70,9 +70,14 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/franchise.mock');
       return mockGetNetworkDashboard(franchiseId);
     }
-    const res = await fetch(`/api/franchise/${franchiseId}/dashboard`);
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.dashboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${franchiseId}/dashboard`);
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[franchise.getNetworkDashboard] API not available, using fallback');
+      return {} as NetworkDashboard;
+    }
   } catch (error) { handleServiceError(error, 'franchise.dashboard'); }
 }
 
@@ -82,9 +87,14 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
       return mockGetAcademies(franchiseId);
     }
-    const res = await fetch(`/api/franchise/${franchiseId}/academies`);
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.academies');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${franchiseId}/academies`);
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.academies');
+      return res.json();
+    } catch {
+      console.warn('[franchise.getAcademies] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'franchise.academies'); }
 }
 
@@ -94,9 +104,14 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
       return mockGetFinancials(franchiseId);
     }
-    const res = await fetch(`/api/franchise/${franchiseId}/financials`);
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.financials');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${franchiseId}/financials`);
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.financials');
+      return res.json();
+    } catch {
+      console.warn('[franchise.getFinancials] API not available, using fallback');
+      return {} as NetworkFinancials;
+    }
   } catch (error) { handleServiceError(error, 'franchise.financials'); }
 }
 
@@ -106,12 +121,17 @@ export async function sendNetworkMessage(franchiseId: string, message: NetworkMe
       const { mockSendNetworkMessage } = await import('@/lib/mocks/franchise.mock');
       return mockSendNetworkMessage(franchiseId, message);
     }
-    const res = await fetch(`/api/franchise/${franchiseId}/message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'franchise.message');
-    return res.json();
+    try {
+      const res = await fetch(`/api/franchise/${franchiseId}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'franchise.message');
+      return res.json();
+    } catch {
+      console.warn('[franchise.sendNetworkMessage] API not available, using fallback');
+      return {} as { sent: number };
+    }
   } catch (error) { handleServiceError(error, 'franchise.message'); }
 }

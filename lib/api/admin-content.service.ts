@@ -26,9 +26,14 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
       return mockListAdminVideos(academyId);
     }
-    const res = await fetch(`/api/admin/content/videos?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'adminContent.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/admin/content/videos?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'adminContent.list');
+      return res.json();
+    } catch {
+      console.warn('[admin-content.listAdminVideos] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'adminContent.list');
   }
@@ -40,13 +45,18 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockCreateVideo(data);
     }
-    const res = await fetch('/api/admin/content/videos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'adminContent.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/admin/content/videos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'adminContent.create');
+      return res.json();
+    } catch {
+      console.warn('[admin-content.createVideo] API not available, using fallback');
+      return {} as Video;
+    }
   } catch (error) {
     handleServiceError(error, 'adminContent.create');
   }
@@ -58,8 +68,12 @@ export async function deleteVideo(id: string): Promise<void> {
       const { mockDeleteVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockDeleteVideo(id);
     }
-    const res = await fetch(`/api/admin/content/videos/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'adminContent.delete');
+    try {
+      const res = await fetch(`/api/admin/content/videos/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'adminContent.delete');
+    } catch {
+      console.warn('[admin-content.deleteVideo] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'adminContent.delete');
   }

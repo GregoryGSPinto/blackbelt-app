@@ -17,9 +17,14 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
       return mockGetBranding(academyId);
     }
-    const res = await fetch(`/api/branding?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'branding.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/branding?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'branding.get');
+      return res.json();
+    } catch {
+      console.warn('[branding.getBranding] API not available, using fallback');
+      return {} as BrandingDTO;
+    }
   } catch (error) { handleServiceError(error, 'branding.get'); }
 }
 
@@ -29,12 +34,17 @@ export async function updateBranding(academyId: string, data: Partial<BrandingDT
       const { mockUpdateBranding } = await import('@/lib/mocks/branding.mock');
       return mockUpdateBranding(academyId, data);
     }
-    const res = await fetch(`/api/branding`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...data }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'branding.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/branding`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...data }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'branding.update');
+      return res.json();
+    } catch {
+      console.warn('[branding.updateBranding] API not available, using fallback');
+      return {} as BrandingDTO;
+    }
   } catch (error) { handleServiceError(error, 'branding.update'); }
 }

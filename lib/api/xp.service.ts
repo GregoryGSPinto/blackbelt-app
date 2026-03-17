@@ -25,9 +25,14 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       const { mockGetXP } = await import('@/lib/mocks/xp.mock');
       return mockGetXP(studentId);
     }
-    const res = await fetch(`/api/xp?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'xp.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/xp?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'xp.get');
+      return res.json();
+    } catch {
+      console.warn('[xp.getXP] API not available, using fallback');
+      return {} as XPDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'xp.get');
   }
@@ -39,9 +44,14 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
       return mockGetLeaderboard(academyId);
     }
-    const res = await fetch(`/api/xp/leaderboard?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'xp.leaderboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/xp/leaderboard?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'xp.leaderboard');
+      return res.json();
+    } catch {
+      console.warn('[xp.getLeaderboard] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'xp.leaderboard');
   }

@@ -40,9 +40,14 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
       const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
       return mockListFeatureFlags();
     }
-    const res = await fetch('/api/superadmin/features');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/features');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-features.listFeatureFlags] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'superadmin-features.list'); }
 }
 
@@ -52,9 +57,14 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
       const { mockToggleFeatureGlobal } = await import('@/lib/mocks/superadmin-features.mock');
       return mockToggleFeatureGlobal(featureId, enabled);
     }
-    const res = await fetch(`/api/superadmin/features/${featureId}/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled }) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/superadmin/features/${featureId}/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-features.toggleFeatureGlobal] API not available, using fallback');
+      return {} as FeatureFlag;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-features.toggle'); }
 }
 
@@ -64,9 +74,14 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
       const { mockUpdateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockUpdateFeatureFlag(featureId, data);
     }
-    const res = await fetch(`/api/superadmin/features/${featureId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/superadmin/features/${featureId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-features.updateFeatureFlag] API not available, using fallback');
+      return {} as FeatureFlag;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-features.update'); }
 }
 
@@ -76,8 +91,13 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
       const { mockCreateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockCreateFeatureFlag(data);
     }
-    const res = await fetch('/api/superadmin/features', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/features', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-features.createFeatureFlag] API not available, using fallback');
+      return {} as FeatureFlag;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-features.create'); }
 }

@@ -25,9 +25,14 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
       return mockListNotifications(userId);
     }
-    const res = await fetch(`/api/notificacoes?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'notificacoes.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/notificacoes?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'notificacoes.list');
+      return res.json();
+    } catch {
+      console.warn('[notificacoes.listNotifications] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.list');
   }
@@ -39,11 +44,15 @@ export async function markNotificationsRead(ids: string[]): Promise<void> {
       const { mockMarkRead } = await import('@/lib/mocks/notificacoes.mock');
       return mockMarkRead(ids);
     }
-    await fetch('/api/notificacoes/read', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids }),
-    });
+    try {
+      await fetch('/api/notificacoes/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+    } catch {
+      console.warn('[notificacoes.markNotificationsRead] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.markRead');
   }
@@ -55,7 +64,11 @@ export async function markAllRead(): Promise<void> {
       const { mockMarkAllRead } = await import('@/lib/mocks/notificacoes.mock');
       return mockMarkAllRead();
     }
-    await fetch('/api/notificacoes/read-all', { method: 'POST' });
+    try {
+      await fetch('/api/notificacoes/read-all', { method: 'POST' });
+    } catch {
+      console.warn('[notificacoes.markAllRead] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.markAllRead');
   }
@@ -67,9 +80,14 @@ export async function getPreferences(userId: string): Promise<NotificationPrefs>
       const { mockGetPreferences } = await import('@/lib/mocks/notificacoes.mock');
       return mockGetPreferences(userId);
     }
-    const res = await fetch(`/api/notificacoes/prefs?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'notificacoes.prefs');
-    return res.json();
+    try {
+      const res = await fetch(`/api/notificacoes/prefs?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'notificacoes.prefs');
+      return res.json();
+    } catch {
+      console.warn('[notificacoes.getPreferences] API not available, using fallback');
+      return {} as NotificationPrefs;
+    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.prefs');
   }
@@ -81,11 +99,15 @@ export async function updatePreferences(userId: string, prefs: NotificationPrefs
       const { mockUpdatePreferences } = await import('@/lib/mocks/notificacoes.mock');
       return mockUpdatePreferences(userId, prefs);
     }
-    await fetch('/api/notificacoes/prefs', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, prefs }),
-    });
+    try {
+      await fetch('/api/notificacoes/prefs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, prefs }),
+      });
+    } catch {
+      console.warn('[notificacoes.updatePreferences] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.updatePrefs');
   }

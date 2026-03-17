@@ -39,8 +39,13 @@ export async function detectProximity(data: ProximityData): Promise<ProximityRes
       const { mockDetectProximity } = await import('@/lib/mocks/proximity-checkin.mock');
       return mockDetectProximity(data);
     }
-    const res = await fetch('/api/proximity/detect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    return res.json();
+    try {
+      const res = await fetch('/api/proximity/detect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      return res.json();
+    } catch {
+      console.warn('[proximity-checkin.detectProximity] API not available, using fallback');
+      return {} as ProximityResult;
+    }
   } catch (error) { handleServiceError(error, 'proximity.detect'); }
 }
 
@@ -50,7 +55,12 @@ export async function autoCheckin(studentId: string, classId: string): Promise<A
       const { mockAutoCheckin } = await import('@/lib/mocks/proximity-checkin.mock');
       return mockAutoCheckin(studentId, classId);
     }
-    const res = await fetch('/api/proximity/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, classId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/proximity/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, classId }) });
+      return res.json();
+    } catch {
+      console.warn('[proximity-checkin.autoCheckin] API not available, using fallback');
+      return {} as AutoCheckinResult;
+    }
   } catch (error) { handleServiceError(error, 'proximity.checkin'); }
 }

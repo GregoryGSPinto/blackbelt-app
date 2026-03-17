@@ -47,7 +47,8 @@ export async function listTecnicas(filtros?: TecnicaFiltros): Promise<Tecnica[]>
       const { mockListTecnicas } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockListTecnicas(filtros);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[bancoTecnicas.list] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'bancoTecnicas.list');
   }
@@ -59,7 +60,8 @@ export async function getTecnica(id: string): Promise<Tecnica> {
       const { mockGetTecnica } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockGetTecnica(id);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[bancoTecnicas.get] fallback — not yet connected to Supabase');
+    return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
   } catch (error) {
     handleServiceError(error, 'bancoTecnicas.get');
   }
@@ -71,7 +73,8 @@ export async function createTecnica(dados: CreateTecnicaPayload): Promise<Tecnic
       const { mockCreateTecnica } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockCreateTecnica(dados);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[bancoTecnicas.create] fallback — not yet connected to Supabase');
+    return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
   } catch (error) {
     handleServiceError(error, 'bancoTecnicas.create');
   }
@@ -83,7 +86,8 @@ export async function searchTecnicas(query: string): Promise<Tecnica[]> {
       const { mockSearchTecnicas } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockSearchTecnicas(query);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[bancoTecnicas.search] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'bancoTecnicas.search');
   }

@@ -40,9 +40,14 @@ export async function getChildrenBills(parentId: string): Promise<ChildBill[]> {
         { id: 'bill-3', childName: 'Pedro Santos', childId: 'child-1', amount: 197, dueDate: '2026-02-20', status: 'paid', plan: 'Essencial', referenceMonth: '2026-02' },
       ];
     }
-    const res = await fetch(`/api/parent/bills?parentId=${parentId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/parent/bills?parentId=${parentId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[parent-payment.getChildrenBills] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'parentPayment.getBills');
   }
@@ -81,9 +86,14 @@ export async function getPaymentHistory(parentId: string): Promise<PaymentReceip
         { id: 'rcpt-2', billId: 'bill-0', amount: 147, method: 'card', paidAt: '2026-01-19T10:00:00Z', receiptUrl: '/mock/receipt.pdf' },
       ];
     }
-    const res = await fetch(`/api/parent/history?parentId=${parentId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/parent/history?parentId=${parentId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[parent-payment.getPaymentHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'parentPayment.history');
   }

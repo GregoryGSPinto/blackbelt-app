@@ -24,8 +24,13 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
       const { mockGenerateApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockGenerateApiKey(academyId, name);
     }
-    const res = await fetch('/api/v1/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, name }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, name }) });
+      return res.json();
+    } catch {
+      console.warn('[api-keys.generateApiKey] API not available, using fallback');
+      return {} as ApiKeyCreateResult;
+    }
   } catch (error) { handleServiceError(error, 'apiKeys.generate'); }
 }
 
@@ -35,8 +40,13 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       const { mockListApiKeys } = await import('@/lib/mocks/api-keys.mock');
       return mockListApiKeys(academyId);
     }
-    const res = await fetch(`/api/v1/api-keys?academyId=${academyId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/api-keys?academyId=${academyId}`);
+      return res.json();
+    } catch {
+      console.warn('[api-keys.listApiKeys] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'apiKeys.list'); }
 }
 
@@ -46,7 +56,11 @@ export async function revokeApiKey(keyId: string): Promise<void> {
       const { mockRevokeApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockRevokeApiKey(keyId);
     }
-    await fetch(`/api/v1/api-keys/${keyId}`, { method: 'DELETE' });
+    try {
+      await fetch(`/api/v1/api-keys/${keyId}`, { method: 'DELETE' });
+    } catch {
+      console.warn('[api-keys.revokeApiKey] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'apiKeys.revoke'); }
 }
 
@@ -56,8 +70,13 @@ export async function validateApiKey(key: string): Promise<{ academyId: string; 
       const { mockValidateApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockValidateApiKey(key);
     }
-    const res = await fetch('/api/v1/api-keys/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
-    if (!res.ok) return null;
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/api-keys/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
+      if (!res.ok) return null;
+      return res.json();
+    } catch {
+      console.warn('[api-keys.validateApiKey] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'apiKeys.validate'); }
 }

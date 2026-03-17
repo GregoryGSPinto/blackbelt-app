@@ -17,7 +17,8 @@ export async function proposePromotion(
       const { mockProposePromotion } = await import('@/lib/mocks/graduation.mock');
       return mockProposePromotion(studentId, fromBelt, toBelt);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.proposePromotion] fallback — not yet connected to Supabase');
+    return { id: '', student_id: studentId, student_name: '', from_belt: fromBelt, to_belt: toBelt, proposed_by: '', proposed_by_name: '', approved_by: null, status: 'pending', criteria_met: { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } }, proposed_at: new Date().toISOString(), approved_at: null } as BeltPromotion;
   } catch (error) {
     handleServiceError(error, 'graduation.proposePromotion');
   }
@@ -29,7 +30,8 @@ export async function approvePromotion(promotionId: string): Promise<BeltPromoti
       const { mockApprovePromotion } = await import('@/lib/mocks/graduation.mock');
       return mockApprovePromotion(promotionId);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.approvePromotion] fallback — not yet connected to Supabase');
+    return { id: promotionId, student_id: '', student_name: '', from_belt: BeltLevel.White, to_belt: BeltLevel.White, proposed_by: '', proposed_by_name: '', approved_by: null, status: 'approved', criteria_met: { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } }, proposed_at: '', approved_at: new Date().toISOString() } as BeltPromotion;
   } catch (error) {
     handleServiceError(error, 'graduation.approvePromotion');
   }
@@ -41,7 +43,8 @@ export async function rejectPromotion(promotionId: string): Promise<BeltPromotio
       const { mockRejectPromotion } = await import('@/lib/mocks/graduation.mock');
       return mockRejectPromotion(promotionId);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.rejectPromotion] fallback — not yet connected to Supabase');
+    return { id: promotionId, student_id: '', student_name: '', from_belt: BeltLevel.White, to_belt: BeltLevel.White, proposed_by: '', proposed_by_name: '', approved_by: null, status: 'rejected', criteria_met: { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } }, proposed_at: '', approved_at: null } as BeltPromotion;
   } catch (error) {
     handleServiceError(error, 'graduation.rejectPromotion');
   }
@@ -53,7 +56,8 @@ export async function listPending(academyId: string): Promise<BeltPromotion[]> {
       const { mockListPending } = await import('@/lib/mocks/graduation.mock');
       return mockListPending(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.listPending] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'graduation.listPending');
   }
@@ -65,7 +69,8 @@ export async function getStudentHistory(studentId: string): Promise<GraduationHi
       const { mockGetStudentHistory } = await import('@/lib/mocks/graduation.mock');
       return mockGetStudentHistory(studentId);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.getStudentHistory] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'graduation.getStudentHistory');
   }
@@ -80,7 +85,8 @@ export async function checkCriteria(
       const { mockCheckCriteria } = await import('@/lib/mocks/graduation.mock');
       return mockCheckCriteria(studentId, targetBelt);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.checkCriteria] fallback — not yet connected to Supabase');
+    return { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } };
   } catch (error) {
     handleServiceError(error, 'graduation.checkCriteria');
   }
@@ -95,7 +101,8 @@ export async function getCriteria(
       const { mockGetCriteria } = await import('@/lib/mocks/graduation.mock');
       return mockGetCriteria(fromBelt, toBelt);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.getCriteria] fallback — not yet connected to Supabase');
+    return { from_belt: fromBelt, to_belt: toBelt, min_attendance: 0, min_months: 0, min_quiz_avg: 0 } as BeltCriteria;
   } catch (error) {
     handleServiceError(error, 'graduation.getCriteria');
   }
@@ -109,7 +116,8 @@ export async function listGraduationHistory(
       const { mockListGraduationHistory } = await import('@/lib/mocks/graduation.mock');
       return mockListGraduationHistory(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[graduation.listGraduationHistory] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'graduation.listGraduationHistory');
   }

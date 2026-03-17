@@ -58,16 +58,22 @@ export async function getCalendarEvents(
       const { mockGetCalendarEvents } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEvents(academyId, filters);
     }
-    const params = new URLSearchParams({
-      academyId,
-      from: filters.from,
-      to: filters.to,
-    });
-    if (filters.professorId) params.set('professorId', filters.professorId);
-    if (filters.modality) params.set('modality', filters.modality);
-    const res = await fetch(`/api/calendar?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'calendar.events');
-    return res.json();
+    try {
+      const params = new URLSearchParams({
+        academyId,
+        from: filters.from,
+        to: filters.to,
+      });
+      if (filters.professorId) params.set('professorId', filters.professorId);
+      if (filters.modality) params.set('modality', filters.modality);
+      const res = await fetch(`/api/calendar?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'calendar.events');
+      return res.json();
+    } catch {
+      console.warn('[calendar.getCalendarEvents] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'calendar.events');
   }
@@ -81,9 +87,15 @@ export async function getCalendarEventById(
       const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEventById(eventId);
     }
-    const res = await fetch(`/api/calendar/${eventId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'calendar.eventById');
-    return res.json();
+    try {
+      const res = await fetch(`/api/calendar/${eventId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'calendar.eventById');
+      return res.json();
+    } catch {
+      console.warn('[calendar.getCalendarEventById] API not available, using fallback');
+      return {} as CalendarEvent;
+    }
+
   } catch (error) {
     handleServiceError(error, 'calendar.eventById');
   }

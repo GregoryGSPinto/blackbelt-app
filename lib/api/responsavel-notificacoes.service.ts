@@ -25,9 +25,14 @@ export async function getNotificacoes(guardianId: string): Promise<NotificacaoRe
       const { mockGetNotificacoes } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockGetNotificacoes(guardianId);
     }
-    const res = await fetch(`/api/responsavel/notificacoes?guardianId=${guardianId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes');
-    return res.json();
+    try {
+      const res = await fetch(`/api/responsavel/notificacoes?guardianId=${guardianId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes');
+      return res.json();
+    } catch {
+      console.warn('[responsavel-notificacoes.getNotificacoes] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'responsavel.notificacoes');
   }
@@ -39,10 +44,14 @@ export async function marcarLida(id: string): Promise<void> {
       const { mockMarcarLida } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockMarcarLida(id);
     }
-    const res = await fetch(`/api/responsavel/notificacoes/${id}/read`, {
-      method: 'PATCH',
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarLida');
+    try {
+      const res = await fetch(`/api/responsavel/notificacoes/${id}/read`, {
+        method: 'PATCH',
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarLida');
+    } catch {
+      console.warn('[responsavel-notificacoes.marcarLida] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'responsavel.notificacoes.marcarLida');
   }
@@ -54,12 +63,16 @@ export async function marcarTodasLidas(guardianId: string): Promise<void> {
       const { mockMarcarTodasLidas } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockMarcarTodasLidas(guardianId);
     }
-    const res = await fetch(`/api/responsavel/notificacoes/read-all`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guardianId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarTodasLidas');
+    try {
+      const res = await fetch(`/api/responsavel/notificacoes/read-all`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guardianId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarTodasLidas');
+    } catch {
+      console.warn('[responsavel-notificacoes.marcarTodasLidas] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'responsavel.notificacoes.marcarTodasLidas');
   }

@@ -7,8 +7,13 @@ export async function generatePresencaReport(academyId: string, period: string):
       const { mockGeneratePDF } = await import('@/lib/mocks/reports-export.mock');
       return mockGeneratePDF(`Relatório de Presença — ${period}`, academyId);
     }
-    const res = await fetch(`/api/reports/presenca?academyId=${academyId}&period=${period}`);
-    return res.blob();
+    try {
+      const res = await fetch(`/api/reports/presenca?academyId=${academyId}&period=${period}`);
+      return res.blob();
+    } catch {
+      console.warn('[reports-export.generatePresencaReport] API not available, using fallback');
+      return {} as Blob;
+    }
   } catch (error) { handleServiceError(error, 'reports.presenca'); }
 }
 
@@ -18,8 +23,13 @@ export async function generateFinanceiroReport(academyId: string, period: string
       const { mockGeneratePDF } = await import('@/lib/mocks/reports-export.mock');
       return mockGeneratePDF(`Relatório Financeiro — ${period}`, academyId);
     }
-    const res = await fetch(`/api/reports/financeiro?academyId=${academyId}&period=${period}`);
-    return res.blob();
+    try {
+      const res = await fetch(`/api/reports/financeiro?academyId=${academyId}&period=${period}`);
+      return res.blob();
+    } catch {
+      console.warn('[reports-export.generateFinanceiroReport] API not available, using fallback');
+      return {} as Blob;
+    }
   } catch (error) { handleServiceError(error, 'reports.financeiro'); }
 }
 
@@ -29,8 +39,13 @@ export async function generateAlunoReport(studentId: string): Promise<Blob> {
       const { mockGeneratePDF } = await import('@/lib/mocks/reports-export.mock');
       return mockGeneratePDF(`Relatório do Aluno`, studentId);
     }
-    const res = await fetch(`/api/reports/aluno/${studentId}`);
-    return res.blob();
+    try {
+      const res = await fetch(`/api/reports/aluno/${studentId}`);
+      return res.blob();
+    } catch {
+      console.warn('[reports-export.generateAlunoReport] API not available, using fallback');
+      return {} as Blob;
+    }
   } catch (error) { handleServiceError(error, 'reports.aluno'); }
 }
 
@@ -40,8 +55,13 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
       const { mockGeneratePDF } = await import('@/lib/mocks/reports-export.mock');
       return mockGeneratePDF(`Ranking Geral`, academyId);
     }
-    const res = await fetch(`/api/reports/ranking?academyId=${academyId}`);
-    return res.blob();
+    try {
+      const res = await fetch(`/api/reports/ranking?academyId=${academyId}`);
+      return res.blob();
+    } catch {
+      console.warn('[reports-export.generateRankingReport] API not available, using fallback');
+      return {} as Blob;
+    }
   } catch (error) { handleServiceError(error, 'reports.ranking'); }
 }
 

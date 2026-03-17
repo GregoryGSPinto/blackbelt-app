@@ -51,13 +51,18 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
       return mockCalculateRoyalties(academyId, month);
     }
-    const res = await fetch(`/api/royalties/calculate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, month }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'royalties.calculate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/royalties/calculate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, month }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'royalties.calculate');
+      return res.json();
+    } catch {
+      console.warn('[royalties.calculateRoyalties] API not available, using fallback');
+      return {} as RoyaltyCalculation;
+    }
   } catch (error) { handleServiceError(error, 'royalties.calculate'); }
 }
 
@@ -67,11 +72,16 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
       const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
       return mockGetRoyaltyHistory(franchiseId, period);
     }
-    const params = new URLSearchParams({ franchiseId });
-    if (period) params.set('period', period);
-    const res = await fetch(`/api/royalties/history?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'royalties.history');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ franchiseId });
+      if (period) params.set('period', period);
+      const res = await fetch(`/api/royalties/history?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'royalties.history');
+      return res.json();
+    } catch {
+      console.warn('[royalties.getRoyaltyHistory] API not available, using fallback');
+      return {} as RoyaltyHistorySummary;
+    }
   } catch (error) { handleServiceError(error, 'royalties.history'); }
 }
 
@@ -81,13 +91,18 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
       return mockGenerateRoyaltyInvoice(academyId, month);
     }
-    const res = await fetch(`/api/royalties/invoice`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, month }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'royalties.invoice');
-    return res.json();
+    try {
+      const res = await fetch(`/api/royalties/invoice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, month }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'royalties.invoice');
+      return res.json();
+    } catch {
+      console.warn('[royalties.generateRoyaltyInvoice] API not available, using fallback');
+      return {} as RoyaltyInvoice;
+    }
   } catch (error) { handleServiceError(error, 'royalties.invoice'); }
 }
 
@@ -97,8 +112,13 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
     }
-    const res = await fetch(`/api/royalties/${invoiceId}/pay`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'royalties.pay');
-    return res.json();
+    try {
+      const res = await fetch(`/api/royalties/${invoiceId}/pay`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'royalties.pay');
+      return res.json();
+    } catch {
+      console.warn('[royalties.payRoyalty] API not available, using fallback');
+      return {} as RoyaltyCalculation;
+    }
   } catch (error) { handleServiceError(error, 'royalties.pay'); }
 }

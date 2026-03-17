@@ -41,10 +41,16 @@ export async function getSuggestions(
       const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
       return mockGetSuggestions(role, userId, academyId);
     }
-    const params = new URLSearchParams({ role, userId, academyId });
-    const res = await fetch(`/api/suggestions?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'suggestions.get');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ role, userId, academyId });
+      const res = await fetch(`/api/suggestions?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'suggestions.get');
+      return res.json();
+    } catch {
+      console.warn('[suggestions.getSuggestions] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'suggestions.get');
   }
@@ -56,10 +62,14 @@ export async function dismissSuggestion(suggestionId: string): Promise<void> {
       const { mockDismissSuggestion } = await import('@/lib/mocks/suggestions.mock');
       return mockDismissSuggestion(suggestionId);
     }
-    const res = await fetch(`/api/suggestions/${suggestionId}/dismiss`, {
-      method: 'POST',
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'suggestions.dismiss');
+    try {
+      const res = await fetch(`/api/suggestions/${suggestionId}/dismiss`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'suggestions.dismiss');
+    } catch {
+      console.warn('[suggestions.dismissSuggestion] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'suggestions.dismiss');
   }

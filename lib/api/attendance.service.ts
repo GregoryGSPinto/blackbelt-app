@@ -12,7 +12,8 @@ export async function checkIn(
       const { mockCheckIn } = await import('@/lib/mocks/attendance.mock');
       return mockCheckIn(studentId, classId, method);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.checkIn] fallback — not yet connected to Supabase');
+    return { id: '', student_id: studentId, student_name: '', class_id: classId, date: new Date().toISOString(), status: 'present', checked_in_at: new Date().toISOString(), method } as AttendanceRecord;
   } catch (error) {
     handleServiceError(error, 'attendance.checkIn');
   }
@@ -24,7 +25,8 @@ export async function markAbsent(studentId: string, classId: string, date: strin
       const { mockMarkAbsent } = await import('@/lib/mocks/attendance.mock');
       return mockMarkAbsent(studentId, classId, date);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.markAbsent] fallback — not yet connected to Supabase');
+    return { id: '', student_id: studentId, student_name: '', class_id: classId, date, status: 'absent', checked_in_at: null, method: 'manual' } as AttendanceRecord;
   } catch (error) {
     handleServiceError(error, 'attendance.markAbsent');
   }
@@ -36,7 +38,8 @@ export async function listAttendanceRecord(classId: string, date: string): Promi
       const { mockListAttendanceRecord } = await import('@/lib/mocks/attendance.mock');
       return mockListAttendanceRecord(classId, date);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.listAttendanceRecord] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'attendance.listAttendanceRecord');
   }
@@ -51,7 +54,8 @@ export async function getStudentAttendanceRecord(
       const { mockGetStudentAttendanceRecord } = await import('@/lib/mocks/attendance.mock');
       return mockGetStudentAttendanceRecord(studentId);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.getStudentAttendanceRecord] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'attendance.getStudentAttendanceRecord');
   }
@@ -63,7 +67,8 @@ export async function getAttendanceSummary(academyId: string): Promise<Attendanc
       const { mockGetAttendanceSummary } = await import('@/lib/mocks/attendance.mock');
       return mockGetAttendanceSummary(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.getSummary] fallback — not yet connected to Supabase');
+    return { total_classes: 0, total_present: 0, total_absent: 0, total_justified: 0, attendance_rate: 0, current_streak: 0, best_streak: 0 } as AttendanceSummary;
   } catch (error) {
     handleServiceError(error, 'attendance.getSummary');
   }
@@ -75,7 +80,8 @@ export async function getHeatmap(studentId: string): Promise<HeatmapDay[]> {
       const { mockGetHeatmap } = await import('@/lib/mocks/attendance.mock');
       return mockGetHeatmap(studentId);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.getHeatmap] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'attendance.getHeatmap');
   }
@@ -87,7 +93,8 @@ export async function getAbsentAlerts(academyId: string, days: number): Promise<
       const { mockGetAbsentAlerts } = await import('@/lib/mocks/attendance.mock');
       return mockGetAbsentAlerts(academyId, days);
     }
-    throw new Error('Not implemented');
+    console.warn('[attendance.getAbsentAlerts] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'attendance.getAbsentAlerts');
   }

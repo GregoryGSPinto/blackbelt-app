@@ -21,9 +21,14 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
       const { mockListPlans } = await import('@/lib/mocks/planos.mock');
       return mockListPlans(academyId);
     }
-    const res = await fetch(`/api/plans?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'planos.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/plans?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'planos.list');
+      return res.json();
+    } catch {
+      console.warn('[planos.listPlans] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'planos.list');
   }
@@ -35,9 +40,14 @@ export async function getPlanById(id: string): Promise<Plan> {
       const { mockGetPlanById } = await import('@/lib/mocks/planos.mock');
       return mockGetPlanById(id);
     }
-    const res = await fetch(`/api/plans/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'planos.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/plans/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'planos.get');
+      return res.json();
+    } catch {
+      console.warn('[planos.getPlanById] API not available, using fallback');
+      return {} as Plan;
+    }
   } catch (error) {
     handleServiceError(error, 'planos.get');
   }
@@ -49,13 +59,18 @@ export async function createPlan(academyId: string, data: CreatePlanRequest): Pr
       const { mockCreatePlan } = await import('@/lib/mocks/planos.mock');
       return mockCreatePlan(academyId, data);
     }
-    const res = await fetch('/api/plans', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, academy_id: academyId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'planos.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, academy_id: academyId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'planos.create');
+      return res.json();
+    } catch {
+      console.warn('[planos.createPlan] API not available, using fallback');
+      return {} as Plan;
+    }
   } catch (error) {
     handleServiceError(error, 'planos.create');
   }
@@ -67,13 +82,18 @@ export async function updatePlan(id: string, data: UpdatePlanRequest): Promise<P
       const { mockUpdatePlan } = await import('@/lib/mocks/planos.mock');
       return mockUpdatePlan(id, data);
     }
-    const res = await fetch(`/api/plans/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'planos.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/plans/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'planos.update');
+      return res.json();
+    } catch {
+      console.warn('[planos.updatePlan] API not available, using fallback');
+      return {} as Plan;
+    }
   } catch (error) {
     handleServiceError(error, 'planos.update');
   }

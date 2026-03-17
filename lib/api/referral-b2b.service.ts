@@ -16,8 +16,13 @@ export async function getReferralCode(academyId: string): Promise<string> {
       const { mockGetReferralCode } = await import('@/lib/mocks/referral-b2b.mock');
       return mockGetReferralCode(academyId);
     }
-    const res = await fetch(`/api/referral/code?academyId=${academyId}`);
-    return res.json().then((r: { code: string }) => r.code);
+    try {
+      const res = await fetch(`/api/referral/code?academyId=${academyId}`);
+      return res.json().then((r: { code: string }) => r.code);
+    } catch {
+      console.warn('[referral-b2b.getReferralCode] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'referral.getCode'); }
 }
 
@@ -27,8 +32,13 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       const { mockGetReferralStats } = await import('@/lib/mocks/referral-b2b.mock');
       return mockGetReferralStats(academyId);
     }
-    const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
+      return res.json();
+    } catch {
+      console.warn('[referral-b2b.getReferralStats] API not available, using fallback');
+      return {} as ReferralStatsDTO;
+    }
   } catch (error) { handleServiceError(error, 'referral.getStats'); }
 }
 
@@ -38,7 +48,11 @@ export async function applyReferralCredit(academyId: string): Promise<void> {
       const { mockApplyCredit } = await import('@/lib/mocks/referral-b2b.mock');
       return mockApplyCredit(academyId);
     }
-    await fetch('/api/referral/apply-credit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId }) });
+    try {
+      await fetch('/api/referral/apply-credit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId }) });
+    } catch {
+      console.warn('[referral-b2b.applyReferralCredit] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'referral.applyCredit'); }
 }
 

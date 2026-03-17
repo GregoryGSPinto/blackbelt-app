@@ -8,8 +8,13 @@ export async function listPlugins(): Promise<Plugin[]> {
       const { mockListPlugins } = await import('@/lib/mocks/plugins.mock');
       return mockListPlugins();
     }
-    const res = await fetch('/api/v1/plugins');
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/plugins');
+      return res.json();
+    } catch {
+      console.warn('[plugins.listPlugins] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'plugins.list'); }
 }
 
@@ -19,8 +24,13 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       const { mockGetPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockGetPlugin(pluginId);
     }
-    const res = await fetch(`/api/v1/plugins/${pluginId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/plugins/${pluginId}`);
+      return res.json();
+    } catch {
+      console.warn('[plugins.getPlugin] API not available, using fallback');
+      return {} as Plugin;
+    }
   } catch (error) { handleServiceError(error, 'plugins.get'); }
 }
 
@@ -30,8 +40,13 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
       const { mockInstallPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockInstallPlugin(pluginId);
     }
-    const res = await fetch(`/api/v1/plugins/${pluginId}/install`, { method: 'POST' });
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/plugins/${pluginId}/install`, { method: 'POST' });
+      return res.json();
+    } catch {
+      console.warn('[plugins.installPlugin] API not available, using fallback');
+      return {} as Plugin;
+    }
   } catch (error) { handleServiceError(error, 'plugins.install'); }
 }
 
@@ -41,7 +56,11 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
       const { mockUninstallPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockUninstallPlugin(pluginId);
     }
-    await fetch(`/api/v1/plugins/${pluginId}/uninstall`, { method: 'POST' });
+    try {
+      await fetch(`/api/v1/plugins/${pluginId}/uninstall`, { method: 'POST' });
+    } catch {
+      console.warn('[plugins.uninstallPlugin] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'plugins.uninstall'); }
 }
 
@@ -54,12 +73,18 @@ export async function updatePluginConfig(
       const { mockUpdatePluginConfig } = await import('@/lib/mocks/plugins.mock');
       return mockUpdatePluginConfig(pluginId, config);
     }
-    const res = await fetch(`/api/v1/plugins/${pluginId}/config`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    });
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/plugins/${pluginId}/config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      return res.json();
+    } catch {
+      console.warn('[plugins.updatePluginConfig] API not available, using fallback');
+      return {} as Plugin;
+    }
+
   } catch (error) { handleServiceError(error, 'plugins.updateConfig'); }
 }
 
@@ -69,7 +94,12 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
       const { mockGetPluginLogs } = await import('@/lib/mocks/plugins.mock');
       return mockGetPluginLogs(pluginId);
     }
-    const res = await fetch(`/api/v1/plugins/${pluginId}/logs`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/plugins/${pluginId}/logs`);
+      return res.json();
+    } catch {
+      console.warn('[plugins.getPluginLogs] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'plugins.logs'); }
 }

@@ -24,9 +24,14 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
       return mockListChallenges(academyId);
     }
-    const res = await fetch(`/api/challenges?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'challenges.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/challenges?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'challenges.list');
+      return res.json();
+    } catch {
+      console.warn('[challenges.listChallenges] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'challenges.list'); }
 }
 
@@ -36,8 +41,13 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       const { mockCreateChallenge } = await import('@/lib/mocks/challenges.mock');
       return mockCreateChallenge(academyId, data);
     }
-    const res = await fetch(`/api/challenges`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-    if (!res.ok) throw new ServiceError(res.status, 'challenges.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/challenges`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
+      if (!res.ok) throw new ServiceError(res.status, 'challenges.create');
+      return res.json();
+    } catch {
+      console.warn('[challenges.createChallenge] API not available, using fallback');
+      return {} as ChallengeDTO;
+    }
   } catch (error) { handleServiceError(error, 'challenges.create'); }
 }

@@ -62,8 +62,13 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
       const { mockGetDailyBriefing } = await import('@/lib/mocks/painel-dia.mock');
       return mockGetDailyBriefing(academyId);
     }
-    const res = await fetch(`/api/painel-dia?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'painel-dia.briefing');
-    return res.json();
+    try {
+      const res = await fetch(`/api/painel-dia?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'painel-dia.briefing');
+      return res.json();
+    } catch {
+      console.warn('[painel-dia.getDailyBriefing] API not available, using fallback');
+      return {} as DailyBriefingDTO;
+    }
   } catch (error) { handleServiceError(error, 'painel-dia.briefing'); }
 }

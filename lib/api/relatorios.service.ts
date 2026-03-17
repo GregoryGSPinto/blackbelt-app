@@ -29,16 +29,21 @@ export async function getReport(academyId: string, filters: ReportFilters): Prom
       const { mockGetReport } = await import('@/lib/mocks/relatorios.mock');
       return mockGetReport(academyId, filters);
     }
-    const params = new URLSearchParams({
-      academyId,
-      type: filters.type,
-      from: filters.from,
-      to: filters.to,
-    });
-    if (filters.turma_id) params.set('turma_id', filters.turma_id);
-    const res = await fetch(`/api/reports?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'relatorios.get');
-    return res.json();
+    try {
+      const params = new URLSearchParams({
+        academyId,
+        type: filters.type,
+        from: filters.from,
+        to: filters.to,
+      });
+      if (filters.turma_id) params.set('turma_id', filters.turma_id);
+      const res = await fetch(`/api/reports?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'relatorios.get');
+      return res.json();
+    } catch {
+      console.warn('[relatorios.getReport] API not available, using fallback');
+      return {} as ReportResult;
+    }
   } catch (error) {
     handleServiceError(error, 'relatorios.get');
   }

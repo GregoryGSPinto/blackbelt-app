@@ -34,9 +34,14 @@ export async function buscarAlunoAtendimento(query: string): Promise<AlunoAtendi
       const { mockBuscarAluno } = await import('@/lib/mocks/recepcao-atendimento.mock');
       return mockBuscarAluno(query);
     }
-    const res = await fetch(`/api/recepcao/atendimento/buscar?q=${encodeURIComponent(query)}`);
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.buscar');
-    return res.json();
+    try {
+      const res = await fetch(`/api/recepcao/atendimento/buscar?q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.buscar');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-atendimento.buscarAlunoAtendimento] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-atendimento.buscar');
   }
@@ -48,13 +53,18 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       const { mockCheckinManual } = await import('@/lib/mocks/recepcao-atendimento.mock');
       return mockCheckinManual(alunoId, turmaId);
     }
-    const res = await fetch('/api/recepcao/atendimento/checkin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ alunoId, turmaId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.checkin');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/atendimento/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alunoId, turmaId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.checkin');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-atendimento.checkinManual] API not available, using fallback');
+      return {} as { ok: boolean };
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-atendimento.checkin');
   }

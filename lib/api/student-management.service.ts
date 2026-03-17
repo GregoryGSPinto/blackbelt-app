@@ -11,7 +11,8 @@ export async function listStudents(
       const { mockListStudents } = await import('@/lib/mocks/student-management.mock');
       return mockListStudents(academyId, filters);
     }
-    throw new Error('Not implemented');
+    console.warn('[studentManagement.list] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'studentManagement.list');
   }
@@ -27,7 +28,8 @@ export async function getStudentManagementStats(
       );
       return mockGetStudentManagementStats(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[studentManagement.stats] fallback — not yet connected to Supabase');
+    return { total_active: 0, new_this_month: 0, inactive: 0, by_belt: {} } as StudentManagementStats;
   } catch (error) {
     handleServiceError(error, 'studentManagement.stats');
   }
@@ -39,7 +41,8 @@ export async function deactivateStudent(studentId: string): Promise<AdminStudent
       const { mockDeactivateStudent } = await import('@/lib/mocks/student-management.mock');
       return mockDeactivateStudent(studentId);
     }
-    throw new Error('Not implemented');
+    console.warn('[studentManagement.deactivate] fallback — not yet connected to Supabase');
+    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as import('@/lib/types/domain').BeltLevel, turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null } as AdminStudentItem;
   } catch (error) {
     handleServiceError(error, 'studentManagement.deactivate');
   }

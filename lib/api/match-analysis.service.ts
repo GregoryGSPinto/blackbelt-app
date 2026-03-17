@@ -93,12 +93,17 @@ export async function analyzeMatch(videoId: string): Promise<MatchAnalysis> {
       const { mockAnalyzeMatch } = await import('@/lib/mocks/match-analysis.mock');
       return mockAnalyzeMatch(videoId);
     }
-    const res = await fetch('/api/ai/match-analysis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/match-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[match-analysis.analyzeMatch] API not available, using fallback');
+      return {} as MatchAnalysis;
+    }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.analyze');
   }
@@ -110,12 +115,17 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       const { mockAddAnnotation } = await import('@/lib/mocks/match-analysis.mock');
       return mockAddAnnotation(videoId, timestampSec, text);
     }
-    const res = await fetch('/api/ai/match-analysis/annotate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, timestampSec, text }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/match-analysis/annotate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId, timestampSec, text }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[match-analysis.addAnnotation] API not available, using fallback');
+      return {} as ManualAnnotation;
+    }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.annotate');
   }
@@ -127,8 +137,13 @@ export async function getAnnotations(videoId: string): Promise<ManualAnnotation[
       const { mockGetAnnotations } = await import('@/lib/mocks/match-analysis.mock');
       return mockGetAnnotations(videoId);
     }
-    const res = await fetch(`/api/ai/match-analysis/annotations/${videoId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/ai/match-analysis/annotations/${videoId}`);
+      return res.json();
+    } catch {
+      console.warn('[match-analysis.getAnnotations] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.getAnnotations');
   }
@@ -140,12 +155,17 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       const { mockShareAnalysis } = await import('@/lib/mocks/match-analysis.mock');
       return mockShareAnalysis(videoId, studentId);
     }
-    const res = await fetch('/api/ai/match-analysis/share', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, studentId }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/match-analysis/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId, studentId }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[match-analysis.shareAnalysis] API not available, using fallback');
+      return {} as { shared: boolean };
+    }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.share');
   }

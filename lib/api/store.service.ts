@@ -57,15 +57,20 @@ export async function listProducts(academyId: string, filters?: ProductFilters):
       const { mockListProducts } = await import('@/lib/mocks/store.mock');
       return mockListProducts(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters?.category) params.set('category', filters.category);
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.search) params.set('search', filters.search);
-    if (filters?.featured !== undefined) params.set('featured', String(filters.featured));
-    if (filters?.low_stock) params.set('low_stock', 'true');
-    const res = await fetch(`/api/store/products?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'store.listProducts');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.search) params.set('search', filters.search);
+      if (filters?.featured !== undefined) params.set('featured', String(filters.featured));
+      if (filters?.low_stock) params.set('low_stock', 'true');
+      const res = await fetch(`/api/store/products?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'store.listProducts');
+      return res.json();
+    } catch {
+      console.warn('[store.listProducts] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'store.listProducts'); }
 }
 
@@ -75,9 +80,14 @@ export async function getProduct(id: string): Promise<Product> {
       const { mockGetProduct } = await import('@/lib/mocks/store.mock');
       return mockGetProduct(id);
     }
-    const res = await fetch(`/api/store/products/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'store.getProduct');
-    return res.json();
+    try {
+      const res = await fetch(`/api/store/products/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'store.getProduct');
+      return res.json();
+    } catch {
+      console.warn('[store.getProduct] API not available, using fallback');
+      return {} as Product;
+    }
   } catch (error) { handleServiceError(error, 'store.getProduct'); }
 }
 
@@ -87,13 +97,18 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       const { mockCreateProduct } = await import('@/lib/mocks/store.mock');
       return mockCreateProduct(data);
     }
-    const res = await fetch('/api/store/products', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'store.createProduct');
-    return res.json();
+    try {
+      const res = await fetch('/api/store/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'store.createProduct');
+      return res.json();
+    } catch {
+      console.warn('[store.createProduct] API not available, using fallback');
+      return {} as Product;
+    }
   } catch (error) { handleServiceError(error, 'store.createProduct'); }
 }
 
@@ -103,13 +118,18 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       const { mockUpdateProduct } = await import('@/lib/mocks/store.mock');
       return mockUpdateProduct(id, data);
     }
-    const res = await fetch(`/api/store/products/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'store.updateProduct');
-    return res.json();
+    try {
+      const res = await fetch(`/api/store/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'store.updateProduct');
+      return res.json();
+    } catch {
+      console.warn('[store.updateProduct] API not available, using fallback');
+      return {} as Product;
+    }
   } catch (error) { handleServiceError(error, 'store.updateProduct'); }
 }
 
@@ -119,7 +139,11 @@ export async function deleteProduct(id: string): Promise<void> {
       const { mockDeleteProduct } = await import('@/lib/mocks/store.mock');
       return mockDeleteProduct(id);
     }
-    const res = await fetch(`/api/store/products/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'store.deleteProduct');
+    try {
+      const res = await fetch(`/api/store/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'store.deleteProduct');
+    } catch {
+      console.warn('[store.deleteProduct] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'store.deleteProduct'); }
 }

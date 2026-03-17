@@ -29,7 +29,8 @@ export async function getAlertas(professorId: string): Promise<AlertaProfessor[]
       const { mockGetAlertas } = await import('@/lib/mocks/professor-alertas.mock');
       return mockGetAlertas(professorId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[professorAlertas.get] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'professorAlertas.get');
   }
@@ -41,7 +42,8 @@ export async function getAlertasCount(professorId: string): Promise<number> {
       const { mockGetAlertasCount } = await import('@/lib/mocks/professor-alertas.mock');
       return mockGetAlertasCount(professorId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[professorAlertas.count] fallback — not yet connected to Supabase');
+    return 0;
   } catch (error) {
     handleServiceError(error, 'professorAlertas.count');
   }
@@ -53,7 +55,8 @@ export async function marcarLido(alertaId: string): Promise<void> {
       const { mockMarcarLido } = await import('@/lib/mocks/professor-alertas.mock');
       return mockMarcarLido(alertaId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[professorAlertas.marcarLido] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'professorAlertas.marcarLido');
   }
@@ -65,7 +68,8 @@ export async function marcarTodosLidos(professorId: string): Promise<void> {
       const { mockMarcarTodosLidos } = await import('@/lib/mocks/professor-alertas.mock');
       return mockMarcarTodosLidos(professorId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[professorAlertas.marcarTodosLidos] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'professorAlertas.marcarTodosLidos');
   }

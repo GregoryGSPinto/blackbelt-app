@@ -33,9 +33,14 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
       const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
       return mockGetParentDashboard(parentId);
     }
-    const res = await fetch(`/api/parent/dashboard?parentId=${parentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'parent.dashboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/parent/dashboard?parentId=${parentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'parent.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[parent.getParentDashboard] API not available, using fallback');
+      return {} as ParentDashboardDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'parent.dashboard');
   }

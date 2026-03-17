@@ -74,12 +74,17 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       const { mockProcessCommand } = await import('@/lib/mocks/voice-assistant.mock');
       return mockProcessCommand(audioTranscript);
     }
-    const res = await fetch('/api/ai/voice-command', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: audioTranscript }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/voice-command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: audioTranscript }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[voice-assistant.processCommand] API not available, using fallback');
+      return {} as VoiceResponse;
+    }
   } catch (error) {
     handleServiceError(error, 'voiceAssistant.processCommand');
   }

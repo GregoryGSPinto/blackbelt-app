@@ -50,9 +50,14 @@ export async function getReferralCode(academyId: string): Promise<ReferralCode> 
         createdAt: '2026-01-15T00:00:00Z',
       };
     }
-    const res = await fetch(`/api/referral/code?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/referral/code?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[referral.getReferralCode] API not available, using fallback');
+      return {} as ReferralCode;
+    }
   } catch (error) {
     handleServiceError(error, 'referral.getCode');
   }
@@ -68,9 +73,14 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
         pendingRewards: 1,
       };
     }
-    const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[referral.getReferralStats] API not available, using fallback');
+      return {} as ReferralStats;
+    }
   } catch (error) {
     handleServiceError(error, 'referral.stats');
   }
@@ -87,9 +97,14 @@ export async function listReferrals(academyId: string): Promise<Referral[]> {
         { id: 'ref-5', referralCode: 'REF-ABC123', referredAcademyName: 'Wolf Pack BJJ', status: 'pending', createdAt: '2026-03-16T00:00:00Z', convertedAt: null },
       ];
     }
-    const res = await fetch(`/api/referral/list?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/referral/list?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[referral.listReferrals] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'referral.list');
   }

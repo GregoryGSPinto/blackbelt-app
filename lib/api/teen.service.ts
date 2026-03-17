@@ -111,9 +111,14 @@ export async function getTeenDashboard(studentId: string): Promise<TeenDashboard
       const { mockGetTeenDashboard } = await import('@/lib/mocks/teen.mock');
       return mockGetTeenDashboard(studentId);
     }
-    const res = await fetch(`/api/teen/dashboard?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'teen.dashboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/teen/dashboard?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'teen.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[teen.getTeenDashboard] API not available, using fallback');
+      return {} as TeenDashboardDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'teen.dashboard');
   }

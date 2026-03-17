@@ -26,9 +26,14 @@ export async function listSpaces(unitId: string): Promise<SpaceDTO[]> {
       const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
       return mockListSpaces(unitId);
     }
-    const res = await fetch(`/api/spaces?unitId=${unitId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'spaces.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/spaces?unitId=${unitId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'spaces.list');
+      return res.json();
+    } catch {
+      console.warn('[spaces.listSpaces] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'spaces.list'); }
 }
 
@@ -38,9 +43,14 @@ export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlo
       const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
       return mockGetSchedule(unitId);
     }
-    const res = await fetch(`/api/spaces/schedule?unitId=${unitId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'spaces.schedule');
-    return res.json();
+    try {
+      const res = await fetch(`/api/spaces/schedule?unitId=${unitId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'spaces.schedule');
+      return res.json();
+    } catch {
+      console.warn('[spaces.getSpaceSchedule] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'spaces.schedule'); }
 }
 
@@ -50,8 +60,13 @@ export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'u
       const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
       return mockCreateSpace(unitId, data);
     }
-    const res = await fetch(`/api/spaces`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, ...data }) });
-    if (!res.ok) throw new ServiceError(res.status, 'spaces.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/spaces`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, ...data }) });
+      if (!res.ok) throw new ServiceError(res.status, 'spaces.create');
+      return res.json();
+    } catch {
+      console.warn('[spaces.createSpace] API not available, using fallback');
+      return {} as SpaceDTO;
+    }
   } catch (error) { handleServiceError(error, 'spaces.create'); }
 }

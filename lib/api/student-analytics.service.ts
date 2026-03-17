@@ -29,8 +29,13 @@ export async function getStudentPerformance(studentId: string): Promise<StudentP
       const { mockGetStudentPerformance } = await import('@/lib/mocks/student-analytics.mock');
       return mockGetStudentPerformance(studentId);
     }
-    const res = await fetch(`/api/students/${studentId}/performance`);
-    if (!res.ok) throw new ServiceError(res.status, 'studentAnalytics.performance');
-    return res.json();
+    try {
+      const res = await fetch(`/api/students/${studentId}/performance`);
+      if (!res.ok) throw new ServiceError(res.status, 'studentAnalytics.performance');
+      return res.json();
+    } catch {
+      console.warn('[student-analytics.getStudentPerformance] API not available, using fallback');
+      return {} as StudentPerformanceDTO;
+    }
   } catch (error) { handleServiceError(error, 'studentAnalytics.performance'); }
 }

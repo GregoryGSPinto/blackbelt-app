@@ -48,13 +48,18 @@ export async function generateBracket(championshipId: string, categoryId: string
       const { mockGenerateBracket } = await import('@/lib/mocks/brackets.mock');
       return mockGenerateBracket(championshipId, categoryId, method);
     }
-    const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/bracket`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ method }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'brackets.generate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/bracket`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'brackets.generate');
+      return res.json();
+    } catch {
+      console.warn('[brackets.generateBracket] API not available, using fallback');
+      return {} as BracketDTO;
+    }
   } catch (error) { handleServiceError(error, 'brackets.generate'); }
 }
 
@@ -64,9 +69,14 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
       return mockGetBracketByCategory(categoryId);
     }
-    const res = await fetch(`/api/brackets/category/${categoryId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'brackets.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/brackets/category/${categoryId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'brackets.get');
+      return res.json();
+    } catch {
+      console.warn('[brackets.getBracketByCategory] API not available, using fallback');
+      return {} as BracketDTO;
+    }
   } catch (error) { handleServiceError(error, 'brackets.get'); }
 }
 
@@ -76,13 +86,18 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       const { mockSubmitResult } = await import('@/lib/mocks/brackets.mock');
       return mockSubmitResult(matchId, result);
     }
-    const res = await fetch(`/api/brackets/matches/${matchId}/result`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'brackets.submitResult');
-    return res.json();
+    try {
+      const res = await fetch(`/api/brackets/matches/${matchId}/result`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'brackets.submitResult');
+      return res.json();
+    } catch {
+      console.warn('[brackets.submitResult] API not available, using fallback');
+      return {} as MatchDTO;
+    }
   } catch (error) { handleServiceError(error, 'brackets.submitResult'); }
 }
 
@@ -92,8 +107,13 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
       return mockGetMatchDetails(matchId);
     }
-    const res = await fetch(`/api/brackets/matches/${matchId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'brackets.matchDetails');
-    return res.json();
+    try {
+      const res = await fetch(`/api/brackets/matches/${matchId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'brackets.matchDetails');
+      return res.json();
+    } catch {
+      console.warn('[brackets.getMatchDetails] API not available, using fallback');
+      return {} as MatchDTO;
+    }
   } catch (error) { handleServiceError(error, 'brackets.matchDetails'); }
 }

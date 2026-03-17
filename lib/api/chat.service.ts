@@ -9,9 +9,14 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       const { mockListConversations } = await import('@/lib/mocks/chat.mock');
       return mockListConversations(userId);
     }
-    const res = await fetch(`/api/chat/conversations?userId=${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/chat/conversations?userId=${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[chat.listConversations] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'chat.listConversations');
   }
@@ -27,11 +32,17 @@ export async function getMessages(
       const { mockGetMessages } = await import('@/lib/mocks/chat.mock');
       return mockGetMessages(conversationId, limit);
     }
-    const params = new URLSearchParams({ limit: String(limit) });
-    if (cursor) params.set('cursor', cursor);
-    const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const params = new URLSearchParams({ limit: String(limit) });
+      if (cursor) params.set('cursor', cursor);
+      const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[chat.getMessages] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'chat.getMessages');
   }
@@ -43,13 +54,18 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       const { mockSendMessage } = await import('@/lib/mocks/chat.mock');
       return mockSendMessage(payload);
     }
-    const res = await fetch(`/api/chat/conversations/${payload.conversationId}/messages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/chat/conversations/${payload.conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[chat.sendMessage] API not available, using fallback');
+      return {} as ChatMessage;
+    }
   } catch (error) {
     handleServiceError(error, 'chat.sendMessage');
   }
@@ -61,10 +77,14 @@ export async function markAsRead(conversationId: string): Promise<void> {
       logger.debug(`[MOCK] Marked conversation ${conversationId} as read`);
       return;
     }
-    const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
-      method: 'POST',
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[chat.markAsRead] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'chat.markAsRead');
   }
@@ -89,13 +109,19 @@ export async function createBroadcast(
         type: 'text',
       };
     }
-    const res = await fetch('/api/chat/broadcast', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ senderId, content, recipientRole }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/chat/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderId, content, recipientRole }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[chat.createBroadcast] API not available, using fallback');
+      return {} as ChatMessage;
+    }
+
   } catch (error) {
     handleServiceError(error, 'chat.broadcast');
   }

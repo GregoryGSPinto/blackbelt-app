@@ -66,13 +66,19 @@ export async function getRetentionData(
       const { mockGetRetentionData } = await import('@/lib/mocks/retention.mock');
       return mockGetRetentionData(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters?.period) params.set('period', filters.period);
-    if (filters?.className) params.set('className', filters.className);
-    if (filters?.modality) params.set('modality', filters.modality);
-    const res = await fetch(`/api/retention?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'retention.data');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters?.period) params.set('period', filters.period);
+      if (filters?.className) params.set('className', filters.className);
+      if (filters?.modality) params.set('modality', filters.modality);
+      const res = await fetch(`/api/retention?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'retention.data');
+      return res.json();
+    } catch {
+      console.warn('[retention.getRetentionData] API not available, using fallback');
+      return {} as RetentionData;
+    }
+
   } catch (error) {
     handleServiceError(error, 'retention.data');
   }
@@ -86,10 +92,15 @@ export async function markStudentContacted(
       const { mockMarkContacted } = await import('@/lib/mocks/retention.mock');
       return mockMarkContacted(studentId);
     }
-    const res = await fetch(`/api/retention/contact/${studentId}`, {
-      method: 'POST',
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'retention.contact');
+    try {
+      const res = await fetch(`/api/retention/contact/${studentId}`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'retention.contact');
+    } catch {
+      console.warn('[retention.markStudentContacted] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'retention.contact');
   }

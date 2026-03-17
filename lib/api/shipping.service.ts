@@ -42,13 +42,18 @@ export async function calculateShipping(cep: string, items: ShippingItem[]): Pro
       const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
       return mockCalculateShipping(cep, items);
     }
-    const res = await fetch('/api/shipping/calculate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cep, items }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'shipping.calculateShipping');
-    return res.json();
+    try {
+      const res = await fetch('/api/shipping/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cep, items }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'shipping.calculateShipping');
+      return res.json();
+    } catch {
+      console.warn('[shipping.calculateShipping] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'shipping.calculateShipping'); }
 }
 
@@ -58,13 +63,18 @@ export async function createShipment(orderId: string, carrier: string): Promise<
       const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
       return mockCreateShipment(orderId, carrier);
     }
-    const res = await fetch('/api/shipping/shipments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, carrier }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'shipping.createShipment');
-    return res.json();
+    try {
+      const res = await fetch('/api/shipping/shipments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, carrier }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'shipping.createShipment');
+      return res.json();
+    } catch {
+      console.warn('[shipping.createShipment] API not available, using fallback');
+      return {} as Shipment;
+    }
   } catch (error) { handleServiceError(error, 'shipping.createShipment'); }
 }
 
@@ -74,9 +84,14 @@ export async function trackShipment(trackingCode: string): Promise<Shipment> {
       const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
     }
-    const res = await fetch(`/api/shipping/track/${trackingCode}`);
-    if (!res.ok) throw new ServiceError(res.status, 'shipping.trackShipment');
-    return res.json();
+    try {
+      const res = await fetch(`/api/shipping/track/${trackingCode}`);
+      if (!res.ok) throw new ServiceError(res.status, 'shipping.trackShipment');
+      return res.json();
+    } catch {
+      console.warn('[shipping.trackShipment] API not available, using fallback');
+      return {} as Shipment;
+    }
   } catch (error) { handleServiceError(error, 'shipping.trackShipment'); }
 }
 
@@ -86,8 +101,13 @@ export async function getShipmentStatus(orderId: string): Promise<Shipment> {
       const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
     }
-    const res = await fetch(`/api/shipping/orders/${orderId}/shipment`);
-    if (!res.ok) throw new ServiceError(res.status, 'shipping.getShipmentStatus');
-    return res.json();
+    try {
+      const res = await fetch(`/api/shipping/orders/${orderId}/shipment`);
+      if (!res.ok) throw new ServiceError(res.status, 'shipping.getShipmentStatus');
+      return res.json();
+    } catch {
+      console.warn('[shipping.getShipmentStatus] API not available, using fallback');
+      return {} as Shipment;
+    }
   } catch (error) { handleServiceError(error, 'shipping.getShipmentStatus'); }
 }

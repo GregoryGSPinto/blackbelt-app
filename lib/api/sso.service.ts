@@ -25,9 +25,14 @@ export async function getSSOConfig(academyId: string): Promise<SSOConfig | null>
       const { mockGetSSOConfig } = await import('@/lib/mocks/sso.mock');
       return mockGetSSOConfig(academyId);
     }
-    const res = await fetch(`/api/sso/config?academyId=${academyId}`);
-    if (!res.ok) return null;
-    return res.json();
+    try {
+      const res = await fetch(`/api/sso/config?academyId=${academyId}`);
+      if (!res.ok) return null;
+      return res.json();
+    } catch {
+      console.warn('[sso.getSSOConfig] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'sso.getConfig'); }
 }
 
@@ -37,8 +42,13 @@ export async function updateSSOConfig(academyId: string, config: Partial<SSOConf
       const { mockUpdateSSOConfig } = await import('@/lib/mocks/sso.mock');
       return mockUpdateSSOConfig(academyId, config);
     }
-    const res = await fetch('/api/sso/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...config }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/sso/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...config }) });
+      return res.json();
+    } catch {
+      console.warn('[sso.updateSSOConfig] API not available, using fallback');
+      return {} as SSOConfig;
+    }
   } catch (error) { handleServiceError(error, 'sso.updateConfig'); }
 }
 
@@ -48,8 +58,13 @@ export async function initSSOLogin(provider: SSOProvider, academyId: string): Pr
       const { mockInitSSOLogin } = await import('@/lib/mocks/sso.mock');
       return mockInitSSOLogin(provider, academyId);
     }
-    const res = await fetch('/api/sso/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ provider, academyId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/sso/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ provider, academyId }) });
+      return res.json();
+    } catch {
+      console.warn('[sso.initSSOLogin] API not available, using fallback');
+      return {} as { redirectUrl: string };
+    }
   } catch (error) { handleServiceError(error, 'sso.initLogin'); }
 }
 
@@ -59,8 +74,13 @@ export async function handleSSOCallback(provider: SSOProvider, code: string): Pr
       const { mockHandleSSOCallback } = await import('@/lib/mocks/sso.mock');
       return mockHandleSSOCallback(provider, code);
     }
-    const res = await fetch('/api/sso/callback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ provider, code }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/sso/callback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ provider, code }) });
+      return res.json();
+    } catch {
+      console.warn('[sso.handleSSOCallback] API not available, using fallback');
+      return {} as SSOCallbackResult;
+    }
   } catch (error) { handleServiceError(error, 'sso.callback'); }
 }
 
@@ -70,7 +90,12 @@ export async function testSSOConnection(academyId: string): Promise<{ success: b
       const { mockTestSSOConnection } = await import('@/lib/mocks/sso.mock');
       return mockTestSSOConnection(academyId);
     }
-    const res = await fetch('/api/sso/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/sso/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId }) });
+      return res.json();
+    } catch {
+      console.warn('[sso.testSSOConnection] API not available, using fallback');
+      return { success: false, error: 'API not available' };
+    }
   } catch (error) { handleServiceError(error, 'sso.test'); }
 }

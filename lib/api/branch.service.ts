@@ -8,9 +8,14 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
       const { mockListBranches } = await import('@/lib/mocks/branch.mock');
       return mockListBranches(academyId);
     }
-    const res = await fetch(`/api/branches?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/branches?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[branch.listBranches] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'branch.list');
   }
@@ -22,9 +27,14 @@ export async function getBranch(branchId: string): Promise<Branch> {
       const { mockGetBranch } = await import('@/lib/mocks/branch.mock');
       return mockGetBranch(branchId);
     }
-    const res = await fetch(`/api/branches/${branchId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/branches/${branchId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[branch.getBranch] API not available, using fallback');
+      return {} as Branch;
+    }
   } catch (error) {
     handleServiceError(error, 'branch.get');
   }
@@ -39,13 +49,19 @@ export async function createBranch(
       const { mockCreateBranch } = await import('@/lib/mocks/branch.mock');
       return mockCreateBranch(academyId, payload);
     }
-    const res = await fetch('/api/branches', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...payload }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/branches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...payload }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[branch.createBranch] API not available, using fallback');
+      return {} as Branch;
+    }
+
   } catch (error) {
     handleServiceError(error, 'branch.create');
   }
@@ -57,9 +73,14 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
       const { mockBranchStats } = await import('@/lib/mocks/branch.mock');
       return mockBranchStats(academyId);
     }
-    const res = await fetch(`/api/branches/stats?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/branches/stats?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[branch.getBranchStats] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'branch.stats');
   }

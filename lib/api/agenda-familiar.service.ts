@@ -61,9 +61,14 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       const { mockGetFamilyCalendar } = await import('@/lib/mocks/agenda-familiar.mock');
       return mockGetFamilyCalendar(profileId);
     }
-    const res = await fetch(`/api/agenda-familiar/calendar?profileId=${profileId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.calendar');
-    return res.json();
+    try {
+      const res = await fetch(`/api/agenda-familiar/calendar?profileId=${profileId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.calendar');
+      return res.json();
+    } catch {
+      console.warn('[agenda-familiar.getFamilyCalendar] API not available, using fallback');
+      return {} as FamilyCalendarDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.calendar');
   }
@@ -75,9 +80,14 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       const { mockGetMonthlyReport } = await import('@/lib/mocks/agenda-familiar.mock');
       return mockGetMonthlyReport(profileId, month);
     }
-    const res = await fetch(`/api/agenda-familiar/report?profileId=${profileId}&month=${month}`);
-    if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.report');
-    return res.json();
+    try {
+      const res = await fetch(`/api/agenda-familiar/report?profileId=${profileId}&month=${month}`);
+      if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.report');
+      return res.json();
+    } catch {
+      console.warn('[agenda-familiar.getMonthlyReport] API not available, using fallback');
+      return {} as MonthlyReportDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.report');
   }

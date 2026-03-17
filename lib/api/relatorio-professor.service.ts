@@ -38,11 +38,16 @@ export async function getRelatorioProfessores(academyId: string, periodo?: strin
       const { mockGetRelatorioProfessores } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetRelatorioProfessores(academyId, periodo);
     }
-    const params = new URLSearchParams({ academyId });
-    if (periodo) params.set('periodo', periodo);
-    const res = await fetch(`/api/relatorio-professores?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (periodo) params.set('periodo', periodo);
+      const res = await fetch(`/api/relatorio-professores?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.list');
+      return res.json();
+    } catch {
+      console.warn('[relatorio-professor.getRelatorioProfessores] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'relatorio-professor.list'); }
 }
 
@@ -52,11 +57,16 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
       const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetDetalheProfessor(professorId, periodo);
     }
-    const params = new URLSearchParams();
-    if (periodo) params.set('periodo', periodo);
-    const query = params.toString() ? `?${params}` : '';
-    const res = await fetch(`/api/relatorio-professores/${professorId}${query}`);
-    if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.detail');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (periodo) params.set('periodo', periodo);
+      const query = params.toString() ? `?${params}` : '';
+      const res = await fetch(`/api/relatorio-professores/${professorId}${query}`);
+      if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.detail');
+      return res.json();
+    } catch {
+      console.warn('[relatorio-professor.getDetalheProfessor] API not available, using fallback');
+      return {} as DetalheProfessor;
+    }
   } catch (error) { handleServiceError(error, 'relatorio-professor.detail'); }
 }

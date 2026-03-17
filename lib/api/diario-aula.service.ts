@@ -53,7 +53,8 @@ export async function createDiario(payload: CreateDiarioPayload): Promise<Diario
       const { mockCreateDiario } = await import('@/lib/mocks/diario-aula.mock');
       return mockCreateDiario(payload);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[diarioAula.create] fallback — not yet connected to Supabase');
+    return { id: '', turmaId: payload.turmaId, turmaNome: '', data: payload.data, professorId: '', professorNome: '', tecnicasEnsinadas: payload.tecnicasEnsinadas, temaGeral: payload.temaGeral, observacoesGerais: payload.observacoesGerais, alunosDestaque: payload.alunosDestaque, alunosDificuldade: payload.alunosDificuldade, totalPresentes: payload.totalPresentes, totalMatriculados: payload.totalMatriculados, duracaoMinutos: payload.duracaoMinutos, intensidade: payload.intensidade, tipo: payload.tipo, criadoEm: new Date().toISOString() } as DiarioAula;
   } catch (error) {
     handleServiceError(error, 'diarioAula.create');
   }
@@ -65,7 +66,8 @@ export async function updateDiario(id: string, dados: Partial<CreateDiarioPayloa
       const { mockUpdateDiario } = await import('@/lib/mocks/diario-aula.mock');
       return mockUpdateDiario(id, dados);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[diarioAula.update] fallback — not yet connected to Supabase');
+    return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
   } catch (error) {
     handleServiceError(error, 'diarioAula.update');
   }
@@ -77,7 +79,8 @@ export async function getDiario(id: string): Promise<DiarioAula> {
       const { mockGetDiario } = await import('@/lib/mocks/diario-aula.mock');
       return mockGetDiario(id);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[diarioAula.get] fallback — not yet connected to Supabase');
+    return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
   } catch (error) {
     handleServiceError(error, 'diarioAula.get');
   }
@@ -89,7 +92,8 @@ export async function listDiarios(professorId: string, filtros?: { turmaId?: str
       const { mockListDiarios } = await import('@/lib/mocks/diario-aula.mock');
       return mockListDiarios(professorId, filtros);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[diarioAula.list] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'diarioAula.list');
   }

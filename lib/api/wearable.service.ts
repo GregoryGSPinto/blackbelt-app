@@ -46,8 +46,13 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       const { mockSyncHealthData } = await import('@/lib/mocks/wearable.mock');
       return mockSyncHealthData(userId, data);
     }
-    const res = await fetch('/api/wearable/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, data }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/wearable/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, data }) });
+      return res.json();
+    } catch {
+      console.warn('[wearable.syncHealthData] API not available, using fallback');
+      return {} as { synced: number };
+    }
   } catch (error) { handleServiceError(error, 'wearable.sync'); }
 }
 
@@ -57,8 +62,13 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
       const { mockGetHealthHistory } = await import('@/lib/mocks/wearable.mock');
       return mockGetHealthHistory(userId, period);
     }
-    const res = await fetch(`/api/wearable/history?userId=${userId}&period=${period}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/wearable/history?userId=${userId}&period=${period}`);
+      return res.json();
+    } catch {
+      console.warn('[wearable.getHealthHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'wearable.history'); }
 }
 
@@ -68,8 +78,13 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
       const { mockGetRealtimeMetrics } = await import('@/lib/mocks/wearable.mock');
       return mockGetRealtimeMetrics(userId);
     }
-    const res = await fetch(`/api/wearable/realtime?userId=${userId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/wearable/realtime?userId=${userId}`);
+      return res.json();
+    } catch {
+      console.warn('[wearable.getRealtimeMetrics] API not available, using fallback');
+      return {} as RealtimeMetrics;
+    }
   } catch (error) { handleServiceError(error, 'wearable.realtime'); }
 }
 
@@ -79,7 +94,12 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
       const { mockGetTrainingSession } = await import('@/lib/mocks/wearable.mock');
       return mockGetTrainingSession(userId);
     }
-    const res = await fetch(`/api/wearable/sessions?userId=${userId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/wearable/sessions?userId=${userId}`);
+      return res.json();
+    } catch {
+      console.warn('[wearable.getTrainingSession] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'wearable.sessions'); }
 }

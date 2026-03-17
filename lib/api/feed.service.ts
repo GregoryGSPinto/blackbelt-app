@@ -64,11 +64,17 @@ export async function getFeed(
       const { mockGetFeed } = await import('@/lib/mocks/feed.mock');
       return mockGetFeed(academyId, page, filter);
     }
-    const params = new URLSearchParams({ academyId, page: String(page) });
-    if (filter) params.set('filter', filter);
-    const res = await fetch(`/api/feed?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'feed.get');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId, page: String(page) });
+      if (filter) params.set('filter', filter);
+      const res = await fetch(`/api/feed?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'feed.get');
+      return res.json();
+    } catch {
+      console.warn('[feed.getFeed] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'feed.get');
   }
@@ -80,8 +86,12 @@ export async function likePost(postId: string): Promise<void> {
       const { mockLikePost } = await import('@/lib/mocks/feed.mock');
       return mockLikePost(postId);
     }
-    const res = await fetch(`/api/feed/${postId}/like`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'feed.like');
+    try {
+      const res = await fetch(`/api/feed/${postId}/like`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'feed.like');
+    } catch {
+      console.warn('[feed.likePost] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'feed.like');
   }
@@ -96,13 +106,19 @@ export async function addComment(
       const { mockAddComment } = await import('@/lib/mocks/feed.mock');
       return mockAddComment(postId, content);
     }
-    const res = await fetch(`/api/feed/${postId}/comment`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'feed.comment');
-    return res.json();
+    try {
+      const res = await fetch(`/api/feed/${postId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'feed.comment');
+      return res.json();
+    } catch {
+      console.warn('[feed.addComment] API not available, using fallback');
+      return {} as FeedComment;
+    }
+
   } catch (error) {
     handleServiceError(error, 'feed.comment');
   }
@@ -116,9 +132,15 @@ export async function getHighlights(
       const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
       return mockGetHighlights(academyId);
     }
-    const res = await fetch(`/api/feed/highlights?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'feed.highlights');
-    return res.json();
+    try {
+      const res = await fetch(`/api/feed/highlights?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'feed.highlights');
+      return res.json();
+    } catch {
+      console.warn('[feed.getHighlights] API not available, using fallback');
+      return {} as FeedHighlights;
+    }
+
   } catch (error) {
     handleServiceError(error, 'feed.highlights');
   }

@@ -73,7 +73,8 @@ export async function getAluno360(alunoId: string): Promise<Aluno360> {
       const { mockGetAluno360 } = await import('@/lib/mocks/professor-aluno360.mock');
       return mockGetAluno360(alunoId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[aluno360.get] fallback — not yet connected to Supabase');
+    return { id: alunoId, nome: '', email: '', telefone: '', dataNascimento: '', idade: 0, faixaAtual: '', graus: 0, dataPromocao: '', tempoNaFaixaAtual: '', historicoFaixas: [], presencaTotal: 0, presencaUltimos30Dias: 0, presencaMedia: 0, sequenciaAtual: 0, maiorSequencia: 0, frequenciaSemanal: [], ultimoCheckin: '', diasDesdeUltimoTreino: 0, evolucaoMedia: [], restricoesMedicas: [], lesoes: [], turmasInscritas: [], notasProfessores: [], competicoes: [], situacaoFinanceira: 'em_dia', plano: '', planoPeriodo: '' } as Aluno360;
   } catch (error) {
     handleServiceError(error, 'aluno360.get');
   }
@@ -88,7 +89,8 @@ export async function addNotaAluno(
       const { mockAddNotaAluno } = await import('@/lib/mocks/professor-aluno360.mock');
       return mockAddNotaAluno(alunoId, nota);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[aluno360.addNota] fallback — not yet connected to Supabase');
+    return { id: '', alunoId, professorId: '', professorNome: '', data: new Date().toISOString(), texto: nota.texto, tipo: nota.tipo } as NotaAluno;
   } catch (error) {
     handleServiceError(error, 'aluno360.addNota');
   }

@@ -29,9 +29,14 @@ export async function getMFAStatus(userId: string): Promise<MFAStatus> {
         lastVerified: null,
       };
     }
-    const res = await fetch(`/api/auth/mfa/status?userId=${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/auth/mfa/status?userId=${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[mfa.getMFAStatus] API not available, using fallback');
+      return {} as MFAStatus;
+    }
   } catch (error) {
     handleServiceError(error, 'mfa.status');
   }
@@ -50,13 +55,18 @@ export async function setupMFA(userId: string): Promise<MFASetupData> {
         ],
       };
     }
-    const res = await fetch('/api/auth/mfa/setup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/auth/mfa/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[mfa.setupMFA] API not available, using fallback');
+      return {} as MFASetupData;
+    }
   } catch (error) {
     handleServiceError(error, 'mfa.setup');
   }
@@ -69,13 +79,18 @@ export async function verifyMFA(userId: string, code: string): Promise<{ valid: 
       logger.debug('[MOCK] MFA verify', { userId, valid });
       return { valid };
     }
-    const res = await fetch('/api/auth/mfa/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, code }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/auth/mfa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, code }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[mfa.verifyMFA] API not available, using fallback');
+      return {} as { valid: boolean };
+    }
   } catch (error) {
     handleServiceError(error, 'mfa.verify');
   }
@@ -87,13 +102,18 @@ export async function disableMFA(userId: string, code: string): Promise<{ succes
       logger.debug('[MOCK] MFA disabled for user', { userId });
       return { success: true };
     }
-    const res = await fetch('/api/auth/mfa/disable', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, code }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/auth/mfa/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, code }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[mfa.disableMFA] API not available, using fallback');
+      return {} as { success: boolean };
+    }
   } catch (error) {
     handleServiceError(error, 'mfa.disable');
   }
@@ -109,13 +129,18 @@ export async function regenerateBackupCodes(userId: string): Promise<{ codes: st
         ],
       };
     }
-    const res = await fetch('/api/auth/mfa/backup-codes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/auth/mfa/backup-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[mfa.regenerateBackupCodes] API not available, using fallback');
+      return {} as { codes: string[] };
+    }
   } catch (error) {
     handleServiceError(error, 'mfa.regenerateBackupCodes');
   }

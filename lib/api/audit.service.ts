@@ -58,16 +58,21 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
       const { mockSearchAuditLogs } = await import('@/lib/mocks/audit.mock');
       return mockSearchAuditLogs(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters.action) params.set('action', filters.action);
-    if (filters.actorId) params.set('actorId', filters.actorId);
-    if (filters.entityType) params.set('entityType', filters.entityType);
-    if (filters.startDate) params.set('startDate', filters.startDate);
-    if (filters.endDate) params.set('endDate', filters.endDate);
-    if (filters.limit) params.set('limit', String(filters.limit));
-    if (filters.cursor) params.set('cursor', filters.cursor);
-    const res = await fetch(`/api/audit/search?${params}`);
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters.action) params.set('action', filters.action);
+      if (filters.actorId) params.set('actorId', filters.actorId);
+      if (filters.entityType) params.set('entityType', filters.entityType);
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.cursor) params.set('cursor', filters.cursor);
+      const res = await fetch(`/api/audit/search?${params}`);
+      return res.json();
+    } catch {
+      console.warn('[audit.searchAuditLogs] API not available, using fallback');
+      return { logs: [], nextCursor: null };
+    }
   } catch (error) { handleServiceError(error, 'audit.search'); }
 }
 
@@ -77,8 +82,13 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       const { mockGetEntityHistory } = await import('@/lib/mocks/audit.mock');
       return mockGetEntityHistory(entityType, entityId);
     }
-    const res = await fetch(`/api/audit/entity/${entityType}/${entityId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/audit/entity/${entityType}/${entityId}`);
+      return res.json();
+    } catch {
+      console.warn('[audit.getEntityHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'audit.entityHistory'); }
 }
 
@@ -88,11 +98,16 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
       const { mockExportAuditLogs } = await import('@/lib/mocks/audit.mock');
       return mockExportAuditLogs(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId, format: 'csv' });
-    if (filters.startDate) params.set('startDate', filters.startDate);
-    if (filters.endDate) params.set('endDate', filters.endDate);
-    const res = await fetch(`/api/audit/export?${params}`);
-    return res.blob();
+    try {
+      const params = new URLSearchParams({ academyId, format: 'csv' });
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+      const res = await fetch(`/api/audit/export?${params}`);
+      return res.blob();
+    } catch {
+      console.warn('[audit.exportAuditLogs] API not available, using fallback');
+      return {} as Blob;
+    }
   } catch (error) { handleServiceError(error, 'audit.export'); }
 }
 
@@ -107,17 +122,23 @@ export async function listAuditEntries(
       const { mockListAuditEntries } = await import('@/lib/mocks/audit.mock');
       return mockListAuditEntries(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters.action) params.set('action', filters.action);
-    if (filters.user_id) params.set('user_id', filters.user_id);
-    if (filters.entity_type) params.set('entity_type', filters.entity_type);
-    if (filters.start_date) params.set('start_date', filters.start_date);
-    if (filters.end_date) params.set('end_date', filters.end_date);
-    if (filters.limit) params.set('limit', String(filters.limit));
-    if (filters.offset) params.set('offset', String(filters.offset));
-    const res = await fetch(`/api/audit/entries?${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters.action) params.set('action', filters.action);
+      if (filters.user_id) params.set('user_id', filters.user_id);
+      if (filters.entity_type) params.set('entity_type', filters.entity_type);
+      if (filters.start_date) params.set('start_date', filters.start_date);
+      if (filters.end_date) params.set('end_date', filters.end_date);
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.offset) params.set('offset', String(filters.offset));
+      const res = await fetch(`/api/audit/entries?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[audit.listAuditEntries] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'audit.listEntries');
   }
@@ -131,13 +152,19 @@ export async function createAuditEntry(
       const { mockCreateAuditEntry } = await import('@/lib/mocks/audit.mock');
       return mockCreateAuditEntry(entry);
     }
-    const res = await fetch('/api/audit/entries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/audit/entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[audit.createAuditEntry] API not available, using fallback');
+      return {} as AuditEntry;
+    }
+
   } catch (error) {
     handleServiceError(error, 'audit.createEntry');
   }

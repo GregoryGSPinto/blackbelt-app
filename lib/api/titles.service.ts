@@ -22,9 +22,14 @@ export async function getAvailableTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetAvailableTitles(userId);
     }
-    const res = await fetch(`/api/titles/available?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'titles.available');
-    return res.json();
+    try {
+      const res = await fetch(`/api/titles/available?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'titles.available');
+      return res.json();
+    } catch {
+      console.warn('[titles.getAvailableTitles] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'titles.available'); }
 }
 
@@ -34,9 +39,14 @@ export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetMyTitles(userId);
     }
-    const res = await fetch(`/api/titles/mine?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'titles.mine');
-    return res.json();
+    try {
+      const res = await fetch(`/api/titles/mine?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'titles.mine');
+      return res.json();
+    } catch {
+      console.warn('[titles.getMyTitles] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'titles.mine'); }
 }
 
@@ -46,13 +56,18 @@ export async function equipTitle(userId: string, titleId: string): Promise<{ suc
       const { mockEquipTitle } = await import('@/lib/mocks/titles.mock');
       return mockEquipTitle(userId, titleId);
     }
-    const res = await fetch('/api/titles/equip', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, titleId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'titles.equip');
-    return res.json();
+    try {
+      const res = await fetch('/api/titles/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, titleId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'titles.equip');
+      return res.json();
+    } catch {
+      console.warn('[titles.equipTitle] API not available, using fallback');
+      return {} as { success: boolean };
+    }
   } catch (error) { handleServiceError(error, 'titles.equip'); }
 }
 
@@ -62,12 +77,17 @@ export async function unequipTitle(userId: string): Promise<{ success: boolean }
       const { mockUnequipTitle } = await import('@/lib/mocks/titles.mock');
       return mockUnequipTitle(userId);
     }
-    const res = await fetch('/api/titles/unequip', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'titles.unequip');
-    return res.json();
+    try {
+      const res = await fetch('/api/titles/unequip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'titles.unequip');
+      return res.json();
+    } catch {
+      console.warn('[titles.unequipTitle] API not available, using fallback');
+      return {} as { success: boolean };
+    }
   } catch (error) { handleServiceError(error, 'titles.unequip'); }
 }

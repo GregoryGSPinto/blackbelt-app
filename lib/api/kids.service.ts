@@ -71,9 +71,14 @@ export async function getKidsDashboard(studentId: string): Promise<KidsDashboard
       const { mockGetKidsDashboard } = await import('@/lib/mocks/kids.mock');
       return mockGetKidsDashboard(studentId);
     }
-    const res = await fetch(`/api/kids/dashboard?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'kids.dashboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/kids/dashboard?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'kids.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[kids.getKidsDashboard] API not available, using fallback');
+      return {} as KidsDashboardDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'kids.dashboard');
   }

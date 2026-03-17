@@ -37,8 +37,13 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkDashboard(ownerId);
     }
-    const res = await fetch(`/api/network/dashboard?ownerId=${ownerId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/network/dashboard?ownerId=${ownerId}`);
+      return res.json();
+    } catch {
+      console.warn('[network.getNetworkDashboard] API not available, using fallback');
+      return {} as NetworkDashboardDTO;
+    }
   } catch (error) { handleServiceError(error, 'network.dashboard'); }
 }
 
@@ -48,8 +53,13 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
       const { mockGetAcademyComparison } = await import('@/lib/mocks/network.mock');
       return mockGetAcademyComparison(academyIds, metric);
     }
-    const res = await fetch('/api/network/comparison', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyIds, metric }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/network/comparison', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyIds, metric }) });
+      return res.json();
+    } catch {
+      console.warn('[network.getAcademyComparison] API not available, using fallback');
+      return {} as ComparisonDTO;
+    }
   } catch (error) { handleServiceError(error, 'network.comparison'); }
 }
 
@@ -59,8 +69,13 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
       const { mockGetNetworkFinancials } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkFinancials(ownerId);
     }
-    const res = await fetch(`/api/network/financials?ownerId=${ownerId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/network/financials?ownerId=${ownerId}`);
+      return res.json();
+    } catch {
+      console.warn('[network.getNetworkFinancials] API not available, using fallback');
+      return {} as ConsolidatedFinancials;
+    }
   } catch (error) { handleServiceError(error, 'network.financials'); }
 }
 
@@ -70,6 +85,10 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
       const { mockTransferStudent } = await import('@/lib/mocks/network.mock');
       return mockTransferStudent(studentId, fromAcademy, toAcademy);
     }
-    await fetch('/api/network/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, fromAcademy, toAcademy }) });
+    try {
+      await fetch('/api/network/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, fromAcademy, toAcademy }) });
+    } catch {
+      console.warn('[network.transferStudent] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'network.transfer'); }
 }

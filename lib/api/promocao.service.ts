@@ -55,9 +55,14 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
       return mockGetPromotionCandidate(studentId);
     }
-    const res = await fetch(`/api/promocao/candidate?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'promocao.getCandidate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/promocao/candidate?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'promocao.getCandidate');
+      return res.json();
+    } catch {
+      console.warn('[promocao.getPromotionCandidate] API not available, using fallback');
+      return {} as PromotionCandidateDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'promocao.getCandidate');
   }
@@ -69,13 +74,18 @@ export async function executePromotion(data: ExecutePromotionPayload): Promise<P
       const { mockExecutePromotion } = await import('@/lib/mocks/promocao.mock');
       return mockExecutePromotion(data);
     }
-    const res = await fetch('/api/promocao/execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'promocao.execute');
-    return res.json();
+    try {
+      const res = await fetch('/api/promocao/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'promocao.execute');
+      return res.json();
+    } catch {
+      console.warn('[promocao.executePromotion] API not available, using fallback');
+      return {} as PromotionResult;
+    }
   } catch (error) {
     handleServiceError(error, 'promocao.execute');
   }

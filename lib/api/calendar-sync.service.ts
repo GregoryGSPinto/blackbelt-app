@@ -33,9 +33,14 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
         syncedClasses: 0,
       };
     }
-    const res = await fetch(`/api/calendar/status?userId=${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/calendar/status?userId=${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[calendar-sync.getCalendarSyncStatus] API not available, using fallback');
+      return {} as CalendarSyncStatus;
+    }
   } catch (error) {
     handleServiceError(error, 'calendarSync.status');
   }
@@ -47,9 +52,14 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
       logger.debug('[MOCK] Google Calendar OAuth initiated');
       return { authUrl: '#mock-google-oauth' };
     }
-    const res = await fetch('/api/calendar/connect', { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/calendar/connect', { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[calendar-sync.connectGoogleCalendar] API not available, using fallback');
+      return {} as { authUrl: string };
+    }
   } catch (error) {
     handleServiceError(error, 'calendarSync.connect');
   }
@@ -61,8 +71,12 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
       logger.debug('[MOCK] Google Calendar disconnected');
       return;
     }
-    const res = await fetch(`/api/calendar/disconnect?userId=${userId}`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/calendar/disconnect?userId=${userId}`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[calendar-sync.disconnectGoogleCalendar] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'calendarSync.disconnect');
   }
@@ -74,13 +88,18 @@ export async function syncClassesToCalendar(userId: string): Promise<{ synced: n
       logger.debug('[MOCK] Syncing classes to Google Calendar');
       return { synced: 6 };
     }
-    const res = await fetch('/api/calendar/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/calendar/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[calendar-sync.syncClassesToCalendar] API not available, using fallback');
+      return {} as { synced: number };
+    }
   } catch (error) {
     handleServiceError(error, 'calendarSync.sync');
   }

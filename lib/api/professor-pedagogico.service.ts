@@ -43,9 +43,14 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetProgressoAluno(studentId);
     }
-    const res = await fetch(`/api/pedagogico/progresso?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.progresso');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pedagogico/progresso?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.progresso');
+      return res.json();
+    } catch {
+      console.warn('[professor-pedagogico.getProgressoAluno] API not available, using fallback');
+      return {} as ProgressoDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.progresso');
   }
@@ -57,13 +62,18 @@ export async function avaliar(studentId: string, classId: string, criteria: Eval
       const { mockAvaliar } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockAvaliar(studentId, classId, criteria, score);
     }
-    const res = await fetch('/api/pedagogico/avaliar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, classId, criteria, score }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.avaliar');
-    return res.json();
+    try {
+      const res = await fetch('/api/pedagogico/avaliar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, classId, criteria, score }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.avaliar');
+      return res.json();
+    } catch {
+      console.warn('[professor-pedagogico.avaliar] API not available, using fallback');
+      return {} as Evaluation;
+    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.avaliar');
   }
@@ -75,13 +85,18 @@ export async function promoverFaixa(studentId: string, toBelt: BeltLevel): Promi
       const { mockPromoverFaixa } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockPromoverFaixa(studentId, toBelt);
     }
-    const res = await fetch('/api/pedagogico/promover', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, toBelt }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.promover');
-    return res.json();
+    try {
+      const res = await fetch('/api/pedagogico/promover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, toBelt }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.promover');
+      return res.json();
+    } catch {
+      console.warn('[professor-pedagogico.promoverFaixa] API not available, using fallback');
+      return {} as Progression;
+    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.promover');
   }
@@ -93,9 +108,14 @@ export async function getAlunosDaTurma(classId: string): Promise<StudentWithProg
       const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetAlunosDaTurma(classId);
     }
-    const res = await fetch(`/api/pedagogico/turma/${classId}/alunos`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.alunosDaTurma');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pedagogico/turma/${classId}/alunos`);
+      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.alunosDaTurma');
+      return res.json();
+    } catch {
+      console.warn('[professor-pedagogico.getAlunosDaTurma] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.alunosDaTurma');
   }

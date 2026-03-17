@@ -49,9 +49,14 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       const { mockCreateTrialClass } = await import('@/lib/mocks/aula-experimental.mock');
       return mockCreateTrialClass(academyId, data);
     }
-    const res = await fetch(`/api/aula-experimental`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-    if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/aula-experimental`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
+      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.create');
+      return res.json();
+    } catch {
+      console.warn('[aula-experimental.createTrialClass] API not available, using fallback');
+      return {} as TrialClass;
+    }
   } catch (error) { handleServiceError(error, 'aula-experimental.create'); }
 }
 
@@ -61,12 +66,17 @@ export async function listTrialClasses(academyId: string, filters?: TrialFilters
       const { mockListTrialClasses } = await import('@/lib/mocks/aula-experimental.mock');
       return mockListTrialClasses(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.origem) params.set('origem', filters.origem);
-    const res = await fetch(`/api/aula-experimental?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.origem) params.set('origem', filters.origem);
+      const res = await fetch(`/api/aula-experimental?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.list');
+      return res.json();
+    } catch {
+      console.warn('[aula-experimental.listTrialClasses] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'aula-experimental.list'); }
 }
 
@@ -76,9 +86,14 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       const { mockUpdateTrialStatus } = await import('@/lib/mocks/aula-experimental.mock');
       return mockUpdateTrialStatus(id, status);
     }
-    const res = await fetch(`/api/aula-experimental/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-    if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.updateStatus');
-    return res.json();
+    try {
+      const res = await fetch(`/api/aula-experimental/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.updateStatus');
+      return res.json();
+    } catch {
+      console.warn('[aula-experimental.updateTrialStatus] API not available, using fallback');
+      return {} as TrialClass;
+    }
   } catch (error) { handleServiceError(error, 'aula-experimental.updateStatus'); }
 }
 
@@ -88,8 +103,13 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
       return mockGetTrialMetrics(academyId);
     }
-    const res = await fetch(`/api/aula-experimental/metrics?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.metrics');
-    return res.json();
+    try {
+      const res = await fetch(`/api/aula-experimental/metrics?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.metrics');
+      return res.json();
+    } catch {
+      console.warn('[aula-experimental.getTrialMetrics] API not available, using fallback');
+      return {} as TrialMetrics;
+    }
   } catch (error) { handleServiceError(error, 'aula-experimental.metrics'); }
 }

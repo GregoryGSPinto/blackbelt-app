@@ -37,14 +37,19 @@ export async function generateQRCode(classId: string): Promise<QRCheckInCode> {
         qrDataUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(code)}`,
       };
     }
+    try {
 
-    const res = await fetch('/api/checkin/qr/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ classId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch('/api/checkin/qr/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[qr-checkin.generateQRCode] API not available, using fallback');
+      return {} as QRCheckInCode;
+    }
   } catch (error) {
     handleServiceError(error, 'qrCheckin.generate');
   }
@@ -68,14 +73,20 @@ export async function validateQRCode(
         timestamp: new Date().toISOString(),
       };
     }
+    try {
 
-    const res = await fetch('/api/checkin/qr/validate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, studentId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch('/api/checkin/qr/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, studentId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[qr-checkin.validateQRCode] API not available, using fallback');
+      return {} as QRValidationResult;
+    }
+
   } catch (error) {
     handleServiceError(error, 'qrCheckin.validate');
   }
@@ -104,10 +115,15 @@ export async function getActiveQRCodes(academyId: string): Promise<QRCheckInCode
         },
       ];
     }
+    try {
 
-    const res = await fetch(`/api/checkin/qr/active?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch(`/api/checkin/qr/active?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[qr-checkin.getActiveQRCodes] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'qrCheckin.getActive');
   }

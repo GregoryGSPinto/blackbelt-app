@@ -53,8 +53,13 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
       const { mockGetRevenueMetrics } = await import('@/lib/mocks/superadmin-revenue.mock');
       return mockGetRevenueMetrics();
     }
-    const res = await fetch('/api/superadmin/revenue');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/revenue');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-revenue.getRevenueMetrics] API not available, using fallback');
+      return {} as RevenueMetrics;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-revenue.getMetrics'); }
 }

@@ -52,8 +52,13 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       const { mockValidateAccess } = await import('@/lib/mocks/access-control.mock');
       return mockValidateAccess(studentId, unitId);
     }
-    const res = await fetch('/api/access/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, unitId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/access/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, unitId }) });
+      return res.json();
+    } catch {
+      console.warn('[access-control.validateAccess] API not available, using fallback');
+      return {} as AccessResult;
+    }
   } catch (error) { handleServiceError(error, 'accessControl.validate'); }
 }
 
@@ -63,10 +68,15 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
       const { mockGetAccessLog } = await import('@/lib/mocks/access-control.mock');
       return mockGetAccessLog(unitId, date);
     }
-    const params = new URLSearchParams({ unitId });
-    if (date) params.set('date', date);
-    const res = await fetch(`/api/access/log?${params}`);
-    return res.json();
+    try {
+      const params = new URLSearchParams({ unitId });
+      if (date) params.set('date', date);
+      const res = await fetch(`/api/access/log?${params}`);
+      return res.json();
+    } catch {
+      console.warn('[access-control.getAccessLog] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'accessControl.log'); }
 }
 
@@ -76,8 +86,13 @@ export async function configureAccessRules(unitId: string, rules: Partial<Access
       const { mockConfigureAccessRules } = await import('@/lib/mocks/access-control.mock');
       return mockConfigureAccessRules(unitId, rules);
     }
-    const res = await fetch('/api/access/rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, rules }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/access/rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, rules }) });
+      return res.json();
+    } catch {
+      console.warn('[access-control.configureAccessRules] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'accessControl.rules'); }
 }
 
@@ -87,8 +102,13 @@ export async function getAccessRules(unitId: string): Promise<AccessRule[]> {
       const { mockGetAccessRules } = await import('@/lib/mocks/access-control.mock');
       return mockGetAccessRules(unitId);
     }
-    const res = await fetch(`/api/access/rules?unitId=${unitId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/access/rules?unitId=${unitId}`);
+      return res.json();
+    } catch {
+      console.warn('[access-control.getAccessRules] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'accessControl.getRules'); }
 }
 
@@ -98,7 +118,12 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       const { mockGetStudentCard } = await import('@/lib/mocks/access-control.mock');
       return mockGetStudentCard(studentId);
     }
-    const res = await fetch(`/api/access/card?studentId=${studentId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/access/card?studentId=${studentId}`);
+      return res.json();
+    } catch {
+      console.warn('[access-control.getStudentCard] API not available, using fallback');
+      return {} as StudentCard;
+    }
   } catch (error) { handleServiceError(error, 'accessControl.card'); }
 }

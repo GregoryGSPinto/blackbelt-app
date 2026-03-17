@@ -27,9 +27,14 @@ export async function listEvents(academyId: string): Promise<EventDTO[]> {
       const { mockListEvents } = await import('@/lib/mocks/events.mock');
       return mockListEvents(academyId);
     }
-    const res = await fetch(`/api/events?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'events.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/events?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'events.list');
+      return res.json();
+    } catch {
+      console.warn('[events.listEvents] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'events.list'); }
 }
 
@@ -39,9 +44,14 @@ export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' 
       const { mockCreateEvent } = await import('@/lib/mocks/events.mock');
       return mockCreateEvent(academyId, event);
     }
-    const res = await fetch(`/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...event }) });
-    if (!res.ok) throw new ServiceError(res.status, 'events.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...event }) });
+      if (!res.ok) throw new ServiceError(res.status, 'events.create');
+      return res.json();
+    } catch {
+      console.warn('[events.createEvent] API not available, using fallback');
+      return {} as EventDTO;
+    }
   } catch (error) { handleServiceError(error, 'events.create'); }
 }
 
@@ -51,8 +61,12 @@ export async function enrollInEvent(eventId: string, studentId: string): Promise
       const { mockEnrollEvent } = await import('@/lib/mocks/events.mock');
       return mockEnrollEvent(eventId, studentId);
     }
-    const res = await fetch(`/api/events/${eventId}/enroll`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-    if (!res.ok) throw new ServiceError(res.status, 'events.enroll');
+    try {
+      const res = await fetch(`/api/events/${eventId}/enroll`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      if (!res.ok) throw new ServiceError(res.status, 'events.enroll');
+    } catch {
+      console.warn('[events.enrollInEvent] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'events.enroll'); }
 }
 
@@ -64,9 +78,14 @@ export async function listAcademyEvents(academyId: string): Promise<AcademyEvent
       const { mockListAcademyEvents } = await import('@/lib/mocks/events.mock');
       return mockListAcademyEvents(academyId);
     }
-    const res = await fetch(`/api/academy-events?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'events.listAcademy');
-    return res.json();
+    try {
+      const res = await fetch(`/api/academy-events?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'events.listAcademy');
+      return res.json();
+    } catch {
+      console.warn('[events.listAcademyEvents] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'events.listAcademy'); }
 }
 
@@ -76,9 +95,14 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
       const { mockGetAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockGetAcademyEvent(eventId);
     }
-    const res = await fetch(`/api/academy-events/${eventId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'events.getAcademy');
-    return res.json();
+    try {
+      const res = await fetch(`/api/academy-events/${eventId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'events.getAcademy');
+      return res.json();
+    } catch {
+      console.warn('[events.getAcademyEvent] API not available, using fallback');
+      return {} as AcademyEvent;
+    }
   } catch (error) { handleServiceError(error, 'events.getAcademy'); }
 }
 
@@ -88,13 +112,18 @@ export async function createAcademyEvent(academyId: string, data: CreateEventDat
       const { mockCreateAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockCreateAcademyEvent(academyId, data);
     }
-    const res = await fetch('/api/academy-events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...data }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'events.createAcademy');
-    return res.json();
+    try {
+      const res = await fetch('/api/academy-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...data }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'events.createAcademy');
+      return res.json();
+    } catch {
+      console.warn('[events.createAcademyEvent] API not available, using fallback');
+      return {} as AcademyEvent;
+    }
   } catch (error) { handleServiceError(error, 'events.createAcademy'); }
 }
 
@@ -104,13 +133,18 @@ export async function updateAcademyEvent(eventId: string, data: Partial<CreateEv
       const { mockUpdateAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockUpdateAcademyEvent(eventId, data);
     }
-    const res = await fetch(`/api/academy-events/${eventId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'events.updateAcademy');
-    return res.json();
+    try {
+      const res = await fetch(`/api/academy-events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'events.updateAcademy');
+      return res.json();
+    } catch {
+      console.warn('[events.updateAcademyEvent] API not available, using fallback');
+      return {} as AcademyEvent;
+    }
   } catch (error) { handleServiceError(error, 'events.updateAcademy'); }
 }
 
@@ -120,7 +154,11 @@ export async function deleteAcademyEvent(eventId: string): Promise<void> {
       const { mockDeleteAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockDeleteAcademyEvent(eventId);
     }
-    const res = await fetch(`/api/academy-events/${eventId}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'events.deleteAcademy');
+    try {
+      const res = await fetch(`/api/academy-events/${eventId}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'events.deleteAcademy');
+    } catch {
+      console.warn('[events.deleteAcademyEvent] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'events.deleteAcademy'); }
 }

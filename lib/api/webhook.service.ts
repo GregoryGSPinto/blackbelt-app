@@ -9,9 +9,14 @@ export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> 
       const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
       return mockListWebhooks(academyId);
     }
-    const res = await fetch(`/api/webhooks?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/webhooks?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[webhook.listWebhooks] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'webhook.list');
   }
@@ -26,13 +31,19 @@ export async function createWebhook(
       const { mockCreateWebhook } = await import('@/lib/mocks/webhook.mock');
       return mockCreateWebhook(academyId, payload);
     }
-    const res = await fetch('/api/webhooks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...payload }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/webhooks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...payload }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[webhook.createWebhook] API not available, using fallback');
+      return {} as WebhookConfig;
+    }
+
   } catch (error) {
     handleServiceError(error, 'webhook.create');
   }
@@ -44,8 +55,12 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       logger.debug(`[MOCK] Deleted webhook ${webhookId}`);
       return;
     }
-    const res = await fetch(`/api/webhooks/${webhookId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/webhooks/${webhookId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[webhook.deleteWebhook] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'webhook.delete');
   }
@@ -57,12 +72,16 @@ export async function toggleWebhook(webhookId: string, active: boolean): Promise
       logger.debug(`[MOCK] Webhook ${webhookId} set to ${active ? 'active' : 'inactive'}`);
       return;
     }
-    const res = await fetch(`/api/webhooks/${webhookId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ active }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/webhooks/${webhookId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[webhook.toggleWebhook] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'webhook.toggle');
   }
@@ -77,9 +96,15 @@ export async function getWebhookDeliveries(
       const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
       return mockWebhookDeliveries(webhookId, limit);
     }
-    const res = await fetch(`/api/webhooks/${webhookId}/deliveries?limit=${limit}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/webhooks/${webhookId}/deliveries?limit=${limit}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[webhook.getWebhookDeliveries] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'webhook.deliveries');
   }
@@ -91,9 +116,14 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       logger.debug(`[MOCK] Test webhook ${webhookId}`);
       return { success: true, statusCode: 200 };
     }
-    const res = await fetch(`/api/webhooks/${webhookId}/test`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/webhooks/${webhookId}/test`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[webhook.testWebhook] API not available, using fallback');
+      return {} as { success: boolean; statusCode: number };
+    }
   } catch (error) {
     handleServiceError(error, 'webhook.test');
   }

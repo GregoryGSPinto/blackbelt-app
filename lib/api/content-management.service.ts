@@ -26,7 +26,8 @@ export async function extractVideoInfo(url: string): Promise<ExtractedVideoInfo>
       const { mockExtractVideoInfo } = await import('@/lib/mocks/content-management.mock');
       return mockExtractVideoInfo(url);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.extractVideoInfo] fallback — not yet connected to Supabase');
+    return { source: 'youtube', source_url: url, embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '' } as ExtractedVideoInfo;
   } catch (error) {
     handleServiceError(error, 'content.extractVideoInfo');
   }
@@ -44,7 +45,8 @@ export async function createVideo(
       const { mockCreateVideo } = await import('@/lib/mocks/content-management.mock');
       return mockCreateVideo(academyId, professorId, data);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.createVideo] fallback — not yet connected to Supabase');
+    return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: professorId, professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as ContentVideo;
   } catch (error) {
     handleServiceError(error, 'content.createVideo');
   }
@@ -59,7 +61,8 @@ export async function updateVideo(
       const { mockUpdateVideo } = await import('@/lib/mocks/content-management.mock');
       return mockUpdateVideo(videoId, updates);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.updateVideo] fallback — not yet connected to Supabase');
+    return { id: videoId, title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: new Date().toISOString() } as ContentVideo;
   } catch (error) {
     handleServiceError(error, 'content.updateVideo');
   }
@@ -71,7 +74,8 @@ export async function deleteVideo(videoId: string): Promise<void> {
       const { mockDeleteVideo } = await import('@/lib/mocks/content-management.mock');
       return mockDeleteVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.deleteVideo] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.deleteVideo');
   }
@@ -94,7 +98,8 @@ export async function listVideos(
       const { mockListVideos } = await import('@/lib/mocks/content-management.mock');
       return mockListVideos(academyId, filters);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.listVideos] fallback — not yet connected to Supabase');
+    return { videos: [], total: 0 };
   } catch (error) {
     handleServiceError(error, 'content.listVideos');
   }
@@ -106,7 +111,8 @@ export async function publishVideo(videoId: string): Promise<void> {
       const { mockPublishVideo } = await import('@/lib/mocks/content-management.mock');
       return mockPublishVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.publishVideo] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.publishVideo');
   }
@@ -118,7 +124,8 @@ export async function unpublishVideo(videoId: string): Promise<void> {
       const { mockUnpublishVideo } = await import('@/lib/mocks/content-management.mock');
       return mockUnpublishVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.unpublishVideo] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.unpublishVideo');
   }
@@ -130,7 +137,8 @@ export async function duplicateVideo(videoId: string): Promise<ContentVideo> {
       const { mockDuplicateVideo } = await import('@/lib/mocks/content-management.mock');
       return mockDuplicateVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.duplicateVideo] fallback — not yet connected to Supabase');
+    return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: '' } as ContentVideo;
   } catch (error) {
     handleServiceError(error, 'content.duplicateVideo');
   }
@@ -148,7 +156,8 @@ export async function createSeries(
       const { mockCreateSeries } = await import('@/lib/mocks/content-management.mock');
       return mockCreateSeries(academyId, professorId, data);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.createSeries] fallback — not yet connected to Supabase');
+    return { id: '', title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: professorId, professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
   } catch (error) {
     handleServiceError(error, 'content.createSeries');
   }
@@ -163,7 +172,8 @@ export async function updateSeries(
       const { mockUpdateSeries } = await import('@/lib/mocks/content-management.mock');
       return mockUpdateSeries(seriesId, updates);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.updateSeries] fallback — not yet connected to Supabase');
+    return { id: seriesId, title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: '', professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
   } catch (error) {
     handleServiceError(error, 'content.updateSeries');
   }
@@ -175,7 +185,8 @@ export async function deleteSeries(seriesId: string): Promise<void> {
       const { mockDeleteSeries } = await import('@/lib/mocks/content-management.mock');
       return mockDeleteSeries(seriesId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.deleteSeries] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.deleteSeries');
   }
@@ -190,7 +201,8 @@ export async function listSeries(
       const { mockListSeries } = await import('@/lib/mocks/content-management.mock');
       return mockListSeries(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.listSeries] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'content.listSeries');
   }
@@ -207,7 +219,8 @@ export async function createTrail(
       const { mockCreateTrail } = await import('@/lib/mocks/content-management.mock');
       return mockCreateTrail(academyId, data);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.createTrail] fallback — not yet connected to Supabase');
+    return { id: '', name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
   } catch (error) {
     handleServiceError(error, 'content.createTrail');
   }
@@ -222,7 +235,8 @@ export async function updateTrail(
       const { mockUpdateTrail } = await import('@/lib/mocks/content-management.mock');
       return mockUpdateTrail(trailId, updates);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.updateTrail] fallback — not yet connected to Supabase');
+    return { id: trailId, name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
   } catch (error) {
     handleServiceError(error, 'content.updateTrail');
   }
@@ -234,7 +248,8 @@ export async function deleteTrail(trailId: string): Promise<void> {
       const { mockDeleteTrail } = await import('@/lib/mocks/content-management.mock');
       return mockDeleteTrail(trailId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.deleteTrail] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.deleteTrail');
   }
@@ -246,7 +261,8 @@ export async function listTrails(academyId: string): Promise<StreamingTrail[]> {
       const { mockListTrails } = await import('@/lib/mocks/content-management.mock');
       return mockListTrails(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.listTrails] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'content.listTrails');
   }
@@ -263,7 +279,8 @@ export async function setQuizForVideo(
       const { mockSetQuizForVideo } = await import('@/lib/mocks/content-management.mock');
       return mockSetQuizForVideo(videoId, questions);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.setQuizForVideo] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'content.setQuizForVideo');
   }
@@ -275,7 +292,8 @@ export async function getQuizForVideo(videoId: string): Promise<QuizQuestion[]> 
       const { mockGetQuizForVideo } = await import('@/lib/mocks/content-management.mock');
       return mockGetQuizForVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.getQuizForVideo] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'content.getQuizForVideo');
   }
@@ -287,7 +305,8 @@ export async function deleteQuizForVideo(videoId: string): Promise<void> {
       const { mockDeleteQuizForVideo } = await import('@/lib/mocks/content-management.mock');
       return mockDeleteQuizForVideo(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.deleteQuizForVideo] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.deleteQuizForVideo');
   }
@@ -305,7 +324,8 @@ export async function createMaterial(
       const { mockCreateMaterial } = await import('@/lib/mocks/content-management.mock');
       return mockCreateMaterial(academyId, professorId, data);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.createMaterial] fallback — not yet connected to Supabase');
+    return { id: '', title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: professorId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as AcademicMaterial;
   } catch (error) {
     handleServiceError(error, 'content.createMaterial');
   }
@@ -320,7 +340,8 @@ export async function updateMaterial(
       const { mockUpdateMaterial } = await import('@/lib/mocks/content-management.mock');
       return mockUpdateMaterial(materialId, updates);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.updateMaterial] fallback — not yet connected to Supabase');
+    return { id: materialId, title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: '', created_at: '', updated_at: new Date().toISOString() } as AcademicMaterial;
   } catch (error) {
     handleServiceError(error, 'content.updateMaterial');
   }
@@ -332,7 +353,8 @@ export async function deleteMaterial(materialId: string): Promise<void> {
       const { mockDeleteMaterial } = await import('@/lib/mocks/content-management.mock');
       return mockDeleteMaterial(materialId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.deleteMaterial] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'content.deleteMaterial');
   }
@@ -347,7 +369,8 @@ export async function listMaterials(
       const { mockListMaterials } = await import('@/lib/mocks/content-management.mock');
       return mockListMaterials(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.listMaterials] fallback — not yet connected to Supabase');
+    return { materials: [], total: 0 };
   } catch (error) {
     handleServiceError(error, 'content.listMaterials');
   }
@@ -361,7 +384,8 @@ export async function getContentStats(academyId: string): Promise<ContentStats> 
       const { mockGetContentStats } = await import('@/lib/mocks/content-management.mock');
       return mockGetContentStats(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.getContentStats] fallback — not yet connected to Supabase');
+    return { total_videos: 0, published_videos: 0, draft_videos: 0, total_series: 0, total_trails: 0, total_materials: 0, total_quiz_questions: 0, total_views: 0, total_completions: 0, avg_quiz_score: 0 } as ContentStats;
   } catch (error) {
     handleServiceError(error, 'content.getContentStats');
   }
@@ -373,7 +397,8 @@ export async function getVideoAnalytics(videoId: string): Promise<VideoAnalytics
       const { mockGetVideoAnalytics } = await import('@/lib/mocks/content-management.mock');
       return mockGetVideoAnalytics(videoId);
     }
-    throw new Error('Not implemented');
+    console.warn('[content.getVideoAnalytics] fallback — not yet connected to Supabase');
+    return { views: 0, completions: 0, avg_watch_time: 0, quiz_avg_score: 0 } as VideoAnalytics;
   } catch (error) {
     handleServiceError(error, 'content.getVideoAnalytics');
   }

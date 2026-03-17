@@ -44,9 +44,14 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       const { mockGetLiveMatches } = await import('@/lib/mocks/championship-live.mock');
       return mockGetLiveMatches(championshipId);
     }
-    const res = await fetch(`/api/championships/${championshipId}/live`);
-    if (!res.ok) throw new ServiceError(res.status, 'championship-live.liveMatches');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/live`);
+      if (!res.ok) throw new ServiceError(res.status, 'championship-live.liveMatches');
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getLiveMatches] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championship-live.liveMatches'); }
 }
 
@@ -56,10 +61,15 @@ export async function getResults(championshipId: string, categoryId?: string): P
       const { mockGetResults } = await import('@/lib/mocks/championship-live.mock');
       return mockGetResults(championshipId, categoryId);
     }
-    const params = categoryId ? `?categoryId=${categoryId}` : '';
-    const res = await fetch(`/api/championships/${championshipId}/results${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'championship-live.results');
-    return res.json();
+    try {
+      const params = categoryId ? `?categoryId=${categoryId}` : '';
+      const res = await fetch(`/api/championships/${championshipId}/results${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'championship-live.results');
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getResults] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championship-live.results'); }
 }
 
@@ -69,9 +79,14 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       const { mockGetMedalTable } = await import('@/lib/mocks/championship-live.mock');
       return mockGetMedalTable(championshipId);
     }
-    const res = await fetch(`/api/championships/${championshipId}/medal-table`);
-    if (!res.ok) throw new ServiceError(res.status, 'championship-live.medalTable');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/medal-table`);
+      if (!res.ok) throw new ServiceError(res.status, 'championship-live.medalTable');
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getMedalTable] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championship-live.medalTable'); }
 }
 

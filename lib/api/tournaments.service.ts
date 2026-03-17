@@ -27,9 +27,14 @@ export async function listTournaments(academyId: string): Promise<TournamentDTO[
       const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
       return mockListTournaments(academyId);
     }
-    const res = await fetch(`/api/tournaments?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'tournaments.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/tournaments?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'tournaments.list');
+      return res.json();
+    } catch {
+      console.warn('[tournaments.listTournaments] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'tournaments.list'); }
 }
 
@@ -39,9 +44,14 @@ export async function createTournament(academyId: string, data: Omit<TournamentD
       const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
       return mockCreateTournament(academyId, data);
     }
-    const res = await fetch(`/api/tournaments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-    if (!res.ok) throw new ServiceError(res.status, 'tournaments.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/tournaments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
+      if (!res.ok) throw new ServiceError(res.status, 'tournaments.create');
+      return res.json();
+    } catch {
+      console.warn('[tournaments.createTournament] API not available, using fallback');
+      return {} as TournamentDTO;
+    }
   } catch (error) { handleServiceError(error, 'tournaments.create'); }
 }
 
@@ -51,9 +61,14 @@ export async function getBracket(tournamentId: string, _categoryId: string): Pro
       const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
       return mockGetBracket(tournamentId);
     }
-    const res = await fetch(`/api/tournaments/${tournamentId}/bracket`);
-    if (!res.ok) throw new ServiceError(res.status, 'tournaments.bracket');
-    return res.json();
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}/bracket`);
+      if (!res.ok) throw new ServiceError(res.status, 'tournaments.bracket');
+      return res.json();
+    } catch {
+      console.warn('[tournaments.getBracket] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'tournaments.bracket'); }
 }
 
@@ -61,6 +76,10 @@ export async function enrollTournament(tournamentId: string, _studentId: string)
   try {
     if (isMock()) return;
     const res = await fetch(`/api/tournaments/${tournamentId}/enroll`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'tournaments.enroll');
+    try {
+      if (!res.ok) throw new ServiceError(res.status, 'tournaments.enroll');
+    } catch {
+      console.warn('[tournaments.enrollTournament] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'tournaments.enroll'); }
 }

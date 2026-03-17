@@ -77,8 +77,13 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       const { mockGetPersonalContext } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetPersonalContext(studentId);
     }
-    const res = await fetch(`/api/ai/personal-context/${studentId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/ai/personal-context/${studentId}`);
+      return res.json();
+    } catch {
+      console.warn('[personal-ai.getPersonalContext] API not available, using fallback');
+      return {} as PersonalContext;
+    }
   } catch (error) {
     handleServiceError(error, 'personalAI.getContext');
   }
@@ -90,12 +95,17 @@ export async function chat(studentId: string, message: string, history: ChatMess
       const { mockChat } = await import('@/lib/mocks/personal-ai.mock');
       return mockChat(studentId, message, history);
     }
-    const res = await fetch('/api/ai/personal-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, message, history }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/personal-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, message, history }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[personal-ai.chat] API not available, using fallback');
+      return {} as AIResponse;
+    }
   } catch (error) {
     handleServiceError(error, 'personalAI.chat');
   }
@@ -107,8 +117,13 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       const { mockGetDailyBriefing } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetDailyBriefing(studentId);
     }
-    const res = await fetch(`/api/ai/daily-briefing/${studentId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/ai/daily-briefing/${studentId}`);
+      return res.json();
+    } catch {
+      console.warn('[personal-ai.getDailyBriefing] API not available, using fallback');
+      return {} as DailyBriefing;
+    }
   } catch (error) {
     handleServiceError(error, 'personalAI.dailyBriefing');
   }
@@ -120,8 +135,13 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       const { mockGetWeeklyPlan } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetWeeklyPlan(studentId);
     }
-    const res = await fetch(`/api/ai/weekly-plan/${studentId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/ai/weekly-plan/${studentId}`);
+      return res.json();
+    } catch {
+      console.warn('[personal-ai.getWeeklyPlan] API not available, using fallback');
+      return {} as WeeklyPlan;
+    }
   } catch (error) {
     handleServiceError(error, 'personalAI.weeklyPlan');
   }

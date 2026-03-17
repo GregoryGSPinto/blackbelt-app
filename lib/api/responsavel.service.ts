@@ -80,9 +80,14 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
       const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
       return mockGetGuardianDashboard(profileId);
     }
-    const res = await fetch(`/api/responsavel/dashboard?profileId=${profileId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'responsavel.dashboard');
-    return res.json();
+    try {
+      const res = await fetch(`/api/responsavel/dashboard?profileId=${profileId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'responsavel.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[responsavel.getGuardianDashboard] API not available, using fallback');
+      return {} as GuardianDashboardDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'responsavel.dashboard');
   }

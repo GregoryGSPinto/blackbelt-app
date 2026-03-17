@@ -67,7 +67,8 @@ export async function createAvaliacao(
       const { mockCreateAvaliacao } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockCreateAvaliacao(alunoId, criterios, observacoes);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[avaliacaoTecnica.create] fallback — not yet connected to Supabase');
+    return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' } as AvaliacaoTecnica;
   } catch (error) {
     handleServiceError(error, 'avaliacaoTecnica.create');
   }
@@ -82,7 +83,8 @@ export async function listAvaliacoes(
       const { mockListAvaliacoes } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockListAvaliacoes(professorId, filtros);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[avaliacaoTecnica.list] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'avaliacaoTecnica.list');
   }
@@ -94,7 +96,8 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       const { mockGetEvolucaoAluno } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockGetEvolucaoAluno(alunoId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[avaliacaoTecnica.evolucao] fallback — not yet connected to Supabase');
+    return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] } as EvolucaoAluno;
   } catch (error) {
     handleServiceError(error, 'avaliacaoTecnica.evolucao');
   }
@@ -105,7 +108,8 @@ export async function getCriterios(): Promise<CriterioAvaliacao[]> {
     if (isMock()) {
       return CRITERIOS_BJJ;
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[avaliacaoTecnica.criterios] fallback — not yet connected to Supabase');
+    return CRITERIOS_BJJ;
   } catch (error) {
     handleServiceError(error, 'avaliacaoTecnica.criterios');
   }

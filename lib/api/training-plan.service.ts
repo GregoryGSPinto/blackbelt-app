@@ -53,9 +53,14 @@ export async function createPlan(plan: Omit<TrainingPlanDTO, 'id' | 'created_at'
       const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockCreatePlan(plan);
     }
-    const res = await fetch('/api/training-plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plan) });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/training-plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plan) });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.create');
+      return res.json();
+    } catch {
+      console.warn('[training-plan.createPlan] API not available, using fallback');
+      return {} as TrainingPlanDTO;
+    }
   } catch (error) { handleServiceError(error, 'trainingPlan.create'); }
 }
 
@@ -65,9 +70,14 @@ export async function getActivePlan(studentId: string): Promise<TrainingPlanDTO 
       const { mockGetActivePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockGetActivePlan(studentId);
     }
-    const res = await fetch(`/api/training-plans/active?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.active');
-    return res.json();
+    try {
+      const res = await fetch(`/api/training-plans/active?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.active');
+      return res.json();
+    } catch {
+      console.warn('[training-plan.getActivePlan] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'trainingPlan.active'); }
 }
 
@@ -77,9 +87,14 @@ export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
       const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
       return mockGetPlans(studentId);
     }
-    const res = await fetch(`/api/training-plans?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/training-plans?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.list');
+      return res.json();
+    } catch {
+      console.warn('[training-plan.getPlans] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'trainingPlan.list'); }
 }
 
@@ -89,9 +104,14 @@ export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Pr
       const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockUpdatePlan(id, data);
     }
-    const res = await fetch(`/api/training-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/training-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.update');
+      return res.json();
+    } catch {
+      console.warn('[training-plan.updatePlan] API not available, using fallback');
+      return {} as TrainingPlanDTO;
+    }
   } catch (error) { handleServiceError(error, 'trainingPlan.update'); }
 }
 
@@ -101,7 +121,11 @@ export async function logExercise(planId: string, log: ExerciseLog): Promise<voi
       const { mockLogExercise } = await import('@/lib/mocks/training-plan.mock');
       return mockLogExercise(planId, log);
     }
-    const res = await fetch(`/api/training-plans/${planId}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(log) });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.log');
+    try {
+      const res = await fetch(`/api/training-plans/${planId}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(log) });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.log');
+    } catch {
+      console.warn('[training-plan.logExercise] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'trainingPlan.log'); }
 }

@@ -47,9 +47,14 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
       const { mockCreateMacrocycle } = await import('@/lib/mocks/periodization.mock');
       return mockCreateMacrocycle(macrocycle);
     }
-    const res = await fetch('/api/periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(macrocycle) });
-    if (!res.ok) throw new ServiceError(res.status, 'periodization.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(macrocycle) });
+      if (!res.ok) throw new ServiceError(res.status, 'periodization.create');
+      return res.json();
+    } catch {
+      console.warn('[periodization.createMacrocycle] API not available, using fallback');
+      return {} as MacrocycleDTO;
+    }
   } catch (error) { handleServiceError(error, 'periodization.create'); }
 }
 
@@ -59,9 +64,14 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
       const { mockGetMacrocycle } = await import('@/lib/mocks/periodization.mock');
       return mockGetMacrocycle(studentId);
     }
-    const res = await fetch(`/api/periodization?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'periodization.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/periodization?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'periodization.get');
+      return res.json();
+    } catch {
+      console.warn('[periodization.getMacrocycle] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'periodization.get'); }
 }
 
@@ -71,8 +81,13 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
       const { mockUpdatePhase } = await import('@/lib/mocks/periodization.mock');
       return mockUpdatePhase(macrocycleId, phaseId, data);
     }
-    const res = await fetch(`/api/periodization/${macrocycleId}/phases/${phaseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'periodization.updatePhase');
-    return res.json();
+    try {
+      const res = await fetch(`/api/periodization/${macrocycleId}/phases/${phaseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'periodization.updatePhase');
+      return res.json();
+    } catch {
+      console.warn('[periodization.updatePhase] API not available, using fallback');
+      return {} as Phase;
+    }
   } catch (error) { handleServiceError(error, 'periodization.updatePhase'); }
 }

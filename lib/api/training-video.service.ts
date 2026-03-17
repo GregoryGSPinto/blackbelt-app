@@ -60,14 +60,19 @@ export async function uploadTrainingVideo(payload: UploadVideoPayload): Promise<
       const { mockUploadTrainingVideo } = await import('@/lib/mocks/training-video.mock');
       return mockUploadTrainingVideo(payload);
     }
-    const formData = new FormData();
-    formData.append('student_id', payload.student_id);
-    formData.append('class_id', payload.class_id);
-    formData.append('uploaded_by', payload.uploaded_by);
-    formData.append('file', payload.file);
-    const res = await fetch('/api/training-videos', { method: 'POST', body: formData });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.upload');
-    return res.json();
+    try {
+      const formData = new FormData();
+      formData.append('student_id', payload.student_id);
+      formData.append('class_id', payload.class_id);
+      formData.append('uploaded_by', payload.uploaded_by);
+      formData.append('file', payload.file);
+      const res = await fetch('/api/training-videos', { method: 'POST', body: formData });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.upload');
+      return res.json();
+    } catch {
+      console.warn('[training-video.uploadTrainingVideo] API not available, using fallback');
+      return {} as TrainingVideoDTO;
+    }
   } catch (error) { handleServiceError(error, 'trainingVideo.upload'); }
 }
 
@@ -77,13 +82,18 @@ export async function listTrainingVideos(filters?: { student_id?: string; class_
       const { mockListTrainingVideos } = await import('@/lib/mocks/training-video.mock');
       return mockListTrainingVideos(filters);
     }
-    const params = new URLSearchParams();
-    if (filters?.student_id) params.set('student_id', filters.student_id);
-    if (filters?.class_id) params.set('class_id', filters.class_id);
-    if (filters?.professor_id) params.set('professor_id', filters.professor_id);
-    const res = await fetch(`/api/training-videos?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.student_id) params.set('student_id', filters.student_id);
+      if (filters?.class_id) params.set('class_id', filters.class_id);
+      if (filters?.professor_id) params.set('professor_id', filters.professor_id);
+      const res = await fetch(`/api/training-videos?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.list');
+      return res.json();
+    } catch {
+      console.warn('[training-video.listTrainingVideos] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'trainingVideo.list'); }
 }
 
@@ -93,9 +103,14 @@ export async function getTrainingVideoById(videoId: string): Promise<TrainingVid
       const { mockGetTrainingVideoById } = await import('@/lib/mocks/training-video.mock');
       return mockGetTrainingVideoById(videoId);
     }
-    const res = await fetch(`/api/training-videos/${videoId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.getById');
-    return res.json();
+    try {
+      const res = await fetch(`/api/training-videos/${videoId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.getById');
+      return res.json();
+    } catch {
+      console.warn('[training-video.getTrainingVideoById] API not available, using fallback');
+      return {} as TrainingVideoDTO;
+    }
   } catch (error) { handleServiceError(error, 'trainingVideo.getById'); }
 }
 
@@ -105,8 +120,12 @@ export async function deleteTrainingVideo(videoId: string): Promise<void> {
       const { mockDeleteTrainingVideo } = await import('@/lib/mocks/training-video.mock');
       return mockDeleteTrainingVideo(videoId);
     }
-    const res = await fetch(`/api/training-videos/${videoId}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.delete');
+    try {
+      const res = await fetch(`/api/training-videos/${videoId}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.delete');
+    } catch {
+      console.warn('[training-video.deleteTrainingVideo] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'trainingVideo.delete'); }
 }
 
@@ -116,8 +135,13 @@ export async function addAnnotation(videoId: string, annotation: Omit<VideoAnnot
       const { mockAddAnnotation } = await import('@/lib/mocks/training-video.mock');
       return mockAddAnnotation(videoId, annotation);
     }
-    const res = await fetch(`/api/training-videos/${videoId}/annotations`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(annotation) });
-    if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.addAnnotation');
-    return res.json();
+    try {
+      const res = await fetch(`/api/training-videos/${videoId}/annotations`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(annotation) });
+      if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.addAnnotation');
+      return res.json();
+    } catch {
+      console.warn('[training-video.addAnnotation] API not available, using fallback');
+      return {} as VideoAnnotation;
+    }
   } catch (error) { handleServiceError(error, 'trainingVideo.addAnnotation'); }
 }

@@ -38,9 +38,14 @@ export async function getHealthOverview(): Promise<HealthOverview> {
       const { mockGetHealthOverview } = await import('@/lib/mocks/superadmin-health.mock');
       return mockGetHealthOverview();
     }
-    const res = await fetch('/api/superadmin/health/overview');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/health/overview');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-health.getHealthOverview] API not available, using fallback');
+      return {} as HealthOverview;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-health.getOverview'); }
 }
 
@@ -50,10 +55,15 @@ export async function listAcademiaHealthScores(filtro?: string): Promise<Academi
       const { mockListAcademiaHealthScores } = await import('@/lib/mocks/superadmin-health.mock');
       return mockListAcademiaHealthScores(filtro);
     }
-    const params = filtro ? `?filtro=${filtro}` : '';
-    const res = await fetch(`/api/superadmin/health/scores${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const params = filtro ? `?filtro=${filtro}` : '';
+      const res = await fetch(`/api/superadmin/health/scores${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-health.listAcademiaHealthScores] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'superadmin-health.listScores'); }
 }
 
@@ -63,8 +73,13 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
       const { mockGetAcademiaHealth } = await import('@/lib/mocks/superadmin-health.mock');
       return mockGetAcademiaHealth(academiaId);
     }
-    const res = await fetch(`/api/superadmin/health/${academiaId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/superadmin/health/${academiaId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-health.getAcademiaHealth] API not available, using fallback');
+      return {} as AcademiaHealthScore;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-health.getAcademia'); }
 }

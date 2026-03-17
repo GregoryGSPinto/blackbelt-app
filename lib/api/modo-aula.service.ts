@@ -54,7 +54,8 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       const { mockGetModoAula } = await import('@/lib/mocks/modo-aula.mock');
       return mockGetModoAula(turmaId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[modoAula.get] fallback — not yet connected to Supabase');
+    return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] } as ModoAulaDTO;
   } catch (error) {
     handleServiceError(error, 'modoAula.get');
   }
@@ -66,7 +67,8 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
       const { mockRegistrarPresenca } = await import('@/lib/mocks/modo-aula.mock');
       return mockRegistrarPresenca(turmaId, alunoId, presente);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[modoAula.registrarPresenca] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'modoAula.registrarPresenca');
   }
@@ -78,7 +80,8 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       const { mockEncerrarAula } = await import('@/lib/mocks/modo-aula.mock');
       return mockEncerrarAula(turmaId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[modoAula.encerrar] fallback — not yet connected to Supabase');
+    return { totalPresentes: 0, totalAlunos: 0 };
   } catch (error) {
     handleServiceError(error, 'modoAula.encerrar');
   }

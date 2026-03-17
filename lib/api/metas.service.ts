@@ -67,9 +67,14 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
       return mockGetGoals(studentId);
     }
-    const res = await fetch(`/api/metas/goals?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'metas.getGoals');
-    return res.json();
+    try {
+      const res = await fetch(`/api/metas/goals?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'metas.getGoals');
+      return res.json();
+    } catch {
+      console.warn('[metas.getGoals] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'metas.getGoals');
   }
@@ -81,13 +86,18 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       const { mockCreateGoal } = await import('@/lib/mocks/metas.mock');
       return mockCreateGoal(data);
     }
-    const res = await fetch('/api/metas/goals', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'metas.createGoal');
-    return res.json();
+    try {
+      const res = await fetch('/api/metas/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'metas.createGoal');
+      return res.json();
+    } catch {
+      console.warn('[metas.createGoal] API not available, using fallback');
+      return {} as GoalDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'metas.createGoal');
   }
@@ -99,9 +109,14 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
       return mockGetDiary(studentId, month);
     }
-    const res = await fetch(`/api/metas/diary?studentId=${studentId}&month=${month}`);
-    if (!res.ok) throw new ServiceError(res.status, 'metas.getDiary');
-    return res.json();
+    try {
+      const res = await fetch(`/api/metas/diary?studentId=${studentId}&month=${month}`);
+      if (!res.ok) throw new ServiceError(res.status, 'metas.getDiary');
+      return res.json();
+    } catch {
+      console.warn('[metas.getDiary] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'metas.getDiary');
   }
@@ -113,13 +128,18 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       const { mockSaveDiaryEntry } = await import('@/lib/mocks/metas.mock');
       return mockSaveDiaryEntry(data);
     }
-    const res = await fetch('/api/metas/diary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'metas.saveDiary');
-    return res.json();
+    try {
+      const res = await fetch('/api/metas/diary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'metas.saveDiary');
+      return res.json();
+    } catch {
+      console.warn('[metas.saveDiaryEntry] API not available, using fallback');
+      return {} as DiaryEntryDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'metas.saveDiary');
   }

@@ -86,14 +86,20 @@ export async function sendWhatsApp(
         status: 'sent',
       };
     }
+    try {
 
-    const res = await fetch('/api/whatsapp/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...payload }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...payload }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[whatsapp.sendWhatsApp] API not available, using fallback');
+      return {} as WhatsAppSendResult;
+    }
+
   } catch (error) {
     handleServiceError(error, 'whatsapp.send');
   }
@@ -137,10 +143,16 @@ export async function getWhatsAppConfig(
         enabled: true,
       };
     }
+    try {
 
-    const res = await fetch(`/api/whatsapp/config?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch(`/api/whatsapp/config?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[whatsapp.getWhatsAppConfig] API not available, using fallback');
+      return null;
+    }
+
   } catch (error) {
     handleServiceError(error, 'whatsapp.getConfig');
   }
@@ -154,13 +166,18 @@ export async function updateWhatsAppConfig(
       logger.debug('[MOCK] WhatsApp config updated', { config });
       return;
     }
+    try {
 
-    const res = await fetch('/api/whatsapp/config', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch('/api/whatsapp/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[whatsapp.updateWhatsAppConfig] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'whatsapp.updateConfig');
   }
@@ -175,12 +192,18 @@ export async function getWhatsAppHistory(
       const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
       return mockWhatsAppHistory(academyId, limit);
     }
+    try {
 
-    const res = await fetch(
-      `/api/whatsapp/history?academyId=${academyId}&limit=${limit}`,
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch(
+        `/api/whatsapp/history?academyId=${academyId}&limit=${limit}`,
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[whatsapp.getWhatsAppHistory] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'whatsapp.getHistory');
   }

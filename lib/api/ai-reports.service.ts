@@ -7,8 +7,13 @@ export async function generateMonthlyNarrative(academyId: string, month: string)
       const { mockGenerateMonthlyNarrative } = await import('@/lib/mocks/ai-reports.mock');
       return mockGenerateMonthlyNarrative(academyId, month);
     }
-    const res = await fetch('/api/ai/monthly-narrative', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, month }) });
-    return res.json().then((r: { narrative: string }) => r.narrative);
+    try {
+      const res = await fetch('/api/ai/monthly-narrative', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, month }) });
+      return res.json().then((r: { narrative: string }) => r.narrative);
+    } catch {
+      console.warn('[ai-reports.generateMonthlyNarrative] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'aiReports.monthly'); }
 }
 
@@ -18,8 +23,13 @@ export async function generateStudentReport(studentId: string): Promise<string> 
       const { mockGenerateStudentReport } = await import('@/lib/mocks/ai-reports.mock');
       return mockGenerateStudentReport(studentId);
     }
-    const res = await fetch('/api/ai/student-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-    return res.json().then((r: { report: string }) => r.report);
+    try {
+      const res = await fetch('/api/ai/student-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      return res.json().then((r: { report: string }) => r.report);
+    } catch {
+      console.warn('[ai-reports.generateStudentReport] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'aiReports.student'); }
 }
 
@@ -29,7 +39,12 @@ export async function generateClassReport(classId: string, month: string): Promi
       const { mockGenerateClassReport } = await import('@/lib/mocks/ai-reports.mock');
       return mockGenerateClassReport(classId, month);
     }
-    const res = await fetch('/api/ai/class-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ classId, month }) });
-    return res.json().then((r: { report: string }) => r.report);
+    try {
+      const res = await fetch('/api/ai/class-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ classId, month }) });
+      return res.json().then((r: { report: string }) => r.report);
+    } catch {
+      console.warn('[ai-reports.generateClassReport] API not available, using fallback');
+      return '';
+    }
   } catch (error) { handleServiceError(error, 'aiReports.class'); }
 }

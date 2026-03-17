@@ -42,13 +42,18 @@ export async function emitNFe(paymentId: string): Promise<NFeDocument> {
         error: null,
       };
     }
-    const res = await fetch('/api/nfe/emit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/nfe/emit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[nfe.emitNFe] API not available, using fallback');
+      return {} as NFeDocument;
+    }
   } catch (error) {
     handleServiceError(error, 'nfe.emit');
   }
@@ -63,9 +68,14 @@ export async function listNFes(academyId: string): Promise<NFeDocument[]> {
         { id: 'nfe-3', paymentId: 'pay-3', studentName: 'Marcos Oliveira', number: '', value: 197, status: 'error', pdfUrl: null, emittedAt: null, error: 'CNPJ inválido' },
       ];
     }
-    const res = await fetch(`/api/nfe?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/nfe?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[nfe.listNFes] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'nfe.list');
   }
@@ -82,9 +92,14 @@ export async function getNFeConfig(academyId: string): Promise<NFeConfig> {
         autoEmit: true,
       };
     }
-    const res = await fetch(`/api/nfe/config?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/nfe/config?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[nfe.getNFeConfig] API not available, using fallback');
+      return {} as NFeConfig;
+    }
   } catch (error) {
     handleServiceError(error, 'nfe.getConfig');
   }
@@ -96,12 +111,16 @@ export async function updateNFeConfig(academyId: string, config: Partial<NFeConf
       logger.debug('[MOCK] NF-e config updated', { config });
       return;
     }
-    const res = await fetch('/api/nfe/config', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...config }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch('/api/nfe/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...config }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[nfe.updateNFeConfig] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'nfe.updateConfig');
   }

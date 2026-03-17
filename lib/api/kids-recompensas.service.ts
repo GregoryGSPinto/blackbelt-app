@@ -30,9 +30,14 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetRecompensasKids(studentId);
     }
-    const res = await fetch(`/api/kids/recompensas?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/kids/recompensas?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.list');
+      return res.json();
+    } catch {
+      console.warn('[kids-recompensas.getRecompensasKids] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.list');
   }
@@ -44,9 +49,14 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetHistoricoResgates(studentId);
     }
-    const res = await fetch(`/api/kids/recompensas/historico?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.historico');
-    return res.json();
+    try {
+      const res = await fetch(`/api/kids/recompensas/historico?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.historico');
+      return res.json();
+    } catch {
+      console.warn('[kids-recompensas.getHistoricoResgates] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.historico');
   }
@@ -58,13 +68,18 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
       const { mockResgatarRecompensa } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockResgatarRecompensa(studentId, recompensaId);
     }
-    const res = await fetch('/api/kids/recompensas/resgatar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, recompensaId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.resgatar');
-    return res.json();
+    try {
+      const res = await fetch('/api/kids/recompensas/resgatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, recompensaId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.resgatar');
+      return res.json();
+    } catch {
+      console.warn('[kids-recompensas.resgatarRecompensa] API not available, using fallback');
+      return {} as HistoricoResgate;
+    }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.resgatar');
   }

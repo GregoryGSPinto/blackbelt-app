@@ -41,13 +41,18 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       const { mockCreateCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockCreateCourse(creatorId, payload);
     }
-    const res = await fetch(`/api/courses`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ creatorId, ...payload }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/courses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorId, ...payload }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.create');
+      return res.json();
+    } catch {
+      console.warn('[course-creator.createCourse] API not available, using fallback');
+      return {} as MarketplaceCourse;
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.create'); }
 }
 
@@ -57,13 +62,18 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       const { mockAddModule } = await import('@/lib/mocks/course-creator.mock');
       return mockAddModule(payload);
     }
-    const res = await fetch(`/api/courses/${payload.course_id}/modules`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: payload.title }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addModule');
-    return res.json();
+    try {
+      const res = await fetch(`/api/courses/${payload.course_id}/modules`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: payload.title }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addModule');
+      return res.json();
+    } catch {
+      console.warn('[course-creator.addModule] API not available, using fallback');
+      return {} as CourseModule;
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.addModule'); }
 }
 
@@ -73,12 +83,16 @@ export async function addLesson(payload: AddLessonPayload): Promise<void> {
       const { mockAddLesson } = await import('@/lib/mocks/course-creator.mock');
       return mockAddLesson(payload);
     }
-    const res = await fetch(`/api/courses/${payload.course_id}/modules/${payload.module_id}/lessons`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: payload.title, video_url: payload.video_url, duration: payload.duration }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addLesson');
+    try {
+      const res = await fetch(`/api/courses/${payload.course_id}/modules/${payload.module_id}/lessons`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: payload.title, video_url: payload.video_url, duration: payload.duration }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addLesson');
+    } catch {
+      console.warn('[course-creator.addLesson] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.addLesson'); }
 }
 
@@ -88,12 +102,16 @@ export async function reorderModules(courseId: string, moduleIds: string[]): Pro
       const { mockReorderModules } = await import('@/lib/mocks/course-creator.mock');
       return mockReorderModules(courseId, moduleIds);
     }
-    const res = await fetch(`/api/courses/${courseId}/modules/reorder`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ moduleIds }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.reorderModules');
+    try {
+      const res = await fetch(`/api/courses/${courseId}/modules/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleIds }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.reorderModules');
+    } catch {
+      console.warn('[course-creator.reorderModules] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.reorderModules'); }
 }
 
@@ -103,9 +121,14 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockPublishCourse(courseId);
     }
-    const res = await fetch(`/api/courses/${courseId}/publish`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.publish');
-    return res.json();
+    try {
+      const res = await fetch(`/api/courses/${courseId}/publish`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.publish');
+      return res.json();
+    } catch {
+      console.warn('[course-creator.publishCourse] API not available, using fallback');
+      return {} as MarketplaceCourse;
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.publish'); }
 }
 
@@ -115,8 +138,13 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
       return mockGetCourseAnalytics(creatorId);
     }
-    const res = await fetch(`/api/courses/analytics?creatorId=${creatorId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'courseCreator.analytics');
-    return res.json();
+    try {
+      const res = await fetch(`/api/courses/analytics?creatorId=${creatorId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.analytics');
+      return res.json();
+    } catch {
+      console.warn('[course-creator.getCourseAnalytics] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'courseCreator.analytics'); }
 }

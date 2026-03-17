@@ -193,9 +193,14 @@ export async function getFaixas(): Promise<FaixaBase[]> {
       const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
       return mockGetFaixas();
     }
-    const res = await fetch('/api/pricing/tiers');
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getFaixas');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/tiers');
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getFaixas');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getFaixas] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getFaixas'); }
 }
 
@@ -205,9 +210,14 @@ export async function getModulos(): Promise<Modulo[]> {
       const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulos();
     }
-    const res = await fetch('/api/pricing/modules');
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulos');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/modules');
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulos');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getModulos] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getModulos'); }
 }
 
@@ -217,9 +227,14 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
       const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
       return mockGetPacotes();
     }
-    const res = await fetch('/api/pricing/packages');
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getPacotes');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/packages');
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getPacotes');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getPacotes] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getPacotes'); }
 }
 
@@ -229,9 +244,14 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
       return mockGetAssinatura(academyId);
     }
-    const res = await fetch(`/api/pricing/subscription?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getAssinatura');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pricing/subscription?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getAssinatura');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getAssinatura] API not available, using fallback');
+      return {} as AssinaturaSaaS;
+    }
   } catch (error) { handleServiceError(error, 'pricing.getAssinatura'); }
 }
 
@@ -241,13 +261,18 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       const { mockAtivarModulo } = await import('@/lib/mocks/pricing.mock');
       return mockAtivarModulo(academyId, moduloSlug);
     }
-    const res = await fetch('/api/pricing/modules/activate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, moduloSlug }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.ativarModulo');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/modules/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, moduloSlug }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.ativarModulo');
+      return res.json();
+    } catch {
+      console.warn('[pricing.ativarModulo] API not available, using fallback');
+      return {} as AssinaturaSaaS;
+    }
   } catch (error) { handleServiceError(error, 'pricing.ativarModulo'); }
 }
 
@@ -257,13 +282,18 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       const { mockDesativarModulo } = await import('@/lib/mocks/pricing.mock');
       return mockDesativarModulo(academyId, moduloSlug);
     }
-    const res = await fetch('/api/pricing/modules/deactivate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, moduloSlug }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.desativarModulo');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/modules/deactivate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, moduloSlug }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.desativarModulo');
+      return res.json();
+    } catch {
+      console.warn('[pricing.desativarModulo] API not available, using fallback');
+      return {} as AssinaturaSaaS;
+    }
   } catch (error) { handleServiceError(error, 'pricing.desativarModulo'); }
 }
 
@@ -273,9 +303,14 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
       return mockGetHistoricoCobrancas(academyId);
     }
-    const res = await fetch(`/api/pricing/billing?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getHistoricoCobrancas');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pricing/billing?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getHistoricoCobrancas');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getHistoricoCobrancas] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getHistoricoCobrancas'); }
 }
 
@@ -285,9 +320,14 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetUsoDescoberta(academyId);
     }
-    const res = await fetch(`/api/pricing/discovery-usage?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getUsoDescoberta');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pricing/discovery-usage?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getUsoDescoberta');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getUsoDescoberta] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getUsoDescoberta'); }
 }
 
@@ -297,10 +337,15 @@ export async function isModuloAcessivel(academyId: string, moduloSlug: string): 
       const { mockIsModuloAcessivel } = await import('@/lib/mocks/pricing.mock');
       return mockIsModuloAcessivel(academyId, moduloSlug);
     }
-    const res = await fetch(`/api/pricing/module-access?academyId=${academyId}&module=${moduloSlug}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.isModuloAcessivel');
-    const data = await res.json();
-    return data.accessible;
+    try {
+      const res = await fetch(`/api/pricing/module-access?academyId=${academyId}&module=${moduloSlug}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.isModuloAcessivel');
+      const data = await res.json();
+      return data.accessible;
+    } catch {
+      console.warn('[pricing.isModuloAcessivel] API not available, using fallback');
+      return false;
+    }
   } catch (error) { handleServiceError(error, 'pricing.isModuloAcessivel'); }
 }
 
@@ -310,9 +355,14 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulosExtrasDescoberta(academyId);
     }
-    const res = await fetch(`/api/pricing/discovery-extras?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulosExtrasDescoberta');
-    return res.json();
+    try {
+      const res = await fetch(`/api/pricing/discovery-extras?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulosExtrasDescoberta');
+      return res.json();
+    } catch {
+      console.warn('[pricing.getModulosExtrasDescoberta] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'pricing.getModulosExtrasDescoberta'); }
 }
 
@@ -322,12 +372,17 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       const { mockSimularUpgrade } = await import('@/lib/mocks/pricing.mock');
       return mockSimularUpgrade(academyId, novosModulos);
     }
-    const res = await fetch('/api/pricing/simulate-upgrade', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, novosModulos }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pricing.simularUpgrade');
-    return res.json();
+    try {
+      const res = await fetch('/api/pricing/simulate-upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, novosModulos }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'pricing.simularUpgrade');
+      return res.json();
+    } catch {
+      console.warn('[pricing.simularUpgrade] API not available, using fallback');
+      return {} as SimulacaoUpgrade;
+    }
   } catch (error) { handleServiceError(error, 'pricing.simularUpgrade'); }
 }

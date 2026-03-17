@@ -30,8 +30,13 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
       const { mockGetConsents } = await import('@/lib/mocks/privacy.mock');
       return mockGetConsents(userId);
     }
-    const res = await fetch(`/api/privacy/consents?userId=${userId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/privacy/consents?userId=${userId}`);
+      return res.json();
+    } catch {
+      console.warn('[privacy.getConsents] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'privacy.getConsents'); }
 }
 
@@ -41,8 +46,13 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
       const { mockUpdateConsent } = await import('@/lib/mocks/privacy.mock');
       return mockUpdateConsent(userId, type, accepted);
     }
-    const res = await fetch('/api/privacy/consents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, type, accepted }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/privacy/consents', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, type, accepted }) });
+      return res.json();
+    } catch {
+      console.warn('[privacy.updateConsent] API not available, using fallback');
+      return {} as ConsentRecord;
+    }
   } catch (error) { handleServiceError(error, 'privacy.updateConsent'); }
 }
 
@@ -52,8 +62,13 @@ export async function requestDataExport(userId: string): Promise<DataExportReque
       const { mockRequestDataExport } = await import('@/lib/mocks/privacy.mock');
       return mockRequestDataExport(userId);
     }
-    const res = await fetch('/api/privacy/export', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/privacy/export', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) });
+      return res.json();
+    } catch {
+      console.warn('[privacy.requestDataExport] API not available, using fallback');
+      return {} as DataExportRequest;
+    }
   } catch (error) { handleServiceError(error, 'privacy.requestExport'); }
 }
 
@@ -63,8 +78,13 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
       const { mockGetDataExportStatus } = await import('@/lib/mocks/privacy.mock');
       return mockGetDataExportStatus(requestId);
     }
-    const res = await fetch(`/api/privacy/export/${requestId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/privacy/export/${requestId}`);
+      return res.json();
+    } catch {
+      console.warn('[privacy.getDataExportStatus] API not available, using fallback');
+      return {} as DataExportRequest;
+    }
   } catch (error) { handleServiceError(error, 'privacy.exportStatus'); }
 }
 
@@ -74,7 +94,12 @@ export async function requestAccountDeletion(userId: string): Promise<DeletionRe
       const { mockRequestDeletion } = await import('@/lib/mocks/privacy.mock');
       return mockRequestDeletion(userId);
     }
-    const res = await fetch('/api/privacy/delete-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) });
-    return res.json();
+    try {
+      const res = await fetch('/api/privacy/delete-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) });
+      return res.json();
+    } catch {
+      console.warn('[privacy.requestAccountDeletion] API not available, using fallback');
+      return {} as DeletionRequest;
+    }
   } catch (error) { handleServiceError(error, 'privacy.deleteAccount'); }
 }

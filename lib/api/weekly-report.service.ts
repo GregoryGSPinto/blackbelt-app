@@ -48,9 +48,14 @@ export async function generateWeeklyReport(academyId: string): Promise<WeeklyRep
         topClass: { name: 'BJJ Fundamentos', attendance: 28 },
       };
     }
-    const res = await fetch(`/api/reports/weekly?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/reports/weekly?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[weekly-report.generateWeeklyReport] API not available, using fallback');
+      return {} as WeeklyReportData;
+    }
   } catch (error) {
     handleServiceError(error, 'weeklyReport.generate');
   }

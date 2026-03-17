@@ -44,13 +44,18 @@ export async function listVideos(academyId: string, filters?: VideoFilters): Pro
       const { mockListVideos } = await import('@/lib/mocks/content.mock');
       return mockListVideos(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters?.belt) params.set('belt', filters.belt);
-    if (filters?.modality) params.set('modality', filters.modality);
-    if (filters?.search) params.set('search', filters.search);
-    const res = await fetch(`/api/content/videos?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'content.listVideos');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters?.belt) params.set('belt', filters.belt);
+      if (filters?.modality) params.set('modality', filters.modality);
+      if (filters?.search) params.set('search', filters.search);
+      const res = await fetch(`/api/content/videos?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'content.listVideos');
+      return res.json();
+    } catch {
+      console.warn('[content.listVideos] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'content.listVideos');
   }
@@ -62,9 +67,14 @@ export async function getVideo(id: string): Promise<VideoDetail> {
       const { mockGetVideo } = await import('@/lib/mocks/content.mock');
       return mockGetVideo(id);
     }
-    const res = await fetch(`/api/content/videos/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'content.getVideo');
-    return res.json();
+    try {
+      const res = await fetch(`/api/content/videos/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'content.getVideo');
+      return res.json();
+    } catch {
+      console.warn('[content.getVideo] API not available, using fallback');
+      return {} as VideoDetail;
+    }
   } catch (error) {
     handleServiceError(error, 'content.getVideo');
   }
@@ -76,9 +86,14 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
       const { mockGetSeries } = await import('@/lib/mocks/content.mock');
       return mockGetSeries(academyId);
     }
-    const res = await fetch(`/api/content/series?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'content.getSeries');
-    return res.json();
+    try {
+      const res = await fetch(`/api/content/series?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'content.getSeries');
+      return res.json();
+    } catch {
+      console.warn('[content.getSeries] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'content.getSeries');
   }

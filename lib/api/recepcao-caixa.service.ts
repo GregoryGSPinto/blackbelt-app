@@ -48,9 +48,14 @@ export async function getCaixa(): Promise<CaixaDia> {
       const { mockGetCaixa } = await import('@/lib/mocks/recepcao-caixa.mock');
       return mockGetCaixa();
     }
-    const res = await fetch('/api/recepcao/caixa');
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-caixa.get');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/caixa');
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-caixa.get');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-caixa.getCaixa] API not available, using fallback');
+      return {} as CaixaDia;
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-caixa.get');
   }

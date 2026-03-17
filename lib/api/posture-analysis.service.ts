@@ -40,12 +40,17 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       const { mockAnalyzePosture } = await import('@/lib/mocks/posture-analysis.mock');
       return mockAnalyzePosture(imageBase64);
     }
-    const res = await fetch('/api/ai/posture-analysis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64 }),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/ai/posture-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64 }),
+      });
+      return res.json();
+    } catch {
+      console.warn('[posture-analysis.analyzePosture] API not available, using fallback');
+      return {} as PostureResult;
+    }
   } catch (error) {
     handleServiceError(error, 'postureAnalysis.analyze');
   }

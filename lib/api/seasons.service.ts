@@ -49,9 +49,14 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
       return mockGetCurrentSeason(academyId);
     }
-    const res = await fetch(`/api/seasons/current?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'seasons.getCurrent');
-    return res.json();
+    try {
+      const res = await fetch(`/api/seasons/current?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'seasons.getCurrent');
+      return res.json();
+    } catch {
+      console.warn('[seasons.getCurrentSeason] API not available, using fallback');
+      return {} as SeasonDTO;
+    }
   } catch (error) { handleServiceError(error, 'seasons.getCurrent'); }
 }
 
@@ -61,11 +66,16 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
       const { mockGetSeasonLeaderboard } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonLeaderboard(seasonId, category);
     }
-    const params = new URLSearchParams({ seasonId });
-    if (category) params.set('category', category);
-    const res = await fetch(`/api/seasons/leaderboard?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'seasons.leaderboard');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ seasonId });
+      if (category) params.set('category', category);
+      const res = await fetch(`/api/seasons/leaderboard?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'seasons.leaderboard');
+      return res.json();
+    } catch {
+      console.warn('[seasons.getSeasonLeaderboard] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'seasons.leaderboard'); }
 }
 
@@ -75,9 +85,14 @@ export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTi
       const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonRewards(seasonId);
     }
-    const res = await fetch(`/api/seasons/${seasonId}/rewards`);
-    if (!res.ok) throw new ServiceError(res.status, 'seasons.rewards');
-    return res.json();
+    try {
+      const res = await fetch(`/api/seasons/${seasonId}/rewards`);
+      if (!res.ok) throw new ServiceError(res.status, 'seasons.rewards');
+      return res.json();
+    } catch {
+      console.warn('[seasons.getSeasonRewards] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'seasons.rewards'); }
 }
 
@@ -87,8 +102,13 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
       return mockGetMySeasonProgress(studentId, seasonId);
     }
-    const res = await fetch(`/api/seasons/${seasonId}/progress?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'seasons.myProgress');
-    return res.json();
+    try {
+      const res = await fetch(`/api/seasons/${seasonId}/progress?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'seasons.myProgress');
+      return res.json();
+    } catch {
+      console.warn('[seasons.getMySeasonProgress] API not available, using fallback');
+      return {} as SeasonProgress;
+    }
   } catch (error) { handleServiceError(error, 'seasons.myProgress'); }
 }

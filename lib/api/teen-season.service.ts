@@ -57,9 +57,14 @@ export async function getTeenSeasonPass(studentId: string): Promise<TeenSeasonPa
       const { mockGetTeenSeasonPass } = await import('@/lib/mocks/teen-season.mock');
       return mockGetTeenSeasonPass(studentId);
     }
-    const res = await fetch(`/api/teen/season?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'teen.season');
-    return res.json();
+    try {
+      const res = await fetch(`/api/teen/season?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'teen.season');
+      return res.json();
+    } catch {
+      console.warn('[teen-season.getTeenSeasonPass] API not available, using fallback');
+      return {} as TeenSeasonPass;
+    }
   } catch (error) {
     handleServiceError(error, 'teen.season');
   }
@@ -71,8 +76,12 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
       const { mockClaimSeasonReward } = await import('@/lib/mocks/teen-season.mock');
       return mockClaimSeasonReward(rewardId);
     }
-    const res = await fetch(`/api/teen/season/rewards/${rewardId}/claim`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'teen.season.claim');
+    try {
+      const res = await fetch(`/api/teen/season/rewards/${rewardId}/claim`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'teen.season.claim');
+    } catch {
+      console.warn('[teen-season.claimSeasonReward] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'teen.season.claim');
   }

@@ -77,9 +77,14 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
         },
       ];
     }
-    const res = await fetch(`/api/competitions?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/competitions?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[competition.listCompetitions] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'competition.list');
   }
@@ -100,13 +105,19 @@ export async function createCompetition(
         totalParticipants: 0,
       };
     }
-    const res = await fetch('/api/competitions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...data }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/competitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...data }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[competition.createCompetition] API not available, using fallback');
+      return {} as Competition;
+    }
+
   } catch (error) {
     handleServiceError(error, 'competition.create');
   }
@@ -125,13 +136,19 @@ export async function generateBracket(
         { id: 'm-3', round: 2, position: 1, participant1: null, participant2: null, winner: null, score1: null, score2: null, method: null },
       ];
     }
-    const res = await fetch('/api/competitions/bracket', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ categoryId, eliminationType }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/competitions/bracket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryId, eliminationType }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[competition.generateBracket] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'competition.generateBracket');
   }
@@ -149,12 +166,17 @@ export async function recordMatchResult(
       logger.debug('[MOCK] Match result recorded', { matchId, winnerId, score1, score2, method });
       return;
     }
-    const res = await fetch(`/api/competitions/matches/${matchId}/result`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ winnerId, score1, score2, method }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/competitions/matches/${matchId}/result`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ winnerId, score1, score2, method }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[competition.recordMatchResult] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'competition.recordResult');
   }

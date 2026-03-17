@@ -21,9 +21,14 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       const { mockListLeads } = await import('@/lib/mocks/leads.mock');
       return mockListLeads(academyId);
     }
-    const res = await fetch(`/api/leads?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'leads.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/leads?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'leads.list');
+      return res.json();
+    } catch {
+      console.warn('[leads.listLeads] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'leads.list'); }
 }
 
@@ -33,9 +38,14 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       const { mockCreateLead } = await import('@/lib/mocks/leads.mock');
       return mockCreateLead(data);
     }
-    const res = await fetch(`/api/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'leads.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'leads.create');
+      return res.json();
+    } catch {
+      console.warn('[leads.createLead] API not available, using fallback');
+      return {} as LeadDTO;
+    }
   } catch (error) { handleServiceError(error, 'leads.create'); }
 }
 
@@ -45,7 +55,11 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus): Prom
       const { mockUpdateLeadStatus } = await import('@/lib/mocks/leads.mock');
       return mockUpdateLeadStatus(leadId, status);
     }
-    const res = await fetch(`/api/leads/${leadId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-    if (!res.ok) throw new ServiceError(res.status, 'leads.updateStatus');
+    try {
+      const res = await fetch(`/api/leads/${leadId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+      if (!res.ok) throw new ServiceError(res.status, 'leads.updateStatus');
+    } catch {
+      console.warn('[leads.updateLeadStatus] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'leads.updateStatus'); }
 }

@@ -24,9 +24,14 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetBalance(userId);
     }
-    const res = await fetch(`/api/store/rewards/balance?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getBalance');
-    return res.json();
+    try {
+      const res = await fetch(`/api/store/rewards/balance?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getBalance');
+      return res.json();
+    } catch {
+      console.warn('[store-rewards.getBalance] API not available, using fallback');
+      return {} as RewardBalance;
+    }
   } catch (error) { handleServiceError(error, 'storeRewards.getBalance'); }
 }
 
@@ -36,9 +41,14 @@ export async function getHistory(userId: string): Promise<RewardTransaction[]> {
       const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetHistory(userId);
     }
-    const res = await fetch(`/api/store/rewards/history?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getHistory');
-    return res.json();
+    try {
+      const res = await fetch(`/api/store/rewards/history?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getHistory');
+      return res.json();
+    } catch {
+      console.warn('[store-rewards.getHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'storeRewards.getHistory'); }
 }
 
@@ -48,12 +58,17 @@ export async function redeemPoints(userId: string, amount: number, orderId: stri
       const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
       return mockRedeemPoints(userId, amount, orderId);
     }
-    const res = await fetch('/api/store/rewards/redeem', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, amount, orderId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'storeRewards.redeemPoints');
-    return res.json();
+    try {
+      const res = await fetch('/api/store/rewards/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, amount, orderId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.redeemPoints');
+      return res.json();
+    } catch {
+      console.warn('[store-rewards.redeemPoints] API not available, using fallback');
+      return {} as RewardTransaction;
+    }
   } catch (error) { handleServiceError(error, 'storeRewards.redeemPoints'); }
 }

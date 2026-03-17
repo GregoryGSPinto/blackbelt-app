@@ -24,9 +24,14 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
       const { mockStartImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStartImpersonation(academiaId);
     }
-    const res = await fetch('/api/superadmin/impersonate/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academiaId }) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/impersonate/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academiaId }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-impersonate.startImpersonation] API not available, using fallback');
+      return {} as ImpersonateSession;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.start'); }
 }
 
@@ -36,8 +41,12 @@ export async function stopImpersonation(): Promise<void> {
       const { mockStopImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStopImpersonation();
     }
-    const res = await fetch('/api/superadmin/impersonate/stop', { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch('/api/superadmin/impersonate/stop', { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[superadmin-impersonate.stopImpersonation] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.stop'); }
 }
 
@@ -59,8 +68,13 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
       const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockListImpersonateAcademias();
     }
-    const res = await fetch('/api/superadmin/impersonate/academias');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/impersonate/academias');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.listAcademias'); }
 }

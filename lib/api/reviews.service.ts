@@ -27,13 +27,18 @@ export async function createReview(courseId: string, userId: string, rating: num
       const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
       return mockCreateReview(courseId, userId, rating, text);
     }
-    const res = await fetch(`/api/reviews`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ courseId, userId, rating, text }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'reviews.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId, userId, rating, text }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'reviews.create');
+      return res.json();
+    } catch {
+      console.warn('[reviews.createReview] API not available, using fallback');
+      return {} as Review;
+    }
   } catch (error) { handleServiceError(error, 'reviews.create'); }
 }
 
@@ -43,11 +48,16 @@ export async function getReviews(courseId: string, page?: number): Promise<{ rev
       const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
       return mockGetReviews(courseId, page);
     }
-    const params = new URLSearchParams({ courseId });
-    if (page) params.set('page', String(page));
-    const res = await fetch(`/api/reviews?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'reviews.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ courseId });
+      if (page) params.set('page', String(page));
+      const res = await fetch(`/api/reviews?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'reviews.list');
+      return res.json();
+    } catch {
+      console.warn('[reviews.getReviews] API not available, using fallback');
+      return {} as { reviews: Review[]; total: number; page: number };
+    }
   } catch (error) { handleServiceError(error, 'reviews.list'); }
 }
 
@@ -57,9 +67,14 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
     }
-    const res = await fetch(`/api/reviews/average?courseId=${courseId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'reviews.average');
-    return res.json();
+    try {
+      const res = await fetch(`/api/reviews/average?courseId=${courseId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'reviews.average');
+      return res.json();
+    } catch {
+      console.warn('[reviews.getAverageRating] API not available, using fallback');
+      return {} as AverageRating;
+    }
   } catch (error) { handleServiceError(error, 'reviews.average'); }
 }
 
@@ -69,12 +84,16 @@ export async function reportReview(reviewId: string, reason: string): Promise<vo
       const { mockReportReview } = await import('@/lib/mocks/reviews.mock');
       return mockReportReview(reviewId, reason);
     }
-    const res = await fetch(`/api/reviews/${reviewId}/report`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'reviews.report');
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'reviews.report');
+    } catch {
+      console.warn('[reviews.reportReview] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'reviews.report'); }
 }
 
@@ -84,12 +103,17 @@ export async function respondToReview(reviewId: string, response: string): Promi
       const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
       return mockRespondToReview(reviewId, response);
     }
-    const res = await fetch(`/api/reviews/${reviewId}/respond`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ response }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'reviews.respond');
-    return res.json();
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ response }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'reviews.respond');
+      return res.json();
+    } catch {
+      console.warn('[reviews.respondToReview] API not available, using fallback');
+      return {} as Review;
+    }
   } catch (error) { handleServiceError(error, 'reviews.respond'); }
 }

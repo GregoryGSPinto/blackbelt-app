@@ -33,11 +33,16 @@ export async function parseCSV(file: File): Promise<ParsedCSVResult> {
       const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
       return mockParseCSV(file);
     }
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('/api/import/parse', { method: 'POST', body: formData });
-    if (!res.ok) throw new ServiceError(res.status, 'importacao.parseCSV');
-    return res.json();
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/import/parse', { method: 'POST', body: formData });
+      if (!res.ok) throw new ServiceError(res.status, 'importacao.parseCSV');
+      return res.json();
+    } catch {
+      console.warn('[importacao.parseCSV] API not available, using fallback');
+      return {} as ParsedCSVResult;
+    }
   } catch (error) { handleServiceError(error, 'importacao.parseCSV'); }
 }
 
@@ -47,13 +52,18 @@ export async function detectDuplicates(rows: ImportRow[], academyId: string): Pr
       const { mockDetectDuplicates } = await import('@/lib/mocks/importacao.mock');
       return mockDetectDuplicates(rows, academyId);
     }
-    const res = await fetch('/api/import/duplicates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rows, academyId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'importacao.detectDuplicates');
-    return res.json();
+    try {
+      const res = await fetch('/api/import/duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows, academyId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'importacao.detectDuplicates');
+      return res.json();
+    } catch {
+      console.warn('[importacao.detectDuplicates] API not available, using fallback');
+      return {} as DuplicateCheckResult;
+    }
   } catch (error) { handleServiceError(error, 'importacao.detectDuplicates'); }
 }
 
@@ -63,12 +73,17 @@ export async function importStudents(rows: ImportRow[], academyId: string): Prom
       const { mockImportStudents } = await import('@/lib/mocks/importacao.mock');
       return mockImportStudents(rows, academyId);
     }
-    const res = await fetch('/api/import/students', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rows, academyId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'importacao.importStudents');
-    return res.json();
+    try {
+      const res = await fetch('/api/import/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows, academyId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'importacao.importStudents');
+      return res.json();
+    } catch {
+      console.warn('[importacao.importStudents] API not available, using fallback');
+      return {} as ImportResult;
+    }
   } catch (error) { handleServiceError(error, 'importacao.importStudents'); }
 }

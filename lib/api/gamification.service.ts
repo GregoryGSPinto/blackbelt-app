@@ -9,9 +9,14 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
       const { mockGetPlayerProfile } = await import('@/lib/mocks/gamification.mock');
       return mockGetPlayerProfile(userId);
     }
-    const res = await fetch(`/api/gamification/profile/${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/gamification/profile/${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[gamification.getPlayerProfile] API not available, using fallback');
+      return {} as PlayerProfile;
+    }
   } catch (error) {
     handleServiceError(error, 'gamification.profile');
   }
@@ -26,11 +31,17 @@ export async function getLeaderboard(
       const { mockGetLeaderboard } = await import('@/lib/mocks/gamification.mock');
       return mockGetLeaderboard(academyId, classId);
     }
-    const params = new URLSearchParams({ academyId });
-    if (classId) params.set('classId', classId);
-    const res = await fetch(`/api/gamification/leaderboard?${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (classId) params.set('classId', classId);
+      const res = await fetch(`/api/gamification/leaderboard?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[gamification.getLeaderboard] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'gamification.leaderboard');
   }
@@ -42,9 +53,14 @@ export async function getAllBadges(): Promise<Badge[]> {
       const { mockGetAllBadges } = await import('@/lib/mocks/gamification.mock');
       return mockGetAllBadges();
     }
-    const res = await fetch('/api/gamification/badges');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/gamification/badges');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[gamification.getAllBadges] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'gamification.badges');
   }

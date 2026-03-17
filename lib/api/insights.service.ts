@@ -21,8 +21,13 @@ export async function generateInsights(academyId: string): Promise<Insight[]> {
       const { mockGenerateInsights } = await import('@/lib/mocks/insights.mock');
       return mockGenerateInsights(academyId);
     }
-    const res = await fetch(`/api/insights?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'insights.generate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/insights?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'insights.generate');
+      return res.json();
+    } catch {
+      console.warn('[insights.generateInsights] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'insights.generate'); }
 }

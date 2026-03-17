@@ -60,13 +60,18 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       const { mockCadastrarRapido } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockCadastrarRapido(data);
     }
-    const res = await fetch('/api/recepcao/cadastro', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/cadastro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.create');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-cadastro.cadastrarRapido] API not available, using fallback');
+      return {} as CadastroResult;
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.create');
   }
@@ -78,9 +83,14 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetPlanos();
     }
-    const res = await fetch('/api/recepcao/planos');
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.planos');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/planos');
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.planos');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-cadastro.getPlanos] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.planos');
   }
@@ -92,9 +102,14 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetTurmasDisponiveis();
     }
-    const res = await fetch('/api/recepcao/turmas');
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.turmas');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/turmas');
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.turmas');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-cadastro.getTurmasDisponiveis] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.turmas');
   }

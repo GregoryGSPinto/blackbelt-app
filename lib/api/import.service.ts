@@ -151,18 +151,24 @@ export async function executeImport(
         ],
       };
     }
+    try {
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('academyId', academyId);
-    formData.append('mappings', JSON.stringify(mappings));
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('academyId', academyId);
+      formData.append('mappings', JSON.stringify(mappings));
 
-    const res = await fetch('/api/import/students', {
-      method: 'POST',
-      body: formData,
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch('/api/import/students', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[import.executeImport] API not available, using fallback');
+      return {} as ImportResult;
+    }
+
   } catch (error) {
     handleServiceError(error, 'import.execute');
   }

@@ -49,8 +49,13 @@ export async function getDevices(unitId: string): Promise<IoTDevice[]> {
       const { mockGetDevices } = await import('@/lib/mocks/iot.mock');
       return mockGetDevices(unitId);
     }
-    const res = await fetch(`/api/iot/devices?unitId=${unitId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/iot/devices?unitId=${unitId}`);
+      return res.json();
+    } catch {
+      console.warn('[iot.getDevices] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'iot.devices'); }
 }
 
@@ -60,8 +65,13 @@ export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
       const { mockGetDeviceStatus } = await import('@/lib/mocks/iot.mock');
       return mockGetDeviceStatus(deviceId);
     }
-    const res = await fetch(`/api/iot/devices/${deviceId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/iot/devices/${deviceId}`);
+      return res.json();
+    } catch {
+      console.warn('[iot.getDeviceStatus] API not available, using fallback');
+      return {} as IoTDevice;
+    }
   } catch (error) { handleServiceError(error, 'iot.deviceStatus'); }
 }
 
@@ -71,8 +81,13 @@ export async function getLiveAccess(unitId: string): Promise<LiveAccessEvent[]> 
       const { mockGetLiveAccess } = await import('@/lib/mocks/iot.mock');
       return mockGetLiveAccess(unitId);
     }
-    const res = await fetch(`/api/iot/live-access?unitId=${unitId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/iot/live-access?unitId=${unitId}`);
+      return res.json();
+    } catch {
+      console.warn('[iot.getLiveAccess] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'iot.liveAccess'); }
 }
 
@@ -82,8 +97,13 @@ export async function getOccupancy(unitId: string): Promise<OccupancyData> {
       const { mockGetOccupancy } = await import('@/lib/mocks/iot.mock');
       return mockGetOccupancy(unitId);
     }
-    const res = await fetch(`/api/iot/occupancy?unitId=${unitId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/iot/occupancy?unitId=${unitId}`);
+      return res.json();
+    } catch {
+      console.warn('[iot.getOccupancy] API not available, using fallback');
+      return {} as OccupancyData;
+    }
   } catch (error) { handleServiceError(error, 'iot.occupancy'); }
 }
 
@@ -93,7 +113,12 @@ export async function getDeviceAlerts(unitId: string): Promise<DeviceAlert[]> {
       const { mockGetDeviceAlerts } = await import('@/lib/mocks/iot.mock');
       return mockGetDeviceAlerts(unitId);
     }
-    const res = await fetch(`/api/iot/alerts?unitId=${unitId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/iot/alerts?unitId=${unitId}`);
+      return res.json();
+    } catch {
+      console.warn('[iot.getDeviceAlerts] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'iot.alerts'); }
 }

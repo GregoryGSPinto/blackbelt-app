@@ -42,9 +42,14 @@ export async function getDevedores(academyId: string): Promise<Devedor[]> {
       const { mockGetDevedores } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetDevedores(academyId);
     }
-    const res = await fetch(`/api/inadimplencia?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.devedores');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inadimplencia?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.devedores');
+      return res.json();
+    } catch {
+      console.warn('[inadimplencia.getDevedores] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'inadimplencia.devedores'); }
 }
 
@@ -54,9 +59,14 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
       const { mockGetInadimplenciaMetrics } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetInadimplenciaMetrics(academyId);
     }
-    const res = await fetch(`/api/inadimplencia/metrics?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.metrics');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inadimplencia/metrics?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.metrics');
+      return res.json();
+    } catch {
+      console.warn('[inadimplencia.getInadimplenciaMetrics] API not available, using fallback');
+      return {} as InadimplenciaMetrics;
+    }
   } catch (error) { handleServiceError(error, 'inadimplencia.metrics'); }
 }
 
@@ -66,9 +76,14 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       const { mockRegistrarContato } = await import('@/lib/mocks/inadimplencia.mock');
       return mockRegistrarContato(devedorId, tipo, resultado, observacao);
     }
-    const res = await fetch(`/api/inadimplencia/${devedorId}/contato`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo, resultado, observacao }) });
-    if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.contato');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inadimplencia/${devedorId}/contato`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo, resultado, observacao }) });
+      if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.contato');
+      return res.json();
+    } catch {
+      console.warn('[inadimplencia.registrarContato] API not available, using fallback');
+      return {} as ContatoRegistro;
+    }
   } catch (error) { handleServiceError(error, 'inadimplencia.contato'); }
 }
 
@@ -78,8 +93,13 @@ export async function getHistoricoContatos(devedorId: string): Promise<ContatoRe
       const { mockGetHistoricoContatos } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetHistoricoContatos(devedorId);
     }
-    const res = await fetch(`/api/inadimplencia/${devedorId}/contatos`);
-    if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.historico');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inadimplencia/${devedorId}/contatos`);
+      if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.historico');
+      return res.json();
+    } catch {
+      console.warn('[inadimplencia.getHistoricoContatos] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'inadimplencia.historico'); }
 }

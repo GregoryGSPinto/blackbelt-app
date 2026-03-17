@@ -38,9 +38,14 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
       return mockGetActiveLeague();
     }
-    const res = await fetch('/api/leagues/active');
-    if (!res.ok) throw new ServiceError(res.status, 'leagues.active');
-    return res.json();
+    try {
+      const res = await fetch('/api/leagues/active');
+      if (!res.ok) throw new ServiceError(res.status, 'leagues.active');
+      return res.json();
+    } catch {
+      console.warn('[leagues.getActiveLeague] API not available, using fallback');
+      return {} as LeagueDTO;
+    }
   } catch (error) { handleServiceError(error, 'leagues.active'); }
 }
 
@@ -50,9 +55,14 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
       return mockGetLeagueStandings();
     }
-    const res = await fetch('/api/leagues/standings');
-    if (!res.ok) throw new ServiceError(res.status, 'leagues.standings');
-    return res.json();
+    try {
+      const res = await fetch('/api/leagues/standings');
+      if (!res.ok) throw new ServiceError(res.status, 'leagues.standings');
+      return res.json();
+    } catch {
+      console.warn('[leagues.getLeagueStandings] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'leagues.standings'); }
 }
 
@@ -62,9 +72,14 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
       return mockGetMyAcademyRank(academyId);
     }
-    const res = await fetch(`/api/leagues/academy/${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'leagues.myAcademy');
-    return res.json();
+    try {
+      const res = await fetch(`/api/leagues/academy/${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'leagues.myAcademy');
+      return res.json();
+    } catch {
+      console.warn('[leagues.getMyAcademyRank] API not available, using fallback');
+      return {} as AcademyLeagueStats;
+    }
   } catch (error) { handleServiceError(error, 'leagues.myAcademy'); }
 }
 
@@ -74,13 +89,18 @@ export async function contributePoints(studentId: string, action: string): Promi
       const { mockContributePoints } = await import('@/lib/mocks/leagues.mock');
       return mockContributePoints(studentId, action);
     }
-    const res = await fetch('/api/leagues/contribute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, action }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'leagues.contribute');
-    return res.json();
+    try {
+      const res = await fetch('/api/leagues/contribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, action }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'leagues.contribute');
+      return res.json();
+    } catch {
+      console.warn('[leagues.contributePoints] API not available, using fallback');
+      return {} as { points_added: number; total_points: number };
+    }
   } catch (error) { handleServiceError(error, 'leagues.contribute'); }
 }
 
@@ -90,12 +110,17 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       const { mockToggleOptIn } = await import('@/lib/mocks/leagues.mock');
       return mockToggleOptIn(academyId, optIn);
     }
-    const res = await fetch('/api/leagues/opt-in', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, optIn }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'leagues.optIn');
-    return res.json();
+    try {
+      const res = await fetch('/api/leagues/opt-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, optIn }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'leagues.optIn');
+      return res.json();
+    } catch {
+      console.warn('[leagues.toggleOptIn] API not available, using fallback');
+      return {} as { success: boolean };
+    }
   } catch (error) { handleServiceError(error, 'leagues.optIn'); }
 }

@@ -41,10 +41,16 @@ export async function getRecommendations(
       ];
       return recs.slice(0, limit);
     }
+    try {
 
-    const res = await fetch(`/api/recommendations?studentId=${studentId}&limit=${limit}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      const res = await fetch(`/api/recommendations?studentId=${studentId}&limit=${limit}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[recommendation.getRecommendations] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'recommendation.get');
   }
@@ -59,12 +65,17 @@ export async function markRecommendationSeen(
       logger.debug('[MOCK] Recommendation marked as seen', { contentId, studentId });
       return;
     }
-    const res = await fetch('/api/recommendations/seen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, contentId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch('/api/recommendations/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, contentId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[recommendation.markRecommendationSeen] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'recommendation.markSeen');
   }

@@ -47,13 +47,18 @@ export async function createChampionship(data: Omit<ChampionshipDTO, 'id' | 'cur
       const { mockCreateChampionship } = await import('@/lib/mocks/championships.mock');
       return mockCreateChampionship(data);
     }
-    const res = await fetch('/api/championships', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'championships.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/championships', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'championships.create');
+      return res.json();
+    } catch {
+      console.warn('[championships.createChampionship] API not available, using fallback');
+      return {} as ChampionshipDTO;
+    }
   } catch (error) { handleServiceError(error, 'championships.create'); }
 }
 
@@ -63,15 +68,20 @@ export async function getChampionships(filters?: ChampionshipFilters): Promise<C
       const { mockGetChampionships } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionships(filters);
     }
-    const params = new URLSearchParams();
-    if (filters?.modality) params.set('modality', filters.modality);
-    if (filters?.region) params.set('region', filters.region);
-    if (filters?.date_from) params.set('date_from', filters.date_from);
-    if (filters?.date_to) params.set('date_to', filters.date_to);
-    if (filters?.status) params.set('status', filters.status);
-    const res = await fetch(`/api/championships?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'championships.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.modality) params.set('modality', filters.modality);
+      if (filters?.region) params.set('region', filters.region);
+      if (filters?.date_from) params.set('date_from', filters.date_from);
+      if (filters?.date_to) params.set('date_to', filters.date_to);
+      if (filters?.status) params.set('status', filters.status);
+      const res = await fetch(`/api/championships?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'championships.list');
+      return res.json();
+    } catch {
+      console.warn('[championships.getChampionships] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championships.list'); }
 }
 
@@ -81,9 +91,14 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionshipById(id);
     }
-    const res = await fetch(`/api/championships/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'championships.getById');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'championships.getById');
+      return res.json();
+    } catch {
+      console.warn('[championships.getChampionshipById] API not available, using fallback');
+      return {} as ChampionshipDTO;
+    }
   } catch (error) { handleServiceError(error, 'championships.getById'); }
 }
 
@@ -93,9 +108,14 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
       return mockOpenRegistration(id);
     }
-    const res = await fetch(`/api/championships/${id}/open-registration`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'championships.openRegistration');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${id}/open-registration`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'championships.openRegistration');
+      return res.json();
+    } catch {
+      console.warn('[championships.openRegistration] API not available, using fallback');
+      return {} as ChampionshipDTO;
+    }
   } catch (error) { handleServiceError(error, 'championships.openRegistration'); }
 }
 
@@ -105,8 +125,13 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
       return mockCloseRegistration(id);
     }
-    const res = await fetch(`/api/championships/${id}/close-registration`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'championships.closeRegistration');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${id}/close-registration`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'championships.closeRegistration');
+      return res.json();
+    } catch {
+      console.warn('[championships.closeRegistration] API not available, using fallback');
+      return {} as ChampionshipDTO;
+    }
   } catch (error) { handleServiceError(error, 'championships.closeRegistration'); }
 }

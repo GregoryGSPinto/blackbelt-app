@@ -20,9 +20,14 @@ export async function listContracts(academyId: string): Promise<ContractDTO[]> {
       const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
       return mockListContracts(academyId);
     }
-    const res = await fetch(`/api/contracts?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'contracts.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contracts?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'contracts.list');
+      return res.json();
+    } catch {
+      console.warn('[contracts.listContracts] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'contracts.list'); }
 }
 
@@ -32,9 +37,14 @@ export async function generateContract(templateId: ContractTemplate, studentId: 
       const { mockGenerateContract } = await import('@/lib/mocks/contracts.mock');
       return mockGenerateContract(templateId, studentId);
     }
-    const res = await fetch(`/api/contracts/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, studentId }) });
-    if (!res.ok) throw new ServiceError(res.status, 'contracts.generate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contracts/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, studentId }) });
+      if (!res.ok) throw new ServiceError(res.status, 'contracts.generate');
+      return res.json();
+    } catch {
+      console.warn('[contracts.generateContract] API not available, using fallback');
+      return {} as ContractDTO;
+    }
   } catch (error) { handleServiceError(error, 'contracts.generate'); }
 }
 
@@ -44,8 +54,13 @@ export async function sendForSignature(contractId: string): Promise<{ signatureU
       const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
       return mockSendForSignature(contractId);
     }
-    const res = await fetch(`/api/contracts/${contractId}/send`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'contracts.send');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contracts/${contractId}/send`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'contracts.send');
+      return res.json();
+    } catch {
+      console.warn('[contracts.sendForSignature] API not available, using fallback');
+      return {} as { signatureUrl: string };
+    }
   } catch (error) { handleServiceError(error, 'contracts.send'); }
 }

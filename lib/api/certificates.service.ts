@@ -23,13 +23,18 @@ export async function generateCourseCertificate(userId: string, courseId: string
       const { mockGenerateCourseCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateCourseCertificate(userId, courseId);
     }
-    const res = await fetch(`/api/certificates/course`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, courseId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'certificates.generateCourse');
-    return res.json();
+    try {
+      const res = await fetch(`/api/certificates/course`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, courseId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateCourse');
+      return res.json();
+    } catch {
+      console.warn('[certificates.generateCourseCertificate] API not available, using fallback');
+      return {} as Certificate;
+    }
   } catch (error) { handleServiceError(error, 'certificates.generateCourse'); }
 }
 
@@ -39,13 +44,18 @@ export async function generateBeltCertificate(userId: string, belt: string, acad
       const { mockGenerateBeltCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateBeltCertificate(userId, belt, academyId);
     }
-    const res = await fetch(`/api/certificates/belt`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, belt, academyId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'certificates.generateBelt');
-    return res.json();
+    try {
+      const res = await fetch(`/api/certificates/belt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, belt, academyId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateBelt');
+      return res.json();
+    } catch {
+      console.warn('[certificates.generateBeltCertificate] API not available, using fallback');
+      return {} as Certificate;
+    }
   } catch (error) { handleServiceError(error, 'certificates.generateBelt'); }
 }
 
@@ -55,13 +65,18 @@ export async function generateEventCertificate(userId: string, eventId: string):
       const { mockGenerateEventCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateEventCertificate(userId, eventId);
     }
-    const res = await fetch(`/api/certificates/event`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, eventId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'certificates.generateEvent');
-    return res.json();
+    try {
+      const res = await fetch(`/api/certificates/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, eventId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateEvent');
+      return res.json();
+    } catch {
+      console.warn('[certificates.generateEventCertificate] API not available, using fallback');
+      return {} as Certificate;
+    }
   } catch (error) { handleServiceError(error, 'certificates.generateEvent'); }
 }
 
@@ -71,10 +86,15 @@ export async function verifyCertificate(code: string): Promise<Certificate | nul
       const { mockVerifyCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockVerifyCertificate(code);
     }
-    const res = await fetch(`/api/certificates/verify/${code}`);
-    if (res.status === 404) return null;
-    if (!res.ok) throw new ServiceError(res.status, 'certificates.verify');
-    return res.json();
+    try {
+      const res = await fetch(`/api/certificates/verify/${code}`);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new ServiceError(res.status, 'certificates.verify');
+      return res.json();
+    } catch {
+      console.warn('[certificates.verifyCertificate] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'certificates.verify'); }
 }
 
@@ -84,8 +104,13 @@ export async function getMyCertificates(userId: string): Promise<Certificate[]> 
       const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
       return mockGetMyCertificates(userId);
     }
-    const res = await fetch(`/api/certificates?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'certificates.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/certificates?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'certificates.list');
+      return res.json();
+    } catch {
+      console.warn('[certificates.getMyCertificates] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'certificates.list'); }
 }

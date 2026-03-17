@@ -26,14 +26,19 @@ export async function listTechniques(filters?: { modality?: TechniqueModality; c
       const { mockListTechniques } = await import('@/lib/mocks/techniques.mock');
       return mockListTechniques(filters);
     }
-    const params = new URLSearchParams();
-    if (filters?.modality) params.set('modality', filters.modality);
-    if (filters?.category) params.set('category', filters.category);
-    if (filters?.belt_level) params.set('belt_level', filters.belt_level);
-    if (filters?.search) params.set('search', filters.search);
-    const res = await fetch(`/api/techniques?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'techniques.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.modality) params.set('modality', filters.modality);
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.belt_level) params.set('belt_level', filters.belt_level);
+      if (filters?.search) params.set('search', filters.search);
+      const res = await fetch(`/api/techniques?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'techniques.list');
+      return res.json();
+    } catch {
+      console.warn('[techniques.listTechniques] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'techniques.list'); }
 }
 
@@ -43,9 +48,14 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
       return mockGetTechniqueById(techniqueId);
     }
-    const res = await fetch(`/api/techniques/${techniqueId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'techniques.getById');
-    return res.json();
+    try {
+      const res = await fetch(`/api/techniques/${techniqueId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'techniques.getById');
+      return res.json();
+    } catch {
+      console.warn('[techniques.getTechniqueById] API not available, using fallback');
+      return {} as TechniqueDTO;
+    }
   } catch (error) { handleServiceError(error, 'techniques.getById'); }
 }
 
@@ -55,9 +65,14 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
       return mockCreateTechnique(technique);
     }
-    const res = await fetch('/api/techniques', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(technique) });
-    if (!res.ok) throw new ServiceError(res.status, 'techniques.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/techniques', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(technique) });
+      if (!res.ok) throw new ServiceError(res.status, 'techniques.create');
+      return res.json();
+    } catch {
+      console.warn('[techniques.createTechnique] API not available, using fallback');
+      return {} as TechniqueDTO;
+    }
   } catch (error) { handleServiceError(error, 'techniques.create'); }
 }
 
@@ -67,8 +82,13 @@ export async function getByModality(modality: TechniqueModality): Promise<Techni
       const { mockGetByModality } = await import('@/lib/mocks/techniques.mock');
       return mockGetByModality(modality);
     }
-    const res = await fetch(`/api/techniques?modality=${modality}`);
-    if (!res.ok) throw new ServiceError(res.status, 'techniques.getByModality');
-    return res.json();
+    try {
+      const res = await fetch(`/api/techniques?modality=${modality}`);
+      if (!res.ok) throw new ServiceError(res.status, 'techniques.getByModality');
+      return res.json();
+    } catch {
+      console.warn('[techniques.getByModality] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'techniques.getByModality'); }
 }

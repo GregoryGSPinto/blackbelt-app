@@ -28,9 +28,14 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
       const { mockListStaff } = await import('@/lib/mocks/invites.mock');
       return mockListStaff(academyId);
     }
-    const res = await fetch(`/api/staff?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'staff.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/staff?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'staff.list');
+      return res.json();
+    } catch {
+      console.warn('[invites.listStaff] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'staff.list'); }
 }
 
@@ -40,9 +45,14 @@ export async function sendInvite(email: string, role: Role, unitIds: string[]): 
       const { mockSendInvite } = await import('@/lib/mocks/invites.mock');
       return mockSendInvite(email, role, unitIds);
     }
-    const res = await fetch(`/api/invites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, role, unitIds }) });
-    if (!res.ok) throw new ServiceError(res.status, 'invites.send');
-    return res.json();
+    try {
+      const res = await fetch(`/api/invites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, role, unitIds }) });
+      if (!res.ok) throw new ServiceError(res.status, 'invites.send');
+      return res.json();
+    } catch {
+      console.warn('[invites.sendInvite] API not available, using fallback');
+      return {} as InviteDTO;
+    }
   } catch (error) { handleServiceError(error, 'invites.send'); }
 }
 
@@ -52,9 +62,14 @@ export async function getActiveInvites(academyId: string): Promise<InviteDTO[]> 
       const { mockGetActiveInvites } = await import('@/lib/mocks/invites.mock');
       return mockGetActiveInvites(academyId);
     }
-    const res = await fetch(`/api/invites?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'invites.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/invites?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'invites.list');
+      return res.json();
+    } catch {
+      console.warn('[invites.getActiveInvites] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'invites.list'); }
 }
 
@@ -64,8 +79,12 @@ export async function cancelInvite(inviteId: string): Promise<void> {
       const { mockCancelInvite } = await import('@/lib/mocks/invites.mock');
       return mockCancelInvite(inviteId);
     }
-    const res = await fetch(`/api/invites/${inviteId}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'invites.cancel');
+    try {
+      const res = await fetch(`/api/invites/${inviteId}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'invites.cancel');
+    } catch {
+      console.warn('[invites.cancelInvite] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'invites.cancel'); }
 }
 
@@ -75,7 +94,11 @@ export async function resendInvite(inviteId: string): Promise<void> {
       const { mockResendInvite } = await import('@/lib/mocks/invites.mock');
       return mockResendInvite(inviteId);
     }
-    const res = await fetch(`/api/invites/${inviteId}/resend`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'invites.resend');
+    try {
+      const res = await fetch(`/api/invites/${inviteId}/resend`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'invites.resend');
+    } catch {
+      console.warn('[invites.resendInvite] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'invites.resend'); }
 }

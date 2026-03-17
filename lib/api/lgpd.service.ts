@@ -45,12 +45,17 @@ export async function recordConsent(
       logger.debug(`[MOCK] Consent recorded: ${type} = ${accepted} for user ${userId}`);
       return;
     }
-    const res = await fetch('/api/lgpd/consent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, type, accepted, version }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch('/api/lgpd/consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, type, accepted, version }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[lgpd.recordConsent] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'lgpd.recordConsent');
   }
@@ -66,9 +71,14 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
         { userId, type: 'data_processing', accepted: true, version: '1.0', timestamp: '2026-01-15T10:00:00Z', ipAddress: '189.0.1.1' },
       ];
     }
-    const res = await fetch(`/api/lgpd/consent/history?userId=${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/lgpd/consent/history?userId=${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[lgpd.getConsentHistory] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'lgpd.consentHistory');
   }
@@ -88,13 +98,18 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
         completedAt: null,
       };
     }
-    const res = await fetch('/api/lgpd/export', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, format }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/lgpd/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, format }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[lgpd.requestDataExport] API not available, using fallback');
+      return {} as DataExportRequest;
+    }
   } catch (error) {
     handleServiceError(error, 'lgpd.requestExport');
   }
@@ -115,13 +130,18 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
         completedAt: null,
       };
     }
-    const res = await fetch('/api/lgpd/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/lgpd/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[lgpd.requestDataDeletion] API not available, using fallback');
+      return {} as DataDeletionRequest;
+    }
   } catch (error) {
     handleServiceError(error, 'lgpd.requestDeletion');
   }

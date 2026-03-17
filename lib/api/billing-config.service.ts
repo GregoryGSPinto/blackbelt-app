@@ -8,9 +8,14 @@ export async function getBillingConfig(academyId: string): Promise<BillingConfig
       const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockGetBillingConfig(academyId);
     }
-    const res = await fetch(`/api/billing/config?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'billing.config');
-    return res.json();
+    try {
+      const res = await fetch(`/api/billing/config?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'billing.config');
+      return res.json();
+    } catch {
+      console.warn('[billing-config.getBillingConfig] API not available, using fallback');
+      return {} as BillingConfig;
+    }
   } catch (error) { handleServiceError(error, 'billing.config'); }
 }
 
@@ -20,9 +25,14 @@ export async function updateBillingConfig(config: Partial<BillingConfig> & { aca
       const { mockUpdateBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockUpdateBillingConfig(config);
     }
-    const res = await fetch(`/api/billing/config`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) });
-    if (!res.ok) throw new ServiceError(res.status, 'billing.config.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/billing/config`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) });
+      if (!res.ok) throw new ServiceError(res.status, 'billing.config.update');
+      return res.json();
+    } catch {
+      console.warn('[billing-config.updateBillingConfig] API not available, using fallback');
+      return {} as BillingConfig;
+    }
   } catch (error) { handleServiceError(error, 'billing.config.update'); }
 }
 
@@ -32,9 +42,14 @@ export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
       const { mockGetWebhookLogs } = await import('@/lib/mocks/billing-config.mock');
       return mockGetWebhookLogs(academyId);
     }
-    const res = await fetch(`/api/billing/webhook-logs?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'billing.webhookLogs');
-    return res.json();
+    try {
+      const res = await fetch(`/api/billing/webhook-logs?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'billing.webhookLogs');
+      return res.json();
+    } catch {
+      console.warn('[billing-config.getWebhookLogs] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'billing.webhookLogs'); }
 }
 
@@ -44,8 +59,13 @@ export async function previewNextBilling(academyId: string): Promise<BillingPrev
       const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
       return mockPreviewBilling(academyId);
     }
-    const res = await fetch(`/api/billing/preview?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'billing.preview');
-    return res.json();
+    try {
+      const res = await fetch(`/api/billing/preview?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'billing.preview');
+      return res.json();
+    } catch {
+      console.warn('[billing-config.previewNextBilling] API not available, using fallback');
+      return {} as BillingPreview;
+    }
   } catch (error) { handleServiceError(error, 'billing.preview'); }
 }

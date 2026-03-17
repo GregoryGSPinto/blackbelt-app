@@ -33,9 +33,14 @@ export async function getMeuProgresso(studentId: string): Promise<MeuProgressoDT
       const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
     }
-    const res = await fetch(`/api/evolucao/progresso?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'evolucao.progresso');
-    return res.json();
+    try {
+      const res = await fetch(`/api/evolucao/progresso?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'evolucao.progresso');
+      return res.json();
+    } catch {
+      console.warn('[evolucao.getMeuProgresso] API not available, using fallback');
+      return {} as MeuProgressoDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'evolucao.progresso');
   }
@@ -47,9 +52,14 @@ export async function getHistoricoFaixas(studentId: string): Promise<HistoricoFa
       const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
       return mockGetHistoricoFaixas(studentId);
     }
-    const res = await fetch(`/api/evolucao/historico?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'evolucao.historico');
-    return res.json();
+    try {
+      const res = await fetch(`/api/evolucao/historico?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'evolucao.historico');
+      return res.json();
+    } catch {
+      console.warn('[evolucao.getHistoricoFaixas] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'evolucao.historico');
   }
@@ -61,9 +71,14 @@ export async function getRequisitoProximaFaixa(studentId: string): Promise<Requi
       const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
     }
-    const res = await fetch(`/api/evolucao/requisitos?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'evolucao.requisitos');
-    return res.json();
+    try {
+      const res = await fetch(`/api/evolucao/requisitos?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'evolucao.requisitos');
+      return res.json();
+    } catch {
+      console.warn('[evolucao.getRequisitoProximaFaixa] API not available, using fallback');
+      return {} as RequisitoProximaFaixaDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'evolucao.requisitos');
   }

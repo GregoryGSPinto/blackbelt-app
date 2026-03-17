@@ -37,9 +37,14 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
         hidePoweredBy: false,
       };
     }
-    const res = await fetch(`/api/white-label/config?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/white-label/config?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[white-label.getWhiteLabelConfig] API not available, using fallback');
+      return {} as WhiteLabelConfig;
+    }
   } catch (error) {
     handleServiceError(error, 'whiteLabel.getConfig');
   }
@@ -53,12 +58,17 @@ export async function updateWhiteLabelConfig(
       logger.debug('[MOCK] White-label config updated', { config });
       return;
     }
-    const res = await fetch('/api/white-label/config', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch('/api/white-label/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[white-label.updateWhiteLabelConfig] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'whiteLabel.updateConfig');
   }

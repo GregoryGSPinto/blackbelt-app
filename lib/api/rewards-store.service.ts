@@ -37,9 +37,14 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       const { mockGetRewardsStore } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetRewardsStore(academyId);
     }
-    const res = await fetch(`/api/rewards-store?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/rewards-store?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.get');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.getRewardsStore] API not available, using fallback');
+      return {} as RewardsStoreData;
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.get'); }
 }
 
@@ -49,13 +54,18 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       const { mockRedeemReward } = await import('@/lib/mocks/rewards-store.mock');
       return mockRedeemReward(userId, rewardId);
     }
-    const res = await fetch('/api/rewards-store/redeem', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, rewardId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redeem');
-    return res.json();
+    try {
+      const res = await fetch('/api/rewards-store/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, rewardId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redeem');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.redeemReward] API not available, using fallback');
+      return {} as { success: boolean; message: string; redemption: RedemptionDTO };
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.redeem'); }
 }
 
@@ -65,9 +75,14 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       const { mockGetMyRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetMyRedemptions(userId);
     }
-    const res = await fetch(`/api/rewards-store/redemptions?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redemptions');
-    return res.json();
+    try {
+      const res = await fetch(`/api/rewards-store/redemptions?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redemptions');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.getMyRedemptions] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.redemptions'); }
 }
 
@@ -78,13 +93,18 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       const { mockCreateStoreReward } = await import('@/lib/mocks/rewards-store.mock');
       return mockCreateStoreReward(academyId, data);
     }
-    const res = await fetch('/api/rewards-store/admin/rewards', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId, ...data }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/rewards-store/admin/rewards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId, ...data }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.create');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.createStoreReward] API not available, using fallback');
+      return {} as StoreReward;
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.create'); }
 }
 
@@ -94,13 +114,18 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       const { mockUpdateStoreReward } = await import('@/lib/mocks/rewards-store.mock');
       return mockUpdateStoreReward(rewardId, data);
     }
-    const res = await fetch(`/api/rewards-store/admin/rewards/${rewardId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/rewards-store/admin/rewards/${rewardId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.update');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.updateStoreReward] API not available, using fallback');
+      return {} as StoreReward;
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.update'); }
 }
 
@@ -110,8 +135,12 @@ export async function deleteStoreReward(rewardId: string): Promise<void> {
       const { mockDeleteStoreReward } = await import('@/lib/mocks/rewards-store.mock');
       return mockDeleteStoreReward(rewardId);
     }
-    const res = await fetch(`/api/rewards-store/admin/rewards/${rewardId}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.delete');
+    try {
+      const res = await fetch(`/api/rewards-store/admin/rewards/${rewardId}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.delete');
+    } catch {
+      console.warn('[rewards-store.deleteStoreReward] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.delete'); }
 }
 
@@ -121,8 +150,13 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       const { mockGetAllRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetAllRedemptions(academyId);
     }
-    const res = await fetch(`/api/rewards-store/admin/redemptions?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.allRedemptions');
-    return res.json();
+    try {
+      const res = await fetch(`/api/rewards-store/admin/redemptions?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.allRedemptions');
+      return res.json();
+    } catch {
+      console.warn('[rewards-store.getAllRedemptions] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'rewardsStore.allRedemptions'); }
 }

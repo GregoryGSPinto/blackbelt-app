@@ -30,9 +30,14 @@ export async function listInventory(academyId: string): Promise<InventoryItem[]>
       const { mockListInventory } = await import('@/lib/mocks/inventory.mock');
       return mockListInventory(academyId);
     }
-    const res = await fetch(`/api/inventory?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'inventory.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inventory?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'inventory.list');
+      return res.json();
+    } catch {
+      console.warn('[inventory.listInventory] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'inventory.list'); }
 }
 
@@ -42,9 +47,14 @@ export async function createInventoryItem(academyId: string, item: Omit<Inventor
       const { mockCreateItem } = await import('@/lib/mocks/inventory.mock');
       return mockCreateItem(academyId, item);
     }
-    const res = await fetch(`/api/inventory`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...item }) });
-    if (!res.ok) throw new ServiceError(res.status, 'inventory.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inventory`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...item }) });
+      if (!res.ok) throw new ServiceError(res.status, 'inventory.create');
+      return res.json();
+    } catch {
+      console.warn('[inventory.createInventoryItem] API not available, using fallback');
+      return {} as InventoryItem;
+    }
   } catch (error) { handleServiceError(error, 'inventory.create'); }
 }
 
@@ -54,8 +64,13 @@ export async function addStockMovement(itemId: string, movement: Omit<StockMovem
       const { mockAddMovement } = await import('@/lib/mocks/inventory.mock');
       return mockAddMovement(itemId, movement);
     }
-    const res = await fetch(`/api/inventory/${itemId}/movement`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(movement) });
-    if (!res.ok) throw new ServiceError(res.status, 'inventory.movement');
-    return res.json();
+    try {
+      const res = await fetch(`/api/inventory/${itemId}/movement`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(movement) });
+      if (!res.ok) throw new ServiceError(res.status, 'inventory.movement');
+      return res.json();
+    } catch {
+      console.warn('[inventory.addStockMovement] API not available, using fallback');
+      return {} as StockMovement;
+    }
   } catch (error) { handleServiceError(error, 'inventory.movement'); }
 }

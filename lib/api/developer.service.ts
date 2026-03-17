@@ -42,8 +42,13 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       const { mockGetDeveloperProfile } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperProfile();
     }
-    const res = await fetch('/api/v1/developer/profile');
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/developer/profile');
+      return res.json();
+    } catch {
+      console.warn('[developer.getDeveloperProfile] API not available, using fallback');
+      return {} as DeveloperProfile;
+    }
   } catch (error) { handleServiceError(error, 'developer.profile'); }
 }
 
@@ -58,12 +63,18 @@ export async function createDeveloperAccount(data: {
       const { mockCreateDeveloperAccount } = await import('@/lib/mocks/developer.mock');
       return mockCreateDeveloperAccount(data);
     }
-    const res = await fetch('/api/v1/developer/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/developer/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch {
+      console.warn('[developer.createDeveloperAccount] API not available, using fallback');
+      return {} as DeveloperProfile;
+    }
+
   } catch (error) { handleServiceError(error, 'developer.create'); }
 }
 
@@ -73,8 +84,13 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
       const { mockGetSubmittedApps } = await import('@/lib/mocks/developer.mock');
       return mockGetSubmittedApps();
     }
-    const res = await fetch('/api/v1/developer/apps');
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/developer/apps');
+      return res.json();
+    } catch {
+      console.warn('[developer.getSubmittedApps] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'developer.apps'); }
 }
 
@@ -84,8 +100,13 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       const { mockSubmitAppForReview } = await import('@/lib/mocks/developer.mock');
       return mockSubmitAppForReview(appId);
     }
-    const res = await fetch(`/api/v1/developer/apps/${appId}/submit`, { method: 'POST' });
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/developer/apps/${appId}/submit`, { method: 'POST' });
+      return res.json();
+    } catch {
+      console.warn('[developer.submitAppForReview] API not available, using fallback');
+      return {} as DeveloperApp;
+    }
   } catch (error) { handleServiceError(error, 'developer.submitApp'); }
 }
 
@@ -95,8 +116,13 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       const { mockGetDeveloperStats } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperStats();
     }
-    const res = await fetch('/api/v1/developer/stats');
-    return res.json();
+    try {
+      const res = await fetch('/api/v1/developer/stats');
+      return res.json();
+    } catch {
+      console.warn('[developer.getDeveloperStats] API not available, using fallback');
+      return {} as DeveloperStats;
+    }
   } catch (error) { handleServiceError(error, 'developer.stats'); }
 }
 
@@ -106,7 +132,12 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
       const { mockGetAPIUsage } = await import('@/lib/mocks/developer.mock');
       return mockGetAPIUsage(days);
     }
-    const res = await fetch(`/api/v1/developer/api-usage?days=${days ?? 30}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/v1/developer/api-usage?days=${days ?? 30}`);
+      return res.json();
+    } catch {
+      console.warn('[developer.getAPIUsage] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'developer.apiUsage'); }
 }

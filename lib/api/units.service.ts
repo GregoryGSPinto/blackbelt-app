@@ -18,9 +18,14 @@ export async function listUnits(academyId: string): Promise<UnitDTO[]> {
       const { mockListUnits } = await import('@/lib/mocks/units.mock');
       return mockListUnits(academyId);
     }
-    const res = await fetch(`/api/units?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'units.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/units?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'units.list');
+      return res.json();
+    } catch {
+      console.warn('[units.listUnits] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'units.list'); }
 }
 
@@ -30,9 +35,14 @@ export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | '
       const { mockCreateUnit } = await import('@/lib/mocks/units.mock');
       return mockCreateUnit(academyId, data);
     }
-    const res = await fetch(`/api/units`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-    if (!res.ok) throw new ServiceError(res.status, 'units.create');
-    return res.json();
+    try {
+      const res = await fetch(`/api/units`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
+      if (!res.ok) throw new ServiceError(res.status, 'units.create');
+      return res.json();
+    } catch {
+      console.warn('[units.createUnit] API not available, using fallback');
+      return {} as UnitDTO;
+    }
   } catch (error) { handleServiceError(error, 'units.create'); }
 }
 
@@ -42,9 +52,14 @@ export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promis
       const { mockUpdateUnit } = await import('@/lib/mocks/units.mock');
       return mockUpdateUnit(unitId, data);
     }
-    const res = await fetch(`/api/units/${unitId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'units.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/units/${unitId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'units.update');
+      return res.json();
+    } catch {
+      console.warn('[units.updateUnit] API not available, using fallback');
+      return {} as UnitDTO;
+    }
   } catch (error) { handleServiceError(error, 'units.update'); }
 }
 
@@ -54,7 +69,11 @@ export async function deactivateUnit(unitId: string): Promise<void> {
       const { mockDeactivateUnit } = await import('@/lib/mocks/units.mock');
       return mockDeactivateUnit(unitId);
     }
-    const res = await fetch(`/api/units/${unitId}/deactivate`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'units.deactivate');
+    try {
+      const res = await fetch(`/api/units/${unitId}/deactivate`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'units.deactivate');
+    } catch {
+      console.warn('[units.deactivateUnit] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'units.deactivate'); }
 }

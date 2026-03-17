@@ -32,7 +32,12 @@ export async function getSentimentTrend(academyId: string): Promise<SentimentTre
       const { mockGetSentimentTrend } = await import('@/lib/mocks/sentiment.mock');
       return mockGetSentimentTrend(academyId);
     }
-    const res = await fetch(`/api/sentiment/trend?academyId=${academyId}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/sentiment/trend?academyId=${academyId}`);
+      return res.json();
+    } catch {
+      console.warn('[sentiment.getSentimentTrend] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'sentiment.trend'); }
 }

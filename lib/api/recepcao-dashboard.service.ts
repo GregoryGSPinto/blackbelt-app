@@ -75,9 +75,14 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       const { mockGetRecepcaoDashboard } = await import('@/lib/mocks/recepcao-dashboard.mock');
       return mockGetRecepcaoDashboard();
     }
-    const res = await fetch('/api/recepcao/dashboard');
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-dashboard.get');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/dashboard');
+      if (!res.ok) throw new ServiceError(res.status, 'recepcao-dashboard.get');
+      return res.json();
+    } catch {
+      console.warn('[recepcao-dashboard.getRecepcaoDashboard] API not available, using fallback');
+      return {} as RecepcaoDashboardDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-dashboard.get');
   }

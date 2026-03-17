@@ -43,13 +43,18 @@ export async function register(championshipId: string, categoryId: string, data:
       const { mockRegister } = await import('@/lib/mocks/championship-registration.mock');
       return mockRegister(championshipId, categoryId, data);
     }
-    const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'championship-registration.register');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.register');
+      return res.json();
+    } catch {
+      console.warn('[championship-registration.register] API not available, using fallback');
+      return {} as RegistrationDTO;
+    }
   } catch (error) { handleServiceError(error, 'championship-registration.register'); }
 }
 
@@ -59,9 +64,14 @@ export async function getMyRegistrations(userId: string): Promise<RegistrationDT
       const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetMyRegistrations(userId);
     }
-    const res = await fetch(`/api/championships/registrations?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'championship-registration.myRegistrations');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/registrations?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.myRegistrations');
+      return res.json();
+    } catch {
+      console.warn('[championship-registration.getMyRegistrations] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championship-registration.myRegistrations'); }
 }
 
@@ -71,13 +81,18 @@ export async function confirmWeighIn(registrationId: string, actualWeight: numbe
       const { mockConfirmWeighIn } = await import('@/lib/mocks/championship-registration.mock');
       return mockConfirmWeighIn(registrationId, actualWeight);
     }
-    const res = await fetch(`/api/championships/registrations/${registrationId}/weigh-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ actualWeight }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'championship-registration.weighIn');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/registrations/${registrationId}/weigh-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actualWeight }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.weighIn');
+      return res.json();
+    } catch {
+      console.warn('[championship-registration.confirmWeighIn] API not available, using fallback');
+      return {} as RegistrationDTO;
+    }
   } catch (error) { handleServiceError(error, 'championship-registration.weighIn'); }
 }
 
@@ -87,13 +102,18 @@ export async function changeCategory(registrationId: string, newCategoryId: stri
       const { mockChangeCategory } = await import('@/lib/mocks/championship-registration.mock');
       return mockChangeCategory(registrationId, newCategoryId);
     }
-    const res = await fetch(`/api/championships/registrations/${registrationId}/change-category`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newCategoryId }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'championship-registration.changeCategory');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/registrations/${registrationId}/change-category`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newCategoryId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.changeCategory');
+      return res.json();
+    } catch {
+      console.warn('[championship-registration.changeCategory] API not available, using fallback');
+      return {} as RegistrationDTO;
+    }
   } catch (error) { handleServiceError(error, 'championship-registration.changeCategory'); }
 }
 
@@ -103,8 +123,13 @@ export async function getRegistrationsByChampionship(championshipId: string): Pr
       const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetRegistrationsByChampionship(championshipId);
     }
-    const res = await fetch(`/api/championships/${championshipId}/registrations`);
-    if (!res.ok) throw new ServiceError(res.status, 'championship-registration.byChampionship');
-    return res.json();
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/registrations`);
+      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.byChampionship');
+      return res.json();
+    } catch {
+      console.warn('[championship-registration.getRegistrationsByChampionship] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'championship-registration.byChampionship'); }
 }

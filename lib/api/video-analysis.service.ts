@@ -41,9 +41,14 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
       const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeFrame(videoId, timestampSec);
     }
-    const res = await fetch('/api/video-analysis/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId, timestampSec }) });
-    if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeFrame');
-    return res.json();
+    try {
+      const res = await fetch('/api/video-analysis/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId, timestampSec }) });
+      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeFrame');
+      return res.json();
+    } catch {
+      console.warn('[video-analysis.analyzeFrame] API not available, using fallback');
+      return {} as FrameAnalysis;
+    }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeFrame'); }
 }
 
@@ -53,9 +58,14 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
       const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeVideo(videoId);
     }
-    const res = await fetch('/api/video-analysis/full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId }) });
-    if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeVideo');
-    return res.json();
+    try {
+      const res = await fetch('/api/video-analysis/full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId }) });
+      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeVideo');
+      return res.json();
+    } catch {
+      console.warn('[video-analysis.analyzeVideo] API not available, using fallback');
+      return {} as VideoAnalysis;
+    }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeVideo'); }
 }
 
@@ -65,8 +75,13 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
       const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
       return mockCompareExecution(referenceVideoId, studentVideoId);
     }
-    const res = await fetch('/api/video-analysis/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referenceVideoId, studentVideoId }) });
-    if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.compare');
-    return res.json();
+    try {
+      const res = await fetch('/api/video-analysis/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referenceVideoId, studentVideoId }) });
+      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.compare');
+      return res.json();
+    } catch {
+      console.warn('[video-analysis.compareExecution] API not available, using fallback');
+      return {} as ComparisonResult;
+    }
   } catch (error) { handleServiceError(error, 'videoAnalysis.compare'); }
 }

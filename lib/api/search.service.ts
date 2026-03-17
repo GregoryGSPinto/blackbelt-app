@@ -34,10 +34,16 @@ export async function globalSearch(
       const { mockGlobalSearch } = await import('@/lib/mocks/search.mock');
       return mockGlobalSearch(query, academyId);
     }
-    const params = new URLSearchParams({ q: query, academyId });
-    const res = await fetch(`/api/search?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'search.global');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ q: query, academyId });
+      const res = await fetch(`/api/search?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'search.global');
+      return res.json();
+    } catch {
+      console.warn('[search.globalSearch] API not available, using fallback');
+      return {} as SearchResponse;
+    }
+
   } catch (error) {
     handleServiceError(error, 'search.global');
   }

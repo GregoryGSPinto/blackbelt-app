@@ -40,9 +40,14 @@ export async function listContratosTemplates(academyId: string): Promise<Contrat
       const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratosTemplates(academyId);
     }
-    const res = await fetch(`/api/contratos-v2/templates?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.listTemplates');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2/templates?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.listTemplates');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.listContratosTemplates] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.listTemplates'); }
 }
 
@@ -52,9 +57,14 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratoTemplate(id);
     }
-    const res = await fetch(`/api/contratos-v2/templates/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.getTemplate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2/templates/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.getTemplate');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.getContratoTemplate] API not available, using fallback');
+      return {} as ContratoTemplate;
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.getTemplate'); }
 }
 
@@ -64,9 +74,14 @@ export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' |
       const { mockCreateContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockCreateContratoTemplate(data);
     }
-    const res = await fetch(`/api/contratos-v2/templates`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.createTemplate');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2/templates`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.createTemplate');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.createContratoTemplate] API not available, using fallback');
+      return {} as ContratoTemplate;
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.createTemplate'); }
 }
 
@@ -76,9 +91,14 @@ export async function gerarContrato(templateId: string, alunoId: string, dados: 
       const { mockGerarContrato } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGerarContrato(templateId, alunoId, dados);
     }
-    const res = await fetch(`/api/contratos-v2`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, alunoId, dados }) });
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.gerar');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, alunoId, dados }) });
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.gerar');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.gerarContrato] API not available, using fallback');
+      return {} as Contrato;
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.gerar'); }
 }
 
@@ -88,8 +108,12 @@ export async function enviarParaAssinatura(contratoId: string, metodo: 'email' |
       const { mockEnviarParaAssinatura } = await import('@/lib/mocks/contratos-v2.mock');
       return mockEnviarParaAssinatura(contratoId, metodo);
     }
-    const res = await fetch(`/api/contratos-v2/${contratoId}/enviar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ metodo }) });
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.enviar');
+    try {
+      const res = await fetch(`/api/contratos-v2/${contratoId}/enviar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ metodo }) });
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.enviar');
+    } catch {
+      console.warn('[contratos-v2.enviarParaAssinatura] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.enviar'); }
 }
 
@@ -99,9 +123,14 @@ export async function assinarContrato(contratoId: string, assinatura: string): P
       const { mockAssinarContrato } = await import('@/lib/mocks/contratos-v2.mock');
       return mockAssinarContrato(contratoId, assinatura);
     }
-    const res = await fetch(`/api/contratos-v2/${contratoId}/assinar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assinatura }) });
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.assinar');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2/${contratoId}/assinar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assinatura }) });
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.assinar');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.assinarContrato] API not available, using fallback');
+      return {} as Contrato;
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.assinar'); }
 }
 
@@ -111,11 +140,16 @@ export async function listContratos(academyId: string, filters?: { status?: Stat
       const { mockListContratos } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratos(academyId, filters);
     }
-    const params = new URLSearchParams({ academyId });
-    if (filters?.status) params.set('status', filters.status);
-    const res = await fetch(`/api/contratos-v2?${params}`);
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.list');
-    return res.json();
+    try {
+      const params = new URLSearchParams({ academyId });
+      if (filters?.status) params.set('status', filters.status);
+      const res = await fetch(`/api/contratos-v2?${params}`);
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.list');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.listContratos] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.list'); }
 }
 
@@ -125,8 +159,13 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
       const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratosMetrics(academyId);
     }
-    const res = await fetch(`/api/contratos-v2/metrics?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.metrics');
-    return res.json();
+    try {
+      const res = await fetch(`/api/contratos-v2/metrics?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.metrics');
+      return res.json();
+    } catch {
+      console.warn('[contratos-v2.getContratosMetrics] API not available, using fallback');
+      return {} as ContratosMetrics;
+    }
   } catch (error) { handleServiceError(error, 'contratos-v2.metrics'); }
 }

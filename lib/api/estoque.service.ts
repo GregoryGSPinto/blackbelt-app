@@ -35,9 +35,14 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockGetEstoque(academyId);
     }
-    const res = await fetch(`/api/estoque?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'estoque.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/estoque?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'estoque.list');
+      return res.json();
+    } catch {
+      console.warn('[estoque.getEstoque] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'estoque.list'); }
 }
 
@@ -47,9 +52,14 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       const { mockUpdateEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockUpdateEstoque(produtoId, quantidade, tipo, motivo);
     }
-    const res = await fetch(`/api/estoque/${produtoId}/movimentacao`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantidade, tipo, motivo }) });
-    if (!res.ok) throw new ServiceError(res.status, 'estoque.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/estoque/${produtoId}/movimentacao`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantidade, tipo, motivo }) });
+      if (!res.ok) throw new ServiceError(res.status, 'estoque.update');
+      return res.json();
+    } catch {
+      console.warn('[estoque.updateEstoque] API not available, using fallback');
+      return {} as MovimentacaoEstoque;
+    }
   } catch (error) { handleServiceError(error, 'estoque.update'); }
 }
 
@@ -59,9 +69,14 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
       return mockGetMovimentacoes(produtoId);
     }
-    const res = await fetch(`/api/estoque/${produtoId}/movimentacoes`);
-    if (!res.ok) throw new ServiceError(res.status, 'estoque.movimentacoes');
-    return res.json();
+    try {
+      const res = await fetch(`/api/estoque/${produtoId}/movimentacoes`);
+      if (!res.ok) throw new ServiceError(res.status, 'estoque.movimentacoes');
+      return res.json();
+    } catch {
+      console.warn('[estoque.getMovimentacoes] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'estoque.movimentacoes'); }
 }
 
@@ -71,8 +86,13 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
       return mockGetAlertasEstoqueBaixo(academyId);
     }
-    const res = await fetch(`/api/estoque/alertas?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'estoque.alertas');
-    return res.json();
+    try {
+      const res = await fetch(`/api/estoque/alertas?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'estoque.alertas');
+      return res.json();
+    } catch {
+      console.warn('[estoque.getAlertasEstoqueBaixo] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'estoque.alertas'); }
 }

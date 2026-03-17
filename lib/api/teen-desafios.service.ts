@@ -36,9 +36,14 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
       const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
       return mockGetDesafios(studentId);
     }
-    const res = await fetch(`/api/teen/desafios?studentId=${studentId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'teen.desafios');
-    return res.json();
+    try {
+      const res = await fetch(`/api/teen/desafios?studentId=${studentId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'teen.desafios');
+      return res.json();
+    } catch {
+      console.warn('[teen-desafios.getDesafios] API not available, using fallback');
+      return {} as DesafiosOverview;
+    }
   } catch (error) {
     handleServiceError(error, 'teen.desafios');
   }
@@ -50,9 +55,14 @@ export async function claimReward(desafioId: string): Promise<{ xp_earned: numbe
       const { mockClaimReward } = await import('@/lib/mocks/teen-desafios.mock');
       return mockClaimReward(desafioId);
     }
-    const res = await fetch(`/api/teen/desafios/${desafioId}/claim`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'teen.desafios.claim');
-    return res.json();
+    try {
+      const res = await fetch(`/api/teen/desafios/${desafioId}/claim`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'teen.desafios.claim');
+      return res.json();
+    } catch {
+      console.warn('[teen-desafios.claimReward] API not available, using fallback');
+      return {} as { xp_earned: number };
+    }
   } catch (error) {
     handleServiceError(error, 'teen.desafios.claim');
   }

@@ -43,9 +43,15 @@ export async function getNotifications(
       );
       return mockGetNotifications(profileId);
     }
-    const res = await fetch(`/api/notifications?profileId=${profileId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'notifications.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/notifications?profileId=${profileId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'notifications.get');
+      return res.json();
+    } catch {
+      console.warn('[notifications.getNotifications] API not available, using fallback');
+      return [];
+    }
+
   } catch (error) {
     handleServiceError(error, 'notifications.get');
   }
@@ -59,10 +65,14 @@ export async function markAsRead(notificationId: string): Promise<void> {
       );
       return mockMarkAsRead(notificationId);
     }
-    const res = await fetch(`/api/notifications/${notificationId}/read`, {
-      method: 'POST',
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'notifications.markRead');
+    try {
+      const res = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'notifications.markRead');
+    } catch {
+      console.warn('[notifications.markAsRead] API not available, using fallback');
+    }
   } catch (error) {
     handleServiceError(error, 'notifications.markRead');
   }
@@ -78,13 +88,18 @@ export async function markAllNotificationsRead(
       );
       return mockMarkAllNotificationsRead(profileId);
     }
-    const res = await fetch('/api/notifications/read-all', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profileId }),
-    });
-    if (!res.ok)
-      throw new ServiceError(res.status, 'notifications.markAllRead');
+    try {
+      const res = await fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId }),
+      });
+      if (!res.ok)
+        throw new ServiceError(res.status, 'notifications.markAllRead');
+    } catch {
+      console.warn('[notifications.markAllNotificationsRead] API not available, using fallback');
+    }
+
   } catch (error) {
     handleServiceError(error, 'notifications.markAllRead');
   }

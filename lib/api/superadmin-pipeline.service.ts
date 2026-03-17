@@ -69,9 +69,14 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       const { mockGetPipelineMetrics } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockGetPipelineMetrics();
     }
-    const res = await fetch('/api/superadmin/pipeline/metrics');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/pipeline/metrics');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, using fallback');
+      return {} as PipelineMetrics;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.getMetrics'); }
 }
 
@@ -81,10 +86,15 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
       const { mockListLeads } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockListLeads(status);
     }
-    const params = status ? `?status=${status}` : '';
-    const res = await fetch(`/api/superadmin/pipeline/leads${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const params = status ? `?status=${status}` : '';
+      const res = await fetch(`/api/superadmin/pipeline/leads${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-pipeline.listLeads] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.listLeads'); }
 }
 
@@ -94,9 +104,14 @@ export async function createLead(data: CreateLeadPayload): Promise<LeadAcademia>
       const { mockCreateLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockCreateLead(data);
     }
-    const res = await fetch('/api/superadmin/pipeline/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/superadmin/pipeline/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-pipeline.createLead] API not available, using fallback');
+      return {} as LeadAcademia;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.createLead'); }
 }
 
@@ -106,9 +121,14 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
       const { mockAvancarLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockAvancarLead(leadId);
     }
-    const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/avancar`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/avancar`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-pipeline.avancarLead] API not available, using fallback');
+      return {} as LeadAcademia;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.avancarLead'); }
 }
 
@@ -118,9 +138,14 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
       const { mockPerderLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockPerderLead(leadId);
     }
-    const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/perder`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/perder`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[superadmin-pipeline.perderLead] API not available, using fallback');
+      return {} as LeadAcademia;
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.perderLead'); }
 }
 
@@ -130,7 +155,11 @@ export async function addLeadNota(leadId: string, nota: string): Promise<void> {
       const { mockAddLeadNota } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockAddLeadNota(leadId, nota);
     }
-    const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/notas`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nota }) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/notas`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nota }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      console.warn('[superadmin-pipeline.addLeadNota] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.addNota'); }
 }

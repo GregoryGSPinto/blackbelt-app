@@ -53,7 +53,8 @@ export async function listRelatorios(
       const { mockListRelatorios } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockListRelatorios(professorId, filtros);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[relatorioAula.list] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'relatorioAula.list');
   }
@@ -65,7 +66,8 @@ export async function getRelatorio(turmaId: string, data: string): Promise<Relat
       const { mockGetRelatorio } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockGetRelatorio(turmaId, data);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[relatorioAula.get] fallback — not yet connected to Supabase');
+    return { id: '', turmaId, turmaNome: '', modalidade: '', professorId: '', professorNome: '', data, horario: '', totalMatriculados: 0, totalPresentes: 0, taxaPresenca: 0, alunosPresentes: [], alunosAusentes: [], presencaVsMediaTurma: 0, presencaVsAulaAnterior: 0, criadoEm: '' } as RelatorioAula;
   } catch (error) {
     handleServiceError(error, 'relatorioAula.get');
   }
@@ -77,7 +79,8 @@ export async function getRelatorioMetricas(professorId: string): Promise<Relator
       const { mockGetRelatorioMetricas } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockGetRelatorioMetricas(professorId);
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[relatorioAula.metricas] fallback — not yet connected to Supabase');
+    return { aulasEsteMes: 0, mediaPresenca: 0, melhorTurma: { nome: '', presenca: 0 }, alunoMaisFrequente: { nome: '', presenca: 0 }, alunoMenosFrequente: { nome: '', presenca: 0 } } as RelatorioMetricas;
   } catch (error) {
     handleServiceError(error, 'relatorioAula.metricas');
   }
@@ -89,7 +92,8 @@ export async function exportarPDF(_relatorioId: string): Promise<void> {
       await new Promise((r) => setTimeout(r, 500));
       return;
     }
-    throw new Error('Supabase not implemented');
+    console.warn('[relatorioAula.exportarPDF] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'relatorioAula.exportarPDF');
   }

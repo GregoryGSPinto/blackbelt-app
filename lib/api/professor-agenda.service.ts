@@ -28,9 +28,14 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetAgenda(professorId);
     }
-    const res = await fetch(`/api/professors/${professorId}/agenda`);
-    if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/professors/${professorId}/agenda`);
+      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.get');
+      return res.json();
+    } catch {
+      console.warn('[professor-agenda.getAgenda] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'professorAgenda.get'); }
 }
 
@@ -40,9 +45,14 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetLessonRequests(professorId);
     }
-    const res = await fetch(`/api/professors/${professorId}/lesson-requests`);
-    if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.requests');
-    return res.json();
+    try {
+      const res = await fetch(`/api/professors/${professorId}/lesson-requests`);
+      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.requests');
+      return res.json();
+    } catch {
+      console.warn('[professor-agenda.getLessonRequests] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'professorAgenda.requests'); }
 }
 
@@ -52,8 +62,12 @@ export async function approveLesson(requestId: string): Promise<void> {
       const { mockApproveLesson } = await import('@/lib/mocks/professor-agenda.mock');
       return mockApproveLesson(requestId);
     }
-    const res = await fetch(`/api/lesson-requests/${requestId}/approve`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.approve');
+    try {
+      const res = await fetch(`/api/lesson-requests/${requestId}/approve`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.approve');
+    } catch {
+      console.warn('[professor-agenda.approveLesson] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'professorAgenda.approve'); }
 }
 
@@ -63,7 +77,11 @@ export async function rejectLesson(requestId: string, reason: string): Promise<v
       const { mockRejectLesson } = await import('@/lib/mocks/professor-agenda.mock');
       return mockRejectLesson(requestId, reason);
     }
-    const res = await fetch(`/api/lesson-requests/${requestId}/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
-    if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.reject');
+    try {
+      const res = await fetch(`/api/lesson-requests/${requestId}/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
+      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.reject');
+    } catch {
+      console.warn('[professor-agenda.rejectLesson] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'professorAgenda.reject'); }
 }

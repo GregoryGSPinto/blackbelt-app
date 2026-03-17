@@ -98,9 +98,14 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
     if (isMock()) {
       return { apiKey: 'zk_test_bb_' + academyId.slice(0, 8), createdAt: '2026-01-15T00:00:00Z' };
     }
-    const res = await fetch(`/api/zapier/key?academyId=${academyId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch(`/api/zapier/key?academyId=${academyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[zapier.getZapierApiKey] API not available, using fallback');
+      return {} as { apiKey: string; createdAt: string };
+    }
   } catch (error) {
     handleServiceError(error, 'zapier.getKey');
   }
@@ -112,13 +117,18 @@ export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKe
       logger.debug(`[MOCK] Regenerated Zapier API key for ${academyId}`);
       return { apiKey: `zk_test_bb_${Date.now().toString(36)}` };
     }
-    const res = await fetch('/api/zapier/key', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ academyId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/zapier/key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ academyId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[zapier.regenerateZapierApiKey] API not available, using fallback');
+      return {} as { apiKey: string };
+    }
   } catch (error) {
     handleServiceError(error, 'zapier.regenerateKey');
   }

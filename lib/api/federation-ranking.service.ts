@@ -80,14 +80,19 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       const { mockGetAthleteRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAthleteRanking(filters);
     }
-    const params = new URLSearchParams();
-    if (filters?.modality) params.set('modality', filters.modality);
-    if (filters?.belt) params.set('belt', filters.belt);
-    if (filters?.weight) params.set('weight', filters.weight);
-    if (filters?.region) params.set('region', filters.region);
-    const res = await fetch(`/api/ranking/athletes?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athletes');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.modality) params.set('modality', filters.modality);
+      if (filters?.belt) params.set('belt', filters.belt);
+      if (filters?.weight) params.set('weight', filters.weight);
+      if (filters?.region) params.set('region', filters.region);
+      const res = await fetch(`/api/ranking/athletes?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athletes');
+      return res.json();
+    } catch {
+      console.warn('[federation-ranking.getAthleteRanking] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'federation-ranking.athletes'); }
 }
 
@@ -97,12 +102,17 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       const { mockGetAcademyRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAcademyRanking(filters);
     }
-    const params = new URLSearchParams();
-    if (filters?.modality) params.set('modality', filters.modality);
-    if (filters?.region) params.set('region', filters.region);
-    const res = await fetch(`/api/ranking/academies?${params.toString()}`);
-    if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.academies');
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.modality) params.set('modality', filters.modality);
+      if (filters?.region) params.set('region', filters.region);
+      const res = await fetch(`/api/ranking/academies?${params.toString()}`);
+      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.academies');
+      return res.json();
+    } catch {
+      console.warn('[federation-ranking.getAcademyRanking] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'federation-ranking.academies'); }
 }
 
@@ -112,8 +122,13 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       const { mockGetAthleteProfile } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAthleteProfile(athleteId);
     }
-    const res = await fetch(`/api/ranking/athletes/${athleteId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athleteProfile');
-    return res.json();
+    try {
+      const res = await fetch(`/api/ranking/athletes/${athleteId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athleteProfile');
+      return res.json();
+    } catch {
+      console.warn('[federation-ranking.getAthleteProfile] API not available, using fallback');
+      return {} as AthleteProfileDTO;
+    }
   } catch (error) { handleServiceError(error, 'federation-ranking.athleteProfile'); }
 }

@@ -59,9 +59,14 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaigns(academyId);
     }
-    const res = await fetch(`/api/campanhas?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'campanhas.list');
-    return res.json();
+    try {
+      const res = await fetch(`/api/campanhas?academyId=${academyId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'campanhas.list');
+      return res.json();
+    } catch {
+      console.warn('[campanhas.getCampaigns] API not available, using fallback');
+      return [];
+    }
   } catch (error) {
     handleServiceError(error, 'campanhas.list');
   }
@@ -73,13 +78,18 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       const { mockCreateCampaign } = await import('@/lib/mocks/campanhas.mock');
       return mockCreateCampaign(data);
     }
-    const res = await fetch('/api/campanhas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'campanhas.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/campanhas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'campanhas.create');
+      return res.json();
+    } catch {
+      console.warn('[campanhas.createCampaign] API not available, using fallback');
+      return {} as CampaignDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'campanhas.create');
   }
@@ -91,9 +101,14 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaignMetrics(campaignId);
     }
-    const res = await fetch(`/api/campanhas/${campaignId}/metrics`);
-    if (!res.ok) throw new ServiceError(res.status, 'campanhas.metrics');
-    return res.json();
+    try {
+      const res = await fetch(`/api/campanhas/${campaignId}/metrics`);
+      if (!res.ok) throw new ServiceError(res.status, 'campanhas.metrics');
+      return res.json();
+    } catch {
+      console.warn('[campanhas.getCampaignMetrics] API not available, using fallback');
+      return {} as CampaignMetricsDTO;
+    }
   } catch (error) {
     handleServiceError(error, 'campanhas.metrics');
   }

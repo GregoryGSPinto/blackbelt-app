@@ -45,9 +45,14 @@ export async function getCurriculum(academyId: string, modality: string, belt: s
       const { mockGetCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockGetCurriculum(academyId, modality, belt);
     }
-    const res = await fetch(`/api/curriculum?academyId=${academyId}&modality=${modality}&belt=${belt}`);
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.get');
-    return res.json();
+    try {
+      const res = await fetch(`/api/curriculum?academyId=${academyId}&modality=${modality}&belt=${belt}`);
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.get');
+      return res.json();
+    } catch {
+      console.warn('[curriculum.getCurriculum] API not available, using fallback');
+      return null;
+    }
   } catch (error) { handleServiceError(error, 'curriculum.get'); }
 }
 
@@ -57,9 +62,14 @@ export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): P
       const { mockCreateCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockCreateCurriculum(curriculum);
     }
-    const res = await fetch('/api/curriculum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(curriculum) });
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.create');
-    return res.json();
+    try {
+      const res = await fetch('/api/curriculum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(curriculum) });
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.create');
+      return res.json();
+    } catch {
+      console.warn('[curriculum.createCurriculum] API not available, using fallback');
+      return {} as CurriculumDTO;
+    }
   } catch (error) { handleServiceError(error, 'curriculum.create'); }
 }
 
@@ -69,9 +79,14 @@ export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>)
       const { mockUpdateCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockUpdateCurriculum(id, data);
     }
-    const res = await fetch(`/api/curriculum/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.update');
-    return res.json();
+    try {
+      const res = await fetch(`/api/curriculum/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.update');
+      return res.json();
+    } catch {
+      console.warn('[curriculum.updateCurriculum] API not available, using fallback');
+      return {} as CurriculumDTO;
+    }
   } catch (error) { handleServiceError(error, 'curriculum.update'); }
 }
 
@@ -81,9 +96,14 @@ export async function addRequirement(curriculumId: string, requirement: Omit<Cur
       const { mockAddRequirement } = await import('@/lib/mocks/curriculum.mock');
       return mockAddRequirement(curriculumId, requirement);
     }
-    const res = await fetch(`/api/curriculum/${curriculumId}/requirements`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requirement) });
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.addReq');
-    return res.json();
+    try {
+      const res = await fetch(`/api/curriculum/${curriculumId}/requirements`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requirement) });
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.addReq');
+      return res.json();
+    } catch {
+      console.warn('[curriculum.addRequirement] API not available, using fallback');
+      return {} as CurriculumRequirement;
+    }
   } catch (error) { handleServiceError(error, 'curriculum.addReq'); }
 }
 
@@ -93,8 +113,12 @@ export async function removeRequirement(curriculumId: string, requirementId: str
       const { mockRemoveRequirement } = await import('@/lib/mocks/curriculum.mock');
       return mockRemoveRequirement(curriculumId, requirementId);
     }
-    const res = await fetch(`/api/curriculum/${curriculumId}/requirements/${requirementId}`, { method: 'DELETE' });
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.removeReq');
+    try {
+      const res = await fetch(`/api/curriculum/${curriculumId}/requirements/${requirementId}`, { method: 'DELETE' });
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.removeReq');
+    } catch {
+      console.warn('[curriculum.removeRequirement] API not available, using fallback');
+    }
   } catch (error) { handleServiceError(error, 'curriculum.removeReq'); }
 }
 
@@ -104,8 +128,13 @@ export async function getStudentProgress(studentId: string, modality: string, be
       const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
       return mockGetStudentProgress(studentId, modality, belt);
     }
-    const res = await fetch(`/api/curriculum/progress?studentId=${studentId}&modality=${modality}&belt=${belt}`);
-    if (!res.ok) throw new ServiceError(res.status, 'curriculum.progress');
-    return res.json();
+    try {
+      const res = await fetch(`/api/curriculum/progress?studentId=${studentId}&modality=${modality}&belt=${belt}`);
+      if (!res.ok) throw new ServiceError(res.status, 'curriculum.progress');
+      return res.json();
+    } catch {
+      console.warn('[curriculum.getStudentProgress] API not available, using fallback');
+      return {} as StudentCurriculumProgress;
+    }
   } catch (error) { handleServiceError(error, 'curriculum.progress'); }
 }

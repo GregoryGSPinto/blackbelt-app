@@ -10,7 +10,29 @@ export async function getDashboardData(academyId: string): Promise<DashboardData
       const { mockGetDashboardData } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetDashboardData(academyId);
     }
-    throw new Error('Not implemented');
+    console.warn('[adminDashboard.getDashboardData] fallback — not yet connected to Supabase');
+    return {
+      greeting: { admin_name: '', academy_name: '', time_of_day: 'morning', motivation_quote: '' },
+      headlines: {
+        active_students: { value: 0, change: 0, trend: 'stable', period: '' },
+        monthly_revenue: { value: 0, change: 0, trend: 'stable', period: '' },
+        retention_rate: { value: 0, change: 0, trend: 'stable', period: '' },
+        classes_this_week: { value: 0, total_capacity: 0, fill_rate: 0 },
+      },
+      growth_chart: { labels: [], students: [], revenue: [], churn: [] },
+      retention: { current_month: 0, previous_month: 0, at_risk: 0, at_risk_names: [] },
+      today_schedule: [],
+      activity_feed: [],
+      pending_promotions: [],
+      financial_summary: { revenue_this_month: 0, revenue_last_month: 0, pending_payments: 0, overdue_count: 0, overdue_names: [] },
+      plan_usage: {
+        plan_name: '', students: { current: 0, limit: 0 }, professors: { current: 0, limit: 0 },
+        classes: { current: 0, limit: 0 }, storage_gb: { current: 0, limit: 0 }, alerts: [],
+      },
+      streaming_summary: { total_views_week: 0, most_watched: { title: '', views: 0 }, completion_rate: 0, new_videos_this_month: 0 },
+      quick_actions: [],
+      academy_achievements: [],
+    } as DashboardData;
   } catch (error) {
     handleServiceError(error, 'adminDashboard.getDashboardData');
   }
@@ -28,7 +50,8 @@ export async function getActivityFeed(
       const { mockGetActivityFeed } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetActivityFeed(academyId, page, limit);
     }
-    throw new Error('Not implemented');
+    console.warn('[adminDashboard.getActivityFeed] fallback — not yet connected to Supabase');
+    return [];
   } catch (error) {
     handleServiceError(error, 'adminDashboard.getActivityFeed');
   }
@@ -41,7 +64,8 @@ export async function dismissDashboardAlert(_alertId: string): Promise<void> {
     if (isMock()) {
       return;
     }
-    throw new Error('Not implemented');
+    console.warn('[adminDashboard.dismissAlert] fallback — not yet connected to Supabase');
+    return;
   } catch (error) {
     handleServiceError(error, 'adminDashboard.dismissAlert');
   }

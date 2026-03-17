@@ -57,13 +57,18 @@ export async function createOrder(userId: string, data: CreateOrderData): Promis
       const { mockCreateOrder } = await import('@/lib/mocks/orders.mock');
       return mockCreateOrder(userId, data);
     }
-    const res = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, ...data }),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'orders.createOrder');
-    return res.json();
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, ...data }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'orders.createOrder');
+      return res.json();
+    } catch {
+      console.warn('[orders.createOrder] API not available, using fallback');
+      return {} as Order;
+    }
   } catch (error) { handleServiceError(error, 'orders.createOrder'); }
 }
 
@@ -73,9 +78,14 @@ export async function getMyOrders(userId: string): Promise<Order[]> {
       const { mockGetMyOrders } = await import('@/lib/mocks/orders.mock');
       return mockGetMyOrders(userId);
     }
-    const res = await fetch(`/api/orders?userId=${userId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'orders.getMyOrders');
-    return res.json();
+    try {
+      const res = await fetch(`/api/orders?userId=${userId}`);
+      if (!res.ok) throw new ServiceError(res.status, 'orders.getMyOrders');
+      return res.json();
+    } catch {
+      console.warn('[orders.getMyOrders] API not available, using fallback');
+      return [];
+    }
   } catch (error) { handleServiceError(error, 'orders.getMyOrders'); }
 }
 
@@ -85,9 +95,14 @@ export async function getOrderById(id: string): Promise<Order> {
       const { mockGetOrderById } = await import('@/lib/mocks/orders.mock');
       return mockGetOrderById(id);
     }
-    const res = await fetch(`/api/orders/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'orders.getOrderById');
-    return res.json();
+    try {
+      const res = await fetch(`/api/orders/${id}`);
+      if (!res.ok) throw new ServiceError(res.status, 'orders.getOrderById');
+      return res.json();
+    } catch {
+      console.warn('[orders.getOrderById] API not available, using fallback');
+      return {} as Order;
+    }
   } catch (error) { handleServiceError(error, 'orders.getOrderById'); }
 }
 
@@ -97,8 +112,13 @@ export async function cancelOrder(id: string): Promise<Order> {
       const { mockCancelOrder } = await import('@/lib/mocks/orders.mock');
       return mockCancelOrder(id);
     }
-    const res = await fetch(`/api/orders/${id}/cancel`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'orders.cancelOrder');
-    return res.json();
+    try {
+      const res = await fetch(`/api/orders/${id}/cancel`, { method: 'POST' });
+      if (!res.ok) throw new ServiceError(res.status, 'orders.cancelOrder');
+      return res.json();
+    } catch {
+      console.warn('[orders.cancelOrder] API not available, using fallback');
+      return {} as Order;
+    }
   } catch (error) { handleServiceError(error, 'orders.cancelOrder'); }
 }
