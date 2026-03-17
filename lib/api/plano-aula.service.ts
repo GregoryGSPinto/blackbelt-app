@@ -324,3 +324,122 @@ export async function saveClassNote(data: SaveClassNotePayload): Promise<ClassNo
     handleServiceError(error, 'plano-aula.saveClassNote');
   }
 }
+
+// ══ NUCLEAR: Planejamento Semanal ═══════════════════════════════════════
+
+export interface PlanoAula {
+  id: string;
+  professorId: string;
+  turmaId: string;
+  turmaNome: string;
+  data: string;
+  status: 'planejado' | 'em_andamento' | 'concluido' | 'cancelado';
+  aquecimento: { descricao: string; duracaoMinutos: number };
+  tecnicaPrincipal: { tecnicas: TecnicaPlano[]; duracaoMinutos: number; observacoes?: string };
+  pratica: { tipo: 'drill' | 'sparring_posicional' | 'sparring_livre'; descricao: string; duracaoMinutos: number; regras?: string };
+  encerramento: { descricao: string; duracaoMinutos: number };
+  duracaoTotal: number;
+  temaDaSemana?: string;
+  nivelFoco: string;
+  materiais?: string;
+  notas: string;
+}
+
+export interface TecnicaPlano {
+  tecnicaId?: string;
+  nome: string;
+  posicao: string;
+  descricao?: string;
+  videoRef?: string;
+}
+
+export interface SemanaPlanejamento {
+  semana: string;
+  tema: string;
+  aulas: PlanoAula[];
+}
+
+export interface CreatePlanoPayload {
+  turmaId: string;
+  data: string;
+  aquecimento: { descricao: string; duracaoMinutos: number };
+  tecnicaPrincipal: { tecnicas: TecnicaPlano[]; duracaoMinutos: number; observacoes?: string };
+  pratica: { tipo: 'drill' | 'sparring_posicional' | 'sparring_livre'; descricao: string; duracaoMinutos: number; regras?: string };
+  encerramento: { descricao: string; duracaoMinutos: number };
+  temaDaSemana?: string;
+  nivelFoco: string;
+  materiais?: string;
+  notas: string;
+}
+
+export async function createPlano(dados: CreatePlanoPayload): Promise<PlanoAula> {
+  try {
+    if (isMock()) {
+      const { mockCreatePlano } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockCreatePlano(dados);
+    }
+    throw new ServiceError(501, 'planoAula.create', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.create');
+  }
+}
+
+export async function updatePlano(id: string, dados: Partial<CreatePlanoPayload>): Promise<PlanoAula> {
+  try {
+    if (isMock()) {
+      const { mockUpdatePlano } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockUpdatePlano(id, dados);
+    }
+    throw new ServiceError(501, 'planoAula.update', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.update');
+  }
+}
+
+export async function listPlanos(professorId: string, periodo?: string): Promise<PlanoAula[]> {
+  try {
+    if (isMock()) {
+      const { mockListPlanos } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockListPlanos(professorId, periodo);
+    }
+    throw new ServiceError(501, 'planoAula.list', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.list');
+  }
+}
+
+export async function getSemana(professorId: string, semana: string): Promise<SemanaPlanejamento> {
+  try {
+    if (isMock()) {
+      const { mockGetSemana } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockGetSemana(professorId, semana);
+    }
+    throw new ServiceError(501, 'planoAula.semana', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.semana');
+  }
+}
+
+export async function duplicarPlano(id: string, novaData: string): Promise<PlanoAula> {
+  try {
+    if (isMock()) {
+      const { mockDuplicarPlano } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockDuplicarPlano(id, novaData);
+    }
+    throw new ServiceError(501, 'planoAula.duplicar', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.duplicar');
+  }
+}
+
+export async function getProximaAula(professorId: string): Promise<PlanoAula | null> {
+  try {
+    if (isMock()) {
+      const { mockGetProximaAula } = await import('@/lib/mocks/plano-aula-nuclear.mock');
+      return mockGetProximaAula(professorId);
+    }
+    throw new ServiceError(501, 'planoAula.proxima', 'Supabase not implemented');
+  } catch (error) {
+    handleServiceError(error, 'planoAula.proxima');
+  }
+}

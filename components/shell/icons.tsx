@@ -32,6 +32,7 @@ export const CheckSquareIcon = makeIcon('CheckSquareIcon', <><polyline points="9
 export const HeartIcon = makeIcon('HeartIcon', <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />);
 export const LogOutIcon = makeIcon('LogOutIcon', <><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>);
 export const ChevronRightIcon = makeIcon('ChevronRightIcon', <polyline points="9 18 15 12 9 6" />);
+export const ChevronLeftIcon = makeIcon('ChevronLeftIcon', <polyline points="15 18 9 12 15 6" />);
 export const LinkIcon = makeIcon('LinkIcon', <><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></>);
 export const XIcon = makeIcon('XIcon', <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>);
 export const BuildingIcon = makeIcon('BuildingIcon', <><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M12 6h.01" /><path d="M12 10h.01" /><path d="M12 14h.01" /><path d="M16 10h.01" /><path d="M16 14h.01" /><path d="M8 10h.01" /><path d="M8 14h.01" /></>);
@@ -81,3 +82,9 @@ export const ArrowUpIcon = makeIcon('ArrowUpIcon', <><line x1="12" y1="19" x2="1
 export const ArrowDownIcon = makeIcon('ArrowDownIcon', <><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></>);
 export const UserPlusIcon = makeIcon('UserPlusIcon', <><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></>);
 export const GraduationCapIcon = makeIcon('GraduationCapIcon', <><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" /></>);
+export const PlayIcon = makeIcon('PlayIcon', <polygon points="5 3 19 12 5 21 5 3" />);
+export const BookOpenIcon = makeIcon('BookOpenIcon', <><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" /><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" /></>);
+export const ClipboardCheckIcon = makeIcon('ClipboardCheckIcon', <><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></>);
+export const BookMarkedIcon = makeIcon('BookMarkedIcon', <><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /><polyline points="10 2 10 10 13 7 16 10 16 2" /></>);
+export const MoreHorizontalIcon = makeIcon('MoreHorizontalIcon', <><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></>);
+export const TagIcon = makeIcon('TagIcon', <><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></>);
