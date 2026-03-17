@@ -1,7 +1,7 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
-export type SearchResultGroup = 'alunos' | 'turmas' | 'videos' | 'leads';
+export type SearchResultGroup = 'alunos' | 'turmas' | 'videos' | 'leads' | 'comunicados' | 'paginas';
 
 export interface SearchResult {
   id: string;

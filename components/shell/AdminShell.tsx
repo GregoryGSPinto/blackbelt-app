@@ -23,6 +23,8 @@ import {
   LinkIcon,
   StarIcon,
   AwardIcon,
+  HeartIcon,
+  ClockIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
@@ -34,10 +36,12 @@ const sidebarItems = [
   { href: '/admin', label: 'Dashboard', icon: HomeIcon },
   { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon },
   { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon },
+  { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon },
   { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
-  { href: '/admin/relatorios', label: 'Relatórios', icon: BarChartIcon },
-  { href: '/admin/conteudo', label: 'Conteúdo', icon: SettingsIcon },
-  { href: '/admin/graduacoes', label: 'Graduações', icon: AwardIcon },
+  { href: '/admin/retencao', label: 'Retencao', icon: HeartIcon },
+  { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon },
+  { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon },
+  { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon },
   { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
   { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
 ];

@@ -17,6 +17,16 @@ const ALL_RESULTS: SearchResult[] = [
   { id: 'sr-9', group: 'videos', title: 'Guarda Fechada - Basico', subtitle: '12 min - Prof. Silva', url: '/dashboard/conteudo/guarda-fechada', icon: '📺' },
   { id: 'sr-10', group: 'videos', title: 'Raspagem de Tesoura', subtitle: '8 min - Prof. Santos', url: '/dashboard/conteudo/raspagem-tesoura', icon: '📺' },
   { id: 'sr-11', group: 'videos', title: 'Passagem de Guarda com Pressao', subtitle: '15 min - Prof. Silva', url: '/dashboard/conteudo/passagem-pressao', icon: '📺' },
+  // Comunicados
+  { id: 'sr-14', group: 'comunicados', title: 'Horario especial feriado', subtitle: 'Publicado em 10/03/2026', url: '/admin/comunicados', icon: '📢' },
+  { id: 'sr-15', group: 'comunicados', title: 'Campeonato interno de BJJ', subtitle: 'Publicado em 05/03/2026', url: '/admin/comunicados', icon: '📢' },
+  { id: 'sr-16', group: 'comunicados', title: 'Seminario com mestre visitante', subtitle: 'Publicado em 28/02/2026', url: '/admin/comunicados', icon: '📢' },
+  // Paginas
+  { id: 'sr-17', group: 'paginas', title: 'Dashboard', subtitle: 'Painel principal', url: '/admin', icon: '📊' },
+  { id: 'sr-18', group: 'paginas', title: 'Financeiro', subtitle: 'Gestao financeira', url: '/admin/financeiro', icon: '💰' },
+  { id: 'sr-19', group: 'paginas', title: 'Relatorios', subtitle: 'Relatorios e metricas', url: '/admin/relatorios', icon: '📈' },
+  { id: 'sr-20', group: 'paginas', title: 'Calendario', subtitle: 'Calendario de eventos', url: '/admin/calendario', icon: '📅' },
+  { id: 'sr-21', group: 'paginas', title: 'Retencao', subtitle: 'Analise de retencao de alunos', url: '/admin/retencao', icon: '🎯' },
   // Leads
   { id: 'sr-12', group: 'leads', title: 'Carlos Ferreira', subtitle: 'Interessado em BJJ - 2 dias atras', url: '/admin/leads/carlos-ferreira', icon: '📱' },
   { id: 'sr-13', group: 'leads', title: 'Juliana Martins', subtitle: 'Aula experimental agendada', url: '/admin/leads/juliana-martins', icon: '📱' },

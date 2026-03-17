@@ -16,9 +16,11 @@ const GROUP_LABELS: Record<SearchResultGroup, string> = {
   turmas: 'Turmas',
   videos: 'Videos',
   leads: 'Leads',
+  comunicados: 'Comunicados',
+  paginas: 'Paginas',
 };
 
-const GROUP_ORDER: SearchResultGroup[] = ['alunos', 'turmas', 'videos', 'leads'];
+const GROUP_ORDER: SearchResultGroup[] = ['alunos', 'turmas', 'videos', 'comunicados', 'paginas', 'leads'];
 
 // ── Types ──────────────────────────────────────────────────────────────
 

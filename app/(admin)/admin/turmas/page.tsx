@@ -366,7 +366,7 @@ export default function AdminTurmasPage() {
           <button
             type="button"
             onClick={() => setFilterModality('')}
-            className="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+            className="rounded-full px-3 py-1.5 min-h-[44px] text-xs font-medium transition-colors"
             style={{
               background: filterModality === '' ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
               color: filterModality === '' ? '#fff' : 'var(--bb-ink-60)',
@@ -381,7 +381,7 @@ export default function AdminTurmasPage() {
                 key={mod}
                 type="button"
                 onClick={() => setFilterModality(mod)}
-                className="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                className="rounded-full px-3 py-1.5 min-h-[44px] text-xs font-medium transition-colors"
                 style={{
                   background: filterModality === mod ? colors.text : colors.bg,
                   color: filterModality === mod ? '#fff' : colors.text,
@@ -525,7 +525,7 @@ export default function AdminTurmasPage() {
                 >
                   <button
                     type="button"
-                    className="text-xs font-medium transition-colors hover:underline"
+                    className="text-xs font-medium transition-colors hover:underline min-h-[44px] min-w-[44px] px-2"
                     style={{ color: 'var(--bb-error)' }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -615,13 +615,13 @@ export default function AdminTurmasPage() {
             <label className="block text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
               Dias da Semana
             </label>
-            <div className="mt-2 flex gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {[0, 1, 2, 3, 4, 5, 6].map((day) => (
                 <button
                   key={day}
                   type="button"
                   onClick={() => toggleDay(day)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition-all"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-xs font-medium transition-all"
                   style={{
                     background: form.scheduleDays[day] ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
                     color: form.scheduleDays[day] ? '#fff' : 'var(--bb-ink-40)',

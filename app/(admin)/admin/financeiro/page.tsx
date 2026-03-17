@@ -113,7 +113,7 @@ export default function AdminFinanceiroPage() {
     : 0;
 
   return (
-    <div className="min-h-screen space-y-6 p-4 sm:p-6" data-stagger>
+    <div className="min-h-screen space-y-6 p-4 sm:p-6 overflow-x-hidden" data-stagger>
       {/* ── Stats ─────────────────────────────────────────────────── */}
       <section className="animate-reveal">
         <h1 className="mb-4 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Financeiro</h1>
@@ -184,7 +184,7 @@ export default function AdminFinanceiroPage() {
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all"
+              className="flex-1 rounded-md px-2 sm:px-4 py-2 min-h-[44px] text-xs sm:text-sm font-medium transition-all"
               style={{
                 background: tab === t.key ? 'var(--bb-brand)' : 'transparent',
                 color: tab === t.key ? '#fff' : 'var(--bb-ink-60)',
@@ -208,7 +208,7 @@ export default function AdminFinanceiroPage() {
                 placeholder="Buscar aluno..."
                 value={filterSearch}
                 onChange={(e) => setFilterSearch(e.target.value)}
-                className="w-full rounded-lg py-2 pl-9 pr-3 text-sm"
+                className="w-full rounded-lg py-2 pl-9 pr-3 min-h-[44px] text-sm"
                 style={{
                   background: 'var(--bb-depth-2)',
                   border: '1px solid var(--bb-glass-border)',
@@ -219,7 +219,7 @@ export default function AdminFinanceiroPage() {
             <select
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="rounded-lg px-3 py-2 text-sm"
+              className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
               style={{
                 background: 'var(--bb-depth-2)',
                 border: '1px solid var(--bb-glass-border)',
@@ -233,7 +233,7 @@ export default function AdminFinanceiroPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-lg px-3 py-2 text-sm"
+              className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
               style={{
                 background: 'var(--bb-depth-2)',
                 border: '1px solid var(--bb-glass-border)',
@@ -259,7 +259,7 @@ export default function AdminFinanceiroPage() {
                 return (
                   <div
                     key={m.id}
-                    className="flex items-center gap-3 rounded-lg p-3"
+                    className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg p-3"
                     style={{
                       background: 'var(--bb-depth-2)',
                       border: '1px solid var(--bb-glass-border)',
@@ -274,25 +274,27 @@ export default function AdminFinanceiroPage() {
                         {m.payment_method && ` · ${m.payment_method}`}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                      R$ {fmt(m.amount)}
-                    </p>
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-semibold"
-                      style={{ background: sc.bg, color: sc.text }}
-                    >
-                      {STATUS_LABELS[m.status]}
-                    </span>
-                    {(m.status === 'pendente' || m.status === 'atrasado') && (
-                      <button
-                        type="button"
-                        onClick={() => handleMarkPaid(m.id)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80"
-                        style={{ background: '#22C55E', color: '#fff' }}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                        R$ {fmt(m.amount)}
+                      </p>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap"
+                        style={{ background: sc.bg, color: sc.text }}
                       >
-                        Pago
-                      </button>
-                    )}
+                        {STATUS_LABELS[m.status]}
+                      </span>
+                      {(m.status === 'pendente' || m.status === 'atrasado') && (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkPaid(m.id)}
+                          className="rounded-lg px-3 py-1.5 min-h-[44px] min-w-[44px] text-xs font-medium transition-all hover:opacity-80"
+                          style={{ background: '#22C55E', color: '#fff' }}
+                        >
+                          Pago
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })
@@ -317,27 +319,29 @@ export default function AdminFinanceiroPage() {
             overdue.map((o) => (
               <div
                 key={`${o.student_id}-${o.reference_month}`}
-                className="flex items-center gap-3 rounded-lg p-4"
+                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg p-4"
                 style={{
                   background: 'var(--bb-depth-2)',
                   borderLeft: '4px solid #EF4444',
                 }}
               >
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{o.student_name}</p>
                   <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                     Venc: {new Date(o.due_date).toLocaleDateString('pt-BR')} · {o.days_overdue} dias atraso
                   </p>
                 </div>
-                <p className="text-sm font-bold" style={{ color: '#EF4444' }}>R$ {fmt(o.amount)}</p>
-                <button
-                  type="button"
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80"
-                  style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
-                  onClick={() => toast(`Lembrete enviado para ${o.student_name}`, 'success')}
-                >
-                  Enviar Cobrança
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <p className="text-sm font-bold" style={{ color: '#EF4444' }}>R$ {fmt(o.amount)}</p>
+                  <button
+                    type="button"
+                    className="rounded-lg px-3 py-1.5 min-h-[44px] text-xs font-medium transition-all hover:opacity-80 whitespace-nowrap"
+                    style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+                    onClick={() => toast(`Lembrete enviado para ${o.student_name}`, 'success')}
+                  >
+                    Enviar Cobranca
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -384,7 +388,7 @@ export default function AdminFinanceiroPage() {
             <button
               type="button"
               onClick={() => toast('Exportação em desenvolvimento', 'info')}
-              className="mt-4 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
+              className="mt-4 w-full sm:w-auto rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
               style={{ background: 'var(--bb-brand)', color: '#fff' }}
             >
               Exportar Relatório

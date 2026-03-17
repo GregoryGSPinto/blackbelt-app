@@ -32,7 +32,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     if (!open) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Overlay */}
         <div
           className="fixed inset-0"
@@ -52,7 +52,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
           aria-modal="true"
           aria-label={title}
           className={cn(
-            'relative z-50 w-full p-6',
+            'relative z-50 w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto',
             containerClasses[variant],
             className,
           )}

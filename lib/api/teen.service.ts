@@ -57,17 +57,48 @@ export interface TeenProfileDTO {
   bio: string;
 }
 
+export interface TeenWeeklyChallengeDTO {
+  id: string;
+  title: string;
+  emoji: string;
+  progress: number;
+  target: number;
+  reward_xp: number;
+}
+
+export interface TeenContinueWatchingDTO {
+  id: string;
+  title: string;
+  thumbnail_emoji: string;
+  progress_percent: number;
+  duration_label: string;
+  reward_xp: number;
+}
+
+export interface TeenNextClassDTO {
+  id: string;
+  title: string;
+  instructor: string;
+  starts_at: string;
+  location: string;
+}
+
 export interface TeenDashboardDTO {
   profile: TeenProfileDTO;
   xp: number;
   level: number;
   next_level_xp: number;
   rank_position: number;
+  xp_this_week: number;
+  videos_watched: number;
   active_challenge: TeenChallengeDTO | null;
+  weekly_challenges: TeenWeeklyChallengeDTO[];
   ranking: TeenRankingEntryDTO[];
   achievements: TeenAchievementDTO[];
   next_achievement: TeenNextAchievementDTO | null;
   streak: TeenStreakDTO;
+  continue_watching: TeenContinueWatchingDTO[];
+  next_class: TeenNextClassDTO | null;
 }
 
 // ────────────────────────────────────────────────────────────

@@ -58,6 +58,31 @@ export async function mockGetAlunoDashboard(_studentId: string): Promise<AlunoDa
     };
   });
 
+  // Build 3-month heatmap
+  const heatmap3Meses = Array.from({ length: 3 }, (_, i) => {
+    const d = new Date(today.getFullYear(), today.getMonth() - (2 - i), 1);
+    const totalDias = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    const monthNames = ['Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+    // Generate random present days
+    const diasPresentes: number[] = [];
+    const maxPresent = i === 2 ? 14 : Math.floor(totalDias * 0.6);
+    for (let day = 1; day <= totalDias; day++) {
+      const dayOfWeek = new Date(d.getFullYear(), d.getMonth(), day).getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && diasPresentes.length < maxPresent) {
+        if (Math.random() > 0.3) diasPresentes.push(day);
+      }
+    }
+
+    return {
+      mes_label: monthNames[d.getMonth()],
+      ano: d.getFullYear(),
+      total_dias: totalDias,
+      dias_presentes: diasPresentes,
+    };
+  });
+
   return {
     student_name: 'Joao',
     avatar_url: null,
@@ -83,6 +108,35 @@ export async function mockGetAlunoDashboard(_studentId: string): Promise<AlunoDa
       end_time: '20:30',
       unit_name: 'Unidade Centro',
     },
+    proximasAulas: [
+      {
+        class_id: 'class-bjj-adv',
+        modality_name: 'BJJ Advanced',
+        level_label: 'Avancado',
+        professor_name: 'Andre Galvao',
+        start_time: '19:00',
+        end_time: '20:30',
+        unit_name: 'Unidade Centro',
+      },
+      {
+        class_id: 'class-nogi',
+        modality_name: 'No-Gi',
+        level_label: 'Intermediario',
+        professor_name: 'Marcelo Garcia',
+        start_time: '20:30',
+        end_time: '22:00',
+        unit_name: 'Unidade Centro',
+      },
+      {
+        class_id: 'class-bjj-fund',
+        modality_name: 'BJJ Fundamentos',
+        level_label: 'Iniciante',
+        professor_name: 'Carlos Silva',
+        start_time: '07:00',
+        end_time: '08:30',
+        unit_name: 'Unidade Centro',
+      },
+    ],
     progressoFaixa: {
       faixa_atual: BeltLevel.Blue,
       proxima_faixa: BeltLevel.Purple,
@@ -103,6 +157,24 @@ export async function mockGetAlunoDashboard(_studentId: string): Promise<AlunoDa
     },
     frequenciaMesAnteriorPct: 78,
     streak: 12,
+    videos_watched: 23,
+    quiz_score_avg: 82,
+    evolucao: {
+      presencas_atual: 88,
+      presencas_necessario: 120,
+      meses_atual: 11,
+      meses_necessario: 6,
+      quiz_avg: 82,
+      quiz_necessario: 70,
+    },
+    heatmap3Meses: heatmap3Meses,
+    mensalidade: {
+      plano_nome: 'Plano Ilimitado',
+      valor: 189.90,
+      status: 'em_dia',
+      vencimento: '2026-04-05',
+      mes_label: 'Marco 2026',
+    },
     conteudoRecomendado: [
       { video_id: 'vid-1', title: 'Guarda Fechada — Fundamentos', duration: 15, belt_level: BeltLevel.Blue },
       { video_id: 'vid-2', title: 'Raspagem de Gancho', duration: 12, belt_level: BeltLevel.Blue },
@@ -120,6 +192,7 @@ export async function mockGetAlunoDashboard(_studentId: string): Promise<AlunoDa
       { id: 'ach-1', name: 'Streak 10 dias', icon: '\uD83D\uDD25', type: 'attendance_streak', granted_at: '2026-03-14' },
       { id: 'ach-2', name: '50 aulas', icon: '\uD83C\uDFC5', type: 'class_milestone', granted_at: '2026-03-10' },
       { id: 'ach-3', name: 'Faixa Azul', icon: '\uD83E\uDD4B', type: 'belt_promotion', granted_at: '2025-11-22' },
+      { id: 'ach-4', name: 'Madrugador', icon: '\uD83C\uDF1F', type: 'custom', granted_at: '2025-10-15' },
     ],
     proximaConquista: {
       name: 'Streak 30',

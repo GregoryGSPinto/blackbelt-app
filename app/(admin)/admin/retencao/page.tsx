@@ -1,283 +1,818 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getAcademyHealth, getStudentHealthScores } from '@/lib/api/health-score.service';
-import type { AcademyHealthSummary, StudentHealthScore } from '@/lib/api/health-score.service';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  getRetentionData,
+  markStudentContacted,
+  type RetentionData,
+  type RetentionFilters,
+  type AtRiskStudent,
+} from '@/lib/api/retention.service';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 
-const RISK_LABEL: Record<string, string> = {
-  low: 'Saudável',
-  medium: 'Atenção',
-  high: 'Risco',
-  critical: 'Crítico',
+// ── Constants ──────────────────────────────────────────────────────────
+
+const MONTH_LABELS: Record<string, string> = {
+  '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr',
+  '05': 'Mai', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+  '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez',
 };
 
-const RISK_COLOR: Record<string, string> = {
-  low: 'bg-green-100 text-green-700',
-  medium: 'bg-yellow-100 text-yellow-700',
-  high: 'bg-orange-100 text-orange-700',
-  critical: 'bg-red-100 text-red-700',
+const TREND_ICONS: Record<string, string> = {
+  declining: '↓',
+  stable: '→',
+  improving: '↑',
 };
 
-function scoreColor(score: number): string {
-  if (score >= 70) return 'bg-green-500';
-  if (score >= 50) return 'bg-yellow-500';
-  if (score >= 30) return 'bg-orange-500';
-  return 'bg-red-500';
+const TREND_LABELS: Record<string, string> = {
+  declining: 'Em queda',
+  stable: 'Estavel',
+  improving: 'Melhorando',
+};
+
+const BELT_LABELS: Record<string, string> = {
+  white: 'Branca',
+  gray: 'Cinza',
+  yellow: 'Amarela',
+  orange: 'Laranja',
+  green: 'Verde',
+  blue: 'Azul',
+  purple: 'Roxa',
+  brown: 'Marrom',
+  black: 'Preta',
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────
+
+function formatMonth(monthStr: string): string {
+  const parts = monthStr.split('-');
+  return MONTH_LABELS[parts[1]] ?? parts[1];
 }
 
-function gaugeColor(score: number): string {
-  if (score >= 70) return '#22c55e';
-  if (score >= 50) return '#eab308';
-  if (score >= 30) return '#f97316';
-  return '#ef4444';
-}
-
-// Monthly subscription value estimate per student
-const AVG_MONTHLY_VALUE = 180;
+// ── Page ───────────────────────────────────────────────────────────────
 
 export default function RetencaoPage() {
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<AcademyHealthSummary | null>(null);
-  const [students, setStudents] = useState<StudentHealthScore[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<StudentHealthScore | null>(null);
+  const [data, setData] = useState<RetentionData | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<AtRiskStudent | null>(null);
+  const [period, setPeriod] = useState<RetentionFilters['period']>('12m');
+  const [modalityFilter, setModalityFilter] = useState('');
+  const [classFilter, setClassFilter] = useState('');
+
+  // ── Fetch data ─────────────────────────────────────────────────────
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await getRetentionData('academy-1', {
+        period,
+        modality: modalityFilter || undefined,
+        className: classFilter || undefined,
+      });
+      setData(result);
+    } catch {
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [period, modalityFilter, classFilter]);
 
   useEffect(() => {
-    Promise.all([
-      getAcademyHealth('academy-1'),
-      getStudentHealthScores('academy-1'),
-    ])
-      .then(([s, st]) => {
-        setSummary(s);
-        // Sort by score ascending (worst first)
-        setStudents(st.sort((a, b) => a.score - b.score));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    fetchData();
+  }, [fetchData]);
+
+  // ── Derived values ─────────────────────────────────────────────────
+
+  const modalities = useMemo(() => {
+    if (!data) return [];
+    const set = new Set(data.atRiskStudents.map((s) => s.modality));
+    return Array.from(set).sort();
+  }, [data]);
+
+  const classNames = useMemo(() => {
+    if (!data) return [];
+    const set = new Set(data.atRiskStudents.map((s) => s.className));
+    return Array.from(set).sort();
+  }, [data]);
+
+  // ── Actions ────────────────────────────────────────────────────────
+
+  async function handleMarkContacted(student: AtRiskStudent) {
+    await markStudentContacted(student.id);
+    setData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        atRiskStudents: prev.atRiskStudents.map((s) =>
+          s.id === student.id ? { ...s, contacted: true } : s,
+        ),
+      };
+    });
+    setSelectedStudent(null);
+  }
+
+  // ── Skeleton ───────────────────────────────────────────────────────
 
   if (loading) {
     return (
       <div className="space-y-4 p-6">
         <Skeleton variant="text" className="h-8 w-48" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Skeleton variant="card" className="h-64" />
+          <Skeleton variant="card" className="col-span-2 h-64" />
+        </div>
         <Skeleton variant="card" className="h-64" />
+        <Skeleton variant="card" className="h-96" />
       </div>
     );
   }
 
+  if (!data) return null;
+
+  const { summary, monthlyData, churnReasons, atRiskStudents } = data;
+
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-xl font-bold text-bb-black">Retenção de Alunos</h1>
+      {/* Title */}
+      <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+        Retencao de Alunos
+      </h1>
 
-      {/* Gauge + Summary Stats */}
-      {summary && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-          {/* Gauge */}
-          <Card className="flex flex-col items-center justify-center p-6 lg:col-span-2">
-            <div className="relative h-40 w-40">
-              <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="12"
+      {/* Filters */}
+      <Card className="flex flex-wrap items-center gap-3 p-4">
+        <div
+          className="flex overflow-hidden"
+          style={{
+            borderRadius: 'var(--bb-radius-sm)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          {(['3m', '6m', '12m'] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className="px-3 py-1.5 text-sm font-medium transition-colors"
+              style={{
+                background: period === p ? 'var(--bb-brand)' : 'transparent',
+                color: period === p ? '#fff' : 'var(--bb-ink-60)',
+              }}
+            >
+              {p === '3m' ? '3 meses' : p === '6m' ? '6 meses' : '12 meses'}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={modalityFilter}
+          onChange={(e) => setModalityFilter(e.target.value)}
+          className="px-3 py-1.5 text-sm"
+          style={{
+            borderRadius: 'var(--bb-radius-sm)',
+            background: 'var(--bb-depth-4)',
+            color: 'var(--bb-ink-80)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <option value="">Todas Modalidades</option>
+          {modalities.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
+
+        <select
+          value={classFilter}
+          onChange={(e) => setClassFilter(e.target.value)}
+          className="px-3 py-1.5 text-sm"
+          style={{
+            borderRadius: 'var(--bb-radius-sm)',
+            background: 'var(--bb-depth-4)',
+            color: 'var(--bb-ink-80)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <option value="">Todas Turmas</option>
+          {classNames.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </Card>
+
+      {/* Donut + Metric Cards */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5" data-stagger>
+        {/* Large Donut */}
+        <Card className="animate-reveal flex flex-col items-center justify-center p-6 lg:col-span-2">
+          <RetentionDonut
+            retention={summary.currentRetention}
+            goal={summary.retentionGoal}
+          />
+          <p className="mt-3 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+            Retencao Atual
+          </p>
+          <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+            Meta: {summary.retentionGoal}%
+          </p>
+        </Card>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4 lg:col-span-3" data-stagger>
+          <StatCard
+            label="Taxa de Churn"
+            value={`${summary.churnRate}%`}
+            detail="no periodo"
+            variant="danger"
+          />
+          <StatCard
+            label="Alunos Ativos"
+            value={summary.totalActive.toString()}
+            detail={`${summary.totalChurned} cancelamentos`}
+            variant="default"
+          />
+          <StatCard
+            label="Tempo Medio antes de Cancelar"
+            value={`${summary.avgTimeBeforeCancel} meses`}
+            detail="media geral"
+            variant="warning"
+          />
+          <StatCard
+            label="Turma com Mais Churn"
+            value={summary.classWithMostChurn}
+            detail="no periodo"
+            variant="danger"
+          />
+        </div>
+      </div>
+
+      {/* Retention Chart (12 months) */}
+      <Card className="animate-reveal p-6">
+        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+          Retencao Mensal
+        </h2>
+        <RetentionLineChart data={monthlyData} />
+      </Card>
+
+      {/* Churn Reasons */}
+      <Card className="animate-reveal p-6">
+        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+          Motivos de Cancelamento
+        </h2>
+        <div className="space-y-3">
+          {churnReasons.map((reason) => (
+            <div key={reason.reason} className="flex items-center gap-3">
+              <span className="w-40 truncate text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                {reason.label}
+              </span>
+              <div
+                className="h-3 flex-1 overflow-hidden"
+                style={{
+                  borderRadius: 'var(--bb-radius-sm)',
+                  background: 'var(--bb-depth-4)',
+                }}
+              >
+                <div
+                  className="h-full transition-all"
+                  style={{
+                    width: `${reason.percentage}%`,
+                    borderRadius: 'var(--bb-radius-sm)',
+                    background: 'var(--bb-brand)',
+                    opacity: 0.7 + reason.percentage * 0.003,
+                  }}
                 />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke={gaugeColor(summary.average_score)}
-                  strokeWidth="12"
-                  strokeDasharray={`${(summary.average_score / 100) * 327} 327`}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-bb-black">{summary.average_score}</span>
-                <span className="text-xs text-bb-gray-500">Health Score</span>
               </div>
+              <span className="w-16 text-right text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                {reason.count} ({reason.percentage.toFixed(0)}%)
+              </span>
             </div>
-            <p className="mt-2 text-sm text-bb-gray-500">Média da Academia</p>
-          </Card>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 lg:col-span-3">
-            {[
-              { label: 'Total de Alunos', value: summary.total_students, color: 'text-bb-black' },
-              { label: 'Saudáveis', value: summary.healthy, color: 'text-green-600' },
-              { label: 'Em Risco', value: summary.at_risk, color: 'text-yellow-600' },
-              { label: 'Críticos', value: summary.critical, color: 'text-red-600' },
-            ].map((stat) => (
-              <Card key={stat.label} className="p-4">
-                <p className="text-xs text-bb-gray-500">{stat.label}</p>
-                <p className={`mt-1 text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Students Table */}
-      <Card className="overflow-hidden">
-        <div className="border-b border-bb-gray-300 p-4">
-          <h2 className="font-semibold text-bb-black">Alunos por Score</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-bb-gray-300 bg-bb-gray-100">
-                <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Aluno</th>
-                <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Faixa</th>
-                <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Score</th>
-                <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Risco</th>
-                <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Freq.</th>
-                <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Financeiro</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Último Check-in</th>
-                <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Ação</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((s) => (
-                <tr
-                  key={s.student_id}
-                  className={`border-b border-bb-gray-100 ${s.risk === 'critical' ? 'bg-red-50' : s.risk === 'high' ? 'bg-orange-50' : ''}`}
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-gray-100 text-xs font-bold text-bb-gray-500">
-                        {s.display_name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                      </div>
-                      <span className="font-medium text-bb-black">{s.display_name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center capitalize text-bb-gray-500">{s.belt}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-16 overflow-hidden rounded-full bg-bb-gray-100">
-                        <div
-                          className={`h-full rounded-full ${scoreColor(s.score)}`}
-                          style={{ width: `${s.score}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-bb-gray-700">{s.score}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_COLOR[s.risk]}`}>
-                      {RISK_LABEL[s.risk]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-bb-gray-500">{s.frequency_score}%</td>
-                  <td className="px-4 py-3 text-center text-bb-gray-500">{s.financial_score}%</td>
-                  <td className="px-4 py-3 text-right text-bb-gray-500">
-                    {s.last_checkin
-                      ? new Date(s.last_checkin).toLocaleDateString('pt-BR')
-                      : '—'}
-                    {s.days_absent > 3 && (
-                      <span className="ml-1 text-xs text-red-500">({s.days_absent}d)</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => setSelectedStudent(s)}
-                      className="rounded-lg bg-bb-red px-3 py-1 text-xs font-medium text-white hover:bg-red-700"
-                    >
-                      Agir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          ))}
         </div>
       </Card>
 
-      {/* Student Detail Modal */}
+      {/* At-Risk Students List */}
+      <Card className="animate-reveal overflow-hidden p-0">
+        <div
+          className="flex items-center justify-between px-4 py-3"
+          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+        >
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Alunos em Risco ({atRiskStudents.length})
+          </h2>
+          <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+            Ordenados por urgencia
+          </span>
+        </div>
+
+        {/* Mobile: Cards */}
+        <div className="md:hidden">
+          {atRiskStudents.map((student) => (
+            <div
+              key={student.id}
+              className="flex items-center gap-3 px-4 py-3"
+              style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+            >
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center text-xs font-bold"
+                style={{
+                  borderRadius: '50%',
+                  background: 'var(--bb-depth-4)',
+                  color: 'var(--bb-ink-60)',
+                }}
+              >
+                {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {student.name}
+                  {student.contacted && (
+                    <span className="ml-2 text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>
+                      (contatado)
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  {student.className} | {student.daysWithoutTraining}d sem treinar
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <TrendBadge trend={student.trend} />
+                <button
+                  onClick={() => setSelectedStudent(student)}
+                  className="text-xs font-medium transition-colors"
+                  style={{ color: 'var(--bb-brand)' }}
+                >
+                  Agir
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Table */}
+        <div className="hidden md:block">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                  {['Aluno', 'Faixa', 'Turma', 'Dias sem treinar', 'Tendencia', 'Ultimo check-in', 'Status', 'Acao'].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 text-left text-xs font-medium"
+                      style={{
+                        color: 'var(--bb-ink-60)',
+                        background: 'var(--bb-depth-4)',
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {atRiskStudents.map((student) => (
+                  <tr
+                    key={student.id}
+                    style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="flex h-8 w-8 shrink-0 items-center justify-center text-[10px] font-bold"
+                          style={{
+                            borderRadius: '50%',
+                            background: 'var(--bb-depth-4)',
+                            color: 'var(--bb-ink-60)',
+                          }}
+                        >
+                          {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                        </div>
+                        <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                          {student.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 capitalize" style={{ color: 'var(--bb-ink-80)' }}>
+                      {BELT_LABELS[student.belt] ?? student.belt}
+                    </td>
+                    <td className="px-4 py-3" style={{ color: 'var(--bb-ink-80)' }}>
+                      {student.className}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="font-bold"
+                        style={{
+                          color: student.daysWithoutTraining >= 10
+                            ? 'var(--bb-error)'
+                            : student.daysWithoutTraining >= 7
+                              ? 'var(--bb-warning)'
+                              : 'var(--bb-ink-80)',
+                        }}
+                      >
+                        {student.daysWithoutTraining}d
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <TrendBadge trend={student.trend} />
+                    </td>
+                    <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>
+                      {student.lastCheckin
+                        ? new Date(student.lastCheckin).toLocaleDateString('pt-BR')
+                        : '---'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {student.contacted ? (
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium"
+                          style={{
+                            borderRadius: 'var(--bb-radius-sm)',
+                            background: 'var(--bb-brand-surface)',
+                            color: 'var(--bb-brand)',
+                          }}
+                        >
+                          Contatado
+                        </span>
+                      ) : (
+                        <span
+                          className="px-2 py-0.5 text-[10px] font-medium"
+                          style={{
+                            borderRadius: 'var(--bb-radius-sm)',
+                            background: 'var(--bb-depth-4)',
+                            color: 'var(--bb-ink-60)',
+                          }}
+                        >
+                          Pendente
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => setSelectedStudent(student)}
+                        className="px-3 py-1 text-xs font-medium text-white transition-colors"
+                        style={{
+                          borderRadius: 'var(--bb-radius-sm)',
+                          background: 'var(--bb-brand)',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                      >
+                        Agir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {atRiskStudents.length === 0 && (
+          <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Nenhum aluno em risco neste periodo
+          </div>
+        )}
+      </Card>
+
+      {/* Student Action Modal */}
       <Modal
         open={!!selectedStudent}
         onClose={() => setSelectedStudent(null)}
-        title={selectedStudent?.display_name ?? ''}
+        title={selectedStudent?.name ?? ''}
       >
         {selectedStudent && (
-          <div className="space-y-5">
-            {/* Profile Summary */}
+          <div className="space-y-4">
+            {/* Profile */}
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-bb-gray-100 text-lg font-bold text-bb-gray-500">
-                {selectedStudent.display_name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+              <div
+                className="flex h-14 w-14 items-center justify-center text-lg font-bold"
+                style={{
+                  borderRadius: '50%',
+                  background: 'var(--bb-depth-4)',
+                  color: 'var(--bb-ink-60)',
+                }}
+              >
+                {selectedStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
               </div>
               <div>
-                <p className="font-semibold text-bb-black">{selectedStudent.display_name}</p>
-                <p className="text-sm capitalize text-bb-gray-500">
-                  Faixa {selectedStudent.belt} &middot;{' '}
-                  <span className={`${RISK_COLOR[selectedStudent.risk]} rounded-full px-2 py-0.5 text-xs`}>
-                    {RISK_LABEL[selectedStudent.risk]}
-                  </span>
+                <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                  {selectedStudent.name}
                 </p>
-                <p className="text-sm text-bb-gray-500">
-                  Score geral: <span className="font-bold text-bb-black">{selectedStudent.score}/100</span>
+                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  Faixa {BELT_LABELS[selectedStudent.belt] ?? selectedStudent.belt} |{' '}
+                  {selectedStudent.className}
                 </p>
               </div>
             </div>
 
-            {/* Health Score Breakdown */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-bb-black">Detalhamento do Score</p>
-              {[
-                { label: 'Frequência', value: selectedStudent.frequency_score },
-                { label: 'Financeiro', value: selectedStudent.financial_score },
-                { label: 'Evolução', value: selectedStudent.evolution_score },
-                { label: 'Engajamento', value: selectedStudent.engagement_score },
-                { label: 'Social', value: selectedStudent.social_score },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-3">
-                  <span className="w-24 text-xs text-bb-gray-500">{item.label}</span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-bb-gray-100">
-                    <div
-                      className={`h-full rounded-full ${scoreColor(item.value)}`}
-                      style={{ width: `${item.value}%` }}
-                    />
-                  </div>
-                  <span className="w-8 text-right text-xs font-medium text-bb-gray-700">{item.value}</span>
-                </div>
-              ))}
+            {/* Alert */}
+            <div
+              className="p-4"
+              style={{
+                borderRadius: 'var(--bb-radius-md)',
+                background: 'var(--bb-depth-4)',
+                borderLeft: '4px solid var(--bb-error)',
+              }}
+            >
+              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                {selectedStudent.daysWithoutTraining} dias sem treinar
+              </p>
+              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                Tendencia: {TREND_LABELS[selectedStudent.trend]}
+                {selectedStudent.lastCheckin && (
+                  <> | Ultimo check-in: {new Date(selectedStudent.lastCheckin).toLocaleDateString('pt-BR')}</>
+                )}
+              </p>
             </div>
 
-            {/* Insight */}
-            <Card className="border-l-4 border-l-red-500 bg-red-50 p-4">
-              <p className="text-sm text-red-800">
-                Se perder <strong>{selectedStudent.display_name}</strong>:{' '}
-                <strong>-R$ {AVG_MONTHLY_VALUE}/mês</strong>
-              </p>
-              {selectedStudent.days_absent > 3 && (
-                <p className="mt-1 text-xs text-red-600">
-                  Ausente há {selectedStudent.days_absent} dias
-                  {selectedStudent.subscription_status === 'overdue' && ' — Pagamento em atraso'}
-                </p>
-              )}
-            </Card>
-
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>
+                ACOES
+              </p>
               <Button
-                variant="ghost"
-                className="flex-1"
+                variant="primary"
+                className="w-full"
                 onClick={() => setSelectedStudent(null)}
               >
-                Mensagem
+                Enviar Mensagem
               </Button>
-              <Button className="flex-1" onClick={() => setSelectedStudent(null)}>
-                Perfil
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setSelectedStudent(null)}
+              >
+                Agendar Conversa
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => handleMarkContacted(selectedStudent)}
+              >
+                {selectedStudent.contacted ? 'Ja Contatado' : 'Marcar como Contatado'}
               </Button>
             </div>
           </div>
         )}
       </Modal>
     </div>
+  );
+}
+
+// ── Retention Donut Component ──────────────────────────────────────────
+
+function RetentionDonut({
+  retention,
+  goal,
+}: {
+  retention: number;
+  goal: number;
+}) {
+  const radius = 52;
+  const circumference = 2 * Math.PI * radius;
+  const retentionOffset = circumference - (retention / 100) * circumference;
+  const goalAngle = (goal / 100) * 360 - 90;
+  const goalRad = (goalAngle * Math.PI) / 180;
+  const goalX = 60 + radius * Math.cos(goalRad);
+  const goalY = 60 + radius * Math.sin(goalRad);
+
+  const color = retention >= goal ? 'var(--bb-success)' : retention >= goal - 3 ? 'var(--bb-warning)' : 'var(--bb-error)';
+
+  return (
+    <div className="relative h-44 w-44">
+      <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+        {/* Background circle */}
+        <circle
+          cx="60"
+          cy="60"
+          r={radius}
+          fill="none"
+          strokeWidth="14"
+          style={{ stroke: 'var(--bb-depth-4)' }}
+        />
+        {/* Retention arc */}
+        <circle
+          cx="60"
+          cy="60"
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="14"
+          strokeDasharray={`${circumference}`}
+          strokeDashoffset={retentionOffset}
+          strokeLinecap="round"
+          style={{
+            transition: 'stroke-dashoffset 1s ease-out',
+          }}
+        />
+        {/* Goal marker */}
+        <circle
+          cx={goalX}
+          cy={goalY}
+          r="4"
+          fill="none"
+          strokeWidth="2"
+          style={{ stroke: 'var(--bb-ink-60)' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-4xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+          {retention}
+        </span>
+        <span className="text-sm font-medium" style={{ color }}>
+          %
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Retention Line Chart (SVG) ─────────────────────────────────────────
+
+function RetentionLineChart({
+  data,
+}: {
+  data: RetentionData['monthlyData'];
+}) {
+  if (data.length === 0) return null;
+
+  const chartWidth = 800;
+  const chartHeight = 200;
+  const padding = { top: 20, right: 30, bottom: 40, left: 50 };
+  const innerWidth = chartWidth - padding.left - padding.right;
+  const innerHeight = chartHeight - padding.top - padding.bottom;
+
+  const minVal = Math.min(...data.map((d) => d.retention)) - 2;
+  const maxVal = Math.max(...data.map((d) => d.retention)) + 2;
+  const range = maxVal - minVal || 1;
+
+  const points = data.map((d, i) => ({
+    x: padding.left + (i / Math.max(data.length - 1, 1)) * innerWidth,
+    y: padding.top + innerHeight - ((d.retention - minVal) / range) * innerHeight,
+    value: d.retention,
+    label: formatMonth(d.month),
+    churned: d.churned,
+    newStudents: d.newStudents,
+  }));
+
+  const pathD = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`)
+    .join(' ');
+
+  // Area fill
+  const areaD = `${pathD} L ${points[points.length - 1].x} ${padding.top + innerHeight} L ${points[0].x} ${padding.top + innerHeight} Z`;
+
+  // Gridlines
+  const gridLines = 5;
+  const gridValues = Array.from({ length: gridLines }, (_, i) =>
+    minVal + (range * i) / (gridLines - 1),
+  );
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <svg
+        viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+        className="w-full"
+        style={{ minWidth: '500px' }}
+      >
+        {/* Grid lines */}
+        {gridValues.map((val, i) => {
+          const y = padding.top + innerHeight - ((val - minVal) / range) * innerHeight;
+          return (
+            <g key={i}>
+              <line
+                x1={padding.left}
+                y1={y}
+                x2={padding.left + innerWidth}
+                y2={y}
+                strokeDasharray="4,4"
+                style={{ stroke: 'var(--bb-glass-border)' }}
+              />
+              <text
+                x={padding.left - 8}
+                y={y + 4}
+                textAnchor="end"
+                className="text-[10px]"
+                style={{ fill: 'var(--bb-ink-60)' }}
+              >
+                {val.toFixed(1)}%
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Area fill */}
+        <path
+          d={areaD}
+          style={{ fill: 'var(--bb-brand)', opacity: 0.1 }}
+        />
+
+        {/* Line */}
+        <path
+          d={pathD}
+          fill="none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ stroke: 'var(--bb-brand)' }}
+        />
+
+        {/* Data points */}
+        {points.map((p, i) => (
+          <g key={i}>
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r="4"
+              style={{
+                fill: 'var(--bb-depth-3)',
+                stroke: 'var(--bb-brand)',
+              }}
+              strokeWidth="2"
+            />
+            {/* Month label */}
+            <text
+              x={p.x}
+              y={padding.top + innerHeight + 16}
+              textAnchor="middle"
+              className="text-[10px]"
+              style={{ fill: 'var(--bb-ink-60)' }}
+            >
+              {p.label}
+            </text>
+            {/* Value label */}
+            <text
+              x={p.x}
+              y={p.y - 10}
+              textAnchor="middle"
+              className="text-[9px] font-semibold"
+              style={{ fill: 'var(--bb-ink-80)' }}
+            >
+              {p.value}%
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+// ── Stat Card ──────────────────────────────────────────────────────────
+
+function StatCard({
+  label,
+  value,
+  detail,
+  variant,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  variant: 'default' | 'danger' | 'warning';
+}) {
+  const valueColor =
+    variant === 'danger'
+      ? 'var(--bb-error)'
+      : variant === 'warning'
+        ? 'var(--bb-warning)'
+        : 'var(--bb-ink-100)';
+
+  return (
+    <Card className="animate-reveal p-4">
+      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+        {label}
+      </p>
+      <p className="mt-1 text-xl font-bold" style={{ color: valueColor }}>
+        {value}
+      </p>
+      <p className="mt-0.5 text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>
+        {detail}
+      </p>
+    </Card>
+  );
+}
+
+// ── Trend Badge ────────────────────────────────────────────────────────
+
+function TrendBadge({ trend }: { trend: AtRiskStudent['trend'] }) {
+  const colors: Record<string, { bg: string; text: string }> = {
+    declining: { bg: 'rgba(239, 68, 68, 0.12)', text: 'var(--bb-error)' },
+    stable: { bg: 'rgba(234, 179, 8, 0.12)', text: 'var(--bb-warning)' },
+    improving: { bg: 'var(--bb-success-surface)', text: 'var(--bb-success)' },
+  };
+
+  const c = colors[trend] ?? colors.stable;
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium"
+      style={{
+        borderRadius: 'var(--bb-radius-sm)',
+        background: c.bg,
+        color: c.text,
+      }}
+    >
+      {TREND_ICONS[trend]} {TREND_LABELS[trend]}
+    </span>
   );
 }

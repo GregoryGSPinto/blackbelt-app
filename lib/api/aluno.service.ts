@@ -13,10 +13,16 @@ export interface AlunoDashboardDTO {
   proximaAula: ProximaAulaDTO | null;
   aulaAgora: boolean;
   proximaAulaAmanha: ProximaAulaDTO | null;
+  proximasAulas: ProximaAulaDTO[];
   progressoFaixa: ProgressoFaixaDTO;
   frequenciaMes: FrequenciaMesDTO;
   frequenciaMesAnteriorPct: number;
   streak: number;
+  videos_watched: number;
+  quiz_score_avg: number;
+  evolucao: EvolucaoFaixaDTO;
+  heatmap3Meses: HeatmapMesDTO[];
+  mensalidade: MensalidadeDTO;
   conteudoRecomendado: ConteudoRecomendadoDTO[];
   continuarAssistindo: ContinuarAssistindoDTO | null;
   ultimasConquistas: ConquistaRecenteDTO[];
@@ -87,6 +93,30 @@ export interface ProximaConquistaDTO {
   description: string;
   progress_current: number;
   progress_target: number;
+}
+
+export interface EvolucaoFaixaDTO {
+  presencas_atual: number;
+  presencas_necessario: number;
+  meses_atual: number;
+  meses_necessario: number;
+  quiz_avg: number;
+  quiz_necessario: number;
+}
+
+export interface HeatmapMesDTO {
+  mes_label: string;
+  ano: number;
+  total_dias: number;
+  dias_presentes: number[];
+}
+
+export interface MensalidadeDTO {
+  plano_nome: string;
+  valor: number;
+  status: 'em_dia' | 'pendente' | 'atrasada';
+  vencimento: string;
+  mes_label: string;
 }
 
 export type DiaStatus = 'done' | 'scheduled' | 'rest' | 'missed';
@@ -371,6 +401,25 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       },
       frequenciaMesAnteriorPct,
       streak,
+      videos_watched: 0, // TODO: fetch from video_watch_history count
+      quiz_score_avg: 0, // TODO: fetch from quiz results
+      evolucao: {
+        presencas_atual: totalAttendance,
+        presencas_necessario: 120,
+        meses_atual: Math.round((now.getTime() - new Date(student.started_at as string).getTime()) / (1000 * 60 * 60 * 24 * 30)),
+        meses_necessario: 6,
+        quiz_avg: 0,
+        quiz_necessario: 70,
+      },
+      heatmap3Meses: [], // TODO: fetch 3-month attendance history
+      mensalidade: {
+        plano_nome: '',
+        valor: 0,
+        status: 'em_dia',
+        vencimento: '',
+        mes_label: monthNames[now.getMonth()],
+      },
+      proximasAulas: proximaAula ? [proximaAula] : [],
       conteudoRecomendado,
       continuarAssistindo: null, // TODO: fetch from video_watch_history
       ultimasConquistas,

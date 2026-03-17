@@ -172,7 +172,7 @@ export default function AdminAlunosPage() {
         <div className="flex gap-2">
           <button
             onClick={handleExportCSV}
-            className="rounded-lg px-3 py-2 text-sm font-medium transition-all hover:opacity-80"
+            className="rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
             style={{
               background: 'var(--bb-depth-2)',
               color: 'var(--bb-ink-80)',
@@ -183,7 +183,7 @@ export default function AdminAlunosPage() {
           </button>
           <Link
             href="/admin/convites"
-            className="rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:opacity-90"
+            className="inline-flex items-center rounded-lg px-4 py-2 min-h-[44px] text-sm font-semibold transition-all hover:opacity-90"
             style={{ background: 'var(--bb-brand)', color: '#fff' }}
           >
             + Novo Aluno
@@ -254,7 +254,7 @@ export default function AdminAlunosPage() {
           placeholder="Buscar por nome ou email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 rounded-lg px-3 py-2 text-sm"
+          className="flex-1 rounded-lg px-3 py-2 min-h-[44px] text-sm w-full"
           style={{
             background: 'var(--bb-depth-2)',
             border: '1px solid var(--bb-glass-border)',
@@ -264,7 +264,7 @@ export default function AdminAlunosPage() {
         <select
           value={filterBelt}
           onChange={(e) => setFilterBelt(e.target.value)}
-          className="rounded-lg px-3 py-2 text-sm"
+          className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
           style={{
             background: 'var(--bb-depth-2)',
             border: '1px solid var(--bb-glass-border)',
@@ -279,7 +279,7 @@ export default function AdminAlunosPage() {
         <select
           value={filterTurma}
           onChange={(e) => setFilterTurma(e.target.value)}
-          className="rounded-lg px-3 py-2 text-sm"
+          className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
           style={{
             background: 'var(--bb-depth-2)',
             border: '1px solid var(--bb-glass-border)',
@@ -294,7 +294,7 @@ export default function AdminAlunosPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="rounded-lg px-3 py-2 text-sm"
+          className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
           style={{
             background: 'var(--bb-depth-2)',
             border: '1px solid var(--bb-glass-border)',
@@ -329,7 +329,7 @@ export default function AdminAlunosPage() {
             {!search && !filterBelt && !filterStatus && !filterTurma && (
               <Link
                 href="/admin/convites"
-                className="rounded-lg px-4 py-2 text-sm font-semibold"
+                className="inline-flex items-center rounded-lg px-4 py-2 min-h-[44px] text-sm font-semibold"
                 style={{ background: 'var(--bb-brand)', color: '#fff' }}
               >
                 Gerar Link de Convite
