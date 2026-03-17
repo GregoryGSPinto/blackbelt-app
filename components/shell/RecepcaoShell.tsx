@@ -7,57 +7,76 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
   HomeIcon,
-  AwardIcon,
-  StarIcon,
+  SearchIcon,
+  UserPlusIcon,
+  CreditCardIcon,
+  MenuIcon,
   BellIcon,
-  CalendarIcon,
-  CheckSquareIcon,
   LogOutIcon,
+  CalendarCheckIcon,
+  AlertTriangleIcon,
+  CheckSquareIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import type { NavItem } from './BottomNav';
 
-interface KidsShellProps {
+interface RecepcaoShellProps {
   children: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" /> },
-  { href: '/kids/recompensas', label: 'Estrelas', icon: <StarIcon className="h-6 w-6" /> },
-  { href: '/kids/figurinhas', label: 'Álbum', icon: <AwardIcon className="h-6 w-6" /> },
-  { href: '/kids/perfil', label: 'Eu', icon: <span className="text-xl">😊</span> },
+  { href: '/recepcao', label: 'Painel', icon: <HomeIcon className="h-5 w-5" /> },
+  { href: '/recepcao/atendimento', label: 'Buscar', icon: <SearchIcon className="h-5 w-5" /> },
+  { href: '/recepcao/cadastro', label: 'Cadastro', icon: <UserPlusIcon className="h-5 w-5" /> },
+  { href: '/recepcao/caixa', label: 'Caixa', icon: <CreditCardIcon className="h-5 w-5" /> },
+  { href: '/recepcao/mensagens', label: 'Mais', icon: <MenuIcon className="h-5 w-5" /> },
 ];
 
 // ── Mock notifications ──────────────────────────────────────────────────
 
 interface Notification {
   id: string;
-  icon: typeof AwardIcon;
+  icon: typeof BellIcon;
   text: string;
   time: string;
   read: boolean;
 }
 
 const INITIAL_NOTIFICATIONS: Notification[] = [
-  { id: '1', icon: AwardIcon, text: 'Você ganhou uma nova conquista!', time: 'Há 10 min', read: false },
-  { id: '2', icon: CalendarIcon, text: 'Aula de Judô amanhã às 14h', time: 'Há 1h', read: false },
-  { id: '3', icon: CheckSquareIcon, text: 'Presença registrada! Muito bem!', time: 'Há 2h', read: true },
+  { id: '1', icon: AlertTriangleIcon, text: 'Pagamento vencido: João Mendes — R$179', time: 'Há 5 min', read: false },
+  { id: '2', icon: CalendarCheckIcon, text: 'Aula experimental confirmada: Maria Clara, 18h', time: 'Há 30 min', read: false },
+  { id: '3', icon: CheckSquareIcon, text: 'Check-in registrado: Lucas Ferreira', time: 'Há 1h', read: true },
 ];
 
-const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
-  function KidsShell({ children }, ref) {
+const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
+  function RecepcaoShell({ children }, ref) {
     const { profile, logout } = useAuth();
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+    const [currentTime, setCurrentTime] = useState('');
 
     const notifRef = useRef<HTMLDivElement>(null);
     const notifButtonRef = useRef<HTMLButtonElement>(null);
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-    const userName = profile?.display_name ?? 'Aluno';
+    const userName = profile?.display_name ?? 'Recepcionista';
     const unreadCount = notifications.filter((n) => !n.read).length;
+
+    // ── Clock ───────────────────────────────────────────────────────────
+
+    useEffect(() => {
+      function updateClock() {
+        const now = new Date();
+        setCurrentTime(
+          now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        );
+      }
+      updateClock();
+      const interval = setInterval(updateClock, 30_000);
+      return () => clearInterval(interval);
+    }, []);
 
     // ── Click outside handlers ─────────────────────────────────────────
 
@@ -108,13 +127,25 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
           style={{ background: 'var(--bb-depth-2)' }}
         >
           <div className="flex items-center justify-between">
-            <div />
-            <h1
-              className="text-xl font-bold"
-              style={{ color: 'var(--bb-brand)' }}
-            >
-              BlackBelt Kids
-            </h1>
+            {/* Academy name + clock */}
+            <div className="flex items-center gap-3">
+              <h1
+                className="text-base font-bold"
+                style={{ color: 'var(--bb-ink-100)' }}
+              >
+                Guerreiros do Tatame
+              </h1>
+              <span
+                className="rounded-full px-2 py-0.5 text-xs font-medium"
+                style={{
+                  background: '#10b981',
+                  color: '#fff',
+                }}
+              >
+                {currentTime}
+              </span>
+            </div>
+
             <div className="flex items-center gap-3">
               <ThemeToggle />
 
@@ -136,7 +167,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                   {unreadCount > 0 && (
                     <span
                       className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white"
-                      style={{ background: 'var(--bb-brand)' }}
+                      style={{ background: '#10b981' }}
                     >
                       {unreadCount}
                     </span>
@@ -167,7 +198,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                         <button
                           onClick={markAllRead}
                           className="text-xs transition-colors"
-                          style={{ color: 'var(--bb-brand)' }}
+                          style={{ color: '#10b981' }}
                           onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
                           onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
                         >
@@ -195,7 +226,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                               className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                               style={{ background: 'var(--bb-depth-4)' }}
                             >
-                              <Icon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
+                              <Icon className="h-4 w-4" style={{ color: '#10b981' }} />
                             </div>
                             <div className="min-w-0 flex-1">
                               <p className="text-sm leading-snug" style={{ color: 'var(--bb-ink-100)' }}>
@@ -208,7 +239,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                             {!notif.read && (
                               <div
                                 className="mt-2 h-2 w-2 shrink-0 rounded-full"
-                                style={{ background: 'var(--bb-brand)' }}
+                                style={{ background: '#10b981' }}
                               />
                             )}
                           </div>
@@ -255,7 +286,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                         {userName}
                       </p>
                       <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                        Aluno Kids
+                        Recepcionista
                       </p>
                     </div>
 
@@ -288,6 +319,6 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
   },
 );
 
-KidsShell.displayName = 'KidsShell';
+RecepcaoShell.displayName = 'RecepcaoShell';
 
-export { KidsShell };
+export { RecepcaoShell };

@@ -12,6 +12,7 @@ const ROLE_LABELS: Record<string, string> = {
   aluno_teen: 'Teen',
   aluno_kids: 'Kids',
   responsavel: 'Responsável',
+  recepcao: 'Recepcionista',
 };
 
 interface ProfileSwitcherProps {

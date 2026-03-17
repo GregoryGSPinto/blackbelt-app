@@ -70,6 +70,8 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-camila', email: 'camila@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-fernanda', email: 'fernanda@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-thiago', email: 'thiago@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  // Recepcionista
+  { id: 'user-julia', email: 'julia@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   // Super Admin
   { id: 'user-superadmin', email: 'super@blackbelt.app', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-gregory', email: 'gregoryguimaraes12@gmail.com', password_hash: 'mock', raw_password: '@Greg1994', ...AUDIT },
@@ -95,6 +97,8 @@ const MOCK_PROFILES: Profile[] = [
   { id: 'prof-camila', user_id: 'user-camila', role: Role.Admin, display_name: 'Camila Ferreira Santos', avatar: null, ...AUDIT },
   { id: 'prof-fernanda', user_id: 'user-fernanda', role: Role.Professor, display_name: 'Fernanda Oliveira', avatar: null, ...AUDIT },
   { id: 'prof-thiago', user_id: 'user-thiago', role: Role.Professor, display_name: 'Thiago Nakamura', avatar: null, ...AUDIT },
+  // Recepcionista
+  { id: 'prof-julia', user_id: 'user-julia', role: Role.Recepcao, display_name: 'Julia Santos', avatar: null, ...AUDIT },
   // Super Admin
   { id: 'prof-superadmin', user_id: 'user-superadmin', role: Role.Superadmin, display_name: 'Gregory (Super Admin)', avatar: null, ...AUDIT },
   { id: 'prof-gregory', user_id: 'user-gregory', role: Role.Superadmin, display_name: 'Gregory Guimarães', avatar: null, ...AUDIT },
