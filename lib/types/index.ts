@@ -27,3 +27,4 @@ export * from './analytics';
 export * from './branch';
 export * from './webhook';
 export * from './chat';
+export * from './gamification';
