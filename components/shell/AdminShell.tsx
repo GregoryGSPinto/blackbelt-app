@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { getAlerts } from '@/lib/api/billing.service';
 import {
   HomeIcon,
   CalendarIcon,
@@ -19,7 +20,10 @@ import {
   LogOutIcon,
   UserIcon,
   CheckSquareIcon,
+  LinkIcon,
+  StarIcon,
 } from './icons';
+import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -32,6 +36,8 @@ const sidebarItems = [
   { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
   { href: '/admin/relatorios', label: 'Relatórios', icon: BarChartIcon },
   { href: '/admin/conteudo', label: 'Conteúdo', icon: SettingsIcon },
+  { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
+  { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
 ];
 
 // ── Mock notifications ──────────────────────────────────────────────────
@@ -61,6 +67,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+    const [billingAlertCount, setBillingAlertCount] = useState(0);
 
     const notifRef = useRef<HTMLDivElement>(null);
     const notifButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,6 +75,13 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
     const unreadCount = notifications.filter((n) => !n.read).length;
+
+    // ── Load billing alert count ─────────────────────────────────────
+    useEffect(() => {
+      getAlerts('academy-1')
+        .then((alerts) => setBillingAlertCount(alerts.length))
+        .catch(() => {});
+    }, []);
 
     // ── Click outside handlers ─────────────────────────────────────────
 
@@ -142,6 +156,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+              const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
               return (
                 <Link
                   key={item.href}
@@ -175,6 +190,14 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                 >
                   <Icon className="h-5 w-5" />
                   {item.label}
+                  {showBadge && (
+                    <span
+                      className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                      style={{ background: '#F59E0B' }}
+                    >
+                      {billingAlertCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -210,6 +233,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                 {sidebarItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                  const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
                   return (
                     <Link
                       key={item.href}
@@ -244,6 +268,14 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                     >
                       <Icon className="h-5 w-5" />
                       {item.label}
+                      {showBadge && (
+                        <span
+                          className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                          style={{ background: '#F59E0B' }}
+                        >
+                          {billingAlertCount}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -444,6 +476,21 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         Meu perfil
                       </Link>
                       <Link
+                        href="/admin/plano"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
+                        style={{ color: 'var(--bb-ink-80)' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--bb-ink-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = 'var(--bb-ink-80)';
+                        }}
+                      >
+                        <StarIcon className="h-4 w-4" />
+                        Meu Plano
+                      </Link>
+                      <Link
                         href="/admin/configuracoes"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
@@ -459,6 +506,9 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         Configurações
                       </Link>
                     </div>
+
+                    {/* Profile Switcher */}
+                    <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
 
                     {/* Separator + Logout */}
                     <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>

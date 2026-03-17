@@ -3,8 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getAdminDashboard, getAdminMetrics } from '@/lib/api/admin.service';
 import type { AdminDashboardDTO, AdminMetrics } from '@/lib/api/admin.service';
+import { getBillingSummary, getAlerts } from '@/lib/api/billing.service';
+import type { BillingSummary, UsageAlert } from '@/lib/types/billing';
 import { handleServiceError } from '@/lib/api/errors';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useCountUp } from '@/lib/hooks/useCountUp';
@@ -249,17 +252,23 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [dashboard, setDashboard] = useState<AdminDashboardDTO | null>(null);
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [billing, setBilling] = useState<BillingSummary | null>(null);
+  const [billingAlerts, setBillingAlerts] = useState<UsageAlert[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [d, m] = await Promise.all([
+        const [d, m, b, ba] = await Promise.all([
           getAdminDashboard('academy-1'),
           getAdminMetrics('academy-1'),
+          getBillingSummary('academy-1'),
+          getAlerts('academy-1'),
         ]);
         setDashboard(d);
         setMetrics(m);
+        setBilling(b);
+        setBillingAlerts(ba);
       } catch (error) {
         handleServiceError(error, 'admin.dashboard');
       } finally {
@@ -417,6 +426,97 @@ export default function AdminDashboardPage() {
           />
         </div>
       </section>
+
+      {/* ── SECTION 2.5: Plan Usage Card ──────────────────────────── */}
+      {billing && (
+        <section className="animate-reveal">
+          <div
+            className="p-5"
+            style={{
+              background: 'var(--bb-depth-3)',
+              border: '1px solid var(--bb-glass-border)',
+              borderRadius: 'var(--bb-radius-lg)',
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2
+                className="font-mono uppercase"
+                style={{
+                  fontSize: '11px',
+                  letterSpacing: '0.08em',
+                  color: 'var(--bb-ink-40)',
+                }}
+              >
+                {'\uD83D\uDCCA'} Uso do Plano {billing.plan.name}
+              </h2>
+              {billingAlerts.length > 0 && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
+                  style={{ background: '#F59E0B' }}
+                >
+                  {billingAlerts.length} alerta{billingAlerts.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {billing.usage.map((metric) => {
+                const barPercent = Math.min(metric.percent, 100);
+                const barColor =
+                  metric.percent >= 100 ? '#EF4444' :
+                  metric.percent >= 90 ? '#F97316' :
+                  metric.percent >= 80 ? '#F59E0B' :
+                  '#22C55E';
+                const statusIcon =
+                  metric.status === 'exceeded' ? '\uD83D\uDD34' :
+                  metric.status === 'critical' ? '\uD83D\uDD36' :
+                  metric.status === 'warning' ? '\u26A0\uFE0F' :
+                  '\u2705';
+                return (
+                  <div key={metric.resource} className="flex items-center gap-3">
+                    <span className="w-20 text-xs font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+                      {metric.label}
+                    </span>
+                    <div className="flex-1">
+                      <div
+                        className="h-2 overflow-hidden rounded-full"
+                        style={{ background: 'var(--bb-depth-5)' }}
+                      >
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${barPercent}%`, background: barColor }}
+                        />
+                      </div>
+                    </div>
+                    <span className="w-20 text-right text-xs font-mono" style={{ color: 'var(--bb-ink-80)' }}>
+                      {metric.resource === 'storage_gb'
+                        ? `${metric.current.toFixed(0)}/${metric.limit}GB`
+                        : `${metric.current}/${metric.limit}`}
+                    </span>
+                    <span className="w-5 text-center text-xs">{statusIcon}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              className="mt-4 flex items-center justify-between pt-3"
+              style={{ borderTop: '1px solid var(--bb-glass-border)' }}
+            >
+              <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                Proxima fatura: R${(billing.total_cost_cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em {new Date(billing.next_invoice_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+              </span>
+              <Link
+                href="/admin/plano"
+                className="text-xs font-medium transition-opacity hover:opacity-80"
+                style={{ color: 'var(--bb-brand)' }}
+              >
+                Ver detalhes {'\u2192'}
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── SECTION 3: Central de Atencao ───────────────────────────── */}
       <section className="animate-reveal">
