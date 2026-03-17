@@ -1,314 +1,657 @@
-import type { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
+import { useState, type ForwardRefExoticComponent, type SVGProps } from 'react';
+import {
+  UsersIcon,
+  CheckSquareIcon,
+  VideoIcon,
+  DollarIcon,
+  AwardIcon,
+  SettingsIcon,
+  ChevronDownIcon,
+  StarIcon,
+  ArrowRightIcon,
+  ShieldIcon,
+  ZapIcon,
+  CheckCircleIcon,
+  QuoteIcon,
+  UserIcon,
+} from '@/components/shell/icons';
 
-export const metadata: Metadata = {
-  title: 'BlackBelt — O software que toda academia de artes marciais precisa',
-  description: 'Gestão completa. Do tatame ao financeiro. Turmas, presença, streaming, graduação, financeiro e multi-perfil.',
-  openGraph: {
-    title: 'BlackBelt — Gestão de Academias',
-    description: 'Plataforma SaaS completa para academias de artes marciais. Gerencie alunos, turmas, pagamentos e muito mais.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'BlackBelt — Gestão de Academias',
-    description: 'Do tatame ao financeiro. A plataforma mais completa para academias.',
-  },
-};
+/* ─── Types ─── */
 
-const FEATURES = [
-  { icon: '🥋', title: 'Turmas', desc: 'Crie turmas com horários, modalidades, capacidade e faixa mínima. Gestão visual completa.' },
-  { icon: '✅', title: 'Presença', desc: 'Check-in por QR code, controle manual, heatmap de frequência e alertas de ausência.' },
-  { icon: '🎥', title: 'Streaming', desc: 'Biblioteca de vídeos com quizzes, séries, trilhas e analytics de engajamento.' },
-  { icon: '💰', title: 'Financeiro', desc: 'Cobranças automáticas, controle de inadimplência, relatórios e projeções de receita.' },
-  { icon: '🏅', title: 'Graduação', desc: 'Critérios configuráveis por faixa, propostas automáticas, certificados e histórico.' },
-  { icon: '👥', title: 'Multi-perfil', desc: 'Admin, professor, aluno adulto, teen, kids e responsável. Cada um com experiência própria.' },
+type IconComponent = ForwardRefExoticComponent<SVGProps<SVGSVGElement> & React.RefAttributes<SVGSVGElement>>;
+
+interface Feature {
+  icon: IconComponent;
+  title: string;
+  desc: string;
+}
+
+interface ProfileTab {
+  id: string;
+  label: string;
+  icon: IconComponent;
+  bullets: string[];
+}
+
+/* ─── Data ─── */
+
+const FEATURES: Feature[] = [
+  {
+    icon: UsersIcon,
+    title: 'Gestão de Turmas',
+    desc: 'Crie turmas por modalidade, nível e horário. Controle capacidade, lista de espera e frequência em tempo real.',
+  },
+  {
+    icon: CheckSquareIcon,
+    title: 'Controle de Presença',
+    desc: 'Check-in por QR code, reconhecimento facial ou lista. Relatórios automáticos de frequência e assiduidade.',
+  },
+  {
+    icon: VideoIcon,
+    title: 'Aulas em Streaming',
+    desc: 'Transmita aulas ao vivo, grave técnicas e monte uma biblioteca de vídeos para seus alunos.',
+  },
+  {
+    icon: DollarIcon,
+    title: 'Financeiro Completo',
+    desc: 'Cobranças automáticas via PIX, boleto e cartão. Controle inadimplência, receita e fluxo de caixa.',
+  },
+  {
+    icon: AwardIcon,
+    title: 'Sistema de Graduação',
+    desc: 'Gerencie faixas, stripes e avaliações. Histórico completo de evolução e cerimônias de graduação.',
+  },
+  {
+    icon: SettingsIcon,
+    title: 'Multi-perfil',
+    desc: 'Visões dedicadas para Admin, Professor, Aluno Adulto, Teen, Kids e Responsável. Cada um vê o que precisa.',
+  },
 ];
 
-const PROFILES = [
-  { role: 'Admin', desc: 'Dashboard com métricas, financeiro, retenção, turmas, comunicados e plano.', bullets: ['Visão 360° da academia', 'Controle financeiro completo', 'Gestão de equipe e alunos'] },
-  { role: 'Professor', desc: 'Gerencie presença, avalie alunos, publique conteúdo e acompanhe turmas.', bullets: ['Controle de presença por turma', 'Avaliações com radar chart', 'Biblioteca de conteúdo própria'] },
-  { role: 'Aluno', desc: 'Acompanhe progresso, assista vídeos, faça check-in e veja conquistas.', bullets: ['Progresso visual de faixa', 'Heatmap de frequência', 'Vídeos com quizzes e XP'] },
-  { role: 'Teen', desc: 'Experiência gamificada com XP, levels, desafios semanais e ranking.', bullets: ['Sistema de XP e levels', 'Desafios semanais', 'Ranking competitivo da turma'] },
-  { role: 'Kids', desc: 'Interface lúdica com estrelas, missões, aventuras e muita diversão.', bullets: ['Estrelas e recompensas', 'Missões divertidas', 'Visual colorido e amigável'] },
-  { role: 'Responsável', desc: 'Acompanhe seus filhos, pague mensalidades e fale com professores.', bullets: ['Dashboard por filho', 'Pagamento de mensalidades', 'Comunicação com professores'] },
+const PROFILE_TABS: ProfileTab[] = [
+  {
+    id: 'admin',
+    label: 'Administrador',
+    icon: ShieldIcon,
+    bullets: [
+      'Dashboard com métricas de receita, frequência e retenção em tempo real',
+      'Gestão financeira completa com cobranças automatizadas e relatórios',
+      'Controle de turmas, professores, modalidades e múltiplas unidades',
+    ],
+  },
+  {
+    id: 'professor',
+    label: 'Professor',
+    icon: UsersIcon,
+    bullets: [
+      'Chamada digital com check-in por QR code e lista de presença',
+      'Planejamento de aulas, avaliações de alunos e registro de evolução',
+      'Comunicação direta com alunos e envio de conteúdo em vídeo',
+    ],
+  },
+  {
+    id: 'aluno',
+    label: 'Aluno',
+    icon: ZapIcon,
+    bullets: [
+      'Check-in rápido por QR code e histórico completo de treinos',
+      'Acompanhamento de faixa, stripes e próximos requisitos de graduação',
+      'Acesso a aulas gravadas, agenda de treinos e conquistas',
+    ],
+  },
+  {
+    id: 'teen',
+    label: 'Teen',
+    icon: StarIcon,
+    bullets: [
+      'Interface gamificada com sistema de XP, níveis e conquistas',
+      'Ranking entre alunos da mesma faixa etária e desafios semanais',
+      'Streaks de presença e recompensas por assiduidade',
+    ],
+  },
+  {
+    id: 'kids',
+    label: 'Kids',
+    icon: StarIcon,
+    bullets: [
+      'Visual lúdico e colorido, adaptado para crianças',
+      'Sistema de estrelas, mascotes e celebrações animadas',
+      'Navegação simplificada com ícones grandes e intuitivos',
+    ],
+  },
+  {
+    id: 'responsavel',
+    label: 'Responsável',
+    icon: UserIcon,
+    bullets: [
+      'Acompanhamento da evolução e presença de cada filho',
+      'Recebimento de notificações sobre aulas, eventos e pagamentos',
+      'Gestão de múltiplos dependentes em uma única conta',
+    ],
+  },
 ];
 
 const TESTIMONIALS = [
-  { quote: 'Desde que adotamos o BlackBelt, a inadimplência caiu 40% e o engajamento dos alunos subiu muito.', name: 'Prof. Ricardo Almeida', academy: 'Alliance BJJ Centro' },
-  { quote: 'A automação de cobranças economiza 10 horas por semana. O melhor investimento que fiz para a academia.', name: 'Sensei Marcos Tanaka', academy: 'Tanaka Dojo' },
-  { quote: 'Meus alunos adoram o app. O sistema de conquistas e faixas digitais mudou a motivação dos treinos.', name: 'Mestre Ana Luíza', academy: 'Arte Suave Academy' },
+  {
+    quote: 'Desde que adotamos o BlackBelt, a inadimplência caiu 40% e o engajamento dos alunos subiu muito. A automação mudou nossa academia.',
+    name: 'Prof. Ricardo Almeida',
+    academy: 'Alliance BJJ Centro',
+    role: 'Proprietário',
+  },
+  {
+    quote: 'A automação de cobranças economiza 10 horas por semana. O melhor investimento que fiz para minha academia nos últimos anos.',
+    name: 'Sensei Marcos Tanaka',
+    academy: 'Tanaka Dojo',
+    role: 'Proprietário',
+  },
+  {
+    quote: 'Meus alunos adoram o app. O sistema de conquistas e faixas digitais mudou completamente a motivação dos treinos.',
+    name: 'Mestre Ana Luíza',
+    academy: 'Arte Suave Academy',
+    role: 'Professora',
+  },
 ];
 
-const FAQ = [
-  { q: 'Preciso de cartão de crédito para começar?', a: 'Não. O trial de 7 dias é totalmente gratuito com acesso Black Belt completo.' },
-  { q: 'Funciona para qualquer arte marcial?', a: 'Sim! BJJ, Muay Thai, Judô, Karatê, MMA, Boxing, Taekwondo e qualquer modalidade de luta.' },
-  { q: 'Como funciona o check-in dos alunos?', a: 'Os alunos fazem check-in pelo app usando QR code gerado por turma. Simples, rápido e seguro.' },
-  { q: 'Posso migrar de outra plataforma?', a: 'Sim. Oferecemos importação de dados via CSV e suporte dedicado durante a migração.' },
-  { q: 'Tem contrato de fidelidade?', a: 'Não. Cancele quando quiser. Seus dados são exportáveis a qualquer momento conforme LGPD.' },
-  { q: 'Quantos alunos cabem em cada plano?', a: 'Depende do plano: Starter até 50, Essencial até 150, Pro até 200, Black Belt ilimitado.' },
-  { q: 'O sistema funciona no celular?', a: 'Sim! PWA responsivo que funciona como app nativo no celular, tablet e desktop.' },
-  { q: 'Como funciona o suporte?', a: 'Email e chat no horário comercial para todos. Suporte prioritário e WhatsApp para Pro e acima.' },
+const FAQ_ITEMS = [
+  {
+    q: 'Preciso de cartão de crédito para começar?',
+    a: 'Não. Você pode testar o BlackBelt por 7 dias gratuitamente, sem necessidade de cartão de crédito. Ao final do trial, escolha o plano que melhor atende sua academia.',
+  },
+  {
+    q: 'Funciona para qualquer arte marcial?',
+    a: 'Sim! BJJ, Muay Thai, Judô, Karatê, MMA, Boxe, Taekwondo, Kung Fu e qualquer modalidade de luta. O sistema de faixas é configurável por modalidade.',
+  },
+  {
+    q: 'Como funciona o check-in dos alunos?',
+    a: 'Os alunos fazem check-in pelo app usando QR code na recepção da academia. Também é possível usar lista de presença digital ou reconhecimento facial (plano Pro+).',
+  },
+  {
+    q: 'Posso migrar de outra plataforma?',
+    a: 'Sim! Oferecemos importação de dados via CSV/Excel e suporte dedicado durante toda a migração. Nos planos Pro e acima, a migração é assistida por nossa equipe.',
+  },
+  {
+    q: 'Tem contrato de fidelidade?',
+    a: 'Não. Todos os planos são mensais sem fidelidade. Cancele quando quiser e seus dados são exportáveis a qualquer momento.',
+  },
+  {
+    q: 'O sistema funciona no celular?',
+    a: 'Sim! O BlackBelt é mobile-first. Funciona perfeitamente no navegador do celular e também tem apps nativos para iOS e Android.',
+  },
+  {
+    q: 'Como funciona o suporte?',
+    a: 'Todos os planos incluem suporte por email. Planos Pro e acima incluem suporte prioritário via chat. Black Belt inclui suporte via WhatsApp e gerente de conta dedicado.',
+  },
+  {
+    q: 'Posso gerenciar múltiplas unidades?',
+    a: 'Sim! A partir do plano Essencial você pode gerenciar até 3 unidades. O plano Pro suporta até 10, e o Black Belt oferece unidades ilimitadas com dashboard consolidado.',
+  },
 ];
 
-const PLANS_PREVIEW = [
-  { name: 'Starter', price: 'R$ 97', highlight: false },
-  { name: 'Essencial', price: 'R$ 197', highlight: false },
-  { name: 'Pro', price: 'R$ 347', highlight: true },
-  { name: 'Black Belt', price: 'R$ 597', highlight: false },
-  { name: 'Enterprise', price: 'Consulte', highlight: false },
-];
+/* ─── Accordion Component ─── */
+
+function FAQAccordion({ item }: { item: { q: string; a: string } }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="overflow-hidden transition-all"
+      style={{
+        borderRadius: 'var(--bb-radius-lg)',
+        border: '1px solid var(--bb-glass-border)',
+        backgroundColor: 'var(--bb-depth-2)',
+      }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium sm:text-base"
+        style={{ color: 'var(--bb-ink-100)' }}
+        aria-expanded={open}
+      >
+        <span className="pr-4">{item.q}</span>
+        <ChevronDownIcon
+          className="h-4 w-4 shrink-0 transition-transform duration-200"
+          style={{
+            color: 'var(--bb-ink-40)',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+          }}
+        />
+      </button>
+      <div
+        className="overflow-hidden transition-all duration-200"
+        style={{
+          maxHeight: open ? '200px' : '0px',
+          opacity: open ? 1 : 0,
+        }}
+      >
+        <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+          {item.a}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ─── */
 
 export default function LandingPage() {
+  const [activeProfile, setActiveProfile] = useState('admin');
+  const activeTab = PROFILE_TABS.find((t) => t.id === activeProfile) ?? PROFILE_TABS[0];
+  const ActiveTabIcon = activeTab.icon;
+
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bb-depth-1)', color: 'var(--bb-ink-100)' }}>
-      {/* Nav */}
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <span className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-          Black<span style={{ color: 'var(--bb-brand)' }}>Belt</span>
-        </span>
-        <div className="hidden items-center gap-6 sm:flex">
-          <a href="#features" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a>
-          <a href="#profiles" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>Por Perfil</a>
-          <a href="#pricing" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>Planos</a>
-          <a href="#faq" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a>
-          <Link href="/login" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>Login</Link>
-          <Link
-            href="/cadastrar-academia"
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: 'var(--bb-brand)' }}
-          >
-            Começar Trial Grátis
-          </Link>
-        </div>
-      </nav>
-
+    <>
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-6 py-20 text-center sm:py-32">
-        <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight sm:text-6xl">
-          O software que toda academia de{' '}
-          <span style={{ color: 'var(--bb-brand)' }}>artes marciais</span> precisa
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg" style={{ color: 'var(--bb-ink-60)' }}>
-          Gestão completa. Do tatame ao financeiro. Turmas, presença, streaming, graduação e multi-perfil em uma única plataforma.
-        </p>
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Link
-            href="/cadastrar-academia"
-            className="rounded-xl px-8 py-4 text-lg font-bold text-white shadow-lg transition-transform hover:scale-105"
-            style={{ background: 'var(--bb-brand)' }}
-          >
-            Começar Trial Grátis
-          </Link>
-          <Link
-            href="/precos"
-            className="rounded-xl border px-8 py-4 text-lg font-medium transition-colors"
-            style={{ borderColor: 'var(--bb-glass-border)', color: 'var(--bb-ink-60)' }}
-          >
-            Ver Planos
-          </Link>
-        </div>
-        <p className="mt-4 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-          7 dias grátis com acesso Black Belt completo. Sem cartão de crédito.
-        </p>
-      </section>
+      <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24 lg:px-8">
+        {/* Background glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse 60% 50% at 50% 0%, var(--bb-brand-surface) 0%, transparent 70%)',
+          }}
+          aria-hidden="true"
+        />
 
-      {/* Social Proof bar */}
-      <section className="border-y px-6 py-8" style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-2)' }}>
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-12">
-          <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-            Usado por <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>150+ academias</span> em todo o Brasil
+        <div className="relative mx-auto max-w-5xl text-center">
+          {/* Badge */}
+          <div
+            className="animate-reveal mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5"
+            style={{
+              backgroundColor: 'var(--bb-brand-surface)',
+              border: '1px solid var(--bb-brand-light)',
+              animationDelay: '0s',
+            }}
+          >
+            <ZapIcon className="h-3.5 w-3.5" style={{ color: 'var(--bb-brand)' }} />
+            <span className="text-xs font-semibold sm:text-sm" style={{ color: 'var(--bb-brand)' }}>
+              7 dias grátis &mdash; sem cartão de crédito
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1
+            className="animate-reveal mx-auto max-w-4xl text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl"
+            style={{ animationDelay: '0.1s' }}
+          >
+            O software que toda academia de artes marciais{' '}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: 'var(--bb-brand-gradient)' }}
+            >
+              precisa
+            </span>
+          </h1>
+
+          {/* Subheadline */}
+          <p
+            className="animate-reveal mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg lg:text-xl"
+            style={{ color: 'var(--bb-ink-60)', animationDelay: '0.2s' }}
+          >
+            Gestão completa. Do tatame ao financeiro.
+            Turmas, presenças, cobranças, faixas e IA — tudo em uma plataforma feita para quem vive artes marciais.
           </p>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <svg key={s} className="h-5 w-5" viewBox="0 0 20 20" fill="var(--bb-brand)">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
+
+          {/* CTA */}
+          <div
+            className="animate-reveal mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            style={{ animationDelay: '0.3s' }}
+          >
+            <Link
+              href="/cadastrar-academia"
+              className="inline-flex items-center gap-2 rounded-xl px-8 py-4 text-base font-bold text-white shadow-xl transition-all hover:-translate-y-0.5 sm:text-lg"
+              style={{
+                background: 'var(--bb-brand-gradient)',
+                boxShadow: 'var(--bb-brand-glow)',
+              }}
+            >
+              Começar Trial Grátis
+              <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Link>
+            <Link
+              href="/precos"
+              className="inline-flex items-center gap-2 rounded-xl px-8 py-4 text-base font-medium transition-all sm:text-lg"
+              style={{
+                border: '1px solid var(--bb-glass-border)',
+                color: 'var(--bb-ink-80)',
+                backgroundColor: 'var(--bb-depth-2)',
+              }}
+            >
+              Ver Planos
+            </Link>
+          </div>
+
+          {/* Social Proof mini */}
+          <div
+            className="animate-reveal mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-8"
+            style={{ animationDelay: '0.4s' }}
+          >
+            {[
+              { value: '500+', label: 'Academias' },
+              { value: '25.000+', label: 'Alunos ativos' },
+              { value: '4.9', label: 'Avaliação média' },
+            ].map((stat) => (
+              <div key={stat.label} className="flex items-center gap-2">
+                <span className="text-lg font-bold sm:text-xl" style={{ color: 'var(--bb-brand)' }}>
+                  {stat.value}
+                </span>
+                <span className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                  {stat.label}
+                </span>
+              </div>
             ))}
-            <span className="ml-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>4.9/5 avaliação média</span>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section id="features" className="mx-auto max-w-7xl px-6 py-20">
-        <h2 className="mb-4 text-center text-3xl font-bold">Tudo que sua academia precisa</h2>
-        <p className="mx-auto mb-12 max-w-2xl text-center" style={{ color: 'var(--bb-ink-60)' }}>
-          6 módulos integrados para gerenciar todos os aspectos da sua academia.
-        </p>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-2xl border p-6 transition-transform hover:scale-[1.02]"
-              style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-2)' }}
-            >
-              <span className="text-4xl">{f.icon}</span>
-              <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>{f.desc}</p>
-            </div>
-          ))}
+      <section id="funcionalidades" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+              Funcionalidades
+            </p>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
+              Tudo que sua academia precisa, em um só lugar
+            </h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--bb-ink-60)' }}>
+              Módulos integrados que cobrem 100% da operação, do check-in à gestão financeira.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="group relative overflow-hidden p-6 transition-all duration-200 hover:-translate-y-1"
+                  style={{
+                    borderRadius: 'var(--bb-radius-xl)',
+                    border: '1px solid var(--bb-glass-border)',
+                    backgroundColor: 'var(--bb-depth-2)',
+                    boxShadow: 'var(--bb-shadow-sm)',
+                  }}
+                >
+                  <div
+                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: 'var(--bb-brand-surface)' }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: 'var(--bb-brand)' }} />
+                  </div>
+                  <h3 className="text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+                    {feature.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* Por Perfil */}
-      <section id="profiles" className="px-6 py-20" style={{ background: 'var(--bb-depth-2)' }}>
-        <div className="mx-auto max-w-7xl">
-          <h2 className="mb-4 text-center text-3xl font-bold">Uma experiência para cada perfil</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center" style={{ color: 'var(--bb-ink-60)' }}>
-            Cada tipo de usuário tem uma interface e funcionalidades personalizadas.
-          </p>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PROFILES.map((p) => (
+      <section
+        id="por-perfil"
+        className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+        style={{ backgroundColor: 'var(--bb-depth-2)' }}
+      >
+        <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+              Por Perfil
+            </p>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
+              Uma experiência para cada tipo de usuário
+            </h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--bb-ink-60)' }}>
+              Cada perfil tem sua própria interface, otimizada para suas necessidades.
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-12 flex flex-wrap justify-center gap-2">
+            {PROFILE_TABS.map((tab) => {
+              const isActive = tab.id === activeProfile;
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveProfile(tab.id)}
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all"
+                  style={{
+                    backgroundColor: isActive ? 'var(--bb-brand-surface)' : 'transparent',
+                    color: isActive ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                    border: isActive ? '1px solid var(--bb-brand-light)' : '1px solid transparent',
+                  }}
+                >
+                  <TabIcon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Tab Content */}
+          <div
+            className="mt-8 p-6 sm:p-8"
+            style={{
+              borderRadius: 'var(--bb-radius-xl)',
+              border: '1px solid var(--bb-glass-border)',
+              backgroundColor: 'var(--bb-depth-3)',
+              boxShadow: 'var(--bb-shadow-md)',
+            }}
+          >
+            <div className="mb-6 flex items-center gap-3">
               <div
-                key={p.role}
-                className="rounded-2xl border p-6"
-                style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-3)' }}
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: 'var(--bb-brand-surface)' }}
               >
-                <h3 className="text-lg font-bold" style={{ color: 'var(--bb-brand)' }}>{p.role}</h3>
-                <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>{p.desc}</p>
-                <ul className="mt-4 space-y-2">
-                  {p.bullets.map((b) => (
-                    <li key={b} className="flex items-center gap-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                      <span style={{ color: 'var(--bb-brand)' }}>✓</span> {b}
-                    </li>
-                  ))}
-                </ul>
+                <ActiveTabIcon className="h-5 w-5" style={{ color: 'var(--bb-brand)' }} />
               </div>
-            ))}
+              <h3 className="text-lg font-semibold">{activeTab.label}</h3>
+            </div>
+            <ul className="space-y-4">
+              {activeTab.bullets.map((bullet, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CheckCircleIcon
+                    className="mt-0.5 h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                    style={{ color: 'var(--bb-success)' }}
+                  />
+                  <span className="text-sm leading-relaxed sm:text-base" style={{ color: 'var(--bb-ink-80)' }}>
+                    {bullet}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
-        <h2 className="mb-12 text-center text-3xl font-bold">O que dizem nossos clientes</h2>
-        <div className="grid gap-8 sm:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-2xl border p-6"
-              style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-2)' }}
-            >
-              <p style={{ color: 'var(--bb-ink-60)' }}>&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-4">
-                <p className="font-semibold">{t.name}</p>
-                <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>{t.academy}</p>
+      {/* Social Proof / Testimonials */}
+      <section className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+              Depoimentos
+            </p>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
+              Usado por <span style={{ color: 'var(--bb-brand)' }}>500+ academias</span> em todo o Brasil
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+            {TESTIMONIALS.map((testimonial) => (
+              <div
+                key={testimonial.name}
+                className="relative p-6"
+                style={{
+                  borderRadius: 'var(--bb-radius-xl)',
+                  border: '1px solid var(--bb-glass-border)',
+                  backgroundColor: 'var(--bb-depth-2)',
+                  boxShadow: 'var(--bb-shadow-sm)',
+                }}
+              >
+                <QuoteIcon
+                  className="mb-4 h-6 w-6"
+                  style={{ color: 'var(--bb-brand-light)' }}
+                />
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--bb-ink-80)' }}>
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ background: 'var(--bb-brand-gradient)' }}
+                  >
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{testimonial.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      {testimonial.role} &middot; {testimonial.academy}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Pricing Preview */}
-      <section id="pricing" className="px-6 py-20" style={{ background: 'var(--bb-depth-2)' }}>
-        <div className="mx-auto max-w-7xl text-center">
-          <h2 className="mb-4 text-3xl font-bold">Planos para todo tamanho de academia</h2>
-          <p className="mx-auto mb-12 max-w-2xl" style={{ color: 'var(--bb-ink-60)' }}>
-            Do iniciante ao enterprise. Comece grátis e escale conforme cresce.
+      <section
+        id="pricing"
+        className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+        style={{ backgroundColor: 'var(--bb-depth-2)' }}
+      >
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+            Planos
           </p>
-          <div className="grid gap-4 sm:grid-cols-5">
-            {PLANS_PREVIEW.map((p) => (
+          <h2 className="mt-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
+            Planos que cabem no seu orçamento
+          </h2>
+          <p className="mt-4 text-base" style={{ color: 'var(--bb-ink-60)' }}>
+            A partir de R$ 97/mês. Todos incluem 7 dias grátis.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Link
+              href="/precos"
+              className="inline-flex items-center gap-2 rounded-xl px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5"
+              style={{
+                background: 'var(--bb-brand-gradient)',
+                boxShadow: 'var(--bb-brand-glow)',
+              }}
+            >
+              Ver Todos os Planos
+              <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Link>
+          </div>
+
+          {/* Quick pricing row */}
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {[
+              { name: 'Starter', price: 'R$ 97' },
+              { name: 'Essencial', price: 'R$ 197' },
+              { name: 'Pro', price: 'R$ 347', highlight: true },
+              { name: 'Black Belt', price: 'R$ 597' },
+              { name: 'Enterprise', price: 'Consulte' },
+            ].map((plan) => (
               <div
-                key={p.name}
-                className="rounded-xl border p-4 transition-transform hover:scale-105"
+                key={plan.name}
+                className="rounded-xl p-4 text-center transition-all"
                 style={{
-                  borderColor: p.highlight ? 'var(--bb-brand)' : 'var(--bb-glass-border)',
-                  background: p.highlight ? 'var(--bb-depth-3)' : 'var(--bb-depth-1)',
+                  border: plan.highlight
+                    ? '2px solid var(--bb-brand)'
+                    : '1px solid var(--bb-glass-border)',
+                  backgroundColor: 'var(--bb-depth-3)',
+                  boxShadow: plan.highlight ? 'var(--bb-brand-glow)' : 'none',
                 }}
               >
-                <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>{p.name}</p>
-                <p className="mt-1 text-2xl font-bold">{p.price}</p>
-                {p.highlight && (
-                  <span className="mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ background: 'var(--bb-brand)' }}>
-                    Popular
-                  </span>
-                )}
+                <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>
+                  {plan.name}
+                </p>
+                <p
+                  className="mt-1 text-lg font-bold"
+                  style={{ color: plan.highlight ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
+                >
+                  {plan.price}
+                </p>
               </div>
             ))}
           </div>
-          <Link
-            href="/precos"
-            className="mt-8 inline-block rounded-xl border px-8 py-3 font-semibold transition-colors"
-            style={{ borderColor: 'var(--bb-brand)', color: 'var(--bb-brand)' }}
-          >
-            Ver comparação completa
-          </Link>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-3xl px-6 py-20">
-        <h2 className="mb-12 text-center text-3xl font-bold">Perguntas Frequentes</h2>
-        <div className="space-y-4">
-          {FAQ.map((item) => (
-            <details
-              key={item.q}
-              className="group rounded-xl border"
-              style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-2)' }}
-            >
-              <summary className="flex cursor-pointer items-center justify-between p-4 font-medium">
-                {item.q}
-                <span className="transition-transform group-open:rotate-45" style={{ color: 'var(--bb-ink-40)' }}>+</span>
-              </summary>
-              <p className="px-4 pb-4 text-sm" style={{ color: 'var(--bb-ink-60)' }}>{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="px-6 py-20 text-center" style={{ background: 'var(--bb-depth-2)' }}>
-        <h2 className="text-3xl font-bold">Pronto para transformar sua academia?</h2>
-        <p className="mx-auto mt-4 max-w-xl" style={{ color: 'var(--bb-ink-60)' }}>
-          Comece seu trial de 7 dias grátis com acesso Black Belt completo. Sem cartão de crédito.
-        </p>
-        <Link
-          href="/cadastrar-academia"
-          className="mt-8 inline-block rounded-xl px-8 py-4 text-lg font-bold text-white transition-transform hover:scale-105"
-          style={{ background: 'var(--bb-brand)' }}
-        >
-          Começar Trial Grátis
-        </Link>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t px-6 py-12" style={{ borderColor: 'var(--bb-glass-border)' }}>
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-4">
-          <div>
-            <span className="text-xl font-bold">Black<span style={{ color: 'var(--bb-brand)' }}>Belt</span></span>
-            <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Plataforma de gestão para academias de artes marciais.
+      <section id="faq" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+              FAQ
             </p>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Perguntas Frequentes</h2>
           </div>
-          <div>
-            <h4 className="mb-3 font-semibold">Produto</h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              <li><a href="#features">Funcionalidades</a></li>
-              <li><Link href="/precos">Planos e Preços</Link></li>
-              <li><a href="#faq">FAQ</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-3 font-semibold">Empresa</h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              <li><Link href="/sobre">Sobre</Link></li>
-              <li><Link href="/contato">Contato</Link></li>
-              <li><Link href="/ajuda">Central de Ajuda</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-3 font-semibold">Legal</h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              <li><Link href="/termos">Termos de Uso</Link></li>
-              <li><Link href="/privacidade">Privacidade</Link></li>
-            </ul>
+
+          <div className="mt-12 space-y-3">
+            {FAQ_ITEMS.map((item) => (
+              <FAQAccordion key={item.q} item={item} />
+            ))}
           </div>
         </div>
-        <p className="mt-8 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-          &copy; 2026 BlackBelt. Todos os direitos reservados. Feito com 🥋 por BlackBelt.
-        </p>
-      </footer>
-    </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div
+          className="relative mx-auto max-w-4xl overflow-hidden p-8 text-center sm:p-12 lg:p-16"
+          style={{
+            borderRadius: 'var(--bb-radius-2xl)',
+            background: 'var(--bb-brand-gradient)',
+            boxShadow: 'var(--bb-brand-glow-strong)',
+          }}
+        >
+          {/* Decorative circles */}
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20"
+            style={{ backgroundColor: 'white' }}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full opacity-10"
+            style={{ backgroundColor: 'white' }}
+            aria-hidden="true"
+          />
+
+          <div className="relative">
+            <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+              Pronto para transformar sua academia?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm text-white/80 sm:text-base">
+              Junte-se a mais de 500 academias que já usam o BlackBelt.
+              Comece seu trial de 7 dias grátis hoje.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <Link
+                href="/cadastrar-academia"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold shadow-xl transition-all hover:-translate-y-0.5 sm:text-lg"
+                style={{ color: 'var(--bb-brand-deep)' }}
+              >
+                Começar Trial Grátis
+                <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Link>
+              <Link
+                href="/precos"
+                className="rounded-xl border border-white/30 px-8 py-4 text-base font-medium text-white transition-all hover:bg-white/10"
+              >
+                Ver Planos
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

@@ -28,6 +28,7 @@ import {
   ClockIcon,
   ShoppingBagIcon,
   MegaphoneIcon,
+  EyeIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
@@ -48,6 +49,7 @@ const sidebarItems = [
   { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon },
   { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon },
   { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon },
+  { href: '/admin/auditoria', label: 'Auditoria', icon: EyeIcon },
   { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
   { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
 ];

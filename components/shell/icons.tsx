@@ -63,3 +63,12 @@ export const ShoppingBagIcon = makeIcon('ShoppingBagIcon', <><path d="M6 2L3 6v1
 export const HelpCircleIcon = makeIcon('HelpCircleIcon', <><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></>);
 export const FileTextIcon = makeIcon('FileTextIcon', <><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></>);
 export const GlobeIcon = makeIcon('GlobeIcon', <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></>);
+export const MenuIcon = makeIcon('MenuIcon', <><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></>);
+export const ChevronDownIcon = makeIcon('ChevronDownIcon', <polyline points="6 9 12 15 18 9" />);
+export const ArrowRightIcon = makeIcon('ArrowRightIcon', <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>);
+export const CheckIcon = makeIcon('CheckIcon', <polyline points="20 6 9 17 4 12" />);
+export const CheckCircleIcon = makeIcon('CheckCircleIcon', <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>);
+export const QuoteIcon = makeIcon('QuoteIcon', <><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" /></>);
+export const CrownIcon = makeIcon('CrownIcon', <><path d="M2 4l3 12h14l3-12-5 4-5-6-5 6z" /><path d="M3 20h18" /></>);
+export const RocketIcon = makeIcon('RocketIcon', <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></>);
+export const MinusIcon = makeIcon('MinusIcon', <line x1="5" y1="12" x2="19" y2="12" />);
