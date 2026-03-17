@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ export async function sendEmail(
     if (isMock()) {
       const previewLength = 120;
       const plainPreview = html.replace(/<[^>]*>/g, '').slice(0, previewLength);
-      console.log(`[EMAIL] Para: ${to}, Template: ${template}, Preview: ${plainPreview}...`);
+      logger.debug(`[EMAIL] Para: ${to}, Template: ${template}, Preview: ${plainPreview}...`);
       return {
         success: true,
         messageId: `mock-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,

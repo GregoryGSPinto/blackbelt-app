@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -23,7 +24,7 @@ export async function generateMonthlyBills(academyId: string): Promise<BillGener
   try {
     if (isMock()) {
       await new Promise((r) => setTimeout(r, 1500));
-      console.log(`[MOCK] Generated monthly bills for academy ${academyId}`);
+      logger.debug(`[MOCK] Generated monthly bills for academy ${academyId}`);
       return { total: 172, generated: 168, skipped: 4 };
     }
     const res = await fetch('/api/billing/generate', {
@@ -45,7 +46,7 @@ export async function processPayment(
   try {
     if (isMock()) {
       await new Promise((r) => setTimeout(r, 1000));
-      console.log(`[MOCK] Payment processed: bill=${billId}, method=${method}`);
+      logger.debug(`[MOCK] Payment processed: bill=${billId}, method=${method}`);
       return {
         success: true,
         transactionId: `txn_mock_${Date.now()}`,
@@ -68,7 +69,7 @@ export async function simulatePayment(billId: string): Promise<PaymentResult> {
   try {
     if (isMock()) {
       await new Promise((r) => setTimeout(r, 1000));
-      console.log(`[MOCK] Payment simulated for bill ${billId}`);
+      logger.debug(`[MOCK] Payment simulated for bill ${billId}`);
       return {
         success: true,
         transactionId: `txn_sim_${Date.now()}`,

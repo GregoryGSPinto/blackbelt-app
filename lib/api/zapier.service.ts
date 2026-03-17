@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -108,7 +109,7 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
 export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKey: string }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Regenerated Zapier API key for ${academyId}`);
+      logger.debug(`[MOCK] Regenerated Zapier API key for ${academyId}`);
       return { apiKey: `zk_test_bb_${Date.now().toString(36)}` };
     }
     const res = await fetch('/api/zapier/key', {

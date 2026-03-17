@@ -11,6 +11,7 @@ serve(async () => {
     // 3. Run churn model prediction
     // 4. Update churn_scores table
     // 5. Flag critical risk students for admin notification
+    // eslint-disable-next-line no-console
     console.log('Calculating churn scores...');
 
     return new Response(

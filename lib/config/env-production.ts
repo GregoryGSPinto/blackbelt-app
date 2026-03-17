@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * BlackBelt v2 — Production Environment Validation
  *

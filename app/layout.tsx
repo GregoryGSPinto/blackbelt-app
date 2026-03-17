@@ -1,15 +1,33 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { getThemeInitScript } from '@/lib/utils/theme';
 import '@/styles/globals.css';
 
+const instrumentSans = Instrument_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-instrument-sans',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  themeColor: '#C62828',
+};
+
 export const metadata: Metadata = {
   title: { default: 'BlackBelt — Gestão de Academias', template: '%s | BlackBelt' },
   description: 'Plataforma completa para gestão de academias de artes marciais. Check-in, turmas, progresso, pagamentos.',
   manifest: '/manifest.json',
-  themeColor: '#C62828',
   icons: {
     icon: '/icon.svg',
     apple: '/icons/icon-192x192.png',
@@ -25,12 +43,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

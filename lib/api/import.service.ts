@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ export async function executeImport(
       const text = await file.text();
       const { rows } = parseCSV(text);
       const count = rows.length;
-      console.log(`[MOCK] Importing ${count} students for academy ${academyId}`);
+      logger.debug('[MOCK] Importing students', { count, academyId });
       return {
         imported: Math.floor(count * 0.95),
         skipped: Math.ceil(count * 0.05),

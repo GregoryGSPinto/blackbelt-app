@@ -2,6 +2,8 @@
 // P-057: CSV, Excel (xlsx via SheetJS), PDF (jsPDF)
 // For now: CSV implemented natively. Excel/PDF noted as future deps.
 
+import { logger } from '@/lib/monitoring/logger';
+
 export interface ExportColumn {
   key: string;
   label: string;
@@ -63,7 +65,7 @@ export function exportToExcel<T extends Record<string, unknown>>(
 ): void {
   // TODO: Install sheetjs (xlsx) for native Excel export
   // For now, fall back to CSV
-  console.warn('[Export] Excel not available yet, falling back to CSV');
+  logger.warn('[Export] Excel not available yet, falling back to CSV');
   exportToCSV(data, columns, filename);
 }
 
@@ -73,6 +75,6 @@ export function exportToPDF<T extends Record<string, unknown>>(
   filename: string,
 ): void {
   // TODO: Install jspdf + jspdf-autotable for PDF export
-  console.warn('[Export] PDF not available yet, falling back to CSV');
+  logger.warn('[Export] PDF not available yet, falling back to CSV');
   exportToCSV(data, columns, filename);
 }

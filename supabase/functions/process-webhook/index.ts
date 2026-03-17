@@ -15,6 +15,7 @@ serve(async (req) => {
     // 4. If paid: emit NF-e, send receipt, update student status
     // 5. If failed: send retry notification
     // 6. Fire internal webhooks to academy's configured URLs
+    // eslint-disable-next-line no-console
     console.log(`Processing webhook: ${payload.event}`, { signature: !!signature });
 
     return new Response(

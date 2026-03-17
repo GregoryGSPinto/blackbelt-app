@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
             if (res.ok) sent++;
           } else if (apnsKeyId && apnsTeamId) {
             // Direct APNs (requires JWT signing - placeholder)
+            // eslint-disable-next-line no-console
             console.log(`[APNs] Would send to token ${token.substring(0, 8)}... (APNs direct not implemented in edge function)`);
             sent++;
           }
@@ -85,11 +86,13 @@ Deno.serve(async (req) => {
           // Web Push via VAPID (would need web-push library)
           const vapidKey = Deno.env.get('VAPID_PRIVATE_KEY');
           if (vapidKey) {
+            // eslint-disable-next-line no-console
             console.log(`[WebPush] Would send to token ${token.substring(0, 8)}...`);
             sent++;
           }
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(`Failed to send push to ${platform}:`, err);
       }
     }
@@ -106,6 +109,7 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('send-push error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
   }

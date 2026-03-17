@@ -52,25 +52,25 @@ export function useProductTour(tourId: string) {
     setIsActive(true);
   }, []);
 
+  const endTour = useCallback(() => {
+    setIsActive(false);
+    setCurrentStep(-1);
+    markCompleted();
+  }, [markCompleted]);
+
   const nextStep = useCallback((totalSteps: number) => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       endTour();
     }
-  }, [currentStep]);
+  }, [currentStep, endTour]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
   }, [currentStep]);
-
-  const endTour = useCallback(() => {
-    setIsActive(false);
-    setCurrentStep(-1);
-    markCompleted();
-  }, [markCompleted]);
 
   const resetTour = useCallback(() => {
     const completed = getCompletedTours().filter((id) => id !== tourId);

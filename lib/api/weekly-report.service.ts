@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -61,7 +62,7 @@ export async function sendWeeklyReport(
 ): Promise<{ sent: number }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Sending weekly report to ${recipients.length} recipients`);
+      logger.debug('[MOCK] Sending weekly report', { recipientCount: recipients.length });
       return { sent: recipients.length };
     }
     const res = await fetch('/api/reports/weekly/send', {

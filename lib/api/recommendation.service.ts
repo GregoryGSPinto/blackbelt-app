@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ export async function markRecommendationSeen(
 ): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Recommendation ${contentId} marked as seen by ${studentId}`);
+      logger.debug('[MOCK] Recommendation marked as seen', { contentId, studentId });
       return;
     }
     const res = await fetch('/api/recommendations/seen', {

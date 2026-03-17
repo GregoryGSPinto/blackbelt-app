@@ -10,6 +10,7 @@ serve(async () => {
     // 2. Send push notifications to enrolled students
     // 3. Query payments due in 3 days
     // 4. Send payment reminders
+    // eslint-disable-next-line no-console
     console.log('Sending daily reminders...');
 
     return new Response(

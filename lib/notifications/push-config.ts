@@ -5,6 +5,8 @@
  * Each provider only initializes if its credentials are present.
  */
 
+import { logger } from '@/lib/monitoring/logger';
+
 export interface PushConfig {
   apns: {
     enabled: boolean;
@@ -103,14 +105,14 @@ export async function sendPushToDevice(
     if (platform === 'web' && config.vapid.enabled) {
       // Web Push would use web-push library
       // For now, log and return true as placeholder
-      console.log(`[WebPush] Would send to ${token}: ${title}`);
+      logger.debug(`[WebPush] Would send to ${token}: ${title}`);
       return true;
     }
 
-    console.warn(`[Push] No credentials for platform: ${platform}`);
+    logger.warn(`[Push] No credentials for platform: ${platform}`);
     return false;
   } catch (error) {
-    console.error(`[Push] Failed to send to ${platform}:`, error);
+    logger.error(`[Push] Failed to send to ${platform}`, { error: String(error) });
     return false;
   }
 }

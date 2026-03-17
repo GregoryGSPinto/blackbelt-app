@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { getHallOfFame, type RecordDTO, type HallOfFameDTO } from '@/lib/api/hall-fama.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
@@ -52,9 +53,11 @@ function RecordCard({ record, rank }: { record: RecordDTO; rank: number }) {
       <div className="p-4">
         <div className="flex items-center gap-3">
           {record.holderAvatar ? (
-            <img
+            <Image
               src={record.holderAvatar}
               alt={record.holderName}
+              width={40}
+              height={40}
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (

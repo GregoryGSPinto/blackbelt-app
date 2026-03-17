@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
 export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
   try {
     if (isMock()) {
-      console.log('[MOCK] Google Calendar OAuth initiated');
+      logger.debug('[MOCK] Google Calendar OAuth initiated');
       return { authUrl: '#mock-google-oauth' };
     }
     const res = await fetch('/api/calendar/connect', { method: 'POST' });
@@ -57,7 +58,7 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
 export async function disconnectGoogleCalendar(userId: string): Promise<void> {
   try {
     if (isMock()) {
-      console.log('[MOCK] Google Calendar disconnected');
+      logger.debug('[MOCK] Google Calendar disconnected');
       return;
     }
     const res = await fetch(`/api/calendar/disconnect?userId=${userId}`, { method: 'POST' });
@@ -70,7 +71,7 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
 export async function syncClassesToCalendar(userId: string): Promise<{ synced: number }> {
   try {
     if (isMock()) {
-      console.log('[MOCK] Syncing classes to Google Calendar');
+      logger.debug('[MOCK] Syncing classes to Google Calendar');
       return { synced: 6 };
     }
     const res = await fetch('/api/calendar/sync', {

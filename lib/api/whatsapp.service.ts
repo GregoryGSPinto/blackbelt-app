@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -79,7 +80,7 @@ export async function sendWhatsApp(
   try {
     if (isMock()) {
       const rendered = renderTemplate(payload.template, payload.variables);
-      console.log(`[MOCK] WhatsApp → ${payload.phone}: ${rendered}`);
+      logger.debug('[MOCK] WhatsApp message sent', { phone: payload.phone, rendered });
       return {
         messageId: `wa_${Date.now()}`,
         status: 'sent',
@@ -106,7 +107,7 @@ export async function sendBulkWhatsApp(
     if (isMock()) {
       for (const msg of messages) {
         const rendered = renderTemplate(msg.template, msg.variables);
-        console.log(`[MOCK] WhatsApp bulk → ${msg.phone}: ${rendered}`);
+        logger.debug('[MOCK] WhatsApp bulk message sent', { phone: msg.phone, rendered });
       }
       return { sent: messages.length, failed: 0, errors: [] };
     }
@@ -150,7 +151,7 @@ export async function updateWhatsAppConfig(
 ): Promise<void> {
   try {
     if (isMock()) {
-      console.log('[MOCK] WhatsApp config updated:', config);
+      logger.debug('[MOCK] WhatsApp config updated', { config });
       return;
     }
 

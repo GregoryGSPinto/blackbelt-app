@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -114,9 +115,11 @@ function AvatarCircle({ name, avatarUrl }: { name: string; avatarUrl: string | n
         className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden"
         style={{ borderRadius: '50%' }}
       >
-        <img
+        <Image
           src={avatarUrl}
           alt={name}
+          width={80}
+          height={80}
           className="h-full w-full object-cover"
         />
       </div>

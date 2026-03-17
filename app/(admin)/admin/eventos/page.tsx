@@ -104,19 +104,19 @@ export default function AdminEventosPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadEvents();
-  }, []);
-
-  async function loadEvents() {
-    try {
-      const data = await listAcademyEvents('academy-1');
-      setEvents(data);
-    } catch {
-      toast('Erro ao carregar eventos', 'error');
-    } finally {
-      setLoading(false);
+    async function loadEvents() {
+      try {
+        const data = await listAcademyEvents('academy-1');
+        setEvents(data);
+      } catch {
+        toast('Erro ao carregar eventos', 'error');
+      } finally {
+        setLoading(false);
+      }
     }
-  }
+    loadEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function resetForm() {
     setFormTitle('');

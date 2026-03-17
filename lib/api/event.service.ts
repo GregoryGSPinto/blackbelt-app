@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 import type { AcademyEvent, CreateEventData } from '@/lib/types';
 
 export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
@@ -51,7 +52,7 @@ export async function createEvent(academyId: string, data: CreateEventData): Pro
 export async function cancelEvent(eventId: string): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Event ${eventId} cancelled`);
+      logger.debug(`[MOCK] Event ${eventId} cancelled`);
       return;
     }
     const res = await fetch(`/api/events/${eventId}/cancel`, { method: 'POST' });
@@ -64,7 +65,7 @@ export async function cancelEvent(eventId: string): Promise<void> {
 export async function enrollInEvent(eventId: string, studentId: string): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Student ${studentId} enrolled in event ${eventId}`);
+      logger.debug(`[MOCK] Student ${studentId} enrolled in event ${eventId}`);
       return;
     }
     const res = await fetch(`/api/events/${eventId}/enroll`, {

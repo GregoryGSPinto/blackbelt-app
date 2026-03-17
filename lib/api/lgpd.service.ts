@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ export async function recordConsent(
 ): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Consent recorded: ${type} = ${accepted} for user ${userId}`);
+      logger.debug(`[MOCK] Consent recorded: ${type} = ${accepted} for user ${userId}`);
       return;
     }
     const res = await fetch('/api/lgpd/consent', {
@@ -76,7 +77,7 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
 export async function requestDataExport(userId: string, format: 'json' | 'pdf' = 'json'): Promise<DataExportRequest> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Data export requested for user ${userId} in ${format}`);
+      logger.debug(`[MOCK] Data export requested for user ${userId} in ${format}`);
       return {
         id: `export-${Date.now()}`,
         userId,
@@ -102,7 +103,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
 export async function requestDataDeletion(userId: string): Promise<DataDeletionRequest> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Data deletion requested for user ${userId}`);
+      logger.debug(`[MOCK] Data deletion requested for user ${userId}`);
       const scheduled = new Date();
       scheduled.setDate(scheduled.getDate() + 30);
       return {

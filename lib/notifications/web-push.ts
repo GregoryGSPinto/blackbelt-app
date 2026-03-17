@@ -1,6 +1,7 @@
 'use client';
 
 import { isMock } from '@/lib/env';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -47,7 +48,7 @@ export async function requestPushPermission(): Promise<'granted' | 'denied' | 'd
     return 'denied';
   }
   if (isMock()) {
-    console.log('[MOCK] Push notification permission requested');
+    logger.debug('[MOCK] Push notification permission requested');
     return 'granted';
   }
   return Notification.requestPermission();
@@ -64,7 +65,7 @@ export function getPushPermissionStatus(): 'granted' | 'denied' | 'default' | 'u
 
 export async function subscribeToPush(): Promise<boolean> {
   if (isMock()) {
-    console.log('[MOCK] Subscribed to push notifications');
+    logger.debug('[MOCK] Subscribed to push notifications');
     return true;
   }
 
@@ -91,7 +92,7 @@ export async function subscribeToPush(): Promise<boolean> {
 
 export async function unsubscribeFromPush(): Promise<boolean> {
   if (isMock()) {
-    console.log('[MOCK] Unsubscribed from push notifications');
+    logger.debug('[MOCK] Unsubscribed from push notifications');
     return true;
   }
 
@@ -136,7 +137,7 @@ export function showLocalNotification(payload: PushPayload): void {
   if (typeof window === 'undefined') return;
 
   if (isMock()) {
-    console.log(`[MOCK] Push notification: ${payload.title} — ${payload.body}`);
+    logger.debug(`[MOCK] Push notification: ${payload.title} — ${payload.body}`);
     return;
   }
 

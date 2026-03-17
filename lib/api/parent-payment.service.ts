@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -53,7 +54,7 @@ export async function initiatePayment(
 ): Promise<{ paymentUrl: string; pixCode?: string; boletoCode?: string }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Payment initiated for bill ${billId} via ${method}`);
+      logger.debug(`[MOCK] Payment initiated for bill ${billId} via ${method}`);
       return {
         paymentUrl: '#mock-payment',
         pixCode: method === 'pix' ? '00020126580014br.gov.bcb.pix0136mock-key5204000053039865802BR' : undefined,

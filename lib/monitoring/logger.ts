@@ -32,6 +32,7 @@ function formatEntry(level: LogLevel, message: string, context?: Record<string, 
   return JSON.stringify(entry);
 }
 
+/* eslint-disable no-console */
 export const logger = {
   debug(message: string, context?: Record<string, unknown>): void {
     if (shouldLog('debug')) console.debug(formatEntry('debug', message, context));
@@ -46,3 +47,4 @@ export const logger = {
     if (shouldLog('error')) console.error(formatEntry('error', message, context));
   },
 };
+/* eslint-enable no-console */

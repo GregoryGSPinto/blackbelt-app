@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 import type { ChatConversation, ChatMessage, SendMessagePayload } from '@/lib/types/chat';
 
 export async function listConversations(userId: string): Promise<ChatConversation[]> {
@@ -57,7 +58,7 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
 export async function markAsRead(conversationId: string): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Marked conversation ${conversationId} as read`);
+      logger.debug(`[MOCK] Marked conversation ${conversationId} as read`);
       return;
     }
     const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
@@ -76,7 +77,7 @@ export async function createBroadcast(
 ): Promise<ChatMessage> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Broadcast from ${senderId}: ${content.slice(0, 50)}...`);
+      logger.debug(`[MOCK] Broadcast from ${senderId}: ${content.slice(0, 50)}...`);
       return {
         id: `msg-broadcast-${Date.now()}`,
         conversationId: 'broadcast',

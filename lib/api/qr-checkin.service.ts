@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ export async function validateQRCode(
 ): Promise<QRValidationResult> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] QR Check-in: student ${studentId} scanned ${code}`);
+      logger.debug('[MOCK] QR Check-in scanned', { studentId, code });
       if (!code.startsWith('bb_')) {
         return { valid: false, message: 'Código QR inválido.' };
       }

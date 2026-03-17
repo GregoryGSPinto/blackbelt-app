@@ -28,18 +28,17 @@ export default function AuditLogPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const filters: Record<string, string> = {};
+      if (filterAction) filters.action = filterAction;
+      if (filterEntity) filters.entityType = filterEntity;
+      const result = await searchAuditLogs('academy-1', filters);
+      setLogs(result.logs);
+      setLoading(false);
+    }
     load();
   }, [filterAction, filterEntity]);
-
-  async function load() {
-    setLoading(true);
-    const filters: Record<string, string> = {};
-    if (filterAction) filters.action = filterAction;
-    if (filterEntity) filters.entityType = filterEntity;
-    const result = await searchAuditLogs('academy-1', filters);
-    setLogs(result.logs);
-    setLoading(false);
-  }
 
   async function handleExport() {
     const blob = await exportAuditLogs('academy-1');

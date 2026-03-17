@@ -83,6 +83,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
       })
       .catch(() => toast('Erro ao carregar série', 'error'))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   // ---------- Simulated playback ----------
@@ -116,6 +117,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, playbackSpeed, currentEpisodeId, episodeCompleted]);
 
   // ---------- Track progress periodically ----------
@@ -129,6 +131,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
     }, 10000);
 
     return () => clearInterval(tracker);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, currentEpisodeId, currentTime]);
 
   // ---------- Quiz handlers ----------

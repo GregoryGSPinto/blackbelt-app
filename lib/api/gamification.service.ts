@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 import type { PlayerProfile, LeaderboardEntry, Badge } from '@/lib/types/gamification';
 
 export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
@@ -56,7 +57,7 @@ export async function awardXP(
 ): Promise<{ newTotal: number; levelUp: boolean; newLevel: number }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Award ${amount} XP to ${userId} for ${eventType}`);
+      logger.debug('[MOCK] Award XP', { amount, userId, eventType });
       return { newTotal: 1250 + amount, levelUp: false, newLevel: 13 };
     }
     const res = await fetch('/api/gamification/xp', {

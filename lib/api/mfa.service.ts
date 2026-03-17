@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ export async function getMFAStatus(userId: string): Promise<MFAStatus> {
 export async function setupMFA(userId: string): Promise<MFASetupData> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] MFA setup for user ${userId}`);
+      logger.debug('[MOCK] MFA setup for user', { userId });
       return {
         secret: 'JBSWY3DPEHPK3PXP',
         qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/BlackBelt:${userId}?secret=JBSWY3DPEHPK3PXP&issuer=BlackBelt`,
@@ -65,7 +66,7 @@ export async function verifyMFA(userId: string, code: string): Promise<{ valid: 
   try {
     if (isMock()) {
       const valid = code === '123456' || code.length === 6;
-      console.log(`[MOCK] MFA verify for ${userId}: ${valid}`);
+      logger.debug('[MOCK] MFA verify', { userId, valid });
       return { valid };
     }
     const res = await fetch('/api/auth/mfa/verify', {
@@ -83,7 +84,7 @@ export async function verifyMFA(userId: string, code: string): Promise<{ valid: 
 export async function disableMFA(userId: string, code: string): Promise<{ success: boolean }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] MFA disabled for user ${userId}`);
+      logger.debug('[MOCK] MFA disabled for user', { userId });
       return { success: true };
     }
     const res = await fetch('/api/auth/mfa/disable', {

@@ -18,7 +18,9 @@ serve(async (req) => {
     //    - Unique verification QR code
     // 3. Upload to Supabase Storage
     // 4. Return download URL
+    // eslint-disable-next-line no-console
     console.log(`Generating certificate for ${studentId}: ${belt} belt on ${date}`);
+    // eslint-disable-next-line no-console
     console.log(`Academy: ${academyName}, Professor: ${professorName}`);
 
     return new Response(

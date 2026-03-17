@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ export async function createCompetition(
 ): Promise<Competition> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Competition created: ${data.name}`);
+      logger.debug('[MOCK] Competition created', { name: data.name });
       return {
         id: `comp-${Date.now()}`,
         ...data,
@@ -117,7 +118,7 @@ export async function generateBracket(
 ): Promise<BracketMatch[]> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Generating ${eliminationType} elimination bracket for category ${categoryId}`);
+      logger.debug('[MOCK] Generating elimination bracket', { eliminationType, categoryId });
       return [
         { id: 'm-1', round: 1, position: 1, participant1: { id: 'p-1', name: 'Rafael Costa' }, participant2: { id: 'p-2', name: 'Bruno Lima' }, winner: null, score1: null, score2: null, method: null },
         { id: 'm-2', round: 1, position: 2, participant1: { id: 'p-3', name: 'Pedro Henrique' }, participant2: { id: 'p-4', name: 'Lucas Ferreira' }, winner: null, score1: null, score2: null, method: null },
@@ -145,7 +146,7 @@ export async function recordMatchResult(
 ): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Match ${matchId} result: winner ${winnerId}, ${score1}-${score2} by ${method}`);
+      logger.debug('[MOCK] Match result recorded', { matchId, winnerId, score1, score2, method });
       return;
     }
     const res = await fetch(`/api/competitions/matches/${matchId}/result`, {

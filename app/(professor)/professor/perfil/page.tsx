@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { getProfessorDashboard } from '@/lib/api/professor.service';
 import type { ProfessorDashboardDTO } from '@/lib/api/professor.service';
@@ -180,9 +181,11 @@ export default function ProfessorPerfilPage() {
             className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden"
             style={{ borderRadius: '50%' }}
           >
-            <img
+            <Image
               src={avatar}
               alt={displayName}
+              width={80}
+              height={80}
               className="h-full w-full object-cover"
             />
           </div>

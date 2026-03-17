@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ export interface NFeDocument {
 export async function emitNFe(paymentId: string): Promise<NFeDocument> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Emitting NF-e for payment ${paymentId}`);
+      logger.debug(`[MOCK] Emitting NF-e for payment ${paymentId}`);
       return {
         id: `nfe-${Date.now()}`,
         paymentId,
@@ -92,7 +93,7 @@ export async function getNFeConfig(academyId: string): Promise<NFeConfig> {
 export async function updateNFeConfig(academyId: string, config: Partial<NFeConfig>): Promise<void> {
   try {
     if (isMock()) {
-      console.log('[MOCK] NF-e config updated:', config);
+      logger.debug('[MOCK] NF-e config updated', { config });
       return;
     }
     const res = await fetch('/api/nfe/config', {

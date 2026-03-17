@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 import type { WebhookConfig, WebhookDelivery, CreateWebhookPayload } from '@/lib/types/webhook';
 
 export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> {
@@ -40,7 +41,7 @@ export async function createWebhook(
 export async function deleteWebhook(webhookId: string): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Deleted webhook ${webhookId}`);
+      logger.debug(`[MOCK] Deleted webhook ${webhookId}`);
       return;
     }
     const res = await fetch(`/api/webhooks/${webhookId}`, { method: 'DELETE' });
@@ -53,7 +54,7 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
 export async function toggleWebhook(webhookId: string, active: boolean): Promise<void> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Webhook ${webhookId} set to ${active ? 'active' : 'inactive'}`);
+      logger.debug(`[MOCK] Webhook ${webhookId} set to ${active ? 'active' : 'inactive'}`);
       return;
     }
     const res = await fetch(`/api/webhooks/${webhookId}`, {
@@ -87,7 +88,7 @@ export async function getWebhookDeliveries(
 export async function testWebhook(webhookId: string): Promise<{ success: boolean; statusCode: number }> {
   try {
     if (isMock()) {
-      console.log(`[MOCK] Test webhook ${webhookId}`);
+      logger.debug(`[MOCK] Test webhook ${webhookId}`);
       return { success: true, statusCode: 200 };
     }
     const res = await fetch(`/api/webhooks/${webhookId}/test`, { method: 'POST' });

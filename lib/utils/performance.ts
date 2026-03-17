@@ -1,5 +1,7 @@
 // ── Performance Utilities (P-090) ─────────────────────────────
 
+import { logger } from '@/lib/monitoring/logger';
+
 /**
  * Parallel data fetcher — wraps Promise.all with error isolation.
  * Each promise resolves independently; failures don't block others.
@@ -10,7 +12,7 @@ export async function parallelFetch<T extends Record<string, Promise<unknown>>>(
   const keys = Object.keys(fetchers) as (keyof T)[];
   const promises = keys.map((k) =>
     fetchers[k].catch((err) => {
-      console.warn(`[parallelFetch] Failed: ${String(k)}`, err);
+      logger.warn(`[parallelFetch] Failed: ${String(k)}`, err);
       return null;
     }),
   );
@@ -74,7 +76,7 @@ export function measurePerformance(label: string): { end: () => number } {
     end: () => {
       const duration = performance.now() - start;
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[Perf] ${label}: ${duration.toFixed(1)}ms`);
+        logger.debug(`[Perf] ${label}: ${duration.toFixed(1)}ms`);
       }
       return duration;
     },

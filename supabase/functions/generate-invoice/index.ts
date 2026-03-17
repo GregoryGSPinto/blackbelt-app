@@ -8,6 +8,7 @@ serve(async (req) => {
     const { academyId } = await req.json();
 
     // In production: query students, calculate amounts, create invoice records
+    // eslint-disable-next-line no-console
     console.log(`Generating invoices for academy ${academyId}`);
 
     return new Response(

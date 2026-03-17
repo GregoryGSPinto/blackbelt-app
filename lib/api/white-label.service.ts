@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ export async function updateWhiteLabelConfig(
 ): Promise<void> {
   try {
     if (isMock()) {
-      console.log('[MOCK] White-label config updated:', config);
+      logger.debug('[MOCK] White-label config updated', { config });
       return;
     }
     const res = await fetch('/api/white-label/config', {
