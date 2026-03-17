@@ -38,3 +38,20 @@ export interface AutomationConfig {
   lastRunAt?: string;
   triggerCount: number;
 }
+
+// ────────────────────────────────────────────────────────────
+// In-App Notifications (P-015)
+// ────────────────────────────────────────────────────────────
+
+export type InAppNotificationType = 'alert' | 'info' | 'success' | 'warning' | 'billing';
+
+export interface InAppNotification {
+  id: string;
+  user_id: string;
+  type: InAppNotificationType;
+  title: string;
+  message: string;
+  action_url: string | null;
+  is_read: boolean;
+  created_at: string;
+}

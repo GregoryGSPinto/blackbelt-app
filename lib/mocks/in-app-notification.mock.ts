@@ -1,0 +1,678 @@
+import type { InAppNotification } from '@/lib/types/notification';
+
+const delay = () => new Promise((r) => setTimeout(r, 150));
+
+// ── Admin notifications ─────────────────────────────────────
+
+const ADMIN_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-admin-1',
+    user_id: 'admin-1',
+    type: 'alert',
+    title: 'Aluno em risco de evasão',
+    message: 'Rafael Souza não treina há 15 dias e tem pagamento em dia. Considere entrar em contato.',
+    action_url: '/admin/alunos',
+    is_read: false,
+    created_at: '2026-03-17T08:00:00Z',
+  },
+  {
+    id: 'inapp-admin-2',
+    user_id: 'admin-1',
+    type: 'billing',
+    title: '5 faturas vencidas',
+    message: 'Existem 5 faturas vencidas há mais de 7 dias totalizando R$ 1.250,00.',
+    action_url: '/admin/financeiro',
+    is_read: false,
+    created_at: '2026-03-17T07:30:00Z',
+  },
+  {
+    id: 'inapp-admin-3',
+    user_id: 'admin-1',
+    type: 'warning',
+    title: 'Turma lotada',
+    message: 'BJJ Avançado Noite atingiu 100% da capacidade para amanhã. Considere abrir nova turma.',
+    action_url: '/admin/turmas',
+    is_read: false,
+    created_at: '2026-03-17T06:00:00Z',
+  },
+  {
+    id: 'inapp-admin-4',
+    user_id: 'admin-1',
+    type: 'info',
+    title: 'Novo lead aguardando',
+    message: 'Carlos Ferreira preencheu formulário de interesse há 2 horas.',
+    action_url: '/admin/leads',
+    is_read: false,
+    created_at: '2026-03-16T14:00:00Z',
+  },
+  {
+    id: 'inapp-admin-5',
+    user_id: 'admin-1',
+    type: 'success',
+    title: 'Meta mensal atingida',
+    message: 'Parabéns! A academia atingiu a meta de 120 alunos ativos neste mês.',
+    action_url: '/admin/analytics',
+    is_read: false,
+    created_at: '2026-03-16T10:00:00Z',
+  },
+  {
+    id: 'inapp-admin-6',
+    user_id: 'admin-1',
+    type: 'info',
+    title: 'Relatório semanal pronto',
+    message: 'O relatório de presença da semana 11 está disponível para download.',
+    action_url: '/admin/relatorios',
+    is_read: true,
+    created_at: '2026-03-15T09:00:00Z',
+  },
+  {
+    id: 'inapp-admin-7',
+    user_id: 'admin-1',
+    type: 'success',
+    title: 'Novo aluno matriculado',
+    message: 'Fernanda Lima concluiu a matrícula no plano Trimestral.',
+    action_url: '/admin/alunos',
+    is_read: true,
+    created_at: '2026-03-15T08:00:00Z',
+  },
+  {
+    id: 'inapp-admin-8',
+    user_id: 'admin-1',
+    type: 'warning',
+    title: 'Contrato expirando',
+    message: '3 contratos expiram nos próximos 7 dias. Inicie renovação.',
+    action_url: '/admin/contratos',
+    is_read: true,
+    created_at: '2026-03-14T15:00:00Z',
+  },
+  {
+    id: 'inapp-admin-9',
+    user_id: 'admin-1',
+    type: 'billing',
+    title: 'Pagamento recebido',
+    message: 'Recebido pagamento de R$ 350,00 de João Pedro via PIX.',
+    action_url: '/admin/financeiro',
+    is_read: true,
+    created_at: '2026-03-14T12:00:00Z',
+  },
+  {
+    id: 'inapp-admin-10',
+    user_id: 'admin-1',
+    type: 'info',
+    title: 'Backup concluído',
+    message: 'Backup automático realizado com sucesso às 03:00.',
+    action_url: null,
+    is_read: true,
+    created_at: '2026-03-14T03:00:00Z',
+  },
+];
+
+// ── Professor notifications ─────────────────────────────────
+
+const PROFESSOR_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-prof-1',
+    user_id: 'prof-1',
+    type: 'alert',
+    title: 'Aluno faltou 3 vezes seguidas',
+    message: 'Lucas Almeida faltou às últimas 3 aulas de Muay Thai. Verificar situação.',
+    action_url: '/professor/turmas',
+    is_read: false,
+    created_at: '2026-03-17T07:00:00Z',
+  },
+  {
+    id: 'inapp-prof-2',
+    user_id: 'prof-1',
+    type: 'info',
+    title: 'Substituição solicitada',
+    message: 'Prof. Carlos solicitou substituição para a aula de quinta-feira 19h.',
+    action_url: '/professor/agenda',
+    is_read: false,
+    created_at: '2026-03-17T06:30:00Z',
+  },
+  {
+    id: 'inapp-prof-3',
+    user_id: 'prof-1',
+    type: 'success',
+    title: 'Avaliação concluída',
+    message: 'Ana Beatriz completou avaliação de faixa amarela com nota 9.2.',
+    action_url: '/professor/avaliacoes',
+    is_read: false,
+    created_at: '2026-03-16T20:00:00Z',
+  },
+  {
+    id: 'inapp-prof-4',
+    user_id: 'prof-1',
+    type: 'warning',
+    title: 'Plano de aula pendente',
+    message: 'O plano de aula para BJJ Iniciantes de amanhã ainda não foi preenchido.',
+    action_url: '/professor/plano-aula',
+    is_read: false,
+    created_at: '2026-03-16T18:00:00Z',
+  },
+  {
+    id: 'inapp-prof-5',
+    user_id: 'prof-1',
+    type: 'info',
+    title: 'Novo aluno na turma',
+    message: 'Marina Costa foi adicionada à turma BJJ Avançado.',
+    action_url: '/professor/turmas',
+    is_read: false,
+    created_at: '2026-03-16T14:00:00Z',
+  },
+  {
+    id: 'inapp-prof-6',
+    user_id: 'prof-1',
+    type: 'success',
+    title: 'Presença registrada',
+    message: '18 de 22 alunos confirmaram presença na aula de hoje.',
+    action_url: '/professor/chamada',
+    is_read: true,
+    created_at: '2026-03-15T21:00:00Z',
+  },
+  {
+    id: 'inapp-prof-7',
+    user_id: 'prof-1',
+    type: 'info',
+    title: 'Mensagem do admin',
+    message: 'A coordenação enviou comunicado sobre o evento de sábado.',
+    action_url: '/professor/mensagens',
+    is_read: true,
+    created_at: '2026-03-15T15:00:00Z',
+  },
+  {
+    id: 'inapp-prof-8',
+    user_id: 'prof-1',
+    type: 'warning',
+    title: 'Horário alterado',
+    message: 'A aula de Judô de sexta-feira foi movida de 18h para 19h.',
+    action_url: '/professor/agenda',
+    is_read: true,
+    created_at: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'inapp-prof-9',
+    user_id: 'prof-1',
+    type: 'success',
+    title: 'Promoção de faixa aprovada',
+    message: 'A promoção de Pedro Silva para faixa azul foi aprovada pelo admin.',
+    action_url: '/professor/avaliacoes',
+    is_read: true,
+    created_at: '2026-03-14T16:00:00Z',
+  },
+  {
+    id: 'inapp-prof-10',
+    user_id: 'prof-1',
+    type: 'info',
+    title: 'Relatório de turma disponível',
+    message: 'O relatório mensal da turma BJJ Avançado está pronto.',
+    action_url: '/professor/relatorios',
+    is_read: true,
+    created_at: '2026-03-14T09:00:00Z',
+  },
+];
+
+// ── Aluno (adulto/main) notifications ───────────────────────
+
+const ALUNO_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-aluno-1',
+    user_id: 'aluno-1',
+    type: 'success',
+    title: 'Conquista desbloqueada!',
+    message: 'Você desbloqueou "Guerreiro Dedicado" por 30 treinos consecutivos.',
+    action_url: '/dashboard/conquistas',
+    is_read: false,
+    created_at: '2026-03-17T08:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-2',
+    user_id: 'aluno-1',
+    type: 'info',
+    title: 'Aula em 30 minutos',
+    message: 'Sua aula de BJJ Avançado começa às 19:00. Não esqueça o kimono!',
+    action_url: '/dashboard/agenda',
+    is_read: false,
+    created_at: '2026-03-17T18:30:00Z',
+  },
+  {
+    id: 'inapp-aluno-3',
+    user_id: 'aluno-1',
+    type: 'billing',
+    title: 'Fatura disponível',
+    message: 'Sua fatura de março no valor de R$ 180,00 está disponível para pagamento.',
+    action_url: '/dashboard/financeiro',
+    is_read: false,
+    created_at: '2026-03-16T09:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-4',
+    user_id: 'aluno-1',
+    type: 'warning',
+    title: 'Fatura vencendo em 3 dias',
+    message: 'Sua fatura de R$ 180,00 vence em 20/03. Evite multa pagando em dia.',
+    action_url: '/dashboard/financeiro',
+    is_read: false,
+    created_at: '2026-03-17T07:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-5',
+    user_id: 'aluno-1',
+    type: 'info',
+    title: 'Mensagem do professor',
+    message: 'Prof. Carlos enviou: "Ótimo treino hoje! Continue assim."',
+    action_url: '/dashboard/mensagens',
+    is_read: false,
+    created_at: '2026-03-16T21:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-6',
+    user_id: 'aluno-1',
+    type: 'success',
+    title: 'Presença confirmada',
+    message: 'Seu check-in na aula de BJJ foi registrado com sucesso.',
+    action_url: null,
+    is_read: true,
+    created_at: '2026-03-15T19:05:00Z',
+  },
+  {
+    id: 'inapp-aluno-7',
+    user_id: 'aluno-1',
+    type: 'info',
+    title: 'Evento no fim de semana',
+    message: 'Campeonato interno acontece sábado às 9h. Inscrições abertas!',
+    action_url: '/dashboard/eventos',
+    is_read: true,
+    created_at: '2026-03-15T12:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-8',
+    user_id: 'aluno-1',
+    type: 'success',
+    title: 'Ranking atualizado',
+    message: 'Você subiu para a 5ª posição no ranking da academia!',
+    action_url: '/dashboard/ranking',
+    is_read: true,
+    created_at: '2026-03-14T20:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-9',
+    user_id: 'aluno-1',
+    type: 'alert',
+    title: 'Horário de aula alterado',
+    message: 'A aula de Muay Thai de quarta-feira foi movida de 20h para 21h.',
+    action_url: '/dashboard/agenda',
+    is_read: true,
+    created_at: '2026-03-14T15:00:00Z',
+  },
+  {
+    id: 'inapp-aluno-10',
+    user_id: 'aluno-1',
+    type: 'info',
+    title: 'Dica do coach IA',
+    message: 'Baseado nos seus treinos, recomendamos focar em guarda aberta esta semana.',
+    action_url: '/dashboard/evolucao',
+    is_read: true,
+    created_at: '2026-03-14T08:00:00Z',
+  },
+];
+
+// ── Teen notifications ──────────────────────────────────────
+
+const TEEN_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-teen-1',
+    user_id: 'teen-1',
+    type: 'success',
+    title: '+50 XP conquistados!',
+    message: 'Você ganhou 50 XP por completar o treino de hoje. Continue assim!',
+    action_url: '/teen/evolucao',
+    is_read: false,
+    created_at: '2026-03-17T20:00:00Z',
+  },
+  {
+    id: 'inapp-teen-2',
+    user_id: 'teen-1',
+    type: 'success',
+    title: 'Novo título desbloqueado!',
+    message: 'Você desbloqueou o título "Faixa de Fogo" por 10 treinos seguidos.',
+    action_url: '/teen/conquistas',
+    is_read: false,
+    created_at: '2026-03-17T19:00:00Z',
+  },
+  {
+    id: 'inapp-teen-3',
+    user_id: 'teen-1',
+    type: 'warning',
+    title: 'Sequência em risco!',
+    message: 'Treine hoje para manter sua sequência de 7 dias. Não perca!',
+    action_url: '/teen/agenda',
+    is_read: false,
+    created_at: '2026-03-17T08:00:00Z',
+  },
+  {
+    id: 'inapp-teen-4',
+    user_id: 'teen-1',
+    type: 'info',
+    title: 'Desafio semanal disponível',
+    message: 'Novo desafio: complete 4 treinos esta semana para ganhar 200 XP bônus.',
+    action_url: '/teen/desafios',
+    is_read: false,
+    created_at: '2026-03-16T07:00:00Z',
+  },
+  {
+    id: 'inapp-teen-5',
+    user_id: 'teen-1',
+    type: 'alert',
+    title: 'Aula em 1 hora',
+    message: 'Sua aula de BJJ Teen começa às 17:00. Prepare-se!',
+    action_url: '/teen/agenda',
+    is_read: false,
+    created_at: '2026-03-17T16:00:00Z',
+  },
+  {
+    id: 'inapp-teen-6',
+    user_id: 'teen-1',
+    type: 'success',
+    title: 'Subiu no ranking!',
+    message: 'Você está em 3º lugar no ranking da turma! Falta pouco para o topo.',
+    action_url: '/teen/ranking',
+    is_read: true,
+    created_at: '2026-03-15T20:00:00Z',
+  },
+  {
+    id: 'inapp-teen-7',
+    user_id: 'teen-1',
+    type: 'info',
+    title: 'Nova técnica disponível',
+    message: 'O professor adicionou vídeo da técnica "Triângulo" no acervo.',
+    action_url: '/teen/tecnicas',
+    is_read: true,
+    created_at: '2026-03-15T15:00:00Z',
+  },
+  {
+    id: 'inapp-teen-8',
+    user_id: 'teen-1',
+    type: 'success',
+    title: 'Desafio concluído!',
+    message: 'Você completou o desafio "Treino Triplo" e ganhou 150 XP.',
+    action_url: '/teen/desafios',
+    is_read: true,
+    created_at: '2026-03-14T21:00:00Z',
+  },
+  {
+    id: 'inapp-teen-9',
+    user_id: 'teen-1',
+    type: 'info',
+    title: 'Mensagem do professor',
+    message: 'Prof. Ana: "Boa evolução na guarda! Continue praticando."',
+    action_url: '/teen/mensagens',
+    is_read: true,
+    created_at: '2026-03-14T18:00:00Z',
+  },
+  {
+    id: 'inapp-teen-10',
+    user_id: 'teen-1',
+    type: 'warning',
+    title: 'Battle Pass expirando',
+    message: 'Seu Battle Pass expira em 5 dias. Resgate suas recompensas!',
+    action_url: '/teen/battle-pass',
+    is_read: true,
+    created_at: '2026-03-13T10:00:00Z',
+  },
+];
+
+// ── Kids notifications ──────────────────────────────────────
+
+const KIDS_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-kids-1',
+    user_id: 'kids-1',
+    type: 'success',
+    title: 'Estrela conquistada!',
+    message: 'Você ganhou uma estrela por participar da aula de hoje!',
+    action_url: '/kids/conquistas',
+    is_read: false,
+    created_at: '2026-03-17T17:00:00Z',
+  },
+  {
+    id: 'inapp-kids-2',
+    user_id: 'kids-1',
+    type: 'success',
+    title: 'Nova faixa!',
+    message: 'Parabéns! Você foi promovido para a faixa cinza!',
+    action_url: '/kids/conquistas',
+    is_read: false,
+    created_at: '2026-03-17T16:00:00Z',
+  },
+  {
+    id: 'inapp-kids-3',
+    user_id: 'kids-1',
+    type: 'info',
+    title: 'Aula amanhã',
+    message: 'Amanhã tem aula de Judô às 15:00. Não esqueça!',
+    action_url: '/kids/agenda',
+    is_read: false,
+    created_at: '2026-03-17T08:00:00Z',
+  },
+  {
+    id: 'inapp-kids-4',
+    user_id: 'kids-1',
+    type: 'success',
+    title: 'Missão concluída!',
+    message: 'Você concluiu a missão "Primeiro Rolê" e desbloqueou um adesivo.',
+    action_url: '/kids/conquistas',
+    is_read: false,
+    created_at: '2026-03-16T17:00:00Z',
+  },
+  {
+    id: 'inapp-kids-5',
+    user_id: 'kids-1',
+    type: 'info',
+    title: 'Recado do professor',
+    message: 'Prof. Marcelo: "Muito bem na aula de hoje! Continue assim!"',
+    action_url: null,
+    is_read: false,
+    created_at: '2026-03-16T16:00:00Z',
+  },
+  {
+    id: 'inapp-kids-6',
+    user_id: 'kids-1',
+    type: 'success',
+    title: '5 aulas seguidas!',
+    message: 'Você treinou 5 vezes seguidas! Ganhou o selo "Guerreirinho".',
+    action_url: '/kids/conquistas',
+    is_read: true,
+    created_at: '2026-03-15T17:00:00Z',
+  },
+  {
+    id: 'inapp-kids-7',
+    user_id: 'kids-1',
+    type: 'info',
+    title: 'Evento especial',
+    message: 'Sábado tem aula especial de demonstração para a família!',
+    action_url: '/kids/agenda',
+    is_read: true,
+    created_at: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'inapp-kids-8',
+    user_id: 'kids-1',
+    type: 'warning',
+    title: 'Não esqueça o kimono!',
+    message: 'A aula de amanhã é de Judô. Traga o kimono branco!',
+    action_url: null,
+    is_read: true,
+    created_at: '2026-03-14T18:00:00Z',
+  },
+  {
+    id: 'inapp-kids-9',
+    user_id: 'kids-1',
+    type: 'success',
+    title: 'Novo amigo na turma!',
+    message: 'Sofia entrou na sua turma. Dê as boas-vindas!',
+    action_url: null,
+    is_read: true,
+    created_at: '2026-03-14T14:00:00Z',
+  },
+  {
+    id: 'inapp-kids-10',
+    user_id: 'kids-1',
+    type: 'info',
+    title: 'Dica do dia',
+    message: 'Sempre cumprimente o professor com uma reverência antes da aula!',
+    action_url: null,
+    is_read: true,
+    created_at: '2026-03-13T08:00:00Z',
+  },
+];
+
+// ── Responsável (parent) notifications ──────────────────────
+
+const PARENT_NOTIFICATIONS: InAppNotification[] = [
+  {
+    id: 'inapp-parent-1',
+    user_id: 'parent-1',
+    type: 'success',
+    title: 'Check-in confirmado',
+    message: 'Miguel fez check-in na aula de BJJ Kids às 15:02.',
+    action_url: '/parent/filhos',
+    is_read: false,
+    created_at: '2026-03-17T15:02:00Z',
+  },
+  {
+    id: 'inapp-parent-2',
+    user_id: 'parent-1',
+    type: 'info',
+    title: 'Relatório de progresso',
+    message: 'O relatório mensal de progresso de Miguel está disponível.',
+    action_url: '/parent/evolucao',
+    is_read: false,
+    created_at: '2026-03-17T09:00:00Z',
+  },
+  {
+    id: 'inapp-parent-3',
+    user_id: 'parent-1',
+    type: 'billing',
+    title: 'Fatura disponível',
+    message: 'A fatura de março no valor de R$ 150,00 está disponível.',
+    action_url: '/parent/financeiro',
+    is_read: false,
+    created_at: '2026-03-16T09:00:00Z',
+  },
+  {
+    id: 'inapp-parent-4',
+    user_id: 'parent-1',
+    type: 'success',
+    title: 'Conquista do filho!',
+    message: 'Miguel desbloqueou a conquista "10 aulas completadas"!',
+    action_url: '/parent/filhos',
+    is_read: false,
+    created_at: '2026-03-16T17:00:00Z',
+  },
+  {
+    id: 'inapp-parent-5',
+    user_id: 'parent-1',
+    type: 'warning',
+    title: 'Fatura vence em 5 dias',
+    message: 'A fatura de R$ 150,00 vence em 22/03. Evite multa pagando em dia.',
+    action_url: '/parent/financeiro',
+    is_read: false,
+    created_at: '2026-03-17T07:00:00Z',
+  },
+  {
+    id: 'inapp-parent-6',
+    user_id: 'parent-1',
+    type: 'info',
+    title: 'Mensagem do professor',
+    message: 'Prof. Ana enviou feedback sobre o desempenho de Miguel.',
+    action_url: '/parent/mensagens',
+    is_read: true,
+    created_at: '2026-03-15T20:00:00Z',
+  },
+  {
+    id: 'inapp-parent-7',
+    user_id: 'parent-1',
+    type: 'alert',
+    title: 'Ausência registrada',
+    message: 'Miguel não compareceu à aula de ontem (16/03). Está tudo bem?',
+    action_url: '/parent/filhos',
+    is_read: true,
+    created_at: '2026-03-17T08:00:00Z',
+  },
+  {
+    id: 'inapp-parent-8',
+    user_id: 'parent-1',
+    type: 'info',
+    title: 'Evento para famílias',
+    message: 'Sábado tem aula aberta para pais e responsáveis às 10h.',
+    action_url: '/parent/agenda',
+    is_read: true,
+    created_at: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'inapp-parent-9',
+    user_id: 'parent-1',
+    type: 'success',
+    title: 'Pagamento confirmado',
+    message: 'Pagamento de R$ 150,00 recebido com sucesso via PIX.',
+    action_url: '/parent/financeiro',
+    is_read: true,
+    created_at: '2026-03-14T14:00:00Z',
+  },
+  {
+    id: 'inapp-parent-10',
+    user_id: 'parent-1',
+    type: 'info',
+    title: 'Calendário atualizado',
+    message: 'O calendário de março foi atualizado com novas aulas especiais.',
+    action_url: '/parent/agenda',
+    is_read: true,
+    created_at: '2026-03-13T09:00:00Z',
+  },
+];
+
+// ── Helper: map userId prefix to notification set ───────────
+
+function getNotificationsForUser(userId: string): InAppNotification[] {
+  if (userId.startsWith('prof')) return PROFESSOR_NOTIFICATIONS;
+  if (userId.startsWith('teen')) return TEEN_NOTIFICATIONS;
+  if (userId.startsWith('kids')) return KIDS_NOTIFICATIONS;
+  if (userId.startsWith('parent') || userId.startsWith('resp')) return PARENT_NOTIFICATIONS;
+  if (userId.startsWith('admin')) return ADMIN_NOTIFICATIONS;
+  // Default: aluno adulto
+  return ALUNO_NOTIFICATIONS;
+}
+
+// ── Mock exports ────────────────────────────────────────────
+
+export async function mockListNotifications(
+  userId: string,
+  unreadOnly?: boolean,
+): Promise<InAppNotification[]> {
+  await delay();
+  const all = getNotificationsForUser(userId).map((n) => ({
+    ...n,
+    user_id: userId,
+  }));
+  if (unreadOnly) return all.filter((n) => !n.is_read);
+  return all;
+}
+
+export async function mockMarkAsRead(_id: string): Promise<void> {
+  await delay();
+}
+
+export async function mockMarkAllRead(_userId: string): Promise<void> {
+  await delay();
+}
+
+export async function mockDismiss(_id: string): Promise<void> {
+  await delay();
+}
+
+export async function mockGetUnreadCount(userId: string): Promise<number> {
+  await delay();
+  const all = getNotificationsForUser(userId);
+  return all.filter((n) => !n.is_read).length;
+}

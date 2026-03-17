@@ -22,6 +22,7 @@ import {
   CheckSquareIcon,
   LinkIcon,
   StarIcon,
+  AwardIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
@@ -36,6 +37,7 @@ const sidebarItems = [
   { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
   { href: '/admin/relatorios', label: 'Relatórios', icon: BarChartIcon },
   { href: '/admin/conteudo', label: 'Conteúdo', icon: SettingsIcon },
+  { href: '/admin/graduacoes', label: 'Graduações', icon: AwardIcon },
   { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
   { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
 ];
