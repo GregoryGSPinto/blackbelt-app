@@ -1,0 +1,105 @@
+import { isMock } from '@/lib/env';
+import { ServiceError, handleServiceError } from '@/lib/api/errors';
+
+// ────────────────────────────────────────────────────────────
+// DTOs
+// ────────────────────────────────────────────────────────────
+
+export interface Autorizacao {
+  id: string;
+  student_id: string;
+  student_name: string;
+  type: 'evento' | 'viagem' | 'foto' | 'saida_sozinho' | 'contato_emergencia';
+  title: string;
+  description: string;
+  status: 'pendente' | 'autorizado' | 'negado';
+  requested_at: string;
+  responded_at: string | null;
+}
+
+export interface ParentalPermission {
+  key: string;
+  label: string;
+  enabled: boolean;
+  description: string;
+}
+
+export interface ControleParental {
+  student_id: string;
+  student_name: string;
+  permissions: ParentalPermission[];
+}
+
+// ────────────────────────────────────────────────────────────
+// Service
+// ────────────────────────────────────────────────────────────
+
+export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]> {
+  try {
+    if (isMock()) {
+      const { mockGetAutorizacoes } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockGetAutorizacoes(guardianId);
+    }
+    const res = await fetch(`/api/responsavel/autorizacoes?guardianId=${guardianId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'responsavel.autorizacoes');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'responsavel.autorizacoes');
+  }
+}
+
+export async function respondAutorizacao(
+  id: string,
+  status: 'autorizado' | 'negado',
+): Promise<Autorizacao> {
+  try {
+    if (isMock()) {
+      const { mockRespondAutorizacao } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockRespondAutorizacao(id, status);
+    }
+    const res = await fetch(`/api/responsavel/autorizacoes/${id}/respond`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'responsavel.autorizacoes.respond');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'responsavel.autorizacoes.respond');
+  }
+}
+
+export async function getControleParental(studentId: string): Promise<ControleParental> {
+  try {
+    if (isMock()) {
+      const { mockGetControleParental } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockGetControleParental(studentId);
+    }
+    const res = await fetch(`/api/responsavel/controle-parental/${studentId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'responsavel.controle-parental');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'responsavel.controle-parental');
+  }
+}
+
+export async function updatePermission(
+  studentId: string,
+  key: string,
+  enabled: boolean,
+): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockUpdatePermission } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockUpdatePermission(studentId, key, enabled);
+    }
+    const res = await fetch(`/api/responsavel/controle-parental/${studentId}/permission`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, enabled }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'responsavel.controle-parental.update');
+  } catch (error) {
+    handleServiceError(error, 'responsavel.controle-parental.update');
+  }
+}

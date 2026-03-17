@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 
 const sidebarItems = [
   { href: '/franqueador', label: 'Dashboard' },
+  { href: '/franqueador/unidades', label: 'Unidades' },
+  { href: '/franqueador/curriculo', label: 'Curriculo' },
   { href: '/franqueador/padroes', label: 'Padronizacao' },
   { href: '/franqueador/royalties', label: 'Royalties' },
   { href: '/franqueador/expansao', label: 'Expansao' },
