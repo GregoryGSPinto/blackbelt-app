@@ -33,57 +33,23 @@ export function TutorialOverlay() {
   const [skipConfirm, setSkipConfirm] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollingRef = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const step = currentTutorial?.steps[currentStep];
 
-  const updatePosition = useCallback(() => {
-    if (!step) {
-      setSpotlight(null);
-      return;
-    }
-
-    const el = document.querySelector(step.targetSelector);
-    if (!el) {
-      // Element not found — show tooltip centered without spotlight
-      setSpotlight(null);
-      setTooltipStyle({
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: `${step.tooltipWidth ?? 320}px`,
-      });
-      setTooltipPosition('bottom');
-
-      // Retry after a short delay — element might not be mounted yet
-      if (retryRef.current) clearTimeout(retryRef.current);
-      retryRef.current = setTimeout(() => {
-        const retryEl = document.querySelector(step.targetSelector);
-        if (retryEl) updatePosition();
-      }, 500);
-      return;
-    }
-
+  const positionTooltip = useCallback((el: Element, step: NonNullable<typeof currentTutorial>['steps'][number]) => {
     const rect = el.getBoundingClientRect();
     const padding = step.spotlightPadding ?? 8;
 
-    const spotRect: SpotlightRect = {
+    setSpotlight({
       top: rect.top - padding,
       left: rect.left - padding,
       width: rect.width + padding * 2,
       height: rect.height + padding * 2,
-    };
-    setSpotlight(spotRect);
+    });
 
-    // Scroll element into view if needed
-    if (rect.top < 0 || rect.bottom > window.innerHeight) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Re-update after scroll settles
-      setTimeout(updatePosition, 400);
-      return;
-    }
-
-    // Position tooltip
     const tooltipWidth = step.tooltipWidth ?? 320;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
@@ -105,10 +71,60 @@ export function TutorialOverlay() {
       width: `${tooltipWidth}px`,
       transform: 'none',
     });
-  }, [step]);
+  }, []);
+
+  const updatePosition = useCallback(() => {
+    if (!step) {
+      setSpotlight(null);
+      return;
+    }
+
+    const el = document.querySelector(step.targetSelector);
+    if (!el) {
+      setSpotlight(null);
+      setTooltipStyle({
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: `${step.tooltipWidth ?? 320}px`,
+      });
+      setTooltipPosition('bottom');
+
+      if (retryRef.current) clearTimeout(retryRef.current);
+      retryRef.current = setTimeout(() => {
+        const retryEl = document.querySelector(step.targetSelector);
+        if (retryEl) updatePosition();
+      }, 500);
+      return;
+    }
+
+    const rect = el.getBoundingClientRect();
+
+    // Scroll element into view if needed — but only once per step
+    if (!scrollingRef.current && (rect.top < 0 || rect.bottom > window.innerHeight)) {
+      scrollingRef.current = true;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Wait for scroll to finish, then position once
+      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+      scrollTimerRef.current = setTimeout(() => {
+        scrollingRef.current = false;
+        positionTooltip(el, step);
+      }, 500);
+      return;
+    }
+
+    // Don't reposition while smooth-scrolling
+    if (scrollingRef.current) return;
+
+    positionTooltip(el, step);
+  }, [step, positionTooltip]);
 
   useEffect(() => {
     if (!isActive || !step) return;
+
+    // Reset scroll lock on step change
+    scrollingRef.current = false;
 
     setAnimating(true);
     setSkipConfirm(false);
@@ -117,15 +133,26 @@ export function TutorialOverlay() {
     // Small delay to let DOM settle after step transition
     const posTimer = setTimeout(updatePosition, 50);
 
+    // Debounced scroll handler — prevents jitter from scroll events
+    const handleScroll = () => {
+      if (scrollingRef.current) return;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        if (!scrollingRef.current) updatePosition();
+      });
+    };
+
     window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('scroll', handleScroll, true);
 
     return () => {
       clearTimeout(animTimer);
       clearTimeout(posTimer);
       if (retryRef.current) clearTimeout(retryRef.current);
+      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isActive, step, currentStep, updatePosition]);
 
