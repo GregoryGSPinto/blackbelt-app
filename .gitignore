@@ -49,6 +49,12 @@ coverage/
 android/
 ios/
 
+# prompt / spec files
+BLACKBELT_*.md
+
+# claude
+.claude/
+
 # misc
 *.pem
 .vercel
