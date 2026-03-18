@@ -8,6 +8,7 @@ export interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+  id?: string;
 }
 
 interface BottomNavProps {
@@ -36,6 +37,7 @@ const BottomNav = forwardRef<HTMLElement, BottomNavProps>(
               <Link
                 key={item.href}
                 href={item.href}
+                id={item.id}
                 className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-all"
                 style={{
                   color: isActive ? 'var(--bb-brand)' : 'var(--bb-ink-60)',

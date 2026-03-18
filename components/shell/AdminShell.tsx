@@ -44,64 +44,64 @@ interface AdminShellProps {
 
 interface SidebarGroup {
   label: string;
-  items: { href: string; label: string; icon: typeof HomeIcon; badge?: number }[];
+  items: { href: string; label: string; icon: typeof HomeIcon; badge?: number; id?: string }[];
 }
 
 const sidebarGroups: SidebarGroup[] = [
   {
     label: 'GESTAO',
     items: [
-      { href: '/admin', label: 'Dashboard', icon: HomeIcon },
-      { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon },
-      { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon },
-      { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon },
-      { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon },
+      { href: '/admin', label: 'Dashboard', icon: HomeIcon, id: 'sidebar-link-dashboard' },
+      { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon, id: 'sidebar-link-turmas' },
+      { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon, id: 'sidebar-link-alunos' },
+      { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon, id: 'sidebar-link-calendario' },
+      { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon, id: 'sidebar-link-graduacoes' },
     ],
   },
   {
     label: 'COMERCIAL',
     items: [
-      { href: '/admin/aula-experimental', label: 'Aula Experimental', icon: UserPlusIcon },
-      { href: '/admin/convites', label: 'Convites', icon: LinkIcon },
+      { href: '/admin/aula-experimental', label: 'Aula Experimental', icon: UserPlusIcon, id: 'sidebar-link-aula-experimental' },
+      { href: '/admin/convites', label: 'Convites', icon: LinkIcon, id: 'sidebar-link-convites' },
     ],
   },
   {
     label: 'FINANCEIRO',
     items: [
-      { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon },
-      { href: '/admin/inadimplencia', label: 'Inadimplencia', icon: AlertTriangleIcon },
-      { href: '/admin/contratos', label: 'Contratos', icon: FileTextIcon },
+      { href: '/admin/financeiro', label: 'Financeiro', icon: DollarIcon, id: 'sidebar-link-financeiro' },
+      { href: '/admin/inadimplencia', label: 'Inadimplencia', icon: AlertTriangleIcon, id: 'sidebar-link-inadimplencia' },
+      { href: '/admin/contratos', label: 'Contratos', icon: FileTextIcon, id: 'sidebar-link-contratos' },
     ],
   },
   {
     label: 'CONTEUDO',
     items: [
-      { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon },
-      { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon },
-      { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon },
+      { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon, id: 'sidebar-link-conteudo' },
+      { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon, id: 'sidebar-link-eventos' },
+      { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon, id: 'sidebar-link-comunicados' },
     ],
   },
   {
     label: 'LOJA',
     items: [
-      { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon },
-      { href: '/admin/estoque', label: 'Estoque', icon: PackageIcon },
+      { href: '/admin/loja', label: 'Loja', icon: ShoppingBagIcon, id: 'sidebar-link-loja' },
+      { href: '/admin/estoque', label: 'Estoque', icon: PackageIcon, id: 'sidebar-link-estoque' },
     ],
   },
   {
     label: 'RELATORIOS',
     items: [
-      { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon },
-      { href: '/admin/relatorio-professores', label: 'Professores', icon: GraduationCapIcon },
-      { href: '/admin/retencao', label: 'Retencao', icon: HeartIcon },
-      { href: '/admin/auditoria', label: 'Auditoria', icon: EyeIcon },
+      { href: '/admin/relatorios', label: 'Relatorios', icon: BarChartIcon, id: 'sidebar-link-relatorios' },
+      { href: '/admin/relatorio-professores', label: 'Professores', icon: GraduationCapIcon, id: 'sidebar-link-relatorio-professores' },
+      { href: '/admin/retencao', label: 'Retencao', icon: HeartIcon, id: 'sidebar-link-retencao' },
+      { href: '/admin/auditoria', label: 'Auditoria', icon: EyeIcon, id: 'sidebar-link-auditoria' },
     ],
   },
   {
     label: 'CONFIGURACAO',
     items: [
-      { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon },
-      { href: '/admin/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
+      { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon, id: 'sidebar-link-meu-plano' },
+      { href: '/admin/configuracoes', label: 'Configuracoes', icon: SettingsIcon, id: 'sidebar-link-configuracoes' },
     ],
   },
 ];
@@ -279,6 +279,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                       <Link
                         key={item.href}
                         href={item.href}
+                        id={item.id}
                         className="flex items-center gap-3 text-sm transition-colors"
                         style={{
                           padding: '10px 16px',
@@ -374,6 +375,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                           <Link
                             key={item.href}
                             href={item.href}
+                            id={item.id}
                             onClick={() => setSidebarOpen(false)}
                             className="flex items-center gap-3 text-sm transition-colors"
                             style={{

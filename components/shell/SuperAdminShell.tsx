@@ -29,7 +29,7 @@ interface SuperAdminShellProps {
 
 interface SidebarGroup {
   label: string;
-  items: { href: string; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; badge?: number }[];
+  items: { href: string; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; badge?: number; id?: string }[];
 }
 
 const AMBER = '#f59e0b';
@@ -38,41 +38,41 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: 'OVERVIEW',
     items: [
-      { href: '/superadmin', label: 'Mission Control', icon: LayoutDashboardIcon },
+      { href: '/superadmin', label: 'Mission Control', icon: LayoutDashboardIcon, id: 'sidebar-link-mission-control' },
     ],
   },
   {
     label: 'COMERCIAL',
     items: [
-      { href: '/superadmin/pipeline', label: 'Pipeline', icon: FilterIcon, badge: 12 },
-      { href: '/superadmin/academias', label: 'Academias', icon: BuildingIcon, badge: 3 },
+      { href: '/superadmin/pipeline', label: 'Pipeline', icon: FilterIcon, badge: 12, id: 'sidebar-link-pipeline' },
+      { href: '/superadmin/academias', label: 'Academias', icon: BuildingIcon, badge: 3, id: 'sidebar-link-academias' },
     ],
   },
   {
     label: 'FINANCEIRO',
     items: [
-      { href: '/superadmin/receita', label: 'Receita', icon: DollarIcon },
-      { href: '/superadmin/planos', label: 'Planos', icon: CreditCardIcon },
+      { href: '/superadmin/receita', label: 'Receita', icon: DollarIcon, id: 'sidebar-link-receita' },
+      { href: '/superadmin/planos', label: 'Planos', icon: CreditCardIcon, id: 'sidebar-link-planos' },
     ],
   },
   {
     label: 'PRODUTO',
     items: [
-      { href: '/superadmin/features', label: 'Features', icon: ToggleLeftIcon },
-      { href: '/superadmin/analytics', label: 'Analytics', icon: BarChartIcon },
+      { href: '/superadmin/features', label: 'Features', icon: ToggleLeftIcon, id: 'sidebar-link-features' },
+      { href: '/superadmin/analytics', label: 'Analytics', icon: BarChartIcon, id: 'sidebar-link-analytics' },
     ],
   },
   {
     label: 'COMUNICAÇÃO',
     items: [
-      { href: '/superadmin/comunicacao', label: 'Comunicação', icon: MegaphoneIcon, badge: 2 },
+      { href: '/superadmin/comunicacao', label: 'Comunicação', icon: MegaphoneIcon, badge: 2, id: 'sidebar-link-comunicacao' },
     ],
   },
   {
     label: 'OPERAÇÕES',
     items: [
-      { href: '/superadmin/onboarding', label: 'Onboarding', icon: RocketIcon },
-      { href: '/superadmin/auditoria', label: 'Auditoria', icon: ShieldIcon },
+      { href: '/superadmin/onboarding', label: 'Onboarding', icon: RocketIcon, id: 'sidebar-link-onboarding' },
+      { href: '/superadmin/auditoria', label: 'Auditoria', icon: ShieldIcon, id: 'sidebar-link-auditoria-sa' },
     ],
   },
 ];
@@ -161,6 +161,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
 
           {/* Sidebar */}
           <aside
+            id="superadmin-sidebar"
             className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
@@ -207,6 +208,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                       return (
                         <Link
                           key={item.href}
+                          id={item.id}
                           href={item.href}
                           onClick={() => setSidebarOpen(false)}
                           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"

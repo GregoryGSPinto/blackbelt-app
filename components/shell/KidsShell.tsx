@@ -24,10 +24,10 @@ interface KidsShellProps {
 }
 
 const navItems: NavItem[] = [
-  { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" /> },
-  { href: '/kids/recompensas', label: 'Estrelas', icon: <StarIcon className="h-6 w-6" /> },
-  { href: '/kids/figurinhas', label: 'Álbum', icon: <AwardIcon className="h-6 w-6" /> },
-  { href: '/kids/perfil', label: 'Eu', icon: <span className="text-xl">😊</span> },
+  { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" />, id: 'nav-home-kids' },
+  { href: '/kids/recompensas', label: 'Estrelas', icon: <StarIcon className="h-6 w-6" />, id: 'nav-recompensas' },
+  { href: '/kids/figurinhas', label: 'Álbum', icon: <AwardIcon className="h-6 w-6" />, id: 'nav-figurinhas' },
+  { href: '/kids/perfil', label: 'Eu', icon: <span className="text-xl">😊</span>, id: 'nav-perfil' },
 ];
 
 // ── Mock notifications ──────────────────────────────────────────────────

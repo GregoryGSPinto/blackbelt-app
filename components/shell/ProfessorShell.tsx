@@ -39,6 +39,7 @@ interface ProfessorShellProps {
 interface SidebarGroup {
   label: string;
   items: {
+    id?: string;
     href: string;
     label: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -71,40 +72,40 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: 'ENSINO',
     items: [
-      { href: '/professor', label: 'Dashboard', icon: HomeIcon },
-      { href: '/professor/turma-ativa', label: 'Modo Aula', icon: PlayIcon, accent: true },
-      { href: '/professor/turmas', label: 'Turmas', icon: UsersIcon },
-      { href: '/professor/calendario', label: 'Calendario', icon: CalendarIcon },
+      { id: 'sidebar-link-dashboard-prof', href: '/professor', label: 'Dashboard', icon: HomeIcon },
+      { id: 'sidebar-link-turma-ativa', href: '/professor/turma-ativa', label: 'Modo Aula', icon: PlayIcon, accent: true },
+      { id: 'sidebar-link-turmas-prof', href: '/professor/turmas', label: 'Turmas', icon: UsersIcon },
+      { id: 'sidebar-link-calendario-prof', href: '/professor/calendario', label: 'Calendario', icon: CalendarIcon },
     ],
   },
   {
     label: 'PEDAGOGICO',
     items: [
-      { href: '/professor/alunos', label: 'Alunos', icon: GraduationCapIcon },
-      { href: '/professor/avaliacoes', label: 'Avaliacoes', icon: ClipboardCheckIcon },
-      { href: '/professor/diario', label: 'Diario de Aulas', icon: BookOpenIcon },
-      { href: '/professor/tecnicas', label: 'Tecnicas', icon: BookMarkedIcon },
+      { id: 'sidebar-link-alunos', href: '/professor/alunos', label: 'Alunos', icon: GraduationCapIcon },
+      { id: 'sidebar-link-avaliacoes', href: '/professor/avaliacoes', label: 'Avaliacoes', icon: ClipboardCheckIcon },
+      { id: 'sidebar-link-diario', href: '/professor/diario', label: 'Diario de Aulas', icon: BookOpenIcon },
+      { id: 'sidebar-link-tecnicas', href: '/professor/tecnicas', label: 'Tecnicas', icon: BookMarkedIcon },
     ],
   },
   {
     label: 'PLANEJAMENTO',
     items: [
-      { href: '/professor/plano-aula', label: 'Plano de Aula', icon: FileTextIcon },
-      { href: '/professor/relatorios', label: 'Relatorios', icon: BarChartIcon },
+      { id: 'sidebar-link-plano-aula', href: '/professor/plano-aula', label: 'Plano de Aula', icon: FileTextIcon },
+      { id: 'sidebar-link-relatorios-prof', href: '/professor/relatorios', label: 'Relatorios', icon: BarChartIcon },
     ],
   },
   {
     label: 'COMUNICACAO',
     items: [
-      { href: '/professor/mensagens', label: 'Mensagens', icon: MessageIcon },
-      { href: '/professor/conteudo', label: 'Conteudo', icon: VideoIcon },
+      { id: 'sidebar-link-mensagens', href: '/professor/mensagens', label: 'Mensagens', icon: MessageIcon },
+      { id: 'sidebar-link-conteudo-prof', href: '/professor/conteudo', label: 'Conteudo', icon: VideoIcon },
     ],
   },
   {
     label: 'CONTA',
     items: [
-      { href: '/professor/perfil', label: 'Perfil', icon: UserIcon },
-      { href: '/professor/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
+      { id: 'sidebar-link-perfil-prof', href: '/professor/perfil', label: 'Perfil', icon: UserIcon },
+      { id: 'sidebar-link-configuracoes-prof', href: '/professor/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
     ],
   },
 ];
@@ -272,6 +273,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                           <Link
                             key={item.href}
                             href={item.href}
+                            id={item.id}
                             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors"
                             style={{
                               background: active
@@ -302,6 +304,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                         <Link
                           key={item.href}
                           href={item.href}
+                          id={item.id}
                           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
                           style={{
                             background: active

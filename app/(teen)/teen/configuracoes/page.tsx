@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/contexts/ThemeContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/lib/hooks/useToast';
+import { TutorialSettings } from '@/components/shared/TutorialSettings';
 
 type ThemeOption = 'light' | 'dark' | 'system';
 
@@ -105,6 +106,9 @@ export default function TeenConfiguracoesPage() {
           <ToggleRow label="Mensagens" value={mensagens} onChange={setMensagens} />
         </div>
       </section>
+
+      {/* Tutorial */}
+      <TutorialSettings />
 
       {/* Seguranca */}
       <section

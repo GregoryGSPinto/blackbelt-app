@@ -12,11 +12,11 @@ interface TeenShellProps {
 }
 
 const navItems: NavItem[] = [
-  { href: '/teen', label: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
-  { href: '/teen/turmas', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" /> },
-  { href: '/teen/conteudo', label: 'Vídeos', icon: <VideoIcon className="h-5 w-5" /> },
-  { href: '/teen/ranking', label: 'Ranking', icon: <StarIcon className="h-5 w-5" /> },
-  { href: '/teen/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" /> },
+  { href: '/teen', label: 'Home', icon: <HomeIcon className="h-5 w-5" />, id: 'nav-home-teen' },
+  { href: '/teen/turmas', label: 'Turmas', icon: <CalendarIcon className="h-5 w-5" />, id: 'nav-turmas-teen' },
+  { href: '/teen/conteudo', label: 'Vídeos', icon: <VideoIcon className="h-5 w-5" />, id: 'nav-biblioteca' },
+  { href: '/teen/ranking', label: 'Ranking', icon: <StarIcon className="h-5 w-5" />, id: 'nav-ranking' },
+  { href: '/teen/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" />, id: 'nav-perfil' },
 ];
 
 const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
@@ -24,7 +24,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
     return (
       <div ref={ref} className="min-h-screen pb-16" style={{ background: 'var(--bb-depth-1)' }}>
         {/* XP Bar */}
-        <div className="sticky top-0 z-30 px-4 pt-2" style={{ background: 'var(--bb-depth-1)' }}>
+        <div id="teen-xp-bar" className="sticky top-0 z-30 px-4 pt-2" style={{ background: 'var(--bb-depth-1)' }}>
           <div className="flex items-center justify-between text-xs" style={{ color: 'var(--bb-ink-60)' }}>
             <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Nível 7</span>
             <span>2.450 / 3.000 XP</span>

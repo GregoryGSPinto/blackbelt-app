@@ -4,6 +4,7 @@ import { useState, useEffect, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useToast } from '@/lib/hooks/useToast';
+import { TutorialSettings } from '@/components/shared/TutorialSettings';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -1154,6 +1155,11 @@ export default function AdminConfiguracoesPage() {
             </div>
           </Link>
         </section>
+
+        {/* ══════════════════════════════════════════════════════════
+           TUTORIAL
+           ══════════════════════════════════════════════════════════ */}
+        <TutorialSettings />
 
         {/* ══════════════════════════════════════════════════════════
            SECTION 8: Exportar Dados (LGPD)

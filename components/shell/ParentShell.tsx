@@ -12,11 +12,11 @@ interface ParentShellProps {
 }
 
 const navItems: NavItem[] = [
-  { href: '/parent', label: 'Filhos', icon: <UsersIcon className="h-5 w-5" /> },
-  { href: '/parent/presencas', label: 'Presenças', icon: <CheckSquareIcon className="h-5 w-5" /> },
-  { href: '/parent/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" /> },
-  { href: '/parent/pagamentos', label: 'Pagamentos', icon: <DollarIcon className="h-5 w-5" /> },
-  { href: '/parent/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" /> },
+  { href: '/parent', label: 'Filhos', icon: <UsersIcon className="h-5 w-5" />, id: 'nav-filhos' },
+  { href: '/parent/presencas', label: 'Presenças', icon: <CheckSquareIcon className="h-5 w-5" />, id: 'nav-presencas' },
+  { href: '/parent/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" />, id: 'nav-mensagens' },
+  { href: '/parent/pagamentos', label: 'Pagamentos', icon: <DollarIcon className="h-5 w-5" />, id: 'nav-pagamentos' },
+  { href: '/parent/perfil', label: 'Perfil', icon: <UserIcon className="h-5 w-5" />, id: 'nav-perfil' },
 ];
 
 const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(

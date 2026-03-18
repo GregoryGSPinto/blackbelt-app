@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const sidebarItems = [
-  { href: '/franqueador', label: 'Dashboard' },
-  { href: '/franqueador/unidades', label: 'Unidades' },
-  { href: '/franqueador/curriculo', label: 'Curriculo' },
-  { href: '/franqueador/padroes', label: 'Padronizacao' },
-  { href: '/franqueador/royalties', label: 'Royalties' },
-  { href: '/franqueador/expansao', label: 'Expansao' },
-  { href: '/franqueador/comunicacao', label: 'Comunicacao' },
+const sidebarItems: { href: string; label: string; id?: string }[] = [
+  { href: '/franqueador', label: 'Dashboard', id: 'sidebar-link-dashboard-fr' },
+  { href: '/franqueador/unidades', label: 'Unidades', id: 'sidebar-link-unidades' },
+  { href: '/franqueador/curriculo', label: 'Curriculo', id: 'sidebar-link-curriculo' },
+  { href: '/franqueador/padroes', label: 'Padronizacao', id: 'sidebar-link-padroes' },
+  { href: '/franqueador/royalties', label: 'Royalties', id: 'sidebar-link-royalties' },
+  { href: '/franqueador/expansao', label: 'Expansao', id: 'sidebar-link-expansao' },
+  { href: '/franqueador/comunicacao', label: 'Comunicacao', id: 'sidebar-link-comunicacao' },
 ];
 
 export default function FranqueadorLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +31,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
               <Link
                 key={item.href}
                 href={item.href}
+                id={item.id}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? 'bg-bb-red/10 text-bb-red'
@@ -52,6 +53,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
             <Link
               key={item.href}
               href={item.href}
+              id={item.id}
               className={`flex flex-1 flex-col items-center py-2 text-[10px] font-medium ${
                 isActive ? 'text-bb-red' : 'text-bb-gray-500'
               }`}
