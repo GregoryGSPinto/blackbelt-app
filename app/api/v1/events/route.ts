@@ -2,6 +2,8 @@ import { type NextRequest } from 'next/server';
 import { paginatedResponse } from '../helpers';
 import { authenticateRequest } from '../auth-guard';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const result = await authenticateRequest(request);
   if ('error' in result) return result.error;
