@@ -58,14 +58,14 @@ export function LandingHero() {
           Alunos, professores, pais e academias. Cada um com sua experiencia. Todos conectados.
         </p>
 
-        <div className="mt-12 flex items-start gap-8 md:gap-14">
+        <div className="mt-12 flex flex-wrap items-start justify-center gap-6 sm:gap-8 md:gap-14">
           {profiles.map((profile) => (
             <div
               key={profile.label}
               className="bb-profile-icon flex flex-col items-center gap-2"
             >
               <div
-                className="flex h-14 w-14 items-center justify-center rounded-2xl md:h-16 md:w-16"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl sm:h-14 sm:w-14 md:h-16 md:w-16"
                 style={{
                   background: 'var(--bb-brand-surface)',
                   border: '1px solid var(--bb-glass-border)',

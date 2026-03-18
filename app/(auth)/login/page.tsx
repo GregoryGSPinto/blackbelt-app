@@ -198,24 +198,27 @@ export default function LoginPage() {
         {/* ═══════════ HERO LOGIN (full viewport) ═══════════ */}
         <section
           id="login-section"
-          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 lg:flex-row lg:px-0"
+          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 lg:flex-row lg:items-stretch lg:px-0"
           style={{ backgroundColor: 'var(--bb-depth-1)', minHeight: '100dvh' }}
         >
-          {/* ── Desktop Left Side: Motivational (hidden on mobile/tablet) ── */}
+          {/* ── Desktop Left Side: Motivational (hidden below lg) ── */}
           <div
-            className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center px-10 xl:px-16"
+            className="hidden min-w-0 flex-col items-center justify-center px-8 lg:flex lg:w-[45%] xl:w-1/2 xl:px-12 2xl:px-16"
             style={{
-              minHeight: '100dvh',
               background: 'linear-gradient(135deg, var(--bb-depth-2) 0%, var(--bb-depth-1) 100%)',
               borderRight: '1px solid var(--bb-glass-border)',
             }}
           >
-            <div className="w-full max-w-lg text-center">
+            <div className="w-full max-w-md text-center xl:max-w-lg">
               <h2
-                className="text-3xl font-extrabold leading-tight xl:text-5xl 2xl:text-6xl"
-                style={{ color: 'var(--bb-ink-100)', wordBreak: 'break-word' }}
+                className="font-extrabold leading-tight"
+                style={{
+                  color: 'var(--bb-ink-100)',
+                  fontSize: 'clamp(1.75rem, 1rem + 2vw, 3.5rem)',
+                  overflowWrap: 'break-word',
+                }}
               >
-                <span key={phraseIndex} className="bb-phrase-enter inline-block">
+                <span key={phraseIndex} className="bb-phrase-enter block">
                   {PHRASES[phraseIndex]}
                 </span>
               </h2>
@@ -240,16 +243,15 @@ export default function LoginPage() {
           </div>
 
           {/* ── Login Form (centered mobile, right side desktop) ── */}
-          <div className="flex w-full items-center justify-center py-10 sm:py-12 lg:w-1/2 lg:py-0">
+          <div className="flex min-w-0 w-full items-center justify-center py-10 sm:py-12 lg:w-[55%] lg:py-0 xl:w-1/2">
             <div
-              className={`bb-s w-full max-w-[400px] ${shake || success ? '' : 'bb-s-card'}`}
+              className={`bb-s w-full max-w-[420px] rounded-2xl sm:rounded-3xl ${shake || success ? '' : 'bb-s-card'}`}
               style={{
                 background: 'var(--bb-depth-3)',
                 backdropFilter: 'blur(24px) saturate(1.3)',
                 WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
                 border: '1px solid var(--bb-glass-border)',
-                borderRadius: 20,
-                padding: 'clamp(24px, 5vw, 40px) clamp(20px, 4vw, 36px)',
+                padding: 'clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 3.5vw, 2.25rem)',
                 boxShadow: 'var(--bb-shadow-xl)',
                 ...cardAnim,
               }}
@@ -416,7 +418,7 @@ export default function LoginPage() {
 
               {/* Demo credentials */}
               <div className="bb-s bb-s-links mt-5 pt-4" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-                <p className="break-all text-center text-[11px] sm:text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                <p className="text-center text-[11px] sm:text-xs" style={{ color: 'var(--bb-ink-40)', overflowWrap: 'break-word' }}>
                   Demo: roberto@guerreiros.com / BlackBelt@2026
                 </p>
               </div>
@@ -428,11 +430,11 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleScrollDown}
-              className="absolute bottom-5 left-1/2 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 border-none bg-transparent"
+              className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 border-none bg-transparent sm:bottom-8"
               style={{ color: 'var(--bb-ink-40)', cursor: 'pointer' }}
               aria-label="Rolar para baixo"
             >
-              <span className="text-[11px]">Descubra mais</span>
+              <span className="text-[10px] uppercase tracking-widest sm:text-[11px]">Descubra mais</span>
               <ChevronDown size={22} />
             </button>
           )}
