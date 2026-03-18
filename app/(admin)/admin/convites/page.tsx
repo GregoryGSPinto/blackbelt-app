@@ -21,12 +21,16 @@ import {
 const ACADEMY_ID = 'academy-bb-001';
 
 const ROLE_LABELS: Record<string, string> = {
+  superadmin: 'Super Admin',
   admin: 'Administrador',
+  gestor: 'Gestor',
   professor: 'Professor',
+  recepcao: 'Recepcionista',
   aluno_adulto: 'Aluno Adulto',
   aluno_teen: 'Aluno Teen',
   aluno_kids: 'Aluno Kids',
-  responsavel: 'Responsavel',
+  responsavel: 'Responsável',
+  franqueador: 'Franqueador',
 };
 
 const ROLE_OPTIONS: { value: Role; label: string }[] = [

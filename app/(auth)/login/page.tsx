@@ -5,13 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useToast } from '@/lib/hooks/useToast';
-import { ROLE_DASHBOARD } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, selectProfile } = useAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState('');
@@ -55,8 +54,8 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 400));
 
       if (profiles.length === 1) {
-        const dashboard = ROLE_DASHBOARD[profiles[0].role] ?? '/dashboard';
-        router.push(dashboard);
+        // selectProfile sets cookies (bb-active-role, bb-academy-id) and navigates
+        await selectProfile(profiles[0].id);
       } else {
         router.push('/selecionar-perfil');
       }

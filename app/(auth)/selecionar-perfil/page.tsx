@@ -8,12 +8,16 @@ import { Spinner } from '@/components/ui/Spinner';
 import type { Role } from '@/lib/types';
 
 const ROLE_LABELS: Record<string, string> = {
+  superadmin: 'Super Admin',
   admin: 'Administrador',
+  gestor: 'Gestor',
   professor: 'Professor',
+  recepcao: 'Recepcionista',
   aluno_adulto: 'Aluno',
   aluno_teen: 'Teen',
   aluno_kids: 'Kids',
   responsavel: 'Responsável',
+  franqueador: 'Franqueador',
 };
 
 export default function SelecionarPerfilPage() {

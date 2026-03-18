@@ -133,7 +133,12 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
   try {
     if (isMock()) {
       const { mockSelectProfile } = await import('@/lib/mocks/auth.mock');
-      return mockSelectProfile(profileId);
+      const result = await mockSelectProfile(profileId);
+      // Set cookies so middleware can validate role on next navigation
+      const cookieOpts = ';path=/;max-age=' + (60 * 60 * 24 * 30) + ';samesite=lax';
+      document.cookie = `bb-active-role=${result.profile.role}${cookieOpts}`;
+      document.cookie = `bb-academy-id=academy-1${cookieOpts}`;
+      return result;
     }
 
     const { createBrowserClient } = await import('@/lib/supabase/client');
@@ -177,16 +182,17 @@ export async function logout(): Promise<void> {
   try {
     if (isMock()) {
       const { mockLogout } = await import('@/lib/mocks/auth.mock');
-      return mockLogout();
+      await mockLogout();
+    } else {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      await supabase.auth.signOut();
     }
 
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    await supabase.auth.signOut();
-
-    // Clear all custom cookies
+    // Clear all custom cookies in ALL modes
     document.cookie = 'bb-active-role=;path=/;max-age=0';
     document.cookie = 'bb-academy-id=;path=/;max-age=0';
+    document.cookie = 'bb-token=;path=/;max-age=0';
   } catch (error) {
     handleServiceError(error, 'auth.logout');
   }
