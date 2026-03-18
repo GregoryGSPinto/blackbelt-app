@@ -22,26 +22,29 @@ export function TutorialOverlay() {
   } = useTutorial();
 
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-  });
   const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('bottom');
-  const [animating, setAnimating] = useState(false);
   const [skipConfirm, setSkipConfirm] = useState(false);
+  const [ready, setReady] = useState(false); // tooltip hidden until positioned
   const tooltipRef = useRef<HTMLDivElement>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollingRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<number | null>(null);
+  // Store tooltip position in ref to avoid re-renders during calculation
+  const tooltipCoordsRef = useRef({ left: 0, top: 0, bottom: 0, width: 320, pos: 'bottom' as 'top' | 'bottom', centered: true });
 
   const step = currentTutorial?.steps[currentStep];
 
-  const positionTooltip = useCallback((el: Element, step: NonNullable<typeof currentTutorial>['steps'][number]) => {
+  const applyPosition = useCallback(() => {
+    const c = tooltipCoordsRef.current;
+    if (c.centered) return; // don't apply centered — that's the fallback
+    setTooltipPosition(c.pos);
+    setReady(true);
+  }, []);
+
+  const positionTooltip = useCallback((el: Element, stepData: NonNullable<typeof currentTutorial>['steps'][number]) => {
     const rect = el.getBoundingClientRect();
-    const padding = step.spotlightPadding ?? 8;
+    const padding = stepData.spotlightPadding ?? 8;
 
     setSpotlight({
       top: rect.top - padding,
@@ -50,28 +53,29 @@ export function TutorialOverlay() {
       height: rect.height + padding * 2,
     });
 
-    const tooltipWidth = step.tooltipWidth ?? 320;
+    const tooltipWidth = stepData.tooltipWidth ?? 320;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
     const pos = spaceBelow > 200 || spaceBelow > spaceAbove ? 'bottom' : 'top';
-    setTooltipPosition(pos);
-
-    let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-    tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 16));
 
     const tooltipTop = pos === 'bottom'
       ? rect.bottom + padding + 12
       : rect.top - padding - 12;
 
-    setTooltipStyle({
-      position: 'fixed',
-      left: `${tooltipLeft}px`,
-      top: pos === 'bottom' ? `${tooltipTop}px` : undefined,
-      bottom: pos === 'top' ? `${window.innerHeight - tooltipTop}px` : undefined,
-      width: `${tooltipWidth}px`,
-      transform: 'none',
-    });
-  }, []);
+    let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+    tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 16));
+
+    tooltipCoordsRef.current = {
+      left: tooltipLeft,
+      top: tooltipTop,
+      bottom: window.innerHeight - tooltipTop,
+      width: tooltipWidth,
+      pos,
+      centered: false,
+    };
+
+    applyPosition();
+  }, [applyPosition]);
 
   const updatePosition = useCallback(() => {
     if (!step) {
@@ -81,15 +85,11 @@ export function TutorialOverlay() {
 
     const el = document.querySelector(step.targetSelector);
     if (!el) {
+      // Element not found — center tooltip, no spotlight
       setSpotlight(null);
-      setTooltipStyle({
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: `${step.tooltipWidth ?? 320}px`,
-      });
+      tooltipCoordsRef.current = { left: 0, top: 0, bottom: 0, width: step.tooltipWidth ?? 320, pos: 'bottom', centered: true };
       setTooltipPosition('bottom');
+      setReady(true);
 
       if (retryRef.current) clearTimeout(retryRef.current);
       retryRef.current = setTimeout(() => {
@@ -101,11 +101,10 @@ export function TutorialOverlay() {
 
     const rect = el.getBoundingClientRect();
 
-    // Scroll element into view if needed — but only once per step
+    // Scroll element into view if needed — only once per step
     if (!scrollingRef.current && (rect.top < 0 || rect.bottom > window.innerHeight)) {
       scrollingRef.current = true;
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Wait for scroll to finish, then position once
       if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
       scrollTimerRef.current = setTimeout(() => {
         scrollingRef.current = false;
@@ -114,7 +113,6 @@ export function TutorialOverlay() {
       return;
     }
 
-    // Don't reposition while smooth-scrolling
     if (scrollingRef.current) return;
 
     positionTooltip(el, step);
@@ -123,17 +121,15 @@ export function TutorialOverlay() {
   useEffect(() => {
     if (!isActive || !step) return;
 
-    // Reset scroll lock on step change
+    // Hide tooltip + reset scroll lock while we calculate new position
     scrollingRef.current = false;
-
-    setAnimating(true);
+    setReady(false);
     setSkipConfirm(false);
-    const animTimer = setTimeout(() => setAnimating(false), 300);
 
-    // Small delay to let DOM settle after step transition
-    const posTimer = setTimeout(updatePosition, 50);
+    // Let DOM settle, then position
+    const posTimer = setTimeout(updatePosition, 60);
 
-    // Debounced scroll handler — prevents jitter from scroll events
+    // Debounced scroll/resize handler
     const handleScroll = () => {
       if (scrollingRef.current) return;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -146,7 +142,6 @@ export function TutorialOverlay() {
     window.addEventListener('scroll', handleScroll, true);
 
     return () => {
-      clearTimeout(animTimer);
       clearTimeout(posTimer);
       if (retryRef.current) clearTimeout(retryRef.current);
       if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
@@ -187,7 +182,7 @@ export function TutorialOverlay() {
         className="fixed inset-0 z-[9998]"
         style={{ pointerEvents: 'none' }}
       >
-        {spotlight ? (
+        {spotlight && ready ? (
           <svg className="absolute inset-0 h-full w-full">
             <defs>
               <mask id="tutorial-mask">
@@ -216,8 +211,8 @@ export function TutorialOverlay() {
           />
         )}
 
-        {/* Spotlight ring */}
-        {spotlight && (
+        {/* Spotlight ring — hidden until positioned */}
+        {spotlight && ready && (
           <div
             className="absolute rounded-lg tutorial-spotlight-pulse"
             style={{
@@ -241,11 +236,22 @@ export function TutorialOverlay() {
       {/* Tooltip — MUST have pointer-events: auto and position: fixed */}
       <div
         ref={tooltipRef}
-        className={`fixed z-[9999] ${animating ? 'tutorial-tooltip-enter' : ''}`}
+        className={`fixed z-[9999] ${ready ? 'tutorial-tooltip-enter' : ''}`}
         style={{
-          ...tooltipStyle,
+          ...(tooltipCoordsRef.current.centered
+            ? { position: 'fixed' as const, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: `${tooltipCoordsRef.current.width}px` }
+            : {
+                position: 'fixed' as const,
+                left: `${tooltipCoordsRef.current.left}px`,
+                top: tooltipCoordsRef.current.pos === 'bottom' ? `${tooltipCoordsRef.current.top}px` : undefined,
+                bottom: tooltipCoordsRef.current.pos === 'top' ? `${tooltipCoordsRef.current.bottom}px` : undefined,
+                width: `${tooltipCoordsRef.current.width}px`,
+                transform: 'none',
+              }),
           maxWidth: 'calc(100vw - 32px)',
           pointerEvents: 'auto',
+          opacity: ready ? 1 : 0,
+          visibility: ready ? 'visible' as const : 'hidden' as const,
         }}
         onClick={(e) => e.stopPropagation()}
       >
