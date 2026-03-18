@@ -19,8 +19,22 @@ const supabase = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
-// ── Constants ──────────────────────────────────────────────────────────
-const ACADEMY_ID = '2008acf3-c7c7-4f76-91ff-91632d27fe70'; // Guerreiros do Tatame
+// ── Resolve academy dynamically ────────────────────────────────────────
+let ACADEMY_ID = '';
+
+async function resolveAcademy() {
+  const { data } = await supabase
+    .from('academies')
+    .select('id')
+    .eq('slug', 'guerreiros-tatame')
+    .maybeSingle();
+  if (data) {
+    ACADEMY_ID = data.id;
+    console.log(`  Academy resolved: ${ACADEMY_ID}`);
+  } else {
+    console.warn('  ⚠️ Academy guerreiros-tatame not found — run seed-full-academy.ts first');
+  }
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────
 async function createUserIfNotExists(
@@ -136,6 +150,12 @@ async function ensureMembership(
 async function main() {
   console.log('═══ BLACKBELT GO LIVE SEED ═══\n');
 
+  await resolveAcademy();
+  if (!ACADEMY_ID) {
+    console.error('Cannot proceed without academy. Run seed-full-academy.ts first.');
+    process.exit(1);
+  }
+
   // ─────────────────────────────────────────────────────────────────
   // A. SUPER ADMIN — Gregory
   // ─────────────────────────────────────────────────────────────────
@@ -214,25 +234,7 @@ async function main() {
   }
 
   // ─────────────────────────────────────────────────────────────────
-  // D. Add additional SaaS plans if missing
-  // ─────────────────────────────────────────────────────────────────
-  console.log('\n📦 Ensuring all SaaS plans exist...');
-  const additionalPlans = [
-    { name: 'Essencial', slug: 'essencial', max_students: 60, max_professors: 5, max_classes: 10, has_streaming: true, has_store: false, has_events: false, has_financeiro: true, price_monthly: 149.90, price_yearly: 1499.00 },
-    { name: 'Black Belt', slug: 'blackbelt', max_students: 300, max_professors: 25, max_classes: 50, has_streaming: true, has_store: true, has_events: true, has_financeiro: true, price_monthly: 399.90, price_yearly: 3999.00 },
-  ];
-
-  for (const plan of additionalPlans) {
-    const { error } = await supabase.from('plans').upsert(plan, { onConflict: 'slug' });
-    if (error) {
-      console.log(`  ⚠️ Plan ${plan.name}: ${error.message}`);
-    } else {
-      console.log(`  ✅ Plan ${plan.name} ensured`);
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────────
-  // E. Summary
+  // D. Summary
   // ─────────────────────────────────────────────────────────────────
   console.log('\n═══ SEED COMPLETE ═══');
 
