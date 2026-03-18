@@ -1,4 +1,4 @@
-import { isNative } from '@/lib/platform';
+import { isNative, isIOS } from '@/lib/platform';
 
 export async function isBiometricAvailable(): Promise<boolean> {
   if (!isNative()) return false;
@@ -8,6 +8,21 @@ export async function isBiometricAvailable(): Promise<boolean> {
     return result.isAvailable;
   } catch {
     return false;
+  }
+}
+
+export type BiometricType = 'face' | 'fingerprint' | 'none';
+
+export async function getBiometricType(): Promise<BiometricType> {
+  if (!isNative()) return 'none';
+  try {
+    const available = await isBiometricAvailable();
+    if (!available) return 'none';
+    // iOS uses Face ID on newer devices, Touch ID on older
+    // Android uses fingerprint primarily
+    return isIOS() ? 'face' : 'fingerprint';
+  } catch {
+    return 'none';
   }
 }
 

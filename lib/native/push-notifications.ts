@@ -1,5 +1,10 @@
 import { isNative } from '@/lib/platform';
 
+interface InAppNotification {
+  title: string;
+  body?: string;
+}
+
 export async function initPushNotifications(userId: string): Promise<void> {
   if (!isNative()) return;
 
@@ -16,7 +21,10 @@ export async function initPushNotifications(userId: string): Promise<void> {
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('[Push] Received in foreground:', notification.title);
+      showInAppNotification({
+        title: notification.title ?? 'BlackBelt',
+        body: notification.body ?? undefined,
+      });
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
@@ -30,7 +38,7 @@ export async function initPushNotifications(userId: string): Promise<void> {
   }
 }
 
-async function savePushToken(userId: string, token: string): Promise<void> {
+export async function savePushToken(userId: string, token: string): Promise<void> {
   try {
     await fetch('/api/push-token', {
       method: 'POST',
@@ -43,5 +51,25 @@ async function savePushToken(userId: string, token: string): Promise<void> {
     });
   } catch {
     console.warn('[Push] Failed to save token');
+  }
+}
+
+export function showInAppNotification(notification: InAppNotification): void {
+  if (!isNative()) return;
+
+  try {
+    import('@capacitor/toast').then(({ Toast }) => {
+      Toast.show({
+        text: notification.body
+          ? `${notification.title}: ${notification.body}`
+          : notification.title,
+        duration: 'long',
+        position: 'top',
+      });
+    }).catch(() => {
+      // Toast plugin not available
+    });
+  } catch {
+    // Not available
   }
 }

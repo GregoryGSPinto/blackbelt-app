@@ -12,12 +12,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:mobile": "next build && npx cap sync",
+    "build:mobile": "NEXT_PUBLIC_PLATFORM=mobile next build",
     "cap:sync": "npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
-    "mobile:ios": "pnpm build:mobile && npx cap open ios",
-    "mobile:android": "pnpm build:mobile && npx cap open android"
+    "mobile:ios": "pnpm build:mobile && pnpm cap:sync && pnpm cap:ios",
+    "mobile:android": "pnpm build:mobile && pnpm cap:sync && pnpm cap:android"
   },
   "keywords": [],
   "author": "",

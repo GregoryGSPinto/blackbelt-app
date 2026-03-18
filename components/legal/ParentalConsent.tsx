@@ -4,11 +4,11 @@ import { useState } from 'react';
 
 interface ParentalConsentProps {
   childName: string;
-  onAccept: () => void;
+  onConfirm: () => void;
   onCancel: () => void;
 }
 
-export function ParentalConsent({ childName, onAccept, onCancel }: ParentalConsentProps) {
+export function ParentalConsent({ childName, onConfirm, onCancel }: ParentalConsentProps) {
   const [consent1, setConsent1] = useState(false);
   const [consent2, setConsent2] = useState(false);
 
@@ -78,7 +78,7 @@ export function ParentalConsent({ childName, onAccept, onCancel }: ParentalConse
             Cancelar
           </button>
           <button
-            onClick={onAccept}
+            onClick={onConfirm}
             disabled={!canProceed}
             className="px-4 py-2 text-sm font-bold text-white rounded-lg transition-colors disabled:opacity-40"
             style={{ background: canProceed ? 'var(--bb-brand, #ef4444)' : 'var(--bb-depth-4, #333)' }}

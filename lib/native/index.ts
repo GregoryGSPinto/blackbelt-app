@@ -1,5 +1,5 @@
-export { initPushNotifications } from './push-notifications';
-export { isBiometricAvailable, authenticateWithBiometric, saveBiometricCredentials, getBiometricCredentials, clearBiometricCredentials } from './biometric-auth';
+export { initPushNotifications, savePushToken, showInAppNotification } from './push-notifications';
+export { isBiometricAvailable, getBiometricType, authenticateWithBiometric, saveBiometricCredentials, getBiometricCredentials, clearBiometricCredentials } from './biometric-auth';
 export { hapticSuccess, hapticError, hapticWarning, hapticLight, hapticMedium } from './haptics';
 export { isOnline, initNetworkListener, cacheData, getCachedData } from './offline-cache';
 export { initDeepLinks } from './deep-links';

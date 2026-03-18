@@ -16,6 +16,7 @@ import {
   LogOutIcon,
   UserIcon,
   UsersIcon,
+  BookOpenIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import type { NavItem } from './BottomNav';
@@ -27,7 +28,7 @@ interface KidsShellProps {
 const navItems: NavItem[] = [
   { href: '/kids', label: 'Início', icon: <HomeIcon className="h-6 w-6" />, id: 'nav-home-kids' },
   { href: '/kids/recompensas', label: 'Estrelas', icon: <StarIcon className="h-6 w-6" />, id: 'nav-recompensas' },
-  { href: '/kids/figurinhas', label: 'Álbum', icon: <AwardIcon className="h-6 w-6" />, id: 'nav-figurinhas' },
+  { href: '/kids/academia', label: 'Aprender', icon: <BookOpenIcon className="h-6 w-6" />, id: 'nav-academia-kids' },
   { href: '/kids/perfil', label: 'Eu', icon: <span className="text-xl">😊</span>, id: 'nav-perfil' },
 ];
 
