@@ -179,17 +179,21 @@ export default function LoginPage() {
         {/* ═══════════ LOGIN SECTION (100vh) ═══════════ */}
         <section
           id="login-section"
-          className="relative flex min-h-screen flex-col items-center justify-center md:flex-row"
+          className="relative flex min-h-screen flex-col items-center justify-center lg:flex-row"
           style={{ backgroundColor: 'var(--bb-depth-1)' }}
         >
           {/* ── Desktop Left Side: Motivational ── */}
           <div
-            className="hidden w-1/2 flex-col items-center justify-center px-12 md:flex"
-            style={{ minHeight: '100vh' }}
+            className="hidden w-1/2 flex-col items-center justify-center px-12 xl:px-20 lg:flex"
+            style={{
+              minHeight: '100vh',
+              background: 'linear-gradient(135deg, var(--bb-depth-2) 0%, var(--bb-depth-1) 100%)',
+              borderRight: '1px solid var(--bb-glass-border)',
+            }}
           >
-            <div className="max-w-md text-center">
+            <div className="max-w-lg text-center">
               <h2
-                className="text-4xl font-extrabold leading-tight lg:text-5xl"
+                className="text-3xl font-extrabold leading-tight lg:text-5xl xl:text-6xl"
                 style={{ color: 'var(--bb-ink-100)' }}
               >
                 <span key={phraseIndex} className="bb-phrase-enter inline-block">
@@ -197,14 +201,14 @@ export default function LoginPage() {
                 </span>
               </h2>
               <p
-                className="mt-4 text-lg leading-relaxed"
+                className="mt-4 text-base leading-relaxed lg:text-lg"
                 style={{ color: 'var(--bb-ink-60)' }}
               >
                 Acompanhe sua jornada, conquiste faixas, treine com proposito.
               </p>
 
               {/* Decorative belt gradient bar */}
-              <div className="mx-auto mt-8 flex gap-1">
+              <div className="mx-auto mt-8 flex max-w-xs gap-1 lg:max-w-sm">
                 {['#FAFAFA', '#EAB308', '#EA580C', '#16A34A', '#2563EB', '#9333EA', '#92400E', '#0A0A0A'].map((c, i) => (
                   <div
                     key={i}
@@ -212,7 +216,6 @@ export default function LoginPage() {
                     style={{
                       backgroundColor: c,
                       opacity: 0.7,
-                      animationDelay: `${i * 100}ms`,
                     }}
                   />
                 ))}
@@ -221,7 +224,7 @@ export default function LoginPage() {
           </div>
 
           {/* ── Login Form (centered on mobile, right on desktop) ── */}
-          <div className="flex w-full items-center justify-center px-4 py-12 md:w-1/2 md:py-0">
+          <div className="flex w-full items-center justify-center px-4 py-12 lg:w-1/2 lg:py-0">
             <div
               className={`bb-stagger w-full ${shake ? '' : success ? '' : 'bb-stagger-card'}`}
               style={{
@@ -401,7 +404,6 @@ export default function LoginPage() {
             icon={<GraduationCap size={28} />}
             title="Para o Professor"
             subtitle="Foco no que importa: ensinar."
-            reversed
             features={[
               { icon: <Target size={22} />, title: 'Modo Aula', description: 'Tela fullscreen durante a aula. Chamada por QR, timer de rounds, alertas de alunos e notas rapidas. Sem papel, sem planilha.' },
               { icon: <BarChart3 size={22} />, title: 'Avaliacao Tecnica com Radar', description: '8 criterios visuais. Guarda, passagem, finalizacao, defesa, quedas, posicionamento. Evolucao ao longo do tempo.' },
@@ -438,7 +440,6 @@ export default function LoginPage() {
             icon={<LayoutDashboard size={28} />}
             title="Para a Academia"
             subtitle="Tudo num lugar so. Sem papel, sem planilha."
-            reversed
             features={[
               { icon: <LayoutDashboard size={22} />, title: 'Dashboard', description: 'KPIs em tempo real. Alunos ativos, receita, presencas, retencao. Tudo no seu celular.' },
               { icon: <DollarSign size={22} />, title: 'Financeiro', description: 'Mensalidades, PIX, cobrancas automaticas. Controle total do caixa.' },

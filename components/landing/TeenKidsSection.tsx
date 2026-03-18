@@ -28,7 +28,7 @@ export function TeenKidsSection() {
       className="scroll-reveal px-6 py-20 md:py-28"
       style={{ background: 'var(--bb-depth-1)' }}
     >
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:gap-8">
         {/* TEEN card */}
         <div
           ref={teenRef}

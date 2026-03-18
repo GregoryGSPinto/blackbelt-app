@@ -21,7 +21,6 @@ interface BenefitSectionProps {
   subtitle: string;
   features: Feature[];
   extraFeatures: ExtraFeature[];
-  reversed?: boolean;
   accentColor?: string;
   className?: string;
 }
@@ -38,20 +37,20 @@ function FeatureCard({
   return (
     <div
       ref={ref}
-      className="scroll-reveal rounded-2xl p-6"
+      className="scroll-reveal rounded-2xl p-6 transition-transform duration-200 md:hover:-translate-y-1"
       style={{
         background: 'var(--bb-depth-2)',
         border: '1px solid var(--bb-glass-border)',
       }}
     >
       <div
-        className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
-        style={{
-          background: accentColor,
-          opacity: 0.15,
-        }}
+        className="relative mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
       >
-        <span style={{ color: accentColor, opacity: 1 }}>{feature.icon}</span>
+        <div
+          className="absolute inset-0 rounded-xl"
+          style={{ background: accentColor, opacity: 0.15 }}
+        />
+        <span className="relative" style={{ color: accentColor }}>{feature.icon}</span>
       </div>
       <h4
         className="text-base font-semibold"
@@ -78,7 +77,7 @@ function ExtraFeaturePill({
 }) {
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-medium"
+      className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-transform duration-200 md:hover:scale-105"
       style={{
         background: 'var(--bb-depth-3)',
         border: '1px solid var(--bb-glass-border)',
@@ -98,7 +97,6 @@ export function BenefitSection({
   subtitle,
   features,
   extraFeatures,
-  reversed = false,
   accentColor = 'var(--bb-brand)',
   className = '',
 }: BenefitSectionProps) {
@@ -112,7 +110,7 @@ export function BenefitSection({
       style={{ background: 'var(--bb-depth-1)' }}
     >
       {/* Section header */}
-      <div ref={headerRef} className="scroll-reveal mx-auto max-w-3xl text-center">
+      <div ref={headerRef} className="scroll-reveal mx-auto max-w-4xl text-center">
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
           style={{
@@ -138,16 +136,9 @@ export function BenefitSection({
       </div>
 
       {/* Feature cards */}
-      <div
-        className={`mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2 ${
-          reversed ? 'md:direction-rtl' : ''
-        }`}
-        style={reversed ? { direction: 'rtl' } : undefined}
-      >
+      <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
         {features.map((feature, index) => (
-          <div key={index} style={reversed ? { direction: 'ltr' } : undefined}>
-            <FeatureCard feature={feature} accentColor={accentColor} />
-          </div>
+          <FeatureCard key={index} feature={feature} accentColor={accentColor} />
         ))}
       </div>
 
@@ -155,7 +146,7 @@ export function BenefitSection({
       {extraFeatures.length > 0 && (
         <div
           ref={extrasRef}
-          className="scroll-reveal mx-auto mt-10 max-w-4xl"
+          className="scroll-reveal mx-auto mt-10 max-w-5xl"
         >
           <div className="flex gap-3 overflow-x-auto pb-2 md:flex-wrap md:justify-center md:overflow-visible">
             {extraFeatures.map((feature, index) => (
