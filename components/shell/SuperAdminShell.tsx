@@ -17,6 +17,7 @@ import {
   ToggleLeftIcon,
   BarChartIcon,
   MegaphoneIcon,
+  MailIcon,
   ShieldIcon,
   RocketIcon,
   LifeBuoyIcon,
@@ -70,6 +71,7 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'COMUNICAÇÃO',
     items: [
       { href: '/superadmin/comunicacao', label: 'Comunicação', icon: MegaphoneIcon, badge: 2, id: 'sidebar-link-comunicacao' },
+      { href: '/superadmin/contatos', label: 'Contatos Site', icon: MailIcon, id: 'sidebar-link-contatos' },
     ],
   },
   {

@@ -136,6 +136,7 @@ const MOCK_PROFILES: Profile[] = [
   // Super Admin
   { id: 'prof-superadmin', user_id: 'user-superadmin', role: Role.Superadmin, display_name: 'Gregory (Super Admin)', avatar: null, ...AUDIT },
   { id: 'prof-gregory', user_id: 'user-gregory', role: Role.Superadmin, display_name: 'Gregory Guimarães', avatar: null, ...AUDIT },
+  { id: 'prof-gregory-admin', user_id: 'user-gregory', role: Role.Admin, display_name: 'Gregory Guimarães', avatar: null, ...AUDIT },
 ];
 
 export function getProfilesByUserId(userId: string): Profile[] {

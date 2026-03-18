@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
-  ChevronDown, Check,
+  ChevronDown, Check, Send,
   Users, QrCode, Video, DollarSign, Award, Layers,
   LayoutDashboard, GraduationCap, Gamepad2, Star, Heart,
 } from 'lucide-react';
@@ -12,10 +12,9 @@ import {
 
 const NAV_LINKS = [
   { label: 'Funcionalidades', href: '#dt-features' },
-  { label: 'Planos', href: '#dt-pricing' },
   { label: 'Por Perfil', href: '#dt-profiles' },
   { label: 'FAQ', href: '#dt-faq' },
-  { label: 'Contato', href: '#dt-footer' },
+  { label: 'Contato', href: '#dt-contato' },
 ];
 
 const FEATURES = [
@@ -132,14 +131,6 @@ const TESTIMONIALS = [
   },
 ];
 
-const PRICING = [
-  { name: 'Starter', price: 'R$ 97', highlight: false },
-  { name: 'Essencial', price: 'R$ 197', highlight: false },
-  { name: 'Pro', price: 'R$ 347', highlight: true },
-  { name: 'Black Belt', price: 'R$ 597', highlight: false },
-  { name: 'Enterprise', price: 'Consulte', highlight: false },
-];
-
 const FAQ_ITEMS = [
   { q: 'Preciso de cartao de credito para comecar?', a: 'Nao! O trial de 7 dias e totalmente gratuito e nao exige cartao de credito. Voce so cadastra um meio de pagamento quando decidir continuar.' },
   { q: 'Funciona para qualquer arte marcial?', a: 'Sim. BJJ, Judo, Karate, Muay Thai, Boxe, Taekwondo, MMA e qualquer outra modalidade. O sistema se adapta a sua academia.' },
@@ -160,13 +151,13 @@ const STATS = [
 const FOOTER_LINKS = {
   produto: [
     { label: 'Funcionalidades', href: '#dt-features' },
-    { label: 'Planos e Precos', href: '#dt-pricing' },
     { label: 'FAQ', href: '#dt-faq' },
+    { label: 'Contato', href: '#dt-contato' },
     { label: 'Status', href: '#' },
   ],
   empresa: [
     { label: 'Sobre', href: '#' },
-    { label: 'Contato', href: '#' },
+    { label: 'Comecar Gratis', href: '/comecar' },
     { label: 'Blog', href: '#' },
   ],
   legal: [
@@ -184,11 +175,32 @@ interface DesktopLandingProps {
 export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
   const [activeProfile, setActiveProfile] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [contactForm, setContactForm] = useState({ nome: '', email: '', telefone: '', assunto: '', mensagem: '' });
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
 
   function scrollTo(href: string) {
     if (href.startsWith('#')) {
       const el = document.getElementById(href.slice(1));
       el?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  async function handleContactSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!contactForm.nome.trim() || !contactForm.email.trim() || !contactForm.mensagem.trim()) return;
+    setContactLoading(true);
+    try {
+      await fetch('/api/contato', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+      setContactSent(true);
+    } catch {
+      // silent fail
+    } finally {
+      setContactLoading(false);
     }
   }
 
@@ -245,7 +257,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
             Entrar
           </button>
           <Link
-            href="/cadastro"
+            href="/comecar"
             className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)' }}
           >
@@ -279,7 +291,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
 
         <div className="mt-10 flex items-center gap-4">
           <Link
-            href="/cadastro"
+            href="/comecar"
             className="rounded-xl px-8 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)', boxShadow: '0 4px 24px rgba(239,68,68,0.25)' }}
             onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--bb-brand-glow)'; }}
@@ -289,7 +301,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
           </Link>
           <button
             type="button"
-            onClick={() => scrollTo('#dt-pricing')}
+            onClick={() => scrollTo('#dt-contato')}
             className="rounded-xl px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
             style={{
               background: 'var(--bb-depth-3)',
@@ -298,7 +310,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
               cursor: 'pointer',
             }}
           >
-            Ver Planos
+            Falar com a Gente
           </button>
         </div>
 
@@ -467,60 +479,6 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
         </div>
       </section>
 
-      {/* ━━━ PRICING ━━━ */}
-      <section
-        id="dt-pricing"
-        className="px-8 py-24 xl:px-16 xl:py-32"
-        style={{ background: 'var(--bb-depth-1)' }}
-      >
-        <div className="mx-auto max-w-5xl">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--bb-brand)' }}>
-            Planos
-          </p>
-          <h2 className="mt-4 text-center text-3xl font-bold tracking-tight xl:text-4xl">
-            Planos que cabem no seu orcamento
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-center text-base" style={{ color: 'var(--bb-ink-60)' }}>
-            A partir de R$ 97/mes. Todos incluem 7 dias gratis.
-          </p>
-
-          <div className="mt-6 flex justify-center">
-            <button
-              type="button"
-              onClick={() => scrollTo('#dt-pricing')}
-              className="text-sm font-medium transition-colors duration-200"
-              style={{ color: 'var(--bb-brand)', cursor: 'pointer', background: 'none', border: 'none' }}
-            >
-              Ver Todos os Planos
-            </button>
-          </div>
-
-          <div className="mt-12 grid grid-cols-5 gap-4 xl:gap-6">
-            {PRICING.map((plan) => (
-              <div
-                key={plan.name}
-                className="flex flex-col items-center rounded-2xl px-4 py-8 text-center transition-all duration-200 hover:-translate-y-1 xl:px-6 xl:py-10"
-                style={{
-                  background: plan.highlight ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)',
-                  border: plan.highlight ? '1px solid rgba(239,68,68,0.4)' : '1px solid var(--bb-glass-border)',
-                }}
-              >
-                <h4 className="text-sm font-semibold xl:text-base">{plan.name}</h4>
-                <p
-                  className="mt-4 text-2xl font-extrabold xl:text-3xl"
-                  style={{ color: plan.highlight ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
-                >
-                  {plan.price}
-                </p>
-                {plan.price !== 'Consulte' && (
-                  <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>/mes</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ━━━ FAQ ━━━ */}
       <section
         id="dt-faq"
@@ -574,6 +532,123 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
         </div>
       </section>
 
+      {/* ━━━ CONTATO ━━━ */}
+      <section
+        id="dt-contato"
+        className="px-8 py-24 xl:px-16 xl:py-32"
+        style={{ background: 'var(--bb-depth-1)' }}
+      >
+        <div className="mx-auto max-w-2xl">
+          <p className="text-center text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--bb-brand)' }}>
+            Contato
+          </p>
+          <h2 className="mt-4 text-center text-3xl font-bold tracking-tight xl:text-4xl">
+            Fale com a gente
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-center text-base" style={{ color: 'var(--bb-ink-60)' }}>
+            Tem alguma duvida ou quer saber mais? Envie uma mensagem e retornamos em ate 24h.
+          </p>
+
+          {contactSent ? (
+            <div
+              className="mt-12 rounded-2xl p-10 text-center"
+              style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
+            >
+              <div
+                className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full"
+                style={{ background: 'var(--bb-brand-surface)' }}
+              >
+                <Check size={28} style={{ color: 'var(--bb-brand)' }} />
+              </div>
+              <h3 className="text-xl font-bold">Mensagem enviada!</h3>
+              <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Nossa equipe vai responder em breve.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleContactSubmit} className="mt-12 flex flex-col gap-5">
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Nome *</label>
+                  <input
+                    type="text"
+                    placeholder="Seu nome"
+                    value={contactForm.nome}
+                    onChange={(e) => setContactForm((p) => ({ ...p, nome: e.target.value }))}
+                    required
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
+                    style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Email *</label>
+                  <input
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
+                    required
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
+                    style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Telefone</label>
+                  <input
+                    type="tel"
+                    placeholder="(11) 99999-9999"
+                    value={contactForm.telefone}
+                    onChange={(e) => setContactForm((p) => ({ ...p, telefone: e.target.value }))}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
+                    style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Assunto</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Duvida sobre planos"
+                    value={contactForm.assunto}
+                    onChange={(e) => setContactForm((p) => ({ ...p, assunto: e.target.value }))}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
+                    style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Mensagem *</label>
+                <textarea
+                  placeholder="Escreva sua mensagem..."
+                  value={contactForm.mensagem}
+                  onChange={(e) => setContactForm((p) => ({ ...p, mensagem: e.target.value }))}
+                  required
+                  rows={4}
+                  className="w-full resize-none rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
+                  style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={contactLoading}
+                className="flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+                style={{ background: 'var(--bb-brand-gradient)' }}
+              >
+                {contactLoading ? (
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <>
+                    <Send size={16} />
+                    Enviar Mensagem
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
+
       {/* ━━━ CTA FINAL ━━━ */}
       <section
         className="px-8 py-24 text-center xl:px-16 xl:py-32"
@@ -590,7 +665,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
 
         <div className="mt-10 flex items-center justify-center gap-4">
           <Link
-            href="/cadastro"
+            href="/comecar"
             className="rounded-xl px-8 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)', boxShadow: '0 4px 24px rgba(239,68,68,0.25)' }}
           >
@@ -598,7 +673,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
           </Link>
           <button
             type="button"
-            onClick={() => scrollTo('#dt-pricing')}
+            onClick={() => scrollTo('#dt-contato')}
             className="rounded-xl px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
             style={{
               background: 'var(--bb-depth-3)',
@@ -607,7 +682,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
               cursor: 'pointer',
             }}
           >
-            Ver Planos
+            Falar com a Gente
           </button>
         </div>
       </section>

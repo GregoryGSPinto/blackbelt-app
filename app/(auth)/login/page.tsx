@@ -564,7 +564,14 @@ export default function LoginPage() {
           onClick={(e) => { if (e.target === e.currentTarget) setShowDesktopLogin(false); }}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(4px)' }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'rgba(0, 0, 0, 0.96)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+            }}
+          />
 
           {/* Modal card */}
           <div
