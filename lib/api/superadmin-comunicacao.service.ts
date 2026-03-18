@@ -71,7 +71,7 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
       return res.json();
     } catch {
       console.warn('[superadmin-comunicacao.createComunicado] API not available, using fallback');
-      return { id: "", titulo: "", conteudo: "", tipo: "novidade", prioridade: "normal", segmentacao: { planos: [], status: [] }, metricas: { enviados: 0, abertos: 0, clicados: 0 }, criadoPor: "", criadoEm: "", publicadoEm: null } as unknown as ComunicadoSaaS;
+      return { id: '', titulo: '', mensagem: '', tipo: 'novidade', segmentacao: { tipo: 'todos' }, canal: [], status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' } as ComunicadoSaaS;
     }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.create'); }
 }
@@ -88,7 +88,7 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
       return res.json();
     } catch {
       console.warn('[superadmin-comunicacao.enviarComunicado] API not available, using fallback');
-      return { id: "", titulo: "", conteudo: "", tipo: "novidade", prioridade: "normal", segmentacao: { planos: [], status: [] }, metricas: { enviados: 0, abertos: 0, clicados: 0 }, criadoPor: "", criadoEm: "", publicadoEm: null } as unknown as ComunicadoSaaS;
+      return { id: '', titulo: '', mensagem: '', tipo: 'novidade', segmentacao: { tipo: 'todos' }, canal: [], status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' } as ComunicadoSaaS;
     }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.enviar'); }
 }

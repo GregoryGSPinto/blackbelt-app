@@ -55,7 +55,13 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
       return res.json();
     } catch {
       console.warn('[superadmin-analytics.getProductAnalytics] API not available, using fallback');
-      return { feature_ranking: [], engajamento: [], nunca_usaram: [], horarios_pico: [], dispositivos: [] } as unknown as ProductAnalytics;
+      return {
+        featureRanking: [],
+        engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 },
+        nuncaUsaram: [],
+        horariosPico: [],
+        dispositivos: [],
+      };
     }
   } catch (error) { handleServiceError(error, 'superadmin-analytics.get'); }
 }
