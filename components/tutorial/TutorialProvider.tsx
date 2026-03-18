@@ -27,6 +27,7 @@ interface TutorialState {
   totalSteps: number;
   completedTutorials: string[];
   skippedTutorials: string[];
+  inProgressTutorials: Record<string, number>; // tutorialId → currentStep
   progressLoaded: boolean;
 }
 
@@ -60,6 +61,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     totalSteps: 0,
     completedTutorials: [],
     skippedTutorials: [],
+    inProgressTutorials: {},
     progressLoaded: false,
   });
 
@@ -83,11 +85,18 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
         const skipped = progress
           .filter((p: TutorialProgress) => p.status === 'skipped')
           .map((p: TutorialProgress) => p.tutorial_id);
+        const inProgress: Record<string, number> = {};
+        progress
+          .filter((p: TutorialProgress) => p.status === 'in_progress')
+          .forEach((p: TutorialProgress) => {
+            inProgress[p.tutorial_id] = p.current_step;
+          });
 
         setState((prev) => ({
           ...prev,
           completedTutorials: completed,
           skippedTutorials: skipped,
+          inProgressTutorials: inProgress,
           progressLoaded: true,
         }));
       } catch {
@@ -109,24 +118,39 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     const tutorialId = ROLE_TUTORIAL_MAP[profile.role];
     if (!tutorialId) return;
 
-    const hasRecord = state.completedTutorials.includes(tutorialId) ||
-      state.skippedTutorials.includes(tutorialId);
+    const isCompleted = state.completedTutorials.includes(tutorialId);
+    const isSkipped = state.skippedTutorials.includes(tutorialId);
+    const inProgressStep = state.inProgressTutorials[tutorialId];
+    const isInProgress = inProgressStep !== undefined;
 
-    if (!hasRecord) {
+    if (isCompleted || isSkipped) return;
+
+    const tutorial = getTutorialById(tutorialId);
+    if (!tutorial) return;
+
+    if (isInProgress) {
+      // Resume from where user left off
+      setState((prev) => ({
+        ...prev,
+        isActive: true,
+        showWelcome: false,
+        currentTutorialId: tutorialId,
+        currentTutorial: tutorial,
+        totalSteps: tutorial.steps.length,
+        currentStep: inProgressStep,
+      }));
+    } else {
       // First access — show tutorial welcome
-      const tutorial = getTutorialById(tutorialId);
-      if (tutorial) {
-        setState((prev) => ({
-          ...prev,
-          showWelcome: true,
-          currentTutorialId: tutorialId,
-          currentTutorial: tutorial,
-          totalSteps: tutorial.steps.length,
-          currentStep: 0,
-        }));
-      }
+      setState((prev) => ({
+        ...prev,
+        showWelcome: true,
+        currentTutorialId: tutorialId,
+        currentTutorial: tutorial,
+        totalSteps: tutorial.steps.length,
+        currentStep: 0,
+      }));
     }
-  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.isActive, state.showWelcome, state.showComplete]);
+  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.inProgressTutorials, state.isActive, state.showWelcome, state.showComplete]);
 
   const startTutorial = useCallback((tutorialId: string) => {
     const tutorial = getTutorialById(tutorialId);

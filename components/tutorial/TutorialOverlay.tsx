@@ -22,11 +22,17 @@ export function TutorialOverlay() {
   } = useTutorial();
 
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
+  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  });
   const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('bottom');
   const [animating, setAnimating] = useState(false);
   const [skipConfirm, setSkipConfirm] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const step = currentTutorial?.steps[currentStep];
 
@@ -45,8 +51,16 @@ export function TutorialOverlay() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        width: `${step.tooltipWidth ?? 320}px`,
       });
       setTooltipPosition('bottom');
+
+      // Retry after a short delay — element might not be mounted yet
+      if (retryRef.current) clearTimeout(retryRef.current);
+      retryRef.current = setTimeout(() => {
+        const retryEl = document.querySelector(step.targetSelector);
+        if (retryEl) updatePosition();
+      }, 500);
       return;
     }
 
@@ -64,6 +78,9 @@ export function TutorialOverlay() {
     // Scroll element into view if needed
     if (rect.top < 0 || rect.bottom > window.innerHeight) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Re-update after scroll settles
+      setTimeout(updatePosition, 400);
+      return;
     }
 
     // Position tooltip
@@ -83,10 +100,10 @@ export function TutorialOverlay() {
     setTooltipStyle({
       position: 'fixed',
       left: `${tooltipLeft}px`,
-      [pos === 'bottom' ? 'top' : 'bottom']: pos === 'bottom'
-        ? `${tooltipTop}px`
-        : `${window.innerHeight - tooltipTop}px`,
+      top: pos === 'bottom' ? `${tooltipTop}px` : undefined,
+      bottom: pos === 'top' ? `${window.innerHeight - tooltipTop}px` : undefined,
       width: `${tooltipWidth}px`,
+      transform: 'none',
     });
   }, [step]);
 
@@ -94,15 +111,19 @@ export function TutorialOverlay() {
     if (!isActive || !step) return;
 
     setAnimating(true);
-    const timer = setTimeout(() => setAnimating(false), 300);
+    setSkipConfirm(false);
+    const animTimer = setTimeout(() => setAnimating(false), 300);
 
-    updatePosition();
+    // Small delay to let DOM settle after step transition
+    const posTimer = setTimeout(updatePosition, 50);
 
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(animTimer);
+      clearTimeout(posTimer);
+      if (retryRef.current) clearTimeout(retryRef.current);
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
@@ -112,7 +133,8 @@ export function TutorialOverlay() {
 
   const opacity = step.overlayOpacity ?? 0.6;
 
-  const handleSkip = () => {
+  const handleSkip = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (skipConfirm) {
       skipTutorial();
       setSkipConfirm(false);
@@ -121,23 +143,25 @@ export function TutorialOverlay() {
     }
   };
 
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    nextStep();
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    prevStep();
+  };
+
   return (
     <>
-      {/* Overlay backdrop with cutout */}
+      {/* Overlay backdrop with cutout — pointer-events: none so it doesn't block tooltip */}
       <div
-        className="fixed inset-0 z-[9998] transition-all duration-300"
-        style={{
-          background: spotlight
-            ? undefined
-            : `rgba(0, 0, 0, ${opacity})`,
-        }}
-        onClick={() => setSkipConfirm(false)}
+        className="fixed inset-0 z-[9998]"
+        style={{ pointerEvents: 'none' }}
       >
-        {spotlight && (
-          <svg
-            className="absolute inset-0 h-full w-full"
-            style={{ pointerEvents: 'none' }}
-          >
+        {spotlight ? (
+          <svg className="absolute inset-0 h-full w-full">
             <defs>
               <mask id="tutorial-mask">
                 <rect width="100%" height="100%" fill="white" />
@@ -158,6 +182,11 @@ export function TutorialOverlay() {
               mask="url(#tutorial-mask)"
             />
           </svg>
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{ background: `rgba(0, 0, 0, ${opacity})` }}
+          />
         )}
 
         {/* Spotlight ring */}
@@ -169,22 +198,29 @@ export function TutorialOverlay() {
               left: spotlight.left,
               width: spotlight.width,
               height: spotlight.height,
-              pointerEvents: 'none',
               boxShadow: '0 0 0 3px var(--bb-brand), 0 0 20px rgba(239, 68, 68, 0.3)',
-              zIndex: 9998,
             }}
           />
         )}
       </div>
 
-      {/* Tooltip */}
+      {/* Click-catcher behind tooltip — dismisses skip confirm and blocks page interaction */}
+      <div
+        className="fixed inset-0 z-[9998]"
+        style={{ background: 'transparent' }}
+        onClick={() => setSkipConfirm(false)}
+      />
+
+      {/* Tooltip — MUST have pointer-events: auto and position: fixed */}
       <div
         ref={tooltipRef}
-        className={`z-[9999] ${animating ? 'tutorial-tooltip-enter' : ''}`}
+        className={`fixed z-[9999] ${animating ? 'tutorial-tooltip-enter' : ''}`}
         style={{
           ...tooltipStyle,
           maxWidth: 'calc(100vw - 32px)',
+          pointerEvents: 'auto',
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div
           className="overflow-hidden"
@@ -196,19 +232,21 @@ export function TutorialOverlay() {
           }}
         >
           {/* Arrow */}
-          <div
-            className="absolute"
-            style={{
-              [tooltipPosition === 'bottom' ? 'top' : 'bottom']: '-6px',
-              left: '50%',
-              transform: `translateX(-50%) ${tooltipPosition === 'top' ? 'rotate(180deg)' : ''}`,
-              width: 0,
-              height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderBottom: '6px solid var(--bb-depth-2)',
-            }}
-          />
+          {spotlight && (
+            <div
+              className="absolute"
+              style={{
+                [tooltipPosition === 'bottom' ? 'top' : 'bottom']: '-6px',
+                left: '50%',
+                transform: `translateX(-50%) ${tooltipPosition === 'top' ? 'rotate(180deg)' : ''}`,
+                width: 0,
+                height: 0,
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderBottom: '6px solid var(--bb-depth-2)',
+              }}
+            />
+          )}
 
           {/* Content */}
           <div className="p-4">
@@ -271,35 +309,39 @@ export function TutorialOverlay() {
                 style={{
                   color: skipConfirm ? 'var(--bb-brand)' : 'var(--bb-ink-40)',
                   borderRadius: 'var(--bb-radius-sm)',
+                  minHeight: '36px',
+                  minWidth: '44px',
                 }}
               >
-                {skipConfirm ? 'Confirmar pular?' : 'Pular'}
+                {skipConfirm ? 'Confirmar?' : 'Pular'}
               </button>
 
               {/* Previous */}
               {currentStep > 0 && (
                 <button
-                  onClick={prevStep}
+                  onClick={handlePrev}
                   className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors"
                   style={{
                     color: 'var(--bb-ink-60)',
                     borderRadius: 'var(--bb-radius-sm)',
                     border: '1px solid var(--bb-glass-border)',
                     minHeight: '36px',
+                    minWidth: '44px',
                   }}
                 >
-                  ← Anterior
+                  ←
                 </button>
               )}
 
               {/* Next */}
               <button
-                onClick={nextStep}
+                onClick={handleNext}
                 className="flex items-center gap-1 px-4 py-1.5 text-xs font-bold text-white transition-colors"
                 style={{
                   background: 'var(--bb-brand)',
                   borderRadius: 'var(--bb-radius-sm)',
                   minHeight: '36px',
+                  minWidth: '44px',
                 }}
               >
                 {currentStep === totalSteps - 1 ? 'Concluir' : 'Próximo →'}
