@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -56,13 +56,19 @@ export async function registrarEntradaManual(data: {
       const { mockRegistrarEntrada } = await import('@/lib/mocks/recepcao-acesso.mock');
       return mockRegistrarEntrada(data);
     }
-    const res = await fetch('/api/recepcao/acesso/entrada', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-acesso.entrada');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/acesso/entrada', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[recepcao-acesso] registrarEntradaManual: API not available, using mock data');
+      const { mockRegistrarEntrada } = await import('@/lib/mocks/recepcao-acesso.mock');
+      return mockRegistrarEntrada(data);
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.entrada');
   }

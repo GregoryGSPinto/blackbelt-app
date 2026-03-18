@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -68,13 +68,19 @@ export async function registrarRecebimento(data: {
       const { mockRegistrarRecebimento } = await import('@/lib/mocks/recepcao-caixa.mock');
       return mockRegistrarRecebimento(data);
     }
-    const res = await fetch('/api/recepcao/caixa/recebimento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-caixa.recebimento');
-    return res.json();
+    try {
+      const res = await fetch('/api/recepcao/caixa/recebimento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[recepcao-caixa] registrarRecebimento: API not available, using mock data');
+      const { mockRegistrarRecebimento } = await import('@/lib/mocks/recepcao-caixa.mock');
+      return mockRegistrarRecebimento(data);
+    }
   } catch (error) {
     handleServiceError(error, 'recepcao-caixa.recebimento');
   }

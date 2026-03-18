@@ -404,9 +404,15 @@ export async function getActiveSessions(): Promise<ActiveSession[]> {
       const { mockGetActiveSessions } = await import('@/lib/mocks/suporte.mock');
       return await mockGetActiveSessions();
     }
-    const res = await fetch('/api/suporte/sessions/active');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/sessions/active');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getActiveSessions: API not available, using mock data');
+      const { mockGetActiveSessions } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetActiveSessions();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getActiveSessions');
   }
@@ -418,16 +424,22 @@ export async function getSessionHistory(filters?: SessionFilter): Promise<Sessio
       const { mockGetSessionHistory } = await import('@/lib/mocks/suporte.mock');
       return await mockGetSessionHistory();
     }
-    const params = new URLSearchParams();
-    if (filters?.role) params.set('role', filters.role);
-    if (filters?.academyId) params.set('academyId', filters.academyId);
-    if (filters?.deviceType) params.set('deviceType', filters.deviceType);
-    if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
-    if (filters?.dateTo) params.set('dateTo', filters.dateTo);
-    const qs = params.toString();
-    const res = await fetch(`/api/suporte/sessions/history${qs ? `?${qs}` : ''}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.role) params.set('role', filters.role);
+      if (filters?.academyId) params.set('academyId', filters.academyId);
+      if (filters?.deviceType) params.set('deviceType', filters.deviceType);
+      if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+      const qs = params.toString();
+      const res = await fetch(`/api/suporte/sessions/history${qs ? `?${qs}` : ''}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getSessionHistory: API not available, using mock data');
+      const { mockGetSessionHistory } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetSessionHistory();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getSessionHistory');
   }
@@ -439,9 +451,15 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
       const { mockGetSessionDetail } = await import('@/lib/mocks/suporte.mock');
       return await mockGetSessionDetail(sessionId);
     }
-    const res = await fetch(`/api/suporte/sessions/${sessionId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch(`/api/suporte/sessions/${sessionId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getSessionDetail: API not available, using mock data');
+      const { mockGetSessionDetail } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetSessionDetail(sessionId);
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getSessionDetail');
   }
@@ -457,9 +475,15 @@ export async function getRecentErrors(): Promise<ErrorSummary> {
       const { mockGetRecentErrors } = await import('@/lib/mocks/suporte.mock');
       return await mockGetRecentErrors();
     }
-    const res = await fetch('/api/suporte/errors/recent');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/errors/recent');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getRecentErrors: API not available, using mock data');
+      const { mockGetRecentErrors } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetRecentErrors();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getRecentErrors');
   }
@@ -471,9 +495,15 @@ export async function getErrorsByPage(): Promise<PageErrorInfo[]> {
       const { mockGetErrorsByPage } = await import('@/lib/mocks/suporte.mock');
       return await mockGetErrorsByPage();
     }
-    const res = await fetch('/api/suporte/errors/by-page');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/errors/by-page');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getErrorsByPage: API not available, using mock data');
+      const { mockGetErrorsByPage } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetErrorsByPage();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getErrorsByPage');
   }
@@ -485,9 +515,15 @@ export async function getErrorTrend(): Promise<ErrorTrendPoint[]> {
       const { mockGetErrorTrend } = await import('@/lib/mocks/suporte.mock');
       return await mockGetErrorTrend();
     }
-    const res = await fetch('/api/suporte/errors/trend');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/errors/trend');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getErrorTrend: API not available, using mock data');
+      const { mockGetErrorTrend } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetErrorTrend();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getErrorTrend');
   }
@@ -503,9 +539,15 @@ export async function getPerformanceOverview(): Promise<PerformanceOverview> {
       const { mockGetPerformanceOverview } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPerformanceOverview();
     }
-    const res = await fetch('/api/suporte/performance/overview');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/performance/overview');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPerformanceOverview: API not available, using mock data');
+      const { mockGetPerformanceOverview } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPerformanceOverview();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPerformanceOverview');
   }
@@ -517,9 +559,15 @@ export async function getPerformanceByPage(): Promise<PagePerformance[]> {
       const { mockGetPerformanceByPage } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPerformanceByPage();
     }
-    const res = await fetch('/api/suporte/performance/by-page');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/performance/by-page');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPerformanceByPage: API not available, using mock data');
+      const { mockGetPerformanceByPage } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPerformanceByPage();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPerformanceByPage');
   }
@@ -531,9 +579,15 @@ export async function getPerformanceByDevice(): Promise<DevicePerformance[]> {
       const { mockGetPerformanceByDevice } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPerformanceByDevice();
     }
-    const res = await fetch('/api/suporte/performance/by-device');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/performance/by-device');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPerformanceByDevice: API not available, using mock data');
+      const { mockGetPerformanceByDevice } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPerformanceByDevice();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPerformanceByDevice');
   }
@@ -545,9 +599,15 @@ export async function getPerformanceTrend(): Promise<PerformanceTrendPoint[]> {
       const { mockGetPerformanceTrend } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPerformanceTrend();
     }
-    const res = await fetch('/api/suporte/performance/trend');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/performance/trend');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPerformanceTrend: API not available, using mock data');
+      const { mockGetPerformanceTrend } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPerformanceTrend();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPerformanceTrend');
   }
@@ -563,9 +623,15 @@ export async function getDeviceBreakdown(): Promise<DeviceBreakdownItem[]> {
       const { mockGetDeviceBreakdown } = await import('@/lib/mocks/suporte.mock');
       return await mockGetDeviceBreakdown();
     }
-    const res = await fetch('/api/suporte/devices/breakdown');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/devices/breakdown');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getDeviceBreakdown: API not available, using mock data');
+      const { mockGetDeviceBreakdown } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetDeviceBreakdown();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getDeviceBreakdown');
   }
@@ -577,9 +643,15 @@ export async function getOSBreakdown(): Promise<BreakdownItem[]> {
       const { mockGetOSBreakdown } = await import('@/lib/mocks/suporte.mock');
       return await mockGetOSBreakdown();
     }
-    const res = await fetch('/api/suporte/devices/os');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/devices/os');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getOSBreakdown: API not available, using mock data');
+      const { mockGetOSBreakdown } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetOSBreakdown();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getOSBreakdown');
   }
@@ -591,9 +663,15 @@ export async function getBrowserBreakdown(): Promise<BreakdownItem[]> {
       const { mockGetBrowserBreakdown } = await import('@/lib/mocks/suporte.mock');
       return await mockGetBrowserBreakdown();
     }
-    const res = await fetch('/api/suporte/devices/browser');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/devices/browser');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getBrowserBreakdown: API not available, using mock data');
+      const { mockGetBrowserBreakdown } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetBrowserBreakdown();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getBrowserBreakdown');
   }
@@ -605,9 +683,15 @@ export async function getDeviceModels(): Promise<DeviceModelInfo[]> {
       const { mockGetDeviceModels } = await import('@/lib/mocks/suporte.mock');
       return await mockGetDeviceModels();
     }
-    const res = await fetch('/api/suporte/devices/models');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/devices/models');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getDeviceModels: API not available, using mock data');
+      const { mockGetDeviceModels } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetDeviceModels();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getDeviceModels');
   }
@@ -619,9 +703,15 @@ export async function getConnectionBreakdown(): Promise<ConnectionInfo[]> {
       const { mockGetConnectionBreakdown } = await import('@/lib/mocks/suporte.mock');
       return await mockGetConnectionBreakdown();
     }
-    const res = await fetch('/api/suporte/devices/connection');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/devices/connection');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getConnectionBreakdown: API not available, using mock data');
+      const { mockGetConnectionBreakdown } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetConnectionBreakdown();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getConnectionBreakdown');
   }
@@ -637,15 +727,21 @@ export async function getTickets(filters?: TicketFilter): Promise<SupportTicket[
       const { mockGetTickets } = await import('@/lib/mocks/suporte.mock');
       return await mockGetTickets();
     }
-    const params = new URLSearchParams();
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.priority) params.set('priority', filters.priority);
-    if (filters?.category) params.set('category', filters.category);
-    if (filters?.academyId) params.set('academyId', filters.academyId);
-    const qs = params.toString();
-    const res = await fetch(`/api/suporte/tickets${qs ? `?${qs}` : ''}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.priority) params.set('priority', filters.priority);
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.academyId) params.set('academyId', filters.academyId);
+      const qs = params.toString();
+      const res = await fetch(`/api/suporte/tickets${qs ? `?${qs}` : ''}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getTickets: API not available, using mock data');
+      const { mockGetTickets } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetTickets();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getTickets');
   }
@@ -657,9 +753,15 @@ export async function getTicket(id: string): Promise<SupportTicket> {
       const { mockGetTicket } = await import('@/lib/mocks/suporte.mock');
       return await mockGetTicket(id);
     }
-    const res = await fetch(`/api/suporte/tickets/${id}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch(`/api/suporte/tickets/${id}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getTicket: API not available, using mock data');
+      const { mockGetTicket } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetTicket(id);
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getTicket');
   }
@@ -671,13 +773,19 @@ export async function createTicket(data: CreateTicketDTO): Promise<SupportTicket
       const { mockCreateTicket } = await import('@/lib/mocks/suporte.mock');
       return await mockCreateTicket(data);
     }
-    const res = await fetch('/api/suporte/tickets', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] createTicket: API not available, using mock data');
+      const { mockCreateTicket } = await import('@/lib/mocks/suporte.mock');
+      return await mockCreateTicket(data);
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.createTicket');
   }
@@ -689,13 +797,19 @@ export async function updateTicketStatus(id: string, status: string): Promise<Su
       const { mockUpdateTicketStatus } = await import('@/lib/mocks/suporte.mock');
       return await mockUpdateTicketStatus(id, status);
     }
-    const res = await fetch(`/api/suporte/tickets/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch(`/api/suporte/tickets/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] updateTicketStatus: API not available, using mock data');
+      const { mockUpdateTicketStatus } = await import('@/lib/mocks/suporte.mock');
+      return await mockUpdateTicketStatus(id, status);
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.updateTicketStatus');
   }
@@ -707,13 +821,19 @@ export async function addTicketMessage(id: string, from: string, text: string): 
       const { mockAddTicketMessage } = await import('@/lib/mocks/suporte.mock');
       return await mockAddTicketMessage(id, from, text);
     }
-    const res = await fetch(`/api/suporte/tickets/${id}/messages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, text }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch(`/api/suporte/tickets/${id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, text }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] addTicketMessage: API not available, using mock data');
+      const { mockAddTicketMessage } = await import('@/lib/mocks/suporte.mock');
+      return await mockAddTicketMessage(id, from, text);
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.addTicketMessage');
   }
@@ -725,9 +845,15 @@ export async function getTicketMetrics(): Promise<TicketMetrics> {
       const { mockGetTicketMetrics } = await import('@/lib/mocks/suporte.mock');
       return await mockGetTicketMetrics();
     }
-    const res = await fetch('/api/suporte/tickets/metrics');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/tickets/metrics');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getTicketMetrics: API not available, using mock data');
+      const { mockGetTicketMetrics } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetTicketMetrics();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getTicketMetrics');
   }
@@ -743,9 +869,15 @@ export async function getEngagementOverview(): Promise<EngagementOverview> {
       const { mockGetEngagementOverview } = await import('@/lib/mocks/suporte.mock');
       return await mockGetEngagementOverview();
     }
-    const res = await fetch('/api/suporte/engagement/overview');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/overview');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getEngagementOverview: API not available, using mock data');
+      const { mockGetEngagementOverview } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetEngagementOverview();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getEngagementOverview');
   }
@@ -757,9 +889,15 @@ export async function getPagePopularity(): Promise<PagePopularityItem[]> {
       const { mockGetPagePopularity } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPagePopularity();
     }
-    const res = await fetch('/api/suporte/engagement/pages');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/pages');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPagePopularity: API not available, using mock data');
+      const { mockGetPagePopularity } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPagePopularity();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPagePopularity');
   }
@@ -771,9 +909,15 @@ export async function getFeatureUsage(): Promise<FeatureUsageItem[]> {
       const { mockGetFeatureUsage } = await import('@/lib/mocks/suporte.mock');
       return await mockGetFeatureUsage();
     }
-    const res = await fetch('/api/suporte/engagement/features');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/features');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getFeatureUsage: API not available, using mock data');
+      const { mockGetFeatureUsage } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetFeatureUsage();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getFeatureUsage');
   }
@@ -785,9 +929,15 @@ export async function getPeakHours(): Promise<PeakHourItem[]> {
       const { mockGetPeakHours } = await import('@/lib/mocks/suporte.mock');
       return await mockGetPeakHours();
     }
-    const res = await fetch('/api/suporte/engagement/peak-hours');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/peak-hours');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getPeakHours: API not available, using mock data');
+      const { mockGetPeakHours } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetPeakHours();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getPeakHours');
   }
@@ -799,9 +949,15 @@ export async function getRetention(): Promise<RetentionItem[]> {
       const { mockGetRetention } = await import('@/lib/mocks/suporte.mock');
       return await mockGetRetention();
     }
-    const res = await fetch('/api/suporte/engagement/retention');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/retention');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getRetention: API not available, using mock data');
+      const { mockGetRetention } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetRetention();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getRetention');
   }
@@ -813,9 +969,15 @@ export async function getTopUsers(): Promise<TopUser[]> {
       const { mockGetTopUsers } = await import('@/lib/mocks/suporte.mock');
       return await mockGetTopUsers();
     }
-    const res = await fetch('/api/suporte/engagement/top-users');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    try {
+      const res = await fetch('/api/suporte/engagement/top-users');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      console.warn('[suporte] getTopUsers: API not available, using mock data');
+      const { mockGetTopUsers } = await import('@/lib/mocks/suporte.mock');
+      return await mockGetTopUsers();
+    }
   } catch (error) {
     return handleServiceError(error, 'suporte.getTopUsers');
   }

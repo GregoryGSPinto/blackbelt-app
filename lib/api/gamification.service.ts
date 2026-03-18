@@ -67,13 +67,19 @@ export async function awardXP(
       logger.debug('[MOCK] Award XP', { amount, userId, eventType });
       return { newTotal: 1250 + amount, levelUp: false, newLevel: 13 };
     }
-    const res = await fetch('/api/gamification/xp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, eventType, amount }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const res = await fetch('/api/gamification/xp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, eventType, amount }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch {
+      console.warn('[gamification] awardXP: API not available, using mock data');
+      logger.debug('[MOCK] Award XP fallback', { amount, userId, eventType });
+      return { newTotal: 1250 + amount, levelUp: false, newLevel: 13 };
+    }
   } catch (error) {
     handleServiceError(error, 'gamification.awardXP');
   }

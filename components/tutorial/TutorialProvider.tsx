@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -49,7 +50,11 @@ const TutorialContext = createContext<TutorialContextValue | null>(null);
 // ── Provider ───────────────────────────────────────────────────────────
 
 export function TutorialProvider({ children }: { children: ReactNode }) {
-  const { profile } = useAuth();
+  const { profile, isProfileSwitch } = useAuth();
+
+  // Guard: only auto-trigger the tutorial once per user per mount cycle.
+  // This prevents re-triggering when effect deps change during the same session.
+  const autoTriggeredForRef = useRef<string | null>(null);
 
   const [state, setState] = useState<TutorialState>({
     isActive: false,
@@ -69,6 +74,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!profile?.user_id) {
       setState((prev) => ({ ...prev, progressLoaded: false }));
+      autoTriggeredForRef.current = null;
       return;
     }
 
@@ -100,8 +106,15 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
           progressLoaded: true,
         }));
       } catch {
+        // On error, still mark as loaded but keep any existing progress
+        // from the previous state so we don't re-trigger the tutorial
         if (!cancelled) {
-          setState((prev) => ({ ...prev, progressLoaded: true }));
+          setState((prev) => ({
+            ...prev,
+            progressLoaded: true,
+            // If we already have completed/skipped data (e.g. from a previous
+            // successful load in this session), preserve it rather than clearing
+          }));
         }
       }
     }
@@ -110,9 +123,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [profile?.user_id]);
 
-  // Auto-detect first access — only on initial login, NOT on profile switch
-  const { isProfileSwitch } = useAuth() as ReturnType<typeof useAuth> & { isProfileSwitch: boolean };
-
+  // Auto-detect first access — only on initial login, NOT on profile switch or refresh
   useEffect(() => {
     if (!profile?.role || !profile?.user_id || !state.progressLoaded) return;
     if (state.isActive || state.showWelcome || state.showComplete) return;
@@ -123,12 +134,19 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     const tutorialId = ROLE_TUTORIAL_MAP[profile.role];
     if (!tutorialId) return;
 
+    // Only auto-trigger once per user+tutorial per mount cycle
+    const triggerKey = `${profile.user_id}:${tutorialId}`;
+    if (autoTriggeredForRef.current === triggerKey) return;
+
     const isCompleted = state.completedTutorials.includes(tutorialId);
     const isSkipped = state.skippedTutorials.includes(tutorialId);
     const inProgressStep = state.inProgressTutorials[tutorialId];
     const isInProgress = inProgressStep !== undefined;
 
     if (isCompleted || isSkipped) return;
+
+    // Mark as triggered so we don't re-fire on subsequent renders
+    autoTriggeredForRef.current = triggerKey;
 
     const tutorial = getTutorialById(tutorialId);
     if (!tutorial) return;
@@ -274,10 +292,16 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
     await tutorialService.resetTutorial(profile.user_id, tutorialId);
 
+    // Clear auto-trigger guard so the tutorial can re-trigger
+    autoTriggeredForRef.current = null;
+
     setState((prev) => ({
       ...prev,
       completedTutorials: prev.completedTutorials.filter((id) => id !== tutorialId),
       skippedTutorials: prev.skippedTutorials.filter((id) => id !== tutorialId),
+      inProgressTutorials: Object.fromEntries(
+        Object.entries(prev.inProgressTutorials).filter(([id]) => id !== tutorialId),
+      ),
     }));
 
     // Auto-start after reset

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -450,6 +451,7 @@ function DashboardSkeleton() {
 
 export default function ParentDashboardPage() {
   const { profile } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [showAllHistory, setShowAllHistory] = useState(false);
 
@@ -646,22 +648,26 @@ export default function ParentDashboardPage() {
                 label: 'Ver Presença',
                 color: 'var(--bb-success)',
                 bg: 'var(--bb-success-surface)',
+                href: '/parent/presencas',
               },
               {
                 icon: DollarIcon,
                 label: 'Pagar Mensalidade',
                 color: 'var(--bb-brand)',
                 bg: 'var(--bb-brand-surface)',
+                href: '/parent/pagamentos',
               },
               {
                 icon: MessageIcon,
                 label: 'Falar com Professor',
                 color: 'var(--bb-info)',
                 bg: 'var(--bb-info-surface)',
+                href: '/parent/mensagens',
               },
             ].map((action) => (
               <button
                 key={action.label}
+                onClick={() => router.push(action.href)}
                 className="flex flex-col items-center gap-2 rounded-[var(--bb-radius-lg)] border border-[var(--bb-glass-border)] p-4 transition-all hover:-translate-y-0.5 hover:border-[var(--bb-glass-border-hover)] hover:shadow-[var(--bb-shadow-sm)]"
                 style={{ backgroundColor: action.bg }}
               >
