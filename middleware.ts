@@ -49,6 +49,10 @@ function handleMockAuth(request: NextRequest): NextResponse {
   const token = request.cookies.get('bb-token')?.value;
 
   if (isPublic && token) {
+    // Never block login/cadastro — user may be switching accounts
+    if (pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil') {
+      return NextResponse.next();
+    }
     const payload = decodeTokenPayload(token);
     if (payload && typeof payload.exp === 'number' && Date.now() < payload.exp * 1000) {
       const role = payload.role as string;
@@ -117,7 +121,11 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Authenticated user on public page → redirect to dashboard
+  // EXCEPT login/cadastro/selecionar-perfil — always allow (user switching accounts)
   if (isPublic && user) {
+    if (pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil') {
+      return response;
+    }
     const activeRole = request.cookies.get('bb-active-role')?.value;
     if (activeRole) {
       const dashboard = ROLE_DASHBOARD[activeRole];

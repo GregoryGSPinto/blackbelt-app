@@ -189,10 +189,17 @@ export async function logout(): Promise<void> {
       await supabase.auth.signOut();
     }
 
-    // Clear all custom cookies in ALL modes
+    // Clear ALL cookies — custom + supabase session cookies
     document.cookie = 'bb-active-role=;path=/;max-age=0';
     document.cookie = 'bb-academy-id=;path=/;max-age=0';
     document.cookie = 'bb-token=;path=/;max-age=0';
+    // Force-clear any Supabase auth cookies that might persist
+    document.cookie.split(';').forEach((c) => {
+      const name = c.trim().split('=')[0];
+      if (name.startsWith('sb-') || name.startsWith('supabase-')) {
+        document.cookie = `${name}=;path=/;max-age=0`;
+      }
+    });
   } catch (error) {
     handleServiceError(error, 'auth.logout');
   }
