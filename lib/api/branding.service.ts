@@ -22,8 +22,9 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'branding.get');
       return res.json();
     } catch {
-      console.warn('[branding.getBranding] API not available, using fallback');
-      return { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null } as BrandingDTO;
+      console.warn('[branding.getBranding] API not available, using mock fallback');
+      const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
+      return mockGetBranding(academyId);
     }
   } catch (error) { handleServiceError(error, 'branding.get'); }
 }
@@ -43,8 +44,9 @@ export async function updateBranding(academyId: string, data: Partial<BrandingDT
       if (!res.ok) throw new ServiceError(res.status, 'branding.update');
       return res.json();
     } catch {
-      console.warn('[branding.updateBranding] API not available, using fallback');
-      return { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null } as BrandingDTO;
+      console.warn('[branding.updateBranding] API not available, using mock fallback');
+      const { mockUpdateBranding } = await import('@/lib/mocks/branding.mock');
+      return mockUpdateBranding(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'branding.update'); }
 }

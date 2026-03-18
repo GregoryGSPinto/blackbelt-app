@@ -44,8 +44,9 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.list');
       return res.json();
     } catch {
-      console.warn('[franqueador-curriculo.getCurriculos] API not available, using fallback');
-      return [];
+      console.warn('[franqueador-curriculo.getCurriculos] API not available, using mock fallback');
+      const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
+      return mockGetCurriculos(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.list'); }
 }
@@ -61,8 +62,9 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.overview');
       return res.json();
     } catch {
-      console.warn('[franqueador-curriculo.getCurriculoOverview] API not available, using fallback');
-      return { modalities: [], total_curriculos: 0, total_techniques: 0 } as CurriculoOverview;
+      console.warn('[franqueador-curriculo.getCurriculoOverview] API not available, using mock fallback');
+      const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
+      return mockGetCurriculoOverview(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.overview'); }
 }
@@ -78,8 +80,9 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.detail');
       return res.json();
     } catch {
-      console.warn('[franqueador-curriculo.getCurriculoDetail] API not available, using fallback');
-      return { id: '', modality: '', belt_level: '', name: '', description: '', techniques: [], min_classes_required: 0, evaluation_criteria: [], created_at: '', updated_at: '' } as CurriculoRede;
+      console.warn('[franqueador-curriculo.getCurriculoDetail] API not available, using mock fallback');
+      const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
+      return mockGetCurriculoDetail(curriculoId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.detail'); }
 }

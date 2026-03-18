@@ -82,8 +82,9 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       });
       return res.json();
     } catch {
-      console.warn('[voice-assistant.processCommand] API not available, using fallback');
-      return { command_type: 'unknown', text_response: '', action: null, data: null } as VoiceResponse;
+      console.warn('[voice-assistant.processCommand] API not available, using mock fallback');
+      const { mockProcessCommand } = await import('@/lib/mocks/voice-assistant.mock');
+      return mockProcessCommand(audioTranscript);
     }
   } catch (error) {
     handleServiceError(error, 'voiceAssistant.processCommand');

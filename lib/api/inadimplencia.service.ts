@@ -47,8 +47,9 @@ export async function getDevedores(academyId: string): Promise<Devedor[]> {
       if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.devedores');
       return res.json();
     } catch {
-      console.warn('[inadimplencia.getDevedores] API not available, using fallback');
-      return [];
+      console.warn('[inadimplencia.getDevedores] API not available, using mock fallback');
+      const { mockGetDevedores } = await import('@/lib/mocks/inadimplencia.mock');
+      return mockGetDevedores(academyId);
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.devedores'); }
 }
@@ -64,8 +65,9 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
       if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.metrics');
       return res.json();
     } catch {
-      console.warn('[inadimplencia.getInadimplenciaMetrics] API not available, using fallback');
-      return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 } as InadimplenciaMetrics;
+      console.warn('[inadimplencia.getInadimplenciaMetrics] API not available, using mock fallback');
+      const { mockGetInadimplenciaMetrics } = await import('@/lib/mocks/inadimplencia.mock');
+      return mockGetInadimplenciaMetrics(academyId);
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.metrics'); }
 }
@@ -81,8 +83,9 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.contato');
       return res.json();
     } catch {
-      console.warn('[inadimplencia.registrarContato] API not available, using fallback');
-      return { id: '', devedorId: '', tipo: 'ligacao', resultado: 'sem_resposta', observacao: '', data: '' } as ContatoRegistro;
+      console.warn('[inadimplencia.registrarContato] API not available, using mock fallback');
+      const { mockRegistrarContato } = await import('@/lib/mocks/inadimplencia.mock');
+      return mockRegistrarContato(devedorId, tipo, resultado, observacao);
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.contato'); }
 }
@@ -98,8 +101,9 @@ export async function getHistoricoContatos(devedorId: string): Promise<ContatoRe
       if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.historico');
       return res.json();
     } catch {
-      console.warn('[inadimplencia.getHistoricoContatos] API not available, using fallback');
-      return [];
+      console.warn('[inadimplencia.getHistoricoContatos] API not available, using mock fallback');
+      const { mockGetHistoricoContatos } = await import('@/lib/mocks/inadimplencia.mock');
+      return mockGetHistoricoContatos(devedorId);
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.historico'); }
 }

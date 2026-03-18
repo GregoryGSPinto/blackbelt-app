@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -36,6 +37,8 @@ interface AuthContextValue extends AuthState {
   selectProfile: (profileId: string) => Promise<void>;
   refreshSession: () => Promise<void>;
   getDashboardUrl: (role: Role) => string;
+  /** True when the profile changed via selectProfile (user switch), not initial login */
+  isProfileSwitch: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -48,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     isAuthenticated: false,
   });
+  const profileSwitchRef = useRef(false);
 
   // Bootstrap: check existing session on mount
   useEffect(() => {
@@ -159,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const selectProfile = useCallback(
     async (profileId: string) => {
+      profileSwitchRef.current = true;
       const response = await authService.selectProfile(profileId);
 
       if (isMock()) {
@@ -242,6 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         selectProfile,
         refreshSession,
         getDashboardUrl,
+        isProfileSwitch: profileSwitchRef.current,
       }}
     >
       {children}

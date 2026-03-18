@@ -30,8 +30,9 @@ export async function getNotificacoes(guardianId: string): Promise<NotificacaoRe
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes');
       return res.json();
     } catch {
-      console.warn('[responsavel-notificacoes.getNotificacoes] API not available, using fallback');
-      return [];
+      console.warn('[responsavel-notificacoes.getNotificacoes] API not available, using mock fallback');
+      const { mockGetNotificacoes } = await import('@/lib/mocks/responsavel-notificacoes.mock');
+      return mockGetNotificacoes(guardianId);
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.notificacoes');

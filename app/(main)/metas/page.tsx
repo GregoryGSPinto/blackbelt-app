@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -176,6 +177,7 @@ function DiaryCard({ entry }: { entry: DiaryEntryDTO }) {
 // Main page
 // ────────────────────────────────────────────────────────────
 export default function MetasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [tab, setTab] = useState<Tab>('goals');
   const [goals, setGoals] = useState<GoalDTO[]>([]);
   const [diary, setDiary] = useState<DiaryEntryDTO[]>([]);
@@ -201,11 +203,12 @@ export default function MetasPage() {
 
   // Load data
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
         const [g, d] = await Promise.all([
-          getGoals('stu-1'),
-          getDiary('stu-1', currentMonth),
+          getGoals(studentId!),
+          getDiary(studentId!, currentMonth),
         ]);
         setGoals(g);
         setDiary(d);
@@ -214,7 +217,7 @@ export default function MetasPage() {
       }
     }
     load();
-  }, [currentMonth]);
+  }, [currentMonth, studentId, studentLoading]);
 
   // Month navigation
   const navigateMonth = useCallback((direction: -1 | 1) => {
@@ -230,8 +233,8 @@ export default function MetasPage() {
     setSavingGoal(true);
     try {
       const payload: CreateGoalPayload = {
-        student_id: 'stu-1',
-        academy_id: 'academy-1',
+        student_id: studentId ?? '',
+        academy_id: '',
         type: newGoalType,
         title: newGoalTitle,
         description: newGoalDesc,
@@ -255,7 +258,7 @@ export default function MetasPage() {
     setSavingDiary(true);
     try {
       const payload: SaveDiaryPayload = {
-        student_id: 'stu-1',
+        student_id: studentId ?? '',
         academy_id: 'academy-1',
         date: new Date().toISOString().split('T')[0],
         mood: diaryMood,

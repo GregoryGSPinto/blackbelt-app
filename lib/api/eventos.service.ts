@@ -43,8 +43,9 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'eventos.get');
       return res.json();
     } catch {
-      console.warn('[eventos.getEvents] API not available, using fallback');
-      return [];
+      console.warn('[eventos.getEvents] API not available, using mock fallback');
+      const { mockGetEvents } = await import('@/lib/mocks/eventos.mock');
+      return mockGetEvents(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'eventos.get');
@@ -69,8 +70,9 @@ export async function registerForEvent(
       if (!res.ok) throw new ServiceError(res.status, 'eventos.register');
       return res.json();
     } catch {
-      console.warn('[eventos.registerForEvent] API not available, using fallback');
-      return { id: "", event_id: "", student_id: "", student_name: "", status: "pending", registered_at: "" } as unknown as EventRegistration;
+      console.warn('[eventos.registerForEvent] API not available, using mock fallback');
+      const { mockRegisterForEvent } = await import('@/lib/mocks/eventos.mock');
+      return mockRegisterForEvent(eventId, studentId);
     }
 
   } catch (error) {

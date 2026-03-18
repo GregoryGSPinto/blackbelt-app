@@ -13,8 +13,9 @@ export async function getBillingConfig(academyId: string): Promise<BillingConfig
       if (!res.ok) throw new ServiceError(res.status, 'billing.config');
       return res.json();
     } catch {
-      console.warn('[billing-config.getBillingConfig] API not available, using fallback');
-      return { academy_id: "", gateway: "", auto_charge: false, due_day: 1, grace_days: 0 } as unknown as BillingConfig;
+      console.warn('[billing-config.getBillingConfig] API not available, using mock fallback');
+      const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
+      return mockGetBillingConfig(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.config'); }
 }
@@ -30,8 +31,9 @@ export async function updateBillingConfig(config: Partial<BillingConfig> & { aca
       if (!res.ok) throw new ServiceError(res.status, 'billing.config.update');
       return res.json();
     } catch {
-      console.warn('[billing-config.updateBillingConfig] API not available, using fallback');
-      return { academy_id: "", gateway: "", auto_charge: false, due_day: 1, grace_days: 0 } as unknown as BillingConfig;
+      console.warn('[billing-config.updateBillingConfig] API not available, using mock fallback');
+      const { mockUpdateBillingConfig } = await import('@/lib/mocks/billing-config.mock');
+      return mockUpdateBillingConfig(config);
     }
   } catch (error) { handleServiceError(error, 'billing.config.update'); }
 }
@@ -47,8 +49,9 @@ export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
       if (!res.ok) throw new ServiceError(res.status, 'billing.webhookLogs');
       return res.json();
     } catch {
-      console.warn('[billing-config.getWebhookLogs] API not available, using fallback');
-      return [];
+      console.warn('[billing-config.getWebhookLogs] API not available, using mock fallback');
+      const { mockGetWebhookLogs } = await import('@/lib/mocks/billing-config.mock');
+      return mockGetWebhookLogs(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.webhookLogs'); }
 }
@@ -64,8 +67,9 @@ export async function previewNextBilling(academyId: string): Promise<BillingPrev
       if (!res.ok) throw new ServiceError(res.status, 'billing.preview');
       return res.json();
     } catch {
-      console.warn('[billing-config.previewNextBilling] API not available, using fallback');
-      return { total_students: 0, total_amount: 0, items: [] } as unknown as BillingPreview;
+      console.warn('[billing-config.previewNextBilling] API not available, using mock fallback');
+      const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
+      return mockPreviewBilling(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.preview'); }
 }

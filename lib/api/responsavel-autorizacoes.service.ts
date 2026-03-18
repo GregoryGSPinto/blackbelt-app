@@ -45,8 +45,9 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.autorizacoes');
       return res.json();
     } catch {
-      console.warn('[responsavel-autorizacoes.getAutorizacoes] API not available, using fallback');
-      return [];
+      console.warn('[responsavel-autorizacoes.getAutorizacoes] API not available, using mock fallback');
+      const { mockGetAutorizacoes } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockGetAutorizacoes(guardianId);
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.autorizacoes');
@@ -71,8 +72,9 @@ export async function respondAutorizacao(
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.autorizacoes.respond');
       return res.json();
     } catch {
-      console.warn('[responsavel-autorizacoes.respondAutorizacao] API not available, using fallback');
-      return { id: '', student_id: '', student_name: '', type: 'evento', title: '', description: '', status: 'pendente', requested_at: '', responded_at: null } as Autorizacao;
+      console.warn('[responsavel-autorizacoes.respondAutorizacao] API not available, using mock fallback');
+      const { mockRespondAutorizacao } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockRespondAutorizacao(id, status);
     }
 
   } catch (error) {
@@ -91,8 +93,9 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.controle-parental');
       return res.json();
     } catch {
-      console.warn('[responsavel-autorizacoes.getControleParental] API not available, using fallback');
-      return { student_id: '', student_name: '', permissions: [] } as ControleParental;
+      console.warn('[responsavel-autorizacoes.getControleParental] API not available, using mock fallback');
+      const { mockGetControleParental } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+      return mockGetControleParental(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.controle-parental');

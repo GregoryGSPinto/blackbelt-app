@@ -54,8 +54,9 @@ export async function getPersonalizacao(studentId: string): Promise<Personalizac
       if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.get');
       return res.json();
     } catch {
-      console.warn('[kids-personalizacao.getPersonalizacao] API not available, using fallback');
-      return { mascotesDisponiveis: [], mascoteAtual: '', molduras: [], molduraAtual: '', cores: [], corAtual: '', titulosDisponiveis: [], tituloAtual: '' } as PersonalizacaoKids;
+      console.warn('[kids-personalizacao.getPersonalizacao] API not available, using mock fallback');
+      const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
+      return mockGetPersonalizacao(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.get');
@@ -77,8 +78,9 @@ export async function setMascoteKids(studentId: string, mascoteId: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setMascote');
       return res.json();
     } catch {
-      console.warn('[kids-personalizacao.setMascoteKids] API not available, using fallback');
-      return { sucesso: false };
+      console.warn('[kids-personalizacao.setMascoteKids] API not available, using mock fallback');
+      const { mockSetMascoteKids } = await import('@/lib/mocks/kids-personalizacao.mock');
+      return mockSetMascoteKids(studentId, mascoteId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setMascote');
@@ -100,8 +102,9 @@ export async function setCorKids(studentId: string, corId: string): Promise<{ su
       if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setCor');
       return res.json();
     } catch {
-      console.warn('[kids-personalizacao.setCorKids] API not available, using fallback');
-      return { sucesso: false };
+      console.warn('[kids-personalizacao.setCorKids] API not available, using mock fallback');
+      const { mockSetCorKids } = await import('@/lib/mocks/kids-personalizacao.mock');
+      return mockSetCorKids(studentId, corId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setCor');
@@ -123,8 +126,9 @@ export async function setTituloKids(studentId: string, titulo: string): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setTitulo');
       return res.json();
     } catch {
-      console.warn('[kids-personalizacao.setTituloKids] API not available, using fallback');
-      return { sucesso: false };
+      console.warn('[kids-personalizacao.setTituloKids] API not available, using mock fallback');
+      const { mockSetTituloKids } = await import('@/lib/mocks/kids-personalizacao.mock');
+      return mockSetTituloKids(studentId, titulo);
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setTitulo');

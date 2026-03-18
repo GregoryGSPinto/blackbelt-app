@@ -25,8 +25,9 @@ export async function listContracts(academyId: string): Promise<ContractDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'contracts.list');
       return res.json();
     } catch {
-      console.warn('[contracts.listContracts] API not available, using fallback');
-      return [];
+      console.warn('[contracts.listContracts] API not available, using mock fallback');
+      const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
+      return mockListContracts(academyId);
     }
   } catch (error) { handleServiceError(error, 'contracts.list'); }
 }
@@ -42,8 +43,9 @@ export async function generateContract(templateId: ContractTemplate, studentId: 
       if (!res.ok) throw new ServiceError(res.status, 'contracts.generate');
       return res.json();
     } catch {
-      console.warn('[contracts.generateContract] API not available, using fallback');
-      return { id: "", student_id: "", student_name: "", plan_name: "", start_date: "", end_date: "", status: "active", signed_at: null, pdf_url: "" } as unknown as ContractDTO;
+      console.warn('[contracts.generateContract] API not available, using mock fallback');
+      const { mockGenerateContract } = await import('@/lib/mocks/contracts.mock');
+      return mockGenerateContract(templateId, studentId);
     }
   } catch (error) { handleServiceError(error, 'contracts.generate'); }
 }
@@ -59,8 +61,9 @@ export async function sendForSignature(contractId: string): Promise<{ signatureU
       if (!res.ok) throw new ServiceError(res.status, 'contracts.send');
       return res.json();
     } catch {
-      console.warn('[contracts.sendForSignature] API not available, using fallback');
-      return { signatureUrl: "" };
+      console.warn('[contracts.sendForSignature] API not available, using mock fallback');
+      const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
+      return mockSendForSignature(contractId);
     }
   } catch (error) { handleServiceError(error, 'contracts.send'); }
 }

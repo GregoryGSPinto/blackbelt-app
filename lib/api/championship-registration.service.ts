@@ -52,8 +52,9 @@ export async function register(championshipId: string, categoryId: string, data:
       if (!res.ok) throw new ServiceError(res.status, 'championship-registration.register');
       return res.json();
     } catch {
-      console.warn('[championship-registration.register] API not available, using fallback');
-      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
+      console.warn('[championship-registration.register] API not available, using mock fallback');
+      const { mockRegister } = await import('@/lib/mocks/championship-registration.mock');
+      return mockRegister(championshipId, categoryId, data);
     }
   } catch (error) { handleServiceError(error, 'championship-registration.register'); }
 }
@@ -69,8 +70,9 @@ export async function getMyRegistrations(userId: string): Promise<RegistrationDT
       if (!res.ok) throw new ServiceError(res.status, 'championship-registration.myRegistrations');
       return res.json();
     } catch {
-      console.warn('[championship-registration.getMyRegistrations] API not available, using fallback');
-      return [];
+      console.warn('[championship-registration.getMyRegistrations] API not available, using mock fallback');
+      const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
+      return mockGetMyRegistrations(userId);
     }
   } catch (error) { handleServiceError(error, 'championship-registration.myRegistrations'); }
 }
@@ -90,8 +92,9 @@ export async function confirmWeighIn(registrationId: string, actualWeight: numbe
       if (!res.ok) throw new ServiceError(res.status, 'championship-registration.weighIn');
       return res.json();
     } catch {
-      console.warn('[championship-registration.confirmWeighIn] API not available, using fallback');
-      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
+      console.warn('[championship-registration.confirmWeighIn] API not available, using mock fallback');
+      const { mockConfirmWeighIn } = await import('@/lib/mocks/championship-registration.mock');
+      return mockConfirmWeighIn(registrationId, actualWeight);
     }
   } catch (error) { handleServiceError(error, 'championship-registration.weighIn'); }
 }
@@ -111,8 +114,9 @@ export async function changeCategory(registrationId: string, newCategoryId: stri
       if (!res.ok) throw new ServiceError(res.status, 'championship-registration.changeCategory');
       return res.json();
     } catch {
-      console.warn('[championship-registration.changeCategory] API not available, using fallback');
-      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
+      console.warn('[championship-registration.changeCategory] API not available, using mock fallback');
+      const { mockChangeCategory } = await import('@/lib/mocks/championship-registration.mock');
+      return mockChangeCategory(registrationId, newCategoryId);
     }
   } catch (error) { handleServiceError(error, 'championship-registration.changeCategory'); }
 }
@@ -128,8 +132,9 @@ export async function getRegistrationsByChampionship(championshipId: string): Pr
       if (!res.ok) throw new ServiceError(res.status, 'championship-registration.byChampionship');
       return res.json();
     } catch {
-      console.warn('[championship-registration.getRegistrationsByChampionship] API not available, using fallback');
-      return [];
+      console.warn('[championship-registration.getRegistrationsByChampionship] API not available, using mock fallback');
+      const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
+      return mockGetRegistrationsByChampionship(championshipId);
     }
   } catch (error) { handleServiceError(error, 'championship-registration.byChampionship'); }
 }

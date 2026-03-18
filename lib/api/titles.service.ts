@@ -27,8 +27,9 @@ export async function getAvailableTitles(userId: string): Promise<TitleDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'titles.available');
       return res.json();
     } catch {
-      console.warn('[titles.getAvailableTitles] API not available, using fallback');
-      return [];
+      console.warn('[titles.getAvailableTitles] API not available, using mock fallback');
+      const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
+      return mockGetAvailableTitles(userId);
     }
   } catch (error) { handleServiceError(error, 'titles.available'); }
 }
@@ -44,8 +45,9 @@ export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'titles.mine');
       return res.json();
     } catch {
-      console.warn('[titles.getMyTitles] API not available, using fallback');
-      return [];
+      console.warn('[titles.getMyTitles] API not available, using mock fallback');
+      const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
+      return mockGetMyTitles(userId);
     }
   } catch (error) { handleServiceError(error, 'titles.mine'); }
 }
@@ -65,8 +67,9 @@ export async function equipTitle(userId: string, titleId: string): Promise<{ suc
       if (!res.ok) throw new ServiceError(res.status, 'titles.equip');
       return res.json();
     } catch {
-      console.warn('[titles.equipTitle] API not available, using fallback');
-      return { success: false };
+      console.warn('[titles.equipTitle] API not available, using mock fallback');
+      const { mockEquipTitle } = await import('@/lib/mocks/titles.mock');
+      return mockEquipTitle(userId, titleId);
     }
   } catch (error) { handleServiceError(error, 'titles.equip'); }
 }
@@ -86,8 +89,9 @@ export async function unequipTitle(userId: string): Promise<{ success: boolean }
       if (!res.ok) throw new ServiceError(res.status, 'titles.unequip');
       return res.json();
     } catch {
-      console.warn('[titles.unequipTitle] API not available, using fallback');
-      return { success: false };
+      console.warn('[titles.unequipTitle] API not available, using mock fallback');
+      const { mockUnequipTitle } = await import('@/lib/mocks/titles.mock');
+      return mockUnequipTitle(userId);
     }
   } catch (error) { handleServiceError(error, 'titles.unequip'); }
 }

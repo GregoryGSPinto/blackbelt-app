@@ -48,8 +48,9 @@ export async function listApps(params?: { category?: string; search?: string }):
       const res = await fetch(`/api/v1/app-store?${query}`);
       return res.json();
     } catch {
-      console.warn('[app-store.listApps] API not available, using fallback');
-      return [];
+      console.warn('[app-store.listApps] API not available, using mock fallback');
+      const { mockListApps } = await import('@/lib/mocks/app-store.mock');
+      return mockListApps(params);
     }
   } catch (error) { handleServiceError(error, 'appStore.list'); }
 }
@@ -64,8 +65,9 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
       const res = await fetch(`/api/v1/app-store/${appId}`);
       return res.json();
     } catch {
-      console.warn('[app-store.getApp] API not available, using fallback');
-      return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false } as AppStoreItem;
+      console.warn('[app-store.getApp] API not available, using mock fallback');
+      const { mockGetApp } = await import('@/lib/mocks/app-store.mock');
+      return mockGetApp(appId);
     }
   } catch (error) { handleServiceError(error, 'appStore.get'); }
 }
@@ -80,8 +82,9 @@ export async function getAppReviews(appId: string): Promise<AppReview[]> {
       const res = await fetch(`/api/v1/app-store/${appId}/reviews`);
       return res.json();
     } catch {
-      console.warn('[app-store.getAppReviews] API not available, using fallback');
-      return [];
+      console.warn('[app-store.getAppReviews] API not available, using mock fallback');
+      const { mockGetAppReviews } = await import('@/lib/mocks/app-store.mock');
+      return mockGetAppReviews(appId);
     }
   } catch (error) { handleServiceError(error, 'appStore.reviews'); }
 }
@@ -100,8 +103,9 @@ export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'revi
       });
       return res.json();
     } catch {
-      console.warn('[app-store.submitApp] API not available, using fallback');
-      return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false } as AppStoreItem;
+      console.warn('[app-store.submitApp] API not available, using mock fallback');
+      const { mockSubmitApp } = await import('@/lib/mocks/app-store.mock');
+      return mockSubmitApp(data);
     }
   } catch (error) { handleServiceError(error, 'appStore.submit'); }
 }
@@ -116,8 +120,9 @@ export async function getCategories(): Promise<AppCategory[]> {
       const res = await fetch('/api/v1/app-store/categories');
       return res.json();
     } catch {
-      console.warn('[app-store.getCategories] API not available, using fallback');
-      return [];
+      console.warn('[app-store.getCategories] API not available, using mock fallback');
+      const { mockGetCategories } = await import('@/lib/mocks/app-store.mock');
+      return mockGetCategories();
     }
   } catch (error) { handleServiceError(error, 'appStore.categories'); }
 }
@@ -132,8 +137,9 @@ export async function getFeatured(): Promise<AppStoreItem[]> {
       const res = await fetch('/api/v1/app-store/featured');
       return res.json();
     } catch {
-      console.warn('[app-store.getFeatured] API not available, using fallback');
-      return [];
+      console.warn('[app-store.getFeatured] API not available, using mock fallback');
+      const { mockGetFeatured } = await import('@/lib/mocks/app-store.mock');
+      return mockGetFeatured();
     }
   } catch (error) { handleServiceError(error, 'appStore.featured'); }
 }

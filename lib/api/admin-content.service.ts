@@ -31,8 +31,9 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       if (!res.ok) throw new ServiceError(res.status, 'adminContent.list');
       return res.json();
     } catch {
-      console.warn('[admin-content.listAdminVideos] API not available, using fallback');
-      return [];
+      console.warn('[admin-content.listAdminVideos] API not available, using mock fallback');
+      const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
+      return mockListAdminVideos(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'adminContent.list');
@@ -54,8 +55,9 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       if (!res.ok) throw new ServiceError(res.status, 'adminContent.create');
       return res.json();
     } catch {
-      console.warn('[admin-content.createVideo] API not available, using fallback');
-      return { id: '', academy_id: '', title: '', url: '', belt_level: 'white', duration: 0, created_at: '', updated_at: '' } as unknown as Video;
+      console.warn('[admin-content.createVideo] API not available, using mock fallback');
+      const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
+      return mockCreateVideo(data);
     }
   } catch (error) {
     handleServiceError(error, 'adminContent.create');

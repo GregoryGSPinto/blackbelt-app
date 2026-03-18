@@ -13,8 +13,9 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[branch.listBranches] API not available, using fallback');
-      return [];
+      console.warn('[branch.listBranches] API not available, using mock fallback');
+      const { mockListBranches } = await import('@/lib/mocks/branch.mock');
+      return mockListBranches(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'branch.list');
@@ -32,8 +33,9 @@ export async function getBranch(branchId: string): Promise<Branch> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[branch.getBranch] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", address: "", city: "", state: "", phone: "", manager_id: "", manager_name: "", students_count: 0, status: "active", created_at: "" } as unknown as Branch;
+      console.warn('[branch.getBranch] API not available, using mock fallback');
+      const { mockGetBranch } = await import('@/lib/mocks/branch.mock');
+      return mockGetBranch(branchId);
     }
   } catch (error) {
     handleServiceError(error, 'branch.get');
@@ -58,8 +60,9 @@ export async function createBranch(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[branch.createBranch] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", address: "", city: "", state: "", phone: "", manager_id: "", manager_name: "", students_count: 0, status: "active", created_at: "" } as unknown as Branch;
+      console.warn('[branch.createBranch] API not available, using mock fallback');
+      const { mockCreateBranch } = await import('@/lib/mocks/branch.mock');
+      return mockCreateBranch(academyId, payload);
     }
 
   } catch (error) {
@@ -78,8 +81,9 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[branch.getBranchStats] API not available, using fallback');
-      return [];
+      console.warn('[branch.getBranchStats] API not available, using mock fallback');
+      const { mockBranchStats } = await import('@/lib/mocks/branch.mock');
+      return mockBranchStats(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'branch.stats');

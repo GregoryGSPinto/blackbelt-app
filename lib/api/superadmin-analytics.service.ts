@@ -54,14 +54,9 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-analytics.getProductAnalytics] API not available, using fallback');
-      return {
-        featureRanking: [],
-        engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 },
-        nuncaUsaram: [],
-        horariosPico: [],
-        dispositivos: [],
-      };
+      console.warn('[superadmin-analytics.getProductAnalytics] API not available, using mock fallback');
+      const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
+      return mockGetProductAnalytics();
     }
   } catch (error) { handleServiceError(error, 'superadmin-analytics.get'); }
 }

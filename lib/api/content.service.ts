@@ -53,8 +53,9 @@ export async function listVideos(academyId: string, filters?: VideoFilters): Pro
       if (!res.ok) throw new ServiceError(res.status, 'content.listVideos');
       return res.json();
     } catch {
-      console.warn('[content.listVideos] API not available, using fallback');
-      return [];
+      console.warn('[content.listVideos] API not available, using mock fallback');
+      const { mockListVideos } = await import('@/lib/mocks/content.mock');
+      return mockListVideos(academyId, filters);
     }
   } catch (error) {
     handleServiceError(error, 'content.listVideos');
@@ -72,8 +73,9 @@ export async function getVideo(id: string): Promise<VideoDetail> {
       if (!res.ok) throw new ServiceError(res.status, 'content.getVideo');
       return res.json();
     } catch {
-      console.warn('[content.getVideo] API not available, using fallback');
-      return { id: "", academy_id: "", title: "", url: "", belt_level: "white", duration: 0, description: "", views: 0, likes: 0, created_at: "", updated_at: "" } as unknown as VideoDetail;
+      console.warn('[content.getVideo] API not available, using mock fallback');
+      const { mockGetVideo } = await import('@/lib/mocks/content.mock');
+      return mockGetVideo(id);
     }
   } catch (error) {
     handleServiceError(error, 'content.getVideo');
@@ -91,8 +93,9 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'content.getSeries');
       return res.json();
     } catch {
-      console.warn('[content.getSeries] API not available, using fallback');
-      return [];
+      console.warn('[content.getSeries] API not available, using mock fallback');
+      const { mockGetSeries } = await import('@/lib/mocks/content.mock');
+      return mockGetSeries(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'content.getSeries');

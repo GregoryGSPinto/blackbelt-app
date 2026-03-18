@@ -42,8 +42,9 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.get');
       return res.json();
     } catch {
-      console.warn('[rewards-store.getRewardsStore] API not available, using fallback');
-      return { rewards: [], user_points: 0, redemptions: [] } as unknown as RewardsStoreData;
+      console.warn('[rewards-store.getRewardsStore] API not available, using mock fallback');
+      const { mockGetRewardsStore } = await import('@/lib/mocks/rewards-store.mock');
+      return mockGetRewardsStore(academyId);
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.get'); }
 }
@@ -80,8 +81,9 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redemptions');
       return res.json();
     } catch {
-      console.warn('[rewards-store.getMyRedemptions] API not available, using fallback');
-      return [];
+      console.warn('[rewards-store.getMyRedemptions] API not available, using mock fallback');
+      const { mockGetMyRedemptions } = await import('@/lib/mocks/rewards-store.mock');
+      return mockGetMyRedemptions(userId);
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.redemptions'); }
 }
@@ -102,8 +104,9 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.create');
       return res.json();
     } catch {
-      console.warn('[rewards-store.createStoreReward] API not available, using fallback');
-      return { id: "", name: "", description: "", points_cost: 0, image_url: "", stock: 0, category: "", active: true } as unknown as StoreReward;
+      console.warn('[rewards-store.createStoreReward] API not available, using mock fallback');
+      const { mockCreateStoreReward } = await import('@/lib/mocks/rewards-store.mock');
+      return mockCreateStoreReward(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.create'); }
 }
@@ -123,8 +126,9 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.update');
       return res.json();
     } catch {
-      console.warn('[rewards-store.updateStoreReward] API not available, using fallback');
-      return { id: "", name: "", description: "", points_cost: 0, image_url: "", stock: 0, category: "", active: true } as unknown as StoreReward;
+      console.warn('[rewards-store.updateStoreReward] API not available, using mock fallback');
+      const { mockUpdateStoreReward } = await import('@/lib/mocks/rewards-store.mock');
+      return mockUpdateStoreReward(rewardId, data);
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.update'); }
 }
@@ -155,8 +159,9 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.allRedemptions');
       return res.json();
     } catch {
-      console.warn('[rewards-store.getAllRedemptions] API not available, using fallback');
-      return [];
+      console.warn('[rewards-store.getAllRedemptions] API not available, using mock fallback');
+      const { mockGetAllRedemptions } = await import('@/lib/mocks/rewards-store.mock');
+      return mockGetAllRedemptions(academyId);
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.allRedemptions'); }
 }

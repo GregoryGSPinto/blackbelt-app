@@ -45,8 +45,9 @@ export async function listContratosTemplates(academyId: string): Promise<Contrat
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.listTemplates');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.listContratosTemplates] API not available, using fallback');
-      return [];
+      console.warn('[contratos-v2.listContratosTemplates] API not available, using mock fallback');
+      const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockListContratosTemplates(academyId);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.listTemplates'); }
 }
@@ -62,8 +63,9 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.getTemplate');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.getContratoTemplate] API not available, using fallback');
-      return { id: '', nome: '', tipo: 'matricula', conteudoHTML: '', variaveis: [], ativo: false, criadoEm: '' } as ContratoTemplate;
+      console.warn('[contratos-v2.getContratoTemplate] API not available, using mock fallback');
+      const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockGetContratoTemplate(id);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.getTemplate'); }
 }
@@ -79,8 +81,9 @@ export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' |
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.createTemplate');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.createContratoTemplate] API not available, using fallback');
-      return { id: '', nome: '', tipo: 'matricula', conteudoHTML: '', variaveis: [], ativo: false, criadoEm: '' } as ContratoTemplate;
+      console.warn('[contratos-v2.createContratoTemplate] API not available, using mock fallback');
+      const { mockCreateContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockCreateContratoTemplate(data);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.createTemplate'); }
 }
@@ -96,8 +99,9 @@ export async function gerarContrato(templateId: string, alunoId: string, dados: 
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.gerar');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.gerarContrato] API not available, using fallback');
-      return { id: '', templateId: '', templateNome: '', alunoId: '', alunoNome: '', status: 'rascunho', conteudoFinal: '', criadoEm: '' } as Contrato;
+      console.warn('[contratos-v2.gerarContrato] API not available, using mock fallback');
+      const { mockGerarContrato } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockGerarContrato(templateId, alunoId, dados);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.gerar'); }
 }
@@ -128,8 +132,9 @@ export async function assinarContrato(contratoId: string, assinatura: string): P
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.assinar');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.assinarContrato] API not available, using fallback');
-      return { id: '', templateId: '', templateNome: '', alunoId: '', alunoNome: '', status: 'rascunho', conteudoFinal: '', criadoEm: '' } as Contrato;
+      console.warn('[contratos-v2.assinarContrato] API not available, using mock fallback');
+      const { mockAssinarContrato } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockAssinarContrato(contratoId, assinatura);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.assinar'); }
 }
@@ -147,8 +152,9 @@ export async function listContratos(academyId: string, filters?: { status?: Stat
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.list');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.listContratos] API not available, using fallback');
-      return [];
+      console.warn('[contratos-v2.listContratos] API not available, using mock fallback');
+      const { mockListContratos } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockListContratos(academyId, filters);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.list'); }
 }
@@ -164,8 +170,9 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
       if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.metrics');
       return res.json();
     } catch {
-      console.warn('[contratos-v2.getContratosMetrics] API not available, using fallback');
-      return { contratosAtivos: 0, pendentesAssinatura: 0, taxaAssinatura: 0 } as ContratosMetrics;
+      console.warn('[contratos-v2.getContratosMetrics] API not available, using mock fallback');
+      const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
+      return mockGetContratosMetrics(academyId);
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.metrics'); }
 }

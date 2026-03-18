@@ -33,8 +33,9 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
       if (!res.ok) throw new ServiceError(res.status, 'staff.list');
       return res.json();
     } catch {
-      console.warn('[invites.listStaff] API not available, using fallback');
-      return [];
+      console.warn('[invites.listStaff] API not available, using mock fallback');
+      const { mockListStaff } = await import('@/lib/mocks/invites.mock');
+      return mockListStaff(academyId);
     }
   } catch (error) { handleServiceError(error, 'staff.list'); }
 }
@@ -50,8 +51,9 @@ export async function sendInvite(email: string, role: Role, unitIds: string[]): 
       if (!res.ok) throw new ServiceError(res.status, 'invites.send');
       return res.json();
     } catch {
-      console.warn('[invites.sendInvite] API not available, using fallback');
-      return { id: "", academy_id: "", email: "", role: "", status: "pending", invited_by: "", created_at: "" } as unknown as InviteDTO;
+      console.warn('[invites.sendInvite] API not available, using mock fallback');
+      const { mockSendInvite } = await import('@/lib/mocks/invites.mock');
+      return mockSendInvite(email, role, unitIds);
     }
   } catch (error) { handleServiceError(error, 'invites.send'); }
 }
@@ -67,8 +69,9 @@ export async function getActiveInvites(academyId: string): Promise<InviteDTO[]> 
       if (!res.ok) throw new ServiceError(res.status, 'invites.list');
       return res.json();
     } catch {
-      console.warn('[invites.getActiveInvites] API not available, using fallback');
-      return [];
+      console.warn('[invites.getActiveInvites] API not available, using mock fallback');
+      const { mockGetActiveInvites } = await import('@/lib/mocks/invites.mock');
+      return mockGetActiveInvites(academyId);
     }
   } catch (error) { handleServiceError(error, 'invites.list'); }
 }

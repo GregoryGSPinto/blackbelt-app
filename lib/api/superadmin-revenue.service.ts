@@ -58,13 +58,9 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-revenue.getRevenueMetrics] API not available, using fallback');
-      return {
-        mrr: 0, arr: 0, mrrAnterior: 0, crescimentoMrr: 0,
-        churnRate: 0, churnReceita: 0, revenueChurnRate: 0,
-        ltv: 0, cac: 0, ltvCacRatio: 0, paybackMeses: 0,
-        receitaPorPlano: [], evolucaoMensal: [], cohort: [], projecao3Meses: [],
-      };
+      console.warn('[superadmin-revenue.getRevenueMetrics] API not available, using mock fallback');
+      const { mockGetRevenueMetrics } = await import('@/lib/mocks/superadmin-revenue.mock');
+      return mockGetRevenueMetrics();
     }
   } catch (error) { handleServiceError(error, 'superadmin-revenue.getMetrics'); }
 }

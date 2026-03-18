@@ -52,8 +52,9 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
       if (!res.ok) throw new ServiceError(res.status, 'periodization.create');
       return res.json();
     } catch {
-      console.warn('[periodization.createMacrocycle] API not available, using fallback');
-      return { id: '', student_id: '', competition_name: '', competition_date: '', phases: [], created_at: '', created_by: '' } as MacrocycleDTO;
+      console.warn('[periodization.createMacrocycle] API not available, using mock fallback');
+      const { mockCreateMacrocycle } = await import('@/lib/mocks/periodization.mock');
+      return mockCreateMacrocycle(macrocycle);
     }
   } catch (error) { handleServiceError(error, 'periodization.create'); }
 }
@@ -86,8 +87,9 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
       if (!res.ok) throw new ServiceError(res.status, 'periodization.updatePhase');
       return res.json();
     } catch {
-      console.warn('[periodization.updatePhase] API not available, using fallback');
-      return { id: '', name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] } as Phase;
+      console.warn('[periodization.updatePhase] API not available, using mock fallback');
+      const { mockUpdatePhase } = await import('@/lib/mocks/periodization.mock');
+      return mockUpdatePhase(macrocycleId, phaseId, data);
     }
   } catch (error) { handleServiceError(error, 'periodization.updatePhase'); }
 }

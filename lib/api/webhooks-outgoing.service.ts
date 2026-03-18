@@ -45,8 +45,9 @@ export async function registerWebhook(academyId: string, url: string, events: We
       const res = await fetch('/api/v1/webhooks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, url, events }) });
       return res.json();
     } catch {
-      console.warn('[webhooks-outgoing.registerWebhook] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", url: "", events: [], active: false, secret: "", created_at: "" } as unknown as OutgoingWebhook;
+      console.warn('[webhooks-outgoing.registerWebhook] API not available, using mock fallback');
+      const { mockRegisterWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
+      return mockRegisterWebhook(academyId, url, events);
     }
   } catch (error) { handleServiceError(error, 'webhooksOutgoing.register'); }
 }
@@ -61,8 +62,9 @@ export async function listWebhooks(academyId: string): Promise<OutgoingWebhook[]
       const res = await fetch(`/api/v1/webhooks?academyId=${academyId}`);
       return res.json();
     } catch {
-      console.warn('[webhooks-outgoing.listWebhooks] API not available, using fallback');
-      return [];
+      console.warn('[webhooks-outgoing.listWebhooks] API not available, using mock fallback');
+      const { mockListWebhooks } = await import('@/lib/mocks/webhooks-outgoing.mock');
+      return mockListWebhooks(academyId);
     }
   } catch (error) { handleServiceError(error, 'webhooksOutgoing.list'); }
 }
@@ -91,8 +93,9 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       const res = await fetch(`/api/v1/webhooks/${webhookId}/test`, { method: 'POST' });
       return res.json();
     } catch {
-      console.warn('[webhooks-outgoing.testWebhook] API not available, using fallback');
-      return { success: false, status_code: 0, response_time_ms: 0, response_body: "" } as unknown as WebhookTestResult;
+      console.warn('[webhooks-outgoing.testWebhook] API not available, using mock fallback');
+      const { mockTestWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
+      return mockTestWebhook(webhookId);
     }
   } catch (error) { handleServiceError(error, 'webhooksOutgoing.test'); }
 }
@@ -107,8 +110,9 @@ export async function getDeliveryLog(webhookId: string): Promise<WebhookDelivery
       const res = await fetch(`/api/v1/webhooks/${webhookId}/deliveries`);
       return res.json();
     } catch {
-      console.warn('[webhooks-outgoing.getDeliveryLog] API not available, using fallback');
-      return [];
+      console.warn('[webhooks-outgoing.getDeliveryLog] API not available, using mock fallback');
+      const { mockGetDeliveryLog } = await import('@/lib/mocks/webhooks-outgoing.mock');
+      return mockGetDeliveryLog(webhookId);
     }
   } catch (error) { handleServiceError(error, 'webhooksOutgoing.deliveries'); }
 }

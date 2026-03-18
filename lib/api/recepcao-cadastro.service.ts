@@ -69,8 +69,9 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.create');
       return res.json();
     } catch {
-      console.warn('[recepcao-cadastro.cadastrarRapido] API not available, using fallback');
-      return { success: false, student_id: "", message: "" } as unknown as CadastroResult;
+      console.warn('[recepcao-cadastro.cadastrarRapido] API not available, using mock fallback');
+      const { mockCadastrarRapido } = await import('@/lib/mocks/recepcao-cadastro.mock');
+      return mockCadastrarRapido(data);
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.create');
@@ -88,8 +89,9 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.planos');
       return res.json();
     } catch {
-      console.warn('[recepcao-cadastro.getPlanos] API not available, using fallback');
-      return [];
+      console.warn('[recepcao-cadastro.getPlanos] API not available, using mock fallback');
+      const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
+      return mockGetPlanos();
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.planos');
@@ -107,8 +109,9 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.turmas');
       return res.json();
     } catch {
-      console.warn('[recepcao-cadastro.getTurmasDisponiveis] API not available, using fallback');
-      return [];
+      console.warn('[recepcao-cadastro.getTurmasDisponiveis] API not available, using mock fallback');
+      const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
+      return mockGetTurmasDisponiveis();
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.turmas');

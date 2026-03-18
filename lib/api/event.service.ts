@@ -14,8 +14,9 @@ export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[event.listEvents] API not available, using fallback');
-      return [];
+      console.warn('[event.listEvents] API not available, using mock fallback');
+      const { mockListEvents } = await import('@/lib/mocks/event.mock');
+      return mockListEvents(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'event.list');
@@ -33,8 +34,9 @@ export async function getEvent(eventId: string): Promise<AcademyEvent> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[event.getEvent] API not available, using fallback');
-      return { id: '', academy_id: '', title: '', description: '', date: '', location: '', type: 'competition', max_participants: 0, enrolled: 0, modalities: [], min_belt: 'white', fee: 0, status: 'scheduled', created_at: '', updated_at: '' } as unknown as AcademyEvent;
+      console.warn('[event.getEvent] API not available, using mock fallback');
+      const { mockGetEvent } = await import('@/lib/mocks/event.mock');
+      return mockGetEvent(eventId);
     }
   } catch (error) {
     handleServiceError(error, 'event.get');
@@ -56,8 +58,9 @@ export async function createEvent(academyId: string, data: CreateEventData): Pro
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[event.createEvent] API not available, using fallback');
-      return { id: '', academy_id: '', title: '', description: '', date: '', location: '', type: 'competition', max_participants: 0, enrolled: 0, modalities: [], min_belt: 'white', fee: 0, status: 'scheduled', created_at: '', updated_at: '' } as unknown as AcademyEvent;
+      console.warn('[event.createEvent] API not available, using mock fallback');
+      const { mockCreateEvent } = await import('@/lib/mocks/event.mock');
+      return mockCreateEvent(academyId, data);
     }
   } catch (error) {
     handleServiceError(error, 'event.create');

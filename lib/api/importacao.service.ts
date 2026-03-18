@@ -40,8 +40,9 @@ export async function parseCSV(file: File): Promise<ParsedCSVResult> {
       if (!res.ok) throw new ServiceError(res.status, 'importacao.parseCSV');
       return res.json();
     } catch {
-      console.warn('[importacao.parseCSV] API not available, using fallback');
-      return { headers: [], rows: [], total_rows: 0, valid_rows: 0 } as unknown as ParsedCSVResult;
+      console.warn('[importacao.parseCSV] API not available, using mock fallback');
+      const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
+      return mockParseCSV(file);
     }
   } catch (error) { handleServiceError(error, 'importacao.parseCSV'); }
 }
@@ -61,8 +62,9 @@ export async function detectDuplicates(rows: ImportRow[], academyId: string): Pr
       if (!res.ok) throw new ServiceError(res.status, 'importacao.detectDuplicates');
       return res.json();
     } catch {
-      console.warn('[importacao.detectDuplicates] API not available, using fallback');
-      return { duplicates: [], clean_count: 0 } as unknown as DuplicateCheckResult;
+      console.warn('[importacao.detectDuplicates] API not available, using mock fallback');
+      const { mockDetectDuplicates } = await import('@/lib/mocks/importacao.mock');
+      return mockDetectDuplicates(rows, academyId);
     }
   } catch (error) { handleServiceError(error, 'importacao.detectDuplicates'); }
 }
@@ -82,8 +84,9 @@ export async function importStudents(rows: ImportRow[], academyId: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'importacao.importStudents');
       return res.json();
     } catch {
-      console.warn('[importacao.importStudents] API not available, using fallback');
-      return { imported: 0, skipped: 0, errors: [] } as unknown as ImportResult;
+      console.warn('[importacao.importStudents] API not available, using mock fallback');
+      const { mockImportStudents } = await import('@/lib/mocks/importacao.mock');
+      return mockImportStudents(rows, academyId);
     }
   } catch (error) { handleServiceError(error, 'importacao.importStudents'); }
 }

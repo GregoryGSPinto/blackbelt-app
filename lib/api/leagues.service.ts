@@ -43,8 +43,9 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'leagues.active');
       return res.json();
     } catch {
-      console.warn('[leagues.getActiveLeague] API not available, using fallback');
-      return { id: '', name: '', season_id: '', academies: [], rules: '', start_date: '', end_date: '', prizes: [] } as LeagueDTO;
+      console.warn('[leagues.getActiveLeague] API not available, using mock fallback');
+      const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
+      return mockGetActiveLeague();
     }
   } catch (error) { handleServiceError(error, 'leagues.active'); }
 }
@@ -60,8 +61,9 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       if (!res.ok) throw new ServiceError(res.status, 'leagues.standings');
       return res.json();
     } catch {
-      console.warn('[leagues.getLeagueStandings] API not available, using fallback');
-      return [];
+      console.warn('[leagues.getLeagueStandings] API not available, using mock fallback');
+      const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
+      return mockGetLeagueStandings();
     }
   } catch (error) { handleServiceError(error, 'leagues.standings'); }
 }
@@ -77,8 +79,9 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       if (!res.ok) throw new ServiceError(res.status, 'leagues.myAcademy');
       return res.json();
     } catch {
-      console.warn('[leagues.getMyAcademyRank] API not available, using fallback');
-      return { academy_id: '', rank: 0, total_points: 0, per_capita_avg: 0, student_count: 0, top_contributors: [], opted_in: false } as AcademyLeagueStats;
+      console.warn('[leagues.getMyAcademyRank] API not available, using mock fallback');
+      const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
+      return mockGetMyAcademyRank(academyId);
     }
   } catch (error) { handleServiceError(error, 'leagues.myAcademy'); }
 }
@@ -98,8 +101,9 @@ export async function contributePoints(studentId: string, action: string): Promi
       if (!res.ok) throw new ServiceError(res.status, 'leagues.contribute');
       return res.json();
     } catch {
-      console.warn('[leagues.contributePoints] API not available, using fallback');
-      return { points_added: 0, total_points: 0 };
+      console.warn('[leagues.contributePoints] API not available, using mock fallback');
+      const { mockContributePoints } = await import('@/lib/mocks/leagues.mock');
+      return mockContributePoints(studentId, action);
     }
   } catch (error) { handleServiceError(error, 'leagues.contribute'); }
 }
@@ -119,8 +123,9 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       if (!res.ok) throw new ServiceError(res.status, 'leagues.optIn');
       return res.json();
     } catch {
-      console.warn('[leagues.toggleOptIn] API not available, using fallback');
-      return { success: false };
+      console.warn('[leagues.toggleOptIn] API not available, using mock fallback');
+      const { mockToggleOptIn } = await import('@/lib/mocks/leagues.mock');
+      return mockToggleOptIn(academyId, optIn);
     }
   } catch (error) { handleServiceError(error, 'leagues.optIn'); }
 }

@@ -110,10 +110,15 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [profile?.user_id]);
 
-  // Auto-detect first access
+  // Auto-detect first access — only on initial login, NOT on profile switch
+  const { isProfileSwitch } = useAuth() as ReturnType<typeof useAuth> & { isProfileSwitch: boolean };
+
   useEffect(() => {
     if (!profile?.role || !profile?.user_id || !state.progressLoaded) return;
     if (state.isActive || state.showWelcome || state.showComplete) return;
+
+    // Don't auto-trigger tutorial when user is switching profiles
+    if (isProfileSwitch) return;
 
     const tutorialId = ROLE_TUTORIAL_MAP[profile.role];
     if (!tutorialId) return;
@@ -150,7 +155,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
         currentStep: 0,
       }));
     }
-  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.inProgressTutorials, state.isActive, state.showWelcome, state.showComplete]);
+  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.inProgressTutorials, state.isActive, state.showWelcome, state.showComplete, isProfileSwitch]);
 
   const startTutorial = useCallback((tutorialId: string) => {
     const tutorial = getTutorialById(tutorialId);

@@ -71,8 +71,9 @@ export async function createLead(data: CreateLeadData): Promise<FranchiseLead> {
       if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.create');
       return res.json();
     } catch {
-      console.warn('[franchise-expansion.createLead] API not available, using fallback');
-      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
+      console.warn('[franchise-expansion.createLead] API not available, using mock fallback');
+      const { mockCreateLead } = await import('@/lib/mocks/franchise-expansion.mock');
+      return mockCreateLead(data);
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.create'); }
 }
@@ -88,8 +89,9 @@ export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
       if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.list');
       return res.json();
     } catch {
-      console.warn('[franchise-expansion.getLeads] API not available, using fallback');
-      return [];
+      console.warn('[franchise-expansion.getLeads] API not available, using mock fallback');
+      const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
+      return mockGetLeads(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.list'); }
 }
@@ -109,8 +111,9 @@ export async function updateLeadStatus(leadId: string, stage: PipelineStage): Pr
       if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.update');
       return res.json();
     } catch {
-      console.warn('[franchise-expansion.updateLeadStatus] API not available, using fallback');
-      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
+      console.warn('[franchise-expansion.updateLeadStatus] API not available, using mock fallback');
+      const { mockUpdateLeadStatus } = await import('@/lib/mocks/franchise-expansion.mock');
+      return mockUpdateLeadStatus(leadId, stage);
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.update'); }
 }
@@ -130,8 +133,9 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.viability');
       return res.json();
     } catch {
-      console.warn('[franchise-expansion.analyzeViability] API not available, using fallback');
-      return { score: 0, population: 0, competition: 0, income_level: "", recommendation: "", factors: [] } as unknown as ViabilityAnalysis;
+      console.warn('[franchise-expansion.analyzeViability] API not available, using mock fallback');
+      const { mockAnalyzeViability } = await import('@/lib/mocks/franchise-expansion.mock');
+      return mockAnalyzeViability(location);
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.viability'); }
 }
@@ -147,8 +151,9 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.setup');
       return res.json();
     } catch {
-      console.warn('[franchise-expansion.setupFranchise] API not available, using fallback');
-      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
+      console.warn('[franchise-expansion.setupFranchise] API not available, using mock fallback');
+      const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
+      return mockSetupFranchise(leadId);
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.setup'); }
 }

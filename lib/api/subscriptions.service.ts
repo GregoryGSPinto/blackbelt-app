@@ -19,8 +19,9 @@ export async function getSubscriptionByStudent(studentId: string): Promise<Subsc
       if (!res.ok) throw new ServiceError(res.status, 'subscriptions.getByStudent');
       return res.json();
     } catch {
-      console.warn('[subscriptions.getSubscriptionByStudent] API not available, using fallback');
-      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "", plan_name: "", plan_price: 0 } as unknown as SubscriptionWithPlan;
+      console.warn('[subscriptions.getSubscriptionByStudent] API not available, using mock fallback');
+      const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
+      return mockGetSubscriptionByStudent(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.getByStudent');
@@ -42,8 +43,9 @@ export async function createSubscription(studentId: string, planId: string): Pro
       if (!res.ok) throw new ServiceError(res.status, 'subscriptions.create');
       return res.json();
     } catch {
-      console.warn('[subscriptions.createSubscription] API not available, using fallback');
-      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "" } as unknown as Subscription;
+      console.warn('[subscriptions.createSubscription] API not available, using mock fallback');
+      const { mockCreateSubscription } = await import('@/lib/mocks/subscriptions.mock');
+      return mockCreateSubscription(studentId, planId);
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.create');
@@ -82,8 +84,9 @@ export async function changePlan(subscriptionId: string, newPlanId: string): Pro
       if (!res.ok) throw new ServiceError(res.status, 'subscriptions.changePlan');
       return res.json();
     } catch {
-      console.warn('[subscriptions.changePlan] API not available, using fallback');
-      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "" } as unknown as Subscription;
+      console.warn('[subscriptions.changePlan] API not available, using mock fallback');
+      const { mockChangePlan } = await import('@/lib/mocks/subscriptions.mock');
+      return mockChangePlan(subscriptionId, newPlanId);
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.changePlan');

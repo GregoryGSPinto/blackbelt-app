@@ -289,7 +289,13 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
 
               <div className="flex items-center gap-3">
                 {/* Notifications */}
-                <button style={{ color: 'var(--bb-ink-60)' }}>
+                <button
+                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                  style={{ color: 'var(--bb-ink-60)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  aria-label="Notificações"
+                >
                   <BellIcon className="h-5 w-5" />
                 </button>
 
@@ -298,7 +304,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                   <button
                     ref={userMenuButtonRef}
                     onClick={() => setUserMenuOpen((prev) => !prev)}
-                    className="cursor-pointer"
+                    className="flex h-9 w-9 items-center justify-center cursor-pointer"
                   >
                     <Avatar name={userName} size="sm" />
                   </button>

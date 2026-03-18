@@ -54,8 +54,9 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.create');
       return res.json();
     } catch {
-      console.warn('[aula-experimental.createTrialClass] API not available, using fallback');
-      return { id: '', leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'presencial', turmaId: '', turmaNome: '', dataAgendada: '', status: 'agendada', professorId: '', professorNome: '', followUpEnviado: false, createdAt: '' } as TrialClass;
+      console.warn('[aula-experimental.createTrialClass] API not available, using mock fallback');
+      const { mockCreateTrialClass } = await import('@/lib/mocks/aula-experimental.mock');
+      return mockCreateTrialClass(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.create'); }
 }
@@ -74,8 +75,9 @@ export async function listTrialClasses(academyId: string, filters?: TrialFilters
       if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.list');
       return res.json();
     } catch {
-      console.warn('[aula-experimental.listTrialClasses] API not available, using fallback');
-      return [];
+      console.warn('[aula-experimental.listTrialClasses] API not available, using mock fallback');
+      const { mockListTrialClasses } = await import('@/lib/mocks/aula-experimental.mock');
+      return mockListTrialClasses(academyId, filters);
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.list'); }
 }
@@ -91,8 +93,9 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.updateStatus');
       return res.json();
     } catch {
-      console.warn('[aula-experimental.updateTrialStatus] API not available, using fallback');
-      return { id: '', leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'presencial', turmaId: '', turmaNome: '', dataAgendada: '', status: 'agendada', professorId: '', professorNome: '', followUpEnviado: false, createdAt: '' } as TrialClass;
+      console.warn('[aula-experimental.updateTrialStatus] API not available, using mock fallback');
+      const { mockUpdateTrialStatus } = await import('@/lib/mocks/aula-experimental.mock');
+      return mockUpdateTrialStatus(id, status);
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.updateStatus'); }
 }
@@ -108,8 +111,9 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.metrics');
       return res.json();
     } catch {
-      console.warn('[aula-experimental.getTrialMetrics] API not available, using fallback');
-      return { agendadas: 0, confirmadas: 0, compareceram: 0, matricularam: 0, taxaConversao: 0 } as TrialMetrics;
+      console.warn('[aula-experimental.getTrialMetrics] API not available, using mock fallback');
+      const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
+      return mockGetTrialMetrics(academyId);
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.metrics'); }
 }

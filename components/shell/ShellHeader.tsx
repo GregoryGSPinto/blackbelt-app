@@ -138,15 +138,15 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
             <div className="relative">
               <button
                 ref={notifButtonRef}
-                className="relative transition-colors"
+                className="relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
                 aria-label="Notificações"
                 onClick={() => {
                   setNotificationsOpen((prev) => !prev);
                   setUserMenuOpen(false);
                 }}
                 style={{ color: 'var(--bb-ink-60)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bb-ink-100)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bb-ink-60)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bb-ink-100)'; e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bb-ink-60)'; e.currentTarget.style.background = 'transparent'; }}
               >
                 <BellIcon className="h-5 w-5" />
                 {unreadCount > 0 && (
@@ -244,7 +244,7 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
                   setNotificationsOpen(false);
                 }}
                 aria-label="Menu do usuário"
-                className="cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center cursor-pointer"
               >
                 <Avatar name={userName} size="sm" />
               </button>

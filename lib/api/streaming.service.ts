@@ -24,8 +24,9 @@ export async function getLibrary(profileId: string, role: string, belt: string):
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getLibrary');
       return res.json();
     } catch {
-      console.warn('[streaming.getLibrary] API not available, using fallback');
-      return { series: [], categories: [], featured: [] } as unknown as StreamingLibrary;
+      console.warn('[streaming.getLibrary] API not available, using mock fallback');
+      const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
+      return mockGetLibrary(profileId, role, belt);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getLibrary');
@@ -43,8 +44,9 @@ export async function getSeriesDetail(seriesId: string): Promise<SeriesDetail> {
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getSeriesDetail');
       return res.json();
     } catch {
-      console.warn('[streaming.getSeriesDetail] API not available, using fallback');
-      return { id: "", title: "", description: "", episodes: [], total_episodes: 0, progress_pct: 0 } as unknown as SeriesDetail;
+      console.warn('[streaming.getSeriesDetail] API not available, using mock fallback');
+      const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
+      return mockGetSeriesDetail(seriesId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getSeriesDetail');
@@ -62,8 +64,9 @@ export async function getEpisode(episodeId: string): Promise<StreamingVideo> {
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getEpisode');
       return res.json();
     } catch {
-      console.warn('[streaming.getEpisode] API not available, using fallback');
-      return { id: "", title: "", url: "", duration: 0, thumbnail_url: "", series_id: "", episode_number: 0 } as unknown as StreamingVideo;
+      console.warn('[streaming.getEpisode] API not available, using mock fallback');
+      const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
+      return mockGetEpisode(episodeId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getEpisode');
@@ -81,8 +84,9 @@ export async function getContinueWatching(studentId: string): Promise<WatchProgr
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getContinueWatching');
       return res.json();
     } catch {
-      console.warn('[streaming.getContinueWatching] API not available, using fallback');
-      return [];
+      console.warn('[streaming.getContinueWatching] API not available, using mock fallback');
+      const { mockGetContinueWatching } = await import('@/lib/mocks/streaming.mock');
+      return mockGetContinueWatching(studentId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getContinueWatching');
@@ -100,8 +104,9 @@ export async function getRecommended(studentId: string): Promise<StreamingSeries
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getRecommended');
       return res.json();
     } catch {
-      console.warn('[streaming.getRecommended] API not available, using fallback');
-      return [];
+      console.warn('[streaming.getRecommended] API not available, using mock fallback');
+      const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
+      return mockGetRecommended(studentId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getRecommended');
@@ -144,8 +149,9 @@ export async function completeEpisode(studentId: string, episodeId: string): Pro
       if (!res.ok) throw new ServiceError(res.status, 'streaming.completeEpisode');
       return res.json();
     } catch {
-      console.warn('[streaming.completeEpisode] API not available, using fallback');
-      return { completed: false, xp_earned: 0, next_episode: null } as unknown as EpisodeCompletionResult;
+      console.warn('[streaming.completeEpisode] API not available, using mock fallback');
+      const { mockCompleteEpisode } = await import('@/lib/mocks/streaming.mock');
+      return mockCompleteEpisode(studentId, episodeId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.completeEpisode');
@@ -167,8 +173,9 @@ export async function submitQuiz(studentId: string, episodeId: string, answers: 
       if (!res.ok) throw new ServiceError(res.status, 'streaming.submitQuiz');
       return res.json();
     } catch {
-      console.warn('[streaming.submitQuiz] API not available, using fallback');
-      return { score: 0, total: 0, passed: false, xp_earned: 0, answers: [] } as unknown as QuizResult;
+      console.warn('[streaming.submitQuiz] API not available, using mock fallback');
+      const { mockSubmitQuiz } = await import('@/lib/mocks/streaming.mock');
+      return mockSubmitQuiz(studentId, episodeId, answers);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.submitQuiz');
@@ -188,8 +195,9 @@ export async function getTrails(academyId: string, belt?: string): Promise<Strea
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getTrails');
       return res.json();
     } catch {
-      console.warn('[streaming.getTrails] API not available, using fallback');
-      return [];
+      console.warn('[streaming.getTrails] API not available, using mock fallback');
+      const { mockGetTrails } = await import('@/lib/mocks/streaming.mock');
+      return mockGetTrails(academyId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getTrails');
@@ -207,8 +215,9 @@ export async function getTrailProgress(studentId: string, trailId: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'streaming.getTrailProgress');
       return res.json();
     } catch {
-      console.warn('[streaming.getTrailProgress] API not available, using fallback');
-      return { trail_id: "", completed_episodes: 0, total_episodes: 0, progress_pct: 0, xp_earned: 0 } as unknown as TrailProgress;
+      console.warn('[streaming.getTrailProgress] API not available, using mock fallback');
+      const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
+      return mockGetTrailProgress(studentId, trailId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getTrailProgress');
@@ -230,8 +239,9 @@ export async function generateCertificate(studentId: string, trailId: string): P
       if (!res.ok) throw new ServiceError(res.status, 'streaming.generateCertificate');
       return res.json();
     } catch {
-      console.warn('[streaming.generateCertificate] API not available, using fallback');
-      return { id: "", series_id: "", user_id: "", issued_at: "", pdf_url: "" } as unknown as StreamingCertificate;
+      console.warn('[streaming.generateCertificate] API not available, using mock fallback');
+      const { mockGenerateCertificate } = await import('@/lib/mocks/streaming.mock');
+      return mockGenerateCertificate(studentId, trailId);
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.generateCertificate');

@@ -22,8 +22,9 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       const res = await fetch('/api/system/status');
       return res.json();
     } catch {
-      console.warn('[observability.getSystemStatus] API not available, using fallback');
-      return { status: "operational", services: [], uptime_pct: 0, last_incident: null, response_time_ms: 0 } as unknown as SystemStatus;
+      console.warn('[observability.getSystemStatus] API not available, using mock fallback');
+      const { mockGetSystemStatus } = await import('@/lib/mocks/observability.mock');
+      return mockGetSystemStatus();
     }
   } catch (error) { handleServiceError(error, 'observability.status'); }
 }

@@ -47,8 +47,9 @@ export async function getSuggestions(
       if (!res.ok) throw new ServiceError(res.status, 'suggestions.get');
       return res.json();
     } catch {
-      console.warn('[suggestions.getSuggestions] API not available, using fallback');
-      return [];
+      console.warn('[suggestions.getSuggestions] API not available, using mock fallback');
+      const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
+      return mockGetSuggestions(role, userId, academyId);
     }
 
   } catch (error) {

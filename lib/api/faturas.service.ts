@@ -31,8 +31,9 @@ export async function listInvoices(academyId: string, filters?: InvoiceFilters):
       if (!res.ok) throw new ServiceError(res.status, 'faturas.list');
       return res.json();
     } catch {
-      console.warn('[faturas.listInvoices] API not available, using fallback');
-      return [];
+      console.warn('[faturas.listInvoices] API not available, using mock fallback');
+      const { mockListInvoices } = await import('@/lib/mocks/faturas.mock');
+      return mockListInvoices(academyId, filters);
     }
   } catch (error) {
     handleServiceError(error, 'faturas.list');
@@ -50,8 +51,9 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       if (!res.ok) throw new ServiceError(res.status, 'faturas.get');
       return res.json();
     } catch {
-      console.warn('[faturas.getInvoiceById] API not available, using fallback');
-      return { id: "", student_id: "", student_name: "", amount: 0, status: "pending", due_date: "", paid_at: null, method: null, created_at: "" } as unknown as InvoiceWithDetails;
+      console.warn('[faturas.getInvoiceById] API not available, using mock fallback');
+      const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
+      return mockGetInvoiceById(id);
     }
   } catch (error) {
     handleServiceError(error, 'faturas.get');
@@ -69,8 +71,9 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       if (!res.ok) throw new ServiceError(res.status, 'faturas.markPaid');
       return res.json();
     } catch {
-      console.warn('[faturas.markInvoicePaid] API not available, using fallback');
-      return { id: "", student_id: "", amount: 0, status: "pending", due_date: "", created_at: "" } as unknown as Invoice;
+      console.warn('[faturas.markInvoicePaid] API not available, using mock fallback');
+      const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
+      return mockMarkPaid(id);
     }
   } catch (error) {
     handleServiceError(error, 'faturas.markPaid');
@@ -92,8 +95,9 @@ export async function generateMonthlyInvoices(academyId: string): Promise<Invoic
       if (!res.ok) throw new ServiceError(res.status, 'faturas.generate');
       return res.json();
     } catch {
-      console.warn('[faturas.generateMonthlyInvoices] API not available, using fallback');
-      return [];
+      console.warn('[faturas.generateMonthlyInvoices] API not available, using mock fallback');
+      const { mockGenerateMonthly } = await import('@/lib/mocks/faturas.mock');
+      return mockGenerateMonthly(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'faturas.generate');

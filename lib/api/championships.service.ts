@@ -56,8 +56,9 @@ export async function createChampionship(data: Omit<ChampionshipDTO, 'id' | 'cur
       if (!res.ok) throw new ServiceError(res.status, 'championships.create');
       return res.json();
     } catch {
-      console.warn('[championships.createChampionship] API not available, using fallback');
-      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
+      console.warn('[championships.createChampionship] API not available, using mock fallback');
+      const { mockCreateChampionship } = await import('@/lib/mocks/championships.mock');
+      return mockCreateChampionship(data);
     }
   } catch (error) { handleServiceError(error, 'championships.create'); }
 }
@@ -79,8 +80,9 @@ export async function getChampionships(filters?: ChampionshipFilters): Promise<C
       if (!res.ok) throw new ServiceError(res.status, 'championships.list');
       return res.json();
     } catch {
-      console.warn('[championships.getChampionships] API not available, using fallback');
-      return [];
+      console.warn('[championships.getChampionships] API not available, using mock fallback');
+      const { mockGetChampionships } = await import('@/lib/mocks/championships.mock');
+      return mockGetChampionships(filters);
     }
   } catch (error) { handleServiceError(error, 'championships.list'); }
 }
@@ -96,8 +98,9 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       if (!res.ok) throw new ServiceError(res.status, 'championships.getById');
       return res.json();
     } catch {
-      console.warn('[championships.getChampionshipById] API not available, using fallback');
-      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
+      console.warn('[championships.getChampionshipById] API not available, using mock fallback');
+      const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
+      return mockGetChampionshipById(id);
     }
   } catch (error) { handleServiceError(error, 'championships.getById'); }
 }
@@ -113,8 +116,9 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'championships.openRegistration');
       return res.json();
     } catch {
-      console.warn('[championships.openRegistration] API not available, using fallback');
-      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
+      console.warn('[championships.openRegistration] API not available, using mock fallback');
+      const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
+      return mockOpenRegistration(id);
     }
   } catch (error) { handleServiceError(error, 'championships.openRegistration'); }
 }
@@ -130,8 +134,9 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'championships.closeRegistration');
       return res.json();
     } catch {
-      console.warn('[championships.closeRegistration] API not available, using fallback');
-      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
+      console.warn('[championships.closeRegistration] API not available, using mock fallback');
+      const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
+      return mockCloseRegistration(id);
     }
   } catch (error) { handleServiceError(error, 'championships.closeRegistration'); }
 }

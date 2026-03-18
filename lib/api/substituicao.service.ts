@@ -43,8 +43,9 @@ export async function getSubstitutions(academyId: string): Promise<SubstitutionD
       if (!res.ok) throw new ServiceError(res.status, 'substituicao.list');
       return res.json();
     } catch {
-      console.warn('[substituicao.getSubstitutions] API not available, using fallback');
-      return [];
+      console.warn('[substituicao.getSubstitutions] API not available, using mock fallback');
+      const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
+      return mockGetSubstitutions(academyId);
     }
   } catch (error) { handleServiceError(error, 'substituicao.list'); }
 }
@@ -64,8 +65,9 @@ export async function createSubstitution(data: CreateSubstitutionData): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'substituicao.create');
       return res.json();
     } catch {
-      console.warn('[substituicao.createSubstitution] API not available, using fallback');
-      return { id: "", original_teacher_id: "", original_teacher_name: "", substitute_teacher_id: "", substitute_teacher_name: "", class_id: "", class_name: "", date: "", reason: "", status: "pending", created_at: "" } as unknown as SubstitutionDTO;
+      console.warn('[substituicao.createSubstitution] API not available, using mock fallback');
+      const { mockCreateSubstitution } = await import('@/lib/mocks/substituicao.mock');
+      return mockCreateSubstitution(data);
     }
   } catch (error) { handleServiceError(error, 'substituicao.create'); }
 }
@@ -81,8 +83,9 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'substituicao.availableTeachers');
       return res.json();
     } catch {
-      console.warn('[substituicao.getAvailableTeachers] API not available, using fallback');
-      return [];
+      console.warn('[substituicao.getAvailableTeachers] API not available, using mock fallback');
+      const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
+      return mockGetAvailableTeachers(date, timeSlot);
     }
   } catch (error) { handleServiceError(error, 'substituicao.availableTeachers'); }
 }

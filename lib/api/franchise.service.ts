@@ -92,8 +92,9 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       if (!res.ok) throw new ServiceError(res.status, 'franchise.academies');
       return res.json();
     } catch {
-      console.warn('[franchise.getAcademies] API not available, using fallback');
-      return [];
+      console.warn('[franchise.getAcademies] API not available, using mock fallback');
+      const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
+      return mockGetAcademies(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franchise.academies'); }
 }
@@ -109,8 +110,9 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       if (!res.ok) throw new ServiceError(res.status, 'franchise.financials');
       return res.json();
     } catch {
-      console.warn('[franchise.getFinancials] API not available, using fallback');
-      return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 } as NetworkFinancials;
+      console.warn('[franchise.getFinancials] API not available, using mock fallback');
+      const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
+      return mockGetFinancials(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franchise.financials'); }
 }
@@ -130,8 +132,9 @@ export async function sendNetworkMessage(franchiseId: string, message: NetworkMe
       if (!res.ok) throw new ServiceError(res.status, 'franchise.message');
       return res.json();
     } catch {
-      console.warn('[franchise.sendNetworkMessage] API not available, using fallback');
-      return { sent: 0 };
+      console.warn('[franchise.sendNetworkMessage] API not available, using mock fallback');
+      const { mockSendNetworkMessage } = await import('@/lib/mocks/franchise.mock');
+      return mockSendNetworkMessage(franchiseId, message);
     }
   } catch (error) { handleServiceError(error, 'franchise.message'); }
 }

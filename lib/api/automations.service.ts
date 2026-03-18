@@ -13,8 +13,9 @@ export async function listAutomations(academyId: string): Promise<AutomationConf
       if (!res.ok) throw new ServiceError(res.status, 'automations.list');
       return res.json();
     } catch {
-      console.warn('[automations.listAutomations] API not available, using fallback');
-      return [];
+      console.warn('[automations.listAutomations] API not available, using mock fallback');
+      const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
+      return mockListAutomations(academyId);
     }
   } catch (error) { handleServiceError(error, 'automations.list'); }
 }
@@ -34,8 +35,9 @@ export async function toggleAutomation(id: string, enabled: boolean): Promise<Au
       if (!res.ok) throw new ServiceError(res.status, 'automations.toggle');
       return res.json();
     } catch {
-      console.warn('[automations.toggleAutomation] API not available, using fallback');
-      return { id: "", name: "", description: "", enabled: false, channels: [], template: "boas_vindas", triggerCount: 0 } as unknown as AutomationConfig;
+      console.warn('[automations.toggleAutomation] API not available, using mock fallback');
+      const { mockToggleAutomation } = await import('@/lib/mocks/automations.mock');
+      return mockToggleAutomation(id, enabled);
     }
   } catch (error) { handleServiceError(error, 'automations.toggle'); }
 }

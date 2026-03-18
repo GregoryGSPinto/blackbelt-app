@@ -35,8 +35,9 @@ export async function listInventory(academyId: string): Promise<InventoryItem[]>
       if (!res.ok) throw new ServiceError(res.status, 'inventory.list');
       return res.json();
     } catch {
-      console.warn('[inventory.listInventory] API not available, using fallback');
-      return [];
+      console.warn('[inventory.listInventory] API not available, using mock fallback');
+      const { mockListInventory } = await import('@/lib/mocks/inventory.mock');
+      return mockListInventory(academyId);
     }
   } catch (error) { handleServiceError(error, 'inventory.list'); }
 }
@@ -52,8 +53,9 @@ export async function createInventoryItem(academyId: string, item: Omit<Inventor
       if (!res.ok) throw new ServiceError(res.status, 'inventory.create');
       return res.json();
     } catch {
-      console.warn('[inventory.createInventoryItem] API not available, using fallback');
-      return { id: "", name: "", category: "", quantity: 0, min_quantity: 0, unit_price: 0, status: "ok", last_updated: "" } as unknown as InventoryItem;
+      console.warn('[inventory.createInventoryItem] API not available, using mock fallback');
+      const { mockCreateItem } = await import('@/lib/mocks/inventory.mock');
+      return mockCreateItem(academyId, item);
     }
   } catch (error) { handleServiceError(error, 'inventory.create'); }
 }
@@ -69,8 +71,9 @@ export async function addStockMovement(itemId: string, movement: Omit<StockMovem
       if (!res.ok) throw new ServiceError(res.status, 'inventory.movement');
       return res.json();
     } catch {
-      console.warn('[inventory.addStockMovement] API not available, using fallback');
-      return { id: "", item_id: "", type: "in", quantity: 0, reason: "", created_by: "", created_at: "" } as unknown as StockMovement;
+      console.warn('[inventory.addStockMovement] API not available, using mock fallback');
+      const { mockAddMovement } = await import('@/lib/mocks/inventory.mock');
+      return mockAddMovement(itemId, movement);
     }
   } catch (error) { handleServiceError(error, 'inventory.movement'); }
 }

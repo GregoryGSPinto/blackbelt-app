@@ -70,8 +70,9 @@ export async function getCalendarEvents(
       if (!res.ok) throw new ServiceError(res.status, 'calendar.events');
       return res.json();
     } catch {
-      console.warn('[calendar.getCalendarEvents] API not available, using fallback');
-      return [];
+      console.warn('[calendar.getCalendarEvents] API not available, using mock fallback');
+      const { mockGetCalendarEvents } = await import('@/lib/mocks/calendar.mock');
+      return mockGetCalendarEvents(academyId, filters);
     }
 
   } catch (error) {
@@ -92,8 +93,9 @@ export async function getCalendarEventById(
       if (!res.ok) throw new ServiceError(res.status, 'calendar.eventById');
       return res.json();
     } catch {
-      console.warn('[calendar.getCalendarEventById] API not available, using fallback');
-      return { id: "", title: "", start: "", end: "", type: "", class_id: null, color: "", recurring: false } as unknown as CalendarEvent;
+      console.warn('[calendar.getCalendarEventById] API not available, using mock fallback');
+      const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
+      return mockGetCalendarEventById(eventId);
     }
 
   } catch (error) {

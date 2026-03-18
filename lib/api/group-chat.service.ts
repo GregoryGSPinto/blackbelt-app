@@ -21,8 +21,9 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'groupChat.get');
       return res.json();
     } catch {
-      console.warn('[group-chat.getGroupMessages] API not available, using fallback');
-      return [];
+      console.warn('[group-chat.getGroupMessages] API not available, using mock fallback');
+      const { mockGetGroupMessages } = await import('@/lib/mocks/group-chat.mock');
+      return mockGetGroupMessages(classId);
     }
   } catch (error) { handleServiceError(error, 'groupChat.get'); }
 }
@@ -38,8 +39,9 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       if (!res.ok) throw new ServiceError(res.status, 'groupChat.send');
       return res.json();
     } catch {
-      console.warn('[group-chat.sendGroupMessage] API not available, using fallback');
-      return { id: "", group_id: "", sender_id: "", sender_name: "", content: "", sent_at: "" } as unknown as GroupMessage;
+      console.warn('[group-chat.sendGroupMessage] API not available, using mock fallback');
+      const { mockSendGroupMessage } = await import('@/lib/mocks/group-chat.mock');
+      return mockSendGroupMessage(classId, content);
     }
   } catch (error) { handleServiceError(error, 'groupChat.send'); }
 }

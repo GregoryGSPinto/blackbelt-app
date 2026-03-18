@@ -27,8 +27,9 @@ export async function getRecommendations(studentId: string): Promise<Recommended
       if (!res.ok) throw new ServiceError(res.status, 'recommendations.get');
       return res.json();
     } catch {
-      console.warn('[recommendations.getRecommendations] API not available, using fallback');
-      return [];
+      console.warn('[recommendations.getRecommendations] API not available, using mock fallback');
+      const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
+      return mockGetRecommendations(studentId);
     }
   } catch (error) { handleServiceError(error, 'recommendations.get'); }
 }
@@ -44,8 +45,9 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
       if (!res.ok) throw new ServiceError(res.status, 'recommendations.feed');
       return res.json();
     } catch {
-      console.warn('[recommendations.getPersonalizedFeed] API not available, using fallback');
-      return { recommended: [], trending: [], continue_watching: [] } as unknown as ContentFeed;
+      console.warn('[recommendations.getPersonalizedFeed] API not available, using mock fallback');
+      const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
+      return mockGetPersonalizedFeed(studentId);
     }
   } catch (error) { handleServiceError(error, 'recommendations.feed'); }
 }

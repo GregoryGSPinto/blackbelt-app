@@ -71,8 +71,9 @@ export async function predictPerformance(studentId: string, championshipId: stri
       });
       return res.json();
     } catch {
-      console.warn('[competition-predictor.predictPerformance] API not available, using fallback');
-      return { win_probability: 0, confidence: 0, key_factors: [], similar_athletes: [], recommended_strategy: "" } as unknown as Prediction;
+      console.warn('[competition-predictor.predictPerformance] API not available, using mock fallback');
+      const { mockPredictPerformance } = await import('@/lib/mocks/competition-predictor.mock');
+      return mockPredictPerformance(studentId, championshipId);
     }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.predict');
@@ -115,8 +116,9 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
       });
       return res.json();
     } catch {
-      console.warn('[competition-predictor.getOptimalCategory] API not available, using fallback');
-      return { recommended_category: "", weight_class: "", reasoning: "", competition_level: "", alternatives: [] } as unknown as CategoryRecommendation;
+      console.warn('[competition-predictor.getOptimalCategory] API not available, using mock fallback');
+      const { mockGetOptimalCategory } = await import('@/lib/mocks/competition-predictor.mock');
+      return mockGetOptimalCategory(studentId, championshipId);
     }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.optimalCategory');

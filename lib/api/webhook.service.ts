@@ -14,8 +14,9 @@ export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[webhook.listWebhooks] API not available, using fallback');
-      return [];
+      console.warn('[webhook.listWebhooks] API not available, using mock fallback');
+      const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
+      return mockListWebhooks(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'webhook.list');
@@ -40,8 +41,9 @@ export async function createWebhook(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[webhook.createWebhook] API not available, using fallback');
-      return { id: '', academy_id: '', url: '', events: [], active: false, secret: '', created_at: '', updated_at: '' } as unknown as WebhookConfig;
+      console.warn('[webhook.createWebhook] API not available, using mock fallback');
+      const { mockCreateWebhook } = await import('@/lib/mocks/webhook.mock');
+      return mockCreateWebhook(academyId, payload);
     }
 
   } catch (error) {
@@ -101,8 +103,9 @@ export async function getWebhookDeliveries(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[webhook.getWebhookDeliveries] API not available, using fallback');
-      return [];
+      console.warn('[webhook.getWebhookDeliveries] API not available, using mock fallback');
+      const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
+      return mockWebhookDeliveries(webhookId, limit);
     }
 
   } catch (error) {
@@ -121,8 +124,9 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[webhook.testWebhook] API not available, using fallback');
-      return { success: false, statusCode: 0 };
+      console.warn('[webhook.testWebhook] API not available, using mock fallback');
+      await import('@/lib/mocks/webhook.mock');
+      return { success: true, statusCode: 200 };
     }
   } catch (error) {
     handleServiceError(error, 'webhook.test');

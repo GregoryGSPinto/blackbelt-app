@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 import dynamic from 'next/dynamic';
 import {
   getStudentProfile,
@@ -594,13 +595,14 @@ export default function StudentProfilePage() {
   const [financeiro, setFinanceiro] = useState<FinanceiroPerfilDTO | null>(null);
   const [tabLoading, setTabLoading] = useState(false);
 
-  const studentId = 'stu-1';
+  const { studentId, loading: studentIdLoading } = useStudentId();
 
   // Load profile
   useEffect(() => {
+    if (studentIdLoading || !studentId) return;
     async function loadProfile() {
       try {
-        const p = await getStudentProfile(studentId);
+        const p = await getStudentProfile(studentId!);
         setProfile(p);
       } finally {
         setLoading(false);
@@ -616,37 +618,37 @@ export default function StudentProfilePage() {
       switch (tab) {
         case 'jornada':
           if (!timeline) {
-            const data = await getJourneyTimeline(studentId);
+            const data = await getJourneyTimeline(studentId!);
             setTimeline(data);
           }
           break;
         case 'evolucao':
           if (!evolution) {
-            const data = await getEvolutionData(studentId);
+            const data = await getEvolutionData(studentId!);
             setEvolution(data);
           }
           break;
         case 'presencas':
           if (!heatmap) {
-            const data = await getAttendanceHeatmap(studentId);
+            const data = await getAttendanceHeatmap(studentId!);
             setHeatmap(data);
           }
           break;
         case 'avaliacoes':
           if (!evaluations) {
-            const data = await getEvaluationHistory(studentId);
+            const data = await getEvaluationHistory(studentId!);
             setEvaluations(data);
           }
           break;
         case 'conteudo':
           if (!contentProgress) {
-            const data = await getContentProgress(studentId);
+            const data = await getContentProgress(studentId!);
             setContentProgress(data);
           }
           break;
         case 'financeiro':
           if (!financeiro) {
-            const data = await getFinanceiroPerfil(studentId);
+            const data = await getFinanceiroPerfil(studentId!);
             setFinanceiro(data);
           }
           break;

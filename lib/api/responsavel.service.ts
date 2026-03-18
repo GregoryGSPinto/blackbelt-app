@@ -85,10 +85,9 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.dashboard');
       return res.json();
     } catch {
-      console.warn('[responsavel.getGuardianDashboard] API not available, using fallback');
-      return {
-        profile_id: '', guardian_name: '', children: [], consolidated: null,
-      };
+      console.warn('[responsavel.getGuardianDashboard] API not available, using mock fallback');
+      const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
+      return mockGetGuardianDashboard(profileId);
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.dashboard');

@@ -40,8 +40,9 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.list');
       return res.json();
     } catch {
-      console.warn('[franqueador-unidades.getUnidades] API not available, using fallback');
-      return [];
+      console.warn('[franqueador-unidades.getUnidades] API not available, using mock fallback');
+      const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
+      return mockGetUnidades(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.list'); }
 }
@@ -57,8 +58,9 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.overview');
       return res.json();
     } catch {
-      console.warn('[franqueador-unidades.getUnidadesOverview] API not available, using fallback');
-      return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 } as UnidadesOverview;
+      console.warn('[franqueador-unidades.getUnidadesOverview] API not available, using mock fallback');
+      const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
+      return mockGetUnidadesOverview(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.overview'); }
 }
@@ -74,8 +76,9 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.detail');
       return res.json();
     } catch {
-      console.warn('[franqueador-unidades.getUnidadeDetail] API not available, using fallback');
-      return { id: '', name: '', city: '', state: '', manager_name: '', manager_email: '', status: 'ativa', students_count: 0, revenue_monthly: 0, health_score: 0, compliance_score: 0, opened_at: '', updated_at: '' } as UnidadeFranquia;
+      console.warn('[franqueador-unidades.getUnidadeDetail] API not available, using mock fallback');
+      const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
+      return mockGetUnidadeDetail(unitId);
     }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.detail'); }
 }
@@ -98,8 +101,9 @@ export async function updateUnidadeStatus(
       if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.updateStatus');
       return res.json();
     } catch {
-      console.warn('[franqueador-unidades.updateUnidadeStatus] API not available, using fallback');
-      return { id: '', name: '', city: '', state: '', manager_name: '', manager_email: '', status: 'ativa', students_count: 0, revenue_monthly: 0, health_score: 0, compliance_score: 0, opened_at: '', updated_at: '' } as UnidadeFranquia;
+      console.warn('[franqueador-unidades.updateUnidadeStatus] API not available, using mock fallback');
+      const { mockUpdateUnidadeStatus } = await import('@/lib/mocks/franqueador-unidades.mock');
+      return mockUpdateUnidadeStatus(unitId, status);
     }
 
   } catch (error) { handleServiceError(error, 'franqueador-unidades.updateStatus'); }

@@ -74,8 +74,9 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, using fallback');
-      return { funil: [], taxaConversaoGeral: 0, tempoMedioConversao: 0, valorPipelineTotal: 0, melhorOrigem: '', leadsEsteMes: 0, conversaoEsteMes: 0 } as PipelineMetrics;
+      console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, using mock fallback');
+      const { mockGetPipelineMetrics } = await import('@/lib/mocks/superadmin-pipeline.mock');
+      return mockGetPipelineMetrics();
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.getMetrics'); }
 }
@@ -92,8 +93,9 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-pipeline.listLeads] API not available, using fallback');
-      return [];
+      console.warn('[superadmin-pipeline.listLeads] API not available, using mock fallback');
+      const { mockListLeads } = await import('@/lib/mocks/superadmin-pipeline.mock');
+      return mockListLeads(status);
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.listLeads'); }
 }
@@ -109,8 +111,9 @@ export async function createLead(data: CreateLeadPayload): Promise<LeadAcademia>
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-pipeline.createLead] API not available, using fallback');
-      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
+      console.warn('[superadmin-pipeline.createLead] API not available, using mock fallback');
+      const { mockCreateLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
+      return mockCreateLead(data);
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.createLead'); }
 }
@@ -126,8 +129,9 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-pipeline.avancarLead] API not available, using fallback');
-      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
+      console.warn('[superadmin-pipeline.avancarLead] API not available, using mock fallback');
+      const { mockAvancarLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
+      return mockAvancarLead(leadId);
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.avancarLead'); }
 }
@@ -143,8 +147,9 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-pipeline.perderLead] API not available, using fallback');
-      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
+      console.warn('[superadmin-pipeline.perderLead] API not available, using mock fallback');
+      const { mockPerderLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
+      return mockPerderLead(leadId);
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.perderLead'); }
 }

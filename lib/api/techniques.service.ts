@@ -36,8 +36,9 @@ export async function listTechniques(filters?: { modality?: TechniqueModality; c
       if (!res.ok) throw new ServiceError(res.status, 'techniques.list');
       return res.json();
     } catch {
-      console.warn('[techniques.listTechniques] API not available, using fallback');
-      return [];
+      console.warn('[techniques.listTechniques] API not available, using mock fallback');
+      const { mockListTechniques } = await import('@/lib/mocks/techniques.mock');
+      return mockListTechniques(filters);
     }
   } catch (error) { handleServiceError(error, 'techniques.list'); }
 }
@@ -53,8 +54,9 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       if (!res.ok) throw new ServiceError(res.status, 'techniques.getById');
       return res.json();
     } catch {
-      console.warn('[techniques.getTechniqueById] API not available, using fallback');
-      return { id: "", name: "", description: "", category: "", belt_level: "white", video_url: null, modality: "", difficulty: 0 } as unknown as TechniqueDTO;
+      console.warn('[techniques.getTechniqueById] API not available, using mock fallback');
+      const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
+      return mockGetTechniqueById(techniqueId);
     }
   } catch (error) { handleServiceError(error, 'techniques.getById'); }
 }
@@ -70,8 +72,9 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       if (!res.ok) throw new ServiceError(res.status, 'techniques.create');
       return res.json();
     } catch {
-      console.warn('[techniques.createTechnique] API not available, using fallback');
-      return { id: "", name: "", description: "", category: "", belt_level: "white", video_url: null, modality: "", difficulty: 0 } as unknown as TechniqueDTO;
+      console.warn('[techniques.createTechnique] API not available, using mock fallback');
+      const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
+      return mockCreateTechnique(technique);
     }
   } catch (error) { handleServiceError(error, 'techniques.create'); }
 }
@@ -87,8 +90,9 @@ export async function getByModality(modality: TechniqueModality): Promise<Techni
       if (!res.ok) throw new ServiceError(res.status, 'techniques.getByModality');
       return res.json();
     } catch {
-      console.warn('[techniques.getByModality] API not available, using fallback');
-      return [];
+      console.warn('[techniques.getByModality] API not available, using mock fallback');
+      const { mockGetByModality } = await import('@/lib/mocks/techniques.mock');
+      return mockGetByModality(modality);
     }
   } catch (error) { handleServiceError(error, 'techniques.getByModality'); }
 }

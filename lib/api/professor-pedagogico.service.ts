@@ -48,8 +48,9 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       if (!res.ok) throw new ServiceError(res.status, 'pedagogico.progresso');
       return res.json();
     } catch {
-      console.warn('[professor-pedagogico.getProgressoAluno] API not available, using fallback');
-      return { student_id: "", belt: "", classes_attended: 0, techniques_learned: 0, evaluations: [], milestones: [] } as unknown as ProgressoDTO;
+      console.warn('[professor-pedagogico.getProgressoAluno] API not available, using mock fallback');
+      const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
+      return mockGetProgressoAluno(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.progresso');
@@ -71,8 +72,9 @@ export async function avaliar(studentId: string, classId: string, criteria: Eval
       if (!res.ok) throw new ServiceError(res.status, 'pedagogico.avaliar');
       return res.json();
     } catch {
-      console.warn('[professor-pedagogico.avaliar] API not available, using fallback');
-      return { id: "", student_id: "", evaluator_id: "", technique: 0, discipline: 0, attendance: 0, evolution: 0, notes: "", date: "" } as unknown as Evaluation;
+      console.warn('[professor-pedagogico.avaliar] API not available, using mock fallback');
+      const { mockAvaliar } = await import('@/lib/mocks/professor-pedagogico.mock');
+      return mockAvaliar(studentId, classId, criteria, score);
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.avaliar');
@@ -94,8 +96,9 @@ export async function promoverFaixa(studentId: string, toBelt: BeltLevel): Promi
       if (!res.ok) throw new ServiceError(res.status, 'pedagogico.promover');
       return res.json();
     } catch {
-      console.warn('[professor-pedagogico.promoverFaixa] API not available, using fallback');
-      return { id: "", student_id: "", from_belt: "", to_belt: "", date: "", approved_by: "" } as unknown as Progression;
+      console.warn('[professor-pedagogico.promoverFaixa] API not available, using mock fallback');
+      const { mockPromoverFaixa } = await import('@/lib/mocks/professor-pedagogico.mock');
+      return mockPromoverFaixa(studentId, toBelt);
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.promover');
@@ -113,8 +116,9 @@ export async function getAlunosDaTurma(classId: string): Promise<StudentWithProg
       if (!res.ok) throw new ServiceError(res.status, 'pedagogico.alunosDaTurma');
       return res.json();
     } catch {
-      console.warn('[professor-pedagogico.getAlunosDaTurma] API not available, using fallback');
-      return [];
+      console.warn('[professor-pedagogico.getAlunosDaTurma] API not available, using mock fallback');
+      const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
+      return mockGetAlunosDaTurma(classId);
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.alunosDaTurma');

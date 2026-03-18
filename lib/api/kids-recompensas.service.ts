@@ -35,8 +35,9 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.list');
       return res.json();
     } catch {
-      console.warn('[kids-recompensas.getRecompensasKids] API not available, using fallback');
-      return [];
+      console.warn('[kids-recompensas.getRecompensasKids] API not available, using mock fallback');
+      const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
+      return mockGetRecompensasKids(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.list');
@@ -54,8 +55,9 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.historico');
       return res.json();
     } catch {
-      console.warn('[kids-recompensas.getHistoricoResgates] API not available, using fallback');
-      return [];
+      console.warn('[kids-recompensas.getHistoricoResgates] API not available, using mock fallback');
+      const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
+      return mockGetHistoricoResgates(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.historico');
@@ -77,8 +79,9 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
       if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.resgatar');
       return res.json();
     } catch {
-      console.warn('[kids-recompensas.resgatarRecompensa] API not available, using fallback');
-      return { id: "", studentId: "", recompensaId: "", recompensaNome: "", custoEstrelas: 0, data: "", entregue: false } as unknown as HistoricoResgate;
+      console.warn('[kids-recompensas.resgatarRecompensa] API not available, using mock fallback');
+      const { mockResgatarRecompensa } = await import('@/lib/mocks/kids-recompensas.mock');
+      return mockResgatarRecompensa(studentId, recompensaId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.resgatar');

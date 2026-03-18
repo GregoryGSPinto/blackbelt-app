@@ -82,16 +82,9 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     } catch {
-      console.warn('[superadmin-dashboard.getMissionControl] API not available, using fallback');
-      return {
-        kpis: { mrr: 0, mrrVariacao: 0, arr: 0, totalAcademias: 0, academiasAtivas: 0, academiasEmTrial: 0, academiasChurnMes: 0, totalAlunosPlataforma: 0, ticketMedio: 0, churnRate: 0, ltv: 0 },
-        mrrHistorico: [],
-        crescimentoAcademias: [],
-        alertas: [],
-        topAcademias: [],
-        academiasRisco: [],
-        distribuicaoPlanos: [],
-      };
+      console.warn('[superadmin-dashboard.getMissionControl] API not available, using mock fallback');
+      const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
+      return mockGetMissionControl();
     }
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
 }

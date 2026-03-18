@@ -60,8 +60,9 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       if (!res.ok) throw new ServiceError(res.status, 'promocao.getCandidate');
       return res.json();
     } catch {
-      console.warn('[promocao.getPromotionCandidate] API not available, using fallback');
-      return { student_id: '', academy_id: '', display_name: '', avatar: null, current_belt: 'white', next_belt: 'white', total_classes: 0, months_at_current_belt: 0, attendance_streak: 0, last_evaluation_score: 0, achievements_count: 0, xp_total: 0 } as unknown as PromotionCandidateDTO;
+      console.warn('[promocao.getPromotionCandidate] API not available, using mock fallback');
+      const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
+      return mockGetPromotionCandidate(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'promocao.getCandidate');
@@ -83,8 +84,9 @@ export async function executePromotion(data: ExecutePromotionPayload): Promise<P
       if (!res.ok) throw new ServiceError(res.status, 'promocao.execute');
       return res.json();
     } catch {
-      console.warn('[promocao.executePromotion] API not available, using fallback');
-      return { success: false, progression_id: '', new_belt: 'white', xp_awarded: 0, actions: [] } as unknown as PromotionResult;
+      console.warn('[promocao.executePromotion] API not available, using mock fallback');
+      const { mockExecutePromotion } = await import('@/lib/mocks/promocao.mock');
+      return mockExecutePromotion(data);
     }
   } catch (error) {
     handleServiceError(error, 'promocao.execute');

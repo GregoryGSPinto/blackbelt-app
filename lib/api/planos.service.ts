@@ -26,8 +26,9 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
       if (!res.ok) throw new ServiceError(res.status, 'planos.list');
       return res.json();
     } catch {
-      console.warn('[planos.listPlans] API not available, using fallback');
-      return [];
+      console.warn('[planos.listPlans] API not available, using mock fallback');
+      const { mockListPlans } = await import('@/lib/mocks/planos.mock');
+      return mockListPlans(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'planos.list');
@@ -45,8 +46,9 @@ export async function getPlanById(id: string): Promise<Plan> {
       if (!res.ok) throw new ServiceError(res.status, 'planos.get');
       return res.json();
     } catch {
-      console.warn('[planos.getPlanById] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
+      console.warn('[planos.getPlanById] API not available, using mock fallback');
+      const { mockGetPlanById } = await import('@/lib/mocks/planos.mock');
+      return mockGetPlanById(id);
     }
   } catch (error) {
     handleServiceError(error, 'planos.get');
@@ -68,8 +70,9 @@ export async function createPlan(academyId: string, data: CreatePlanRequest): Pr
       if (!res.ok) throw new ServiceError(res.status, 'planos.create');
       return res.json();
     } catch {
-      console.warn('[planos.createPlan] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
+      console.warn('[planos.createPlan] API not available, using mock fallback');
+      const { mockCreatePlan } = await import('@/lib/mocks/planos.mock');
+      return mockCreatePlan(academyId, data);
     }
   } catch (error) {
     handleServiceError(error, 'planos.create');
@@ -91,8 +94,9 @@ export async function updatePlan(id: string, data: UpdatePlanRequest): Promise<P
       if (!res.ok) throw new ServiceError(res.status, 'planos.update');
       return res.json();
     } catch {
-      console.warn('[planos.updatePlan] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
+      console.warn('[planos.updatePlan] API not available, using mock fallback');
+      const { mockUpdatePlan } = await import('@/lib/mocks/planos.mock');
+      return mockUpdatePlan(id, data);
     }
   } catch (error) {
     handleServiceError(error, 'planos.update');

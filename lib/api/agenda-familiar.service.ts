@@ -66,8 +66,9 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.calendar');
       return res.json();
     } catch {
-      console.warn('[agenda-familiar.getFamilyCalendar] API not available, using fallback');
-      return { profile_id: '', week_start: '', week_end: '', events: [] } as FamilyCalendarDTO;
+      console.warn('[agenda-familiar.getFamilyCalendar] API not available, using mock fallback');
+      const { mockGetFamilyCalendar } = await import('@/lib/mocks/agenda-familiar.mock');
+      return mockGetFamilyCalendar(profileId);
     }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.calendar');
@@ -85,8 +86,9 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       if (!res.ok) throw new ServiceError(res.status, 'agenda-familiar.report');
       return res.json();
     } catch {
-      console.warn('[agenda-familiar.getMonthlyReport] API not available, using fallback');
-      return { profile_id: '', month_label: '', month: '', children: [], payments: [], total_paid: 0 } as MonthlyReportDTO;
+      console.warn('[agenda-familiar.getMonthlyReport] API not available, using mock fallback');
+      const { mockGetMonthlyReport } = await import('@/lib/mocks/agenda-familiar.mock');
+      return mockGetMonthlyReport(profileId, month);
     }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.report');

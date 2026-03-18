@@ -14,8 +14,9 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[chat.listConversations] API not available, using fallback');
-      return [];
+      console.warn('[chat.listConversations] API not available, using mock fallback');
+      const { mockListConversations } = await import('@/lib/mocks/chat.mock');
+      return mockListConversations(userId);
     }
   } catch (error) {
     handleServiceError(error, 'chat.listConversations');
@@ -39,8 +40,9 @@ export async function getMessages(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[chat.getMessages] API not available, using fallback');
-      return [];
+      console.warn('[chat.getMessages] API not available, using mock fallback');
+      const { mockGetMessages } = await import('@/lib/mocks/chat.mock');
+      return mockGetMessages(conversationId, limit);
     }
 
   } catch (error) {
@@ -63,8 +65,9 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[chat.sendMessage] API not available, using fallback');
-      return { id: "", conversation_id: "", sender_id: "", sender_name: "", content: "", sent_at: "", read: false } as unknown as ChatMessage;
+      console.warn('[chat.sendMessage] API not available, using mock fallback');
+      const { mockSendMessage } = await import('@/lib/mocks/chat.mock');
+      return mockSendMessage(payload);
     }
   } catch (error) {
     handleServiceError(error, 'chat.sendMessage');

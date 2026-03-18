@@ -48,8 +48,9 @@ export async function getNotifications(
       if (!res.ok) throw new ServiceError(res.status, 'notifications.get');
       return res.json();
     } catch {
-      console.warn('[notifications.getNotifications] API not available, using fallback');
-      return [];
+      console.warn('[notifications.getNotifications] API not available, using mock fallback');
+      const { mockGetNotifications } = await import('@/lib/mocks/notifications.mock');
+      return mockGetNotifications(profileId);
     }
 
   } catch (error) {

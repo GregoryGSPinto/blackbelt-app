@@ -29,8 +29,9 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'hallFama.get');
       return res.json();
     } catch {
-      console.warn('[hall-fama.getHallOfFame] API not available, using fallback');
-      return { records: [], updatedAt: '' } as HallOfFameDTO;
+      console.warn('[hall-fama.getHallOfFame] API not available, using mock fallback');
+      const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
+      return mockGetHallOfFame(academyId);
     }
   } catch (error) { handleServiceError(error, 'hallFama.get'); }
 }

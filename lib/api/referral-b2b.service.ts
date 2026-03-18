@@ -20,8 +20,9 @@ export async function getReferralCode(academyId: string): Promise<string> {
       const res = await fetch(`/api/referral/code?academyId=${academyId}`);
       return res.json().then((r: { code: string }) => r.code);
     } catch {
-      console.warn('[referral-b2b.getReferralCode] API not available, using fallback');
-      return '';
+      console.warn('[referral-b2b.getReferralCode] API not available, using mock fallback');
+      const { mockGetReferralCode } = await import('@/lib/mocks/referral-b2b.mock');
+      return mockGetReferralCode(academyId);
     }
   } catch (error) { handleServiceError(error, 'referral.getCode'); }
 }
@@ -36,8 +37,9 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
       return res.json();
     } catch {
-      console.warn('[referral-b2b.getReferralStats] API not available, using fallback');
-      return { total_referrals: 0, successful_referrals: 0, pending_referrals: 0, total_rewards: 0, top_referrers: [] } as unknown as ReferralStatsDTO;
+      console.warn('[referral-b2b.getReferralStats] API not available, using mock fallback');
+      const { mockGetReferralStats } = await import('@/lib/mocks/referral-b2b.mock');
+      return mockGetReferralStats(academyId);
     }
   } catch (error) { handleServiceError(error, 'referral.getStats'); }
 }

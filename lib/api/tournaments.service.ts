@@ -32,8 +32,9 @@ export async function listTournaments(academyId: string): Promise<TournamentDTO[
       if (!res.ok) throw new ServiceError(res.status, 'tournaments.list');
       return res.json();
     } catch {
-      console.warn('[tournaments.listTournaments] API not available, using fallback');
-      return [];
+      console.warn('[tournaments.listTournaments] API not available, using mock fallback');
+      const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
+      return mockListTournaments(academyId);
     }
   } catch (error) { handleServiceError(error, 'tournaments.list'); }
 }
@@ -49,8 +50,9 @@ export async function createTournament(academyId: string, data: Omit<TournamentD
       if (!res.ok) throw new ServiceError(res.status, 'tournaments.create');
       return res.json();
     } catch {
-      console.warn('[tournaments.createTournament] API not available, using fallback');
-      return { id: '', name: '', date: '', modality: '', categories: [], enrolledCount: 0, status: 'upcoming' } as TournamentDTO;
+      console.warn('[tournaments.createTournament] API not available, using mock fallback');
+      const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
+      return mockCreateTournament(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'tournaments.create'); }
 }
@@ -66,8 +68,9 @@ export async function getBracket(tournamentId: string, _categoryId: string): Pro
       if (!res.ok) throw new ServiceError(res.status, 'tournaments.bracket');
       return res.json();
     } catch {
-      console.warn('[tournaments.getBracket] API not available, using fallback');
-      return [];
+      console.warn('[tournaments.getBracket] API not available, using mock fallback');
+      const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
+      return mockGetBracket(tournamentId);
     }
   } catch (error) { handleServiceError(error, 'tournaments.bracket'); }
 }

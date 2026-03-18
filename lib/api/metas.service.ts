@@ -72,8 +72,9 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'metas.getGoals');
       return res.json();
     } catch {
-      console.warn('[metas.getGoals] API not available, using fallback');
-      return [];
+      console.warn('[metas.getGoals] API not available, using mock fallback');
+      const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
+      return mockGetGoals(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'metas.getGoals');
@@ -95,8 +96,9 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'metas.createGoal');
       return res.json();
     } catch {
-      console.warn('[metas.createGoal] API not available, using fallback');
-      return { id: "", student_id: "", title: "", description: "", target_date: "", status: "active", progress: 0, created_at: "" } as unknown as GoalDTO;
+      console.warn('[metas.createGoal] API not available, using mock fallback');
+      const { mockCreateGoal } = await import('@/lib/mocks/metas.mock');
+      return mockCreateGoal(data);
     }
   } catch (error) {
     handleServiceError(error, 'metas.createGoal');
@@ -114,8 +116,9 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       if (!res.ok) throw new ServiceError(res.status, 'metas.getDiary');
       return res.json();
     } catch {
-      console.warn('[metas.getDiary] API not available, using fallback');
-      return [];
+      console.warn('[metas.getDiary] API not available, using mock fallback');
+      const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
+      return mockGetDiary(studentId, month);
     }
   } catch (error) {
     handleServiceError(error, 'metas.getDiary');
@@ -137,8 +140,9 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       if (!res.ok) throw new ServiceError(res.status, 'metas.saveDiary');
       return res.json();
     } catch {
-      console.warn('[metas.saveDiaryEntry] API not available, using fallback');
-      return { id: "", student_id: "", date: "", content: "", mood: "neutral", training_quality: 0, created_at: "" } as unknown as DiaryEntryDTO;
+      console.warn('[metas.saveDiaryEntry] API not available, using mock fallback');
+      const { mockSaveDiaryEntry } = await import('@/lib/mocks/metas.mock');
+      return mockSaveDiaryEntry(data);
     }
   } catch (error) {
     handleServiceError(error, 'metas.saveDiary');

@@ -26,8 +26,9 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'leads.list');
       return res.json();
     } catch {
-      console.warn('[leads.listLeads] API not available, using fallback');
-      return [];
+      console.warn('[leads.listLeads] API not available, using mock fallback');
+      const { mockListLeads } = await import('@/lib/mocks/leads.mock');
+      return mockListLeads(academyId);
     }
   } catch (error) { handleServiceError(error, 'leads.list'); }
 }
@@ -43,8 +44,9 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       if (!res.ok) throw new ServiceError(res.status, 'leads.create');
       return res.json();
     } catch {
-      console.warn('[leads.createLead] API not available, using fallback');
-      return { id: "", name: "", email: "", phone: "", source: "", status: "new", notes: "", created_at: "" } as unknown as LeadDTO;
+      console.warn('[leads.createLead] API not available, using mock fallback');
+      const { mockCreateLead } = await import('@/lib/mocks/leads.mock');
+      return mockCreateLead(data);
     }
   } catch (error) { handleServiceError(error, 'leads.create'); }
 }

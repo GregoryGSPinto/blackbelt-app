@@ -70,8 +70,9 @@ export async function uploadTrainingVideo(payload: UploadVideoPayload): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.upload');
       return res.json();
     } catch {
-      console.warn('[training-video.uploadTrainingVideo] API not available, using fallback');
-      return { id: "", title: "", description: "", url: "", thumbnail_url: "", duration: 0, modality: "", belt_level: "white", tags: [], views: 0, uploaded_by: "", created_at: "", annotations: [], ai_analysis: null } as unknown as TrainingVideoDTO;
+      console.warn('[training-video.uploadTrainingVideo] API not available, using mock fallback');
+      const { mockUploadTrainingVideo } = await import('@/lib/mocks/training-video.mock');
+      return mockUploadTrainingVideo(payload);
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.upload'); }
 }
@@ -91,8 +92,9 @@ export async function listTrainingVideos(filters?: { student_id?: string; class_
       if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.list');
       return res.json();
     } catch {
-      console.warn('[training-video.listTrainingVideos] API not available, using fallback');
-      return [];
+      console.warn('[training-video.listTrainingVideos] API not available, using mock fallback');
+      const { mockListTrainingVideos } = await import('@/lib/mocks/training-video.mock');
+      return mockListTrainingVideos(filters);
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.list'); }
 }
@@ -108,8 +110,9 @@ export async function getTrainingVideoById(videoId: string): Promise<TrainingVid
       if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.getById');
       return res.json();
     } catch {
-      console.warn('[training-video.getTrainingVideoById] API not available, using fallback');
-      return { id: "", title: "", description: "", url: "", thumbnail_url: "", duration: 0, modality: "", belt_level: "white", tags: [], views: 0, uploaded_by: "", created_at: "", annotations: [], ai_analysis: null } as unknown as TrainingVideoDTO;
+      console.warn('[training-video.getTrainingVideoById] API not available, using mock fallback');
+      const { mockGetTrainingVideoById } = await import('@/lib/mocks/training-video.mock');
+      return mockGetTrainingVideoById(videoId);
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.getById'); }
 }
@@ -140,8 +143,9 @@ export async function addAnnotation(videoId: string, annotation: Omit<VideoAnnot
       if (!res.ok) throw new ServiceError(res.status, 'trainingVideo.addAnnotation');
       return res.json();
     } catch {
-      console.warn('[training-video.addAnnotation] API not available, using fallback');
-      return { id: "", video_id: "", timestamp_sec: 0, text: "", author_id: "", author_name: "", created_at: "" } as unknown as VideoAnnotation;
+      console.warn('[training-video.addAnnotation] API not available, using mock fallback');
+      const { mockAddAnnotation } = await import('@/lib/mocks/training-video.mock');
+      return mockAddAnnotation(videoId, annotation);
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.addAnnotation'); }
 }

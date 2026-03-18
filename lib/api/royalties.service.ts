@@ -60,8 +60,9 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'royalties.calculate');
       return res.json();
     } catch {
-      console.warn('[royalties.calculateRoyalties] API not available, using fallback');
-      return { academy_id: "", academy_name: "", period: "", gross_revenue: 0, royalty_rate: 0, royalty_amount: 0, adjustments: 0, net_amount: 0 } as unknown as RoyaltyCalculation;
+      console.warn('[royalties.calculateRoyalties] API not available, using mock fallback');
+      const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
+      return mockCalculateRoyalties(academyId, month);
     }
   } catch (error) { handleServiceError(error, 'royalties.calculate'); }
 }
@@ -79,8 +80,9 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
       if (!res.ok) throw new ServiceError(res.status, 'royalties.history');
       return res.json();
     } catch {
-      console.warn('[royalties.getRoyaltyHistory] API not available, using fallback');
-      return { total_collected: 0, total_pending: 0, average_monthly: 0, history: [] } as unknown as RoyaltyHistorySummary;
+      console.warn('[royalties.getRoyaltyHistory] API not available, using mock fallback');
+      const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
+      return mockGetRoyaltyHistory(franchiseId, period);
     }
   } catch (error) { handleServiceError(error, 'royalties.history'); }
 }
@@ -100,8 +102,9 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       if (!res.ok) throw new ServiceError(res.status, 'royalties.invoice');
       return res.json();
     } catch {
-      console.warn('[royalties.generateRoyaltyInvoice] API not available, using fallback');
-      return { id: "", academy_id: "", period: "", amount: 0, status: "pending", due_date: "", paid_at: null } as unknown as RoyaltyInvoice;
+      console.warn('[royalties.generateRoyaltyInvoice] API not available, using mock fallback');
+      const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
+      return mockGenerateRoyaltyInvoice(academyId, month);
     }
   } catch (error) { handleServiceError(error, 'royalties.invoice'); }
 }
@@ -117,8 +120,9 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       if (!res.ok) throw new ServiceError(res.status, 'royalties.pay');
       return res.json();
     } catch {
-      console.warn('[royalties.payRoyalty] API not available, using fallback');
-      return { academy_id: "", academy_name: "", period: "", gross_revenue: 0, royalty_rate: 0, royalty_amount: 0, adjustments: 0, net_amount: 0 } as unknown as RoyaltyCalculation;
+      console.warn('[royalties.payRoyalty] API not available, using mock fallback');
+      const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
+      return mockPayRoyalty(invoiceId);
     }
   } catch (error) { handleServiceError(error, 'royalties.pay'); }
 }

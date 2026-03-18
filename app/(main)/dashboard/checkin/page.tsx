@@ -6,16 +6,19 @@ import type { Attendance } from '@/lib/types';
 import type { AttendanceStats } from '@/lib/api/checkin.service';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 export default function CheckinHistoryPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [history, setHistory] = useState<Attendance[]>([]);
   const [stats, setStats] = useState<AttendanceStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const [h, s] = await Promise.all([getHistory('stu-1'), getStats('stu-1')]);
+        const [h, s] = await Promise.all([getHistory(studentId!), getStats(studentId!)]);
         setHistory(h);
         setStats(s);
       } finally {
@@ -23,7 +26,7 @@ export default function CheckinHistoryPage() {
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]);
 
   const historyByMonth = history.reduce<Record<string, Attendance[]>>((acc, a) => {
     const d = new Date(a.checked_at);

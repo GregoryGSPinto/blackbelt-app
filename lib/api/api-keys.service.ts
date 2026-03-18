@@ -28,8 +28,9 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
       const res = await fetch('/api/v1/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, name }) });
       return res.json();
     } catch {
-      console.warn('[api-keys.generateApiKey] API not available, using fallback');
-      return { id: "", key: "", name: "", created_at: "" } as unknown as ApiKeyCreateResult;
+      console.warn('[api-keys.generateApiKey] API not available, using mock fallback');
+      const { mockGenerateApiKey } = await import('@/lib/mocks/api-keys.mock');
+      return mockGenerateApiKey(academyId, name);
     }
   } catch (error) { handleServiceError(error, 'apiKeys.generate'); }
 }
@@ -44,8 +45,9 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       const res = await fetch(`/api/v1/api-keys?academyId=${academyId}`);
       return res.json();
     } catch {
-      console.warn('[api-keys.listApiKeys] API not available, using fallback');
-      return [];
+      console.warn('[api-keys.listApiKeys] API not available, using mock fallback');
+      const { mockListApiKeys } = await import('@/lib/mocks/api-keys.mock');
+      return mockListApiKeys(academyId);
     }
   } catch (error) { handleServiceError(error, 'apiKeys.list'); }
 }

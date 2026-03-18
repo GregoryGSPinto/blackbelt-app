@@ -62,8 +62,9 @@ export async function getConversations(profileId: string): Promise<ConversationD
       if (!res.ok) throw new ServiceError(res.status, 'mensagens.conversations');
       return res.json();
     } catch {
-      console.warn('[mensagens.getConversations] API not available, using fallback');
-      return [];
+      console.warn('[mensagens.getConversations] API not available, using mock fallback');
+      const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetConversations(profileId);
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.conversations');
@@ -81,8 +82,9 @@ export async function getMessages(conversationId: string): Promise<MessageDTO[]>
       if (!res.ok) throw new ServiceError(res.status, 'mensagens.messages');
       return res.json();
     } catch {
-      console.warn('[mensagens.getMessages] API not available, using fallback');
-      return [];
+      console.warn('[mensagens.getMessages] API not available, using mock fallback');
+      const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetMessages(conversationId);
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.messages');
@@ -104,8 +106,9 @@ export async function sendMessage(conversationId: string, content: string): Prom
       if (!res.ok) throw new ServiceError(res.status, 'mensagens.send');
       return res.json();
     } catch {
-      console.warn('[mensagens.sendMessage] API not available, using fallback');
-      return { id: '', from_id: '', from_name: '', from_avatar: null, content: '', sent_at: '', is_mine: false, read_at: null } as MessageDTO;
+      console.warn('[mensagens.sendMessage] API not available, using mock fallback');
+      const { mockSendMessage } = await import('@/lib/mocks/mensagens.mock');
+      return mockSendMessage(conversationId, content);
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.send');
@@ -123,8 +126,9 @@ export async function getStudentContext(studentId: string): Promise<StudentConte
       if (!res.ok) throw new ServiceError(res.status, 'mensagens.studentContext');
       return res.json();
     } catch {
-      console.warn('[mensagens.getStudentContext] API not available, using fallback');
-      return { student_id: '', display_name: '', belt: '', avatar: null, last_attendance: null, streak: 0, health_score: 0, latest_evaluation: null, current_plan: null, plan_status: null, is_at_risk: false } as StudentContextDTO;
+      console.warn('[mensagens.getStudentContext] API not available, using mock fallback');
+      const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetStudentContext(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.studentContext');
@@ -142,8 +146,9 @@ export async function getSuggestedMessages(studentId: string): Promise<Suggested
       if (!res.ok) throw new ServiceError(res.status, 'mensagens.suggestions');
       return res.json();
     } catch {
-      console.warn('[mensagens.getSuggestedMessages] API not available, using fallback');
-      return [];
+      console.warn('[mensagens.getSuggestedMessages] API not available, using mock fallback');
+      const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetSuggestedMessages(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.suggestions');

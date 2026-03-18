@@ -6,6 +6,7 @@ import type { AchievementV2DTO, AchievementProgressDTO, AchievementCategory, Ach
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 // ────────────────────────────────────────────────────────────
 // Category colors
@@ -52,6 +53,7 @@ const RARITY_BORDER: Record<AchievementRarity, string> = {
 const ALL_CATEGORIES: AchievementCategory[] = ['JORNADA', 'CONSTANCIA', 'FAIXA', 'SOCIAL', 'COMPETICAO', 'CONTEUDO'];
 
 export default function ConquistasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [achievements, setAchievements] = useState<AchievementV2DTO[]>([]);
   const [progress, setProgress] = useState<AchievementProgressDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,11 +61,12 @@ export default function ConquistasPage() {
   const [selected, setSelected] = useState<AchievementV2DTO | null>(null);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
         const [achs, prog] = await Promise.all([
-          getAchievements('stu-1'),
-          getAchievementProgress('stu-1'),
+          getAchievements(studentId!),
+          getAchievementProgress(studentId!),
         ]);
         setAchievements(achs);
         setProgress(prog);
@@ -72,7 +75,7 @@ export default function ConquistasPage() {
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]);
 
   const filtered = useMemo(() => {
     if (selectedCategory === 'ALL') return achievements;

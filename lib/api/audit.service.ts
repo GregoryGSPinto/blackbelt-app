@@ -70,8 +70,9 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
       const res = await fetch(`/api/audit/search?${params}`);
       return res.json();
     } catch {
-      console.warn('[audit.searchAuditLogs] API not available, using fallback');
-      return { logs: [], nextCursor: null };
+      console.warn('[audit.searchAuditLogs] API not available, using mock fallback');
+      const { mockSearchAuditLogs } = await import('@/lib/mocks/audit.mock');
+      return mockSearchAuditLogs(academyId, filters);
     }
   } catch (error) { handleServiceError(error, 'audit.search'); }
 }
@@ -86,8 +87,9 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       const res = await fetch(`/api/audit/entity/${entityType}/${entityId}`);
       return res.json();
     } catch {
-      console.warn('[audit.getEntityHistory] API not available, using fallback');
-      return [];
+      console.warn('[audit.getEntityHistory] API not available, using mock fallback');
+      const { mockGetEntityHistory } = await import('@/lib/mocks/audit.mock');
+      return mockGetEntityHistory(entityType, entityId);
     }
   } catch (error) { handleServiceError(error, 'audit.entityHistory'); }
 }
@@ -135,8 +137,9 @@ export async function listAuditEntries(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[audit.listAuditEntries] API not available, using fallback');
-      return [];
+      console.warn('[audit.listAuditEntries] API not available, using mock fallback');
+      const { mockListAuditEntries } = await import('@/lib/mocks/audit.mock');
+      return mockListAuditEntries(academyId, filters);
     }
 
   } catch (error) {

@@ -43,8 +43,9 @@ export async function getHealthOverview(): Promise<HealthOverview> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-health.getHealthOverview] API not available, using fallback');
-      return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] } as HealthOverview;
+      console.warn('[superadmin-health.getHealthOverview] API not available, using mock fallback');
+      const { mockGetHealthOverview } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockGetHealthOverview();
     }
   } catch (error) { handleServiceError(error, 'superadmin-health.getOverview'); }
 }
@@ -61,8 +62,9 @@ export async function listAcademiaHealthScores(filtro?: string): Promise<Academi
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-health.listAcademiaHealthScores] API not available, using fallback');
-      return [];
+      console.warn('[superadmin-health.listAcademiaHealthScores] API not available, using mock fallback');
+      const { mockListAcademiaHealthScores } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockListAcademiaHealthScores(filtro);
     }
   } catch (error) { handleServiceError(error, 'superadmin-health.listScores'); }
 }
@@ -78,8 +80,9 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-health.getAcademiaHealth] API not available, using fallback');
-      return { academiaId: '', academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' } as AcademiaHealthScore;
+      console.warn('[superadmin-health.getAcademiaHealth] API not available, using mock fallback');
+      const { mockGetAcademiaHealth } = await import('@/lib/mocks/superadmin-health.mock');
+      return mockGetAcademiaHealth(academiaId);
     }
   } catch (error) { handleServiceError(error, 'superadmin-health.getAcademia'); }
 }

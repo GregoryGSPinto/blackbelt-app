@@ -62,8 +62,9 @@ export async function checkLimit(
       const res = await fetch(`/api/plan-enforcement/check?academyId=${academyId}&resource=${resource}`);
       return res.json();
     } catch {
-      console.warn('[plan-enforcement.checkLimit] API not available, using fallback');
-      return { allowed: false, current: 0, limit: null, plan: 'free', resource: 'students_active' } as LimitCheckResult;
+      console.warn('[plan-enforcement.checkLimit] API not available, using mock fallback');
+      const { mockCheckLimit } = await import('@/lib/mocks/plan-enforcement.mock');
+      return mockCheckLimit(academyId, resource);
     }
 
   } catch (error) {
@@ -81,8 +82,9 @@ export async function getUsage(academyId: string): Promise<UsageData> {
       const res = await fetch(`/api/plan-enforcement/usage?academyId=${academyId}`);
       return res.json();
     } catch {
-      console.warn('[plan-enforcement.getUsage] API not available, using fallback');
-      return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 } as UsageData;
+      console.warn('[plan-enforcement.getUsage] API not available, using mock fallback');
+      const { mockGetUsage } = await import('@/lib/mocks/plan-enforcement.mock');
+      return mockGetUsage(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'plan-enforcement.getUsage');

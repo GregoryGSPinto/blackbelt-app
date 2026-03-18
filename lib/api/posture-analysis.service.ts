@@ -48,8 +48,9 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       });
       return res.json();
     } catch {
-      console.warn('[posture-analysis.analyzePosture] API not available, using fallback');
-      return { score: 0, landmarks: [], issues: [], suggestions: [], analyzed_at: "" } as unknown as PostureResult;
+      console.warn('[posture-analysis.analyzePosture] API not available, using mock fallback');
+      const { mockAnalyzePosture } = await import('@/lib/mocks/posture-analysis.mock');
+      return mockAnalyzePosture(imageBase64);
     }
   } catch (error) {
     handleServiceError(error, 'postureAnalysis.analyze');

@@ -21,8 +21,9 @@ export async function listNotifications(
         throw new ServiceError(res.status, 'inAppNotification.list');
       return res.json();
     } catch {
-      console.warn('[in-app-notification.listNotifications] API not available, using fallback');
-      return [];
+      console.warn('[in-app-notification.listNotifications] API not available, using mock fallback');
+      const { mockListNotifications } = await import('@/lib/mocks/in-app-notification.mock');
+      return mockListNotifications(userId, unreadOnly);
     }
 
   } catch (error) {

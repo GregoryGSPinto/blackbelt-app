@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { getAlunoDashboard } from '@/lib/api/aluno.service';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 import type {
   AlunoDashboardDTO,
   DiaSemanaDTO,
@@ -162,23 +163,26 @@ function DashboardSkeleton() {
 // ── Main Page ──────────────────────────────────────────────────────────
 
 export default function StudentDashboardPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [data, setData] = useState<AlunoDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
+    if (!studentId) return;
     try {
-      const d = await getAlunoDashboard('stu-1');
+      const d = await getAlunoDashboard(studentId);
       setData(d);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [studentId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!studentLoading && studentId) loadData();
+    else if (!studentLoading && !studentId) setLoading(false);
+  }, [loadData, studentLoading, studentId]);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);

@@ -33,8 +33,9 @@ export async function listClasses(
       if (!res.ok) throw new ServiceError(res.status, 'class.list');
       return res.json();
     } catch {
-      console.warn('[class.listClasses] API not available, using fallback');
-      return [];
+      console.warn('[class.listClasses] API not available, using mock fallback');
+      const { mockListClasses } = await import('@/lib/mocks/class.mock');
+      return mockListClasses(academyId, filters);
     }
 
   } catch (error) {
@@ -54,8 +55,9 @@ export async function getClass(id: string): Promise<ClassItem> {
       if (!res.ok) throw new ServiceError(res.status, 'class.get');
       return res.json();
     } catch {
-      console.warn('[class.getClass] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
+      console.warn('[class.getClass] API not available, using mock fallback');
+      const { mockGetClass } = await import('@/lib/mocks/class.mock');
+      return mockGetClass(id);
     }
   } catch (error) {
     handleServiceError(error, 'class.get');
@@ -78,8 +80,9 @@ export async function createClass(data: CreateClassDTO): Promise<ClassItem> {
       if (!res.ok) throw new ServiceError(res.status, 'class.create');
       return res.json();
     } catch {
-      console.warn('[class.createClass] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
+      console.warn('[class.createClass] API not available, using mock fallback');
+      const { mockCreateClass } = await import('@/lib/mocks/class.mock');
+      return mockCreateClass(data);
     }
   } catch (error) {
     handleServiceError(error, 'class.create');
@@ -102,8 +105,9 @@ export async function updateClass(id: string, data: UpdateClassDTO): Promise<Cla
       if (!res.ok) throw new ServiceError(res.status, 'class.update');
       return res.json();
     } catch {
-      console.warn('[class.updateClass] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
+      console.warn('[class.updateClass] API not available, using mock fallback');
+      const { mockUpdateClass } = await import('@/lib/mocks/class.mock');
+      return mockUpdateClass(id, data);
     }
   } catch (error) {
     handleServiceError(error, 'class.update');
@@ -140,8 +144,9 @@ export async function getClassStudents(classId: string): Promise<ClassStudent[]>
       if (!res.ok) throw new ServiceError(res.status, 'class.getStudents');
       return res.json();
     } catch {
-      console.warn('[class.getClassStudents] API not available, using fallback');
-      return [];
+      console.warn('[class.getClassStudents] API not available, using mock fallback');
+      const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
+      return mockGetClassStudents(classId);
     }
   } catch (error) {
     handleServiceError(error, 'class.getStudents');
@@ -164,8 +169,9 @@ export async function addStudent(classId: string, studentId: string): Promise<Cl
       if (!res.ok) throw new ServiceError(res.status, 'class.addStudent');
       return res.json();
     } catch {
-      console.warn('[class.addStudent] API not available, using fallback');
-      return { id: "", student_id: "", student_name: "", belt: "", avatar: null, enrolled_at: "" } as unknown as ClassStudent;
+      console.warn('[class.addStudent] API not available, using mock fallback');
+      const { mockAddStudent } = await import('@/lib/mocks/class.mock');
+      return mockAddStudent(classId, studentId);
     }
   } catch (error) {
     handleServiceError(error, 'class.addStudent');
@@ -204,8 +210,9 @@ export async function getSchedule(academyId: string): Promise<ScheduleEntry[]> {
       if (!res.ok) throw new ServiceError(res.status, 'class.getSchedule');
       return res.json();
     } catch {
-      console.warn('[class.getSchedule] API not available, using fallback');
-      return [];
+      console.warn('[class.getSchedule] API not available, using mock fallback');
+      const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
+      return mockGetSchedule(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'class.getSchedule');

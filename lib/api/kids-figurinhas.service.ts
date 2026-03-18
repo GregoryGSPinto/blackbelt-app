@@ -44,8 +44,9 @@ export async function getAlbum(studentId: string): Promise<AlbumFigurinhas> {
       if (!res.ok) throw new ServiceError(res.status, 'kids-figurinhas.album');
       return res.json();
     } catch {
-      console.warn('[kids-figurinhas.getAlbum] API not available, using fallback');
-      return { temas: [], totalColetadas: 0, totalFigurinhas: 0, percentual: 0 } as unknown as AlbumFigurinhas;
+      console.warn('[kids-figurinhas.getAlbum] API not available, using mock fallback');
+      const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
+      return mockGetAlbum(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-figurinhas.album');

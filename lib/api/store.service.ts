@@ -68,8 +68,9 @@ export async function listProducts(academyId: string, filters?: ProductFilters):
       if (!res.ok) throw new ServiceError(res.status, 'store.listProducts');
       return res.json();
     } catch {
-      console.warn('[store.listProducts] API not available, using fallback');
-      return [];
+      console.warn('[store.listProducts] API not available, using mock fallback');
+      const { mockListProducts } = await import('@/lib/mocks/store.mock');
+      return mockListProducts(academyId, filters);
     }
   } catch (error) { handleServiceError(error, 'store.listProducts'); }
 }
@@ -85,8 +86,9 @@ export async function getProduct(id: string): Promise<Product> {
       if (!res.ok) throw new ServiceError(res.status, 'store.getProduct');
       return res.json();
     } catch {
-      console.warn('[store.getProduct] API not available, using fallback');
-      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
+      console.warn('[store.getProduct] API not available, using mock fallback');
+      const { mockGetProduct } = await import('@/lib/mocks/store.mock');
+      return mockGetProduct(id);
     }
   } catch (error) { handleServiceError(error, 'store.getProduct'); }
 }
@@ -106,8 +108,9 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       if (!res.ok) throw new ServiceError(res.status, 'store.createProduct');
       return res.json();
     } catch {
-      console.warn('[store.createProduct] API not available, using fallback');
-      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
+      console.warn('[store.createProduct] API not available, using mock fallback');
+      const { mockCreateProduct } = await import('@/lib/mocks/store.mock');
+      return mockCreateProduct(data);
     }
   } catch (error) { handleServiceError(error, 'store.createProduct'); }
 }
@@ -127,8 +130,9 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       if (!res.ok) throw new ServiceError(res.status, 'store.updateProduct');
       return res.json();
     } catch {
-      console.warn('[store.updateProduct] API not available, using fallback');
-      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
+      console.warn('[store.updateProduct] API not available, using mock fallback');
+      const { mockUpdateProduct } = await import('@/lib/mocks/store.mock');
+      return mockUpdateProduct(id, data);
     }
   } catch (error) { handleServiceError(error, 'store.updateProduct'); }
 }

@@ -41,8 +41,9 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
       const res = await fetch(`/api/network/dashboard?ownerId=${ownerId}`);
       return res.json();
     } catch {
-      console.warn('[network.getNetworkDashboard] API not available, using fallback');
-      return { academies: [], total_students: 0, total_revenue: 0, avg_attendance: 0, alerts: [] } as unknown as NetworkDashboardDTO;
+      console.warn('[network.getNetworkDashboard] API not available, using mock fallback');
+      const { mockGetNetworkDashboard } = await import('@/lib/mocks/network.mock');
+      return mockGetNetworkDashboard(ownerId);
     }
   } catch (error) { handleServiceError(error, 'network.dashboard'); }
 }
@@ -57,8 +58,9 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
       const res = await fetch('/api/network/comparison', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyIds, metric }) });
       return res.json();
     } catch {
-      console.warn('[network.getAcademyComparison] API not available, using fallback');
-      return { academies: [], metrics: [] } as unknown as ComparisonDTO;
+      console.warn('[network.getAcademyComparison] API not available, using mock fallback');
+      const { mockGetAcademyComparison } = await import('@/lib/mocks/network.mock');
+      return mockGetAcademyComparison(academyIds, metric);
     }
   } catch (error) { handleServiceError(error, 'network.comparison'); }
 }
@@ -73,8 +75,9 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
       const res = await fetch(`/api/network/financials?ownerId=${ownerId}`);
       return res.json();
     } catch {
-      console.warn('[network.getNetworkFinancials] API not available, using fallback');
-      return { total_revenue: 0, total_expenses: 0, net_profit: 0, monthly_data: [] } as unknown as ConsolidatedFinancials;
+      console.warn('[network.getNetworkFinancials] API not available, using mock fallback');
+      const { mockGetNetworkFinancials } = await import('@/lib/mocks/network.mock');
+      return mockGetNetworkFinancials(ownerId);
     }
   } catch (error) { handleServiceError(error, 'network.financials'); }
 }

@@ -23,8 +23,9 @@ export async function listByAluno(studentId: string): Promise<ConquistaDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'conquistas.list');
       return res.json();
     } catch {
-      console.warn('[conquistas.listByAluno] API not available, using fallback');
-      return [];
+      console.warn('[conquistas.listByAluno] API not available, using mock fallback');
+      const { mockListByAluno } = await import('@/lib/mocks/conquistas.mock');
+      return mockListByAluno(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'conquistas.list');
@@ -42,8 +43,9 @@ export async function listAvailable(studentId: string): Promise<ConquistaDTO[]> 
       if (!res.ok) throw new ServiceError(res.status, 'conquistas.available');
       return res.json();
     } catch {
-      console.warn('[conquistas.listAvailable] API not available, using fallback');
-      return [];
+      console.warn('[conquistas.listAvailable] API not available, using mock fallback');
+      const { mockListAvailable } = await import('@/lib/mocks/conquistas.mock');
+      return mockListAvailable(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'conquistas.available');
@@ -65,8 +67,9 @@ export async function grant(studentId: string, type: AchievementType, granterId:
       if (!res.ok) throw new ServiceError(res.status, 'conquistas.grant');
       return res.json();
     } catch {
-      console.warn('[conquistas.grant] API not available, using fallback');
-      return { id: "", student_id: "", type: "", title: "", description: "", icon: "", earned_at: "", xp_reward: 0 } as unknown as Achievement;
+      console.warn('[conquistas.grant] API not available, using mock fallback');
+      const { mockGrant } = await import('@/lib/mocks/conquistas.mock');
+      return mockGrant(studentId, type, granterId);
     }
   } catch (error) {
     handleServiceError(error, 'conquistas.grant');

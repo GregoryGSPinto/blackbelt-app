@@ -6,6 +6,7 @@ import { getLibrary } from '@/lib/api/streaming.service';
 import type { StreamingLibrary, StreamingVideo, WatchProgress, StreamingTrail } from '@/lib/types/streaming';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Video Card                                                    */
@@ -252,6 +253,7 @@ const MODALITY_FILTERS = ['Todos', 'BJJ', 'Judô', 'Prep. Física'] as const;
 
 export default function BibliotecaStreamingPage() {
   const { toast } = useToast();
+  const { studentId } = useStudentId();
 
   const [library, setLibrary] = useState<StreamingLibrary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -262,7 +264,7 @@ export default function BibliotecaStreamingPage() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getLibrary('stu-1', 'aluno_adulto', 'white')
+    getLibrary(studentId ?? 'stu-1', 'aluno_adulto', 'white')
       .then(setLibrary)
       .catch(() => toast('Erro ao carregar biblioteca', 'error'))
       .finally(() => setLoading(false));

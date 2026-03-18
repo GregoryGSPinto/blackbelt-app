@@ -77,8 +77,9 @@ export async function sendBroadcast(franchiseId: string, data: SendBroadcastData
       if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.send');
       return res.json();
     } catch {
-      console.warn('[franchise-communication.sendBroadcast] API not available, using fallback');
-      return { id: "", franchise_id: "", subject: "", content: "", channel: "email", recipients: [], status: "draft", sent_at: null, created_at: "" } as unknown as Broadcast;
+      console.warn('[franchise-communication.sendBroadcast] API not available, using mock fallback');
+      const { mockSendBroadcast } = await import('@/lib/mocks/franchise-communication.mock');
+      return mockSendBroadcast(franchiseId, data);
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.send'); }
 }
@@ -94,8 +95,9 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.list');
       return res.json();
     } catch {
-      console.warn('[franchise-communication.getBroadcasts] API not available, using fallback');
-      return [];
+      console.warn('[franchise-communication.getBroadcasts] API not available, using mock fallback');
+      const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
+      return mockGetBroadcasts(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.list'); }
 }
@@ -111,8 +113,9 @@ export async function getReceipts(broadcastId: string): Promise<BroadcastRecipie
       if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.receipts');
       return res.json();
     } catch {
-      console.warn('[franchise-communication.getReceipts] API not available, using fallback');
-      return [];
+      console.warn('[franchise-communication.getReceipts] API not available, using mock fallback');
+      const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
+      return mockGetReceipts(broadcastId);
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.receipts'); }
 }
@@ -132,8 +135,9 @@ export async function scheduleTraining(franchiseId: string, data: ScheduleTraini
       if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.training');
       return res.json();
     } catch {
-      console.warn('[franchise-communication.scheduleTraining] API not available, using fallback');
-      return { id: "", franchise_id: "", title: "", description: "", date: "", location: "", instructor: "", max_participants: 0, enrolled: 0, status: "scheduled" } as unknown as NetworkTraining;
+      console.warn('[franchise-communication.scheduleTraining] API not available, using mock fallback');
+      const { mockScheduleTraining } = await import('@/lib/mocks/franchise-communication.mock');
+      return mockScheduleTraining(franchiseId, data);
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.training'); }
 }
@@ -149,8 +153,9 @@ export async function getTrainings(franchiseId: string): Promise<NetworkTraining
       if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.trainings');
       return res.json();
     } catch {
-      console.warn('[franchise-communication.getTrainings] API not available, using fallback');
-      return [];
+      console.warn('[franchise-communication.getTrainings] API not available, using mock fallback');
+      const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
+      return mockGetTrainings(franchiseId);
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.trainings'); }
 }

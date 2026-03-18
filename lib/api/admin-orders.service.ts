@@ -37,8 +37,9 @@ export async function listOrders(filters?: OrderFilters): Promise<Order[]> {
       if (!res.ok) throw new ServiceError(res.status, 'adminOrders.listOrders');
       return res.json();
     } catch {
-      console.warn('[admin-orders.listOrders] API not available, using fallback');
-      return [];
+      console.warn('[admin-orders.listOrders] API not available, using mock fallback');
+      const { mockListOrders } = await import('@/lib/mocks/admin-orders.mock');
+      return mockListOrders(filters);
     }
   } catch (error) { handleServiceError(error, 'adminOrders.listOrders'); }
 }
@@ -92,8 +93,9 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       if (!res.ok) throw new ServiceError(res.status, 'adminOrders.getStoreDashboard');
       return res.json();
     } catch {
-      console.warn('[admin-orders.getStoreDashboard] API not available, using fallback');
-      return { total_products: 0, total_orders: 0, revenue: 0, top_products: [], recent_orders: [] } as unknown as StoreDashboard;
+      console.warn('[admin-orders.getStoreDashboard] API not available, using mock fallback');
+      const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
+      return mockGetStoreDashboard();
     }
   } catch (error) { handleServiceError(error, 'adminOrders.getStoreDashboard'); }
 }

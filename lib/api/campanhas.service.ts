@@ -64,8 +64,9 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'campanhas.list');
       return res.json();
     } catch {
-      console.warn('[campanhas.getCampaigns] API not available, using fallback');
-      return [];
+      console.warn('[campanhas.getCampaigns] API not available, using mock fallback');
+      const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
+      return mockGetCampaigns(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'campanhas.list');
@@ -87,8 +88,9 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       if (!res.ok) throw new ServiceError(res.status, 'campanhas.create');
       return res.json();
     } catch {
-      console.warn('[campanhas.createCampaign] API not available, using fallback');
-      return { id: '', name: '', template: 'volte_treinar', status: 'draft', target_audience: '', target_count: 0, scheduled_at: null, created_at: '' } as CampaignDTO;
+      console.warn('[campanhas.createCampaign] API not available, using mock fallback');
+      const { mockCreateCampaign } = await import('@/lib/mocks/campanhas.mock');
+      return mockCreateCampaign(data);
     }
   } catch (error) {
     handleServiceError(error, 'campanhas.create');
@@ -106,8 +108,9 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       if (!res.ok) throw new ServiceError(res.status, 'campanhas.metrics');
       return res.json();
     } catch {
-      console.warn('[campanhas.getCampaignMetrics] API not available, using fallback');
-      return { campaign_id: '', sent: 0, opened: 0, open_rate: 0, converted: 0, conversion_rate: 0 } as CampaignMetricsDTO;
+      console.warn('[campanhas.getCampaignMetrics] API not available, using mock fallback');
+      const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
+      return mockGetCampaignMetrics(campaignId);
     }
   } catch (error) {
     handleServiceError(error, 'campanhas.metrics');

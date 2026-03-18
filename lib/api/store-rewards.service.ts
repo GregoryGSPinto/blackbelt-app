@@ -29,8 +29,9 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getBalance');
       return res.json();
     } catch {
-      console.warn('[store-rewards.getBalance] API not available, using fallback');
-      return { points: 0, value_brl: 0 } as RewardBalance;
+      console.warn('[store-rewards.getBalance] API not available, using mock fallback');
+      const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
+      return mockGetBalance(userId);
     }
   } catch (error) { handleServiceError(error, 'storeRewards.getBalance'); }
 }
@@ -46,8 +47,9 @@ export async function getHistory(userId: string): Promise<RewardTransaction[]> {
       if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getHistory');
       return res.json();
     } catch {
-      console.warn('[store-rewards.getHistory] API not available, using fallback');
-      return [];
+      console.warn('[store-rewards.getHistory] API not available, using mock fallback');
+      const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
+      return mockGetHistory(userId);
     }
   } catch (error) { handleServiceError(error, 'storeRewards.getHistory'); }
 }
@@ -67,8 +69,9 @@ export async function redeemPoints(userId: string, amount: number, orderId: stri
       if (!res.ok) throw new ServiceError(res.status, 'storeRewards.redeemPoints');
       return res.json();
     } catch {
-      console.warn('[store-rewards.redeemPoints] API not available, using fallback');
-      return { id: '', user_id: '', type: 'checkin', points: 0, description: '', created_at: '' } as RewardTransaction;
+      console.warn('[store-rewards.redeemPoints] API not available, using mock fallback');
+      const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
+      return mockRedeemPoints(userId, amount, orderId);
     }
   } catch (error) { handleServiceError(error, 'storeRewards.redeemPoints'); }
 }

@@ -40,8 +40,9 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       if (!res.ok) throw new ServiceError(res.status, 'estoque.list');
       return res.json();
     } catch {
-      console.warn('[estoque.getEstoque] API not available, using fallback');
-      return [];
+      console.warn('[estoque.getEstoque] API not available, using mock fallback');
+      const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
+      return mockGetEstoque(academyId);
     }
   } catch (error) { handleServiceError(error, 'estoque.list'); }
 }
@@ -57,8 +58,9 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       if (!res.ok) throw new ServiceError(res.status, 'estoque.update');
       return res.json();
     } catch {
-      console.warn('[estoque.updateEstoque] API not available, using fallback');
-      return { id: '', produtoId: '', tipo: 'ajuste', quantidade: 0, motivo: '', responsavel: '', data: '' } as MovimentacaoEstoque;
+      console.warn('[estoque.updateEstoque] API not available, using mock fallback');
+      const { mockUpdateEstoque } = await import('@/lib/mocks/estoque.mock');
+      return mockUpdateEstoque(produtoId, quantidade, tipo, motivo);
     }
   } catch (error) { handleServiceError(error, 'estoque.update'); }
 }
@@ -74,8 +76,9 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       if (!res.ok) throw new ServiceError(res.status, 'estoque.movimentacoes');
       return res.json();
     } catch {
-      console.warn('[estoque.getMovimentacoes] API not available, using fallback');
-      return [];
+      console.warn('[estoque.getMovimentacoes] API not available, using mock fallback');
+      const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
+      return mockGetMovimentacoes(produtoId);
     }
   } catch (error) { handleServiceError(error, 'estoque.movimentacoes'); }
 }
@@ -91,8 +94,9 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       if (!res.ok) throw new ServiceError(res.status, 'estoque.alertas');
       return res.json();
     } catch {
-      console.warn('[estoque.getAlertasEstoqueBaixo] API not available, using fallback');
-      return [];
+      console.warn('[estoque.getAlertasEstoqueBaixo] API not available, using mock fallback');
+      const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
+      return mockGetAlertasEstoqueBaixo(academyId);
     }
   } catch (error) { handleServiceError(error, 'estoque.alertas'); }
 }

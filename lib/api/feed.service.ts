@@ -71,8 +71,9 @@ export async function getFeed(
       if (!res.ok) throw new ServiceError(res.status, 'feed.get');
       return res.json();
     } catch {
-      console.warn('[feed.getFeed] API not available, using fallback');
-      return [];
+      console.warn('[feed.getFeed] API not available, using mock fallback');
+      const { mockGetFeed } = await import('@/lib/mocks/feed.mock');
+      return mockGetFeed(academyId, page, filter);
     }
 
   } catch (error) {
@@ -115,8 +116,9 @@ export async function addComment(
       if (!res.ok) throw new ServiceError(res.status, 'feed.comment');
       return res.json();
     } catch {
-      console.warn('[feed.addComment] API not available, using fallback');
-      return { id: "", post_id: "", user_id: "", user_name: "", content: "", created_at: "" } as unknown as FeedComment;
+      console.warn('[feed.addComment] API not available, using mock fallback');
+      const { mockAddComment } = await import('@/lib/mocks/feed.mock');
+      return mockAddComment(postId, content);
     }
 
   } catch (error) {
@@ -137,8 +139,9 @@ export async function getHighlights(
       if (!res.ok) throw new ServiceError(res.status, 'feed.highlights');
       return res.json();
     } catch {
-      console.warn('[feed.getHighlights] API not available, using fallback');
-      return { top_students: [], top_classes: [], birthdays: [] } as unknown as FeedHighlights;
+      console.warn('[feed.getHighlights] API not available, using mock fallback');
+      const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
+      return mockGetHighlights(academyId);
     }
 
   } catch (error) {

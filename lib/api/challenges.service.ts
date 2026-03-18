@@ -29,8 +29,9 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       if (!res.ok) throw new ServiceError(res.status, 'challenges.list');
       return res.json();
     } catch {
-      console.warn('[challenges.listChallenges] API not available, using fallback');
-      return [];
+      console.warn('[challenges.listChallenges] API not available, using mock fallback');
+      const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
+      return mockListChallenges(academyId);
     }
   } catch (error) { handleServiceError(error, 'challenges.list'); }
 }
@@ -46,8 +47,9 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       if (!res.ok) throw new ServiceError(res.status, 'challenges.create');
       return res.json();
     } catch {
-      console.warn('[challenges.createChallenge] API not available, using fallback');
-      return { id: "", title: "", description: "", type: "weekly", xp_reward: 0, progress: 0, target: 0, status: "active", expires_at: "" } as unknown as ChallengeDTO;
+      console.warn('[challenges.createChallenge] API not available, using mock fallback');
+      const { mockCreateChallenge } = await import('@/lib/mocks/challenges.mock');
+      return mockCreateChallenge(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'challenges.create'); }
 }

@@ -44,8 +44,9 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-acesso.get');
       return res.json();
     } catch {
-      console.warn('[recepcao-acesso.getAcesso] API not available, using fallback');
-      return { pessoasDentro: [], totalDentro: 0, capacidade: 0, movimentacao: [] } as unknown as AcessoAcademia;
+      console.warn('[recepcao-acesso.getAcesso] API not available, using mock fallback');
+      const { mockGetAcesso } = await import('@/lib/mocks/recepcao-acesso.mock');
+      return mockGetAcesso();
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.get');
@@ -84,8 +85,9 @@ export async function registrarSaida(pessoaId: string): Promise<{ ok: boolean }>
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-acesso.saida');
       return res.json();
     } catch {
-      console.warn('[recepcao-acesso.registrarSaida] API not available, using fallback');
-      return { ok: false };
+      console.warn('[recepcao-acesso.registrarSaida] API not available, using mock fallback');
+      const { mockRegistrarSaida } = await import('@/lib/mocks/recepcao-acesso.mock');
+      return mockRegistrarSaida(pessoaId);
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.saida');

@@ -50,8 +50,9 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       if (!res.ok) throw new ServiceError(res.status, 'courseCreator.create');
       return res.json();
     } catch {
-      console.warn('[course-creator.createCourse] API not available, using fallback');
-      return { id: '', title: '', description: '', creator_id: '', creator_name: '', creator_avatar: null, modality: 'bjj', belt_level: 'white', price: 0, thumbnail_url: '', preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: 'draft', created_at: '', updated_at: '' } as unknown as MarketplaceCourse;
+      console.warn('[course-creator.createCourse] API not available, using mock fallback');
+      const { mockCreateCourse } = await import('@/lib/mocks/course-creator.mock');
+      return mockCreateCourse(creatorId, payload);
     }
   } catch (error) { handleServiceError(error, 'courseCreator.create'); }
 }
@@ -71,8 +72,9 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addModule');
       return res.json();
     } catch {
-      console.warn('[course-creator.addModule] API not available, using fallback');
-      return { id: '', title: '', order: 0, lessons: [] } as unknown as CourseModule;
+      console.warn('[course-creator.addModule] API not available, using mock fallback');
+      const { mockAddModule } = await import('@/lib/mocks/course-creator.mock');
+      return mockAddModule(payload);
     }
   } catch (error) { handleServiceError(error, 'courseCreator.addModule'); }
 }
@@ -126,8 +128,9 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       if (!res.ok) throw new ServiceError(res.status, 'courseCreator.publish');
       return res.json();
     } catch {
-      console.warn('[course-creator.publishCourse] API not available, using fallback');
-      return { id: '', title: '', description: '', creator_id: '', creator_name: '', creator_avatar: null, modality: 'bjj', belt_level: 'white', price: 0, thumbnail_url: '', preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: 'draft', created_at: '', updated_at: '' } as unknown as MarketplaceCourse;
+      console.warn('[course-creator.publishCourse] API not available, using mock fallback');
+      const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
+      return mockPublishCourse(courseId);
     }
   } catch (error) { handleServiceError(error, 'courseCreator.publish'); }
 }
@@ -143,8 +146,9 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       if (!res.ok) throw new ServiceError(res.status, 'courseCreator.analytics');
       return res.json();
     } catch {
-      console.warn('[course-creator.getCourseAnalytics] API not available, using fallback');
-      return [];
+      console.warn('[course-creator.getCourseAnalytics] API not available, using mock fallback');
+      const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
+      return mockGetCourseAnalytics(creatorId);
     }
   } catch (error) { handleServiceError(error, 'courseCreator.analytics'); }
 }

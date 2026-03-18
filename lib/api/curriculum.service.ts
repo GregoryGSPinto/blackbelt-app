@@ -67,8 +67,9 @@ export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): P
       if (!res.ok) throw new ServiceError(res.status, 'curriculum.create');
       return res.json();
     } catch {
-      console.warn('[curriculum.createCurriculum] API not available, using fallback');
-      return { id: "", academy_id: "", modality: "", belt_level: "white", name: "", requirements: [], created_at: "" } as unknown as CurriculumDTO;
+      console.warn('[curriculum.createCurriculum] API not available, using mock fallback');
+      const { mockCreateCurriculum } = await import('@/lib/mocks/curriculum.mock');
+      return mockCreateCurriculum(curriculum);
     }
   } catch (error) { handleServiceError(error, 'curriculum.create'); }
 }
@@ -84,8 +85,9 @@ export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>)
       if (!res.ok) throw new ServiceError(res.status, 'curriculum.update');
       return res.json();
     } catch {
-      console.warn('[curriculum.updateCurriculum] API not available, using fallback');
-      return { id: "", academy_id: "", modality: "", belt_level: "white", name: "", requirements: [], created_at: "" } as unknown as CurriculumDTO;
+      console.warn('[curriculum.updateCurriculum] API not available, using mock fallback');
+      const { mockUpdateCurriculum } = await import('@/lib/mocks/curriculum.mock');
+      return mockUpdateCurriculum(id, data);
     }
   } catch (error) { handleServiceError(error, 'curriculum.update'); }
 }
@@ -101,8 +103,9 @@ export async function addRequirement(curriculumId: string, requirement: Omit<Cur
       if (!res.ok) throw new ServiceError(res.status, 'curriculum.addReq');
       return res.json();
     } catch {
-      console.warn('[curriculum.addRequirement] API not available, using fallback');
-      return { id: "", curriculum_id: "", name: "", description: "", category: "", required: true } as unknown as CurriculumRequirement;
+      console.warn('[curriculum.addRequirement] API not available, using mock fallback');
+      const { mockAddRequirement } = await import('@/lib/mocks/curriculum.mock');
+      return mockAddRequirement(curriculumId, requirement);
     }
   } catch (error) { handleServiceError(error, 'curriculum.addReq'); }
 }
@@ -133,8 +136,9 @@ export async function getStudentProgress(studentId: string, modality: string, be
       if (!res.ok) throw new ServiceError(res.status, 'curriculum.progress');
       return res.json();
     } catch {
-      console.warn('[curriculum.getStudentProgress] API not available, using fallback');
-      return { student_id: "", curriculum_id: "", total_requirements: 0, completed_requirements: 0, progress_pct: 0, requirements: [] } as unknown as StudentCurriculumProgress;
+      console.warn('[curriculum.getStudentProgress] API not available, using mock fallback');
+      const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
+      return mockGetStudentProgress(studentId, modality, belt);
     }
   } catch (error) { handleServiceError(error, 'curriculum.progress'); }
 }

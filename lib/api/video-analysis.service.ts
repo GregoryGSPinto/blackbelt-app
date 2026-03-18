@@ -46,8 +46,9 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
       if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeFrame');
       return res.json();
     } catch {
-      console.warn('[video-analysis.analyzeFrame] API not available, using fallback');
-      return { posture_score: 0, technique_detected: "", feedback: "", landmarks: [] } as unknown as FrameAnalysis;
+      console.warn('[video-analysis.analyzeFrame] API not available, using mock fallback');
+      const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
+      return mockAnalyzeFrame(videoId, timestampSec);
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeFrame'); }
 }
@@ -63,8 +64,9 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
       if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeVideo');
       return res.json();
     } catch {
-      console.warn('[video-analysis.analyzeVideo] API not available, using fallback');
-      return { id: "", video_id: "", techniques: [], overall_score: 0, feedback: "", analyzed_at: "" } as unknown as VideoAnalysis;
+      console.warn('[video-analysis.analyzeVideo] API not available, using mock fallback');
+      const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
+      return mockAnalyzeVideo(videoId);
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeVideo'); }
 }
@@ -80,8 +82,9 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
       if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.compare');
       return res.json();
     } catch {
-      console.warn('[video-analysis.compareExecution] API not available, using fallback');
-      return { similarity_score: 0, differences: [], suggestions: [] } as unknown as ComparisonResult;
+      console.warn('[video-analysis.compareExecution] API not available, using mock fallback');
+      const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
+      return mockCompareExecution(referenceVideoId, studentVideoId);
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.compare'); }
 }

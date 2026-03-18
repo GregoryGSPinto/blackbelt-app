@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BeltLevel } from '@/lib/types';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 const BELT_ORDER: BeltLevel[] = [
   BeltLevel.White, BeltLevel.Gray, BeltLevel.Yellow, BeltLevel.Orange,
@@ -14,22 +15,24 @@ const BELT_ORDER: BeltLevel[] = [
 ];
 
 export default function ProgressoPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [progresso, setProgresso] = useState<MeuProgressoDTO | null>(null);
   const [historico, setHistorico] = useState<HistoricoFaixaDTO[]>([]);
   const [requisitos, setRequisitos] = useState<RequisitoProximaFaixaDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
         const [p, h, r] = await Promise.all([
-          getMeuProgresso('stu-1'), getHistoricoFaixas('stu-1'), getRequisitoProximaFaixa('stu-1'),
+          getMeuProgresso(studentId!), getHistoricoFaixas(studentId!), getRequisitoProximaFaixa(studentId!),
         ]);
         setProgresso(p); setHistorico(h); setRequisitos(r);
       } finally { setLoading(false); }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]);
 
   if (loading) {
     return <div className="space-y-4 p-4"><Skeleton variant="card" className="h-20" /><Skeleton variant="card" className="h-40" /></div>;

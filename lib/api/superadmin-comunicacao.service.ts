@@ -53,8 +53,9 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-comunicacao.listComunicados] API not available, using fallback');
-      return [];
+      console.warn('[superadmin-comunicacao.listComunicados] API not available, using mock fallback');
+      const { mockListComunicados } = await import('@/lib/mocks/superadmin-comunicacao.mock');
+      return mockListComunicados(status);
     }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.list'); }
 }
@@ -70,8 +71,9 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-comunicacao.createComunicado] API not available, using fallback');
-      return { id: '', titulo: '', mensagem: '', tipo: 'novidade', segmentacao: { tipo: 'todos' }, canal: [], status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' } as ComunicadoSaaS;
+      console.warn('[superadmin-comunicacao.createComunicado] API not available, using mock fallback');
+      const { mockCreateComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
+      return mockCreateComunicado(data);
     }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.create'); }
 }
@@ -87,8 +89,9 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-comunicacao.enviarComunicado] API not available, using fallback');
-      return { id: '', titulo: '', mensagem: '', tipo: 'novidade', segmentacao: { tipo: 'todos' }, canal: [], status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' } as ComunicadoSaaS;
+      console.warn('[superadmin-comunicacao.enviarComunicado] API not available, using mock fallback');
+      const { mockEnviarComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
+      return mockEnviarComunicado(id);
     }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.enviar'); }
 }

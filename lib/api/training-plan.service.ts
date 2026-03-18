@@ -58,8 +58,9 @@ export async function createPlan(plan: Omit<TrainingPlanDTO, 'id' | 'created_at'
       if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.create');
       return res.json();
     } catch {
-      console.warn('[training-plan.createPlan] API not available, using fallback');
-      return { id: '', student_id: '', created_by: '', name: '', goal: '', duration_weeks: 0, weeks: [], status: 'active', created_at: '' } as TrainingPlanDTO;
+      console.warn('[training-plan.createPlan] API not available, using mock fallback');
+      const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
+      return mockCreatePlan(plan);
     }
   } catch (error) { handleServiceError(error, 'trainingPlan.create'); }
 }
@@ -92,8 +93,9 @@ export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.list');
       return res.json();
     } catch {
-      console.warn('[training-plan.getPlans] API not available, using fallback');
-      return [];
+      console.warn('[training-plan.getPlans] API not available, using mock fallback');
+      const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
+      return mockGetPlans(studentId);
     }
   } catch (error) { handleServiceError(error, 'trainingPlan.list'); }
 }
@@ -109,8 +111,9 @@ export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Pr
       if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.update');
       return res.json();
     } catch {
-      console.warn('[training-plan.updatePlan] API not available, using fallback');
-      return { id: '', student_id: '', created_by: '', name: '', goal: '', duration_weeks: 0, weeks: [], status: 'active', created_at: '' } as TrainingPlanDTO;
+      console.warn('[training-plan.updatePlan] API not available, using mock fallback');
+      const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
+      return mockUpdatePlan(id, data);
     }
   } catch (error) { handleServiceError(error, 'trainingPlan.update'); }
 }

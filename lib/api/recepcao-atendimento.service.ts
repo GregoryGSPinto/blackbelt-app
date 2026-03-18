@@ -39,8 +39,9 @@ export async function buscarAlunoAtendimento(query: string): Promise<AlunoAtendi
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.buscar');
       return res.json();
     } catch {
-      console.warn('[recepcao-atendimento.buscarAlunoAtendimento] API not available, using fallback');
-      return [];
+      console.warn('[recepcao-atendimento.buscarAlunoAtendimento] API not available, using mock fallback');
+      const { mockBuscarAluno } = await import('@/lib/mocks/recepcao-atendimento.mock');
+      return mockBuscarAluno(query);
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-atendimento.buscar');
@@ -62,8 +63,9 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.checkin');
       return res.json();
     } catch {
-      console.warn('[recepcao-atendimento.checkinManual] API not available, using fallback');
-      return { ok: false };
+      console.warn('[recepcao-atendimento.checkinManual] API not available, using mock fallback');
+      const { mockCheckinManual } = await import('@/lib/mocks/recepcao-atendimento.mock');
+      return mockCheckinManual(alunoId, turmaId);
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-atendimento.checkin');

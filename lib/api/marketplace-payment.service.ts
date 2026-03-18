@@ -54,8 +54,9 @@ export async function getPlatformRevenue(period: string): Promise<PlatformRevenu
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.platformRevenue');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.getPlatformRevenue] API not available, using fallback');
-      return { total_revenue: 0, commission_earned: 0, pending_payouts: 0, top_creators: [], pending_approvals: [], monthly_data: [] } as unknown as PlatformRevenue;
+      console.warn('[marketplace-payment.getPlatformRevenue] API not available, using mock fallback');
+      const { mockGetPlatformRevenue } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockGetPlatformRevenue(period);
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.platformRevenue'); }
 }
@@ -71,8 +72,9 @@ export async function getCreatorBalance(creatorId: string): Promise<BalanceDTO> 
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.balance');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.getCreatorBalance] API not available, using fallback');
-      return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0, currency: "BRL" } as BalanceDTO;
+      console.warn('[marketplace-payment.getCreatorBalance] API not available, using mock fallback');
+      const { mockGetCreatorBalance } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockGetCreatorBalance(creatorId);
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.balance'); }
 }
@@ -92,8 +94,9 @@ export async function requestWithdrawal(creatorId: string, amount: number): Prom
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.withdraw');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.requestWithdrawal] API not available, using fallback');
-      return { id: "", creator_id: "", amount: 0, status: "pending", requested_at: "", processed_at: null, bank_account: "" } as unknown as WithdrawalRecord;
+      console.warn('[marketplace-payment.requestWithdrawal] API not available, using mock fallback');
+      const { mockRequestWithdrawal } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockRequestWithdrawal(creatorId, amount);
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.withdraw'); }
 }
@@ -109,8 +112,9 @@ export async function getWithdrawalHistory(creatorId: string): Promise<Withdrawa
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.withdrawalHistory');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.getWithdrawalHistory] API not available, using fallback');
-      return [];
+      console.warn('[marketplace-payment.getWithdrawalHistory] API not available, using mock fallback');
+      const { mockGetWithdrawalHistory } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockGetWithdrawalHistory(creatorId);
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.withdrawalHistory'); }
 }
@@ -126,8 +130,9 @@ export async function getTopCreators(): Promise<TopCreator[]> {
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.topCreators');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.getTopCreators] API not available, using fallback');
-      return [];
+      console.warn('[marketplace-payment.getTopCreators] API not available, using mock fallback');
+      const { mockGetTopCreators } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockGetTopCreators();
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.topCreators'); }
 }
@@ -143,8 +148,9 @@ export async function getPendingApprovals(): Promise<PendingApproval[]> {
       if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.pendingApprovals');
       return res.json();
     } catch {
-      console.warn('[marketplace-payment.getPendingApprovals] API not available, using fallback');
-      return [];
+      console.warn('[marketplace-payment.getPendingApprovals] API not available, using mock fallback');
+      const { mockGetPendingApprovals } = await import('@/lib/mocks/marketplace-payment.mock');
+      return mockGetPendingApprovals();
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.pendingApprovals'); }
 }

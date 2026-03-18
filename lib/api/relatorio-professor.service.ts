@@ -45,8 +45,9 @@ export async function getRelatorioProfessores(academyId: string, periodo?: strin
       if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.list');
       return res.json();
     } catch {
-      console.warn('[relatorio-professor.getRelatorioProfessores] API not available, using fallback');
-      return [];
+      console.warn('[relatorio-professor.getRelatorioProfessores] API not available, using mock fallback');
+      const { mockGetRelatorioProfessores } = await import('@/lib/mocks/relatorio-professor.mock');
+      return mockGetRelatorioProfessores(academyId, periodo);
     }
   } catch (error) { handleServiceError(error, 'relatorio-professor.list'); }
 }
@@ -65,8 +66,9 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
       if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.detail');
       return res.json();
     } catch {
-      console.warn('[relatorio-professor.getDetalheProfessor] API not available, using fallback');
-      return { id: "", professor_id: "", nome: "", avatar: null, turmasAtivas: 0, totalAlunos: 0, mediaPresenca: 0, satisfacao: 0, aulas: [], evolucaoMensal: [] } as unknown as DetalheProfessor;
+      console.warn('[relatorio-professor.getDetalheProfessor] API not available, using mock fallback');
+      const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
+      return mockGetDetalheProfessor(professorId, periodo);
     }
   } catch (error) { handleServiceError(error, 'relatorio-professor.detail'); }
 }

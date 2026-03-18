@@ -36,8 +36,9 @@ export async function createReview(courseId: string, userId: string, rating: num
       if (!res.ok) throw new ServiceError(res.status, 'reviews.create');
       return res.json();
     } catch {
-      console.warn('[reviews.createReview] API not available, using fallback');
-      return { id: "", user_id: "", user_name: "", rating: 0, comment: "", created_at: "" } as unknown as Review;
+      console.warn('[reviews.createReview] API not available, using mock fallback');
+      const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
+      return mockCreateReview(courseId, userId, rating, text);
     }
   } catch (error) { handleServiceError(error, 'reviews.create'); }
 }
@@ -55,8 +56,9 @@ export async function getReviews(courseId: string, page?: number): Promise<{ rev
       if (!res.ok) throw new ServiceError(res.status, 'reviews.list');
       return res.json();
     } catch {
-      console.warn('[reviews.getReviews] API not available, using fallback');
-      return { reviews: [], total: 0, page: 0 };
+      console.warn('[reviews.getReviews] API not available, using mock fallback');
+      const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
+      return mockGetReviews(courseId, page);
     }
   } catch (error) { handleServiceError(error, 'reviews.list'); }
 }
@@ -72,8 +74,9 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       if (!res.ok) throw new ServiceError(res.status, 'reviews.average');
       return res.json();
     } catch {
-      console.warn('[reviews.getAverageRating] API not available, using fallback');
-      return { average: 0, total: 0, distribution: [] } as unknown as AverageRating;
+      console.warn('[reviews.getAverageRating] API not available, using mock fallback');
+      const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
+      return mockGetAverageRating(courseId);
     }
   } catch (error) { handleServiceError(error, 'reviews.average'); }
 }
@@ -112,8 +115,9 @@ export async function respondToReview(reviewId: string, response: string): Promi
       if (!res.ok) throw new ServiceError(res.status, 'reviews.respond');
       return res.json();
     } catch {
-      console.warn('[reviews.respondToReview] API not available, using fallback');
-      return { id: "", user_id: "", user_name: "", rating: 0, comment: "", created_at: "" } as unknown as Review;
+      console.warn('[reviews.respondToReview] API not available, using mock fallback');
+      const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
+      return mockRespondToReview(reviewId, response);
     }
   } catch (error) { handleServiceError(error, 'reviews.respond'); }
 }

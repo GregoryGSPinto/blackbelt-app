@@ -30,8 +30,9 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'xp.get');
       return res.json();
     } catch {
-      console.warn('[xp.getXP] API not available, using fallback');
-      return { total: 0, level: 0, xp_for_next: 0, history: [], rank: 0 } as unknown as XPDTO;
+      console.warn('[xp.getXP] API not available, using mock fallback');
+      const { mockGetXP } = await import('@/lib/mocks/xp.mock');
+      return mockGetXP(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'xp.get');
@@ -49,8 +50,9 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       if (!res.ok) throw new ServiceError(res.status, 'xp.leaderboard');
       return res.json();
     } catch {
-      console.warn('[xp.getLeaderboard] API not available, using fallback');
-      return [];
+      console.warn('[xp.getLeaderboard] API not available, using mock fallback');
+      const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
+      return mockGetLeaderboard(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'xp.leaderboard');

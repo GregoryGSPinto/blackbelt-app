@@ -36,8 +36,9 @@ export async function bulkUpdateStudents(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[bulk.bulkUpdateStudents] API not available, using fallback');
-      return { success: 0, failed: 0, errors: [] } as BulkResult;
+      console.warn('[bulk.bulkUpdateStudents] API not available, using mock fallback');
+      const { mockBulkUpdateStudents } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkUpdateStudents(studentIds, updates);
     }
 
   } catch (error) {
@@ -65,8 +66,9 @@ export async function bulkSendCommunication(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[bulk.bulkSendCommunication] API not available, using fallback');
-      return { success: 0, failed: 0, errors: [] } as BulkResult;
+      console.warn('[bulk.bulkSendCommunication] API not available, using mock fallback');
+      const { mockBulkSendCommunication } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkSendCommunication(studentIds, message);
     }
 
   } catch (error) {
@@ -95,8 +97,9 @@ export async function bulkMarkAttendance(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[bulk.bulkMarkAttendance] API not available, using fallback');
-      return { success: 0, failed: 0, errors: [] } as BulkResult;
+      console.warn('[bulk.bulkMarkAttendance] API not available, using mock fallback');
+      const { mockBulkMarkAttendance } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkMarkAttendance(classId, date, statuses);
     }
 
   } catch (error) {
@@ -121,8 +124,9 @@ export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult>
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[bulk.bulkPublishVideos] API not available, using fallback');
-      return { success: 0, failed: 0, errors: [] } as BulkResult;
+      console.warn('[bulk.bulkPublishVideos] API not available, using mock fallback');
+      const { mockBulkPublishVideos } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkPublishVideos(videoIds);
     }
   } catch (error) {
     handleServiceError(error, 'bulk.publishVideos');
@@ -146,8 +150,9 @@ export async function bulkUnpublishVideos(videoIds: string[]): Promise<BulkResul
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[bulk.bulkUnpublishVideos] API not available, using fallback');
-      return { success: 0, failed: 0, errors: [] } as BulkResult;
+      console.warn('[bulk.bulkUnpublishVideos] API not available, using mock fallback');
+      const { mockBulkUnpublishVideos } = await import('@/lib/mocks/bulk.mock');
+      return mockBulkUnpublishVideos(videoIds);
     }
   } catch (error) {
     handleServiceError(error, 'bulk.unpublishVideos');

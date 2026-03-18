@@ -30,8 +30,9 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       if (!res.ok) throw new ServiceError(res.status, 'notificacoes.list');
       return res.json();
     } catch {
-      console.warn('[notificacoes.listNotifications] API not available, using fallback');
-      return [];
+      console.warn('[notificacoes.listNotifications] API not available, using mock fallback');
+      const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
+      return mockListNotifications(userId);
     }
   } catch (error) {
     handleServiceError(error, 'notificacoes.list');

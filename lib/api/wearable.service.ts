@@ -50,8 +50,9 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       const res = await fetch('/api/wearable/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, data }) });
       return res.json();
     } catch {
-      console.warn('[wearable.syncHealthData] API not available, using fallback');
-      return { synced: 0 };
+      console.warn('[wearable.syncHealthData] API not available, using mock fallback');
+      const { mockSyncHealthData } = await import('@/lib/mocks/wearable.mock');
+      return mockSyncHealthData(userId, data);
     }
   } catch (error) { handleServiceError(error, 'wearable.sync'); }
 }
@@ -66,8 +67,9 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
       const res = await fetch(`/api/wearable/history?userId=${userId}&period=${period}`);
       return res.json();
     } catch {
-      console.warn('[wearable.getHealthHistory] API not available, using fallback');
-      return [];
+      console.warn('[wearable.getHealthHistory] API not available, using mock fallback');
+      const { mockGetHealthHistory } = await import('@/lib/mocks/wearable.mock');
+      return mockGetHealthHistory(userId, period);
     }
   } catch (error) { handleServiceError(error, 'wearable.history'); }
 }
@@ -98,8 +100,9 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
       const res = await fetch(`/api/wearable/sessions?userId=${userId}`);
       return res.json();
     } catch {
-      console.warn('[wearable.getTrainingSession] API not available, using fallback');
-      return [];
+      console.warn('[wearable.getTrainingSession] API not available, using mock fallback');
+      const { mockGetTrainingSession } = await import('@/lib/mocks/wearable.mock');
+      return mockGetTrainingSession(userId);
     }
   } catch (error) { handleServiceError(error, 'wearable.sessions'); }
 }

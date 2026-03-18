@@ -40,8 +40,9 @@ export async function getJornadaDependente(studentId: string): Promise<JornadaDe
       if (!res.ok) throw new ServiceError(res.status, 'responsavel.jornada');
       return res.json();
     } catch {
-      console.warn('[responsavel-jornada.getJornadaDependente] API not available, using fallback');
-      return { student_id: "", student_name: "", avatar: null, belt: "", milestones: [], next_milestone: null } as unknown as JornadaDependente;
+      console.warn('[responsavel-jornada.getJornadaDependente] API not available, using mock fallback');
+      const { mockGetJornadaDependente } = await import('@/lib/mocks/responsavel-jornada.mock');
+      return mockGetJornadaDependente(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.jornada');

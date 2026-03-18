@@ -5,8 +5,10 @@ import { getConversations, getMessages, sendMessage } from '@/lib/api/mensagens.
 import type { ConversationDTO, MessageDTO } from '@/lib/api/mensagens.service';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 export default function AlunoMensagensPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [conversations, setConversations] = useState<ConversationDTO[]>([]);
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDTO[]>([]);
@@ -15,7 +17,7 @@ export default function AlunoMensagensPage() {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { getConversations('stu-1').then(setConversations).catch(() => {}).finally(() => setLoading(false)); }, []);
+  useEffect(() => { if (studentLoading || !studentId) return; getConversations(studentId).then(setConversations).catch(() => {}).finally(() => setLoading(false)); }, [studentId, studentLoading]);
   useEffect(() => {
     if (!selectedConv) return;
     getMessages(selectedConv).then((msgs) => { setMessages(msgs); setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); });
@@ -26,7 +28,7 @@ export default function AlunoMensagensPage() {
     setSending(true);
     try {
       await sendMessage(selectedConv, newMessage);
-      setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, from_id: 'stu-1', from_name: 'Eu', from_avatar: null, content: newMessage, sent_at: new Date().toISOString(), read_at: null, is_mine: true }]);
+      setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, from_id: studentId ?? '', from_name: 'Eu', from_avatar: null, content: newMessage, sent_at: new Date().toISOString(), read_at: null, is_mine: true }]);
       setNewMessage('');
     } finally { setSending(false); }
   }

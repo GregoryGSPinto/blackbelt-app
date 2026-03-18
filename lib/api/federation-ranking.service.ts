@@ -90,8 +90,9 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athletes');
       return res.json();
     } catch {
-      console.warn('[federation-ranking.getAthleteRanking] API not available, using fallback');
-      return [];
+      console.warn('[federation-ranking.getAthleteRanking] API not available, using mock fallback');
+      const { mockGetAthleteRanking } = await import('@/lib/mocks/federation-ranking.mock');
+      return mockGetAthleteRanking(filters);
     }
   } catch (error) { handleServiceError(error, 'federation-ranking.athletes'); }
 }
@@ -110,8 +111,9 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.academies');
       return res.json();
     } catch {
-      console.warn('[federation-ranking.getAcademyRanking] API not available, using fallback');
-      return [];
+      console.warn('[federation-ranking.getAcademyRanking] API not available, using mock fallback');
+      const { mockGetAcademyRanking } = await import('@/lib/mocks/federation-ranking.mock');
+      return mockGetAcademyRanking(filters);
     }
   } catch (error) { handleServiceError(error, 'federation-ranking.academies'); }
 }

@@ -53,8 +53,9 @@ export async function getBattlePass(seasonId: string): Promise<BattlePassDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'battlePass.get');
       return res.json();
     } catch {
-      console.warn('[battle-pass.getBattlePass] API not available, using fallback');
-      return { id: "", season: "", name: "", start_date: "", end_date: "", levels: [], status: "active" } as unknown as BattlePassDTO;
+      console.warn('[battle-pass.getBattlePass] API not available, using mock fallback');
+      const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
+      return mockGetBattlePass(seasonId);
     }
   } catch (error) { handleServiceError(error, 'battlePass.get'); }
 }
@@ -70,8 +71,9 @@ export async function getMyBattlePassProgress(userId: string, seasonId: string):
       if (!res.ok) throw new ServiceError(res.status, 'battlePass.myProgress');
       return res.json();
     } catch {
-      console.warn('[battle-pass.getMyBattlePassProgress] API not available, using fallback');
-      return { battle_pass_id: "", current_level: 0, current_xp: 0, xp_for_next: 0, rewards_claimed: [] } as unknown as BattlePassProgress;
+      console.warn('[battle-pass.getMyBattlePassProgress] API not available, using mock fallback');
+      const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
+      return mockGetMyProgress(userId, seasonId);
     }
   } catch (error) { handleServiceError(error, 'battlePass.myProgress'); }
 }
@@ -91,8 +93,9 @@ export async function claimReward(userId: string, levelId: number): Promise<{ su
       if (!res.ok) throw new ServiceError(res.status, 'battlePass.claim');
       return res.json();
     } catch {
-      console.warn('[battle-pass.claimReward] API not available, using fallback');
-      return { success: false, message: '' };
+      console.warn('[battle-pass.claimReward] API not available, using mock fallback');
+      const { mockClaimReward } = await import('@/lib/mocks/battle-pass.mock');
+      return mockClaimReward(userId, levelId);
     }
   } catch (error) { handleServiceError(error, 'battlePass.claim'); }
 }
@@ -112,8 +115,9 @@ export async function upgradeToPremium(userId: string, seasonId: string): Promis
       if (!res.ok) throw new ServiceError(res.status, 'battlePass.upgrade');
       return res.json();
     } catch {
-      console.warn('[battle-pass.upgradeToPremium] API not available, using fallback');
-      return { success: false, message: '' };
+      console.warn('[battle-pass.upgradeToPremium] API not available, using mock fallback');
+      const { mockUpgradeToPremium } = await import('@/lib/mocks/battle-pass.mock');
+      return mockUpgradeToPremium(userId, seasonId);
     }
   } catch (error) { handleServiceError(error, 'battlePass.upgrade'); }
 }

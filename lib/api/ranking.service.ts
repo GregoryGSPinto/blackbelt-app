@@ -13,8 +13,9 @@ export async function getByAcademia(academyId: string): Promise<RankedStudent[]>
       if (!res.ok) throw new ServiceError(res.status, 'ranking.byAcademia');
       return res.json();
     } catch {
-      console.warn('[ranking.getByAcademia] API not available, using fallback');
-      return [];
+      console.warn('[ranking.getByAcademia] API not available, using mock fallback');
+      const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
+      return mockGetLeaderboard(academyId);
     }
   } catch (error) {
     handleServiceError(error, 'ranking.byAcademia');
@@ -32,8 +33,9 @@ export async function getByTurma(classId: string): Promise<RankedStudent[]> {
       if (!res.ok) throw new ServiceError(res.status, 'ranking.byTurma');
       return res.json();
     } catch {
-      console.warn('[ranking.getByTurma] API not available, using fallback');
-      return [];
+      console.warn('[ranking.getByTurma] API not available, using mock fallback');
+      const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
+      return mockGetLeaderboard(classId);
     }
   } catch (error) {
     handleServiceError(error, 'ranking.byTurma');

@@ -25,8 +25,9 @@ export async function addToWishlist(userId: string, productId: string): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'wishlist.addToWishlist');
       return res.json();
     } catch {
-      console.warn('[wishlist.addToWishlist] API not available, using fallback');
-      return { id: "", user_id: "", product_id: "", product_name: "", product_image: "", price: 0, added_at: "" } as unknown as WishlistItem;
+      console.warn('[wishlist.addToWishlist] API not available, using mock fallback');
+      const { mockAddToWishlist } = await import('@/lib/mocks/wishlist.mock');
+      return mockAddToWishlist(userId, productId);
     }
   } catch (error) { handleServiceError(error, 'wishlist.addToWishlist'); }
 }
@@ -57,8 +58,9 @@ export async function getWishlist(userId: string): Promise<WishlistItem[]> {
       if (!res.ok) throw new ServiceError(res.status, 'wishlist.getWishlist');
       return res.json();
     } catch {
-      console.warn('[wishlist.getWishlist] API not available, using fallback');
-      return [];
+      console.warn('[wishlist.getWishlist] API not available, using mock fallback');
+      const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
+      return mockGetWishlist(userId);
     }
   } catch (error) { handleServiceError(error, 'wishlist.getWishlist'); }
 }

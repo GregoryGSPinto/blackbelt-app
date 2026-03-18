@@ -49,8 +49,9 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       if (!res.ok) throw new ServiceError(res.status, 'championship-live.liveMatches');
       return res.json();
     } catch {
-      console.warn('[championship-live.getLiveMatches] API not available, using fallback');
-      return [];
+      console.warn('[championship-live.getLiveMatches] API not available, using mock fallback');
+      const { mockGetLiveMatches } = await import('@/lib/mocks/championship-live.mock');
+      return mockGetLiveMatches(championshipId);
     }
   } catch (error) { handleServiceError(error, 'championship-live.liveMatches'); }
 }
@@ -67,8 +68,9 @@ export async function getResults(championshipId: string, categoryId?: string): P
       if (!res.ok) throw new ServiceError(res.status, 'championship-live.results');
       return res.json();
     } catch {
-      console.warn('[championship-live.getResults] API not available, using fallback');
-      return [];
+      console.warn('[championship-live.getResults] API not available, using mock fallback');
+      const { mockGetResults } = await import('@/lib/mocks/championship-live.mock');
+      return mockGetResults(championshipId, categoryId);
     }
   } catch (error) { handleServiceError(error, 'championship-live.results'); }
 }
@@ -84,8 +86,9 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       if (!res.ok) throw new ServiceError(res.status, 'championship-live.medalTable');
       return res.json();
     } catch {
-      console.warn('[championship-live.getMedalTable] API not available, using fallback');
-      return [];
+      console.warn('[championship-live.getMedalTable] API not available, using mock fallback');
+      const { mockGetMedalTable } = await import('@/lib/mocks/championship-live.mock');
+      return mockGetMedalTable(championshipId);
     }
   } catch (error) { handleServiceError(error, 'championship-live.medalTable'); }
 }

@@ -32,8 +32,9 @@ export async function listEvents(academyId: string): Promise<EventDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'events.list');
       return res.json();
     } catch {
-      console.warn('[events.listEvents] API not available, using fallback');
-      return [];
+      console.warn('[events.listEvents] API not available, using mock fallback');
+      const { mockListEvents } = await import('@/lib/mocks/events.mock');
+      return mockListEvents(academyId);
     }
   } catch (error) { handleServiceError(error, 'events.list'); }
 }
@@ -49,8 +50,9 @@ export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' 
       if (!res.ok) throw new ServiceError(res.status, 'events.create');
       return res.json();
     } catch {
-      console.warn('[events.createEvent] API not available, using fallback');
-      return { id: "", title: "", description: "", date: "", location: "", type: "", max_participants: 0, enrolled: 0, status: "scheduled" } as unknown as EventDTO;
+      console.warn('[events.createEvent] API not available, using mock fallback');
+      const { mockCreateEvent } = await import('@/lib/mocks/events.mock');
+      return mockCreateEvent(academyId, event);
     }
   } catch (error) { handleServiceError(error, 'events.create'); }
 }
@@ -83,8 +85,9 @@ export async function listAcademyEvents(academyId: string): Promise<AcademyEvent
       if (!res.ok) throw new ServiceError(res.status, 'events.listAcademy');
       return res.json();
     } catch {
-      console.warn('[events.listAcademyEvents] API not available, using fallback');
-      return [];
+      console.warn('[events.listAcademyEvents] API not available, using mock fallback');
+      const { mockListAcademyEvents } = await import('@/lib/mocks/events.mock');
+      return mockListAcademyEvents(academyId);
     }
   } catch (error) { handleServiceError(error, 'events.listAcademy'); }
 }
@@ -100,8 +103,9 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
       if (!res.ok) throw new ServiceError(res.status, 'events.getAcademy');
       return res.json();
     } catch {
-      console.warn('[events.getAcademyEvent] API not available, using fallback');
-      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
+      console.warn('[events.getAcademyEvent] API not available, using mock fallback');
+      const { mockGetAcademyEvent } = await import('@/lib/mocks/events.mock');
+      return mockGetAcademyEvent(eventId);
     }
   } catch (error) { handleServiceError(error, 'events.getAcademy'); }
 }
@@ -121,8 +125,9 @@ export async function createAcademyEvent(academyId: string, data: CreateEventDat
       if (!res.ok) throw new ServiceError(res.status, 'events.createAcademy');
       return res.json();
     } catch {
-      console.warn('[events.createAcademyEvent] API not available, using fallback');
-      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
+      console.warn('[events.createAcademyEvent] API not available, using mock fallback');
+      const { mockCreateAcademyEvent } = await import('@/lib/mocks/events.mock');
+      return mockCreateAcademyEvent(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'events.createAcademy'); }
 }
@@ -142,8 +147,9 @@ export async function updateAcademyEvent(eventId: string, data: Partial<CreateEv
       if (!res.ok) throw new ServiceError(res.status, 'events.updateAcademy');
       return res.json();
     } catch {
-      console.warn('[events.updateAcademyEvent] API not available, using fallback');
-      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
+      console.warn('[events.updateAcademyEvent] API not available, using mock fallback');
+      const { mockUpdateAcademyEvent } = await import('@/lib/mocks/events.mock');
+      return mockUpdateAcademyEvent(eventId, data);
     }
   } catch (error) { handleServiceError(error, 'events.updateAcademy'); }
 }

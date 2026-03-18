@@ -40,8 +40,9 @@ export async function globalSearch(
       if (!res.ok) throw new ServiceError(res.status, 'search.global');
       return res.json();
     } catch {
-      console.warn('[search.globalSearch] API not available, using fallback');
-      return { results: [], total: 0 } as SearchResponse;
+      console.warn('[search.globalSearch] API not available, using mock fallback');
+      const { mockGlobalSearch } = await import('@/lib/mocks/search.mock');
+      return mockGlobalSearch(query, academyId);
     }
 
   } catch (error) {

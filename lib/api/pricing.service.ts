@@ -198,8 +198,9 @@ export async function getFaixas(): Promise<FaixaBase[]> {
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getFaixas');
       return res.json();
     } catch {
-      console.warn('[pricing.getFaixas] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getFaixas] API not available, using mock fallback');
+      const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
+      return mockGetFaixas();
     }
   } catch (error) { handleServiceError(error, 'pricing.getFaixas'); }
 }
@@ -215,8 +216,9 @@ export async function getModulos(): Promise<Modulo[]> {
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulos');
       return res.json();
     } catch {
-      console.warn('[pricing.getModulos] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getModulos] API not available, using mock fallback');
+      const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
+      return mockGetModulos();
     }
   } catch (error) { handleServiceError(error, 'pricing.getModulos'); }
 }
@@ -232,8 +234,9 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getPacotes');
       return res.json();
     } catch {
-      console.warn('[pricing.getPacotes] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getPacotes] API not available, using mock fallback');
+      const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
+      return mockGetPacotes();
     }
   } catch (error) { handleServiceError(error, 'pricing.getPacotes'); }
 }
@@ -249,8 +252,9 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getAssinatura');
       return res.json();
     } catch {
-      console.warn('[pricing.getAssinatura] API not available, using fallback');
-      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
+      console.warn('[pricing.getAssinatura] API not available, using mock fallback');
+      const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
+      return mockGetAssinatura(academyId);
     }
   } catch (error) { handleServiceError(error, 'pricing.getAssinatura'); }
 }
@@ -270,8 +274,9 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       if (!res.ok) throw new ServiceError(res.status, 'pricing.ativarModulo');
       return res.json();
     } catch {
-      console.warn('[pricing.ativarModulo] API not available, using fallback');
-      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
+      console.warn('[pricing.ativarModulo] API not available, using mock fallback');
+      const { mockAtivarModulo } = await import('@/lib/mocks/pricing.mock');
+      return mockAtivarModulo(academyId, moduloSlug);
     }
   } catch (error) { handleServiceError(error, 'pricing.ativarModulo'); }
 }
@@ -291,8 +296,9 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       if (!res.ok) throw new ServiceError(res.status, 'pricing.desativarModulo');
       return res.json();
     } catch {
-      console.warn('[pricing.desativarModulo] API not available, using fallback');
-      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
+      console.warn('[pricing.desativarModulo] API not available, using mock fallback');
+      const { mockDesativarModulo } = await import('@/lib/mocks/pricing.mock');
+      return mockDesativarModulo(academyId, moduloSlug);
     }
   } catch (error) { handleServiceError(error, 'pricing.desativarModulo'); }
 }
@@ -308,8 +314,9 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getHistoricoCobrancas');
       return res.json();
     } catch {
-      console.warn('[pricing.getHistoricoCobrancas] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getHistoricoCobrancas] API not available, using mock fallback');
+      const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
+      return mockGetHistoricoCobrancas(academyId);
     }
   } catch (error) { handleServiceError(error, 'pricing.getHistoricoCobrancas'); }
 }
@@ -325,8 +332,9 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getUsoDescoberta');
       return res.json();
     } catch {
-      console.warn('[pricing.getUsoDescoberta] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getUsoDescoberta] API not available, using mock fallback');
+      const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
+      return mockGetUsoDescoberta(academyId);
     }
   } catch (error) { handleServiceError(error, 'pricing.getUsoDescoberta'); }
 }
@@ -360,8 +368,9 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulosExtrasDescoberta');
       return res.json();
     } catch {
-      console.warn('[pricing.getModulosExtrasDescoberta] API not available, using fallback');
-      return [];
+      console.warn('[pricing.getModulosExtrasDescoberta] API not available, using mock fallback');
+      const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
+      return mockGetModulosExtrasDescoberta(academyId);
     }
   } catch (error) { handleServiceError(error, 'pricing.getModulosExtrasDescoberta'); }
 }
@@ -381,8 +390,9 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       if (!res.ok) throw new ServiceError(res.status, 'pricing.simularUpgrade');
       return res.json();
     } catch {
-      console.warn('[pricing.simularUpgrade] API not available, using fallback');
-      return { modulosNovos: [], custoAdicional: 0, totalNovo: 0 } as SimulacaoUpgrade;
+      console.warn('[pricing.simularUpgrade] API not available, using mock fallback');
+      const { mockSimularUpgrade } = await import('@/lib/mocks/pricing.mock');
+      return mockSimularUpgrade(academyId, novosModulos);
     }
   } catch (error) { handleServiceError(error, 'pricing.simularUpgrade'); }
 }

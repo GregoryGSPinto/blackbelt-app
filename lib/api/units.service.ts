@@ -23,8 +23,9 @@ export async function listUnits(academyId: string): Promise<UnitDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'units.list');
       return res.json();
     } catch {
-      console.warn('[units.listUnits] API not available, using fallback');
-      return [];
+      console.warn('[units.listUnits] API not available, using mock fallback');
+      const { mockListUnits } = await import('@/lib/mocks/units.mock');
+      return mockListUnits(academyId);
     }
   } catch (error) { handleServiceError(error, 'units.list'); }
 }
@@ -40,8 +41,9 @@ export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | '
       if (!res.ok) throw new ServiceError(res.status, 'units.create');
       return res.json();
     } catch {
-      console.warn('[units.createUnit] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", address: "", phone: "", manager_name: "", students: 0, status: "active" } as unknown as UnitDTO;
+      console.warn('[units.createUnit] API not available, using mock fallback');
+      const { mockCreateUnit } = await import('@/lib/mocks/units.mock');
+      return mockCreateUnit(academyId, data);
     }
   } catch (error) { handleServiceError(error, 'units.create'); }
 }
@@ -57,8 +59,9 @@ export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promis
       if (!res.ok) throw new ServiceError(res.status, 'units.update');
       return res.json();
     } catch {
-      console.warn('[units.updateUnit] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", address: "", phone: "", manager_name: "", students: 0, status: "active" } as unknown as UnitDTO;
+      console.warn('[units.updateUnit] API not available, using mock fallback');
+      const { mockUpdateUnit } = await import('@/lib/mocks/units.mock');
+      return mockUpdateUnit(unitId, data);
     }
   } catch (error) { handleServiceError(error, 'units.update'); }
 }

@@ -41,8 +41,9 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
       if (!res.ok) throw new ServiceError(res.status, 'teen.desafios');
       return res.json();
     } catch {
-      console.warn('[teen-desafios.getDesafios] API not available, using fallback');
-      return { desafios_ativos: [], desafios_concluidos: [], xp_total_ganho: 0 } as unknown as DesafiosOverview;
+      console.warn('[teen-desafios.getDesafios] API not available, using mock fallback');
+      const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
+      return mockGetDesafios(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'teen.desafios');
@@ -60,8 +61,9 @@ export async function claimReward(desafioId: string): Promise<{ xp_earned: numbe
       if (!res.ok) throw new ServiceError(res.status, 'teen.desafios.claim');
       return res.json();
     } catch {
-      console.warn('[teen-desafios.claimReward] API not available, using fallback');
-      return { xp_earned: 0 };
+      console.warn('[teen-desafios.claimReward] API not available, using mock fallback');
+      const { mockClaimReward } = await import('@/lib/mocks/teen-desafios.mock');
+      return mockClaimReward(desafioId);
     }
   } catch (error) {
     handleServiceError(error, 'teen.desafios.claim');

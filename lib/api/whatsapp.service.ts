@@ -200,8 +200,9 @@ export async function getWhatsAppHistory(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[whatsapp.getWhatsAppHistory] API not available, using fallback');
-      return [];
+      console.warn('[whatsapp.getWhatsAppHistory] API not available, using mock fallback');
+      const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
+      return mockWhatsAppHistory(academyId, limit);
     }
 
   } catch (error) {

@@ -31,8 +31,9 @@ export async function listSpaces(unitId: string): Promise<SpaceDTO[]> {
       if (!res.ok) throw new ServiceError(res.status, 'spaces.list');
       return res.json();
     } catch {
-      console.warn('[spaces.listSpaces] API not available, using fallback');
-      return [];
+      console.warn('[spaces.listSpaces] API not available, using mock fallback');
+      const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
+      return mockListSpaces(unitId);
     }
   } catch (error) { handleServiceError(error, 'spaces.list'); }
 }
@@ -48,8 +49,9 @@ export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlo
       if (!res.ok) throw new ServiceError(res.status, 'spaces.schedule');
       return res.json();
     } catch {
-      console.warn('[spaces.getSpaceSchedule] API not available, using fallback');
-      return [];
+      console.warn('[spaces.getSpaceSchedule] API not available, using mock fallback');
+      const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
+      return mockGetSchedule(unitId);
     }
   } catch (error) { handleServiceError(error, 'spaces.schedule'); }
 }
@@ -65,8 +67,9 @@ export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'u
       if (!res.ok) throw new ServiceError(res.status, 'spaces.create');
       return res.json();
     } catch {
-      console.warn('[spaces.createSpace] API not available, using fallback');
-      return { id: "", academy_id: "", name: "", capacity: 0, type: "", amenities: [], schedule: [], status: "active" } as unknown as SpaceDTO;
+      console.warn('[spaces.createSpace] API not available, using mock fallback');
+      const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
+      return mockCreateSpace(unitId, data);
     }
   } catch (error) { handleServiceError(error, 'spaces.create'); }
 }

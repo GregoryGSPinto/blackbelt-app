@@ -29,8 +29,9 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-impersonate.startImpersonation] API not available, using fallback');
-      return { originalUserId: '', impersonatedUserId: '', academiaId: '', academiaNome: '', role: 'admin', iniciadoEm: '' } as ImpersonateSession;
+      console.warn('[superadmin-impersonate.startImpersonation] API not available, using mock fallback');
+      const { mockStartImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
+      return mockStartImpersonation(academiaId);
     }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.start'); }
 }
@@ -73,8 +74,9 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, using fallback');
-      return [];
+      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, using mock fallback');
+      const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
+      return mockListImpersonateAcademias();
     }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.listAcademias'); }
 }

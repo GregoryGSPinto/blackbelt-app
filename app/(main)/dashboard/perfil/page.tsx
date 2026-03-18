@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 import dynamic from 'next/dynamic';
 import {
   getStudentProfile,
@@ -422,6 +423,7 @@ function ProfileSkeleton() {
 // ── Main Page ──────────────────────────────────────────────────────────
 
 export default function DashboardPerfilPage() {
+  const { studentId, loading: studentIdLoading } = useStudentId();
   const [profile, setProfile] = useState<StudentProfileDTO | null>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>('resumo');
   const [loading, setLoading] = useState(true);
@@ -433,13 +435,12 @@ export default function DashboardPerfilPage() {
   const [financeiro, setFinanceiro] = useState<FinanceiroPerfilDTO | null>(null);
   const [tabLoading, setTabLoading] = useState(false);
 
-  const studentId = 'stu-1';
-
   // Load profile
   useEffect(() => {
+    if (studentIdLoading || !studentId) return;
     async function loadProfile() {
       try {
-        const p = await getStudentProfile(studentId);
+        const p = await getStudentProfile(studentId!);
         setProfile(p);
       } finally {
         setLoading(false);
@@ -456,25 +457,25 @@ export default function DashboardPerfilPage() {
         switch (tab) {
           case 'resumo':
             if (!timeline) {
-              const data = await getJourneyTimeline(studentId);
+              const data = await getJourneyTimeline(studentId!);
               setTimeline(data);
             }
             break;
           case 'evolucao':
             if (!evolution) {
-              const data = await getEvolutionData(studentId);
+              const data = await getEvolutionData(studentId!);
               setEvolution(data);
             }
             break;
           case 'presencas':
             if (!heatmap) {
-              const data = await getAttendanceHeatmap(studentId);
+              const data = await getAttendanceHeatmap(studentId!);
               setHeatmap(data);
             }
             break;
           case 'financeiro':
             if (!financeiro) {
-              const data = await getFinanceiroPerfil(studentId);
+              const data = await getFinanceiroPerfil(studentId!);
               setFinanceiro(data);
             }
             break;

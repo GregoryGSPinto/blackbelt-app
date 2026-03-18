@@ -72,8 +72,9 @@ export async function listCourses(filters?: MarketplaceFilters): Promise<Marketp
       if (!res.ok) throw new ServiceError(res.status, 'marketplace.listCourses');
       return res.json();
     } catch {
-      console.warn('[marketplace.listCourses] API not available, using fallback');
-      return [];
+      console.warn('[marketplace.listCourses] API not available, using mock fallback');
+      const { mockListCourses } = await import('@/lib/mocks/marketplace.mock');
+      return mockListCourses(filters);
     }
   } catch (error) { handleServiceError(error, 'marketplace.listCourses'); }
 }
@@ -89,8 +90,9 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       if (!res.ok) throw new ServiceError(res.status, 'marketplace.getCourse');
       return res.json();
     } catch {
-      console.warn('[marketplace.getCourse] API not available, using fallback');
-      return { id: "", title: "", description: "", creator_id: "", creator_name: "", creator_avatar: null, modality: "bjj", belt_level: "white", price: 0, thumbnail_url: "", preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: "draft", created_at: "", updated_at: "" } as unknown as MarketplaceCourse;
+      console.warn('[marketplace.getCourse] API not available, using mock fallback');
+      const { mockGetCourse } = await import('@/lib/mocks/marketplace.mock');
+      return mockGetCourse(id);
     }
   } catch (error) { handleServiceError(error, 'marketplace.getCourse'); }
 }
@@ -110,8 +112,9 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       if (!res.ok) throw new ServiceError(res.status, 'marketplace.purchaseCourse');
       return res.json();
     } catch {
-      console.warn('[marketplace.purchaseCourse] API not available, using fallback');
-      return { id: "", course_id: "", user_id: "", purchased_at: "", status: "active" } as unknown as CoursePurchase;
+      console.warn('[marketplace.purchaseCourse] API not available, using mock fallback');
+      const { mockPurchaseCourse } = await import('@/lib/mocks/marketplace.mock');
+      return mockPurchaseCourse(courseId, userId);
     }
   } catch (error) { handleServiceError(error, 'marketplace.purchaseCourse'); }
 }
@@ -127,8 +130,9 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       if (!res.ok) throw new ServiceError(res.status, 'marketplace.getMyPurchases');
       return res.json();
     } catch {
-      console.warn('[marketplace.getMyPurchases] API not available, using fallback');
-      return [];
+      console.warn('[marketplace.getMyPurchases] API not available, using mock fallback');
+      const { mockGetMyPurchases } = await import('@/lib/mocks/marketplace.mock');
+      return mockGetMyPurchases(userId);
     }
   } catch (error) { handleServiceError(error, 'marketplace.getMyPurchases'); }
 }
@@ -144,8 +148,9 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       if (!res.ok) throw new ServiceError(res.status, 'marketplace.getMySales');
       return res.json();
     } catch {
-      console.warn('[marketplace.getMySales] API not available, using fallback');
-      return [];
+      console.warn('[marketplace.getMySales] API not available, using mock fallback');
+      const { mockGetMySales } = await import('@/lib/mocks/marketplace.mock');
+      return mockGetMySales(creatorId);
     }
   } catch (error) { handleServiceError(error, 'marketplace.getMySales'); }
 }

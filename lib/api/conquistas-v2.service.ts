@@ -56,8 +56,9 @@ export async function getAchievements(studentId: string): Promise<AchievementV2D
       if (!res.ok) throw new ServiceError(res.status, 'conquistas-v2.getAchievements');
       return res.json();
     } catch {
-      console.warn('[conquistas-v2.getAchievements] API not available, using fallback');
-      return [];
+      console.warn('[conquistas-v2.getAchievements] API not available, using mock fallback');
+      const { mockGetAchievements } = await import('@/lib/mocks/conquistas-v2.mock');
+      return mockGetAchievements(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'conquistas-v2.getAchievements');
@@ -75,8 +76,9 @@ export async function getAchievementProgress(studentId: string): Promise<Achieve
       if (!res.ok) throw new ServiceError(res.status, 'conquistas-v2.getProgress');
       return res.json();
     } catch {
-      console.warn('[conquistas-v2.getAchievementProgress] API not available, using fallback');
-      return { achievement_id: "", title: "", description: "", icon: "", progress: 0, target: 0, completed: false, completed_at: null } as unknown as AchievementProgressDTO;
+      console.warn('[conquistas-v2.getAchievementProgress] API not available, using mock fallback');
+      const { mockGetAchievementProgress } = await import('@/lib/mocks/conquistas-v2.mock');
+      return mockGetAchievementProgress(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'conquistas-v2.getProgress');

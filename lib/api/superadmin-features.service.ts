@@ -45,8 +45,9 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-features.listFeatureFlags] API not available, using fallback');
-      return [];
+      console.warn('[superadmin-features.listFeatureFlags] API not available, using mock fallback');
+      const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
+      return mockListFeatureFlags();
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.list'); }
 }
@@ -62,8 +63,9 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-features.toggleFeatureGlobal] API not available, using fallback');
-      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
+      console.warn('[superadmin-features.toggleFeatureGlobal] API not available, using mock fallback');
+      const { mockToggleFeatureGlobal } = await import('@/lib/mocks/superadmin-features.mock');
+      return mockToggleFeatureGlobal(featureId, enabled);
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.toggle'); }
 }
@@ -79,8 +81,9 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-features.updateFeatureFlag] API not available, using fallback');
-      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
+      console.warn('[superadmin-features.updateFeatureFlag] API not available, using mock fallback');
+      const { mockUpdateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
+      return mockUpdateFeatureFlag(featureId, data);
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.update'); }
 }
@@ -96,8 +99,9 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     } catch {
-      console.warn('[superadmin-features.createFeatureFlag] API not available, using fallback');
-      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
+      console.warn('[superadmin-features.createFeatureFlag] API not available, using mock fallback');
+      const { mockCreateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
+      return mockCreateFeatureFlag(data);
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.create'); }
 }

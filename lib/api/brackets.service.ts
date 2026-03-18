@@ -57,8 +57,9 @@ export async function generateBracket(championshipId: string, categoryId: string
       if (!res.ok) throw new ServiceError(res.status, 'brackets.generate');
       return res.json();
     } catch {
-      console.warn('[brackets.generateBracket] API not available, using fallback');
-      return { id: "", championship_id: "", category_id: "", category_name: "", total_athletes: 0, matches: [], status: "pending" } as unknown as BracketDTO;
+      console.warn('[brackets.generateBracket] API not available, using mock fallback');
+      const { mockGenerateBracket } = await import('@/lib/mocks/brackets.mock');
+      return mockGenerateBracket(championshipId, categoryId, method);
     }
   } catch (error) { handleServiceError(error, 'brackets.generate'); }
 }
@@ -74,8 +75,9 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       if (!res.ok) throw new ServiceError(res.status, 'brackets.get');
       return res.json();
     } catch {
-      console.warn('[brackets.getBracketByCategory] API not available, using fallback');
-      return { id: "", championship_id: "", category_id: "", category_name: "", total_athletes: 0, matches: [], status: "pending" } as unknown as BracketDTO;
+      console.warn('[brackets.getBracketByCategory] API not available, using mock fallback');
+      const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
+      return mockGetBracketByCategory(categoryId);
     }
   } catch (error) { handleServiceError(error, 'brackets.get'); }
 }
@@ -95,8 +97,9 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       if (!res.ok) throw new ServiceError(res.status, 'brackets.submitResult');
       return res.json();
     } catch {
-      console.warn('[brackets.submitResult] API not available, using fallback');
-      return { id: "", bracket_id: "", round: 0, position: 0, athlete1_id: null, athlete1_name: null, athlete2_id: null, athlete2_name: null, winner_id: null, method: null, status: "pending" } as unknown as MatchDTO;
+      console.warn('[brackets.submitResult] API not available, using mock fallback');
+      const { mockSubmitResult } = await import('@/lib/mocks/brackets.mock');
+      return mockSubmitResult(matchId, result);
     }
   } catch (error) { handleServiceError(error, 'brackets.submitResult'); }
 }
@@ -112,8 +115,9 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       if (!res.ok) throw new ServiceError(res.status, 'brackets.matchDetails');
       return res.json();
     } catch {
-      console.warn('[brackets.getMatchDetails] API not available, using fallback');
-      return { id: "", bracket_id: "", round: 0, position: 0, athlete1_id: null, athlete1_name: null, athlete2_id: null, athlete2_name: null, winner_id: null, method: null, status: "pending" } as unknown as MatchDTO;
+      console.warn('[brackets.getMatchDetails] API not available, using mock fallback');
+      const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
+      return mockGetMatchDetails(matchId);
     }
   } catch (error) { handleServiceError(error, 'brackets.matchDetails'); }
 }

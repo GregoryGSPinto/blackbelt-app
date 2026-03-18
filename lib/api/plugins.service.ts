@@ -12,8 +12,9 @@ export async function listPlugins(): Promise<Plugin[]> {
       const res = await fetch('/api/v1/plugins');
       return res.json();
     } catch {
-      console.warn('[plugins.listPlugins] API not available, using fallback');
-      return [];
+      console.warn('[plugins.listPlugins] API not available, using mock fallback');
+      const { mockListPlugins } = await import('@/lib/mocks/plugins.mock');
+      return mockListPlugins();
     }
   } catch (error) { handleServiceError(error, 'plugins.list'); }
 }
@@ -98,8 +99,9 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
       const res = await fetch(`/api/v1/plugins/${pluginId}/logs`);
       return res.json();
     } catch {
-      console.warn('[plugins.getPluginLogs] API not available, using fallback');
-      return [];
+      console.warn('[plugins.getPluginLogs] API not available, using mock fallback');
+      const { mockGetPluginLogs } = await import('@/lib/mocks/plugins.mock');
+      return mockGetPluginLogs(pluginId);
     }
   } catch (error) { handleServiceError(error, 'plugins.logs'); }
 }

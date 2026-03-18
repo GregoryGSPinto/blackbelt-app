@@ -123,8 +123,9 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       });
       return res.json();
     } catch {
-      console.warn('[match-analysis.addAnnotation] API not available, using fallback');
-      return { id: '', video_id: '', timestamp_sec: 0, text: '', author_id: '', created_at: '' } as ManualAnnotation;
+      console.warn('[match-analysis.addAnnotation] API not available, using mock fallback');
+      const { mockAddAnnotation } = await import('@/lib/mocks/match-analysis.mock');
+      return mockAddAnnotation(videoId, timestampSec, text);
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.annotate');
@@ -141,8 +142,9 @@ export async function getAnnotations(videoId: string): Promise<ManualAnnotation[
       const res = await fetch(`/api/ai/match-analysis/annotations/${videoId}`);
       return res.json();
     } catch {
-      console.warn('[match-analysis.getAnnotations] API not available, using fallback');
-      return [];
+      console.warn('[match-analysis.getAnnotations] API not available, using mock fallback');
+      const { mockGetAnnotations } = await import('@/lib/mocks/match-analysis.mock');
+      return mockGetAnnotations(videoId);
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.getAnnotations');
@@ -163,8 +165,9 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       });
       return res.json();
     } catch {
-      console.warn('[match-analysis.shareAnalysis] API not available, using fallback');
-      return { shared: false };
+      console.warn('[match-analysis.shareAnalysis] API not available, using mock fallback');
+      const { mockShareAnalysis } = await import('@/lib/mocks/match-analysis.mock');
+      return mockShareAnalysis(videoId, studentId);
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.share');

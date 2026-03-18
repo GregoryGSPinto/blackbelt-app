@@ -40,8 +40,9 @@ export async function getFaixaKids(studentId: string): Promise<FaixaKids> {
       if (!res.ok) throw new ServiceError(res.status, 'kids-faixa.get');
       return res.json();
     } catch {
-      console.warn('[kids-faixa.getFaixaKids] API not available, using fallback');
-      return { studentId: "", faixaAtual: "", corFaixa: "", graus: 0, maxGraus: 0, proximaFaixa: "", requisitos: [], percentualConcluido: 0 } as unknown as FaixaKids;
+      console.warn('[kids-faixa.getFaixaKids] API not available, using mock fallback');
+      const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
+      return mockGetFaixaKids(studentId);
     }
   } catch (error) {
     handleServiceError(error, 'kids-faixa.get');

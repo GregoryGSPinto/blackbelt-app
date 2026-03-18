@@ -32,8 +32,9 @@ export async function generateCourseCertificate(userId: string, courseId: string
       if (!res.ok) throw new ServiceError(res.status, 'certificates.generateCourse');
       return res.json();
     } catch {
-      console.warn('[certificates.generateCourseCertificate] API not available, using fallback');
-      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
+      console.warn('[certificates.generateCourseCertificate] API not available, using mock fallback');
+      const { mockGenerateCourseCertificate } = await import('@/lib/mocks/certificates.mock');
+      return mockGenerateCourseCertificate(userId, courseId);
     }
   } catch (error) { handleServiceError(error, 'certificates.generateCourse'); }
 }
@@ -53,8 +54,9 @@ export async function generateBeltCertificate(userId: string, belt: string, acad
       if (!res.ok) throw new ServiceError(res.status, 'certificates.generateBelt');
       return res.json();
     } catch {
-      console.warn('[certificates.generateBeltCertificate] API not available, using fallback');
-      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
+      console.warn('[certificates.generateBeltCertificate] API not available, using mock fallback');
+      const { mockGenerateBeltCertificate } = await import('@/lib/mocks/certificates.mock');
+      return mockGenerateBeltCertificate(userId, belt, academyId);
     }
   } catch (error) { handleServiceError(error, 'certificates.generateBelt'); }
 }
@@ -74,8 +76,9 @@ export async function generateEventCertificate(userId: string, eventId: string):
       if (!res.ok) throw new ServiceError(res.status, 'certificates.generateEvent');
       return res.json();
     } catch {
-      console.warn('[certificates.generateEventCertificate] API not available, using fallback');
-      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
+      console.warn('[certificates.generateEventCertificate] API not available, using mock fallback');
+      const { mockGenerateEventCertificate } = await import('@/lib/mocks/certificates.mock');
+      return mockGenerateEventCertificate(userId, eventId);
     }
   } catch (error) { handleServiceError(error, 'certificates.generateEvent'); }
 }
@@ -109,8 +112,9 @@ export async function getMyCertificates(userId: string): Promise<Certificate[]> 
       if (!res.ok) throw new ServiceError(res.status, 'certificates.list');
       return res.json();
     } catch {
-      console.warn('[certificates.getMyCertificates] API not available, using fallback');
-      return [];
+      console.warn('[certificates.getMyCertificates] API not available, using mock fallback');
+      const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
+      return mockGetMyCertificates(userId);
     }
   } catch (error) { handleServiceError(error, 'certificates.list'); }
 }

@@ -20,8 +20,9 @@ export async function getBillingCycleConfig(academyId: string): Promise<BillingC
       if (!res.ok) throw new ServiceError(res.status, 'billing.cycle.config');
       return res.json();
     } catch {
-      console.warn('[billing-automation.getBillingCycleConfig] API not available, using fallback');
-      return { academy_id: "", gateway: "", auto_charge: false, due_day: 1, grace_days: 0 } as unknown as BillingConfig;
+      console.warn('[billing-automation.getBillingCycleConfig] API not available, using mock fallback');
+      const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
+      return mockGetBillingConfig(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.config'); }
 }
@@ -37,8 +38,9 @@ export async function previewNextBillingCycle(academyId: string): Promise<Billin
       if (!res.ok) throw new ServiceError(res.status, 'billing.cycle.preview');
       return res.json();
     } catch {
-      console.warn('[billing-automation.previewNextBillingCycle] API not available, using fallback');
-      return { total_students: 0, total_amount: 0, items: [] } as unknown as BillingPreview;
+      console.warn('[billing-automation.previewNextBillingCycle] API not available, using mock fallback');
+      const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
+      return mockPreviewBilling(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.preview'); }
 }
@@ -58,8 +60,9 @@ export async function runBillingCycle(academyId: string): Promise<BillingCycleRe
       if (!res.ok) throw new ServiceError(res.status, 'billing.cycle.run');
       return res.json();
     } catch {
-      console.warn('[billing-automation.runBillingCycle] API not available, using fallback');
-      return { processed: 0, successful: 0, failed: 0, total_amount: 0, errors: [] } as unknown as BillingCycleResult;
+      console.warn('[billing-automation.runBillingCycle] API not available, using mock fallback');
+      const { mockRunBillingCycle } = await import('@/lib/mocks/billing-automation.mock');
+      return mockRunBillingCycle(academyId);
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.run'); }
 }
