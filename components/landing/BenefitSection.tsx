@@ -37,7 +37,7 @@ function FeatureCard({
   return (
     <div
       ref={ref}
-      className="scroll-reveal rounded-2xl p-6 transition-transform duration-200 md:hover:-translate-y-1"
+      className="scroll-reveal rounded-2xl p-5 transition-transform duration-200 sm:p-6 md:hover:-translate-y-1 xl:p-8"
       style={{
         background: 'var(--bb-depth-2)',
         border: '1px solid var(--bb-glass-border)',
@@ -53,13 +53,13 @@ function FeatureCard({
         <span className="relative" style={{ color: accentColor }}>{feature.icon}</span>
       </div>
       <h4
-        className="text-base font-semibold"
+        className="text-base font-semibold xl:text-lg"
         style={{ color: 'var(--bb-ink-100)' }}
       >
         {feature.title}
       </h4>
       <p
-        className="mt-1 text-sm leading-relaxed"
+        className="mt-1 text-sm leading-relaxed xl:text-base"
         style={{ color: 'var(--bb-ink-60)' }}
       >
         {feature.description}
@@ -103,14 +103,19 @@ export function BenefitSection({
   const headerRef = useScrollReveal();
   const extrasRef = useScrollReveal();
 
+  // 3 features → 3 cols at xl; 4 features → stay 2 cols (2×2 wider cards)
+  const gridCols = features.length <= 3
+    ? 'sm:grid-cols-2 xl:grid-cols-3'
+    : 'sm:grid-cols-2';
+
   return (
     <section
       id={id}
-      className={`px-4 py-16 sm:px-6 md:py-24 lg:px-10 lg:py-28 ${className}`}
+      className={`px-4 py-16 sm:px-6 md:py-24 lg:px-12 lg:py-28 xl:px-16 ${className}`}
       style={{ background: 'var(--bb-depth-1)' }}
     >
       {/* Section header */}
-      <div ref={headerRef} className="scroll-reveal mx-auto max-w-4xl text-center">
+      <div ref={headerRef} className="scroll-reveal mx-auto max-w-4xl text-center xl:max-w-5xl">
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
           style={{
@@ -136,7 +141,7 @@ export function BenefitSection({
       </div>
 
       {/* Feature cards */}
-      <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+      <div className={`mx-auto mt-12 grid max-w-5xl gap-4 sm:gap-5 xl:max-w-6xl xl:gap-6 2xl:max-w-7xl ${gridCols}`}>
         {features.map((feature, index) => (
           <FeatureCard key={index} feature={feature} accentColor={accentColor} />
         ))}
@@ -146,7 +151,7 @@ export function BenefitSection({
       {extraFeatures.length > 0 && (
         <div
           ref={extrasRef}
-          className="scroll-reveal mx-auto mt-10 max-w-5xl"
+          className="scroll-reveal mx-auto mt-10 max-w-5xl xl:max-w-6xl 2xl:max-w-7xl"
         >
           <div className="flex gap-3 overflow-x-auto pb-2 md:flex-wrap md:justify-center md:overflow-visible">
             {extraFeatures.map((feature, index) => (
