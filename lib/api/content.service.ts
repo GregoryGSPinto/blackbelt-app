@@ -68,15 +68,9 @@ export async function getVideo(id: string): Promise<VideoDetail> {
       const { mockGetVideo } = await import('@/lib/mocks/content.mock');
       return mockGetVideo(id);
     }
-    try {
-      const res = await fetch(`/api/content/videos/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'content.getVideo');
-      return res.json();
-    } catch {
-      console.warn('[content.getVideo] API not available, using mock fallback');
-      const { mockGetVideo } = await import('@/lib/mocks/content.mock');
+    // API not yet implemented — use mock
+    const { mockGetVideo } = await import('@/lib/mocks/content.mock');
       return mockGetVideo(id);
-    }
   } catch (error) {
     handleServiceError(error, 'content.getVideo');
   }
@@ -88,15 +82,9 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
       const { mockGetSeries } = await import('@/lib/mocks/content.mock');
       return mockGetSeries(academyId);
     }
-    try {
-      const res = await fetch(`/api/content/series?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'content.getSeries');
-      return res.json();
-    } catch {
-      console.warn('[content.getSeries] API not available, using mock fallback');
-      const { mockGetSeries } = await import('@/lib/mocks/content.mock');
+    // API not yet implemented — use mock
+    const { mockGetSeries } = await import('@/lib/mocks/content.mock');
       return mockGetSeries(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'content.getSeries');
   }

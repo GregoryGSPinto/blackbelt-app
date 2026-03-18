@@ -18,15 +18,9 @@ export async function listUnits(academyId: string): Promise<UnitDTO[]> {
       const { mockListUnits } = await import('@/lib/mocks/units.mock');
       return mockListUnits(academyId);
     }
-    try {
-      const res = await fetch(`/api/units?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'units.list');
-      return res.json();
-    } catch {
-      console.warn('[units.listUnits] API not available, using mock fallback');
-      const { mockListUnits } = await import('@/lib/mocks/units.mock');
+    // API not yet implemented — use mock
+    const { mockListUnits } = await import('@/lib/mocks/units.mock');
       return mockListUnits(academyId);
-    }
   } catch (error) { handleServiceError(error, 'units.list'); }
 }
 

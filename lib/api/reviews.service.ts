@@ -69,15 +69,9 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
     }
-    try {
-      const res = await fetch(`/api/reviews/average?courseId=${courseId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'reviews.average');
-      return res.json();
-    } catch {
-      console.warn('[reviews.getAverageRating] API not available, using mock fallback');
-      const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
+    // API not yet implemented — use mock
+    const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
-    }
   } catch (error) { handleServiceError(error, 'reviews.average'); }
 }
 

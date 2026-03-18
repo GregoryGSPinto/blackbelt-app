@@ -55,15 +55,9 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
       return mockGetPromotionCandidate(studentId);
     }
-    try {
-      const res = await fetch(`/api/promocao/candidate?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'promocao.getCandidate');
-      return res.json();
-    } catch {
-      console.warn('[promocao.getPromotionCandidate] API not available, using mock fallback');
-      const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
+    // API not yet implemented — use mock
+    const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
       return mockGetPromotionCandidate(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'promocao.getCandidate');
   }

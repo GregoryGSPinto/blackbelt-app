@@ -84,15 +84,9 @@ export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
       const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockGetLeads(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/leads`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.list');
-      return res.json();
-    } catch {
-      console.warn('[franchise-expansion.getLeads] API not available, using mock fallback');
-      const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
+    // API not yet implemented — use mock
+    const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockGetLeads(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.expansion.list'); }
 }
 
@@ -146,14 +140,8 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockSetupFranchise(leadId);
     }
-    try {
-      const res = await fetch(`/api/franchise/leads/${leadId}/setup`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.setup');
-      return res.json();
-    } catch {
-      console.warn('[franchise-expansion.setupFranchise] API not available, using mock fallback');
-      const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
+    // API not yet implemented — use mock
+    const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockSetupFranchise(leadId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.expansion.setup'); }
 }

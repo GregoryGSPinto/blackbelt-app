@@ -17,15 +17,9 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
       return mockGetBranding(academyId);
     }
-    try {
-      const res = await fetch(`/api/branding?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'branding.get');
-      return res.json();
-    } catch {
-      console.warn('[branding.getBranding] API not available, using mock fallback');
-      const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
+    // API not yet implemented — use mock
+    const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
       return mockGetBranding(academyId);
-    }
   } catch (error) { handleServiceError(error, 'branding.get'); }
 }
 

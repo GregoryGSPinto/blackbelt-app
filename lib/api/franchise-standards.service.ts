@@ -71,15 +71,9 @@ export async function getStandards(franchiseId: string): Promise<Standard[]> {
       const { mockGetStandards } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetStandards(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/standards`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.standards.list');
-      return res.json();
-    } catch {
-      console.warn('[franchise-standards.getStandards] API not available, using mock fallback');
-      const { mockGetStandards } = await import('@/lib/mocks/franchise-standards.mock');
+    // API not yet implemented — use mock
+    const { mockGetStandards } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetStandards(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.standards.list'); }
 }
 
@@ -111,15 +105,9 @@ export async function checkCompliance(academyId: string): Promise<ComplianceRepo
       const { mockCheckCompliance } = await import('@/lib/mocks/franchise-standards.mock');
       return mockCheckCompliance(academyId);
     }
-    try {
-      const res = await fetch(`/api/franchise/compliance/${academyId}`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.check');
-      return res.json();
-    } catch {
-      console.warn('[franchise-standards.checkCompliance] API not available, using mock fallback');
-      const { mockCheckCompliance } = await import('@/lib/mocks/franchise-standards.mock');
+    // API not yet implemented — use mock
+    const { mockCheckCompliance } = await import('@/lib/mocks/franchise-standards.mock');
       return mockCheckCompliance(academyId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.compliance.check'); }
 }
 
@@ -129,14 +117,8 @@ export async function getComplianceHistory(academyId: string): Promise<Complianc
       const { mockGetComplianceHistory } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetComplianceHistory(academyId);
     }
-    try {
-      const res = await fetch(`/api/franchise/compliance/${academyId}/history`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.compliance.history');
-      return res.json();
-    } catch {
-      console.warn('[franchise-standards.getComplianceHistory] API not available, using mock fallback');
-      const { mockGetComplianceHistory } = await import('@/lib/mocks/franchise-standards.mock');
+    // API not yet implemented — use mock
+    const { mockGetComplianceHistory } = await import('@/lib/mocks/franchise-standards.mock');
       return mockGetComplianceHistory(academyId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.compliance.history'); }
 }

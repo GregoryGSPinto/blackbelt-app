@@ -43,15 +43,9 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetProgressoAluno(studentId);
     }
-    try {
-      const res = await fetch(`/api/pedagogico/progresso?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.progresso');
-      return res.json();
-    } catch {
-      console.warn('[professor-pedagogico.getProgressoAluno] API not available, using mock fallback');
-      const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
+    // API not yet implemented — use mock
+    const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetProgressoAluno(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.progresso');
   }
@@ -111,15 +105,9 @@ export async function getAlunosDaTurma(classId: string): Promise<StudentWithProg
       const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetAlunosDaTurma(classId);
     }
-    try {
-      const res = await fetch(`/api/pedagogico/turma/${classId}/alunos`);
-      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.alunosDaTurma');
-      return res.json();
-    } catch {
-      console.warn('[professor-pedagogico.getAlunosDaTurma] API not available, using mock fallback');
-      const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
+    // API not yet implemented — use mock
+    const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetAlunosDaTurma(classId);
-    }
   } catch (error) {
     handleServiceError(error, 'pedagogico.alunosDaTurma');
   }

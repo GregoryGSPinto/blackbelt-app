@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export interface RecommendedVideo {
   id: string;
@@ -22,15 +22,9 @@ export async function getRecommendations(studentId: string): Promise<Recommended
       const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
       return mockGetRecommendations(studentId);
     }
-    try {
-      const res = await fetch(`/api/recommendations?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'recommendations.get');
-      return res.json();
-    } catch {
-      console.warn('[recommendations.getRecommendations] API not available, using mock fallback');
-      const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
+    // API not yet implemented — use mock
+    const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
       return mockGetRecommendations(studentId);
-    }
   } catch (error) { handleServiceError(error, 'recommendations.get'); }
 }
 
@@ -40,14 +34,8 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
       const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
       return mockGetPersonalizedFeed(studentId);
     }
-    try {
-      const res = await fetch(`/api/recommendations/feed?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'recommendations.feed');
-      return res.json();
-    } catch {
-      console.warn('[recommendations.getPersonalizedFeed] API not available, using mock fallback');
-      const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
+    // API not yet implemented — use mock
+    const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
       return mockGetPersonalizedFeed(studentId);
-    }
   } catch (error) { handleServiceError(error, 'recommendations.feed'); }
 }

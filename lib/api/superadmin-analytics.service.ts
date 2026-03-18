@@ -49,14 +49,8 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
       const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
       return mockGetProductAnalytics();
     }
-    try {
-      const res = await fetch('/api/superadmin/analytics');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-analytics.getProductAnalytics] API not available, using mock fallback');
-      const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
       return mockGetProductAnalytics();
-    }
   } catch (error) { handleServiceError(error, 'superadmin-analytics.get'); }
 }

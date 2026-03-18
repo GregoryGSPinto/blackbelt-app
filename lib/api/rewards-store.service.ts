@@ -37,15 +37,9 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       const { mockGetRewardsStore } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetRewardsStore(academyId);
     }
-    try {
-      const res = await fetch(`/api/rewards-store?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.get');
-      return res.json();
-    } catch {
-      console.warn('[rewards-store.getRewardsStore] API not available, using mock fallback');
-      const { mockGetRewardsStore } = await import('@/lib/mocks/rewards-store.mock');
+    // API not yet implemented — use mock
+    const { mockGetRewardsStore } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetRewardsStore(academyId);
-    }
   } catch (error) { handleServiceError(error, 'rewardsStore.get'); }
 }
 
@@ -76,15 +70,9 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       const { mockGetMyRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetMyRedemptions(userId);
     }
-    try {
-      const res = await fetch(`/api/rewards-store/redemptions?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.redemptions');
-      return res.json();
-    } catch {
-      console.warn('[rewards-store.getMyRedemptions] API not available, using mock fallback');
-      const { mockGetMyRedemptions } = await import('@/lib/mocks/rewards-store.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetMyRedemptions(userId);
-    }
   } catch (error) { handleServiceError(error, 'rewardsStore.redemptions'); }
 }
 
@@ -154,14 +142,8 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       const { mockGetAllRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetAllRedemptions(academyId);
     }
-    try {
-      const res = await fetch(`/api/rewards-store/admin/redemptions?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'rewardsStore.allRedemptions');
-      return res.json();
-    } catch {
-      console.warn('[rewards-store.getAllRedemptions] API not available, using mock fallback');
-      const { mockGetAllRedemptions } = await import('@/lib/mocks/rewards-store.mock');
+    // API not yet implemented — use mock
+    const { mockGetAllRedemptions } = await import('@/lib/mocks/rewards-store.mock');
       return mockGetAllRedemptions(academyId);
-    }
   } catch (error) { handleServiceError(error, 'rewardsStore.allRedemptions'); }
 }

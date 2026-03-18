@@ -9,15 +9,9 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
       const { mockGetPlayerProfile } = await import('@/lib/mocks/gamification.mock');
       return mockGetPlayerProfile(userId);
     }
-    try {
-      const res = await fetch(`/api/gamification/profile/${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[gamification.getPlayerProfile] API not available, using mock fallback');
-      const { mockGetPlayerProfile } = await import('@/lib/mocks/gamification.mock');
+    // API not yet implemented — use mock
+    const { mockGetPlayerProfile } = await import('@/lib/mocks/gamification.mock');
       return mockGetPlayerProfile(userId);
-    }
   } catch (error) {
     handleServiceError(error, 'gamification.profile');
   }
@@ -55,15 +49,9 @@ export async function getAllBadges(): Promise<Badge[]> {
       const { mockGetAllBadges } = await import('@/lib/mocks/gamification.mock');
       return mockGetAllBadges();
     }
-    try {
-      const res = await fetch('/api/gamification/badges');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[gamification.getAllBadges] API not available, using mock fallback');
-      const { mockGetAllBadges } = await import('@/lib/mocks/gamification.mock');
+    // API not yet implemented — use mock
+    const { mockGetAllBadges } = await import('@/lib/mocks/gamification.mock');
       return mockGetAllBadges();
-    }
   } catch (error) {
     handleServiceError(error, 'gamification.badges');
   }

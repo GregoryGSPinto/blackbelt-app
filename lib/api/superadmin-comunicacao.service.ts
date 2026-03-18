@@ -47,16 +47,9 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
       const { mockListComunicados } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockListComunicados(status);
     }
-    try {
-      const params = status ? `?status=${status}` : '';
-      const res = await fetch(`/api/superadmin/comunicacao${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-comunicacao.listComunicados] API not available, using mock fallback');
-      const { mockListComunicados } = await import('@/lib/mocks/superadmin-comunicacao.mock');
+    // API not yet implemented — use mock
+    const { mockListComunicados } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockListComunicados(status);
-    }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.list'); }
 }
 
@@ -84,15 +77,9 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
       const { mockEnviarComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockEnviarComunicado(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/comunicacao/${id}/enviar`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-comunicacao.enviarComunicado] API not available, using mock fallback');
-      const { mockEnviarComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
+    // API not yet implemented — use mock
+    const { mockEnviarComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockEnviarComunicado(id);
-    }
   } catch (error) { handleServiceError(error, 'superadmin-comunicacao.enviar'); }
 }
 

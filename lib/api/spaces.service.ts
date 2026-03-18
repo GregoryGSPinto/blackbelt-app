@@ -26,15 +26,9 @@ export async function listSpaces(unitId: string): Promise<SpaceDTO[]> {
       const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
       return mockListSpaces(unitId);
     }
-    try {
-      const res = await fetch(`/api/spaces?unitId=${unitId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'spaces.list');
-      return res.json();
-    } catch {
-      console.warn('[spaces.listSpaces] API not available, using mock fallback');
-      const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
+    // API not yet implemented — use mock
+    const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
       return mockListSpaces(unitId);
-    }
   } catch (error) { handleServiceError(error, 'spaces.list'); }
 }
 
@@ -44,15 +38,9 @@ export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlo
       const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
       return mockGetSchedule(unitId);
     }
-    try {
-      const res = await fetch(`/api/spaces/schedule?unitId=${unitId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'spaces.schedule');
-      return res.json();
-    } catch {
-      console.warn('[spaces.getSpaceSchedule] API not available, using mock fallback');
-      const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
+    // API not yet implemented — use mock
+    const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
       return mockGetSchedule(unitId);
-    }
   } catch (error) { handleServiceError(error, 'spaces.schedule'); }
 }
 

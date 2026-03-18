@@ -53,14 +53,8 @@ export async function getWishlist(userId: string): Promise<WishlistItem[]> {
       const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
       return mockGetWishlist(userId);
     }
-    try {
-      const res = await fetch(`/api/wishlist?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'wishlist.getWishlist');
-      return res.json();
-    } catch {
-      console.warn('[wishlist.getWishlist] API not available, using mock fallback');
-      const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
+    // API not yet implemented — use mock
+    const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
       return mockGetWishlist(userId);
-    }
   } catch (error) { handleServiceError(error, 'wishlist.getWishlist'); }
 }

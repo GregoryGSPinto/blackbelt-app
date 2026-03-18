@@ -9,15 +9,9 @@ export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> 
       const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
       return mockListWebhooks(academyId);
     }
-    try {
-      const res = await fetch(`/api/webhooks?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[webhook.listWebhooks] API not available, using mock fallback');
-      const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
+    // API not yet implemented — use mock
+    const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
       return mockListWebhooks(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'webhook.list');
   }
@@ -98,15 +92,9 @@ export async function getWebhookDeliveries(
       const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
       return mockWebhookDeliveries(webhookId, limit);
     }
-    try {
-      const res = await fetch(`/api/webhooks/${webhookId}/deliveries?limit=${limit}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[webhook.getWebhookDeliveries] API not available, using mock fallback');
-      const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
+    // API not yet implemented — use mock
+    const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
       return mockWebhookDeliveries(webhookId, limit);
-    }
 
   } catch (error) {
     handleServiceError(error, 'webhook.deliveries');

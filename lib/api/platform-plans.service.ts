@@ -44,15 +44,9 @@ export async function getUsage(academyId: string): Promise<UsageDTO> {
       const { mockGetUsage } = await import('@/lib/mocks/platform-plans.mock');
       return mockGetUsage(academyId);
     }
-    try {
-      const res = await fetch(`/api/platform/usage?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'platformPlans.usage');
-      return res.json();
-    } catch {
-      console.warn('[platform-plans.getUsage] API not available, using mock fallback');
-      const { mockGetUsage } = await import('@/lib/mocks/platform-plans.mock');
+    // API not yet implemented — use mock
+    const { mockGetUsage } = await import('@/lib/mocks/platform-plans.mock');
       return mockGetUsage(academyId);
-    }
   } catch (error) { handleServiceError(error, 'platformPlans.usage'); }
 }
 
@@ -62,15 +56,9 @@ export async function checkLimit(academyId: string, resource: 'units' | 'student
       const { mockCheckLimit } = await import('@/lib/mocks/platform-plans.mock');
       return mockCheckLimit(academyId, resource);
     }
-    try {
-      const res = await fetch(`/api/platform/check-limit?academyId=${academyId}&resource=${resource}`);
-      if (!res.ok) throw new ServiceError(res.status, 'platformPlans.checkLimit');
-      return res.json();
-    } catch {
-      console.warn('[platform-plans.checkLimit] API not available, using mock fallback');
-      const { mockCheckLimit } = await import('@/lib/mocks/platform-plans.mock');
+    // API not yet implemented — use mock
+    const { mockCheckLimit } = await import('@/lib/mocks/platform-plans.mock');
       return mockCheckLimit(academyId, resource);
-    }
   } catch (error) { handleServiceError(error, 'platformPlans.checkLimit'); }
 }
 

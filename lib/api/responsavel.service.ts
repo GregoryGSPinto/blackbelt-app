@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types/domain';
 
 // ────────────────────────────────────────────────────────────
@@ -80,15 +80,9 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
       const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
       return mockGetGuardianDashboard(profileId);
     }
-    try {
-      const res = await fetch(`/api/responsavel/dashboard?profileId=${profileId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'responsavel.dashboard');
-      return res.json();
-    } catch {
-      console.warn('[responsavel.getGuardianDashboard] API not available, using mock fallback');
-      const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
+    // API not yet implemented — use mock
+    const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
       return mockGetGuardianDashboard(profileId);
-    }
   } catch (error) {
     handleServiceError(error, 'responsavel.dashboard');
   }

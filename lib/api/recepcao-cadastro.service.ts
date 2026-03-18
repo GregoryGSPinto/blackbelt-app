@@ -84,15 +84,9 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetPlanos();
     }
-    try {
-      const res = await fetch('/api/recepcao/planos');
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.planos');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-cadastro.getPlanos] API not available, using mock fallback');
-      const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
+    // API not yet implemented — use mock
+    const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetPlanos();
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.planos');
   }
@@ -104,15 +98,9 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetTurmasDisponiveis();
     }
-    try {
-      const res = await fetch('/api/recepcao/turmas');
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.turmas');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-cadastro.getTurmasDisponiveis] API not available, using mock fallback');
-      const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
+    // API not yet implemented — use mock
+    const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetTurmasDisponiveis();
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.turmas');
   }

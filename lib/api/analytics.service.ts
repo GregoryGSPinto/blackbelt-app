@@ -54,15 +54,9 @@ export async function getRetentionCohort(academyId: string, months: number): Pro
       const { mockGetRetentionCohort } = await import('@/lib/mocks/analytics.mock');
       return mockGetRetentionCohort(academyId, months);
     }
-    try {
-      const res = await fetch(`/api/analytics/retention?academyId=${academyId}&months=${months}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.retention');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getRetentionCohort] API not available, using mock fallback');
-      const { mockGetRetentionCohort } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetRetentionCohort } = await import('@/lib/mocks/analytics.mock');
       return mockGetRetentionCohort(academyId, months);
-    }
   } catch (error) { handleServiceError(error, 'analytics.retention'); }
 }
 
@@ -72,15 +66,9 @@ export async function getChurnRisk(academyId: string): Promise<ChurnRiskDTO[]> {
       const { mockGetChurnRisk } = await import('@/lib/mocks/analytics.mock');
       return mockGetChurnRisk(academyId);
     }
-    try {
-      const res = await fetch(`/api/analytics/churn-risk?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.churnRisk');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getChurnRisk] API not available, using mock fallback');
-      const { mockGetChurnRisk } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetChurnRisk } = await import('@/lib/mocks/analytics.mock');
       return mockGetChurnRisk(academyId);
-    }
   } catch (error) { handleServiceError(error, 'analytics.churnRisk'); }
 }
 
@@ -90,15 +78,9 @@ export async function getRevenueForecasting(academyId: string, months: number): 
       const { mockGetRevenueForecasting } = await import('@/lib/mocks/analytics.mock');
       return mockGetRevenueForecasting(academyId, months);
     }
-    try {
-      const res = await fetch(`/api/analytics/revenue-forecast?academyId=${academyId}&months=${months}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.forecast');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getRevenueForecasting] API not available, using mock fallback');
-      const { mockGetRevenueForecasting } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetRevenueForecasting } = await import('@/lib/mocks/analytics.mock');
       return mockGetRevenueForecasting(academyId, months);
-    }
   } catch (error) { handleServiceError(error, 'analytics.forecast'); }
 }
 
@@ -108,15 +90,9 @@ export async function getProfessorPerformance(academyId: string): Promise<Profes
       const { mockGetProfessorPerformance } = await import('@/lib/mocks/analytics.mock');
       return mockGetProfessorPerformance(academyId);
     }
-    try {
-      const res = await fetch(`/api/analytics/professor-performance?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.professorPerf');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getProfessorPerformance] API not available, using mock fallback');
-      const { mockGetProfessorPerformance } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetProfessorPerformance } = await import('@/lib/mocks/analytics.mock');
       return mockGetProfessorPerformance(academyId);
-    }
   } catch (error) { handleServiceError(error, 'analytics.professorPerf'); }
 }
 
@@ -157,15 +133,9 @@ export async function getStudentAnalytics(studentId: string): Promise<StudentAna
       const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
       return mockStudentAnalytics(studentId);
     }
-    try {
-      const res = await fetch(`/api/analytics/students/${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.student');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getStudentAnalytics] API not available, using mock fallback');
-      const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
       return mockStudentAnalytics(studentId);
-    }
   } catch (error) { handleServiceError(error, 'analytics.student'); }
 }
 
@@ -177,15 +147,9 @@ export async function getChurnPredictions(academyId: string): Promise<ChurnPredi
       const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
       return mockChurnPredictions(academyId);
     }
-    try {
-      const res = await fetch(`/api/analytics/churn?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.churn');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getChurnPredictions] API not available, using mock fallback');
-      const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
       return mockChurnPredictions(academyId);
-    }
   } catch (error) { handleServiceError(error, 'analytics.churn'); }
 }
 
@@ -195,14 +159,8 @@ export async function getClassOccupancy(academyId: string): Promise<OccupancyDTO
       const { mockGetClassOccupancy } = await import('@/lib/mocks/analytics.mock');
       return mockGetClassOccupancy(academyId);
     }
-    try {
-      const res = await fetch(`/api/analytics/occupancy?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'analytics.occupancy');
-      return res.json();
-    } catch {
-      console.warn('[analytics.getClassOccupancy] API not available, using mock fallback');
-      const { mockGetClassOccupancy } = await import('@/lib/mocks/analytics.mock');
+    // API not yet implemented — use mock
+    const { mockGetClassOccupancy } = await import('@/lib/mocks/analytics.mock');
       return mockGetClassOccupancy(academyId);
-    }
   } catch (error) { handleServiceError(error, 'analytics.occupancy'); }
 }

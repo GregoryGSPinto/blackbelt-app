@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 export interface MeuProgressoDTO {
@@ -33,15 +33,9 @@ export async function getMeuProgresso(studentId: string): Promise<MeuProgressoDT
       const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
     }
-    try {
-      const res = await fetch(`/api/evolucao/progresso?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'evolucao.progresso');
-      return res.json();
-    } catch {
-      console.warn('[evolucao.getMeuProgresso] API not available, using mock fallback');
-      const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
+    // API not yet implemented — use mock
+    const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'evolucao.progresso');
   }
@@ -53,15 +47,9 @@ export async function getHistoricoFaixas(studentId: string): Promise<HistoricoFa
       const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
       return mockGetHistoricoFaixas(studentId);
     }
-    try {
-      const res = await fetch(`/api/evolucao/historico?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'evolucao.historico');
-      return res.json();
-    } catch {
-      console.warn('[evolucao.getHistoricoFaixas] API not available, using mock fallback');
-      const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
+    // API not yet implemented — use mock
+    const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
       return mockGetHistoricoFaixas(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'evolucao.historico');
   }
@@ -73,15 +61,9 @@ export async function getRequisitoProximaFaixa(studentId: string): Promise<Requi
       const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
     }
-    try {
-      const res = await fetch(`/api/evolucao/requisitos?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'evolucao.requisitos');
-      return res.json();
-    } catch {
-      console.warn('[evolucao.getRequisitoProximaFaixa] API not available, using mock fallback');
-      const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
+    // API not yet implemented — use mock
+    const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'evolucao.requisitos');
   }

@@ -18,15 +18,9 @@ export async function listByAluno(studentId: string): Promise<ConquistaDTO[]> {
       const { mockListByAluno } = await import('@/lib/mocks/conquistas.mock');
       return mockListByAluno(studentId);
     }
-    try {
-      const res = await fetch(`/api/conquistas?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'conquistas.list');
-      return res.json();
-    } catch {
-      console.warn('[conquistas.listByAluno] API not available, using mock fallback');
-      const { mockListByAluno } = await import('@/lib/mocks/conquistas.mock');
+    // API not yet implemented — use mock
+    const { mockListByAluno } = await import('@/lib/mocks/conquistas.mock');
       return mockListByAluno(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'conquistas.list');
   }
@@ -38,15 +32,9 @@ export async function listAvailable(studentId: string): Promise<ConquistaDTO[]> 
       const { mockListAvailable } = await import('@/lib/mocks/conquistas.mock');
       return mockListAvailable(studentId);
     }
-    try {
-      const res = await fetch(`/api/conquistas/available?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'conquistas.available');
-      return res.json();
-    } catch {
-      console.warn('[conquistas.listAvailable] API not available, using mock fallback');
-      const { mockListAvailable } = await import('@/lib/mocks/conquistas.mock');
+    // API not yet implemented — use mock
+    const { mockListAvailable } = await import('@/lib/mocks/conquistas.mock');
       return mockListAvailable(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'conquistas.available');
   }

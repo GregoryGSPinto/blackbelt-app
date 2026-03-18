@@ -25,15 +25,9 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
       return mockListNotifications(userId);
     }
-    try {
-      const res = await fetch(`/api/notificacoes?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'notificacoes.list');
-      return res.json();
-    } catch {
-      console.warn('[notificacoes.listNotifications] API not available, using mock fallback');
-      const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
+    // API not yet implemented — use mock
+    const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
       return mockListNotifications(userId);
-    }
   } catch (error) {
     handleServiceError(error, 'notificacoes.list');
   }

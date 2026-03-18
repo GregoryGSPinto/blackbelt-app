@@ -24,15 +24,9 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetBalance(userId);
     }
-    try {
-      const res = await fetch(`/api/store/rewards/balance?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getBalance');
-      return res.json();
-    } catch {
-      console.warn('[store-rewards.getBalance] API not available, using mock fallback');
-      const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
+    // API not yet implemented — use mock
+    const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetBalance(userId);
-    }
   } catch (error) { handleServiceError(error, 'storeRewards.getBalance'); }
 }
 
@@ -42,15 +36,9 @@ export async function getHistory(userId: string): Promise<RewardTransaction[]> {
       const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetHistory(userId);
     }
-    try {
-      const res = await fetch(`/api/store/rewards/history?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.getHistory');
-      return res.json();
-    } catch {
-      console.warn('[store-rewards.getHistory] API not available, using mock fallback');
-      const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
+    // API not yet implemented — use mock
+    const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetHistory(userId);
-    }
   } catch (error) { handleServiceError(error, 'storeRewards.getHistory'); }
 }
 

@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -39,15 +39,9 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculos(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/curriculos`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.list');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-curriculo.getCurriculos] API not available, using mock fallback');
-      const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
+    // API not yet implemented — use mock
+    const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculos(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.list'); }
 }
 
@@ -57,15 +51,9 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoOverview(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/curriculos/overview`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.overview');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-curriculo.getCurriculoOverview] API not available, using mock fallback');
-      const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
+    // API not yet implemented — use mock
+    const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoOverview(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.overview'); }
 }
 
@@ -75,14 +63,8 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoDetail(curriculoId);
     }
-    try {
-      const res = await fetch(`/api/franchise/curriculos/${curriculoId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-curriculo.detail');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-curriculo.getCurriculoDetail] API not available, using mock fallback');
-      const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
+    // API not yet implemented — use mock
+    const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoDetail(curriculoId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.detail'); }
 }

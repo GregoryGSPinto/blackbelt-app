@@ -192,18 +192,9 @@ export async function getWhatsAppHistory(
       const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
       return mockWhatsAppHistory(academyId, limit);
     }
-    try {
-
-      const res = await fetch(
-        `/api/whatsapp/history?academyId=${academyId}&limit=${limit}`,
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[whatsapp.getWhatsAppHistory] API not available, using mock fallback');
-      const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
+    // API not yet implemented — use mock
+    const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
       return mockWhatsAppHistory(academyId, limit);
-    }
 
   } catch (error) {
     handleServiceError(error, 'whatsapp.getHistory');

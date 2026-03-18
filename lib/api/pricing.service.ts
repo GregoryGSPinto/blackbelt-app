@@ -193,15 +193,9 @@ export async function getFaixas(): Promise<FaixaBase[]> {
       const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
       return mockGetFaixas();
     }
-    try {
-      const res = await fetch('/api/pricing/tiers');
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getFaixas');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getFaixas] API not available, using mock fallback');
-      const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
       return mockGetFaixas();
-    }
   } catch (error) { handleServiceError(error, 'pricing.getFaixas'); }
 }
 
@@ -211,15 +205,9 @@ export async function getModulos(): Promise<Modulo[]> {
       const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulos();
     }
-    try {
-      const res = await fetch('/api/pricing/modules');
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulos');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getModulos] API not available, using mock fallback');
-      const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulos();
-    }
   } catch (error) { handleServiceError(error, 'pricing.getModulos'); }
 }
 
@@ -229,15 +217,9 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
       const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
       return mockGetPacotes();
     }
-    try {
-      const res = await fetch('/api/pricing/packages');
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getPacotes');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getPacotes] API not available, using mock fallback');
-      const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
       return mockGetPacotes();
-    }
   } catch (error) { handleServiceError(error, 'pricing.getPacotes'); }
 }
 
@@ -247,15 +229,9 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
       return mockGetAssinatura(academyId);
     }
-    try {
-      const res = await fetch(`/api/pricing/subscription?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getAssinatura');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getAssinatura] API not available, using mock fallback');
-      const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
       return mockGetAssinatura(academyId);
-    }
   } catch (error) { handleServiceError(error, 'pricing.getAssinatura'); }
 }
 
@@ -309,15 +285,9 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
       return mockGetHistoricoCobrancas(academyId);
     }
-    try {
-      const res = await fetch(`/api/pricing/billing?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getHistoricoCobrancas');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getHistoricoCobrancas] API not available, using mock fallback');
-      const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
       return mockGetHistoricoCobrancas(academyId);
-    }
   } catch (error) { handleServiceError(error, 'pricing.getHistoricoCobrancas'); }
 }
 
@@ -327,15 +297,9 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetUsoDescoberta(academyId);
     }
-    try {
-      const res = await fetch(`/api/pricing/discovery-usage?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getUsoDescoberta');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getUsoDescoberta] API not available, using mock fallback');
-      const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetUsoDescoberta(academyId);
-    }
   } catch (error) { handleServiceError(error, 'pricing.getUsoDescoberta'); }
 }
 
@@ -363,15 +327,9 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulosExtrasDescoberta(academyId);
     }
-    try {
-      const res = await fetch(`/api/pricing/discovery-extras?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.getModulosExtrasDescoberta');
-      return res.json();
-    } catch {
-      console.warn('[pricing.getModulosExtrasDescoberta] API not available, using mock fallback');
-      const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
+    // API not yet implemented — use mock
+    const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulosExtrasDescoberta(academyId);
-    }
   } catch (error) { handleServiceError(error, 'pricing.getModulosExtrasDescoberta'); }
 }
 

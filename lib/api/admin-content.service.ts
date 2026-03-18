@@ -26,15 +26,9 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
       return mockListAdminVideos(academyId);
     }
-    try {
-      const res = await fetch(`/api/admin/content/videos?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'adminContent.list');
-      return res.json();
-    } catch {
-      console.warn('[admin-content.listAdminVideos] API not available, using mock fallback');
-      const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
+    // API not yet implemented — use mock
+    const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
       return mockListAdminVideos(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'adminContent.list');
   }

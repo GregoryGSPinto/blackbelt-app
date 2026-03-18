@@ -123,15 +123,9 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockPublishCourse(courseId);
     }
-    try {
-      const res = await fetch(`/api/courses/${courseId}/publish`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.publish');
-      return res.json();
-    } catch {
-      console.warn('[course-creator.publishCourse] API not available, using mock fallback');
-      const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
+    // API not yet implemented — use mock
+    const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockPublishCourse(courseId);
-    }
   } catch (error) { handleServiceError(error, 'courseCreator.publish'); }
 }
 
@@ -141,14 +135,8 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
       return mockGetCourseAnalytics(creatorId);
     }
-    try {
-      const res = await fetch(`/api/courses/analytics?creatorId=${creatorId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.analytics');
-      return res.json();
-    } catch {
-      console.warn('[course-creator.getCourseAnalytics] API not available, using mock fallback');
-      const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
+    // API not yet implemented — use mock
+    const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
       return mockGetCourseAnalytics(creatorId);
-    }
   } catch (error) { handleServiceError(error, 'courseCreator.analytics'); }
 }

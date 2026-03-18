@@ -35,15 +35,9 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidades(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/unidades`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.list');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-unidades.getUnidades] API not available, using mock fallback');
-      const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
+    // API not yet implemented — use mock
+    const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidades(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.list'); }
 }
 
@@ -53,15 +47,9 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadesOverview(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/unidades/overview`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.overview');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-unidades.getUnidadesOverview] API not available, using mock fallback');
-      const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
+    // API not yet implemented — use mock
+    const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadesOverview(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.overview'); }
 }
 
@@ -71,15 +59,9 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadeDetail(unitId);
     }
-    try {
-      const res = await fetch(`/api/franchise/unidades/${unitId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.detail');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-unidades.getUnidadeDetail] API not available, using mock fallback');
-      const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
+    // API not yet implemented — use mock
+    const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadeDetail(unitId);
-    }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.detail'); }
 }
 

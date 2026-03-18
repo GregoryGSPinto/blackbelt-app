@@ -49,15 +49,9 @@ export async function getPersonalizacao(studentId: string): Promise<Personalizac
       const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockGetPersonalizacao(studentId);
     }
-    try {
-      const res = await fetch(`/api/kids/personalizacao?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.get');
-      return res.json();
-    } catch {
-      console.warn('[kids-personalizacao.getPersonalizacao] API not available, using mock fallback');
-      const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
+    // API not yet implemented — use mock
+    const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockGetPersonalizacao(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.get');
   }

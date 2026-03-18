@@ -8,15 +8,9 @@ export async function listAutomations(academyId: string): Promise<AutomationConf
       const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
       return mockListAutomations(academyId);
     }
-    try {
-      const res = await fetch(`/api/automations?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'automations.list');
-      return res.json();
-    } catch {
-      console.warn('[automations.listAutomations] API not available, using mock fallback');
-      const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
+    // API not yet implemented — use mock
+    const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
       return mockListAutomations(academyId);
-    }
   } catch (error) { handleServiceError(error, 'automations.list'); }
 }
 

@@ -57,15 +57,9 @@ export async function getConversations(profileId: string): Promise<ConversationD
       const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
       return mockGetConversations(profileId);
     }
-    try {
-      const res = await fetch(`/api/mensagens?profileId=${profileId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'mensagens.conversations');
-      return res.json();
-    } catch {
-      console.warn('[mensagens.getConversations] API not available, using mock fallback');
-      const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
+    // API not yet implemented — use mock
+    const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
       return mockGetConversations(profileId);
-    }
   } catch (error) {
     handleServiceError(error, 'mensagens.conversations');
   }
@@ -77,15 +71,9 @@ export async function getMessages(conversationId: string): Promise<MessageDTO[]>
       const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
       return mockGetMessages(conversationId);
     }
-    try {
-      const res = await fetch(`/api/mensagens/${conversationId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'mensagens.messages');
-      return res.json();
-    } catch {
-      console.warn('[mensagens.getMessages] API not available, using mock fallback');
-      const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
+    // API not yet implemented — use mock
+    const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
       return mockGetMessages(conversationId);
-    }
   } catch (error) {
     handleServiceError(error, 'mensagens.messages');
   }
@@ -121,15 +109,9 @@ export async function getStudentContext(studentId: string): Promise<StudentConte
       const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
       return mockGetStudentContext(studentId);
     }
-    try {
-      const res = await fetch(`/api/mensagens/context/${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'mensagens.studentContext');
-      return res.json();
-    } catch {
-      console.warn('[mensagens.getStudentContext] API not available, using mock fallback');
-      const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
+    // API not yet implemented — use mock
+    const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
       return mockGetStudentContext(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'mensagens.studentContext');
   }
@@ -141,15 +123,9 @@ export async function getSuggestedMessages(studentId: string): Promise<Suggested
       const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
       return mockGetSuggestedMessages(studentId);
     }
-    try {
-      const res = await fetch(`/api/mensagens/suggestions/${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'mensagens.suggestions');
-      return res.json();
-    } catch {
-      console.warn('[mensagens.getSuggestedMessages] API not available, using mock fallback');
-      const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
+    // API not yet implemented — use mock
+    const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
       return mockGetSuggestedMessages(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'mensagens.suggestions');
   }

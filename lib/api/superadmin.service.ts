@@ -18,15 +18,9 @@ export async function listPlans(): Promise<PlatformPlan[]> {
       const { mockListPlans } = await import('@/lib/mocks/superadmin.mock');
       return mockListPlans();
     }
-    try {
-      const res = await fetch('/api/superadmin/plans');
-      if (!res.ok) throw new Error('Erro ao listar planos');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.listPlans] API not available, using mock fallback');
-      const { mockListPlans } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockListPlans } = await import('@/lib/mocks/superadmin.mock');
       return mockListPlans();
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.listPlans');
   }
@@ -61,19 +55,9 @@ export async function listAcademies(
       const { mockListAcademies } = await import('@/lib/mocks/superadmin.mock');
       return mockListAcademies(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.search) params.set('search', filters.search);
-      if (filters?.plan_id) params.set('plan_id', filters.plan_id);
-      const res = await fetch(`/api/superadmin/academies?${params}`);
-      if (!res.ok) throw new Error('Erro ao listar academias');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.listAcademies] API not available, using mock fallback');
-      const { mockListAcademies } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockListAcademies } = await import('@/lib/mocks/superadmin.mock');
       return mockListAcademies(filters);
-    }
 
   } catch (error) {
     handleServiceError(error, 'superadmin.listAcademies');
@@ -158,15 +142,9 @@ export async function suspendAcademy(id: string): Promise<AcademyFull> {
       const { mockSuspendAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockSuspendAcademy(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/academies/${id}/suspend`, { method: 'POST' });
-      if (!res.ok) throw new Error('Erro ao suspender academia');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.suspendAcademy] API not available, using mock fallback');
-      const { mockSuspendAcademy } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockSuspendAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockSuspendAcademy(id);
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.suspendAcademy');
   }
@@ -178,15 +156,9 @@ export async function reactivateAcademy(id: string): Promise<AcademyFull> {
       const { mockReactivateAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockReactivateAcademy(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/academies/${id}/reactivate`, { method: 'POST' });
-      if (!res.ok) throw new Error('Erro ao reativar academia');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.reactivateAcademy] API not available, using mock fallback');
-      const { mockReactivateAcademy } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockReactivateAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockReactivateAcademy(id);
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.reactivateAcademy');
   }
@@ -202,18 +174,9 @@ export async function listOnboardTokens(
       const { mockListOnboardTokens } = await import('@/lib/mocks/superadmin.mock');
       return mockListOnboardTokens(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.active !== undefined) params.set('active', String(filters.active));
-      if (filters?.search) params.set('search', filters.search);
-      const res = await fetch(`/api/superadmin/onboard-tokens?${params}`);
-      if (!res.ok) throw new Error('Erro ao listar tokens');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.listOnboardTokens] API not available, using mock fallback');
-      const { mockListOnboardTokens } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockListOnboardTokens } = await import('@/lib/mocks/superadmin.mock');
       return mockListOnboardTokens(filters);
-    }
 
   } catch (error) {
     handleServiceError(error, 'superadmin.listOnboardTokens');
@@ -226,15 +189,9 @@ export async function deactivateOnboardToken(id: string): Promise<OnboardToken> 
       const { mockDeactivateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockDeactivateOnboardToken(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/onboard-tokens/${id}/deactivate`, { method: 'POST' });
-      if (!res.ok) throw new Error('Erro ao desativar token');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.deactivateOnboardToken] API not available, using mock fallback');
-      const { mockDeactivateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockDeactivateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockDeactivateOnboardToken(id);
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.deactivateOnboardToken');
   }
@@ -246,15 +203,9 @@ export async function validateOnboardToken(token: string): Promise<OnboardValida
       const { mockValidateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockValidateOnboardToken(token);
     }
-    try {
-      const res = await fetch(`/api/superadmin/onboard-tokens/validate/${token}`);
-      if (!res.ok) throw new Error('Erro ao validar token');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.validateOnboardToken] API not available, using mock fallback');
-      const { mockValidateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockValidateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockValidateOnboardToken(token);
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.validateOnboardToken');
   }
@@ -294,15 +245,9 @@ export async function getPlatformStats(): Promise<PlatformStats> {
       const { mockGetPlatformStats } = await import('@/lib/mocks/superadmin.mock');
       return mockGetPlatformStats();
     }
-    try {
-      const res = await fetch('/api/superadmin/stats');
-      if (!res.ok) throw new Error('Erro ao buscar estatisticas');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.getPlatformStats] API not available, using mock fallback');
-      const { mockGetPlatformStats } = await import('@/lib/mocks/superadmin.mock');
+    // API not yet implemented — use mock
+    const { mockGetPlatformStats } = await import('@/lib/mocks/superadmin.mock');
       return mockGetPlatformStats();
-    }
   } catch (error) {
     handleServiceError(error, 'superadmin.getPlatformStats');
   }

@@ -107,14 +107,8 @@ export async function getMyCertificates(userId: string): Promise<Certificate[]> 
       const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
       return mockGetMyCertificates(userId);
     }
-    try {
-      const res = await fetch(`/api/certificates?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'certificates.list');
-      return res.json();
-    } catch {
-      console.warn('[certificates.getMyCertificates] API not available, using mock fallback');
-      const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
       return mockGetMyCertificates(userId);
-    }
   } catch (error) { handleServiceError(error, 'certificates.list'); }
 }

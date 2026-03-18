@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export interface NPSDistribution {
   score: number;
@@ -40,15 +40,9 @@ export async function getNPSData(academyId: string): Promise<NPSDataDTO> {
       const { mockGetNPSData } = await import('@/lib/mocks/nps.mock');
       return mockGetNPSData(academyId);
     }
-    try {
-      const res = await fetch(`/api/nps?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'nps.data');
-      return res.json();
-    } catch {
-      console.warn('[nps.getNPSData] API not available, using mock fallback');
-      const { mockGetNPSData } = await import('@/lib/mocks/nps.mock');
+    // API not yet implemented — use mock
+    const { mockGetNPSData } = await import('@/lib/mocks/nps.mock');
       return mockGetNPSData(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'nps.data');
   }

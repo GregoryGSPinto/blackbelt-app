@@ -39,15 +39,9 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       const { mockGetAcesso } = await import('@/lib/mocks/recepcao-acesso.mock');
       return mockGetAcesso();
     }
-    try {
-      const res = await fetch('/api/recepcao/acesso');
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-acesso.get');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-acesso.getAcesso] API not available, using mock fallback');
-      const { mockGetAcesso } = await import('@/lib/mocks/recepcao-acesso.mock');
+    // API not yet implemented — use mock
+    const { mockGetAcesso } = await import('@/lib/mocks/recepcao-acesso.mock');
       return mockGetAcesso();
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.get');
   }
@@ -80,15 +74,9 @@ export async function registrarSaida(pessoaId: string): Promise<{ ok: boolean }>
       const { mockRegistrarSaida } = await import('@/lib/mocks/recepcao-acesso.mock');
       return mockRegistrarSaida(pessoaId);
     }
-    try {
-      const res = await fetch(`/api/recepcao/acesso/${pessoaId}/saida`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-acesso.saida');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-acesso.registrarSaida] API not available, using mock fallback');
-      const { mockRegistrarSaida } = await import('@/lib/mocks/recepcao-acesso.mock');
+    // API not yet implemented — use mock
+    const { mockRegistrarSaida } = await import('@/lib/mocks/recepcao-acesso.mock');
       return mockRegistrarSaida(pessoaId);
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.saida');
   }

@@ -81,15 +81,9 @@ export async function getProduct(id: string): Promise<Product> {
       const { mockGetProduct } = await import('@/lib/mocks/store.mock');
       return mockGetProduct(id);
     }
-    try {
-      const res = await fetch(`/api/store/products/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'store.getProduct');
-      return res.json();
-    } catch {
-      console.warn('[store.getProduct] API not available, using mock fallback');
-      const { mockGetProduct } = await import('@/lib/mocks/store.mock');
+    // API not yet implemented — use mock
+    const { mockGetProduct } = await import('@/lib/mocks/store.mock');
       return mockGetProduct(id);
-    }
   } catch (error) { handleServiceError(error, 'store.getProduct'); }
 }
 

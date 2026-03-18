@@ -38,15 +38,9 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
       return mockGetActiveLeague();
     }
-    try {
-      const res = await fetch('/api/leagues/active');
-      if (!res.ok) throw new ServiceError(res.status, 'leagues.active');
-      return res.json();
-    } catch {
-      console.warn('[leagues.getActiveLeague] API not available, using mock fallback');
-      const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
+    // API not yet implemented — use mock
+    const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
       return mockGetActiveLeague();
-    }
   } catch (error) { handleServiceError(error, 'leagues.active'); }
 }
 
@@ -56,15 +50,9 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
       return mockGetLeagueStandings();
     }
-    try {
-      const res = await fetch('/api/leagues/standings');
-      if (!res.ok) throw new ServiceError(res.status, 'leagues.standings');
-      return res.json();
-    } catch {
-      console.warn('[leagues.getLeagueStandings] API not available, using mock fallback');
-      const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
+    // API not yet implemented — use mock
+    const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
       return mockGetLeagueStandings();
-    }
   } catch (error) { handleServiceError(error, 'leagues.standings'); }
 }
 
@@ -74,15 +62,9 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
       return mockGetMyAcademyRank(academyId);
     }
-    try {
-      const res = await fetch(`/api/leagues/academy/${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'leagues.myAcademy');
-      return res.json();
-    } catch {
-      console.warn('[leagues.getMyAcademyRank] API not available, using mock fallback');
-      const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
       return mockGetMyAcademyRank(academyId);
-    }
   } catch (error) { handleServiceError(error, 'leagues.myAcademy'); }
 }
 

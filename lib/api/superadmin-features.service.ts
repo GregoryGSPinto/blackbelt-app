@@ -40,15 +40,9 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
       const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
       return mockListFeatureFlags();
     }
-    try {
-      const res = await fetch('/api/superadmin/features');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-features.listFeatureFlags] API not available, using mock fallback');
-      const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
+    // API not yet implemented — use mock
+    const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
       return mockListFeatureFlags();
-    }
   } catch (error) { handleServiceError(error, 'superadmin-features.list'); }
 }
 

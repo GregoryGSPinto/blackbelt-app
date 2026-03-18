@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -51,15 +51,9 @@ export async function getAchievements(studentId: string): Promise<AchievementV2D
       const { mockGetAchievements } = await import('@/lib/mocks/conquistas-v2.mock');
       return mockGetAchievements(studentId);
     }
-    try {
-      const res = await fetch(`/api/conquistas/v2?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'conquistas-v2.getAchievements');
-      return res.json();
-    } catch {
-      console.warn('[conquistas-v2.getAchievements] API not available, using mock fallback');
-      const { mockGetAchievements } = await import('@/lib/mocks/conquistas-v2.mock');
+    // API not yet implemented — use mock
+    const { mockGetAchievements } = await import('@/lib/mocks/conquistas-v2.mock');
       return mockGetAchievements(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'conquistas-v2.getAchievements');
   }
@@ -71,15 +65,9 @@ export async function getAchievementProgress(studentId: string): Promise<Achieve
       const { mockGetAchievementProgress } = await import('@/lib/mocks/conquistas-v2.mock');
       return mockGetAchievementProgress(studentId);
     }
-    try {
-      const res = await fetch(`/api/conquistas/v2/progress?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'conquistas-v2.getProgress');
-      return res.json();
-    } catch {
-      console.warn('[conquistas-v2.getAchievementProgress] API not available, using mock fallback');
-      const { mockGetAchievementProgress } = await import('@/lib/mocks/conquistas-v2.mock');
+    // API not yet implemented — use mock
+    const { mockGetAchievementProgress } = await import('@/lib/mocks/conquistas-v2.mock');
       return mockGetAchievementProgress(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'conquistas-v2.getProgress');
   }

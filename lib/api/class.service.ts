@@ -49,16 +49,9 @@ export async function getClass(id: string): Promise<ClassItem> {
       const { mockGetClass } = await import('@/lib/mocks/class.mock');
       return mockGetClass(id);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'class.get');
-      return res.json();
-    } catch {
-      console.warn('[class.getClass] API not available, using mock fallback');
-      const { mockGetClass } = await import('@/lib/mocks/class.mock');
+    // API not yet implemented — use mock
+    const { mockGetClass } = await import('@/lib/mocks/class.mock');
       return mockGetClass(id);
-    }
   } catch (error) {
     handleServiceError(error, 'class.get');
   }
@@ -138,16 +131,9 @@ export async function getClassStudents(classId: string): Promise<ClassStudent[]>
       const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
       return mockGetClassStudents(classId);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${classId}/students`);
-      if (!res.ok) throw new ServiceError(res.status, 'class.getStudents');
-      return res.json();
-    } catch {
-      console.warn('[class.getClassStudents] API not available, using mock fallback');
-      const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
+    // API not yet implemented — use mock
+    const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
       return mockGetClassStudents(classId);
-    }
   } catch (error) {
     handleServiceError(error, 'class.getStudents');
   }
@@ -204,16 +190,9 @@ export async function getSchedule(academyId: string): Promise<ScheduleEntry[]> {
       const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
       return mockGetSchedule(academyId);
     }
-    try {
-
-      const res = await fetch(`/api/classes/schedule?academy_id=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'class.getSchedule');
-      return res.json();
-    } catch {
-      console.warn('[class.getSchedule] API not available, using mock fallback');
-      const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
+    // API not yet implemented — use mock
+    const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
       return mockGetSchedule(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'class.getSchedule');
   }

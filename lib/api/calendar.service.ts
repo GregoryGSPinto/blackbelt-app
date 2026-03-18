@@ -88,15 +88,9 @@ export async function getCalendarEventById(
       const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEventById(eventId);
     }
-    try {
-      const res = await fetch(`/api/calendar/${eventId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'calendar.eventById');
-      return res.json();
-    } catch {
-      console.warn('[calendar.getCalendarEventById] API not available, using mock fallback');
-      const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
+    // API not yet implemented — use mock
+    const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEventById(eventId);
-    }
 
   } catch (error) {
     handleServiceError(error, 'calendar.eventById');

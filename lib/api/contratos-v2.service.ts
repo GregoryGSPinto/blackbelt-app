@@ -40,15 +40,9 @@ export async function listContratosTemplates(academyId: string): Promise<Contrat
       const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratosTemplates(academyId);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/templates?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.listTemplates');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.listContratosTemplates] API not available, using mock fallback');
-      const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
+    // API not yet implemented — use mock
+    const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratosTemplates(academyId);
-    }
   } catch (error) { handleServiceError(error, 'contratos-v2.listTemplates'); }
 }
 
@@ -58,15 +52,9 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratoTemplate(id);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/templates/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.getTemplate');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.getContratoTemplate] API not available, using mock fallback');
-      const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
+    // API not yet implemented — use mock
+    const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratoTemplate(id);
-    }
   } catch (error) { handleServiceError(error, 'contratos-v2.getTemplate'); }
 }
 
@@ -165,14 +153,8 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
       const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratosMetrics(academyId);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/metrics?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.metrics');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.getContratosMetrics] API not available, using mock fallback');
-      const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
+    // API not yet implemented — use mock
+    const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratosMetrics(academyId);
-    }
   } catch (error) { handleServiceError(error, 'contratos-v2.metrics'); }
 }

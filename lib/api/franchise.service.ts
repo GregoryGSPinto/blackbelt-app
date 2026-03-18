@@ -87,15 +87,9 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
       return mockGetAcademies(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/academies`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.academies');
-      return res.json();
-    } catch {
-      console.warn('[franchise.getAcademies] API not available, using mock fallback');
-      const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
+    // API not yet implemented — use mock
+    const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
       return mockGetAcademies(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.academies'); }
 }
 
@@ -105,15 +99,9 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
       return mockGetFinancials(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/financials`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.financials');
-      return res.json();
-    } catch {
-      console.warn('[franchise.getFinancials] API not available, using mock fallback');
-      const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
+    // API not yet implemented — use mock
+    const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
       return mockGetFinancials(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.financials'); }
 }
 

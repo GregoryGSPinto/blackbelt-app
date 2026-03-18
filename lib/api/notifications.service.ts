@@ -43,15 +43,9 @@ export async function getNotifications(
       );
       return mockGetNotifications(profileId);
     }
-    try {
-      const res = await fetch(`/api/notifications?profileId=${profileId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'notifications.get');
-      return res.json();
-    } catch {
-      console.warn('[notifications.getNotifications] API not available, using mock fallback');
-      const { mockGetNotifications } = await import('@/lib/mocks/notifications.mock');
+    // API not yet implemented — use mock
+    const { mockGetNotifications } = await import('@/lib/mocks/notifications.mock');
       return mockGetNotifications(profileId);
-    }
 
   } catch (error) {
     handleServiceError(error, 'notifications.get');

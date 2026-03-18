@@ -28,15 +28,9 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetAgenda(professorId);
     }
-    try {
-      const res = await fetch(`/api/professors/${professorId}/agenda`);
-      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.get');
-      return res.json();
-    } catch {
-      console.warn('[professor-agenda.getAgenda] API not available, using mock fallback');
-      const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
+    // API not yet implemented — use mock
+    const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetAgenda(professorId);
-    }
   } catch (error) { handleServiceError(error, 'professorAgenda.get'); }
 }
 
@@ -46,15 +40,9 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetLessonRequests(professorId);
     }
-    try {
-      const res = await fetch(`/api/professors/${professorId}/lesson-requests`);
-      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.requests');
-      return res.json();
-    } catch {
-      console.warn('[professor-agenda.getLessonRequests] API not available, using mock fallback');
-      const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
+    // API not yet implemented — use mock
+    const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetLessonRequests(professorId);
-    }
   } catch (error) { handleServiceError(error, 'professorAgenda.requests'); }
 }
 

@@ -61,15 +61,9 @@ export async function getHistory(studentId: string): Promise<PhysicalAssessmentD
       const { mockGetHistory } = await import('@/lib/mocks/physical-assessment.mock');
       return mockGetHistory(studentId);
     }
-    try {
-      const res = await fetch(`/api/physical-assessments?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'physicalAssessment.history');
-      return res.json();
-    } catch {
-      console.warn('[physical-assessment.getHistory] API not available, using mock fallback');
-      const { mockGetHistory } = await import('@/lib/mocks/physical-assessment.mock');
+    // API not yet implemented — use mock
+    const { mockGetHistory } = await import('@/lib/mocks/physical-assessment.mock');
       return mockGetHistory(studentId);
-    }
   } catch (error) { handleServiceError(error, 'physicalAssessment.history'); }
 }
 
@@ -96,14 +90,8 @@ export async function compareAssessments(studentId: string, assessmentId1: strin
       const { mockCompareAssessments } = await import('@/lib/mocks/physical-assessment.mock');
       return mockCompareAssessments(studentId, assessmentId1, assessmentId2);
     }
-    try {
-      const res = await fetch(`/api/physical-assessments/compare?studentId=${studentId}&a=${assessmentId1}&b=${assessmentId2}`);
-      if (!res.ok) throw new ServiceError(res.status, 'physicalAssessment.compare');
-      return res.json();
-    } catch {
-      console.warn('[physical-assessment.compareAssessments] API not available, using mock fallback');
-      const { mockCompareAssessments } = await import('@/lib/mocks/physical-assessment.mock');
+    // API not yet implemented — use mock
+    const { mockCompareAssessments } = await import('@/lib/mocks/physical-assessment.mock');
       return mockCompareAssessments(studentId, assessmentId1, assessmentId2);
-    }
   } catch (error) { handleServiceError(error, 'physicalAssessment.compare'); }
 }

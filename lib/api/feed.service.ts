@@ -134,15 +134,9 @@ export async function getHighlights(
       const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
       return mockGetHighlights(academyId);
     }
-    try {
-      const res = await fetch(`/api/feed/highlights?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'feed.highlights');
-      return res.json();
-    } catch {
-      console.warn('[feed.getHighlights] API not available, using mock fallback');
-      const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
+    // API not yet implemented — use mock
+    const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
       return mockGetHighlights(academyId);
-    }
 
   } catch (error) {
     handleServiceError(error, 'feed.highlights');

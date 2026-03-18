@@ -57,15 +57,9 @@ export async function marcarChegou(id: string): Promise<{ ok: boolean }> {
       const { mockMarcarChegou } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarChegou(id);
     }
-    try {
-      const res = await fetch(`/api/recepcao/experimentais/${id}/chegou`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-experimental.chegou');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-experimental.marcarChegou] API not available, using mock fallback');
-      const { mockMarcarChegou } = await import('@/lib/mocks/recepcao-experimental.mock');
+    // API not yet implemented — use mock
+    const { mockMarcarChegou } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarChegou(id);
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.chegou');
   }
@@ -77,15 +71,9 @@ export async function marcarNaoVeio(id: string): Promise<{ ok: boolean }> {
       const { mockMarcarNaoVeio } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarNaoVeio(id);
     }
-    try {
-      const res = await fetch(`/api/recepcao/experimentais/${id}/nao-veio`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-experimental.naoVeio');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-experimental.marcarNaoVeio] API not available, using mock fallback');
-      const { mockMarcarNaoVeio } = await import('@/lib/mocks/recepcao-experimental.mock');
+    // API not yet implemented — use mock
+    const { mockMarcarNaoVeio } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarNaoVeio(id);
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.naoVeio');
   }
@@ -97,15 +85,9 @@ export async function marcarMatriculou(id: string): Promise<{ ok: boolean }> {
       const { mockMarcarMatriculou } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarMatriculou(id);
     }
-    try {
-      const res = await fetch(`/api/recepcao/experimentais/${id}/matriculou`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-experimental.matriculou');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-experimental.marcarMatriculou] API not available, using mock fallback');
-      const { mockMarcarMatriculou } = await import('@/lib/mocks/recepcao-experimental.mock');
+    // API not yet implemented — use mock
+    const { mockMarcarMatriculou } = await import('@/lib/mocks/recepcao-experimental.mock');
       return mockMarcarMatriculou(id);
-    }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.matriculou');
   }

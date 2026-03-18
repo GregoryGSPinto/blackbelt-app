@@ -30,15 +30,9 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetRecompensasKids(studentId);
     }
-    try {
-      const res = await fetch(`/api/kids/recompensas?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.list');
-      return res.json();
-    } catch {
-      console.warn('[kids-recompensas.getRecompensasKids] API not available, using mock fallback');
-      const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
+    // API not yet implemented — use mock
+    const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetRecompensasKids(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.list');
   }
@@ -50,15 +44,9 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetHistoricoResgates(studentId);
     }
-    try {
-      const res = await fetch(`/api/kids/recompensas/historico?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.historico');
-      return res.json();
-    } catch {
-      console.warn('[kids-recompensas.getHistoricoResgates] API not available, using mock fallback');
-      const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
+    // API not yet implemented — use mock
+    const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetHistoricoResgates(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.historico');
   }

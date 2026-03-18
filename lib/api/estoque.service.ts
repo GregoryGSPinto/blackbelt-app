@@ -35,15 +35,9 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockGetEstoque(academyId);
     }
-    try {
-      const res = await fetch(`/api/estoque?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'estoque.list');
-      return res.json();
-    } catch {
-      console.warn('[estoque.getEstoque] API not available, using mock fallback');
-      const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
+    // API not yet implemented — use mock
+    const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockGetEstoque(academyId);
-    }
   } catch (error) { handleServiceError(error, 'estoque.list'); }
 }
 
@@ -71,15 +65,9 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
       return mockGetMovimentacoes(produtoId);
     }
-    try {
-      const res = await fetch(`/api/estoque/${produtoId}/movimentacoes`);
-      if (!res.ok) throw new ServiceError(res.status, 'estoque.movimentacoes');
-      return res.json();
-    } catch {
-      console.warn('[estoque.getMovimentacoes] API not available, using mock fallback');
-      const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
+    // API not yet implemented — use mock
+    const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
       return mockGetMovimentacoes(produtoId);
-    }
   } catch (error) { handleServiceError(error, 'estoque.movimentacoes'); }
 }
 
@@ -89,14 +77,8 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
       return mockGetAlertasEstoqueBaixo(academyId);
     }
-    try {
-      const res = await fetch(`/api/estoque/alertas?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'estoque.alertas');
-      return res.json();
-    } catch {
-      console.warn('[estoque.getAlertasEstoqueBaixo] API not available, using mock fallback');
-      const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
+    // API not yet implemented — use mock
+    const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
       return mockGetAlertasEstoqueBaixo(academyId);
-    }
   } catch (error) { handleServiceError(error, 'estoque.alertas'); }
 }

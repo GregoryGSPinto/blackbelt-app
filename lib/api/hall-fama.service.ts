@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export interface RecordDTO {
   id: string;
@@ -24,14 +24,8 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
       return mockGetHallOfFame(academyId);
     }
-    try {
-      const res = await fetch(`/api/hall-of-fame?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'hallFama.get');
-      return res.json();
-    } catch {
-      console.warn('[hall-fama.getHallOfFame] API not available, using mock fallback');
-      const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
+    // API not yet implemented — use mock
+    const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
       return mockGetHallOfFame(academyId);
-    }
   } catch (error) { handleServiceError(error, 'hallFama.get'); }
 }

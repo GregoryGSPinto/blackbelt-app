@@ -16,15 +16,9 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       const { mockGetGroupMessages } = await import('@/lib/mocks/group-chat.mock');
       return mockGetGroupMessages(classId);
     }
-    try {
-      const res = await fetch(`/api/classes/${classId}/messages`);
-      if (!res.ok) throw new ServiceError(res.status, 'groupChat.get');
-      return res.json();
-    } catch {
-      console.warn('[group-chat.getGroupMessages] API not available, using mock fallback');
-      const { mockGetGroupMessages } = await import('@/lib/mocks/group-chat.mock');
+    // API not yet implemented — use mock
+    const { mockGetGroupMessages } = await import('@/lib/mocks/group-chat.mock');
       return mockGetGroupMessages(classId);
-    }
   } catch (error) { handleServiceError(error, 'groupChat.get'); }
 }
 

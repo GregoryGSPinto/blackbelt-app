@@ -14,15 +14,9 @@ export async function getSubscriptionByStudent(studentId: string): Promise<Subsc
       const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
       return mockGetSubscriptionByStudent(studentId);
     }
-    try {
-      const res = await fetch(`/api/subscriptions?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'subscriptions.getByStudent');
-      return res.json();
-    } catch {
-      console.warn('[subscriptions.getSubscriptionByStudent] API not available, using mock fallback');
-      const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
+    // API not yet implemented — use mock
+    const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
       return mockGetSubscriptionByStudent(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'subscriptions.getByStudent');
   }

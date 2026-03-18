@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 export interface ParentDashboardDTO {
@@ -33,15 +33,9 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
       const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
       return mockGetParentDashboard(parentId);
     }
-    try {
-      const res = await fetch(`/api/parent/dashboard?parentId=${parentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'parent.dashboard');
-      return res.json();
-    } catch {
-      console.warn('[parent.getParentDashboard] API not available, using mock fallback');
-      const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
+    // API not yet implemented — use mock
+    const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
       return mockGetParentDashboard(parentId);
-    }
   } catch (error) {
     handleServiceError(error, 'parent.dashboard');
   }

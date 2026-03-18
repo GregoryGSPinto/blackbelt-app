@@ -46,15 +46,9 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
       return mockGetInvoiceById(id);
     }
-    try {
-      const res = await fetch(`/api/invoices/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'faturas.get');
-      return res.json();
-    } catch {
-      console.warn('[faturas.getInvoiceById] API not available, using mock fallback');
-      const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
+    // API not yet implemented — use mock
+    const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
       return mockGetInvoiceById(id);
-    }
   } catch (error) {
     handleServiceError(error, 'faturas.get');
   }
@@ -66,15 +60,9 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
       return mockMarkPaid(id);
     }
-    try {
-      const res = await fetch(`/api/invoices/${id}/pay`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'faturas.markPaid');
-      return res.json();
-    } catch {
-      console.warn('[faturas.markInvoicePaid] API not available, using mock fallback');
-      const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
+    // API not yet implemented — use mock
+    const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
       return mockMarkPaid(id);
-    }
   } catch (error) {
     handleServiceError(error, 'faturas.markPaid');
   }

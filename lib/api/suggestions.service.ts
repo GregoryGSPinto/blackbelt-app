@@ -41,16 +41,9 @@ export async function getSuggestions(
       const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
       return mockGetSuggestions(role, userId, academyId);
     }
-    try {
-      const params = new URLSearchParams({ role, userId, academyId });
-      const res = await fetch(`/api/suggestions?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'suggestions.get');
-      return res.json();
-    } catch {
-      console.warn('[suggestions.getSuggestions] API not available, using mock fallback');
-      const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
+    // API not yet implemented — use mock
+    const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
       return mockGetSuggestions(role, userId, academyId);
-    }
 
   } catch (error) {
     handleServiceError(error, 'suggestions.get');

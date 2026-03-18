@@ -65,15 +65,9 @@ export async function getMyRegistrations(userId: string): Promise<RegistrationDT
       const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetMyRegistrations(userId);
     }
-    try {
-      const res = await fetch(`/api/championships/registrations?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.myRegistrations');
-      return res.json();
-    } catch {
-      console.warn('[championship-registration.getMyRegistrations] API not available, using mock fallback');
-      const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetMyRegistrations(userId);
-    }
   } catch (error) { handleServiceError(error, 'championship-registration.myRegistrations'); }
 }
 
@@ -127,14 +121,8 @@ export async function getRegistrationsByChampionship(championshipId: string): Pr
       const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetRegistrationsByChampionship(championshipId);
     }
-    try {
-      const res = await fetch(`/api/championships/${championshipId}/registrations`);
-      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.byChampionship');
-      return res.json();
-    } catch {
-      console.warn('[championship-registration.getRegistrationsByChampionship] API not available, using mock fallback');
-      const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
+    // API not yet implemented — use mock
+    const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetRegistrationsByChampionship(championshipId);
-    }
   } catch (error) { handleServiceError(error, 'championship-registration.byChampionship'); }
 }

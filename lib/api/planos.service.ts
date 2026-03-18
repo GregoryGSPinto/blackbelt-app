@@ -21,15 +21,9 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
       const { mockListPlans } = await import('@/lib/mocks/planos.mock');
       return mockListPlans(academyId);
     }
-    try {
-      const res = await fetch(`/api/plans?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'planos.list');
-      return res.json();
-    } catch {
-      console.warn('[planos.listPlans] API not available, using mock fallback');
-      const { mockListPlans } = await import('@/lib/mocks/planos.mock');
+    // API not yet implemented — use mock
+    const { mockListPlans } = await import('@/lib/mocks/planos.mock');
       return mockListPlans(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'planos.list');
   }
@@ -41,15 +35,9 @@ export async function getPlanById(id: string): Promise<Plan> {
       const { mockGetPlanById } = await import('@/lib/mocks/planos.mock');
       return mockGetPlanById(id);
     }
-    try {
-      const res = await fetch(`/api/plans/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'planos.get');
-      return res.json();
-    } catch {
-      console.warn('[planos.getPlanById] API not available, using mock fallback');
-      const { mockGetPlanById } = await import('@/lib/mocks/planos.mock');
+    // API not yet implemented — use mock
+    const { mockGetPlanById } = await import('@/lib/mocks/planos.mock');
       return mockGetPlanById(id);
-    }
   } catch (error) {
     handleServiceError(error, 'planos.get');
   }

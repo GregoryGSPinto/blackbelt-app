@@ -131,14 +131,8 @@ export async function getStudentProgress(studentId: string, modality: string, be
       const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
       return mockGetStudentProgress(studentId, modality, belt);
     }
-    try {
-      const res = await fetch(`/api/curriculum/progress?studentId=${studentId}&modality=${modality}&belt=${belt}`);
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.progress');
-      return res.json();
-    } catch {
-      console.warn('[curriculum.getStudentProgress] API not available, using mock fallback');
-      const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
+    // API not yet implemented — use mock
+    const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
       return mockGetStudentProgress(studentId, modality, belt);
-    }
   } catch (error) { handleServiceError(error, 'curriculum.progress'); }
 }

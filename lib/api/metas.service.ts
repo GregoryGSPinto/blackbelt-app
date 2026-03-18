@@ -67,15 +67,9 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
       return mockGetGoals(studentId);
     }
-    try {
-      const res = await fetch(`/api/metas/goals?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'metas.getGoals');
-      return res.json();
-    } catch {
-      console.warn('[metas.getGoals] API not available, using mock fallback');
-      const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
+    // API not yet implemented — use mock
+    const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
       return mockGetGoals(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'metas.getGoals');
   }
@@ -111,15 +105,9 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
       return mockGetDiary(studentId, month);
     }
-    try {
-      const res = await fetch(`/api/metas/diary?studentId=${studentId}&month=${month}`);
-      if (!res.ok) throw new ServiceError(res.status, 'metas.getDiary');
-      return res.json();
-    } catch {
-      console.warn('[metas.getDiary] API not available, using mock fallback');
-      const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
+    // API not yet implemented — use mock
+    const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
       return mockGetDiary(studentId, month);
-    }
   } catch (error) {
     handleServiceError(error, 'metas.getDiary');
   }

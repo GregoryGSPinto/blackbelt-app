@@ -85,15 +85,9 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       const { mockGetCourse } = await import('@/lib/mocks/marketplace.mock');
       return mockGetCourse(id);
     }
-    try {
-      const res = await fetch(`/api/marketplace/courses/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'marketplace.getCourse');
-      return res.json();
-    } catch {
-      console.warn('[marketplace.getCourse] API not available, using mock fallback');
-      const { mockGetCourse } = await import('@/lib/mocks/marketplace.mock');
+    // API not yet implemented — use mock
+    const { mockGetCourse } = await import('@/lib/mocks/marketplace.mock');
       return mockGetCourse(id);
-    }
   } catch (error) { handleServiceError(error, 'marketplace.getCourse'); }
 }
 
@@ -125,15 +119,9 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       const { mockGetMyPurchases } = await import('@/lib/mocks/marketplace.mock');
       return mockGetMyPurchases(userId);
     }
-    try {
-      const res = await fetch(`/api/marketplace/purchases?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'marketplace.getMyPurchases');
-      return res.json();
-    } catch {
-      console.warn('[marketplace.getMyPurchases] API not available, using mock fallback');
-      const { mockGetMyPurchases } = await import('@/lib/mocks/marketplace.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyPurchases } = await import('@/lib/mocks/marketplace.mock');
       return mockGetMyPurchases(userId);
-    }
   } catch (error) { handleServiceError(error, 'marketplace.getMyPurchases'); }
 }
 
@@ -143,14 +131,8 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       const { mockGetMySales } = await import('@/lib/mocks/marketplace.mock');
       return mockGetMySales(creatorId);
     }
-    try {
-      const res = await fetch(`/api/marketplace/sales?creatorId=${creatorId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'marketplace.getMySales');
-      return res.json();
-    } catch {
-      console.warn('[marketplace.getMySales] API not available, using mock fallback');
-      const { mockGetMySales } = await import('@/lib/mocks/marketplace.mock');
+    // API not yet implemented — use mock
+    const { mockGetMySales } = await import('@/lib/mocks/marketplace.mock');
       return mockGetMySales(creatorId);
-    }
   } catch (error) { handleServiceError(error, 'marketplace.getMySales'); }
 }

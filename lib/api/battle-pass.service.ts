@@ -48,15 +48,9 @@ export async function getBattlePass(seasonId: string): Promise<BattlePassDTO> {
       const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetBattlePass(seasonId);
     }
-    try {
-      const res = await fetch(`/api/battle-pass?seasonId=${seasonId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'battlePass.get');
-      return res.json();
-    } catch {
-      console.warn('[battle-pass.getBattlePass] API not available, using mock fallback');
-      const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
+    // API not yet implemented — use mock
+    const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetBattlePass(seasonId);
-    }
   } catch (error) { handleServiceError(error, 'battlePass.get'); }
 }
 
@@ -66,15 +60,9 @@ export async function getMyBattlePassProgress(userId: string, seasonId: string):
       const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetMyProgress(userId, seasonId);
     }
-    try {
-      const res = await fetch(`/api/battle-pass/progress?userId=${userId}&seasonId=${seasonId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'battlePass.myProgress');
-      return res.json();
-    } catch {
-      console.warn('[battle-pass.getMyBattlePassProgress] API not available, using mock fallback');
-      const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetMyProgress(userId, seasonId);
-    }
   } catch (error) { handleServiceError(error, 'battlePass.myProgress'); }
 }
 

@@ -49,15 +49,9 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
       return mockGetCurrentSeason(academyId);
     }
-    try {
-      const res = await fetch(`/api/seasons/current?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'seasons.getCurrent');
-      return res.json();
-    } catch {
-      console.warn('[seasons.getCurrentSeason] API not available, using mock fallback');
-      const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
+    // API not yet implemented — use mock
+    const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
       return mockGetCurrentSeason(academyId);
-    }
   } catch (error) { handleServiceError(error, 'seasons.getCurrent'); }
 }
 
@@ -87,15 +81,9 @@ export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTi
       const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonRewards(seasonId);
     }
-    try {
-      const res = await fetch(`/api/seasons/${seasonId}/rewards`);
-      if (!res.ok) throw new ServiceError(res.status, 'seasons.rewards');
-      return res.json();
-    } catch {
-      console.warn('[seasons.getSeasonRewards] API not available, using mock fallback');
-      const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
+    // API not yet implemented — use mock
+    const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonRewards(seasonId);
-    }
   } catch (error) { handleServiceError(error, 'seasons.rewards'); }
 }
 
@@ -105,14 +93,8 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
       return mockGetMySeasonProgress(studentId, seasonId);
     }
-    try {
-      const res = await fetch(`/api/seasons/${seasonId}/progress?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'seasons.myProgress');
-      return res.json();
-    } catch {
-      console.warn('[seasons.getMySeasonProgress] API not available, using mock fallback');
-      const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
+    // API not yet implemented — use mock
+    const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
       return mockGetMySeasonProgress(studentId, seasonId);
-    }
   } catch (error) { handleServiceError(error, 'seasons.myProgress'); }
 }

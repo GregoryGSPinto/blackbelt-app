@@ -93,15 +93,9 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionshipById(id);
     }
-    try {
-      const res = await fetch(`/api/championships/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'championships.getById');
-      return res.json();
-    } catch {
-      console.warn('[championships.getChampionshipById] API not available, using mock fallback');
-      const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
+    // API not yet implemented — use mock
+    const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionshipById(id);
-    }
   } catch (error) { handleServiceError(error, 'championships.getById'); }
 }
 
@@ -111,15 +105,9 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
       return mockOpenRegistration(id);
     }
-    try {
-      const res = await fetch(`/api/championships/${id}/open-registration`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'championships.openRegistration');
-      return res.json();
-    } catch {
-      console.warn('[championships.openRegistration] API not available, using mock fallback');
-      const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
+    // API not yet implemented — use mock
+    const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
       return mockOpenRegistration(id);
-    }
   } catch (error) { handleServiceError(error, 'championships.openRegistration'); }
 }
 
@@ -129,14 +117,8 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
       return mockCloseRegistration(id);
     }
-    try {
-      const res = await fetch(`/api/championships/${id}/close-registration`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'championships.closeRegistration');
-      return res.json();
-    } catch {
-      console.warn('[championships.closeRegistration] API not available, using mock fallback');
-      const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
+    // API not yet implemented — use mock
+    const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
       return mockCloseRegistration(id);
-    }
   } catch (error) { handleServiceError(error, 'championships.closeRegistration'); }
 }

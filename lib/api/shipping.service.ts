@@ -86,15 +86,9 @@ export async function trackShipment(trackingCode: string): Promise<Shipment> {
       const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
     }
-    try {
-      const res = await fetch(`/api/shipping/track/${trackingCode}`);
-      if (!res.ok) throw new ServiceError(res.status, 'shipping.trackShipment');
-      return res.json();
-    } catch {
-      console.warn('[shipping.trackShipment] API not available, using mock fallback');
-      const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
+    // API not yet implemented — use mock
+    const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
-    }
   } catch (error) { handleServiceError(error, 'shipping.trackShipment'); }
 }
 
@@ -104,14 +98,8 @@ export async function getShipmentStatus(orderId: string): Promise<Shipment> {
       const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
     }
-    try {
-      const res = await fetch(`/api/shipping/orders/${orderId}/shipment`);
-      if (!res.ok) throw new ServiceError(res.status, 'shipping.getShipmentStatus');
-      return res.json();
-    } catch {
-      console.warn('[shipping.getShipmentStatus] API not available, using mock fallback');
-      const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
+    // API not yet implemented — use mock
+    const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
-    }
   } catch (error) { handleServiceError(error, 'shipping.getShipmentStatus'); }
 }

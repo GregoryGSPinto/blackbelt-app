@@ -28,15 +28,9 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
       const { mockListStaff } = await import('@/lib/mocks/invites.mock');
       return mockListStaff(academyId);
     }
-    try {
-      const res = await fetch(`/api/staff?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'staff.list');
-      return res.json();
-    } catch {
-      console.warn('[invites.listStaff] API not available, using mock fallback');
-      const { mockListStaff } = await import('@/lib/mocks/invites.mock');
+    // API not yet implemented — use mock
+    const { mockListStaff } = await import('@/lib/mocks/invites.mock');
       return mockListStaff(academyId);
-    }
   } catch (error) { handleServiceError(error, 'staff.list'); }
 }
 
@@ -64,15 +58,9 @@ export async function getActiveInvites(academyId: string): Promise<InviteDTO[]> 
       const { mockGetActiveInvites } = await import('@/lib/mocks/invites.mock');
       return mockGetActiveInvites(academyId);
     }
-    try {
-      const res = await fetch(`/api/invites?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'invites.list');
-      return res.json();
-    } catch {
-      console.warn('[invites.getActiveInvites] API not available, using mock fallback');
-      const { mockGetActiveInvites } = await import('@/lib/mocks/invites.mock');
+    // API not yet implemented — use mock
+    const { mockGetActiveInvites } = await import('@/lib/mocks/invites.mock');
       return mockGetActiveInvites(academyId);
-    }
   } catch (error) { handleServiceError(error, 'invites.list'); }
 }
 

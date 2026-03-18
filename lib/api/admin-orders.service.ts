@@ -88,14 +88,8 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
       return mockGetStoreDashboard();
     }
-    try {
-      const res = await fetch('/api/admin/store/dashboard');
-      if (!res.ok) throw new ServiceError(res.status, 'adminOrders.getStoreDashboard');
-      return res.json();
-    } catch {
-      console.warn('[admin-orders.getStoreDashboard] API not available, using mock fallback');
-      const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
+    // API not yet implemented — use mock
+    const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
       return mockGetStoreDashboard();
-    }
   } catch (error) { handleServiceError(error, 'adminOrders.getStoreDashboard'); }
 }

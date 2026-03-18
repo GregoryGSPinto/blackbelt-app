@@ -9,15 +9,9 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       const { mockListConversations } = await import('@/lib/mocks/chat.mock');
       return mockListConversations(userId);
     }
-    try {
-      const res = await fetch(`/api/chat/conversations?userId=${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[chat.listConversations] API not available, using mock fallback');
-      const { mockListConversations } = await import('@/lib/mocks/chat.mock');
+    // API not yet implemented — use mock
+    const { mockListConversations } = await import('@/lib/mocks/chat.mock');
       return mockListConversations(userId);
-    }
   } catch (error) {
     handleServiceError(error, 'chat.listConversations');
   }

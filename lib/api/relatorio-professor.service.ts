@@ -58,17 +58,8 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
       const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetDetalheProfessor(professorId, periodo);
     }
-    try {
-      const params = new URLSearchParams();
-      if (periodo) params.set('periodo', periodo);
-      const query = params.toString() ? `?${params}` : '';
-      const res = await fetch(`/api/relatorio-professores/${professorId}${query}`);
-      if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.detail');
-      return res.json();
-    } catch {
-      console.warn('[relatorio-professor.getDetalheProfessor] API not available, using mock fallback');
-      const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
+    // API not yet implemented — use mock
+    const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetDetalheProfessor(professorId, periodo);
-    }
   } catch (error) { handleServiceError(error, 'relatorio-professor.detail'); }
 }

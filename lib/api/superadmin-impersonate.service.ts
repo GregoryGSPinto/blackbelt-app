@@ -69,14 +69,8 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
       const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockListImpersonateAcademias();
     }
-    try {
-      const res = await fetch('/api/superadmin/impersonate/academias');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, using mock fallback');
-      const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
+    // API not yet implemented — use mock
+    const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockListImpersonateAcademias();
-    }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.listAcademias'); }
 }

@@ -38,15 +38,9 @@ export async function getSubstitutions(academyId: string): Promise<SubstitutionD
       const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
       return mockGetSubstitutions(academyId);
     }
-    try {
-      const res = await fetch(`/api/substitutions?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'substituicao.list');
-      return res.json();
-    } catch {
-      console.warn('[substituicao.getSubstitutions] API not available, using mock fallback');
-      const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
+    // API not yet implemented — use mock
+    const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
       return mockGetSubstitutions(academyId);
-    }
   } catch (error) { handleServiceError(error, 'substituicao.list'); }
 }
 
@@ -78,14 +72,8 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
       return mockGetAvailableTeachers(date, timeSlot);
     }
-    try {
-      const res = await fetch(`/api/substitutions/available-teachers?date=${date}&timeSlot=${timeSlot}`);
-      if (!res.ok) throw new ServiceError(res.status, 'substituicao.availableTeachers');
-      return res.json();
-    } catch {
-      console.warn('[substituicao.getAvailableTeachers] API not available, using mock fallback');
-      const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
+    // API not yet implemented — use mock
+    const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
       return mockGetAvailableTeachers(date, timeSlot);
-    }
   } catch (error) { handleServiceError(error, 'substituicao.availableTeachers'); }
 }

@@ -38,15 +38,9 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       const { mockGetEvents } = await import('@/lib/mocks/eventos.mock');
       return mockGetEvents(academyId);
     }
-    try {
-      const res = await fetch(`/api/eventos?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'eventos.get');
-      return res.json();
-    } catch {
-      console.warn('[eventos.getEvents] API not available, using mock fallback');
-      const { mockGetEvents } = await import('@/lib/mocks/eventos.mock');
+    // API not yet implemented — use mock
+    const { mockGetEvents } = await import('@/lib/mocks/eventos.mock');
       return mockGetEvents(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'eventos.get');
   }

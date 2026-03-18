@@ -40,15 +40,9 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       const { mockGetAutorizacoes } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
       return mockGetAutorizacoes(guardianId);
     }
-    try {
-      const res = await fetch(`/api/responsavel/autorizacoes?guardianId=${guardianId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'responsavel.autorizacoes');
-      return res.json();
-    } catch {
-      console.warn('[responsavel-autorizacoes.getAutorizacoes] API not available, using mock fallback');
-      const { mockGetAutorizacoes } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+    // API not yet implemented — use mock
+    const { mockGetAutorizacoes } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
       return mockGetAutorizacoes(guardianId);
-    }
   } catch (error) {
     handleServiceError(error, 'responsavel.autorizacoes');
   }
@@ -88,15 +82,9 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       const { mockGetControleParental } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
       return mockGetControleParental(studentId);
     }
-    try {
-      const res = await fetch(`/api/responsavel/controle-parental/${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'responsavel.controle-parental');
-      return res.json();
-    } catch {
-      console.warn('[responsavel-autorizacoes.getControleParental] API not available, using mock fallback');
-      const { mockGetControleParental } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
+    // API not yet implemented — use mock
+    const { mockGetControleParental } = await import('@/lib/mocks/responsavel-autorizacoes.mock');
       return mockGetControleParental(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'responsavel.controle-parental');
   }

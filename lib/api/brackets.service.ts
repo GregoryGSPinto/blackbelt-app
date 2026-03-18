@@ -70,15 +70,9 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
       return mockGetBracketByCategory(categoryId);
     }
-    try {
-      const res = await fetch(`/api/brackets/category/${categoryId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'brackets.get');
-      return res.json();
-    } catch {
-      console.warn('[brackets.getBracketByCategory] API not available, using mock fallback');
-      const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
+    // API not yet implemented — use mock
+    const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
       return mockGetBracketByCategory(categoryId);
-    }
   } catch (error) { handleServiceError(error, 'brackets.get'); }
 }
 
@@ -110,14 +104,8 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
       return mockGetMatchDetails(matchId);
     }
-    try {
-      const res = await fetch(`/api/brackets/matches/${matchId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'brackets.matchDetails');
-      return res.json();
-    } catch {
-      console.warn('[brackets.getMatchDetails] API not available, using mock fallback');
-      const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
+    // API not yet implemented — use mock
+    const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
       return mockGetMatchDetails(matchId);
-    }
   } catch (error) { handleServiceError(error, 'brackets.matchDetails'); }
 }

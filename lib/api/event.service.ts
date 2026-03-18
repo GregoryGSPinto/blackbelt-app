@@ -9,15 +9,9 @@ export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
       const { mockListEvents } = await import('@/lib/mocks/event.mock');
       return mockListEvents(academyId);
     }
-    try {
-      const res = await fetch(`/api/events?academy_id=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[event.listEvents] API not available, using mock fallback');
-      const { mockListEvents } = await import('@/lib/mocks/event.mock');
+    // API not yet implemented — use mock
+    const { mockListEvents } = await import('@/lib/mocks/event.mock');
       return mockListEvents(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'event.list');
   }
@@ -29,15 +23,9 @@ export async function getEvent(eventId: string): Promise<AcademyEvent> {
       const { mockGetEvent } = await import('@/lib/mocks/event.mock');
       return mockGetEvent(eventId);
     }
-    try {
-      const res = await fetch(`/api/events/${eventId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[event.getEvent] API not available, using mock fallback');
-      const { mockGetEvent } = await import('@/lib/mocks/event.mock');
+    // API not yet implemented — use mock
+    const { mockGetEvent } = await import('@/lib/mocks/event.mock');
       return mockGetEvent(eventId);
-    }
   } catch (error) {
     handleServiceError(error, 'event.get');
   }

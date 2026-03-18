@@ -59,15 +59,9 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaigns(academyId);
     }
-    try {
-      const res = await fetch(`/api/campanhas?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'campanhas.list');
-      return res.json();
-    } catch {
-      console.warn('[campanhas.getCampaigns] API not available, using mock fallback');
-      const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
+    // API not yet implemented — use mock
+    const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaigns(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'campanhas.list');
   }
@@ -103,15 +97,9 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaignMetrics(campaignId);
     }
-    try {
-      const res = await fetch(`/api/campanhas/${campaignId}/metrics`);
-      if (!res.ok) throw new ServiceError(res.status, 'campanhas.metrics');
-      return res.json();
-    } catch {
-      console.warn('[campanhas.getCampaignMetrics] API not available, using mock fallback');
-      const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
+    // API not yet implemented — use mock
+    const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaignMetrics(campaignId);
-    }
   } catch (error) {
     handleServiceError(error, 'campanhas.metrics');
   }

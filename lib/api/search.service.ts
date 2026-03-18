@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export type SearchResultGroup = 'alunos' | 'turmas' | 'videos' | 'leads' | 'comunicados' | 'paginas';
 
@@ -34,16 +34,9 @@ export async function globalSearch(
       const { mockGlobalSearch } = await import('@/lib/mocks/search.mock');
       return mockGlobalSearch(query, academyId);
     }
-    try {
-      const params = new URLSearchParams({ q: query, academyId });
-      const res = await fetch(`/api/search?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'search.global');
-      return res.json();
-    } catch {
-      console.warn('[search.globalSearch] API not available, using mock fallback');
-      const { mockGlobalSearch } = await import('@/lib/mocks/search.mock');
+    // API not yet implemented — use mock
+    const { mockGlobalSearch } = await import('@/lib/mocks/search.mock');
       return mockGlobalSearch(query, academyId);
-    }
 
   } catch (error) {
     handleServiceError(error, 'search.global');

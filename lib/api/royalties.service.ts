@@ -115,14 +115,8 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
     }
-    try {
-      const res = await fetch(`/api/royalties/${invoiceId}/pay`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'royalties.pay');
-      return res.json();
-    } catch {
-      console.warn('[royalties.payRoyalty] API not available, using mock fallback');
-      const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
+    // API not yet implemented — use mock
+    const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
-    }
   } catch (error) { handleServiceError(error, 'royalties.pay'); }
 }

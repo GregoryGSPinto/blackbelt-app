@@ -10,15 +10,9 @@ export async function getDashboardData(academyId: string): Promise<DashboardData
       const { mockGetDashboardData } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetDashboardData(academyId);
     }
-    try {
-      const res = await fetch(`/api/admin/dashboard?academyId=${academyId}`);
-      if (!res.ok) throw new Error('API not available');
-      return res.json();
-    } catch {
-      console.warn('[adminDashboard.getDashboardData] API not available, using mock fallback');
-      const { mockGetDashboardData } = await import('@/lib/mocks/admin-dashboard.mock');
+    // API not yet implemented — use mock
+    const { mockGetDashboardData } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetDashboardData(academyId);
-    }
   } catch (error) {
     handleServiceError(error, 'adminDashboard.getDashboardData');
   }
@@ -36,15 +30,9 @@ export async function getActivityFeed(
       const { mockGetActivityFeed } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetActivityFeed(academyId, page, limit);
     }
-    try {
-      const res = await fetch(`/api/admin/activity-feed?academyId=${academyId}&page=${page}&limit=${limit}`);
-      if (!res.ok) throw new Error('API not available');
-      return res.json();
-    } catch {
-      console.warn('[adminDashboard.getActivityFeed] API not available, using mock fallback');
-      const { mockGetActivityFeed } = await import('@/lib/mocks/admin-dashboard.mock');
+    // API not yet implemented — use mock
+    const { mockGetActivityFeed } = await import('@/lib/mocks/admin-dashboard.mock');
       return mockGetActivityFeed(academyId, page, limit);
-    }
   } catch (error) {
     handleServiceError(error, 'adminDashboard.getActivityFeed');
   }

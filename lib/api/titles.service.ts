@@ -22,15 +22,9 @@ export async function getAvailableTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetAvailableTitles(userId);
     }
-    try {
-      const res = await fetch(`/api/titles/available?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'titles.available');
-      return res.json();
-    } catch {
-      console.warn('[titles.getAvailableTitles] API not available, using mock fallback');
-      const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
+    // API not yet implemented — use mock
+    const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetAvailableTitles(userId);
-    }
   } catch (error) { handleServiceError(error, 'titles.available'); }
 }
 
@@ -40,15 +34,9 @@ export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetMyTitles(userId);
     }
-    try {
-      const res = await fetch(`/api/titles/mine?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'titles.mine');
-      return res.json();
-    } catch {
-      console.warn('[titles.getMyTitles] API not available, using mock fallback');
-      const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
+    // API not yet implemented — use mock
+    const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetMyTitles(userId);
-    }
   } catch (error) { handleServiceError(error, 'titles.mine'); }
 }
 

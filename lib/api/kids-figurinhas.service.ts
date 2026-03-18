@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export interface Figurinha {
   id: string;
@@ -39,15 +39,9 @@ export async function getAlbum(studentId: string): Promise<AlbumFigurinhas> {
       const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
       return mockGetAlbum(studentId);
     }
-    try {
-      const res = await fetch(`/api/kids/figurinhas/album?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids-figurinhas.album');
-      return res.json();
-    } catch {
-      console.warn('[kids-figurinhas.getAlbum] API not available, using mock fallback');
-      const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
+    // API not yet implemented — use mock
+    const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
       return mockGetAlbum(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'kids-figurinhas.album');
   }

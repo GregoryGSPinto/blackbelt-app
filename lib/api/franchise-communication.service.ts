@@ -90,15 +90,9 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetBroadcasts(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/broadcasts`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.list');
-      return res.json();
-    } catch {
-      console.warn('[franchise-communication.getBroadcasts] API not available, using mock fallback');
-      const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
+    // API not yet implemented — use mock
+    const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetBroadcasts(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.communication.list'); }
 }
 
@@ -108,15 +102,9 @@ export async function getReceipts(broadcastId: string): Promise<BroadcastRecipie
       const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetReceipts(broadcastId);
     }
-    try {
-      const res = await fetch(`/api/franchise/broadcasts/${broadcastId}/receipts`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.receipts');
-      return res.json();
-    } catch {
-      console.warn('[franchise-communication.getReceipts] API not available, using mock fallback');
-      const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
+    // API not yet implemented — use mock
+    const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetReceipts(broadcastId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.communication.receipts'); }
 }
 
@@ -148,14 +136,8 @@ export async function getTrainings(franchiseId: string): Promise<NetworkTraining
       const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetTrainings(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/trainings`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.trainings');
-      return res.json();
-    } catch {
-      console.warn('[franchise-communication.getTrainings] API not available, using mock fallback');
-      const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
+    // API not yet implemented — use mock
+    const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetTrainings(franchiseId);
-    }
   } catch (error) { handleServiceError(error, 'franchise.communication.trainings'); }
 }

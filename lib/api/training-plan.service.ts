@@ -88,15 +88,9 @@ export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
       const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
       return mockGetPlans(studentId);
     }
-    try {
-      const res = await fetch(`/api/training-plans?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.list');
-      return res.json();
-    } catch {
-      console.warn('[training-plan.getPlans] API not available, using mock fallback');
-      const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
+    // API not yet implemented — use mock
+    const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
       return mockGetPlans(studentId);
-    }
   } catch (error) { handleServiceError(error, 'trainingPlan.list'); }
 }
 

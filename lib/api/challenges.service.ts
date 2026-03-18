@@ -24,15 +24,9 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
       return mockListChallenges(academyId);
     }
-    try {
-      const res = await fetch(`/api/challenges?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'challenges.list');
-      return res.json();
-    } catch {
-      console.warn('[challenges.listChallenges] API not available, using mock fallback');
-      const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
+    // API not yet implemented — use mock
+    const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
       return mockListChallenges(academyId);
-    }
   } catch (error) { handleServiceError(error, 'challenges.list'); }
 }
 

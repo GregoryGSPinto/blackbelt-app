@@ -33,17 +33,9 @@ export async function parseCSV(file: File): Promise<ParsedCSVResult> {
       const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
       return mockParseCSV(file);
     }
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/import/parse', { method: 'POST', body: formData });
-      if (!res.ok) throw new ServiceError(res.status, 'importacao.parseCSV');
-      return res.json();
-    } catch {
-      console.warn('[importacao.parseCSV] API not available, using mock fallback');
-      const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
+    // API not yet implemented — use mock
+    const { mockParseCSV } = await import('@/lib/mocks/importacao.mock');
       return mockParseCSV(file);
-    }
   } catch (error) { handleServiceError(error, 'importacao.parseCSV'); }
 }
 

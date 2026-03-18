@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
 
 export interface FaixaKids {
   faixaAtual: {
@@ -35,15 +35,9 @@ export async function getFaixaKids(studentId: string): Promise<FaixaKids> {
       const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
       return mockGetFaixaKids(studentId);
     }
-    try {
-      const res = await fetch(`/api/kids/faixa?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids-faixa.get');
-      return res.json();
-    } catch {
-      console.warn('[kids-faixa.getFaixaKids] API not available, using mock fallback');
-      const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
+    // API not yet implemented — use mock
+    const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
       return mockGetFaixaKids(studentId);
-    }
   } catch (error) {
     handleServiceError(error, 'kids-faixa.get');
   }

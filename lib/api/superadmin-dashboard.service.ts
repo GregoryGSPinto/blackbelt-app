@@ -77,15 +77,9 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
       const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
       return await mockGetMissionControl();
     }
-    try {
-      const res = await fetch('/api/superadmin/dashboard');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch {
-      console.warn('[superadmin-dashboard.getMissionControl] API not available, using mock fallback');
-      const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
-      return mockGetMissionControl();
-    }
+    // API routes not yet implemented — go straight to mock
+    const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
+    return mockGetMissionControl();
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
 }
 

@@ -30,15 +30,9 @@ export async function listInventory(academyId: string): Promise<InventoryItem[]>
       const { mockListInventory } = await import('@/lib/mocks/inventory.mock');
       return mockListInventory(academyId);
     }
-    try {
-      const res = await fetch(`/api/inventory?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'inventory.list');
-      return res.json();
-    } catch {
-      console.warn('[inventory.listInventory] API not available, using mock fallback');
-      const { mockListInventory } = await import('@/lib/mocks/inventory.mock');
+    // API not yet implemented — use mock
+    const { mockListInventory } = await import('@/lib/mocks/inventory.mock');
       return mockListInventory(academyId);
-    }
   } catch (error) { handleServiceError(error, 'inventory.list'); }
 }
 

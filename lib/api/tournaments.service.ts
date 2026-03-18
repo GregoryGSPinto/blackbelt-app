@@ -27,15 +27,9 @@ export async function listTournaments(academyId: string): Promise<TournamentDTO[
       const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
       return mockListTournaments(academyId);
     }
-    try {
-      const res = await fetch(`/api/tournaments?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'tournaments.list');
-      return res.json();
-    } catch {
-      console.warn('[tournaments.listTournaments] API not available, using mock fallback');
-      const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
+    // API not yet implemented — use mock
+    const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
       return mockListTournaments(academyId);
-    }
   } catch (error) { handleServiceError(error, 'tournaments.list'); }
 }
 
@@ -63,15 +57,9 @@ export async function getBracket(tournamentId: string, _categoryId: string): Pro
       const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
       return mockGetBracket(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/tournaments/${tournamentId}/bracket`);
-      if (!res.ok) throw new ServiceError(res.status, 'tournaments.bracket');
-      return res.json();
-    } catch {
-      console.warn('[tournaments.getBracket] API not available, using mock fallback');
-      const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
+    // API not yet implemented — use mock
+    const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
       return mockGetBracket(tournamentId);
-    }
   } catch (error) { handleServiceError(error, 'tournaments.bracket'); }
 }
 

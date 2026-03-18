@@ -106,14 +106,8 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
       return mockGetTrialMetrics(academyId);
     }
-    try {
-      const res = await fetch(`/api/aula-experimental/metrics?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.metrics');
-      return res.json();
-    } catch {
-      console.warn('[aula-experimental.getTrialMetrics] API not available, using mock fallback');
-      const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
+    // API not yet implemented — use mock
+    const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
       return mockGetTrialMetrics(academyId);
-    }
   } catch (error) { handleServiceError(error, 'aula-experimental.metrics'); }
 }

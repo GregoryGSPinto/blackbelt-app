@@ -20,15 +20,9 @@ export async function listContracts(academyId: string): Promise<ContractDTO[]> {
       const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
       return mockListContracts(academyId);
     }
-    try {
-      const res = await fetch(`/api/contracts?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'contracts.list');
-      return res.json();
-    } catch {
-      console.warn('[contracts.listContracts] API not available, using mock fallback');
-      const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
+    // API not yet implemented — use mock
+    const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
       return mockListContracts(academyId);
-    }
   } catch (error) { handleServiceError(error, 'contracts.list'); }
 }
 
@@ -56,14 +50,8 @@ export async function sendForSignature(contractId: string): Promise<{ signatureU
       const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
       return mockSendForSignature(contractId);
     }
-    try {
-      const res = await fetch(`/api/contracts/${contractId}/send`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'contracts.send');
-      return res.json();
-    } catch {
-      console.warn('[contracts.sendForSignature] API not available, using mock fallback');
-      const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
+    // API not yet implemented — use mock
+    const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
       return mockSendForSignature(contractId);
-    }
   } catch (error) { handleServiceError(error, 'contracts.send'); }
 }

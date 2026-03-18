@@ -15,15 +15,9 @@ export async function getBillingCycleConfig(academyId: string): Promise<BillingC
       const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockGetBillingConfig(academyId);
     }
-    try {
-      const res = await fetch(`/api/billing/config?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'billing.cycle.config');
-      return res.json();
-    } catch {
-      console.warn('[billing-automation.getBillingCycleConfig] API not available, using mock fallback');
-      const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
+    // API not yet implemented — use mock
+    const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockGetBillingConfig(academyId);
-    }
   } catch (error) { handleServiceError(error, 'billing.cycle.config'); }
 }
 
@@ -33,15 +27,9 @@ export async function previewNextBillingCycle(academyId: string): Promise<Billin
       const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
       return mockPreviewBilling(academyId);
     }
-    try {
-      const res = await fetch(`/api/billing/preview?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'billing.cycle.preview');
-      return res.json();
-    } catch {
-      console.warn('[billing-automation.previewNextBillingCycle] API not available, using mock fallback');
-      const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
+    // API not yet implemented — use mock
+    const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
       return mockPreviewBilling(academyId);
-    }
   } catch (error) { handleServiceError(error, 'billing.cycle.preview'); }
 }
 

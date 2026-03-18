@@ -69,15 +69,9 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       const { mockGetPipelineMetrics } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockGetPipelineMetrics();
     }
-    try {
-      const res = await fetch('/api/superadmin/pipeline/metrics');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, using mock fallback');
-      const { mockGetPipelineMetrics } = await import('@/lib/mocks/superadmin-pipeline.mock');
+    // API not yet implemented — use mock
+    const { mockGetPipelineMetrics } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockGetPipelineMetrics();
-    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.getMetrics'); }
 }
 
@@ -87,16 +81,9 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
       const { mockListLeads } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockListLeads(status);
     }
-    try {
-      const params = status ? `?status=${status}` : '';
-      const res = await fetch(`/api/superadmin/pipeline/leads${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-pipeline.listLeads] API not available, using mock fallback');
-      const { mockListLeads } = await import('@/lib/mocks/superadmin-pipeline.mock');
+    // API not yet implemented — use mock
+    const { mockListLeads } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockListLeads(status);
-    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.listLeads'); }
 }
 
@@ -124,15 +111,9 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
       const { mockAvancarLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockAvancarLead(leadId);
     }
-    try {
-      const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/avancar`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-pipeline.avancarLead] API not available, using mock fallback');
-      const { mockAvancarLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
+    // API not yet implemented — use mock
+    const { mockAvancarLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockAvancarLead(leadId);
-    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.avancarLead'); }
 }
 
@@ -142,15 +123,9 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
       const { mockPerderLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockPerderLead(leadId);
     }
-    try {
-      const res = await fetch(`/api/superadmin/pipeline/leads/${leadId}/perder`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[superadmin-pipeline.perderLead] API not available, using mock fallback');
-      const { mockPerderLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
+    // API not yet implemented — use mock
+    const { mockPerderLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockPerderLead(leadId);
-    }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.perderLead'); }
 }
 
