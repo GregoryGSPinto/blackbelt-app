@@ -195,57 +195,48 @@ export default function LoginPage() {
         className="w-full overflow-x-hidden"
         style={{ backgroundColor: 'var(--bb-depth-1)' }}
       >
-        {/* ═══════════ HERO LOGIN (full viewport) ═══════════ */}
+        {/* ═══════════ HERO LOGIN (full viewport, single centered column) ═══════════ */}
         <section
           id="login-section"
-          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 lg:flex-row lg:items-stretch lg:px-0"
+          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6"
           style={{ backgroundColor: 'var(--bb-depth-1)', minHeight: '100dvh' }}
         >
-          {/* ── Desktop Left Side: Motivational (hidden below lg) ── */}
-          <div
-            className="hidden min-w-0 flex-col items-center justify-center px-8 lg:flex lg:w-[45%] xl:w-1/2 xl:px-12 2xl:px-16"
-            style={{
-              background: 'linear-gradient(135deg, var(--bb-depth-2) 0%, var(--bb-depth-1) 100%)',
-              borderRight: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <div className="w-full max-w-md text-center xl:max-w-lg">
-              <h2
-                className="font-extrabold leading-tight"
-                style={{
-                  color: 'var(--bb-ink-100)',
-                  fontSize: 'clamp(1.75rem, 1rem + 2vw, 3.5rem)',
-                  overflowWrap: 'break-word',
-                }}
-              >
-                <span key={phraseIndex} className="bb-phrase-enter block">
-                  {PHRASES[phraseIndex]}
-                </span>
-              </h2>
-              <p
-                className="mt-4 text-base leading-relaxed xl:text-lg"
-                style={{ color: 'var(--bb-ink-60)' }}
-              >
-                Acompanhe sua jornada, conquiste faixas, treine com proposito.
-              </p>
+          {/* ── Desktop: Motivational text above card (hidden below lg) ── */}
+          <div className="hidden lg:flex flex-col items-center text-center mb-8 xl:mb-10">
+            <h2
+              className="font-extrabold leading-tight"
+              style={{
+                color: 'var(--bb-ink-100)',
+                fontSize: 'clamp(1.5rem, 0.8rem + 1.5vw, 2.5rem)',
+              }}
+            >
+              <span key={phraseIndex} className="bb-phrase-enter block">
+                {PHRASES[phraseIndex]}
+              </span>
+            </h2>
+            <p
+              className="mt-3 max-w-md text-base leading-relaxed"
+              style={{ color: 'var(--bb-ink-60)' }}
+            >
+              Acompanhe sua jornada, conquiste faixas, treine com proposito.
+            </p>
 
-              {/* Belt gradient bar */}
-              <div className="mx-auto mt-8 flex max-w-xs gap-1 xl:max-w-sm">
-                {BELT_COLORS.map((c, i) => (
-                  <div
-                    key={i}
-                    className="h-2 flex-1 rounded-full"
-                    style={{ backgroundColor: c, opacity: 0.7 }}
-                  />
-                ))}
-              </div>
+            {/* Belt gradient bar */}
+            <div className="mt-6 flex w-64 gap-1">
+              {BELT_COLORS.map((c, i) => (
+                <div
+                  key={i}
+                  className="h-1.5 flex-1 rounded-full"
+                  style={{ backgroundColor: c, opacity: 0.6 }}
+                />
+              ))}
             </div>
           </div>
 
-          {/* ── Login Form (centered mobile, right side desktop) ── */}
-          <div className="flex min-w-0 w-full items-center justify-center py-10 sm:py-12 lg:w-[55%] lg:py-0 xl:w-1/2">
+          {/* ── Login Card (centered on all breakpoints) ── */}
+          <div className="flex w-full items-center justify-center">
             <div
-              className={`bb-s w-full max-w-[420px] rounded-2xl sm:rounded-3xl ${shake || success ? '' : 'bb-s-card'}`}
+              className={`bb-s w-full max-w-[420px] rounded-2xl sm:rounded-3xl lg:max-w-[440px] ${shake || success ? '' : 'bb-s-card'}`}
               style={{
                 background: 'var(--bb-depth-3)',
                 backdropFilter: 'blur(24px) saturate(1.3)',
