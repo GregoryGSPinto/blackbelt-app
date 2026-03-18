@@ -184,8 +184,9 @@ export async function logout(): Promise<void> {
     const supabase = createBrowserClient();
     await supabase.auth.signOut();
 
-    // Clear role cookie
+    // Clear all custom cookies
     document.cookie = 'bb-active-role=;path=/;max-age=0';
+    document.cookie = 'bb-academy-id=;path=/;max-age=0';
   } catch (error) {
     handleServiceError(error, 'auth.logout');
   }

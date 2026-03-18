@@ -196,8 +196,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       isAuthenticated: false,
     });
-    router.push('/login');
-  }, [router]);
+
+    // Hard navigation to ensure Supabase session cookies are
+    // cleared before the middleware runs on the /login request.
+    // router.push does a client-side nav where old cookies
+    // cause the middleware to redirect back to the dashboard.
+    window.location.href = '/login';
+  }, []);
 
   const refreshSession = useCallback(async () => {
     if (isMock()) {

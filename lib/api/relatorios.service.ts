@@ -41,8 +41,9 @@ export async function getReport(academyId: string, filters: ReportFilters): Prom
       if (!res.ok) throw new ServiceError(res.status, 'relatorios.get');
       return res.json();
     } catch {
-      console.warn('[relatorios.getReport] API not available, using fallback');
-      return { title: "", data_points: [], summary: "", generated_at: "" } as unknown as ReportResult;
+      console.warn('[relatorios.getReport] API not available, using mock fallback');
+      const { mockGetReport } = await import('@/lib/mocks/relatorios.mock');
+      return mockGetReport(academyId, filters);
     }
   } catch (error) {
     handleServiceError(error, 'relatorios.get');
