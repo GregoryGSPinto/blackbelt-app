@@ -8,17 +8,23 @@ import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { TutorialWelcome } from '@/components/tutorial/TutorialWelcome';
 import { TutorialComplete } from '@/components/tutorial/TutorialComplete';
 import { TutorialFAB } from '@/components/tutorial/TutorialFAB';
+import SupportWidget from '@/components/support/SupportWidget';
+import { TelemetryInit } from '@/components/support/TelemetryInit';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
         <TutorialProvider>
-          <ToastProvider>{children}</ToastProvider>
-          <TutorialWelcome />
-          <TutorialOverlay />
-          <TutorialComplete />
-          <TutorialFAB />
+          <ToastProvider>
+            {children}
+            <TutorialWelcome />
+            <TutorialOverlay />
+            <TutorialComplete />
+            <TutorialFAB />
+            <SupportWidget />
+            <TelemetryInit />
+          </ToastProvider>
         </TutorialProvider>
       </AuthProvider>
     </ThemeProvider>
