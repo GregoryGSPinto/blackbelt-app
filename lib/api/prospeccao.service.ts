@@ -108,6 +108,14 @@ export interface ResultadoBusca {
   filtrosAplicados: string[];
 }
 
+export interface ResultadoBuscaReal {
+  prospects: AcademiaProspectada[];
+  fromCache: boolean;
+  cacheAge?: string;
+  totalEncontrados: number;
+  analisadosPorIA: boolean;
+}
+
 export interface ProspeccaoDashboard {
   totalProspects: number;
   porStatus: {
@@ -240,7 +248,12 @@ export async function buscarAcademias(params: BuscaProspeccao): Promise<Resultad
       const res = await fetch('/api/prospeccao/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params),
+        body: JSON.stringify({
+          query: params.query,
+          cidade: params.cidade,
+          bairro: params.bairro,
+          raioKm: params.raioKm,
+        }),
       });
       if (!res.ok) throw new ServiceError(res.status, 'prospeccao.buscar');
       return res.json();
@@ -630,5 +643,67 @@ export async function exportarCSV(filters?: BuscaProspeccao): Promise<string> {
     }
   } catch (error) {
     handleServiceError(error, 'prospeccao.exportarCSV');
+  }
+}
+
+export async function enriquecerAcademia(prospectId: string): Promise<AcademiaProspectada> {
+  try {
+    if (isMock()) {
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      await delay(500);
+      const prospect = MOCK_ACADEMIAS_PROSPECTADAS.find((a) => a.id === prospectId);
+      if (!prospect) throw new ServiceError(404, 'prospeccao.enriquecer', `Prospect ${prospectId} não encontrado`);
+      return prospect;
+    }
+
+    try {
+      const res = await fetch('/api/prospeccao/enriquecer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prospectId }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'prospeccao.enriquecer');
+      return res.json();
+    } catch {
+      // Fallback to mock until API routes are implemented
+      console.warn('[prospeccao.enriquecer] API not available, using mock data');
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      const prospect = MOCK_ACADEMIAS_PROSPECTADAS.find((a) => a.id === prospectId);
+      if (!prospect) throw new ServiceError(404, 'prospeccao.enriquecer', `Prospect ${prospectId} não encontrado`);
+      return prospect;
+    }
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.enriquecer');
+  }
+}
+
+export async function regenerarMensagem(prospectId: string, canal: string, contexto?: string): Promise<string> {
+  try {
+    if (isMock()) {
+      await delay(400);
+      const msgs: Record<string, string> = {
+        whatsapp: `Ola! Sou da BlackBelt, plataforma de gestao para academias de artes marciais. Vi que sua academia tem otima reputacao e gostaria de mostrar como podemos ajudar a crescer ainda mais. Podemos conversar?`,
+        instagram: `Oi! Parabens pelo trabalho incrivel na academia! Somos da BlackBelt e ajudamos academias como a sua a crescer com tecnologia. Posso te mostrar como funciona?`,
+        email: `Prezado(a), sou da BlackBelt, plataforma lider em gestao para academias de artes marciais. Gostaria de apresentar como podemos otimizar a gestao da sua academia e aumentar a retencao de alunos. Podemos agendar uma demonstracao?`,
+      };
+      return msgs[canal.toLowerCase()] ?? msgs.whatsapp;
+    }
+
+    try {
+      const res = await fetch('/api/prospeccao/mensagem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prospectId, canal, contexto }),
+      });
+      if (!res.ok) throw new ServiceError(res.status, 'prospeccao.mensagem');
+      const data = await res.json();
+      return data.mensagem ?? data;
+    } catch {
+      // Fallback to mock until API routes are implemented
+      console.warn('[prospeccao.mensagem] API not available, using mock data');
+      return `Ola! Sou da BlackBelt, plataforma de gestao para academias. Gostaria de mostrar como podemos ajudar sua academia a crescer. Podemos conversar?`;
+    }
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.mensagem');
   }
 }
