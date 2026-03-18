@@ -50,11 +50,11 @@ export function TestimonialCarousel() {
   return (
     <section
       ref={sectionRef}
-      className="scroll-reveal px-6 py-20 md:py-28"
+      className="scroll-reveal px-4 py-16 sm:px-6 md:py-24 lg:py-28"
       style={{ background: 'var(--bb-depth-2)' }}
     >
       <h3
-        className="mb-12 text-center text-2xl font-bold tracking-tight md:text-3xl"
+        className="mb-8 text-center text-xl font-bold tracking-tight sm:mb-12 sm:text-2xl md:text-3xl"
         style={{ color: 'var(--bb-ink-100)' }}
       >
         O que dizem nossos usuarios

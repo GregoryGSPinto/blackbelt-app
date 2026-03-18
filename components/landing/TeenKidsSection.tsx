@@ -25,7 +25,7 @@ export function TeenKidsSection() {
   return (
     <section
       ref={sectionRef}
-      className="scroll-reveal px-6 py-20 md:py-28"
+      className="scroll-reveal px-4 py-16 sm:px-6 md:py-24 lg:py-28"
       style={{ background: 'var(--bb-depth-1)' }}
     >
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:gap-8">

@@ -38,14 +38,14 @@ export function LandingHero() {
 
       <section
         id="landing"
-        className="scroll-reveal flex min-h-screen flex-col items-center justify-center px-6 py-20"
+        className="scroll-reveal flex min-h-screen flex-col items-center justify-center px-4 py-16 sm:px-6 md:py-20"
         ref={sectionRef}
         style={{
           background: 'linear-gradient(180deg, var(--bb-depth-1) 0%, var(--bb-depth-2) 100%)',
         }}
       >
         <h2
-          className="text-center text-3xl font-extrabold tracking-tight md:text-5xl"
+          className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl md:text-5xl"
           style={{ color: 'var(--bb-ink-100)' }}
         >
           Feito para quem vive o tatame.

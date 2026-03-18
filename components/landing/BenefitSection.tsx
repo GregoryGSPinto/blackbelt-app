@@ -106,7 +106,7 @@ export function BenefitSection({
   return (
     <section
       id={id}
-      className={`px-6 py-20 md:py-28 ${className}`}
+      className={`px-4 py-16 sm:px-6 md:py-24 lg:px-10 lg:py-28 ${className}`}
       style={{ background: 'var(--bb-depth-1)' }}
     >
       {/* Section header */}
@@ -122,7 +122,7 @@ export function BenefitSection({
           {icon}
         </div>
         <h3
-          className="text-2xl font-bold tracking-tight md:text-3xl"
+          className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl"
           style={{ color: 'var(--bb-ink-100)' }}
         >
           {title}
@@ -136,7 +136,7 @@ export function BenefitSection({
       </div>
 
       {/* Feature cards */}
-      <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
+      <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {features.map((feature, index) => (
           <FeatureCard key={index} feature={feature} accentColor={accentColor} />
         ))}

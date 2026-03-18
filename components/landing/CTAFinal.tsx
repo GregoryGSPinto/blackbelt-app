@@ -18,14 +18,14 @@ export function CTAFinal() {
   return (
     <section
       ref={sectionRef}
-      className="scroll-reveal flex flex-col items-center justify-center px-6 py-24 md:py-32"
+      className="scroll-reveal flex flex-col items-center justify-center px-4 py-16 sm:px-6 md:py-24 lg:py-32"
       style={{
         background:
           'linear-gradient(180deg, var(--bb-depth-1) 0%, var(--bb-depth-2) 50%, var(--bb-depth-1) 100%)',
       }}
     >
       <h3
-        className="text-center text-2xl font-bold tracking-tight md:text-4xl"
+        className="text-center text-xl font-bold tracking-tight sm:text-2xl md:text-4xl"
         style={{ color: 'var(--bb-ink-100)' }}
       >
         Pronto para comecar sua jornada?

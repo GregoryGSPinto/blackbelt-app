@@ -8,13 +8,13 @@ import { useToast } from '@/lib/hooks/useToast';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
+  ChevronDown,
   QrCode, Award, Trophy, Target, Video, BarChart3,
   GraduationCap, BookOpen, Clipboard, Eye, AlertTriangle, Users as UsersIcon,
   Calendar, MessageCircle, FileText, ShieldCheck,
   LayoutDashboard, DollarSign, Users, Smartphone,
   Clock, Tv, Gamepad2, Send,
 } from 'lucide-react';
-import { ScrollDownArrow } from '@/components/landing/ScrollDownArrow';
 import { LandingHero } from '@/components/landing/LandingHero';
 import { BenefitSection } from '@/components/landing/BenefitSection';
 import { TeenKidsSection } from '@/components/landing/TeenKidsSection';
@@ -22,13 +22,18 @@ import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
 import { CTAFinal } from '@/components/landing/CTAFinal';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 
-// ── Rotating inspirational phrases (desktop only) ────────────────────
+/* ── Rotating inspirational phrases (desktop only) ── */
 const PHRASES = [
   'Evolua a cada treino.',
   'O tatame ensina mais que tecnica.',
   'Disciplina no treino, excelencia na vida.',
   'A faixa e so o comeco da jornada.',
   'Cada repeticao te faz mais forte.',
+];
+
+const BELT_COLORS = [
+  '#FAFAFA', '#EAB308', '#EA580C', '#16A34A',
+  '#2563EB', '#9333EA', '#92400E', '#0A0A0A',
 ];
 
 export default function LoginPage() {
@@ -43,14 +48,12 @@ export default function LoginPage() {
   const [shake, setShake] = useState(false);
   const [success, setSuccess] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const [showArrow, setShowArrow] = useState(true);
 
   const emailRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    emailRef.current?.focus();
-  }, []);
+  useEffect(() => { emailRef.current?.focus(); }, []);
 
-  // Rotate phrases every 4 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
@@ -64,6 +67,12 @@ export default function LoginPage() {
       return () => clearTimeout(timer);
     }
   }, [shake]);
+
+  useEffect(() => {
+    function onScroll() { setShowArrow(window.scrollY < 100); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -95,158 +104,160 @@ export default function LoginPage() {
     }
   }
 
+  function handleScrollDown() {
+    document.getElementById('landing')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ── Animations (card, shake, shimmer, phrase, scroll-reveal) ── */
+  const cardAnim = shake
+    ? { animation: 'bb-shake 0.3s ease-in-out', opacity: 1 }
+    : success
+      ? { animation: 'bb-success 0.3s ease-in-out forwards', opacity: 1 }
+      : {};
+
   return (
     <>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes bb-login-card-in {
-              0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
-              100% { opacity: 1; transform: scale(1); filter: blur(0); }
-            }
-            @keyframes bb-login-element-in {
-              0% { opacity: 0; transform: translateY(12px); filter: blur(4px); }
-              100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-            }
-            @keyframes bb-login-fade-in {
-              0% { opacity: 0; }
-              100% { opacity: 1; }
-            }
-            @keyframes bb-login-shake {
-              0%, 100% { transform: translateX(0); }
-              12% { transform: translateX(-8px); }
-              25% { transform: translateX(8px); }
-              37% { transform: translateX(-4px); }
-              50% { transform: translateX(4px); }
-              62% { transform: translateX(-2px); }
-              75% { transform: translateX(2px); }
-            }
-            @keyframes bb-login-success {
-              0% { transform: scale(1); opacity: 1; }
-              100% { transform: scale(0.97); opacity: 0; }
-            }
-            @keyframes bb-login-shimmer {
-              0% { transform: translateX(-100%); }
-              100% { transform: translateX(100%); }
-            }
-            @keyframes bb-phrase-in {
-              0% { opacity: 0; transform: translateY(8px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes bb-card-in {
+          0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
+          100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes bb-el-in {
+          0% { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes bb-fade {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        @keyframes bb-shake {
+          0%, 100% { transform: translateX(0); }
+          12% { transform: translateX(-8px); }
+          25% { transform: translateX(8px); }
+          37% { transform: translateX(-4px); }
+          50% { transform: translateX(4px); }
+          62% { transform: translateX(-2px); }
+          75% { transform: translateX(2px); }
+        }
+        @keyframes bb-success {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(0.97); opacity: 0; }
+        }
+        @keyframes bb-shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes bb-phrase-in {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
 
-            .bb-stagger { opacity: 0; animation-fill-mode: forwards; }
-            .bb-stagger-card { animation: bb-login-card-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.0s forwards; }
-            .bb-stagger-logo { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
-            .bb-stagger-tagline { animation: bb-login-fade-in 0.5s ease-out 0.4s forwards; }
-            .bb-stagger-email { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards; }
-            .bb-stagger-password { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards; }
-            .bb-stagger-button { animation: bb-login-element-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards; }
-            .bb-stagger-links { animation: bb-login-fade-in 0.5s ease-out 1.1s forwards; }
+        .bb-s { opacity: 0; animation-fill-mode: forwards; }
+        .bb-s-card { animation: bb-card-in 0.6s cubic-bezier(0.16,1,0.3,1) 0s forwards; }
+        .bb-s-logo { animation: bb-el-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s forwards; }
+        .bb-s-tag  { animation: bb-fade 0.5s ease-out 0.35s forwards; }
+        .bb-s-social { animation: bb-el-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.45s forwards; }
+        .bb-s-div  { animation: bb-fade 0.4s ease-out 0.55s forwards; }
+        .bb-s-email { animation: bb-el-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.6s forwards; }
+        .bb-s-pass { animation: bb-el-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.7s forwards; }
+        .bb-s-btn  { animation: bb-el-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.85s forwards; }
+        .bb-s-links { animation: bb-fade 0.5s ease-out 1s forwards; }
 
-            .bb-btn-shimmer { position: relative; overflow: hidden; }
-            .bb-btn-shimmer::after {
-              content: '';
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-              animation: bb-login-shimmer 1.5s ease-in-out infinite;
-            }
+        .bb-shimmer { position: relative; overflow: hidden; }
+        .bb-shimmer::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+          animation: bb-shimmer 1.5s ease-in-out infinite;
+        }
 
-            .bb-phrase-enter {
-              animation: bb-phrase-in 0.6s ease-out forwards;
-            }
+        .bb-phrase-enter { animation: bb-phrase-in 0.6s ease-out forwards; }
 
-            /* Scroll reveal */
-            .scroll-reveal {
-              opacity: 0;
-              transform: translateY(30px);
-              transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-                          transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            .scroll-reveal.revealed {
-              opacity: 1;
-              transform: translateY(0);
-            }
-            .scroll-reveal.revealed > *:nth-child(1) { transition-delay: 0ms; }
-            .scroll-reveal.revealed > *:nth-child(2) { transition-delay: 100ms; }
-            .scroll-reveal.revealed > *:nth-child(3) { transition-delay: 200ms; }
-            .scroll-reveal.revealed > *:nth-child(4) { transition-delay: 300ms; }
-          `,
-        }}
-      />
+        .scroll-reveal {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1),
+                      transform 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        .scroll-reveal.revealed {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .scroll-reveal.revealed > *:nth-child(1) { transition-delay: 0ms; }
+        .scroll-reveal.revealed > *:nth-child(2) { transition-delay: 100ms; }
+        .scroll-reveal.revealed > *:nth-child(3) { transition-delay: 200ms; }
+        .scroll-reveal.revealed > *:nth-child(4) { transition-delay: 300ms; }
+      ` }} />
 
-      <div className="min-h-screen" style={{ backgroundColor: 'var(--bb-depth-1)' }}>
-        {/* ═══════════ LOGIN SECTION (100vh) ═══════════ */}
+      {/* ═══ ROOT — overflow-x-hidden prevents ANY horizontal scroll ═══ */}
+      <div
+        className="w-full overflow-x-hidden"
+        style={{ backgroundColor: 'var(--bb-depth-1)' }}
+      >
+        {/* ═══════════ HERO LOGIN (full viewport) ═══════════ */}
         <section
           id="login-section"
-          className="relative flex min-h-screen flex-col items-center justify-center lg:flex-row"
-          style={{ backgroundColor: 'var(--bb-depth-1)' }}
+          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 lg:flex-row lg:px-0"
+          style={{ backgroundColor: 'var(--bb-depth-1)', minHeight: '100dvh' }}
         >
-          {/* ── Desktop Left Side: Motivational ── */}
+          {/* ── Desktop Left Side: Motivational (hidden on mobile/tablet) ── */}
           <div
-            className="hidden w-1/2 flex-col items-center justify-center px-12 xl:px-20 lg:flex"
+            className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center px-10 xl:px-16"
             style={{
-              minHeight: '100vh',
+              minHeight: '100dvh',
               background: 'linear-gradient(135deg, var(--bb-depth-2) 0%, var(--bb-depth-1) 100%)',
               borderRight: '1px solid var(--bb-glass-border)',
             }}
           >
-            <div className="max-w-lg text-center">
+            <div className="w-full max-w-lg text-center">
               <h2
-                className="text-3xl font-extrabold leading-tight lg:text-5xl xl:text-6xl"
-                style={{ color: 'var(--bb-ink-100)' }}
+                className="text-3xl font-extrabold leading-tight xl:text-5xl 2xl:text-6xl"
+                style={{ color: 'var(--bb-ink-100)', wordBreak: 'break-word' }}
               >
                 <span key={phraseIndex} className="bb-phrase-enter inline-block">
                   {PHRASES[phraseIndex]}
                 </span>
               </h2>
               <p
-                className="mt-4 text-base leading-relaxed lg:text-lg"
+                className="mt-4 text-base leading-relaxed xl:text-lg"
                 style={{ color: 'var(--bb-ink-60)' }}
               >
                 Acompanhe sua jornada, conquiste faixas, treine com proposito.
               </p>
 
-              {/* Decorative belt gradient bar */}
-              <div className="mx-auto mt-8 flex max-w-xs gap-1 lg:max-w-sm">
-                {['#FAFAFA', '#EAB308', '#EA580C', '#16A34A', '#2563EB', '#9333EA', '#92400E', '#0A0A0A'].map((c, i) => (
+              {/* Belt gradient bar */}
+              <div className="mx-auto mt-8 flex max-w-xs gap-1 xl:max-w-sm">
+                {BELT_COLORS.map((c, i) => (
                   <div
                     key={i}
                     className="h-2 flex-1 rounded-full"
-                    style={{
-                      backgroundColor: c,
-                      opacity: 0.7,
-                    }}
+                    style={{ backgroundColor: c, opacity: 0.7 }}
                   />
                 ))}
               </div>
             </div>
           </div>
 
-          {/* ── Login Form (centered on mobile, right on desktop) ── */}
-          <div className="flex w-full items-center justify-center px-4 py-12 lg:w-1/2 lg:py-0">
+          {/* ── Login Form (centered mobile, right side desktop) ── */}
+          <div className="flex w-full items-center justify-center py-10 sm:py-12 lg:w-1/2 lg:py-0">
             <div
-              className={`bb-stagger w-full ${shake ? '' : success ? '' : 'bb-stagger-card'}`}
+              className={`bb-s w-full max-w-[400px] ${shake || success ? '' : 'bb-s-card'}`}
               style={{
-                maxWidth: 420,
                 background: 'var(--bb-depth-3)',
                 backdropFilter: 'blur(24px) saturate(1.3)',
                 WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
                 border: '1px solid var(--bb-glass-border)',
-                borderRadius: 24,
-                padding: '48px 40px',
+                borderRadius: 20,
+                padding: 'clamp(24px, 5vw, 40px) clamp(20px, 4vw, 36px)',
                 boxShadow: 'var(--bb-shadow-xl)',
-                ...(shake
-                  ? { animation: 'bb-login-shake 0.3s ease-in-out', opacity: 1 }
-                  : success
-                    ? { animation: 'bb-login-success 0.3s ease-in-out forwards', opacity: 1 }
-                    : {}),
+                ...cardAnim,
               }}
             >
               {/* Logo */}
-              <div className="bb-stagger bb-stagger-logo flex flex-col items-center">
+              <div className="bb-s bb-s-logo flex flex-col items-center">
                 <h1
-                  className="font-display text-4xl font-extrabold"
+                  className="text-3xl font-extrabold sm:text-4xl"
                   style={{
                     letterSpacing: '-0.03em',
                     color: 'var(--bb-brand)',
@@ -263,16 +274,60 @@ export default function LoginPage() {
 
               {/* Tagline */}
               <p
-                className="bb-stagger bb-stagger-tagline mt-4 text-center font-sans uppercase"
-                style={{ fontSize: 13, letterSpacing: '0.08em', color: 'var(--bb-ink-60)' }}
+                className="bb-s bb-s-tag mt-3 text-center text-xs uppercase tracking-widest sm:text-[13px]"
+                style={{ color: 'var(--bb-ink-60)' }}
               >
                 Sua jornada nas artes marciais
               </p>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+              {/* ── Social Login Buttons (Google + Apple lado a lado) ── */}
+              <div className="bb-s bb-s-social mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => toast('Login com Google em breve!', 'info')}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-medium transition-all duration-200 sm:text-sm"
+                  style={{
+                    border: '1px solid var(--bb-glass-border)',
+                    background: 'var(--bb-depth-2)',
+                    color: 'var(--bb-ink-80)',
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toast('Login com Apple em breve!', 'info')}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-medium transition-all duration-200 sm:text-sm"
+                  style={{
+                    border: '1px solid var(--bb-glass-border)',
+                    background: 'var(--bb-depth-2)',
+                    color: 'var(--bb-ink-80)',
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.53-3.23 0-1.44.62-2.2.44-3.06-.4C3.79 16.17 4.36 9.51 8.82 9.28c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.3 4.12zM12.03 9.2C11.88 6.88 13.77 5 15.96 4.82c.29 2.65-2.4 4.63-3.93 4.38z"/>
+                  </svg>
+                  Apple
+                </button>
+              </div>
+
+              {/* ── Divider ── */}
+              <div className="bb-s bb-s-div my-5 flex items-center gap-3">
+                <div className="h-px flex-1" style={{ background: 'var(--bb-glass-border)' }} />
+                <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>ou</span>
+                <div className="h-px flex-1" style={{ background: 'var(--bb-glass-border)' }} />
+              </div>
+
+              {/* ── Login Form ── */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {/* Email */}
-                <div className="bb-stagger bb-stagger-email relative">
+                <div className="bb-s bb-s-email relative">
                   <span className="pointer-events-none absolute left-4 top-[38px] z-10" style={{ color: 'var(--bb-ink-40)' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -288,12 +343,12 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     error={error && !email.trim() ? 'Campo obrigatorio' : undefined}
-                    className="h-12 border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
+                    className="h-12 w-full border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
                   />
                 </div>
 
                 {/* Password */}
-                <div className="bb-stagger bb-stagger-password relative">
+                <div className="bb-s bb-s-pass relative">
                   <span className="pointer-events-none absolute left-4 top-[38px] z-10" style={{ color: 'var(--bb-ink-40)' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
@@ -308,7 +363,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     error={error && !password.trim() ? 'Campo obrigatorio' : undefined}
-                    className="h-12 border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
+                    className="h-12 w-full border-[var(--bb-glass-border)] bg-[var(--bb-depth-5)] pl-11 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus-visible:border-[var(--bb-brand)] focus-visible:ring-[var(--bb-brand)]/20"
                   />
                 </div>
 
@@ -320,11 +375,11 @@ export default function LoginPage() {
                 )}
 
                 {/* Submit */}
-                <div className="bb-stagger bb-stagger-button mt-1">
+                <div className="bb-s bb-s-btn mt-1">
                   <Button
                     type="submit"
                     loading={loading}
-                    className={`h-12 w-full text-[15px] font-bold text-white transition-all duration-200 ${loading ? 'bb-btn-shimmer' : ''}`}
+                    className={`h-12 w-full text-sm font-bold text-white transition-all duration-200 sm:text-[15px] ${loading ? 'bb-shimmer' : ''}`}
                     style={{ background: 'var(--bb-brand-gradient)', borderRadius: 'var(--bb-radius-md)' }}
                     onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.boxShadow = 'var(--bb-brand-glow)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
                     onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -337,7 +392,7 @@ export default function LoginPage() {
               </form>
 
               {/* Links */}
-              <div className="bb-stagger bb-stagger-links mt-6 flex items-center justify-center gap-3 text-sm">
+              <div className="bb-s bb-s-links mt-5 flex items-center justify-center gap-3 text-xs sm:text-sm">
                 <Link
                   href="/esqueci-senha"
                   className="transition-colors duration-200"
@@ -360,21 +415,31 @@ export default function LoginPage() {
               </div>
 
               {/* Demo credentials */}
-              <div className="bb-stagger bb-stagger-links mt-6 pt-4" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-                <p className="text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              <div className="bb-s bb-s-links mt-5 pt-4" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+                <p className="break-all text-center text-[11px] sm:text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                   Demo: roberto@guerreiros.com / BlackBelt@2026
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Scroll Down Arrow */}
-          <ScrollDownArrow />
+          {/* ── Scroll-down arrow ── */}
+          {showArrow && (
+            <button
+              type="button"
+              onClick={handleScrollDown}
+              className="absolute bottom-5 left-1/2 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 border-none bg-transparent"
+              style={{ color: 'var(--bb-ink-40)', cursor: 'pointer' }}
+              aria-label="Rolar para baixo"
+            >
+              <span className="text-[11px]">Descubra mais</span>
+              <ChevronDown size={22} />
+            </button>
+          )}
         </section>
 
-        {/* ═══════════ LANDING PAGE (Below Login) ═══════════ */}
+        {/* ═══════════ LANDING PAGE (below hero) ═══════════ */}
         <div id="landing">
-          {/* Hero */}
           <LandingHero />
 
           {/* Aluno */}
