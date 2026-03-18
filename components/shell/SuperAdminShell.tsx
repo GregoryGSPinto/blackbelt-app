@@ -11,6 +11,7 @@ import {
   LayoutDashboardIcon,
   BuildingIcon,
   FilterIcon,
+  TargetIcon,
   DollarIcon,
   CreditCardIcon,
   ToggleLeftIcon,
@@ -45,6 +46,7 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: 'COMERCIAL',
     items: [
+      { href: '/superadmin/prospeccao', label: 'Prospecção', icon: TargetIcon, id: 'sidebar-link-prospeccao' },
       { href: '/superadmin/pipeline', label: 'Pipeline', icon: FilterIcon, badge: 12, id: 'sidebar-link-pipeline' },
       { href: '/superadmin/academias', label: 'Academias', icon: BuildingIcon, badge: 3, id: 'sidebar-link-academias' },
     ],

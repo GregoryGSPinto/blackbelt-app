@@ -1,0 +1,473 @@
+import { isMock } from '@/lib/env';
+import { ServiceError, handleServiceError } from '@/lib/api/errors';
+
+// --- Domain Types ---
+
+export interface ProspectScore {
+  geral: number;
+  infraestrutura: number;
+  presencaDigital: number;
+  reputacao: number;
+  potencialConversao: number;
+}
+
+export interface ProspectEstimativas {
+  alunosEstimados: number;
+  faturamentoEstimado: number;
+  ticketMedio: number;
+  marketShare: number;
+}
+
+export interface ProspectReview {
+  autor: string;
+  nota: number;
+  texto: string;
+  data: string;
+  plataforma: string;
+}
+
+export interface ProspectAnalise {
+  pontosFortes: string[];
+  pontosFracos: string[];
+  oportunidades: string[];
+  ameacas: string[];
+}
+
+export interface ProspectAbordagem {
+  canal: string;
+  mensagemSugerida: string;
+  melhorHorario: string;
+  argumentos: string[];
+  objecoesPrevistas: string[];
+}
+
+export interface ProspectCRM {
+  status: string;
+  ultimoContato?: string;
+  proximoContato?: string;
+  historicoContatos: {
+    data: string;
+    canal: string;
+    resumo: string;
+    resultado: string;
+  }[];
+  observacoes: string[];
+  responsavel?: string;
+  motivoPerda?: string;
+}
+
+export interface AcademiaProspectada {
+  id: string;
+  nome: string;
+  endereco: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  telefone: string;
+  email?: string;
+  website?: string;
+  instagram?: string;
+  googleMapsUrl?: string;
+  notaGoogle: number;
+  totalAvaliacoes: number;
+  modalidades: string[];
+  horarioFuncionamento: string;
+  fotos: string[];
+  score: ProspectScore;
+  estimativas: ProspectEstimativas;
+  reviews: ProspectReview[];
+  analise: ProspectAnalise;
+  abordagem: ProspectAbordagem;
+  crm: ProspectCRM;
+  classificacao: 'quente' | 'morno' | 'frio';
+  distanciaKm?: number;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+// --- Service Types ---
+
+export interface BuscaProspeccao {
+  query?: string;
+  cidade?: string;
+  estado?: string;
+  bairro?: string;
+  raioKm?: number;
+  modalidades?: string[];
+  minNota?: number;
+  maxResultados?: number;
+  classificacao?: 'quente' | 'morno' | 'frio';
+  status?: string;
+}
+
+export interface ResultadoBusca {
+  total: number;
+  academias: AcademiaProspectada[];
+  buscaRealizada: string;
+  tempo: number;
+  filtrosAplicados: string[];
+}
+
+export interface ProspeccaoDashboard {
+  totalProspects: number;
+  porStatus: {
+    novo: number;
+    contactado: number;
+    interessado: number;
+    demoAgendada: number;
+    negociando: number;
+    fechado: number;
+    perdido: number;
+  };
+  taxaConversao: number;
+  tempoMedioFechamento: number;
+  mrrClientes: number;
+  ultimasBuscas: { query: string; resultados: number; data: string }[];
+  proximosContatos: { academia: string; data: string; canal: string }[];
+  regioes: {
+    bairro: string;
+    cidade: string;
+    estado: string;
+    academias: number;
+    quentes: number;
+    mornos: number;
+    frios: number;
+  }[];
+  // Analytics
+  funnelData: { stage: string; count: number; percentage: number }[];
+  weeklyData: { semana: string; novos: number; contatos: number; demos: number; fechados: number }[];
+  scoreDistribution: { classificacao: string; count: number; percentage: number }[];
+  canaisEficacia: { canal: string; taxaResposta: number; contatos: number }[];
+  topObjecoes: { motivo: string; percentage: number; count: number }[];
+}
+
+export interface ContatoInput {
+  data: string;
+  canal: string;
+  resumo: string;
+  resultado: string;
+}
+
+// --- Helper ---
+
+const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
+
+// --- Service Functions ---
+
+export async function buscarAcademias(params: BuscaProspeccao): Promise<ResultadoBusca> {
+  try {
+    if (isMock()) {
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      await delay();
+
+      const inicio = Date.now();
+      const filtrosAplicados: string[] = [];
+      let resultados = [...MOCK_ACADEMIAS_PROSPECTADAS];
+
+      if (params.query) {
+        const q = params.query.toLowerCase();
+        filtrosAplicados.push(`query: "${params.query}"`);
+        resultados = resultados.filter(
+          (a) =>
+            a.nome.toLowerCase().includes(q) ||
+            a.endereco.toLowerCase().includes(q) ||
+            a.bairro.toLowerCase().includes(q) ||
+            a.modalidades.some((m) => m.toLowerCase().includes(q)),
+        );
+      }
+
+      if (params.cidade) {
+        filtrosAplicados.push(`cidade: ${params.cidade}`);
+        resultados = resultados.filter(
+          (a) => a.cidade.toLowerCase() === params.cidade!.toLowerCase(),
+        );
+      }
+
+      if (params.estado) {
+        filtrosAplicados.push(`estado: ${params.estado}`);
+        resultados = resultados.filter(
+          (a) => a.estado.toLowerCase() === params.estado!.toLowerCase(),
+        );
+      }
+
+      if (params.bairro) {
+        filtrosAplicados.push(`bairro: ${params.bairro}`);
+        resultados = resultados.filter(
+          (a) => a.bairro.toLowerCase().includes(params.bairro!.toLowerCase()),
+        );
+      }
+
+      if (params.modalidades && params.modalidades.length > 0) {
+        filtrosAplicados.push(`modalidades: ${params.modalidades.join(', ')}`);
+        resultados = resultados.filter((a) =>
+          params.modalidades!.some((m) =>
+            a.modalidades.some((am) => am.toLowerCase().includes(m.toLowerCase())),
+          ),
+        );
+      }
+
+      if (params.minNota !== undefined) {
+        filtrosAplicados.push(`nota >= ${params.minNota}`);
+        resultados = resultados.filter((a) => a.notaGoogle >= params.minNota!);
+      }
+
+      if (params.classificacao) {
+        filtrosAplicados.push(`classificacao: ${params.classificacao}`);
+        resultados = resultados.filter((a) => a.classificacao === params.classificacao);
+      }
+
+      if (params.status) {
+        filtrosAplicados.push(`status: ${params.status}`);
+        resultados = resultados.filter((a) => a.crm.status === params.status);
+      }
+
+      if (params.maxResultados) {
+        resultados = resultados.slice(0, params.maxResultados);
+      }
+
+      const tempo = Date.now() - inicio;
+
+      return {
+        total: resultados.length,
+        academias: resultados,
+        buscaRealizada: params.query ?? 'todos',
+        tempo,
+        filtrosAplicados,
+      };
+    }
+
+    const res = await fetch('/api/prospeccao/buscar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.buscar');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.buscar');
+  }
+}
+
+export async function getProspects(filters?: BuscaProspeccao): Promise<AcademiaProspectada[]> {
+  try {
+    if (isMock()) {
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      await delay();
+
+      if (!filters) return MOCK_ACADEMIAS_PROSPECTADAS;
+
+      let resultados = [...MOCK_ACADEMIAS_PROSPECTADAS];
+
+      if (filters.classificacao) {
+        resultados = resultados.filter((a) => a.classificacao === filters.classificacao);
+      }
+      if (filters.status) {
+        resultados = resultados.filter((a) => a.crm.status === filters.status);
+      }
+      if (filters.cidade) {
+        resultados = resultados.filter(
+          (a) => a.cidade.toLowerCase() === filters.cidade!.toLowerCase(),
+        );
+      }
+      if (filters.estado) {
+        resultados = resultados.filter(
+          (a) => a.estado.toLowerCase() === filters.estado!.toLowerCase(),
+        );
+      }
+
+      return resultados;
+    }
+
+    const queryParams = filters
+      ? '?' + new URLSearchParams(
+          Object.entries(filters)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : String(v)]),
+        ).toString()
+      : '';
+    const res = await fetch(`/api/prospeccao/prospects${queryParams}`);
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.getProspects');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.getProspects');
+  }
+}
+
+export async function getProspect(id: string): Promise<AcademiaProspectada> {
+  try {
+    if (isMock()) {
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      await delay();
+
+      const prospect = MOCK_ACADEMIAS_PROSPECTADAS.find((a) => a.id === id);
+      if (!prospect) throw new ServiceError(404, 'prospeccao.getProspect', `Prospect ${id} não encontrado`);
+      return prospect;
+    }
+
+    const res = await fetch(`/api/prospeccao/prospects/${id}`);
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.getProspect');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.getProspect');
+  }
+}
+
+export async function updateStatus(id: string, status: string): Promise<void> {
+  try {
+    if (isMock()) {
+      await delay();
+      // No-op for mock — in production, persists to database
+      return;
+    }
+
+    const res = await fetch(`/api/prospeccao/prospects/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.updateStatus');
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.updateStatus');
+  }
+}
+
+export async function addContato(id: string, contato: ContatoInput): Promise<void> {
+  try {
+    if (isMock()) {
+      await delay();
+      // No-op for mock — in production, persists to database
+      return;
+    }
+
+    const res = await fetch(`/api/prospeccao/prospects/${id}/contatos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(contato),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.addContato');
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.addContato');
+  }
+}
+
+export async function addObservacao(id: string, texto: string): Promise<void> {
+  try {
+    if (isMock()) {
+      await delay();
+      // No-op for mock — in production, persists to database
+      return;
+    }
+
+    const res = await fetch(`/api/prospeccao/prospects/${id}/observacoes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.addObservacao');
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.addObservacao');
+  }
+}
+
+export async function agendarContato(id: string, data: string, canal: string): Promise<void> {
+  try {
+    if (isMock()) {
+      await delay();
+      // No-op for mock — in production, persists to database
+      return;
+    }
+
+    const res = await fetch(`/api/prospeccao/prospects/${id}/agendar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, canal }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.agendarContato');
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.agendarContato');
+  }
+}
+
+export async function getProspeccaoDashboard(): Promise<ProspeccaoDashboard> {
+  try {
+    if (isMock()) {
+      const { MOCK_DASHBOARD } = await import('@/lib/mocks/prospeccao.mock');
+      await delay();
+      return MOCK_DASHBOARD;
+    }
+
+    try {
+      const res = await fetch('/api/prospeccao/dashboard');
+      if (!res.ok) throw new ServiceError(res.status, 'prospeccao.dashboard');
+      return res.json();
+    } catch {
+      console.warn('[prospeccao.getProspeccaoDashboard] API not available, using fallback');
+      return {
+        totalProspects: 0,
+        porStatus: { novo: 0, contactado: 0, interessado: 0, demoAgendada: 0, negociando: 0, fechado: 0, perdido: 0 },
+        taxaConversao: 0,
+        tempoMedioFechamento: 0,
+        mrrClientes: 0,
+        ultimasBuscas: [],
+        proximosContatos: [],
+        regioes: [],
+        funnelData: [],
+        weeklyData: [],
+        scoreDistribution: [],
+        canaisEficacia: [],
+        topObjecoes: [],
+      } as ProspeccaoDashboard;
+    }
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.dashboard');
+  }
+}
+
+export async function exportarCSV(filters?: BuscaProspeccao): Promise<string> {
+  try {
+    if (isMock()) {
+      const { MOCK_ACADEMIAS_PROSPECTADAS } = await import('@/lib/mocks/prospeccao.mock');
+      await delay();
+
+      let dados = [...MOCK_ACADEMIAS_PROSPECTADAS];
+
+      if (filters?.classificacao) {
+        dados = dados.filter((a) => a.classificacao === filters.classificacao);
+      }
+      if (filters?.status) {
+        dados = dados.filter((a) => a.crm.status === filters.status);
+      }
+      if (filters?.cidade) {
+        dados = dados.filter(
+          (a) => a.cidade.toLowerCase() === filters.cidade!.toLowerCase(),
+        );
+      }
+      if (filters?.estado) {
+        dados = dados.filter(
+          (a) => a.estado.toLowerCase() === filters.estado!.toLowerCase(),
+        );
+      }
+
+      const header = 'nome,telefone,instagram,bairro,score,classificacao,status';
+      const rows = dados.map(
+        (a) =>
+          `"${a.nome}","${a.telefone}","${a.instagram ?? ''}","${a.bairro}",${a.score.geral},"${a.classificacao}","${a.crm.status}"`,
+      );
+
+      return [header, ...rows].join('\n');
+    }
+
+    const queryParams = filters
+      ? '?' + new URLSearchParams(
+          Object.entries(filters)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : String(v)]),
+        ).toString()
+      : '';
+    const res = await fetch(`/api/prospeccao/exportar${queryParams}`);
+    if (!res.ok) throw new ServiceError(res.status, 'prospeccao.exportarCSV');
+    return res.text();
+  } catch (error) {
+    handleServiceError(error, 'prospeccao.exportarCSV');
+  }
+}
