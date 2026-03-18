@@ -416,7 +416,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                   {/* Switch Account + Logout */}
                   <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
                     <button
-                      onClick={() => { setUserMenuOpen(false); window.location.href = '/selecionar-perfil'; }}
+                      onClick={() => { setUserMenuOpen(false); sessionStorage.setItem('bb_profile_switch', '1'); window.location.href = '/selecionar-perfil'; }}
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
                       style={{ color: 'var(--bb-ink-80)' }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}

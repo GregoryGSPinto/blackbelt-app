@@ -437,7 +437,11 @@ export default function DashboardPerfilPage() {
 
   // Load profile
   useEffect(() => {
-    if (studentIdLoading || !studentId) return;
+    if (studentIdLoading) return;
+    if (!studentId) {
+      setLoading(false);
+      return;
+    }
     async function loadProfile() {
       try {
         const p = await getStudentProfile(studentId!);
@@ -447,7 +451,7 @@ export default function DashboardPerfilPage() {
       }
     }
     loadProfile();
-  }, []);
+  }, [studentId, studentIdLoading]);
 
   // Load tab data on demand
   const loadTabData = useCallback(

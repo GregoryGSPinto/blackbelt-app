@@ -53,6 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const profileSwitchRef = useRef(false);
 
+  // On mount, check if we're returning from profile selection (survives full page reload)
+  useEffect(() => {
+    if (sessionStorage.getItem('bb_profile_switch') === '1') {
+      profileSwitchRef.current = true;
+      sessionStorage.removeItem('bb_profile_switch');
+    }
+  }, []);
+
   // Bootstrap: check existing session on mount
   useEffect(() => {
     async function bootstrap() {

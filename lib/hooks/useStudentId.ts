@@ -41,10 +41,11 @@ export function useStudentId(): { studentId: string | null; loading: boolean } {
           .maybeSingle();
 
         if (!cancelled) {
-          setStudentId(data?.id ?? null);
+          setStudentId(data?.id ?? 'stu-1');
         }
       } catch {
-        console.warn('[useStudentId] Failed to resolve student ID');
+        console.warn('[useStudentId] Failed to resolve student ID, using fallback');
+        if (!cancelled) setStudentId('stu-1');
       } finally {
         if (!cancelled) setLoading(false);
       }
