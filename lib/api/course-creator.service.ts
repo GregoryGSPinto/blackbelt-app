@@ -51,7 +51,7 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       return res.json();
     } catch {
       console.warn('[course-creator.createCourse] API not available, using fallback');
-      return {} as MarketplaceCourse;
+      return { id: '', title: '', description: '', creator_id: '', creator_name: '', creator_avatar: null, modality: 'bjj', belt_level: 'white', price: 0, thumbnail_url: '', preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: 'draft', created_at: '', updated_at: '' } as unknown as MarketplaceCourse;
     }
   } catch (error) { handleServiceError(error, 'courseCreator.create'); }
 }
@@ -72,7 +72,7 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       return res.json();
     } catch {
       console.warn('[course-creator.addModule] API not available, using fallback');
-      return {} as CourseModule;
+      return { id: '', title: '', order: 0, lessons: [] } as unknown as CourseModule;
     }
   } catch (error) { handleServiceError(error, 'courseCreator.addModule'); }
 }
@@ -127,7 +127,7 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       return res.json();
     } catch {
       console.warn('[course-creator.publishCourse] API not available, using fallback');
-      return {} as MarketplaceCourse;
+      return { id: '', title: '', description: '', creator_id: '', creator_name: '', creator_avatar: null, modality: 'bjj', belt_level: 'white', price: 0, thumbnail_url: '', preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: 'draft', created_at: '', updated_at: '' } as unknown as MarketplaceCourse;
     }
   } catch (error) { handleServiceError(error, 'courseCreator.publish'); }
 }

@@ -116,7 +116,7 @@ export async function addComment(
       return res.json();
     } catch {
       console.warn('[feed.addComment] API not available, using fallback');
-      return {} as FeedComment;
+      return { id: "", post_id: "", user_id: "", user_name: "", content: "", created_at: "" } as unknown as FeedComment;
     }
 
   } catch (error) {
@@ -138,7 +138,7 @@ export async function getHighlights(
       return res.json();
     } catch {
       console.warn('[feed.getHighlights] API not available, using fallback');
-      return {} as FeedHighlights;
+      return { top_students: [], top_classes: [], birthdays: [] } as unknown as FeedHighlights;
     }
 
   } catch (error) {

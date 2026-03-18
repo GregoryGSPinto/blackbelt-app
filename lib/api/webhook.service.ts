@@ -41,7 +41,7 @@ export async function createWebhook(
       return res.json();
     } catch {
       console.warn('[webhook.createWebhook] API not available, using fallback');
-      return {} as WebhookConfig;
+      return { id: '', academy_id: '', url: '', events: [], active: false, secret: '', created_at: '', updated_at: '' } as unknown as WebhookConfig;
     }
 
   } catch (error) {
@@ -122,7 +122,7 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       return res.json();
     } catch {
       console.warn('[webhook.testWebhook] API not available, using fallback');
-      return {} as { success: boolean; statusCode: number };
+      return { success: false, statusCode: 0 };
     }
   } catch (error) {
     handleServiceError(error, 'webhook.test');

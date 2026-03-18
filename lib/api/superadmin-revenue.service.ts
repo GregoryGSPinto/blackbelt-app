@@ -59,7 +59,7 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
       return res.json();
     } catch {
       console.warn('[superadmin-revenue.getRevenueMetrics] API not available, using fallback');
-      return {} as RevenueMetrics;
+      return { mrrTotal: 0, arpu: 0, ltv: 0, churnRevenue: 0, receitaPorPlano: [], evolucaoMensal: [], cohort: [], projecao: [] } as unknown as RevenueMetrics;
     }
   } catch (error) { handleServiceError(error, 'superadmin-revenue.getMetrics'); }
 }

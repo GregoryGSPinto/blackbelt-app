@@ -44,7 +44,7 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       return res.json();
     } catch {
       console.warn('[leagues.getActiveLeague] API not available, using fallback');
-      return {} as LeagueDTO;
+      return { id: '', name: '', season_id: '', academies: [], rules: '', start_date: '', end_date: '', prizes: [] } as LeagueDTO;
     }
   } catch (error) { handleServiceError(error, 'leagues.active'); }
 }
@@ -78,7 +78,7 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       return res.json();
     } catch {
       console.warn('[leagues.getMyAcademyRank] API not available, using fallback');
-      return {} as AcademyLeagueStats;
+      return { academy_id: '', rank: 0, total_points: 0, per_capita_avg: 0, student_count: 0, top_contributors: [], opted_in: false } as AcademyLeagueStats;
     }
   } catch (error) { handleServiceError(error, 'leagues.myAcademy'); }
 }
@@ -99,7 +99,7 @@ export async function contributePoints(studentId: string, action: string): Promi
       return res.json();
     } catch {
       console.warn('[leagues.contributePoints] API not available, using fallback');
-      return {} as { points_added: number; total_points: number };
+      return { points_added: 0, total_points: 0 };
     }
   } catch (error) { handleServiceError(error, 'leagues.contribute'); }
 }
@@ -120,7 +120,7 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       return res.json();
     } catch {
       console.warn('[leagues.toggleOptIn] API not available, using fallback');
-      return {} as { success: boolean };
+      return { success: false };
     }
   } catch (error) { handleServiceError(error, 'leagues.optIn'); }
 }

@@ -102,7 +102,7 @@ export async function analyzeMatch(videoId: string): Promise<MatchAnalysis> {
       return res.json();
     } catch {
       console.warn('[match-analysis.analyzeMatch] API not available, using fallback');
-      return {} as MatchAnalysis;
+      return { id: '', video_id: '', duration_sec: 0, rounds: 0, timeline: [], positions: [], submission_attempts: [], takedowns: [], points_breakdown: { student_total: 0, opponent_total: 0, student_advantages: 0, opponent_advantages: 0, student_penalties: 0, opponent_penalties: 0, categories: [] }, tactical_summary: '', improvement_areas: [], analyzed_at: '' } as MatchAnalysis;
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.analyze');
@@ -124,7 +124,7 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       return res.json();
     } catch {
       console.warn('[match-analysis.addAnnotation] API not available, using fallback');
-      return {} as ManualAnnotation;
+      return { id: '', video_id: '', timestamp_sec: 0, text: '', author_id: '', created_at: '' } as ManualAnnotation;
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.annotate');
@@ -164,7 +164,7 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       return res.json();
     } catch {
       console.warn('[match-analysis.shareAnalysis] API not available, using fallback');
-      return {} as { shared: boolean };
+      return { shared: false };
     }
   } catch (error) {
     handleServiceError(error, 'matchAnalysis.share');

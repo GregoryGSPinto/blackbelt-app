@@ -52,7 +52,7 @@ export async function emitNFe(paymentId: string): Promise<NFeDocument> {
       return res.json();
     } catch {
       console.warn('[nfe.emitNFe] API not available, using fallback');
-      return {} as NFeDocument;
+      return { id: '', paymentId: '', studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null } as NFeDocument;
     }
   } catch (error) {
     handleServiceError(error, 'nfe.emit');
@@ -98,7 +98,7 @@ export async function getNFeConfig(academyId: string): Promise<NFeConfig> {
       return res.json();
     } catch {
       console.warn('[nfe.getNFeConfig] API not available, using fallback');
-      return {} as NFeConfig;
+      return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false } as NFeConfig;
     }
   } catch (error) {
     handleServiceError(error, 'nfe.getConfig');

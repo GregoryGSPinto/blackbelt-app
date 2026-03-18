@@ -29,7 +29,7 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
       return res.json();
     } catch {
       console.warn('[api-keys.generateApiKey] API not available, using fallback');
-      return {} as ApiKeyCreateResult;
+      return { id: "", key: "", name: "", created_at: "" } as unknown as ApiKeyCreateResult;
     }
   } catch (error) { handleServiceError(error, 'apiKeys.generate'); }
 }

@@ -41,7 +41,7 @@ export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | '
       return res.json();
     } catch {
       console.warn('[units.createUnit] API not available, using fallback');
-      return {} as UnitDTO;
+      return { id: "", academy_id: "", name: "", address: "", phone: "", manager_name: "", students: 0, status: "active" } as unknown as UnitDTO;
     }
   } catch (error) { handleServiceError(error, 'units.create'); }
 }
@@ -58,7 +58,7 @@ export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promis
       return res.json();
     } catch {
       console.warn('[units.updateUnit] API not available, using fallback');
-      return {} as UnitDTO;
+      return { id: "", academy_id: "", name: "", address: "", phone: "", manager_name: "", students: 0, status: "active" } as unknown as UnitDTO;
     }
   } catch (error) { handleServiceError(error, 'units.update'); }
 }

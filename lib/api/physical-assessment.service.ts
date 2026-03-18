@@ -50,7 +50,7 @@ export async function createAssessment(assessment: Omit<PhysicalAssessmentDTO, '
       return res.json();
     } catch {
       console.warn('[physical-assessment.createAssessment] API not available, using fallback');
-      return {} as PhysicalAssessmentDTO;
+      return { id: "", student_id: "", date: "", measurements: { weight: 0, height: 0, body_fat: 0, muscle_mass: 0 }, fitness_tests: { flexibility: 0, cardio: 0, strength: 0, endurance: 0 }, notes: "" } as unknown as PhysicalAssessmentDTO;
     }
   } catch (error) { handleServiceError(error, 'physicalAssessment.create'); }
 }
@@ -101,7 +101,7 @@ export async function compareAssessments(studentId: string, assessmentId1: strin
       return res.json();
     } catch {
       console.warn('[physical-assessment.compareAssessments] API not available, using fallback');
-      return {} as AssessmentComparison;
+      return { current: null, previous: null, improvements: [], declines: [] } as unknown as AssessmentComparison;
     }
   } catch (error) { handleServiceError(error, 'physicalAssessment.compare'); }
 }

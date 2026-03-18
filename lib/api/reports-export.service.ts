@@ -12,7 +12,7 @@ export async function generatePresencaReport(academyId: string, period: string):
       return res.blob();
     } catch {
       console.warn('[reports-export.generatePresencaReport] API not available, using fallback');
-      return {} as Blob;
+      return new Blob();
     }
   } catch (error) { handleServiceError(error, 'reports.presenca'); }
 }
@@ -28,7 +28,7 @@ export async function generateFinanceiroReport(academyId: string, period: string
       return res.blob();
     } catch {
       console.warn('[reports-export.generateFinanceiroReport] API not available, using fallback');
-      return {} as Blob;
+      return new Blob();
     }
   } catch (error) { handleServiceError(error, 'reports.financeiro'); }
 }
@@ -44,7 +44,7 @@ export async function generateAlunoReport(studentId: string): Promise<Blob> {
       return res.blob();
     } catch {
       console.warn('[reports-export.generateAlunoReport] API not available, using fallback');
-      return {} as Blob;
+      return new Blob();
     }
   } catch (error) { handleServiceError(error, 'reports.aluno'); }
 }
@@ -60,7 +60,7 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
       return res.blob();
     } catch {
       console.warn('[reports-export.generateRankingReport] API not available, using fallback');
-      return {} as Blob;
+      return new Blob();
     }
   } catch (error) { handleServiceError(error, 'reports.ranking'); }
 }

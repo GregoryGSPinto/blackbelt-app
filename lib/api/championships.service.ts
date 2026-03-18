@@ -57,7 +57,7 @@ export async function createChampionship(data: Omit<ChampionshipDTO, 'id' | 'cur
       return res.json();
     } catch {
       console.warn('[championships.createChampionship] API not available, using fallback');
-      return {} as ChampionshipDTO;
+      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
     }
   } catch (error) { handleServiceError(error, 'championships.create'); }
 }
@@ -97,7 +97,7 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       return res.json();
     } catch {
       console.warn('[championships.getChampionshipById] API not available, using fallback');
-      return {} as ChampionshipDTO;
+      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
     }
   } catch (error) { handleServiceError(error, 'championships.getById'); }
 }
@@ -114,7 +114,7 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       return res.json();
     } catch {
       console.warn('[championships.openRegistration] API not available, using fallback');
-      return {} as ChampionshipDTO;
+      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
     }
   } catch (error) { handleServiceError(error, 'championships.openRegistration'); }
 }
@@ -131,7 +131,7 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       return res.json();
     } catch {
       console.warn('[championships.closeRegistration] API not available, using fallback');
-      return {} as ChampionshipDTO;
+      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", enrollment_deadline: "", enrolled_count: 0, max_participants: 0, academy_id: "", created_at: "" } as unknown as ChampionshipDTO;
     }
   } catch (error) { handleServiceError(error, 'championships.closeRegistration'); }
 }

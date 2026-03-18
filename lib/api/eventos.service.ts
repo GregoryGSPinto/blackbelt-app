@@ -70,7 +70,7 @@ export async function registerForEvent(
       return res.json();
     } catch {
       console.warn('[eventos.registerForEvent] API not available, using fallback');
-      return {} as EventRegistration;
+      return { id: "", event_id: "", student_id: "", student_name: "", status: "pending", registered_at: "" } as unknown as EventRegistration;
     }
 
   } catch (error) {

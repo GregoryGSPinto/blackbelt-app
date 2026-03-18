@@ -31,7 +31,7 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       return res.json();
     } catch {
       console.warn('[xp.getXP] API not available, using fallback');
-      return {} as XPDTO;
+      return { total: 0, level: 0, xp_for_next: 0, history: [], rank: 0 } as unknown as XPDTO;
     }
   } catch (error) {
     handleServiceError(error, 'xp.get');

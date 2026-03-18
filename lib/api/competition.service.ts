@@ -115,7 +115,7 @@ export async function createCompetition(
       return res.json();
     } catch {
       console.warn('[competition.createCompetition] API not available, using fallback');
-      return {} as Competition;
+      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", academy_id: "", created_at: "" } as unknown as Competition;
     }
 
   } catch (error) {

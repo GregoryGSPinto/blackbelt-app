@@ -250,7 +250,7 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       return res.json();
     } catch {
       console.warn('[pricing.getAssinatura] API not available, using fallback');
-      return {} as AssinaturaSaaS;
+      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
     }
   } catch (error) { handleServiceError(error, 'pricing.getAssinatura'); }
 }
@@ -271,7 +271,7 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       return res.json();
     } catch {
       console.warn('[pricing.ativarModulo] API not available, using fallback');
-      return {} as AssinaturaSaaS;
+      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
     }
   } catch (error) { handleServiceError(error, 'pricing.ativarModulo'); }
 }
@@ -292,7 +292,7 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       return res.json();
     } catch {
       console.warn('[pricing.desativarModulo] API not available, using fallback');
-      return {} as AssinaturaSaaS;
+      return { id: '', academyId: '', tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
     }
   } catch (error) { handleServiceError(error, 'pricing.desativarModulo'); }
 }
@@ -382,7 +382,7 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       return res.json();
     } catch {
       console.warn('[pricing.simularUpgrade] API not available, using fallback');
-      return {} as SimulacaoUpgrade;
+      return { modulosNovos: [], custoAdicional: 0, totalNovo: 0 } as SimulacaoUpgrade;
     }
   } catch (error) { handleServiceError(error, 'pricing.simularUpgrade'); }
 }

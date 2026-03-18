@@ -53,7 +53,7 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
       return res.json();
     } catch {
       console.warn('[periodization.createMacrocycle] API not available, using fallback');
-      return {} as MacrocycleDTO;
+      return { id: '', student_id: '', competition_name: '', competition_date: '', phases: [], created_at: '', created_by: '' } as MacrocycleDTO;
     }
   } catch (error) { handleServiceError(error, 'periodization.create'); }
 }
@@ -87,7 +87,7 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
       return res.json();
     } catch {
       console.warn('[periodization.updatePhase] API not available, using fallback');
-      return {} as Phase;
+      return { id: '', name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] } as Phase;
     }
   } catch (error) { handleServiceError(error, 'periodization.updatePhase'); }
 }

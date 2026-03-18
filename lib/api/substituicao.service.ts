@@ -65,7 +65,7 @@ export async function createSubstitution(data: CreateSubstitutionData): Promise<
       return res.json();
     } catch {
       console.warn('[substituicao.createSubstitution] API not available, using fallback');
-      return {} as SubstitutionDTO;
+      return { id: "", original_teacher_id: "", original_teacher_name: "", substitute_teacher_id: "", substitute_teacher_name: "", class_id: "", class_name: "", date: "", reason: "", status: "pending", created_at: "" } as unknown as SubstitutionDTO;
     }
   } catch (error) { handleServiceError(error, 'substituicao.create'); }
 }

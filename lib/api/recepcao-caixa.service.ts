@@ -54,7 +54,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       return res.json();
     } catch {
       console.warn('[recepcao-caixa.getCaixa] API not available, using fallback');
-      return {} as CaixaDia;
+      return { data: "", recebimentos: [], vencimentosHoje: [], totalRecebido: 0, totalPendente: 0, metodos: [] } as unknown as CaixaDia;
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-caixa.get');

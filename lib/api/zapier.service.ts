@@ -104,7 +104,7 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
       return res.json();
     } catch {
       console.warn('[zapier.getZapierApiKey] API not available, using fallback');
-      return {} as { apiKey: string; createdAt: string };
+      return { apiKey: '', createdAt: '' };
     }
   } catch (error) {
     handleServiceError(error, 'zapier.getKey');
@@ -127,7 +127,7 @@ export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKe
       return res.json();
     } catch {
       console.warn('[zapier.regenerateZapierApiKey] API not available, using fallback');
-      return {} as { apiKey: string };
+      return { apiKey: '' };
     }
   } catch (error) {
     handleServiceError(error, 'zapier.regenerateKey');

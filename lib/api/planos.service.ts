@@ -46,7 +46,7 @@ export async function getPlanById(id: string): Promise<Plan> {
       return res.json();
     } catch {
       console.warn('[planos.getPlanById] API not available, using fallback');
-      return {} as Plan;
+      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
     }
   } catch (error) {
     handleServiceError(error, 'planos.get');
@@ -69,7 +69,7 @@ export async function createPlan(academyId: string, data: CreatePlanRequest): Pr
       return res.json();
     } catch {
       console.warn('[planos.createPlan] API not available, using fallback');
-      return {} as Plan;
+      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
     }
   } catch (error) {
     handleServiceError(error, 'planos.create');
@@ -92,7 +92,7 @@ export async function updatePlan(id: string, data: UpdatePlanRequest): Promise<P
       return res.json();
     } catch {
       console.warn('[planos.updatePlan] API not available, using fallback');
-      return {} as Plan;
+      return { id: "", academy_id: "", name: "", price: 0, duration_months: 0, features: [], active: false } as unknown as Plan;
     }
   } catch (error) {
     handleServiceError(error, 'planos.update');

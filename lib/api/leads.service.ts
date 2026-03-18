@@ -44,7 +44,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       return res.json();
     } catch {
       console.warn('[leads.createLead] API not available, using fallback');
-      return {} as LeadDTO;
+      return { id: "", name: "", email: "", phone: "", source: "", status: "new", notes: "", created_at: "" } as unknown as LeadDTO;
     }
   } catch (error) { handleServiceError(error, 'leads.create'); }
 }

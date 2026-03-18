@@ -54,7 +54,7 @@ export async function getKidsProfile(studentId: string): Promise<KidsProfile> {
       return res.json();
     } catch {
       console.warn('[kids-estrelas.getKidsProfile] API not available, using fallback');
-      return {} as KidsProfile;
+      return { id: '', nome: '', avatar: '', mascote: '', corFavorita: '', faixaAtual: '', faixaCor: '', idadeAnos: 0, estrelasTotal: 0, estrelasEstaSemana: 0, estrelasEsteMes: 0, nivel: 0, nomeNivel: '', estrelasParaProximoNivel: 0, estrelasAtualNoNivel: 0, diasSeguidos: 0, recordeDiasSeguidos: 0, figurinhasColetadas: 0, figurinhasTotal: 0, tituloAtual: '' } as KidsProfile;
     }
   } catch (error) {
     handleServiceError(error, 'kids-estrelas.profile');

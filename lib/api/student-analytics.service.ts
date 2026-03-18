@@ -35,7 +35,7 @@ export async function getStudentPerformance(studentId: string): Promise<StudentP
       return res.json();
     } catch {
       console.warn('[student-analytics.getStudentPerformance] API not available, using fallback');
-      return {} as StudentPerformanceDTO;
+      return { student_id: "", radar: { technique: 0, strength: 0, flexibility: 0, cardio: 0, discipline: 0 }, monthly_attendance: [], xp_total: 0, belt: "", ranking_position: 0 } as unknown as StudentPerformanceDTO;
     }
   } catch (error) { handleServiceError(error, 'studentAnalytics.performance'); }
 }

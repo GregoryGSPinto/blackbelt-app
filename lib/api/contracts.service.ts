@@ -43,7 +43,7 @@ export async function generateContract(templateId: ContractTemplate, studentId: 
       return res.json();
     } catch {
       console.warn('[contracts.generateContract] API not available, using fallback');
-      return {} as ContractDTO;
+      return { id: "", student_id: "", student_name: "", plan_name: "", start_date: "", end_date: "", status: "active", signed_at: null, pdf_url: "" } as unknown as ContractDTO;
     }
   } catch (error) { handleServiceError(error, 'contracts.generate'); }
 }
@@ -60,7 +60,7 @@ export async function sendForSignature(contractId: string): Promise<{ signatureU
       return res.json();
     } catch {
       console.warn('[contracts.sendForSignature] API not available, using fallback');
-      return {} as { signatureUrl: string };
+      return { signatureUrl: "" };
     }
   } catch (error) { handleServiceError(error, 'contracts.send'); }
 }

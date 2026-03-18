@@ -55,7 +55,7 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       return res.json();
     } catch {
       console.warn('[seasons.getCurrentSeason] API not available, using fallback');
-      return {} as SeasonDTO;
+      return { id: "", name: "", start_date: "", end_date: "", status: "active", reward_tiers: [], created_at: "" } as unknown as SeasonDTO;
     }
   } catch (error) { handleServiceError(error, 'seasons.getCurrent'); }
 }
@@ -108,7 +108,7 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       return res.json();
     } catch {
       console.warn('[seasons.getMySeasonProgress] API not available, using fallback');
-      return {} as SeasonProgress;
+      return { season_id: "", student_id: "", current_xp: 0, level: 0, rank: 0, total_participants: 0, rewards_claimed: [] } as unknown as SeasonProgress;
     }
   } catch (error) { handleServiceError(error, 'seasons.myProgress'); }
 }

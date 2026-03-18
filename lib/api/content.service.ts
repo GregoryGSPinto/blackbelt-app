@@ -73,7 +73,7 @@ export async function getVideo(id: string): Promise<VideoDetail> {
       return res.json();
     } catch {
       console.warn('[content.getVideo] API not available, using fallback');
-      return {} as VideoDetail;
+      return { id: "", academy_id: "", title: "", url: "", belt_level: "white", duration: 0, description: "", views: 0, likes: 0, created_at: "", updated_at: "" } as unknown as VideoDetail;
     }
   } catch (error) {
     handleServiceError(error, 'content.getVideo');

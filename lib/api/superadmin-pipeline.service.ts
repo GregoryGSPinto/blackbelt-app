@@ -75,7 +75,7 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       return res.json();
     } catch {
       console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, using fallback');
-      return {} as PipelineMetrics;
+      return { funil: [], taxaConversaoGeral: 0, tempoMedioConversao: 0, valorPipelineTotal: 0, melhorOrigem: '', leadsEsteMes: 0, conversaoEsteMes: 0 } as PipelineMetrics;
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.getMetrics'); }
 }
@@ -110,7 +110,7 @@ export async function createLead(data: CreateLeadPayload): Promise<LeadAcademia>
       return res.json();
     } catch {
       console.warn('[superadmin-pipeline.createLead] API not available, using fallback');
-      return {} as LeadAcademia;
+      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.createLead'); }
 }
@@ -127,7 +127,7 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
       return res.json();
     } catch {
       console.warn('[superadmin-pipeline.avancarLead] API not available, using fallback');
-      return {} as LeadAcademia;
+      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.avancarLead'); }
 }
@@ -144,7 +144,7 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
       return res.json();
     } catch {
       console.warn('[superadmin-pipeline.perderLead] API not available, using fallback');
-      return {} as LeadAcademia;
+      return { id: '', nomeAcademia: '', contatoNome: '', contatoEmail: '', contatoTelefone: '', cidade: '', estado: '', modalidades: [], quantidadeAlunos: 0, origem: 'site', status: 'lead', planoInteresse: '', valorEstimado: 0, observacoes: '', responsavel: '', historico: [], criadoEm: '', atualizadoEm: '' } as LeadAcademia;
     }
   } catch (error) { handleServiceError(error, 'superadmin-pipeline.perderLead'); }
 }

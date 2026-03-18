@@ -48,7 +48,7 @@ export async function generateQRCode(classId: string): Promise<QRCheckInCode> {
       return res.json();
     } catch {
       console.warn('[qr-checkin.generateQRCode] API not available, using fallback');
-      return {} as QRCheckInCode;
+      return { code: "", class_id: "", class_name: "", valid_until: "", academy_id: "" } as unknown as QRCheckInCode;
     }
   } catch (error) {
     handleServiceError(error, 'qrCheckin.generate');
@@ -84,7 +84,7 @@ export async function validateQRCode(
       return res.json();
     } catch {
       console.warn('[qr-checkin.validateQRCode] API not available, using fallback');
-      return {} as QRValidationResult;
+      return { valid: false, student_id: "", student_name: "", class_name: "", checked_in: false, message: "" } as QRValidationResult;
     }
 
   } catch (error) {

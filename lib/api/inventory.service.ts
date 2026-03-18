@@ -53,7 +53,7 @@ export async function createInventoryItem(academyId: string, item: Omit<Inventor
       return res.json();
     } catch {
       console.warn('[inventory.createInventoryItem] API not available, using fallback');
-      return {} as InventoryItem;
+      return { id: "", name: "", category: "", quantity: 0, min_quantity: 0, unit_price: 0, status: "ok", last_updated: "" } as unknown as InventoryItem;
     }
   } catch (error) { handleServiceError(error, 'inventory.create'); }
 }
@@ -70,7 +70,7 @@ export async function addStockMovement(itemId: string, movement: Omit<StockMovem
       return res.json();
     } catch {
       console.warn('[inventory.addStockMovement] API not available, using fallback');
-      return {} as StockMovement;
+      return { id: "", item_id: "", type: "in", quantity: 0, reason: "", created_by: "", created_at: "" } as unknown as StockMovement;
     }
   } catch (error) { handleServiceError(error, 'inventory.movement'); }
 }

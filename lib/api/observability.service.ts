@@ -23,7 +23,7 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       return res.json();
     } catch {
       console.warn('[observability.getSystemStatus] API not available, using fallback');
-      return {} as SystemStatus;
+      return { status: "operational", services: [], uptime_pct: 0, last_incident: null, response_time_ms: 0 } as unknown as SystemStatus;
     }
   } catch (error) { handleServiceError(error, 'observability.status'); }
 }

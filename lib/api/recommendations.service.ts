@@ -45,7 +45,7 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
       return res.json();
     } catch {
       console.warn('[recommendations.getPersonalizedFeed] API not available, using fallback');
-      return {} as ContentFeed;
+      return { recommended: [], trending: [], continue_watching: [] } as unknown as ContentFeed;
     }
   } catch (error) { handleServiceError(error, 'recommendations.feed'); }
 }

@@ -63,7 +63,7 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
       return res.json();
     } catch {
       console.warn('[superadmin-features.toggleFeatureGlobal] API not available, using fallback');
-      return {} as FeatureFlag;
+      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.toggle'); }
 }
@@ -80,7 +80,7 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
       return res.json();
     } catch {
       console.warn('[superadmin-features.updateFeatureFlag] API not available, using fallback');
-      return {} as FeatureFlag;
+      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.update'); }
 }
@@ -97,7 +97,7 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
       return res.json();
     } catch {
       console.warn('[superadmin-features.createFeatureFlag] API not available, using fallback');
-      return {} as FeatureFlag;
+      return { id: '', nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' } as FeatureFlag;
     }
   } catch (error) { handleServiceError(error, 'superadmin-features.create'); }
 }

@@ -70,7 +70,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       return res.json();
     } catch {
       console.warn('[recepcao-cadastro.cadastrarRapido] API not available, using fallback');
-      return {} as CadastroResult;
+      return { success: false, student_id: "", message: "" } as unknown as CadastroResult;
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-cadastro.create');

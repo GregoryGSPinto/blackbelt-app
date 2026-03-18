@@ -63,7 +63,7 @@ export async function getTeenSeasonPass(studentId: string): Promise<TeenSeasonPa
       return res.json();
     } catch {
       console.warn('[teen-season.getTeenSeasonPass] API not available, using fallback');
-      return {} as TeenSeasonPass;
+      return { season: { id: "", name: "", start_date: "", end_date: "", theme: "", max_level: 0 }, progress: { current_level: 0, current_xp: 0, xp_for_next: 0, rank: 0, total_participants: 0 }, rewards: [], ranking: [] } as unknown as TeenSeasonPass;
     }
   } catch (error) {
     handleServiceError(error, 'teen.season');

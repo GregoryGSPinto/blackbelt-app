@@ -61,7 +61,7 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       return res.json();
     } catch {
       console.warn('[royalties.calculateRoyalties] API not available, using fallback');
-      return {} as RoyaltyCalculation;
+      return { academy_id: "", academy_name: "", period: "", gross_revenue: 0, royalty_rate: 0, royalty_amount: 0, adjustments: 0, net_amount: 0 } as unknown as RoyaltyCalculation;
     }
   } catch (error) { handleServiceError(error, 'royalties.calculate'); }
 }
@@ -80,7 +80,7 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
       return res.json();
     } catch {
       console.warn('[royalties.getRoyaltyHistory] API not available, using fallback');
-      return {} as RoyaltyHistorySummary;
+      return { total_collected: 0, total_pending: 0, average_monthly: 0, history: [] } as unknown as RoyaltyHistorySummary;
     }
   } catch (error) { handleServiceError(error, 'royalties.history'); }
 }
@@ -101,7 +101,7 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       return res.json();
     } catch {
       console.warn('[royalties.generateRoyaltyInvoice] API not available, using fallback');
-      return {} as RoyaltyInvoice;
+      return { id: "", academy_id: "", period: "", amount: 0, status: "pending", due_date: "", paid_at: null } as unknown as RoyaltyInvoice;
     }
   } catch (error) { handleServiceError(error, 'royalties.invoice'); }
 }
@@ -118,7 +118,7 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       return res.json();
     } catch {
       console.warn('[royalties.payRoyalty] API not available, using fallback');
-      return {} as RoyaltyCalculation;
+      return { academy_id: "", academy_name: "", period: "", gross_revenue: 0, royalty_rate: 0, royalty_amount: 0, adjustments: 0, net_amount: 0 } as unknown as RoyaltyCalculation;
     }
   } catch (error) { handleServiceError(error, 'royalties.pay'); }
 }

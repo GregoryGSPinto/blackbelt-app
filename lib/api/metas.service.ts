@@ -96,7 +96,7 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       return res.json();
     } catch {
       console.warn('[metas.createGoal] API not available, using fallback');
-      return {} as GoalDTO;
+      return { id: "", student_id: "", title: "", description: "", target_date: "", status: "active", progress: 0, created_at: "" } as unknown as GoalDTO;
     }
   } catch (error) {
     handleServiceError(error, 'metas.createGoal');
@@ -138,7 +138,7 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       return res.json();
     } catch {
       console.warn('[metas.saveDiaryEntry] API not available, using fallback');
-      return {} as DiaryEntryDTO;
+      return { id: "", student_id: "", date: "", content: "", mood: "neutral", training_quality: 0, created_at: "" } as unknown as DiaryEntryDTO;
     }
   } catch (error) {
     handleServiceError(error, 'metas.saveDiary');

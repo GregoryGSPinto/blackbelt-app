@@ -56,7 +56,7 @@ export async function getReferralCode(academyId: string): Promise<ReferralCode> 
       return res.json();
     } catch {
       console.warn('[referral.getReferralCode] API not available, using fallback');
-      return {} as ReferralCode;
+      return { id: "", code: "", user_id: "", academy_id: "", discount_pct: 0, max_uses: 0, current_uses: 0, active: false, created_at: "" } as unknown as ReferralCode;
     }
   } catch (error) {
     handleServiceError(error, 'referral.getCode');
@@ -79,7 +79,7 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       return res.json();
     } catch {
       console.warn('[referral.getReferralStats] API not available, using fallback');
-      return {} as ReferralStats;
+      return { total_referrals: 0, successful: 0, pending: 0, total_discount_given: 0 } as unknown as ReferralStats;
     }
   } catch (error) {
     handleServiceError(error, 'referral.stats');

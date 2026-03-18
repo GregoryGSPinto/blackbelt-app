@@ -81,7 +81,15 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       return res.json();
     } catch {
       console.warn('[recepcao-dashboard.getRecepcaoDashboard] API not available, using fallback');
-      return {} as RecepcaoDashboardDTO;
+      return {
+        aulasHoje: [],
+        checkinsHoje: [],
+        totalCheckinsHoje: 0,
+        pendencias: [],
+        experimentaisHoje: [],
+        aniversariantes: [],
+        resumo: { alunosAtivos: 0, aulasHoje: 0, pagamentosVencidosHoje: 0, experimentaisHoje: 0 },
+      };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-dashboard.get');

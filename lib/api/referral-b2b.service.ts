@@ -37,7 +37,7 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       return res.json();
     } catch {
       console.warn('[referral-b2b.getReferralStats] API not available, using fallback');
-      return {} as ReferralStatsDTO;
+      return { total_referrals: 0, successful_referrals: 0, pending_referrals: 0, total_rewards: 0, top_referrers: [] } as unknown as ReferralStatsDTO;
     }
   } catch (error) { handleServiceError(error, 'referral.getStats'); }
 }

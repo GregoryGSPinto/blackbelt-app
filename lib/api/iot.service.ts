@@ -70,7 +70,7 @@ export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
       return res.json();
     } catch {
       console.warn('[iot.getDeviceStatus] API not available, using fallback');
-      return {} as IoTDevice;
+      return { id: "", academy_id: "", name: "", type: "catraca", status: "online", last_ping: "", firmware_version: "", battery_level: null } as unknown as IoTDevice;
     }
   } catch (error) { handleServiceError(error, 'iot.deviceStatus'); }
 }
@@ -102,7 +102,7 @@ export async function getOccupancy(unitId: string): Promise<OccupancyData> {
       return res.json();
     } catch {
       console.warn('[iot.getOccupancy] API not available, using fallback');
-      return {} as OccupancyData;
+      return { current: 0, max_capacity: 0, percentage: 0, hourly_data: [], last_updated: "" } as unknown as OccupancyData;
     }
   } catch (error) { handleServiceError(error, 'iot.occupancy'); }
 }

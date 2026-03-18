@@ -14,7 +14,7 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
       return res.json();
     } catch {
       console.warn('[notification-preferences.getNotificationPreferences] API not available, using fallback');
-      return {} as NotificationPreferences;
+      return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
   } catch (error) { handleServiceError(error, 'notificationPreferences.get'); }
 }
@@ -38,7 +38,7 @@ export async function updateNotificationPreferences(
       return res.json();
     } catch {
       console.warn('[notification-preferences.updateNotificationPreferences] API not available, using fallback');
-      return {} as NotificationPreferences;
+      return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
   } catch (error) { handleServiceError(error, 'notificationPreferences.update'); }

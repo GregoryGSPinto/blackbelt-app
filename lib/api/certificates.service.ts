@@ -33,7 +33,7 @@ export async function generateCourseCertificate(userId: string, courseId: string
       return res.json();
     } catch {
       console.warn('[certificates.generateCourseCertificate] API not available, using fallback');
-      return {} as Certificate;
+      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
     }
   } catch (error) { handleServiceError(error, 'certificates.generateCourse'); }
 }
@@ -54,7 +54,7 @@ export async function generateBeltCertificate(userId: string, belt: string, acad
       return res.json();
     } catch {
       console.warn('[certificates.generateBeltCertificate] API not available, using fallback');
-      return {} as Certificate;
+      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
     }
   } catch (error) { handleServiceError(error, 'certificates.generateBelt'); }
 }
@@ -75,7 +75,7 @@ export async function generateEventCertificate(userId: string, eventId: string):
       return res.json();
     } catch {
       console.warn('[certificates.generateEventCertificate] API not available, using fallback');
-      return {} as Certificate;
+      return { id: '', type: 'course', user_name: '', title: '', description: '', issued_at: '', academy_name: '', issuer_name: '', verification_code: '', pdf_url: '', thumbnail_url: '' } as Certificate;
     }
   } catch (error) { handleServiceError(error, 'certificates.generateEvent'); }
 }

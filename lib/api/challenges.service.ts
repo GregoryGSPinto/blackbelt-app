@@ -47,7 +47,7 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       return res.json();
     } catch {
       console.warn('[challenges.createChallenge] API not available, using fallback');
-      return {} as ChallengeDTO;
+      return { id: "", title: "", description: "", type: "weekly", xp_reward: 0, progress: 0, target: 0, status: "active", expires_at: "" } as unknown as ChallengeDTO;
     }
   } catch (error) { handleServiceError(error, 'challenges.create'); }
 }

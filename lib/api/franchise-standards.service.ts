@@ -98,7 +98,7 @@ export async function createStandard(data: CreateStandardData): Promise<Standard
       return res.json();
     } catch {
       console.warn('[franchise-standards.createStandard] API not available, using fallback');
-      return {} as Standard;
+      return { id: "", franchise_id: "", name: "", description: "", category: "", checklist: [], created_at: "", updated_at: "" } as unknown as Standard;
     }
   } catch (error) { handleServiceError(error, 'franchise.standards.create'); }
 }
@@ -115,7 +115,7 @@ export async function checkCompliance(academyId: string): Promise<ComplianceRepo
       return res.json();
     } catch {
       console.warn('[franchise-standards.checkCompliance] API not available, using fallback');
-      return {} as ComplianceReport;
+      return { academy_id: "", academy_name: "", overall_score: 0, results: [], evaluated_at: "" } as unknown as ComplianceReport;
     }
   } catch (error) { handleServiceError(error, 'franchise.compliance.check'); }
 }

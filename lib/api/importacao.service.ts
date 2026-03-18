@@ -41,7 +41,7 @@ export async function parseCSV(file: File): Promise<ParsedCSVResult> {
       return res.json();
     } catch {
       console.warn('[importacao.parseCSV] API not available, using fallback');
-      return {} as ParsedCSVResult;
+      return { headers: [], rows: [], total_rows: 0, valid_rows: 0 } as unknown as ParsedCSVResult;
     }
   } catch (error) { handleServiceError(error, 'importacao.parseCSV'); }
 }
@@ -62,7 +62,7 @@ export async function detectDuplicates(rows: ImportRow[], academyId: string): Pr
       return res.json();
     } catch {
       console.warn('[importacao.detectDuplicates] API not available, using fallback');
-      return {} as DuplicateCheckResult;
+      return { duplicates: [], clean_count: 0 } as unknown as DuplicateCheckResult;
     }
   } catch (error) { handleServiceError(error, 'importacao.detectDuplicates'); }
 }
@@ -83,7 +83,7 @@ export async function importStudents(rows: ImportRow[], academyId: string): Prom
       return res.json();
     } catch {
       console.warn('[importacao.importStudents] API not available, using fallback');
-      return {} as ImportResult;
+      return { imported: 0, skipped: 0, errors: [] } as unknown as ImportResult;
     }
   } catch (error) { handleServiceError(error, 'importacao.importStudents'); }
 }

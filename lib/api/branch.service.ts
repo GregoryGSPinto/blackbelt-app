@@ -33,7 +33,7 @@ export async function getBranch(branchId: string): Promise<Branch> {
       return res.json();
     } catch {
       console.warn('[branch.getBranch] API not available, using fallback');
-      return {} as Branch;
+      return { id: "", academy_id: "", name: "", address: "", city: "", state: "", phone: "", manager_id: "", manager_name: "", students_count: 0, status: "active", created_at: "" } as unknown as Branch;
     }
   } catch (error) {
     handleServiceError(error, 'branch.get');
@@ -59,7 +59,7 @@ export async function createBranch(
       return res.json();
     } catch {
       console.warn('[branch.createBranch] API not available, using fallback');
-      return {} as Branch;
+      return { id: "", academy_id: "", name: "", address: "", city: "", state: "", phone: "", manager_id: "", manager_name: "", students_count: 0, status: "active", created_at: "" } as unknown as Branch;
     }
 
   } catch (error) {

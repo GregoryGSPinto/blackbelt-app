@@ -21,7 +21,7 @@ export async function getBillingCycleConfig(academyId: string): Promise<BillingC
       return res.json();
     } catch {
       console.warn('[billing-automation.getBillingCycleConfig] API not available, using fallback');
-      return {} as BillingConfig;
+      return { academy_id: "", gateway: "", auto_charge: false, due_day: 1, grace_days: 0 } as unknown as BillingConfig;
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.config'); }
 }
@@ -38,7 +38,7 @@ export async function previewNextBillingCycle(academyId: string): Promise<Billin
       return res.json();
     } catch {
       console.warn('[billing-automation.previewNextBillingCycle] API not available, using fallback');
-      return {} as BillingPreview;
+      return { total_students: 0, total_amount: 0, items: [] } as unknown as BillingPreview;
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.preview'); }
 }
@@ -59,7 +59,7 @@ export async function runBillingCycle(academyId: string): Promise<BillingCycleRe
       return res.json();
     } catch {
       console.warn('[billing-automation.runBillingCycle] API not available, using fallback');
-      return {} as BillingCycleResult;
+      return { processed: 0, successful: 0, failed: 0, total_amount: 0, errors: [] } as unknown as BillingCycleResult;
     }
   } catch (error) { handleServiceError(error, 'billing.cycle.run'); }
 }

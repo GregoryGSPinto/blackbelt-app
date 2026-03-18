@@ -37,7 +37,7 @@ export async function bulkUpdateStudents(
       return res.json();
     } catch {
       console.warn('[bulk.bulkUpdateStudents] API not available, using fallback');
-      return {} as BulkResult;
+      return { success: 0, failed: 0, errors: [] } as BulkResult;
     }
 
   } catch (error) {
@@ -66,7 +66,7 @@ export async function bulkSendCommunication(
       return res.json();
     } catch {
       console.warn('[bulk.bulkSendCommunication] API not available, using fallback');
-      return {} as BulkResult;
+      return { success: 0, failed: 0, errors: [] } as BulkResult;
     }
 
   } catch (error) {
@@ -96,7 +96,7 @@ export async function bulkMarkAttendance(
       return res.json();
     } catch {
       console.warn('[bulk.bulkMarkAttendance] API not available, using fallback');
-      return {} as BulkResult;
+      return { success: 0, failed: 0, errors: [] } as BulkResult;
     }
 
   } catch (error) {
@@ -122,7 +122,7 @@ export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult>
       return res.json();
     } catch {
       console.warn('[bulk.bulkPublishVideos] API not available, using fallback');
-      return {} as BulkResult;
+      return { success: 0, failed: 0, errors: [] } as BulkResult;
     }
   } catch (error) {
     handleServiceError(error, 'bulk.publishVideos');
@@ -147,7 +147,7 @@ export async function bulkUnpublishVideos(videoIds: string[]): Promise<BulkResul
       return res.json();
     } catch {
       console.warn('[bulk.bulkUnpublishVideos] API not available, using fallback');
-      return {} as BulkResult;
+      return { success: 0, failed: 0, errors: [] } as BulkResult;
     }
   } catch (error) {
     handleServiceError(error, 'bulk.unpublishVideos');

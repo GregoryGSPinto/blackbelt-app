@@ -55,7 +55,7 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       return res.json();
     } catch {
       console.warn('[admin-content.createVideo] API not available, using fallback');
-      return {} as Video;
+      return { id: '', academy_id: '', title: '', url: '', belt_level: 'white', duration: 0, created_at: '', updated_at: '' } as unknown as Video;
     }
   } catch (error) {
     handleServiceError(error, 'adminContent.create');

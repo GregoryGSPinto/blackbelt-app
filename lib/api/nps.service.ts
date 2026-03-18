@@ -46,7 +46,7 @@ export async function getNPSData(academyId: string): Promise<NPSDataDTO> {
       return res.json();
     } catch {
       console.warn('[nps.getNPSData] API not available, using fallback');
-      return {} as NPSDataDTO;
+      return { nps_score: 0, total_responses: 0, promoters_count: 0, passives_count: 0, detractors_count: 0, promoters_pct: 0, passives_pct: 0, detractors_pct: 0, distribution: [], feedback: [], trend: [] } as NPSDataDTO;
     }
   } catch (error) {
     handleServiceError(error, 'nps.data');

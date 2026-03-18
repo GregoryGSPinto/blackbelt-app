@@ -94,7 +94,7 @@ export async function getRevenueForecasting(academyId: string, months: number): 
       return res.json();
     } catch {
       console.warn('[analytics.getRevenueForecasting] API not available, using fallback');
-      return {} as ForecastDTO;
+      return { metric: "", current: 0, projected: 0, trend: "stable", data_points: [], confidence: 0 } as unknown as ForecastDTO;
     }
   } catch (error) { handleServiceError(error, 'analytics.forecast'); }
 }
@@ -138,7 +138,7 @@ export async function getAnalyticsOverview(
       return res.json();
     } catch {
       console.warn('[analytics.getAnalyticsOverview] API not available, using fallback');
-      return {} as AnalyticsOverview;
+      return { total_students: 0, active_students: 0, revenue: 0, attendance_rate: 0, churn_rate: 0, nps: 0, growth_pct: 0 } as unknown as AnalyticsOverview;
     }
 
   } catch (error) { handleServiceError(error, 'analytics.overview'); }
@@ -158,7 +158,7 @@ export async function getStudentAnalytics(studentId: string): Promise<StudentAna
       return res.json();
     } catch {
       console.warn('[analytics.getStudentAnalytics] API not available, using fallback');
-      return {} as StudentAnalytics;
+      return { student_id: "", attendance_data: [], belt_progression: [], xp_history: [] } as unknown as StudentAnalytics;
     }
   } catch (error) { handleServiceError(error, 'analytics.student'); }
 }

@@ -20,7 +20,7 @@ export async function getSubscriptionByStudent(studentId: string): Promise<Subsc
       return res.json();
     } catch {
       console.warn('[subscriptions.getSubscriptionByStudent] API not available, using fallback');
-      return {} as SubscriptionWithPlan;
+      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "", plan_name: "", plan_price: 0 } as unknown as SubscriptionWithPlan;
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.getByStudent');
@@ -43,7 +43,7 @@ export async function createSubscription(studentId: string, planId: string): Pro
       return res.json();
     } catch {
       console.warn('[subscriptions.createSubscription] API not available, using fallback');
-      return {} as Subscription;
+      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "" } as unknown as Subscription;
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.create');
@@ -83,7 +83,7 @@ export async function changePlan(subscriptionId: string, newPlanId: string): Pro
       return res.json();
     } catch {
       console.warn('[subscriptions.changePlan] API not available, using fallback');
-      return {} as Subscription;
+      return { id: "", student_id: "", plan_id: "", status: "active", start_date: "", end_date: "" } as unknown as Subscription;
     }
   } catch (error) {
     handleServiceError(error, 'subscriptions.changePlan');

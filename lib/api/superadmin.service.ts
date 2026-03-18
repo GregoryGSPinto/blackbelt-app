@@ -115,7 +115,7 @@ export async function createAcademy(
       return res.json();
     } catch {
       console.warn('[superadmin.createAcademy] API not available, using fallback');
-      return {} as { academy: AcademyFull; onboardToken: OnboardToken };
+      return { academy: { id: '', name: '', slug: '', cnpj: '', owner_id: '', plan: 'free', status: 'active', logo_url: null, created_at: '', updated_at: '' }, onboardToken: { id: '', academy_id: '', token: '', expires_at: '', used: false } } as unknown as { academy: AcademyFull; onboardToken: OnboardToken };
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.createAcademy');
@@ -141,7 +141,7 @@ export async function updateAcademy(
       return res.json();
     } catch {
       console.warn('[superadmin.updateAcademy] API not available, using fallback');
-      return {} as AcademyFull;
+      return { id: "", name: "", slug: "", cnpj: "", owner_id: "", plan: "free", status: "active", logo_url: null, created_at: "", updated_at: "" } as unknown as AcademyFull;
     }
 
   } catch (error) {
@@ -161,7 +161,7 @@ export async function suspendAcademy(id: string): Promise<AcademyFull> {
       return res.json();
     } catch {
       console.warn('[superadmin.suspendAcademy] API not available, using fallback');
-      return {} as AcademyFull;
+      return { id: "", name: "", slug: "", cnpj: "", owner_id: "", plan: "free", status: "active", logo_url: null, created_at: "", updated_at: "" } as unknown as AcademyFull;
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.suspendAcademy');
@@ -180,7 +180,7 @@ export async function reactivateAcademy(id: string): Promise<AcademyFull> {
       return res.json();
     } catch {
       console.warn('[superadmin.reactivateAcademy] API not available, using fallback');
-      return {} as AcademyFull;
+      return { id: "", name: "", slug: "", cnpj: "", owner_id: "", plan: "free", status: "active", logo_url: null, created_at: "", updated_at: "" } as unknown as AcademyFull;
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.reactivateAcademy');
@@ -226,7 +226,7 @@ export async function deactivateOnboardToken(id: string): Promise<OnboardToken> 
       return res.json();
     } catch {
       console.warn('[superadmin.deactivateOnboardToken] API not available, using fallback');
-      return {} as OnboardToken;
+      return { id: "", academy_id: "", token: "", expires_at: "", used: false } as unknown as OnboardToken;
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.deactivateOnboardToken');
@@ -245,7 +245,7 @@ export async function validateOnboardToken(token: string): Promise<OnboardValida
       return res.json();
     } catch {
       console.warn('[superadmin.validateOnboardToken] API not available, using fallback');
-      return {} as OnboardValidation;
+      return { valid: false, academy_id: "", academy_name: "" } as unknown as OnboardValidation;
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.validateOnboardToken');
@@ -292,7 +292,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
       return res.json();
     } catch {
       console.warn('[superadmin.getPlatformStats] API not available, using fallback');
-      return {} as PlatformStats;
+      return { total_academies: 0, total_students: 0, total_revenue: 0, mrr: 0, growth_pct: 0, churn_pct: 0 } as unknown as PlatformStats;
     }
   } catch (error) {
     handleServiceError(error, 'superadmin.getPlatformStats');

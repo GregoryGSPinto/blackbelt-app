@@ -78,7 +78,7 @@ export async function sendBroadcast(franchiseId: string, data: SendBroadcastData
       return res.json();
     } catch {
       console.warn('[franchise-communication.sendBroadcast] API not available, using fallback');
-      return {} as Broadcast;
+      return { id: "", franchise_id: "", subject: "", content: "", channel: "email", recipients: [], status: "draft", sent_at: null, created_at: "" } as unknown as Broadcast;
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.send'); }
 }
@@ -133,7 +133,7 @@ export async function scheduleTraining(franchiseId: string, data: ScheduleTraini
       return res.json();
     } catch {
       console.warn('[franchise-communication.scheduleTraining] API not available, using fallback');
-      return {} as NetworkTraining;
+      return { id: "", franchise_id: "", title: "", description: "", date: "", location: "", instructor: "", max_participants: 0, enrolled: 0, status: "scheduled" } as unknown as NetworkTraining;
     }
   } catch (error) { handleServiceError(error, 'franchise.communication.training'); }
 }

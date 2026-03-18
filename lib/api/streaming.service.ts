@@ -25,7 +25,7 @@ export async function getLibrary(profileId: string, role: string, belt: string):
       return res.json();
     } catch {
       console.warn('[streaming.getLibrary] API not available, using fallback');
-      return {} as StreamingLibrary;
+      return { series: [], categories: [], featured: [] } as unknown as StreamingLibrary;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getLibrary');
@@ -44,7 +44,7 @@ export async function getSeriesDetail(seriesId: string): Promise<SeriesDetail> {
       return res.json();
     } catch {
       console.warn('[streaming.getSeriesDetail] API not available, using fallback');
-      return {} as SeriesDetail;
+      return { id: "", title: "", description: "", episodes: [], total_episodes: 0, progress_pct: 0 } as unknown as SeriesDetail;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getSeriesDetail');
@@ -63,7 +63,7 @@ export async function getEpisode(episodeId: string): Promise<StreamingVideo> {
       return res.json();
     } catch {
       console.warn('[streaming.getEpisode] API not available, using fallback');
-      return {} as StreamingVideo;
+      return { id: "", title: "", url: "", duration: 0, thumbnail_url: "", series_id: "", episode_number: 0 } as unknown as StreamingVideo;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getEpisode');
@@ -145,7 +145,7 @@ export async function completeEpisode(studentId: string, episodeId: string): Pro
       return res.json();
     } catch {
       console.warn('[streaming.completeEpisode] API not available, using fallback');
-      return {} as EpisodeCompletionResult;
+      return { completed: false, xp_earned: 0, next_episode: null } as unknown as EpisodeCompletionResult;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.completeEpisode');
@@ -168,7 +168,7 @@ export async function submitQuiz(studentId: string, episodeId: string, answers: 
       return res.json();
     } catch {
       console.warn('[streaming.submitQuiz] API not available, using fallback');
-      return {} as QuizResult;
+      return { score: 0, total: 0, passed: false, xp_earned: 0, answers: [] } as unknown as QuizResult;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.submitQuiz');
@@ -208,7 +208,7 @@ export async function getTrailProgress(studentId: string, trailId: string): Prom
       return res.json();
     } catch {
       console.warn('[streaming.getTrailProgress] API not available, using fallback');
-      return {} as TrailProgress;
+      return { trail_id: "", completed_episodes: 0, total_episodes: 0, progress_pct: 0, xp_earned: 0 } as unknown as TrailProgress;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.getTrailProgress');
@@ -231,7 +231,7 @@ export async function generateCertificate(studentId: string, trailId: string): P
       return res.json();
     } catch {
       console.warn('[streaming.generateCertificate] API not available, using fallback');
-      return {} as StreamingCertificate;
+      return { id: "", series_id: "", user_id: "", issued_at: "", pdf_url: "" } as unknown as StreamingCertificate;
     }
   } catch (error) {
     return handleServiceError(error, 'streaming.generateCertificate');

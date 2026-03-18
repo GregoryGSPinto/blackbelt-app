@@ -54,7 +54,7 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       return res.json();
     } catch {
       console.warn('[techniques.getTechniqueById] API not available, using fallback');
-      return {} as TechniqueDTO;
+      return { id: "", name: "", description: "", category: "", belt_level: "white", video_url: null, modality: "", difficulty: 0 } as unknown as TechniqueDTO;
     }
   } catch (error) { handleServiceError(error, 'techniques.getById'); }
 }
@@ -71,7 +71,7 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       return res.json();
     } catch {
       console.warn('[techniques.createTechnique] API not available, using fallback');
-      return {} as TechniqueDTO;
+      return { id: "", name: "", description: "", category: "", belt_level: "white", video_url: null, modality: "", difficulty: 0 } as unknown as TechniqueDTO;
     }
   } catch (error) { handleServiceError(error, 'techniques.create'); }
 }

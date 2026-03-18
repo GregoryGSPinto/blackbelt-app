@@ -55,7 +55,7 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       return res.json();
     } catch {
       console.warn('[aula-experimental.createTrialClass] API not available, using fallback');
-      return {} as TrialClass;
+      return { id: '', leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'presencial', turmaId: '', turmaNome: '', dataAgendada: '', status: 'agendada', professorId: '', professorNome: '', followUpEnviado: false, createdAt: '' } as TrialClass;
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.create'); }
 }
@@ -92,7 +92,7 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       return res.json();
     } catch {
       console.warn('[aula-experimental.updateTrialStatus] API not available, using fallback');
-      return {} as TrialClass;
+      return { id: '', leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'presencial', turmaId: '', turmaNome: '', dataAgendada: '', status: 'agendada', professorId: '', professorNome: '', followUpEnviado: false, createdAt: '' } as TrialClass;
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.updateStatus'); }
 }
@@ -109,7 +109,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       return res.json();
     } catch {
       console.warn('[aula-experimental.getTrialMetrics] API not available, using fallback');
-      return {} as TrialMetrics;
+      return { agendadas: 0, confirmadas: 0, compareceram: 0, matricularam: 0, taxaConversao: 0 } as TrialMetrics;
     }
   } catch (error) { handleServiceError(error, 'aula-experimental.metrics'); }
 }

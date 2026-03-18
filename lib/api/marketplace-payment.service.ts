@@ -55,7 +55,7 @@ export async function getPlatformRevenue(period: string): Promise<PlatformRevenu
       return res.json();
     } catch {
       console.warn('[marketplace-payment.getPlatformRevenue] API not available, using fallback');
-      return {} as PlatformRevenue;
+      return { total_revenue: 0, commission_earned: 0, pending_payouts: 0, top_creators: [], pending_approvals: [], monthly_data: [] } as unknown as PlatformRevenue;
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.platformRevenue'); }
 }
@@ -72,7 +72,7 @@ export async function getCreatorBalance(creatorId: string): Promise<BalanceDTO> 
       return res.json();
     } catch {
       console.warn('[marketplace-payment.getCreatorBalance] API not available, using fallback');
-      return {} as BalanceDTO;
+      return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0, currency: "BRL" } as BalanceDTO;
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.balance'); }
 }
@@ -93,7 +93,7 @@ export async function requestWithdrawal(creatorId: string, amount: number): Prom
       return res.json();
     } catch {
       console.warn('[marketplace-payment.requestWithdrawal] API not available, using fallback');
-      return {} as WithdrawalRecord;
+      return { id: "", creator_id: "", amount: 0, status: "pending", requested_at: "", processed_at: null, bank_account: "" } as unknown as WithdrawalRecord;
     }
   } catch (error) { handleServiceError(error, 'marketplacePayment.withdraw'); }
 }

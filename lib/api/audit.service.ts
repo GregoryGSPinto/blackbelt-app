@@ -106,7 +106,7 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
       return res.blob();
     } catch {
       console.warn('[audit.exportAuditLogs] API not available, using fallback');
-      return {} as Blob;
+      return new Blob();
     }
   } catch (error) { handleServiceError(error, 'audit.export'); }
 }
@@ -162,7 +162,7 @@ export async function createAuditEntry(
       return res.json();
     } catch {
       console.warn('[audit.createAuditEntry] API not available, using fallback');
-      return {} as AuditEntry;
+      return { id: "", user_id: "", action: "", resource: "", resource_id: "", details: {}, ip: "", timestamp: "" } as unknown as AuditEntry;
     }
 
   } catch (error) {

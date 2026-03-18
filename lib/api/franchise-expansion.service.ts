@@ -72,7 +72,7 @@ export async function createLead(data: CreateLeadData): Promise<FranchiseLead> {
       return res.json();
     } catch {
       console.warn('[franchise-expansion.createLead] API not available, using fallback');
-      return {} as FranchiseLead;
+      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.create'); }
 }
@@ -110,7 +110,7 @@ export async function updateLeadStatus(leadId: string, stage: PipelineStage): Pr
       return res.json();
     } catch {
       console.warn('[franchise-expansion.updateLeadStatus] API not available, using fallback');
-      return {} as FranchiseLead;
+      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.update'); }
 }
@@ -131,7 +131,7 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       return res.json();
     } catch {
       console.warn('[franchise-expansion.analyzeViability] API not available, using fallback');
-      return {} as ViabilityAnalysis;
+      return { score: 0, population: 0, competition: 0, income_level: "", recommendation: "", factors: [] } as unknown as ViabilityAnalysis;
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.viability'); }
 }
@@ -148,7 +148,7 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       return res.json();
     } catch {
       console.warn('[franchise-expansion.setupFranchise] API not available, using fallback');
-      return {} as FranchiseLead;
+      return { id: "", name: "", email: "", phone: "", city: "", state: "", status: "new", interest_level: "", notes: "", created_at: "" } as unknown as FranchiseLead;
     }
   } catch (error) { handleServiceError(error, 'franchise.expansion.setup'); }
 }

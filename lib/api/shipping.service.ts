@@ -73,7 +73,7 @@ export async function createShipment(orderId: string, carrier: string): Promise<
       return res.json();
     } catch {
       console.warn('[shipping.createShipment] API not available, using fallback');
-      return {} as Shipment;
+      return { id: "", order_id: "", tracking_code: "", carrier: "", status: "pending", events: [], estimated_delivery: null, created_at: "" } as unknown as Shipment;
     }
   } catch (error) { handleServiceError(error, 'shipping.createShipment'); }
 }
@@ -90,7 +90,7 @@ export async function trackShipment(trackingCode: string): Promise<Shipment> {
       return res.json();
     } catch {
       console.warn('[shipping.trackShipment] API not available, using fallback');
-      return {} as Shipment;
+      return { id: "", order_id: "", tracking_code: "", carrier: "", status: "pending", events: [], estimated_delivery: null, created_at: "" } as unknown as Shipment;
     }
   } catch (error) { handleServiceError(error, 'shipping.trackShipment'); }
 }
@@ -107,7 +107,7 @@ export async function getShipmentStatus(orderId: string): Promise<Shipment> {
       return res.json();
     } catch {
       console.warn('[shipping.getShipmentStatus] API not available, using fallback');
-      return {} as Shipment;
+      return { id: "", order_id: "", tracking_code: "", carrier: "", status: "pending", events: [], estimated_delivery: null, created_at: "" } as unknown as Shipment;
     }
   } catch (error) { handleServiceError(error, 'shipping.getShipmentStatus'); }
 }

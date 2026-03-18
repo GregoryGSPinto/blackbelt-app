@@ -45,7 +45,7 @@ export async function getAlbum(studentId: string): Promise<AlbumFigurinhas> {
       return res.json();
     } catch {
       console.warn('[kids-figurinhas.getAlbum] API not available, using fallback');
-      return {} as AlbumFigurinhas;
+      return { temas: [], totalColetadas: 0, totalFigurinhas: 0, percentual: 0 } as unknown as AlbumFigurinhas;
     }
   } catch (error) {
     handleServiceError(error, 'kids-figurinhas.album');

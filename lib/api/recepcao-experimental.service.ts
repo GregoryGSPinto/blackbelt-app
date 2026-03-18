@@ -44,7 +44,7 @@ export async function listExperimentais(): Promise<{ hoje: ExperimentalRecepcao[
       return res.json();
     } catch {
       console.warn('[recepcao-experimental.listExperimentais] API not available, using fallback');
-      return {} as { hoje: ExperimentalRecepcao[]; followUp: ExperimentalRecepcao[]; historico: ExperimentalRecepcao[]; funnel: FunnelExperimental };
+      return { hoje: [], followUp: [], historico: [], funnel: { agendadas: 0, vieram: 0, matricularam: 0, conversao: 0 } };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.list');
@@ -63,7 +63,7 @@ export async function marcarChegou(id: string): Promise<{ ok: boolean }> {
       return res.json();
     } catch {
       console.warn('[recepcao-experimental.marcarChegou] API not available, using fallback');
-      return {} as { ok: boolean };
+      return { ok: false };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.chegou');
@@ -82,7 +82,7 @@ export async function marcarNaoVeio(id: string): Promise<{ ok: boolean }> {
       return res.json();
     } catch {
       console.warn('[recepcao-experimental.marcarNaoVeio] API not available, using fallback');
-      return {} as { ok: boolean };
+      return { ok: false };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.naoVeio');
@@ -101,7 +101,7 @@ export async function marcarMatriculou(id: string): Promise<{ ok: boolean }> {
       return res.json();
     } catch {
       console.warn('[recepcao-experimental.marcarMatriculou] API not available, using fallback');
-      return {} as { ok: boolean };
+      return { ok: false };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-experimental.matriculou');

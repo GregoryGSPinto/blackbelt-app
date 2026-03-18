@@ -42,7 +42,7 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
       return res.json();
     } catch {
       console.warn('[teen-desafios.getDesafios] API not available, using fallback');
-      return {} as DesafiosOverview;
+      return { desafios_ativos: [], desafios_concluidos: [], xp_total_ganho: 0 } as unknown as DesafiosOverview;
     }
   } catch (error) {
     handleServiceError(error, 'teen.desafios');
@@ -61,7 +61,7 @@ export async function claimReward(desafioId: string): Promise<{ xp_earned: numbe
       return res.json();
     } catch {
       console.warn('[teen-desafios.claimReward] API not available, using fallback');
-      return {} as { xp_earned: number };
+      return { xp_earned: 0 };
     }
   } catch (error) {
     handleServiceError(error, 'teen.desafios.claim');

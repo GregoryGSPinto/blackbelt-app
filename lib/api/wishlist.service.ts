@@ -26,7 +26,7 @@ export async function addToWishlist(userId: string, productId: string): Promise<
       return res.json();
     } catch {
       console.warn('[wishlist.addToWishlist] API not available, using fallback');
-      return {} as WishlistItem;
+      return { id: "", user_id: "", product_id: "", product_name: "", product_image: "", price: 0, added_at: "" } as unknown as WishlistItem;
     }
   } catch (error) { handleServiceError(error, 'wishlist.addToWishlist'); }
 }

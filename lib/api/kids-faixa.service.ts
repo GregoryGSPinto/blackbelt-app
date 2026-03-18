@@ -41,7 +41,7 @@ export async function getFaixaKids(studentId: string): Promise<FaixaKids> {
       return res.json();
     } catch {
       console.warn('[kids-faixa.getFaixaKids] API not available, using fallback');
-      return {} as FaixaKids;
+      return { studentId: "", faixaAtual: "", corFaixa: "", graus: 0, maxGraus: 0, proximaFaixa: "", requisitos: [], percentualConcluido: 0 } as unknown as FaixaKids;
     }
   } catch (error) {
     handleServiceError(error, 'kids-faixa.get');

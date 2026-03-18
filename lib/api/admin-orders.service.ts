@@ -55,7 +55,7 @@ export async function getOrderDetail(id: string): Promise<Order> {
       return res.json();
     } catch {
       console.warn('[admin-orders.getOrderDetail] API not available, using fallback');
-      return {} as Order;
+      return { id: "", user_id: "", user_name: "", items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: "", cep: "", street: "", number: "", neighborhood: "", city: "", state: "" }, delivery_option: "pickup", payment_method: "pix", status: "pending", created_at: "", updated_at: "" } as unknown as Order;
     }
   } catch (error) { handleServiceError(error, 'adminOrders.getOrderDetail'); }
 }
@@ -76,7 +76,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus, trackin
       return res.json();
     } catch {
       console.warn('[admin-orders.updateOrderStatus] API not available, using fallback');
-      return {} as Order;
+      return { id: "", user_id: "", user_name: "", items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: "", cep: "", street: "", number: "", neighborhood: "", city: "", state: "" }, delivery_option: "pickup", payment_method: "pix", status: "pending", created_at: "", updated_at: "" } as unknown as Order;
     }
   } catch (error) { handleServiceError(error, 'adminOrders.updateOrderStatus'); }
 }
@@ -93,7 +93,7 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       return res.json();
     } catch {
       console.warn('[admin-orders.getStoreDashboard] API not available, using fallback');
-      return {} as StoreDashboard;
+      return { total_products: 0, total_orders: 0, revenue: 0, top_products: [], recent_orders: [] } as unknown as StoreDashboard;
     }
   } catch (error) { handleServiceError(error, 'adminOrders.getStoreDashboard'); }
 }

@@ -65,7 +65,7 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
       return res.json();
     } catch {
       console.warn('[inadimplencia.getInadimplenciaMetrics] API not available, using fallback');
-      return {} as InadimplenciaMetrics;
+      return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 } as InadimplenciaMetrics;
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.metrics'); }
 }
@@ -82,7 +82,7 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       return res.json();
     } catch {
       console.warn('[inadimplencia.registrarContato] API not available, using fallback');
-      return {} as ContatoRegistro;
+      return { id: '', devedorId: '', tipo: 'ligacao', resultado: 'sem_resposta', observacao: '', data: '' } as ContatoRegistro;
     }
   } catch (error) { handleServiceError(error, 'inadimplencia.contato'); }
 }

@@ -44,7 +44,7 @@ export async function getHealthOverview(): Promise<HealthOverview> {
       return res.json();
     } catch {
       console.warn('[superadmin-health.getHealthOverview] API not available, using fallback');
-      return {} as HealthOverview;
+      return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] } as HealthOverview;
     }
   } catch (error) { handleServiceError(error, 'superadmin-health.getOverview'); }
 }
@@ -79,7 +79,7 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
       return res.json();
     } catch {
       console.warn('[superadmin-health.getAcademiaHealth] API not available, using fallback');
-      return {} as AcademiaHealthScore;
+      return { academiaId: '', academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' } as AcademiaHealthScore;
     }
   } catch (error) { handleServiceError(error, 'superadmin-health.getAcademia'); }
 }

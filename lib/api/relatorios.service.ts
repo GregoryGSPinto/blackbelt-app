@@ -42,7 +42,7 @@ export async function getReport(academyId: string, filters: ReportFilters): Prom
       return res.json();
     } catch {
       console.warn('[relatorios.getReport] API not available, using fallback');
-      return {} as ReportResult;
+      return { title: "", data_points: [], summary: "", generated_at: "" } as unknown as ReportResult;
     }
   } catch (error) {
     handleServiceError(error, 'relatorios.get');

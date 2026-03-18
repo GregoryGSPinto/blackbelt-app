@@ -53,7 +53,7 @@ export async function register(championshipId: string, categoryId: string, data:
       return res.json();
     } catch {
       console.warn('[championship-registration.register] API not available, using fallback');
-      return {} as RegistrationDTO;
+      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
     }
   } catch (error) { handleServiceError(error, 'championship-registration.register'); }
 }
@@ -91,7 +91,7 @@ export async function confirmWeighIn(registrationId: string, actualWeight: numbe
       return res.json();
     } catch {
       console.warn('[championship-registration.confirmWeighIn] API not available, using fallback');
-      return {} as RegistrationDTO;
+      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
     }
   } catch (error) { handleServiceError(error, 'championship-registration.weighIn'); }
 }
@@ -112,7 +112,7 @@ export async function changeCategory(registrationId: string, newCategoryId: stri
       return res.json();
     } catch {
       console.warn('[championship-registration.changeCategory] API not available, using fallback');
-      return {} as RegistrationDTO;
+      return { id: "", championship_id: "", student_id: "", student_name: "", category: "", weight_class: "", status: "pending", created_at: "" } as unknown as RegistrationDTO;
     }
   } catch (error) { handleServiceError(error, 'championship-registration.changeCategory'); }
 }

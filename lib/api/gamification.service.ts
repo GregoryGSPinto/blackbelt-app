@@ -15,7 +15,7 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
       return res.json();
     } catch {
       console.warn('[gamification.getPlayerProfile] API not available, using fallback');
-      return {} as PlayerProfile;
+      return { id: "", name: "", level: 0, xp: 0, xp_next_level: 0, achievements: [], badges: [], streak: 0 } as unknown as PlayerProfile;
     }
   } catch (error) {
     handleServiceError(error, 'gamification.profile');

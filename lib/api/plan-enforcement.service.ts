@@ -63,7 +63,7 @@ export async function checkLimit(
       return res.json();
     } catch {
       console.warn('[plan-enforcement.checkLimit] API not available, using fallback');
-      return {} as LimitCheckResult;
+      return { allowed: false, current: 0, limit: null, plan: 'free', resource: 'students_active' } as LimitCheckResult;
     }
 
   } catch (error) {
@@ -82,7 +82,7 @@ export async function getUsage(academyId: string): Promise<UsageData> {
       return res.json();
     } catch {
       console.warn('[plan-enforcement.getUsage] API not available, using fallback');
-      return {} as UsageData;
+      return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 } as UsageData;
     }
   } catch (error) {
     handleServiceError(error, 'plan-enforcement.getUsage');

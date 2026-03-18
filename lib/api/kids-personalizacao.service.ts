@@ -55,7 +55,7 @@ export async function getPersonalizacao(studentId: string): Promise<Personalizac
       return res.json();
     } catch {
       console.warn('[kids-personalizacao.getPersonalizacao] API not available, using fallback');
-      return {} as PersonalizacaoKids;
+      return { mascotesDisponiveis: [], mascoteAtual: '', molduras: [], molduraAtual: '', cores: [], corAtual: '', titulosDisponiveis: [], tituloAtual: '' } as PersonalizacaoKids;
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.get');
@@ -78,7 +78,7 @@ export async function setMascoteKids(studentId: string, mascoteId: string): Prom
       return res.json();
     } catch {
       console.warn('[kids-personalizacao.setMascoteKids] API not available, using fallback');
-      return {} as { sucesso: boolean };
+      return { sucesso: false };
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setMascote');
@@ -101,7 +101,7 @@ export async function setCorKids(studentId: string, corId: string): Promise<{ su
       return res.json();
     } catch {
       console.warn('[kids-personalizacao.setCorKids] API not available, using fallback');
-      return {} as { sucesso: boolean };
+      return { sucesso: false };
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setCor');
@@ -124,7 +124,7 @@ export async function setTituloKids(studentId: string, titulo: string): Promise<
       return res.json();
     } catch {
       console.warn('[kids-personalizacao.setTituloKids] API not available, using fallback');
-      return {} as { sucesso: boolean };
+      return { sucesso: false };
     }
   } catch (error) {
     handleServiceError(error, 'kids-personalizacao.setTitulo');

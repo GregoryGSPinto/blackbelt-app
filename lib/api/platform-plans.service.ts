@@ -33,7 +33,7 @@ export async function getCurrentPlan(academyId: string): Promise<PlatformPlan> {
       return res.json();
     } catch {
       console.warn('[platform-plans.getCurrentPlan] API not available, using fallback');
-      return {} as PlatformPlan;
+      return { id: "", name: "", price: 0, features: [], limits: {}, popular: false } as unknown as PlatformPlan;
     }
   } catch (error) { handleServiceError(error, 'platformPlans.current'); }
 }
@@ -50,7 +50,7 @@ export async function getUsage(academyId: string): Promise<UsageDTO> {
       return res.json();
     } catch {
       console.warn('[platform-plans.getUsage] API not available, using fallback');
-      return {} as UsageDTO;
+      return { plan: "", students: 0, units: 0, storage_mb: 0, api_calls: 0 } as unknown as UsageDTO;
     }
   } catch (error) { handleServiceError(error, 'platformPlans.usage'); }
 }
@@ -67,7 +67,7 @@ export async function checkLimit(academyId: string, resource: 'units' | 'student
       return res.json();
     } catch {
       console.warn('[platform-plans.checkLimit] API not available, using fallback');
-      return {} as LimitCheck;
+      return { allowed: false, current: 0, limit: 0, resource: "" } as unknown as LimitCheck;
     }
   } catch (error) { handleServiceError(error, 'platformPlans.checkLimit'); }
 }

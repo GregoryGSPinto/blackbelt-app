@@ -58,7 +58,7 @@ export async function generateBracket(championshipId: string, categoryId: string
       return res.json();
     } catch {
       console.warn('[brackets.generateBracket] API not available, using fallback');
-      return {} as BracketDTO;
+      return { id: "", championship_id: "", category_id: "", category_name: "", total_athletes: 0, matches: [], status: "pending" } as unknown as BracketDTO;
     }
   } catch (error) { handleServiceError(error, 'brackets.generate'); }
 }
@@ -75,7 +75,7 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       return res.json();
     } catch {
       console.warn('[brackets.getBracketByCategory] API not available, using fallback');
-      return {} as BracketDTO;
+      return { id: "", championship_id: "", category_id: "", category_name: "", total_athletes: 0, matches: [], status: "pending" } as unknown as BracketDTO;
     }
   } catch (error) { handleServiceError(error, 'brackets.get'); }
 }
@@ -96,7 +96,7 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       return res.json();
     } catch {
       console.warn('[brackets.submitResult] API not available, using fallback');
-      return {} as MatchDTO;
+      return { id: "", bracket_id: "", round: 0, position: 0, athlete1_id: null, athlete1_name: null, athlete2_id: null, athlete2_name: null, winner_id: null, method: null, status: "pending" } as unknown as MatchDTO;
     }
   } catch (error) { handleServiceError(error, 'brackets.submitResult'); }
 }
@@ -113,7 +113,7 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       return res.json();
     } catch {
       console.warn('[brackets.getMatchDetails] API not available, using fallback');
-      return {} as MatchDTO;
+      return { id: "", bracket_id: "", round: 0, position: 0, athlete1_id: null, athlete1_name: null, athlete2_id: null, athlete2_name: null, winner_id: null, method: null, status: "pending" } as unknown as MatchDTO;
     }
   } catch (error) { handleServiceError(error, 'brackets.matchDetails'); }
 }

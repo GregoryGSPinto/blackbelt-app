@@ -41,7 +41,7 @@ export async function globalSearch(
       return res.json();
     } catch {
       console.warn('[search.globalSearch] API not available, using fallback');
-      return {} as SearchResponse;
+      return { results: [], total: 0 } as SearchResponse;
     }
 
   } catch (error) {

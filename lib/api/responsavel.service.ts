@@ -86,7 +86,9 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
       return res.json();
     } catch {
       console.warn('[responsavel.getGuardianDashboard] API not available, using fallback');
-      return {} as GuardianDashboardDTO;
+      return {
+        profile_id: '', guardian_name: '', children: [], consolidated: null,
+      };
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.dashboard');

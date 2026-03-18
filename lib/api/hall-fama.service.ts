@@ -30,7 +30,7 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       return res.json();
     } catch {
       console.warn('[hall-fama.getHallOfFame] API not available, using fallback');
-      return {} as HallOfFameDTO;
+      return { records: [], updatedAt: '' } as HallOfFameDTO;
     }
   } catch (error) { handleServiceError(error, 'hallFama.get'); }
 }

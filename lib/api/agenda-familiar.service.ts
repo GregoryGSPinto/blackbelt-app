@@ -67,7 +67,7 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       return res.json();
     } catch {
       console.warn('[agenda-familiar.getFamilyCalendar] API not available, using fallback');
-      return {} as FamilyCalendarDTO;
+      return { profile_id: '', week_start: '', week_end: '', events: [] } as FamilyCalendarDTO;
     }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.calendar');
@@ -86,7 +86,7 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       return res.json();
     } catch {
       console.warn('[agenda-familiar.getMonthlyReport] API not available, using fallback');
-      return {} as MonthlyReportDTO;
+      return { profile_id: '', month_label: '', month: '', children: [], payments: [], total_paid: 0 } as MonthlyReportDTO;
     }
   } catch (error) {
     handleServiceError(error, 'agenda-familiar.report');

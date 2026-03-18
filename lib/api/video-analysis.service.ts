@@ -47,7 +47,7 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
       return res.json();
     } catch {
       console.warn('[video-analysis.analyzeFrame] API not available, using fallback');
-      return {} as FrameAnalysis;
+      return { posture_score: 0, technique_detected: "", feedback: "", landmarks: [] } as unknown as FrameAnalysis;
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeFrame'); }
 }
@@ -64,7 +64,7 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
       return res.json();
     } catch {
       console.warn('[video-analysis.analyzeVideo] API not available, using fallback');
-      return {} as VideoAnalysis;
+      return { id: "", video_id: "", techniques: [], overall_score: 0, feedback: "", analyzed_at: "" } as unknown as VideoAnalysis;
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeVideo'); }
 }
@@ -81,7 +81,7 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
       return res.json();
     } catch {
       console.warn('[video-analysis.compareExecution] API not available, using fallback');
-      return {} as ComparisonResult;
+      return { similarity_score: 0, differences: [], suggestions: [] } as unknown as ComparisonResult;
     }
   } catch (error) { handleServiceError(error, 'videoAnalysis.compare'); }
 }

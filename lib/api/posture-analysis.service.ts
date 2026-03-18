@@ -49,7 +49,7 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       return res.json();
     } catch {
       console.warn('[posture-analysis.analyzePosture] API not available, using fallback');
-      return {} as PostureResult;
+      return { score: 0, landmarks: [], issues: [], suggestions: [], analyzed_at: "" } as unknown as PostureResult;
     }
   } catch (error) {
     handleServiceError(error, 'postureAnalysis.analyze');

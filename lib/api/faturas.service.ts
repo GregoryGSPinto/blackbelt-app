@@ -51,7 +51,7 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       return res.json();
     } catch {
       console.warn('[faturas.getInvoiceById] API not available, using fallback');
-      return {} as InvoiceWithDetails;
+      return { id: "", student_id: "", student_name: "", amount: 0, status: "pending", due_date: "", paid_at: null, method: null, created_at: "" } as unknown as InvoiceWithDetails;
     }
   } catch (error) {
     handleServiceError(error, 'faturas.get');
@@ -70,7 +70,7 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       return res.json();
     } catch {
       console.warn('[faturas.markInvoicePaid] API not available, using fallback');
-      return {} as Invoice;
+      return { id: "", student_id: "", amount: 0, status: "pending", due_date: "", created_at: "" } as unknown as Invoice;
     }
   } catch (error) {
     handleServiceError(error, 'faturas.markPaid');

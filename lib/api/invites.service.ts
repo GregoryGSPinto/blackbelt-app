@@ -51,7 +51,7 @@ export async function sendInvite(email: string, role: Role, unitIds: string[]): 
       return res.json();
     } catch {
       console.warn('[invites.sendInvite] API not available, using fallback');
-      return {} as InviteDTO;
+      return { id: "", academy_id: "", email: "", role: "", status: "pending", invited_by: "", created_at: "" } as unknown as InviteDTO;
     }
   } catch (error) { handleServiceError(error, 'invites.send'); }
 }

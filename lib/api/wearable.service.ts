@@ -51,7 +51,7 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       return res.json();
     } catch {
       console.warn('[wearable.syncHealthData] API not available, using fallback');
-      return {} as { synced: number };
+      return { synced: 0 };
     }
   } catch (error) { handleServiceError(error, 'wearable.sync'); }
 }
@@ -83,7 +83,7 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
       return res.json();
     } catch {
       console.warn('[wearable.getRealtimeMetrics] API not available, using fallback');
-      return {} as RealtimeMetrics;
+      return { heart_rate: 0, calories: 0, steps: 0, active_minutes: 0, zones: { rest: 0, fat_burn: 0, cardio: 0, peak: 0 } } as unknown as RealtimeMetrics;
     }
   } catch (error) { handleServiceError(error, 'wearable.realtime'); }
 }

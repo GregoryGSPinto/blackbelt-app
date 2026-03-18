@@ -49,7 +49,7 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       return res.json();
     } catch {
       console.warn('[professor-pedagogico.getProgressoAluno] API not available, using fallback');
-      return {} as ProgressoDTO;
+      return { student_id: "", belt: "", classes_attended: 0, techniques_learned: 0, evaluations: [], milestones: [] } as unknown as ProgressoDTO;
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.progresso');
@@ -72,7 +72,7 @@ export async function avaliar(studentId: string, classId: string, criteria: Eval
       return res.json();
     } catch {
       console.warn('[professor-pedagogico.avaliar] API not available, using fallback');
-      return {} as Evaluation;
+      return { id: "", student_id: "", evaluator_id: "", technique: 0, discipline: 0, attendance: 0, evolution: 0, notes: "", date: "" } as unknown as Evaluation;
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.avaliar');
@@ -95,7 +95,7 @@ export async function promoverFaixa(studentId: string, toBelt: BeltLevel): Promi
       return res.json();
     } catch {
       console.warn('[professor-pedagogico.promoverFaixa] API not available, using fallback');
-      return {} as Progression;
+      return { id: "", student_id: "", from_belt: "", to_belt: "", date: "", approved_by: "" } as unknown as Progression;
     }
   } catch (error) {
     handleServiceError(error, 'pedagogico.promover');

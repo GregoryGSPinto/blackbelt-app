@@ -72,7 +72,7 @@ export async function respondAutorizacao(
       return res.json();
     } catch {
       console.warn('[responsavel-autorizacoes.respondAutorizacao] API not available, using fallback');
-      return {} as Autorizacao;
+      return { id: '', student_id: '', student_name: '', type: 'evento', title: '', description: '', status: 'pendente', requested_at: '', responded_at: null } as Autorizacao;
     }
 
   } catch (error) {
@@ -92,7 +92,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       return res.json();
     } catch {
       console.warn('[responsavel-autorizacoes.getControleParental] API not available, using fallback');
-      return {} as ControleParental;
+      return { student_id: '', student_name: '', permissions: [] } as ControleParental;
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.controle-parental');

@@ -62,7 +62,7 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       return res.json();
     } catch {
       console.warn('[franqueador-curriculo.getCurriculoOverview] API not available, using fallback');
-      return {} as CurriculoOverview;
+      return { modalities: [], total_curriculos: 0, total_techniques: 0 } as CurriculoOverview;
     }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.overview'); }
 }
@@ -79,7 +79,7 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       return res.json();
     } catch {
       console.warn('[franqueador-curriculo.getCurriculoDetail] API not available, using fallback');
-      return {} as CurriculoRede;
+      return { id: '', modality: '', belt_level: '', name: '', description: '', techniques: [], min_classes_required: 0, evaluation_criteria: [], created_at: '', updated_at: '' } as CurriculoRede;
     }
   } catch (error) { handleServiceError(error, 'franqueador-curriculo.detail'); }
 }

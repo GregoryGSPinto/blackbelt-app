@@ -45,7 +45,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       return res.json();
     } catch {
       console.warn('[recepcao-acesso.getAcesso] API not available, using fallback');
-      return {} as AcessoAcademia;
+      return { pessoasDentro: [], totalDentro: 0, capacidade: 0, movimentacao: [] } as unknown as AcessoAcademia;
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.get');
@@ -85,7 +85,7 @@ export async function registrarSaida(pessoaId: string): Promise<{ ok: boolean }>
       return res.json();
     } catch {
       console.warn('[recepcao-acesso.registrarSaida] API not available, using fallback');
-      return {} as { ok: boolean };
+      return { ok: false };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-acesso.saida');

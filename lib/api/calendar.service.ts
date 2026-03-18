@@ -93,7 +93,7 @@ export async function getCalendarEventById(
       return res.json();
     } catch {
       console.warn('[calendar.getCalendarEventById] API not available, using fallback');
-      return {} as CalendarEvent;
+      return { id: "", title: "", start: "", end: "", type: "", class_id: null, color: "", recurring: false } as unknown as CalendarEvent;
     }
 
   } catch (error) {

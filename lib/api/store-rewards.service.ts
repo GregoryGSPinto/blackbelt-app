@@ -30,7 +30,7 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       return res.json();
     } catch {
       console.warn('[store-rewards.getBalance] API not available, using fallback');
-      return {} as RewardBalance;
+      return { points: 0, value_brl: 0 } as RewardBalance;
     }
   } catch (error) { handleServiceError(error, 'storeRewards.getBalance'); }
 }
@@ -68,7 +68,7 @@ export async function redeemPoints(userId: string, amount: number, orderId: stri
       return res.json();
     } catch {
       console.warn('[store-rewards.redeemPoints] API not available, using fallback');
-      return {} as RewardTransaction;
+      return { id: '', user_id: '', type: 'checkin', points: 0, description: '', created_at: '' } as RewardTransaction;
     }
   } catch (error) { handleServiceError(error, 'storeRewards.redeemPoints'); }
 }

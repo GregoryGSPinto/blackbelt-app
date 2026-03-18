@@ -76,7 +76,7 @@ export async function getAchievementProgress(studentId: string): Promise<Achieve
       return res.json();
     } catch {
       console.warn('[conquistas-v2.getAchievementProgress] API not available, using fallback');
-      return {} as AchievementProgressDTO;
+      return { achievement_id: "", title: "", description: "", icon: "", progress: 0, target: 0, completed: false, completed_at: null } as unknown as AchievementProgressDTO;
     }
   } catch (error) {
     handleServiceError(error, 'conquistas-v2.getProgress');

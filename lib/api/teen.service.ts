@@ -117,7 +117,13 @@ export async function getTeenDashboard(studentId: string): Promise<TeenDashboard
       return res.json();
     } catch {
       console.warn('[teen.getTeenDashboard] API not available, using fallback');
-      return {} as TeenDashboardDTO;
+      return {
+        profile: { student_id: '', display_name: '', avatar: null, belt: 'branca' as BeltLevel, title: '', bio: '' },
+        xp: 0, level: 1, next_level_xp: 100, rank_position: 0, xp_this_week: 0, videos_watched: 0,
+        active_challenge: null, weekly_challenges: [], ranking: [], achievements: [],
+        next_achievement: null, streak: { current_days: 0, best_ever: 0, is_active: false },
+        continue_watching: [], next_class: null,
+      };
     }
   } catch (error) {
     handleServiceError(error, 'teen.dashboard');

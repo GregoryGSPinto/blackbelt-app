@@ -37,7 +37,7 @@ export async function createReview(courseId: string, userId: string, rating: num
       return res.json();
     } catch {
       console.warn('[reviews.createReview] API not available, using fallback');
-      return {} as Review;
+      return { id: "", user_id: "", user_name: "", rating: 0, comment: "", created_at: "" } as unknown as Review;
     }
   } catch (error) { handleServiceError(error, 'reviews.create'); }
 }
@@ -56,7 +56,7 @@ export async function getReviews(courseId: string, page?: number): Promise<{ rev
       return res.json();
     } catch {
       console.warn('[reviews.getReviews] API not available, using fallback');
-      return {} as { reviews: Review[]; total: number; page: number };
+      return { reviews: [], total: 0, page: 0 };
     }
   } catch (error) { handleServiceError(error, 'reviews.list'); }
 }
@@ -73,7 +73,7 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       return res.json();
     } catch {
       console.warn('[reviews.getAverageRating] API not available, using fallback');
-      return {} as AverageRating;
+      return { average: 0, total: 0, distribution: [] } as unknown as AverageRating;
     }
   } catch (error) { handleServiceError(error, 'reviews.average'); }
 }
@@ -113,7 +113,7 @@ export async function respondToReview(reviewId: string, response: string): Promi
       return res.json();
     } catch {
       console.warn('[reviews.respondToReview] API not available, using fallback');
-      return {} as Review;
+      return { id: "", user_id: "", user_name: "", rating: 0, comment: "", created_at: "" } as unknown as Review;
     }
   } catch (error) { handleServiceError(error, 'reviews.respond'); }
 }

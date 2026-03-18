@@ -61,7 +61,7 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       return res.json();
     } catch {
       console.warn('[promocao.getPromotionCandidate] API not available, using fallback');
-      return {} as PromotionCandidateDTO;
+      return { student_id: '', academy_id: '', display_name: '', avatar: null, current_belt: 'white', next_belt: 'white', total_classes: 0, months_at_current_belt: 0, attendance_streak: 0, last_evaluation_score: 0, achievements_count: 0, xp_total: 0 } as unknown as PromotionCandidateDTO;
     }
   } catch (error) {
     handleServiceError(error, 'promocao.getCandidate');
@@ -84,7 +84,7 @@ export async function executePromotion(data: ExecutePromotionPayload): Promise<P
       return res.json();
     } catch {
       console.warn('[promocao.executePromotion] API not available, using fallback');
-      return {} as PromotionResult;
+      return { success: false, progression_id: '', new_belt: 'white', xp_awarded: 0, actions: [] } as unknown as PromotionResult;
     }
   } catch (error) {
     handleServiceError(error, 'promocao.execute');

@@ -66,7 +66,7 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
       return res.json();
     } catch {
       console.warn('[relatorio-professor.getDetalheProfessor] API not available, using fallback');
-      return {} as DetalheProfessor;
+      return { id: "", professor_id: "", nome: "", avatar: null, turmasAtivas: 0, totalAlunos: 0, mediaPresenca: 0, satisfacao: 0, aulas: [], evolucaoMensal: [] } as unknown as DetalheProfessor;
     }
   } catch (error) { handleServiceError(error, 'relatorio-professor.detail'); }
 }

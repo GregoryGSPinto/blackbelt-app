@@ -39,7 +39,7 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       return res.json();
     } catch {
       console.warn('[group-chat.sendGroupMessage] API not available, using fallback');
-      return {} as GroupMessage;
+      return { id: "", group_id: "", sender_id: "", sender_name: "", content: "", sent_at: "" } as unknown as GroupMessage;
     }
   } catch (error) { handleServiceError(error, 'groupChat.send'); }
 }

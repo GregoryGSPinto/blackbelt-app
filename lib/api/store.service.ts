@@ -86,7 +86,7 @@ export async function getProduct(id: string): Promise<Product> {
       return res.json();
     } catch {
       console.warn('[store.getProduct] API not available, using fallback');
-      return {} as Product;
+      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
     }
   } catch (error) { handleServiceError(error, 'store.getProduct'); }
 }
@@ -107,7 +107,7 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       return res.json();
     } catch {
       console.warn('[store.createProduct] API not available, using fallback');
-      return {} as Product;
+      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
     }
   } catch (error) { handleServiceError(error, 'store.createProduct'); }
 }
@@ -128,7 +128,7 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       return res.json();
     } catch {
       console.warn('[store.updateProduct] API not available, using fallback');
-      return {} as Product;
+      return { id: '', academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' } as Product;
     }
   } catch (error) { handleServiceError(error, 'store.updateProduct'); }
 }

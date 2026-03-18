@@ -42,7 +42,7 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
       return res.json();
     } catch {
       console.warn('[network.getNetworkDashboard] API not available, using fallback');
-      return {} as NetworkDashboardDTO;
+      return { academies: [], total_students: 0, total_revenue: 0, avg_attendance: 0, alerts: [] } as unknown as NetworkDashboardDTO;
     }
   } catch (error) { handleServiceError(error, 'network.dashboard'); }
 }
@@ -58,7 +58,7 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
       return res.json();
     } catch {
       console.warn('[network.getAcademyComparison] API not available, using fallback');
-      return {} as ComparisonDTO;
+      return { academies: [], metrics: [] } as unknown as ComparisonDTO;
     }
   } catch (error) { handleServiceError(error, 'network.comparison'); }
 }
@@ -74,7 +74,7 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
       return res.json();
     } catch {
       console.warn('[network.getNetworkFinancials] API not available, using fallback');
-      return {} as ConsolidatedFinancials;
+      return { total_revenue: 0, total_expenses: 0, net_profit: 0, monthly_data: [] } as unknown as ConsolidatedFinancials;
     }
   } catch (error) { handleServiceError(error, 'network.financials'); }
 }

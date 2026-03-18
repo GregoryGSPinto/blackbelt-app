@@ -88,7 +88,7 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       return res.json();
     } catch {
       console.warn('[campanhas.createCampaign] API not available, using fallback');
-      return {} as CampaignDTO;
+      return { id: '', name: '', template: 'volte_treinar', status: 'draft', target_audience: '', target_count: 0, scheduled_at: null, created_at: '' } as CampaignDTO;
     }
   } catch (error) {
     handleServiceError(error, 'campanhas.create');
@@ -107,7 +107,7 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       return res.json();
     } catch {
       console.warn('[campanhas.getCampaignMetrics] API not available, using fallback');
-      return {} as CampaignMetricsDTO;
+      return { campaign_id: '', sent: 0, opened: 0, open_rate: 0, converted: 0, conversion_rate: 0 } as CampaignMetricsDTO;
     }
   } catch (error) {
     handleServiceError(error, 'campanhas.metrics');

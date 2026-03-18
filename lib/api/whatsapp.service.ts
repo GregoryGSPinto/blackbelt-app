@@ -97,7 +97,7 @@ export async function sendWhatsApp(
       return res.json();
     } catch {
       console.warn('[whatsapp.sendWhatsApp] API not available, using fallback');
-      return {} as WhatsAppSendResult;
+      return { success: false, message_id: "", status: "sent" } as unknown as WhatsAppSendResult;
     }
 
   } catch (error) {

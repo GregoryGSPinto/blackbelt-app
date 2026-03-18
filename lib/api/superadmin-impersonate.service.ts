@@ -30,7 +30,7 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
       return res.json();
     } catch {
       console.warn('[superadmin-impersonate.startImpersonation] API not available, using fallback');
-      return {} as ImpersonateSession;
+      return { originalUserId: '', impersonatedUserId: '', academiaId: '', academiaNome: '', role: 'admin', iniciadoEm: '' } as ImpersonateSession;
     }
   } catch (error) { handleServiceError(error, 'superadmin-impersonate.start'); }
 }

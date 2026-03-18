@@ -64,7 +64,7 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       return res.json();
     } catch {
       console.warn('[chat.sendMessage] API not available, using fallback');
-      return {} as ChatMessage;
+      return { id: "", conversation_id: "", sender_id: "", sender_name: "", content: "", sent_at: "", read: false } as unknown as ChatMessage;
     }
   } catch (error) {
     handleServiceError(error, 'chat.sendMessage');
@@ -119,7 +119,7 @@ export async function createBroadcast(
       return res.json();
     } catch {
       console.warn('[chat.createBroadcast] API not available, using fallback');
-      return {} as ChatMessage;
+      return { id: "", conversation_id: "", sender_id: "", sender_name: "", content: "", sent_at: "", read: false } as unknown as ChatMessage;
     }
 
   } catch (error) {

@@ -23,7 +23,7 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       return res.json();
     } catch {
       console.warn('[branding.getBranding] API not available, using fallback');
-      return {} as BrandingDTO;
+      return { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null } as BrandingDTO;
     }
   } catch (error) { handleServiceError(error, 'branding.get'); }
 }
@@ -44,7 +44,7 @@ export async function updateBranding(academyId: string, data: Partial<BrandingDT
       return res.json();
     } catch {
       console.warn('[branding.updateBranding] API not available, using fallback');
-      return {} as BrandingDTO;
+      return { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null } as BrandingDTO;
     }
   } catch (error) { handleServiceError(error, 'branding.update'); }
 }

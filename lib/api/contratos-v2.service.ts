@@ -63,7 +63,7 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       return res.json();
     } catch {
       console.warn('[contratos-v2.getContratoTemplate] API not available, using fallback');
-      return {} as ContratoTemplate;
+      return { id: '', nome: '', tipo: 'matricula', conteudoHTML: '', variaveis: [], ativo: false, criadoEm: '' } as ContratoTemplate;
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.getTemplate'); }
 }
@@ -80,7 +80,7 @@ export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' |
       return res.json();
     } catch {
       console.warn('[contratos-v2.createContratoTemplate] API not available, using fallback');
-      return {} as ContratoTemplate;
+      return { id: '', nome: '', tipo: 'matricula', conteudoHTML: '', variaveis: [], ativo: false, criadoEm: '' } as ContratoTemplate;
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.createTemplate'); }
 }
@@ -97,7 +97,7 @@ export async function gerarContrato(templateId: string, alunoId: string, dados: 
       return res.json();
     } catch {
       console.warn('[contratos-v2.gerarContrato] API not available, using fallback');
-      return {} as Contrato;
+      return { id: '', templateId: '', templateNome: '', alunoId: '', alunoNome: '', status: 'rascunho', conteudoFinal: '', criadoEm: '' } as Contrato;
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.gerar'); }
 }
@@ -129,7 +129,7 @@ export async function assinarContrato(contratoId: string, assinatura: string): P
       return res.json();
     } catch {
       console.warn('[contratos-v2.assinarContrato] API not available, using fallback');
-      return {} as Contrato;
+      return { id: '', templateId: '', templateNome: '', alunoId: '', alunoNome: '', status: 'rascunho', conteudoFinal: '', criadoEm: '' } as Contrato;
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.assinar'); }
 }
@@ -165,7 +165,7 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
       return res.json();
     } catch {
       console.warn('[contratos-v2.getContratosMetrics] API not available, using fallback');
-      return {} as ContratosMetrics;
+      return { contratosAtivos: 0, pendentesAssinatura: 0, taxaAssinatura: 0 } as ContratosMetrics;
     }
   } catch (error) { handleServiceError(error, 'contratos-v2.metrics'); }
 }

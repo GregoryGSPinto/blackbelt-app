@@ -86,7 +86,7 @@ export async function analyzePerformance(studentId: string): Promise<Performance
       return res.json();
     } catch {
       console.warn('[ai-coach.analyzePerformance] API not available, using fallback');
-      return {} as PerformanceAnalysis;
+      return { summary: "", strengths: [], weaknesses: [], recommendations: [] } as unknown as PerformanceAnalysis;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.analyze'); }
 }
@@ -102,7 +102,7 @@ export async function generateClassPlan(professorId: string, classId: string): P
       return res.json();
     } catch {
       console.warn('[ai-coach.generateClassPlan] API not available, using fallback');
-      return {} as ClassPlan;
+      return { title: "", duration_min: 0, warmup: [], main: [], cooldown: [], notes: "" } as unknown as ClassPlan;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.classPlan'); }
 }
@@ -134,7 +134,7 @@ export async function generateTrainingPlan(studentId: string, goal: string, week
       return res.json();
     } catch {
       console.warn('[ai-coach.generateTrainingPlan] API not available, using fallback');
-      return {} as GeneratedTrainingPlan;
+      return { id: "", name: "", goal: "", duration_weeks: 0, weeks: [], notes: "" } as unknown as GeneratedTrainingPlan;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.generatePlan'); }
 }
@@ -150,7 +150,7 @@ export async function adjustPlan(planId: string, feedback: string): Promise<Plan
       return res.json();
     } catch {
       console.warn('[ai-coach.adjustPlan] API not available, using fallback');
-      return {} as PlanAdjustment;
+      return { original_plan_id: "", adjustments: [], reasoning: "" } as unknown as PlanAdjustment;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.adjustPlan'); }
 }
@@ -166,7 +166,7 @@ export async function generatePeriodization(studentId: string, competitionDate: 
       return res.json();
     } catch {
       console.warn('[ai-coach.generatePeriodization] API not available, using fallback');
-      return {} as GeneratedPeriodization;
+      return { competition_name: "", competition_date: "", phases: [], notes: "" } as unknown as GeneratedPeriodization;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.generatePeriodization'); }
 }
@@ -182,7 +182,7 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
       return res.json();
     } catch {
       console.warn('[ai-coach.weeklyCheckIn] API not available, using fallback');
-      return {} as WeeklyCheckInResult;
+      return { summary: "", progress_score: 0, adjustments: [], motivation_message: "" } as unknown as WeeklyCheckInResult;
     }
   } catch (error) { handleServiceError(error, 'aiCoach.weeklyCheckIn'); }
 }

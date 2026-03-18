@@ -128,7 +128,7 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       return res.json();
     } catch {
       console.warn('[federation-ranking.getAthleteProfile] API not available, using fallback');
-      return {} as AthleteProfileDTO;
+      return { id: "", name: "", academy_name: "", belt: "", weight_class: "", age_group: "", modality: "", ranking_position: 0, total_points: 0, competitions: [], medals: { gold: 0, silver: 0, bronze: 0 } } as unknown as AthleteProfileDTO;
     }
   } catch (error) { handleServiceError(error, 'federation-ranking.athleteProfile'); }
 }

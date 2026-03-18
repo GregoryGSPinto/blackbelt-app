@@ -82,7 +82,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       return res.json();
     } catch {
       console.warn('[personal-ai.getPersonalContext] API not available, using fallback');
-      return {} as PersonalContext;
+      return { student_id: '', name: '', belt: '', stripes: 0, academy: '', frequency_weekly: 0, last_class_date: '', next_class_date: '', next_class_name: '', current_weight_kg: 0, target_weight_kg: null, upcoming_competition: null, strengths: [], weaknesses: [], goals: [], xp_total: 0, xp_rank: 0, streak_days: 0 } as PersonalContext;
     }
   } catch (error) {
     handleServiceError(error, 'personalAI.getContext');
@@ -104,7 +104,7 @@ export async function chat(studentId: string, message: string, history: ChatMess
       return res.json();
     } catch {
       console.warn('[personal-ai.chat] API not available, using fallback');
-      return {} as AIResponse;
+      return { message: '', context_used: [], suggested_actions: [] } as AIResponse;
     }
   } catch (error) {
     handleServiceError(error, 'personalAI.chat');
@@ -122,7 +122,7 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       return res.json();
     } catch {
       console.warn('[personal-ai.getDailyBriefing] API not available, using fallback');
-      return {} as DailyBriefing;
+      return { greeting: '', todays_class: null, focus_suggestion: '', competition_countdown: null, weight_check: null, motivational_quote: '', streak_info: '' } as DailyBriefing;
     }
   } catch (error) {
     handleServiceError(error, 'personalAI.dailyBriefing');
@@ -140,7 +140,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       return res.json();
     } catch {
       console.warn('[personal-ai.getWeeklyPlan] API not available, using fallback');
-      return {} as WeeklyPlan;
+      return { week_start: '', week_end: '', summary: '', days: [], weekly_goal: '', nutrition_tip: '', recovery_tip: '' } as WeeklyPlan;
     }
   } catch (error) {
     handleServiceError(error, 'personalAI.weeklyPlan');

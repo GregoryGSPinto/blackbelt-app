@@ -43,7 +43,7 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
       return res.json();
     } catch {
       console.warn('[white-label.getWhiteLabelConfig] API not available, using fallback');
-      return {} as WhiteLabelConfig;
+      return { academy_id: "", custom_domain: null, logo_url: null, primary_color: "", accent_color: "", favicon_url: null, app_name: "", enabled: false } as unknown as WhiteLabelConfig;
     }
   } catch (error) {
     handleServiceError(error, 'whiteLabel.getConfig');

@@ -67,7 +67,7 @@ export async function createOrder(userId: string, data: CreateOrderData): Promis
       return res.json();
     } catch {
       console.warn('[orders.createOrder] API not available, using fallback');
-      return {} as Order;
+      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
     }
   } catch (error) { handleServiceError(error, 'orders.createOrder'); }
 }
@@ -101,7 +101,7 @@ export async function getOrderById(id: string): Promise<Order> {
       return res.json();
     } catch {
       console.warn('[orders.getOrderById] API not available, using fallback');
-      return {} as Order;
+      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
     }
   } catch (error) { handleServiceError(error, 'orders.getOrderById'); }
 }
@@ -118,7 +118,7 @@ export async function cancelOrder(id: string): Promise<Order> {
       return res.json();
     } catch {
       console.warn('[orders.cancelOrder] API not available, using fallback');
-      return {} as Order;
+      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
     }
   } catch (error) { handleServiceError(error, 'orders.cancelOrder'); }
 }

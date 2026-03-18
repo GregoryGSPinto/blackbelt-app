@@ -71,7 +71,7 @@ export async function uploadTrainingVideo(payload: UploadVideoPayload): Promise<
       return res.json();
     } catch {
       console.warn('[training-video.uploadTrainingVideo] API not available, using fallback');
-      return {} as TrainingVideoDTO;
+      return { id: "", title: "", description: "", url: "", thumbnail_url: "", duration: 0, modality: "", belt_level: "white", tags: [], views: 0, uploaded_by: "", created_at: "", annotations: [], ai_analysis: null } as unknown as TrainingVideoDTO;
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.upload'); }
 }
@@ -109,7 +109,7 @@ export async function getTrainingVideoById(videoId: string): Promise<TrainingVid
       return res.json();
     } catch {
       console.warn('[training-video.getTrainingVideoById] API not available, using fallback');
-      return {} as TrainingVideoDTO;
+      return { id: "", title: "", description: "", url: "", thumbnail_url: "", duration: 0, modality: "", belt_level: "white", tags: [], views: 0, uploaded_by: "", created_at: "", annotations: [], ai_analysis: null } as unknown as TrainingVideoDTO;
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.getById'); }
 }
@@ -141,7 +141,7 @@ export async function addAnnotation(videoId: string, annotation: Omit<VideoAnnot
       return res.json();
     } catch {
       console.warn('[training-video.addAnnotation] API not available, using fallback');
-      return {} as VideoAnnotation;
+      return { id: "", video_id: "", timestamp_sec: 0, text: "", author_id: "", author_name: "", created_at: "" } as unknown as VideoAnnotation;
     }
   } catch (error) { handleServiceError(error, 'trainingVideo.addAnnotation'); }
 }

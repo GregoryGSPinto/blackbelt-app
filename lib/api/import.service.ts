@@ -166,7 +166,7 @@ export async function executeImport(
       return res.json();
     } catch {
       console.warn('[import.executeImport] API not available, using fallback');
-      return {} as ImportResult;
+      return { imported: 0, skipped: 0, errors: [] } as ImportResult;
     }
 
   } catch (error) {

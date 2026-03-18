@@ -68,7 +68,14 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
       return res.json();
     } catch {
       console.warn('[painel-dia.getDailyBriefing] API not available, using fallback');
-      return {} as DailyBriefingDTO;
+      return {
+        aulasHoje: [],
+        aniversariantes: [],
+        vencendoAmanha: [],
+        alunosRisco: [],
+        graduacoesProntas: [],
+        resumo: { alunosAtivos: 0, aulasHoje: 0, receitaMes: 0, taxaPresencaSemana: 0 },
+      };
     }
   } catch (error) { handleServiceError(error, 'painel-dia.briefing'); }
 }

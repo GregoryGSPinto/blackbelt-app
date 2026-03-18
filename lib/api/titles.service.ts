@@ -66,7 +66,7 @@ export async function equipTitle(userId: string, titleId: string): Promise<{ suc
       return res.json();
     } catch {
       console.warn('[titles.equipTitle] API not available, using fallback');
-      return {} as { success: boolean };
+      return { success: false };
     }
   } catch (error) { handleServiceError(error, 'titles.equip'); }
 }
@@ -87,7 +87,7 @@ export async function unequipTitle(userId: string): Promise<{ success: boolean }
       return res.json();
     } catch {
       console.warn('[titles.unequipTitle] API not available, using fallback');
-      return {} as { success: boolean };
+      return { success: false };
     }
   } catch (error) { handleServiceError(error, 'titles.unequip'); }
 }

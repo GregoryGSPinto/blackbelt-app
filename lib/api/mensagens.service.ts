@@ -105,7 +105,7 @@ export async function sendMessage(conversationId: string, content: string): Prom
       return res.json();
     } catch {
       console.warn('[mensagens.sendMessage] API not available, using fallback');
-      return {} as MessageDTO;
+      return { id: '', from_id: '', from_name: '', from_avatar: null, content: '', sent_at: '', is_mine: false, read_at: null } as MessageDTO;
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.send');
@@ -124,7 +124,7 @@ export async function getStudentContext(studentId: string): Promise<StudentConte
       return res.json();
     } catch {
       console.warn('[mensagens.getStudentContext] API not available, using fallback');
-      return {} as StudentContextDTO;
+      return { student_id: '', display_name: '', belt: '', avatar: null, last_attendance: null, streak: 0, health_score: 0, latest_evaluation: null, current_plan: null, plan_status: null, is_at_risk: false } as StudentContextDTO;
     }
   } catch (error) {
     handleServiceError(error, 'mensagens.studentContext');

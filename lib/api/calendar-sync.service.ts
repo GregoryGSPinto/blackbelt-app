@@ -39,7 +39,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
       return res.json();
     } catch {
       console.warn('[calendar-sync.getCalendarSyncStatus] API not available, using fallback');
-      return {} as CalendarSyncStatus;
+      return { connected: false, provider: null, last_synced: null, events_synced: 0 } as unknown as CalendarSyncStatus;
     }
   } catch (error) {
     handleServiceError(error, 'calendarSync.status');
@@ -58,7 +58,7 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
       return res.json();
     } catch {
       console.warn('[calendar-sync.connectGoogleCalendar] API not available, using fallback');
-      return {} as { authUrl: string };
+      return { authUrl: "" };
     }
   } catch (error) {
     handleServiceError(error, 'calendarSync.connect');
@@ -98,7 +98,7 @@ export async function syncClassesToCalendar(userId: string): Promise<{ synced: n
       return res.json();
     } catch {
       console.warn('[calendar-sync.syncClassesToCalendar] API not available, using fallback');
-      return {} as { synced: number };
+      return { synced: 0 };
     }
   } catch (error) {
     handleServiceError(error, 'calendarSync.sync');

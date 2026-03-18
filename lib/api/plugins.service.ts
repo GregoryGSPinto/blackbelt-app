@@ -29,7 +29,7 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       return res.json();
     } catch {
       console.warn('[plugins.getPlugin] API not available, using fallback');
-      return {} as Plugin;
+      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
   } catch (error) { handleServiceError(error, 'plugins.get'); }
 }
@@ -45,7 +45,7 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
       return res.json();
     } catch {
       console.warn('[plugins.installPlugin] API not available, using fallback');
-      return {} as Plugin;
+      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
   } catch (error) { handleServiceError(error, 'plugins.install'); }
 }
@@ -82,7 +82,7 @@ export async function updatePluginConfig(
       return res.json();
     } catch {
       console.warn('[plugins.updatePluginConfig] API not available, using fallback');
-      return {} as Plugin;
+      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
 
   } catch (error) { handleServiceError(error, 'plugins.updateConfig'); }

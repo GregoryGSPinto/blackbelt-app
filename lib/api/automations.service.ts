@@ -35,7 +35,7 @@ export async function toggleAutomation(id: string, enabled: boolean): Promise<Au
       return res.json();
     } catch {
       console.warn('[automations.toggleAutomation] API not available, using fallback');
-      return {} as AutomationConfig;
+      return { id: "", name: "", description: "", enabled: false, channels: [], template: "boas_vindas", triggerCount: 0 } as unknown as AutomationConfig;
     }
   } catch (error) { handleServiceError(error, 'automations.toggle'); }
 }

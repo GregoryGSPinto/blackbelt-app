@@ -108,7 +108,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
       return res.json();
     } catch {
       console.warn('[lgpd.requestDataExport] API not available, using fallback');
-      return {} as DataExportRequest;
+      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, download_url: null } as unknown as DataExportRequest;
     }
   } catch (error) {
     handleServiceError(error, 'lgpd.requestExport');
@@ -140,7 +140,7 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
       return res.json();
     } catch {
       console.warn('[lgpd.requestDataDeletion] API not available, using fallback');
-      return {} as DataDeletionRequest;
+      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, reason: "" } as unknown as DataDeletionRequest;
     }
   } catch (error) {
     handleServiceError(error, 'lgpd.requestDeletion');

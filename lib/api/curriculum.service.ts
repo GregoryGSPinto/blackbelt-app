@@ -68,7 +68,7 @@ export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): P
       return res.json();
     } catch {
       console.warn('[curriculum.createCurriculum] API not available, using fallback');
-      return {} as CurriculumDTO;
+      return { id: "", academy_id: "", modality: "", belt_level: "white", name: "", requirements: [], created_at: "" } as unknown as CurriculumDTO;
     }
   } catch (error) { handleServiceError(error, 'curriculum.create'); }
 }
@@ -85,7 +85,7 @@ export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>)
       return res.json();
     } catch {
       console.warn('[curriculum.updateCurriculum] API not available, using fallback');
-      return {} as CurriculumDTO;
+      return { id: "", academy_id: "", modality: "", belt_level: "white", name: "", requirements: [], created_at: "" } as unknown as CurriculumDTO;
     }
   } catch (error) { handleServiceError(error, 'curriculum.update'); }
 }
@@ -102,7 +102,7 @@ export async function addRequirement(curriculumId: string, requirement: Omit<Cur
       return res.json();
     } catch {
       console.warn('[curriculum.addRequirement] API not available, using fallback');
-      return {} as CurriculumRequirement;
+      return { id: "", curriculum_id: "", name: "", description: "", category: "", required: true } as unknown as CurriculumRequirement;
     }
   } catch (error) { handleServiceError(error, 'curriculum.addReq'); }
 }
@@ -134,7 +134,7 @@ export async function getStudentProgress(studentId: string, modality: string, be
       return res.json();
     } catch {
       console.warn('[curriculum.getStudentProgress] API not available, using fallback');
-      return {} as StudentCurriculumProgress;
+      return { student_id: "", curriculum_id: "", total_requirements: 0, completed_requirements: 0, progress_pct: 0, requirements: [] } as unknown as StudentCurriculumProgress;
     }
   } catch (error) { handleServiceError(error, 'curriculum.progress'); }
 }

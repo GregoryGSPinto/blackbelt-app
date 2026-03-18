@@ -44,7 +44,7 @@ export async function configureBeacon(unitId: string, beaconId: string, config?:
       return res.json();
     } catch {
       console.warn('[beacon.configureBeacon] API not available, using fallback');
-      return {} as BeaconConfig;
+      return { id: "", academy_id: "", uuid: "", major: 0, minor: 0, name: "", location: "", enabled: false, battery_level: 0 } as unknown as BeaconConfig;
     }
   } catch (error) { handleServiceError(error, 'beacon.configure'); }
 }
@@ -60,7 +60,7 @@ export async function configureGeofence(unitId: string, lat: number, lng: number
       return res.json();
     } catch {
       console.warn('[beacon.configureGeofence] API not available, using fallback');
-      return {} as GeofenceConfig;
+      return { id: "", academy_id: "", latitude: 0, longitude: 0, radius_meters: 0, enabled: false } as unknown as GeofenceConfig;
     }
   } catch (error) { handleServiceError(error, 'beacon.geofence'); }
 }
@@ -76,7 +76,7 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       return res.json();
     } catch {
       console.warn('[beacon.getProximityConfig] API not available, using fallback');
-      return {} as ProximityConfig;
+      return { enabled: false, threshold_meters: 0, auto_checkin: false, notification: false } as unknown as ProximityConfig;
     }
   } catch (error) { handleServiceError(error, 'beacon.getConfig'); }
 }
@@ -92,7 +92,7 @@ export async function toggleAutoCheckin(unitId: string, enabled: boolean): Promi
       return res.json();
     } catch {
       console.warn('[beacon.toggleAutoCheckin] API not available, using fallback');
-      return {} as { enabled: boolean };
+      return { enabled: false };
     }
   } catch (error) { handleServiceError(error, 'beacon.toggleAutoCheckin'); }
 }

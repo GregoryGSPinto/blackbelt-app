@@ -43,7 +43,7 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       return res.json();
     } catch {
       console.warn('[rewards-store.getRewardsStore] API not available, using fallback');
-      return {} as RewardsStoreData;
+      return { rewards: [], user_points: 0, redemptions: [] } as unknown as RewardsStoreData;
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.get'); }
 }
@@ -64,7 +64,7 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       return res.json();
     } catch {
       console.warn('[rewards-store.redeemReward] API not available, using fallback');
-      return {} as { success: boolean; message: string; redemption: RedemptionDTO };
+      return { success: false, message: '', redemption: { id: '', reward_id: '', user_id: '', points_spent: 0, status: 'pending', created_at: '' } } as unknown as { success: boolean; message: string; redemption: RedemptionDTO };
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.redeem'); }
 }
@@ -103,7 +103,7 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       return res.json();
     } catch {
       console.warn('[rewards-store.createStoreReward] API not available, using fallback');
-      return {} as StoreReward;
+      return { id: "", name: "", description: "", points_cost: 0, image_url: "", stock: 0, category: "", active: true } as unknown as StoreReward;
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.create'); }
 }
@@ -124,7 +124,7 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       return res.json();
     } catch {
       console.warn('[rewards-store.updateStoreReward] API not available, using fallback');
-      return {} as StoreReward;
+      return { id: "", name: "", description: "", points_cost: 0, image_url: "", stock: 0, category: "", active: true } as unknown as StoreReward;
     }
   } catch (error) { handleServiceError(error, 'rewardsStore.update'); }
 }

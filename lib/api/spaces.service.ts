@@ -66,7 +66,7 @@ export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'u
       return res.json();
     } catch {
       console.warn('[spaces.createSpace] API not available, using fallback');
-      return {} as SpaceDTO;
+      return { id: "", academy_id: "", name: "", capacity: 0, type: "", amenities: [], schedule: [], status: "active" } as unknown as SpaceDTO;
     }
   } catch (error) { handleServiceError(error, 'spaces.create'); }
 }

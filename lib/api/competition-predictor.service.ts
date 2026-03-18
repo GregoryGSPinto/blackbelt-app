@@ -72,7 +72,7 @@ export async function predictPerformance(studentId: string, championshipId: stri
       return res.json();
     } catch {
       console.warn('[competition-predictor.predictPerformance] API not available, using fallback');
-      return {} as Prediction;
+      return { win_probability: 0, confidence: 0, key_factors: [], similar_athletes: [], recommended_strategy: "" } as unknown as Prediction;
     }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.predict');
@@ -94,7 +94,7 @@ export async function getMatchup(studentId: string, opponentId: string): Promise
       return res.json();
     } catch {
       console.warn('[competition-predictor.getMatchup] API not available, using fallback');
-      return {} as MatchupAnalysis;
+      return { style_comparison: { area: "", student: 0, opponent: 0 }, strengths: [], vulnerabilities: [], game_plan: "" } as unknown as MatchupAnalysis;
     }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.matchup');
@@ -116,7 +116,7 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
       return res.json();
     } catch {
       console.warn('[competition-predictor.getOptimalCategory] API not available, using fallback');
-      return {} as CategoryRecommendation;
+      return { recommended_category: "", weight_class: "", reasoning: "", competition_level: "", alternatives: [] } as unknown as CategoryRecommendation;
     }
   } catch (error) {
     handleServiceError(error, 'competitionPredictor.optimalCategory');

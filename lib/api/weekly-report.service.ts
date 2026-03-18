@@ -54,7 +54,7 @@ export async function generateWeeklyReport(academyId: string): Promise<WeeklyRep
       return res.json();
     } catch {
       console.warn('[weekly-report.generateWeeklyReport] API not available, using fallback');
-      return {} as WeeklyReportData;
+      return { period: "", total_students: 0, new_students: 0, churned: 0, total_checkins: 0, avg_checkins: 0, revenue: 0, top_classes: [], alerts: [] } as unknown as WeeklyReportData;
     }
   } catch (error) {
     handleServiceError(error, 'weeklyReport.generate');

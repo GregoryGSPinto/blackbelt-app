@@ -47,7 +47,7 @@ export async function updateSSOConfig(academyId: string, config: Partial<SSOConf
       return res.json();
     } catch {
       console.warn('[sso.updateSSOConfig] API not available, using fallback');
-      return {} as SSOConfig;
+      return { enabled: false, provider: "", client_id: "", domain: "", auto_provision: false } as unknown as SSOConfig;
     }
   } catch (error) { handleServiceError(error, 'sso.updateConfig'); }
 }
@@ -63,7 +63,7 @@ export async function initSSOLogin(provider: SSOProvider, academyId: string): Pr
       return res.json();
     } catch {
       console.warn('[sso.initSSOLogin] API not available, using fallback');
-      return {} as { redirectUrl: string };
+      return { redirectUrl: "" };
     }
   } catch (error) { handleServiceError(error, 'sso.initLogin'); }
 }
@@ -79,7 +79,7 @@ export async function handleSSOCallback(provider: SSOProvider, code: string): Pr
       return res.json();
     } catch {
       console.warn('[sso.handleSSOCallback] API not available, using fallback');
-      return {} as SSOCallbackResult;
+      return { success: false, user_id: "", email: "", token: "" } as unknown as SSOCallbackResult;
     }
   } catch (error) { handleServiceError(error, 'sso.callback'); }
 }

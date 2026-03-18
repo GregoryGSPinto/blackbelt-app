@@ -59,7 +59,7 @@ export async function createInviteToken(
       return res.json();
     } catch {
       console.warn('[invite-tokens.createInviteToken] API not available, using fallback');
-      return {} as InviteToken;
+      return { id: '', academy_id: '', created_by: '', token: '', target_role: 'student', label: '', description: null, max_uses: null, current_uses: 0, expires_at: null, is_active: false, created_at: '', updated_at: '' } as unknown as InviteToken;
     }
 
   } catch (error) {
@@ -87,7 +87,7 @@ export async function updateInviteToken(
       return res.json();
     } catch {
       console.warn('[invite-tokens.updateInviteToken] API not available, using fallback');
-      return {} as InviteToken;
+      return { id: '', academy_id: '', created_by: '', token: '', target_role: 'student', label: '', description: null, max_uses: null, current_uses: 0, expires_at: null, is_active: false, created_at: '', updated_at: '' } as unknown as InviteToken;
     }
 
   } catch (error) {
@@ -110,7 +110,7 @@ export async function deactivateInviteToken(tokenId: string): Promise<InviteToke
       return res.json();
     } catch {
       console.warn('[invite-tokens.deactivateInviteToken] API not available, using fallback');
-      return {} as InviteToken;
+      return { id: '', academy_id: '', created_by: '', token: '', target_role: 'student', label: '', description: null, max_uses: null, current_uses: 0, expires_at: null, is_active: false, created_at: '', updated_at: '' } as unknown as InviteToken;
     }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.deactivate');
@@ -148,7 +148,7 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
       return res.json();
     } catch {
       console.warn('[invite-tokens.validateInviteToken] API not available, using fallback');
-      return {} as InviteValidation;
+      return { valid: false } as InviteValidation;
     }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.validate');
@@ -216,7 +216,7 @@ export async function getInviteStats(academyId: string): Promise<InviteStats> {
       return res.json();
     } catch {
       console.warn('[invite-tokens.getInviteStats] API not available, using fallback');
-      return {} as InviteStats;
+      return { total: 0, active: 0, expired: 0, total_uses: 0, uses_this_month: 0 } as InviteStats;
     }
   } catch (error) {
     handleServiceError(error, 'inviteTokens.stats');

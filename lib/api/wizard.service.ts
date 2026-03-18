@@ -26,7 +26,7 @@ export async function getWizardProgress(academyId: string): Promise<WizardProgre
       return res.json();
     } catch {
       console.warn('[wizard.getWizardProgress] API not available, using fallback');
-      return {} as WizardProgressDTO;
+      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
     }
   } catch (error) { handleServiceError(error, 'wizard.getProgress'); }
 }
@@ -47,7 +47,7 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       return res.json();
     } catch {
       console.warn('[wizard.saveWizardStep] API not available, using fallback');
-      return {} as WizardProgressDTO;
+      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
     }
   } catch (error) { handleServiceError(error, 'wizard.saveStep'); }
 }
@@ -68,7 +68,7 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       return res.json();
     } catch {
       console.warn('[wizard.completeWizard] API not available, using fallback');
-      return {} as WizardProgressDTO;
+      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
     }
   } catch (error) { handleServiceError(error, 'wizard.complete'); }
 }

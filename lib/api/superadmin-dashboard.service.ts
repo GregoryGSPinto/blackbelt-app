@@ -83,7 +83,15 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
       return await res.json();
     } catch {
       console.warn('[superadmin-dashboard.getMissionControl] API not available, using fallback');
-      return {} as MissionControlDTO;
+      return {
+        kpis: { mrr: 0, mrrVariacao: 0, arr: 0, totalAcademias: 0, academiasAtivas: 0, academiasEmTrial: 0, academiasChurnMes: 0, totalAlunosPlataforma: 0, ticketMedio: 0, churnRate: 0, ltv: 0 },
+        mrrHistorico: [],
+        crescimentoAcademias: [],
+        alertas: [],
+        topAcademias: [],
+        academiasRisco: [],
+        distribuicaoPlanos: [],
+      };
     }
   } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
 }

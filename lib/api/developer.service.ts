@@ -47,7 +47,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       return res.json();
     } catch {
       console.warn('[developer.getDeveloperProfile] API not available, using fallback');
-      return {} as DeveloperProfile;
+      return { id: "", user_id: "", name: "", email: "", company: "", website: "", apps: [], created_at: "" } as unknown as DeveloperProfile;
     }
   } catch (error) { handleServiceError(error, 'developer.profile'); }
 }
@@ -72,7 +72,7 @@ export async function createDeveloperAccount(data: {
       return res.json();
     } catch {
       console.warn('[developer.createDeveloperAccount] API not available, using fallback');
-      return {} as DeveloperProfile;
+      return { id: "", user_id: "", name: "", email: "", company: "", website: "", apps: [], created_at: "" } as unknown as DeveloperProfile;
     }
 
   } catch (error) { handleServiceError(error, 'developer.create'); }
@@ -105,7 +105,7 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       return res.json();
     } catch {
       console.warn('[developer.submitAppForReview] API not available, using fallback');
-      return {} as DeveloperApp;
+      return { id: "", name: "", description: "", client_id: "", redirect_uris: [], scopes: [], status: "active" } as unknown as DeveloperApp;
     }
   } catch (error) { handleServiceError(error, 'developer.submitApp'); }
 }
@@ -121,7 +121,7 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       return res.json();
     } catch {
       console.warn('[developer.getDeveloperStats] API not available, using fallback');
-      return {} as DeveloperStats;
+      return { total_apps: 0, total_api_calls: 0, avg_response_time: 0, error_rate: 0, usage: [] } as unknown as DeveloperStats;
     }
   } catch (error) { handleServiceError(error, 'developer.stats'); }
 }

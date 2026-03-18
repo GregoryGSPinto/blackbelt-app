@@ -39,7 +39,7 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
       return res.json();
     } catch {
       console.warn('[parent.getParentDashboard] API not available, using fallback');
-      return {} as ParentDashboardDTO;
+      return { filhos: [], notificacoes: [], faturas_pendentes: 0, proximo_evento: null } as unknown as ParentDashboardDTO;
     }
   } catch (error) {
     handleServiceError(error, 'parent.dashboard');

@@ -55,7 +55,7 @@ export async function getClass(id: string): Promise<ClassItem> {
       return res.json();
     } catch {
       console.warn('[class.getClass] API not available, using fallback');
-      return {} as ClassItem;
+      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
     }
   } catch (error) {
     handleServiceError(error, 'class.get');
@@ -79,7 +79,7 @@ export async function createClass(data: CreateClassDTO): Promise<ClassItem> {
       return res.json();
     } catch {
       console.warn('[class.createClass] API not available, using fallback');
-      return {} as ClassItem;
+      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
     }
   } catch (error) {
     handleServiceError(error, 'class.create');
@@ -103,7 +103,7 @@ export async function updateClass(id: string, data: UpdateClassDTO): Promise<Cla
       return res.json();
     } catch {
       console.warn('[class.updateClass] API not available, using fallback');
-      return {} as ClassItem;
+      return { id: "", academy_id: "", name: "", modality: "", belt_level: "white", professor_id: "", professor_name: "", schedule: "", max_students: 0, enrolled: 0, status: "active" } as unknown as ClassItem;
     }
   } catch (error) {
     handleServiceError(error, 'class.update');
@@ -165,7 +165,7 @@ export async function addStudent(classId: string, studentId: string): Promise<Cl
       return res.json();
     } catch {
       console.warn('[class.addStudent] API not available, using fallback');
-      return {} as ClassStudent;
+      return { id: "", student_id: "", student_name: "", belt: "", avatar: null, enrolled_at: "" } as unknown as ClassStudent;
     }
   } catch (error) {
     handleServiceError(error, 'class.addStudent');

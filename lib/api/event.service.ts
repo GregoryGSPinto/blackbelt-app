@@ -34,7 +34,7 @@ export async function getEvent(eventId: string): Promise<AcademyEvent> {
       return res.json();
     } catch {
       console.warn('[event.getEvent] API not available, using fallback');
-      return {} as AcademyEvent;
+      return { id: '', academy_id: '', title: '', description: '', date: '', location: '', type: 'competition', max_participants: 0, enrolled: 0, modalities: [], min_belt: 'white', fee: 0, status: 'scheduled', created_at: '', updated_at: '' } as unknown as AcademyEvent;
     }
   } catch (error) {
     handleServiceError(error, 'event.get');
@@ -57,7 +57,7 @@ export async function createEvent(academyId: string, data: CreateEventData): Pro
       return res.json();
     } catch {
       console.warn('[event.createEvent] API not available, using fallback');
-      return {} as AcademyEvent;
+      return { id: '', academy_id: '', title: '', description: '', date: '', location: '', type: 'competition', max_participants: 0, enrolled: 0, modalities: [], min_belt: 'white', fee: 0, status: 'scheduled', created_at: '', updated_at: '' } as unknown as AcademyEvent;
     }
   } catch (error) {
     handleServiceError(error, 'event.create');

@@ -50,7 +50,7 @@ export async function createTournament(academyId: string, data: Omit<TournamentD
       return res.json();
     } catch {
       console.warn('[tournaments.createTournament] API not available, using fallback');
-      return {} as TournamentDTO;
+      return { id: '', name: '', date: '', modality: '', categories: [], enrolledCount: 0, status: 'upcoming' } as TournamentDTO;
     }
   } catch (error) { handleServiceError(error, 'tournaments.create'); }
 }

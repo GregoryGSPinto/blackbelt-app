@@ -76,7 +76,7 @@ export async function getRetentionData(
       return res.json();
     } catch {
       console.warn('[retention.getRetentionData] API not available, using fallback');
-      return {} as RetentionData;
+      return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
     }
 
   } catch (error) {

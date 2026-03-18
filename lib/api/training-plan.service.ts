@@ -59,7 +59,7 @@ export async function createPlan(plan: Omit<TrainingPlanDTO, 'id' | 'created_at'
       return res.json();
     } catch {
       console.warn('[training-plan.createPlan] API not available, using fallback');
-      return {} as TrainingPlanDTO;
+      return { id: '', student_id: '', created_by: '', name: '', goal: '', duration_weeks: 0, weeks: [], status: 'active', created_at: '' } as TrainingPlanDTO;
     }
   } catch (error) { handleServiceError(error, 'trainingPlan.create'); }
 }
@@ -110,7 +110,7 @@ export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Pr
       return res.json();
     } catch {
       console.warn('[training-plan.updatePlan] API not available, using fallback');
-      return {} as TrainingPlanDTO;
+      return { id: '', student_id: '', created_by: '', name: '', goal: '', duration_weeks: 0, weeks: [], status: 'active', created_at: '' } as TrainingPlanDTO;
     }
   } catch (error) { handleServiceError(error, 'trainingPlan.update'); }
 }

@@ -90,7 +90,7 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       return res.json();
     } catch {
       console.warn('[marketplace.getCourse] API not available, using fallback');
-      return {} as MarketplaceCourse;
+      return { id: "", title: "", description: "", creator_id: "", creator_name: "", creator_avatar: null, modality: "bjj", belt_level: "white", price: 0, thumbnail_url: "", preview_video_url: null, modules: [], total_lessons: 0, total_duration_min: 0, rating: 0, review_count: 0, students_count: 0, status: "draft", created_at: "", updated_at: "" } as unknown as MarketplaceCourse;
     }
   } catch (error) { handleServiceError(error, 'marketplace.getCourse'); }
 }
@@ -111,7 +111,7 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       return res.json();
     } catch {
       console.warn('[marketplace.purchaseCourse] API not available, using fallback');
-      return {} as CoursePurchase;
+      return { id: "", course_id: "", user_id: "", purchased_at: "", status: "active" } as unknown as CoursePurchase;
     }
   } catch (error) { handleServiceError(error, 'marketplace.purchaseCourse'); }
 }

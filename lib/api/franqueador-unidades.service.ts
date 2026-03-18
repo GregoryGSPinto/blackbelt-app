@@ -58,7 +58,7 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       return res.json();
     } catch {
       console.warn('[franqueador-unidades.getUnidadesOverview] API not available, using fallback');
-      return {} as UnidadesOverview;
+      return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 } as UnidadesOverview;
     }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.overview'); }
 }
@@ -75,7 +75,7 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       return res.json();
     } catch {
       console.warn('[franqueador-unidades.getUnidadeDetail] API not available, using fallback');
-      return {} as UnidadeFranquia;
+      return { id: '', name: '', city: '', state: '', manager_name: '', manager_email: '', status: 'ativa', students_count: 0, revenue_monthly: 0, health_score: 0, compliance_score: 0, opened_at: '', updated_at: '' } as UnidadeFranquia;
     }
   } catch (error) { handleServiceError(error, 'franqueador-unidades.detail'); }
 }
@@ -99,7 +99,7 @@ export async function updateUnidadeStatus(
       return res.json();
     } catch {
       console.warn('[franqueador-unidades.updateUnidadeStatus] API not available, using fallback');
-      return {} as UnidadeFranquia;
+      return { id: '', name: '', city: '', state: '', manager_name: '', manager_email: '', status: 'ativa', students_count: 0, revenue_monthly: 0, health_score: 0, compliance_score: 0, opened_at: '', updated_at: '' } as UnidadeFranquia;
     }
 
   } catch (error) { handleServiceError(error, 'franqueador-unidades.updateStatus'); }

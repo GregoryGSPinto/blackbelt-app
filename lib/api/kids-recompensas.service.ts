@@ -78,7 +78,7 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
       return res.json();
     } catch {
       console.warn('[kids-recompensas.resgatarRecompensa] API not available, using fallback');
-      return {} as HistoricoResgate;
+      return { id: "", studentId: "", recompensaId: "", recompensaNome: "", custoEstrelas: 0, data: "", entregue: false } as unknown as HistoricoResgate;
     }
   } catch (error) {
     handleServiceError(error, 'kids-recompensas.resgatar');

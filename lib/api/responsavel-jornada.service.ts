@@ -41,7 +41,7 @@ export async function getJornadaDependente(studentId: string): Promise<JornadaDe
       return res.json();
     } catch {
       console.warn('[responsavel-jornada.getJornadaDependente] API not available, using fallback');
-      return {} as JornadaDependente;
+      return { student_id: "", student_name: "", avatar: null, belt: "", milestones: [], next_milestone: null } as unknown as JornadaDependente;
     }
   } catch (error) {
     handleServiceError(error, 'responsavel.jornada');

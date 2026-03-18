@@ -57,7 +57,7 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       return res.json();
     } catch {
       console.warn('[access-control.validateAccess] API not available, using fallback');
-      return {} as AccessResult;
+      return { allowed: false, student_id: "", student_name: "", message: "", timestamp: "" } as unknown as AccessResult;
     }
   } catch (error) { handleServiceError(error, 'accessControl.validate'); }
 }
@@ -123,7 +123,7 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       return res.json();
     } catch {
       console.warn('[access-control.getStudentCard] API not available, using fallback');
-      return {} as StudentCard;
+      return { student_id: "", student_name: "", academy_name: "", belt: "", photo_url: null, qr_code: "", valid_until: "" } as unknown as StudentCard;
     }
   } catch (error) { handleServiceError(error, 'accessControl.card'); }
 }

@@ -54,7 +54,7 @@ export async function getBattlePass(seasonId: string): Promise<BattlePassDTO> {
       return res.json();
     } catch {
       console.warn('[battle-pass.getBattlePass] API not available, using fallback');
-      return {} as BattlePassDTO;
+      return { id: "", season: "", name: "", start_date: "", end_date: "", levels: [], status: "active" } as unknown as BattlePassDTO;
     }
   } catch (error) { handleServiceError(error, 'battlePass.get'); }
 }
@@ -71,7 +71,7 @@ export async function getMyBattlePassProgress(userId: string, seasonId: string):
       return res.json();
     } catch {
       console.warn('[battle-pass.getMyBattlePassProgress] API not available, using fallback');
-      return {} as BattlePassProgress;
+      return { battle_pass_id: "", current_level: 0, current_xp: 0, xp_for_next: 0, rewards_claimed: [] } as unknown as BattlePassProgress;
     }
   } catch (error) { handleServiceError(error, 'battlePass.myProgress'); }
 }
@@ -92,7 +92,7 @@ export async function claimReward(userId: string, levelId: number): Promise<{ su
       return res.json();
     } catch {
       console.warn('[battle-pass.claimReward] API not available, using fallback');
-      return {} as { success: boolean; message: string };
+      return { success: false, message: '' };
     }
   } catch (error) { handleServiceError(error, 'battlePass.claim'); }
 }
@@ -113,7 +113,7 @@ export async function upgradeToPremium(userId: string, seasonId: string): Promis
       return res.json();
     } catch {
       console.warn('[battle-pass.upgradeToPremium] API not available, using fallback');
-      return {} as { success: boolean; message: string };
+      return { success: false, message: '' };
     }
   } catch (error) { handleServiceError(error, 'battlePass.upgrade'); }
 }

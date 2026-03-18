@@ -39,7 +39,7 @@ export async function getMeuProgresso(studentId: string): Promise<MeuProgressoDT
       return res.json();
     } catch {
       console.warn('[evolucao.getMeuProgresso] API not available, using fallback');
-      return {} as MeuProgressoDTO;
+      return { student_id: "", belt: "", stripes: 0, total_classes: 0, total_xp: 0, achievements: 0, history: [] } as unknown as MeuProgressoDTO;
     }
   } catch (error) {
     handleServiceError(error, 'evolucao.progresso');
@@ -77,7 +77,7 @@ export async function getRequisitoProximaFaixa(studentId: string): Promise<Requi
       return res.json();
     } catch {
       console.warn('[evolucao.getRequisitoProximaFaixa] API not available, using fallback');
-      return {} as RequisitoProximaFaixaDTO;
+      return { current_belt: "", next_belt: "", requirements: [], progress_pct: 0 } as unknown as RequisitoProximaFaixaDTO;
     }
   } catch (error) {
     handleServiceError(error, 'evolucao.requisitos');

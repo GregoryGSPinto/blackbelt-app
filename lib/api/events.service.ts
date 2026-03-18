@@ -50,7 +50,7 @@ export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' 
       return res.json();
     } catch {
       console.warn('[events.createEvent] API not available, using fallback');
-      return {} as EventDTO;
+      return { id: "", title: "", description: "", date: "", location: "", type: "", max_participants: 0, enrolled: 0, status: "scheduled" } as unknown as EventDTO;
     }
   } catch (error) { handleServiceError(error, 'events.create'); }
 }
@@ -101,7 +101,7 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
       return res.json();
     } catch {
       console.warn('[events.getAcademyEvent] API not available, using fallback');
-      return {} as AcademyEvent;
+      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
     }
   } catch (error) { handleServiceError(error, 'events.getAcademy'); }
 }
@@ -122,7 +122,7 @@ export async function createAcademyEvent(academyId: string, data: CreateEventDat
       return res.json();
     } catch {
       console.warn('[events.createAcademyEvent] API not available, using fallback');
-      return {} as AcademyEvent;
+      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
     }
   } catch (error) { handleServiceError(error, 'events.createAcademy'); }
 }
@@ -143,7 +143,7 @@ export async function updateAcademyEvent(eventId: string, data: Partial<CreateEv
       return res.json();
     } catch {
       console.warn('[events.updateAcademyEvent] API not available, using fallback');
-      return {} as AcademyEvent;
+      return { id: "", academy_id: "", title: "", description: "", date: "", location: "", type: "competition", max_participants: 0, enrolled: 0, modalities: [], min_belt: "white", fee: 0, status: "scheduled", created_at: "", updated_at: "" } as unknown as AcademyEvent;
     }
   } catch (error) { handleServiceError(error, 'events.updateAcademy'); }
 }

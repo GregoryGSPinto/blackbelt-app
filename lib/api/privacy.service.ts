@@ -51,7 +51,7 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
       return res.json();
     } catch {
       console.warn('[privacy.updateConsent] API not available, using fallback');
-      return {} as ConsentRecord;
+      return { id: "", user_id: "", consent_type: "", granted: false, granted_at: "", ip: "" } as unknown as ConsentRecord;
     }
   } catch (error) { handleServiceError(error, 'privacy.updateConsent'); }
 }
@@ -67,7 +67,7 @@ export async function requestDataExport(userId: string): Promise<DataExportReque
       return res.json();
     } catch {
       console.warn('[privacy.requestDataExport] API not available, using fallback');
-      return {} as DataExportRequest;
+      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, download_url: null } as unknown as DataExportRequest;
     }
   } catch (error) { handleServiceError(error, 'privacy.requestExport'); }
 }
@@ -83,7 +83,7 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
       return res.json();
     } catch {
       console.warn('[privacy.getDataExportStatus] API not available, using fallback');
-      return {} as DataExportRequest;
+      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, download_url: null } as unknown as DataExportRequest;
     }
   } catch (error) { handleServiceError(error, 'privacy.exportStatus'); }
 }
@@ -99,7 +99,7 @@ export async function requestAccountDeletion(userId: string): Promise<DeletionRe
       return res.json();
     } catch {
       console.warn('[privacy.requestAccountDeletion] API not available, using fallback');
-      return {} as DeletionRequest;
+      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, reason: "" } as unknown as DeletionRequest;
     }
   } catch (error) { handleServiceError(error, 'privacy.deleteAccount'); }
 }

@@ -65,7 +65,7 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
       return res.json();
     } catch {
       console.warn('[app-store.getApp] API not available, using fallback');
-      return {} as AppStoreItem;
+      return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false } as AppStoreItem;
     }
   } catch (error) { handleServiceError(error, 'appStore.get'); }
 }
@@ -101,7 +101,7 @@ export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'revi
       return res.json();
     } catch {
       console.warn('[app-store.submitApp] API not available, using fallback');
-      return {} as AppStoreItem;
+      return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false } as AppStoreItem;
     }
   } catch (error) { handleServiceError(error, 'appStore.submit'); }
 }

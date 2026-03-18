@@ -63,7 +63,7 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       return res.json();
     } catch {
       console.warn('[recepcao-atendimento.checkinManual] API not available, using fallback');
-      return {} as { ok: boolean };
+      return { ok: false };
     }
   } catch (error) {
     handleServiceError(error, 'recepcao-atendimento.checkin');

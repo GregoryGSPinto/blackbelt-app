@@ -58,7 +58,7 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       return res.json();
     } catch {
       console.warn('[estoque.updateEstoque] API not available, using fallback');
-      return {} as MovimentacaoEstoque;
+      return { id: '', produtoId: '', tipo: 'ajuste', quantidade: 0, motivo: '', responsavel: '', data: '' } as MovimentacaoEstoque;
     }
   } catch (error) { handleServiceError(error, 'estoque.update'); }
 }

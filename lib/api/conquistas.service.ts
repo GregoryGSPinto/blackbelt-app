@@ -66,7 +66,7 @@ export async function grant(studentId: string, type: AchievementType, granterId:
       return res.json();
     } catch {
       console.warn('[conquistas.grant] API not available, using fallback');
-      return {} as Achievement;
+      return { id: "", student_id: "", type: "", title: "", description: "", icon: "", earned_at: "", xp_reward: 0 } as unknown as Achievement;
     }
   } catch (error) {
     handleServiceError(error, 'conquistas.grant');

@@ -76,7 +76,7 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       return res.json();
     } catch {
       console.warn('[franchise.getNetworkDashboard] API not available, using fallback');
-      return {} as NetworkDashboard;
+      return { kpis: { total_academies: 0, total_students: 0, total_revenue: 0, total_royalties: 0, avg_nps: 0, avg_attendance: 0 }, academies: [], alerts: [], financials: { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 } } as NetworkDashboard;
     }
   } catch (error) { handleServiceError(error, 'franchise.dashboard'); }
 }
@@ -110,7 +110,7 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       return res.json();
     } catch {
       console.warn('[franchise.getFinancials] API not available, using fallback');
-      return {} as NetworkFinancials;
+      return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 } as NetworkFinancials;
     }
   } catch (error) { handleServiceError(error, 'franchise.financials'); }
 }
@@ -131,7 +131,7 @@ export async function sendNetworkMessage(franchiseId: string, message: NetworkMe
       return res.json();
     } catch {
       console.warn('[franchise.sendNetworkMessage] API not available, using fallback');
-      return {} as { sent: number };
+      return { sent: 0 };
     }
   } catch (error) { handleServiceError(error, 'franchise.message'); }
 }

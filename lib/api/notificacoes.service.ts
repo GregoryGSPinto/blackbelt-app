@@ -86,7 +86,7 @@ export async function getPreferences(userId: string): Promise<NotificationPrefs>
       return res.json();
     } catch {
       console.warn('[notificacoes.getPreferences] API not available, using fallback');
-      return {} as NotificationPrefs;
+      return { push_enabled: false, email_enabled: false, whatsapp_enabled: false, categories: {} } as unknown as NotificationPrefs;
     }
   } catch (error) {
     handleServiceError(error, 'notificacoes.prefs');
