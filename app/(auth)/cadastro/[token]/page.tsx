@@ -10,16 +10,19 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import type { InviteValidation, Role } from '@/lib/types';
+import { ROLE_DASHBOARD } from '@/lib/types';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
   professor: 'Professor',
-  aluno_adulto: 'Aluno',
-  aluno_teen: 'Aluno Teen',
-  aluno_kids: 'Aluno Kids',
-  responsavel: 'Responsavel',
+  aluno_adulto: 'Aluno (Adulto)',
+  aluno_teen: 'Aluno (Teen)',
+  aluno_kids: 'Aluno (Kids)',
+  responsavel: 'Responsável',
+  recepcao: 'Recepcionista',
+  gestor: 'Gestor',
 };
 
 const ERROR_MESSAGES: Record<string, { title: string; desc: string }> = {
@@ -104,8 +107,12 @@ export default function CadastroTokenPage() {
       // Register the invite usage
       await redeemInviteToken(params.token, result.profile.id);
 
-      toast('Conta criada com sucesso! Faca login.', 'success');
-      router.push('/login');
+      toast('Conta criada com sucesso! Redirecionando...', 'success');
+
+      // Redirect to the appropriate dashboard based on the invite role
+      const targetRole = inviteToken.target_role as Role;
+      const dashboard = ROLE_DASHBOARD[targetRole] ?? '/login';
+      router.push(dashboard);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao criar conta.';
       toast(message, 'error');
