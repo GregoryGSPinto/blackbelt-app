@@ -15,6 +15,7 @@ import {
   CheckSquareIcon,
   LogOutIcon,
   UserIcon,
+  UsersIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import type { NavItem } from './BottomNav';
@@ -279,8 +280,18 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                     {/* Profile Switcher */}
                     <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
 
-                    {/* Logout */}
+                    {/* Switch Account + Logout */}
                     <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); window.location.href = '/login'; }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                        style={{ color: 'var(--bb-ink-80)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <UsersIcon className="h-4 w-4" />
+                        Trocar Conta
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
