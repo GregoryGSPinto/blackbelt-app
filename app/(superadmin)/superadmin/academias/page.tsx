@@ -15,6 +15,7 @@ import {
   createAcademy,
   suspendAcademy,
   reactivateAcademy,
+  generateSignupLink,
 } from '@/lib/api/superadmin.service';
 import {
   getHealthOverview,
@@ -57,6 +58,11 @@ function formatCurrency(value: number): string {
 function getOnboardUrl(token: string): string {
   if (typeof window !== 'undefined') return `${window.location.origin}/onboarding?token=${token}`;
   return `/onboarding?token=${token}`;
+}
+
+function getSignupUrl(token: string): string {
+  if (typeof window !== 'undefined') return `${window.location.origin}/cadastro-academia?ref=${token}`;
+  return `/cadastro-academia?ref=${token}`;
 }
 
 function getHealthColor(score: number): string {
@@ -131,6 +137,13 @@ export default function AcademiasPage() {
 
   // Created result
   const [createdToken, setCreatedToken] = useState<OnboardToken | null>(null);
+
+  // Generate signup link modal
+  const [showSignupLink, setShowSignupLink] = useState(false);
+  const [signupNotes, setSignupNotes] = useState('');
+  const [signupExpiry, setSignupExpiry] = useState(7);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [generatedToken, setGeneratedToken] = useState<OnboardToken | null>(null);
 
   // Confirm action
   const [confirmAction, setConfirmAction] = useState<{
@@ -290,6 +303,30 @@ export default function AcademiasPage() {
 
   async function handleCopyOnboardLink(token: string) {
     await navigator.clipboard.writeText(getOnboardUrl(token));
+    toast('Link copiado!', 'success');
+  }
+
+  async function handleGenerateSignupLink() {
+    setGeneratingLink(true);
+    try {
+      const token = await generateSignupLink({
+        notes: signupNotes.trim() || undefined,
+        expiresInDays: signupExpiry,
+      });
+      setGeneratedToken(token);
+      setShowSignupLink(false);
+      setSignupNotes('');
+      setSignupExpiry(7);
+      toast('Link de cadastro gerado!', 'success');
+    } catch {
+      toast('Erro ao gerar link.', 'error');
+    } finally {
+      setGeneratingLink(false);
+    }
+  }
+
+  async function handleCopySignupLink(token: string) {
+    await navigator.clipboard.writeText(getSignupUrl(token));
     toast('Link copiado!', 'success');
   }
 
@@ -469,7 +506,15 @@ export default function AcademiasPage() {
             Gerencie todas as academias da plataforma
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>+ Nova Academia</Button>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => setShowSignupLink(true)}
+          >
+            Gerar Link de Cadastro
+          </Button>
+          <Button onClick={() => setShowCreate(true)}>+ Nova Academia</Button>
+        </div>
       </div>
 
       {/* Filters + Search */}
@@ -1041,6 +1086,133 @@ export default function AcademiasPage() {
                 {confirmAction.type === 'suspend' ? 'Suspender' : 'Reativar'}
               </Button>
             </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* ─── Generate Signup Link Modal ──────────────────────────── */}
+      <Modal
+        open={showSignupLink}
+        onClose={() => { setShowSignupLink(false); setSignupNotes(''); setSignupExpiry(7); }}
+        title="Gerar Link de Cadastro"
+      >
+        <div className="space-y-4">
+          <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Gere um link para uma academia se cadastrar sozinha. Nenhum dado da academia e necessario — ela preenche tudo no wizard.
+          </p>
+          <div>
+            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+              Nota interna (opcional)
+            </label>
+            <input
+              type="text"
+              value={signupNotes}
+              onChange={(e) => setSignupNotes(e.target.value)}
+              placeholder="Ex: indicacao do Prof. Roberto"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+              Expiracao
+            </label>
+            <select
+              value={signupExpiry}
+              onChange={(e) => setSignupExpiry(Number(e.target.value))}
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+            >
+              <option value={3}>3 dias</option>
+              <option value={7}>7 dias</option>
+              <option value={14}>14 dias</option>
+              <option value={30}>30 dias</option>
+            </select>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="ghost"
+              className="flex-1"
+              onClick={() => { setShowSignupLink(false); setSignupNotes(''); setSignupExpiry(7); }}
+            >
+              Cancelar
+            </Button>
+            <Button className="flex-1" loading={generatingLink} onClick={handleGenerateSignupLink}>
+              Gerar Link
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── Generated Signup Token Modal ────────────────────────── */}
+      <Modal
+        open={!!generatedToken}
+        onClose={() => setGeneratedToken(null)}
+        title="Link de Cadastro Gerado"
+      >
+        {generatedToken && (
+          <div className="space-y-4">
+            <div
+              className="rounded-lg p-4 text-center"
+              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)' }}
+            >
+              <span className="text-3xl">&#x1F517;</span>
+              <p className="mt-2 text-sm font-semibold" style={{ color: '#22c55e' }}>
+                Link pronto para compartilhar!
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                Envie este link para quem vai cadastrar a academia:
+              </label>
+              <div className="flex gap-2">
+                <code
+                  className="flex-1 truncate rounded-lg px-3 py-2 text-xs"
+                  style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+                >
+                  {getSignupUrl(generatedToken.token)}
+                </code>
+                <Button size="sm" onClick={() => handleCopySignupLink(generatedToken.token)}>
+                  Copiar
+                </Button>
+              </div>
+            </div>
+
+            {generatedToken.notes && (
+              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                Nota: {generatedToken.notes}
+              </p>
+            )}
+
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              Expira em: {new Date(generatedToken.expires_at!).toLocaleDateString('pt-BR')}
+            </p>
+
+            <div className="flex gap-2">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `Ola! Cadastre sua academia no BlackBelt usando este link:\n${getSignupUrl(generatedToken.token)}\n\n7 dias gratis para testar!`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)' }}
+              >
+                WhatsApp
+              </a>
+              <a
+                href={`mailto:?subject=${encodeURIComponent('Cadastre sua academia no BlackBelt')}&body=${encodeURIComponent(
+                  `Ola!\n\nCadastre sua academia no BlackBelt usando o link abaixo:\n${getSignupUrl(generatedToken.token)}\n\n7 dias gratis para testar!`
+                )}`}
+                className="flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors"
+                style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)' }}
+              >
+                Email
+              </a>
+            </div>
+
+            <Button className="w-full" onClick={() => setGeneratedToken(null)}>Fechar</Button>
           </div>
         )}
       </Modal>

@@ -21,6 +21,7 @@ import * as tutorialService from '@/lib/api/tutorial.service';
 interface TutorialState {
   isActive: boolean;
   showWelcome: boolean;
+  showWelcomeMessage: boolean;
   showComplete: boolean;
   currentTutorialId: string | null;
   currentTutorial: TutorialDefinition | null;
@@ -40,6 +41,7 @@ interface TutorialContextValue extends TutorialState {
   skipTutorial: () => void;
   completeTutorial: () => void;
   dismissComplete: () => void;
+  dismissWelcomeMessage: () => void;
   resetTutorial: (tutorialId: string) => void;
   isTutorialCompleted: (tutorialId: string) => boolean;
   shouldShowTutorial: (tutorialId: string) => boolean;
@@ -59,6 +61,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<TutorialState>({
     isActive: false,
     showWelcome: false,
+    showWelcomeMessage: false,
     showComplete: false,
     currentTutorialId: null,
     currentTutorial: null,
@@ -126,7 +129,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   // Auto-detect first access — only on initial login, NOT on profile switch or refresh
   useEffect(() => {
     if (!profile?.role || !profile?.user_id || !state.progressLoaded) return;
-    if (state.isActive || state.showWelcome || state.showComplete) return;
+    if (state.isActive || state.showWelcome || state.showWelcomeMessage || state.showComplete) return;
 
     // Don't auto-trigger tutorial when user is switching profiles
     if (isProfileSwitch) return;
@@ -157,23 +160,42 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
         ...prev,
         isActive: true,
         showWelcome: false,
+        showWelcomeMessage: false,
         currentTutorialId: tutorialId,
         currentTutorial: tutorial,
         totalSteps: tutorial.steps.length,
         currentStep: inProgressStep,
       }));
     } else {
-      // First access — show tutorial welcome
-      setState((prev) => ({
-        ...prev,
-        showWelcome: true,
-        currentTutorialId: tutorialId,
-        currentTutorial: tutorial,
-        totalSteps: tutorial.steps.length,
-        currentStep: 0,
-      }));
+      // First access — check if welcome message already shown
+      const welcomeKey = `bb_welcome_shown_${profile.role}_${profile.user_id}`;
+      const alreadyShownWelcome = typeof window !== 'undefined' && localStorage.getItem(welcomeKey) === '1';
+
+      if (alreadyShownWelcome) {
+        // Welcome message already shown — go straight to tutorial welcome
+        setState((prev) => ({
+          ...prev,
+          showWelcome: true,
+          showWelcomeMessage: false,
+          currentTutorialId: tutorialId,
+          currentTutorial: tutorial,
+          totalSteps: tutorial.steps.length,
+          currentStep: 0,
+        }));
+      } else {
+        // First ever access — show welcome message first
+        setState((prev) => ({
+          ...prev,
+          showWelcomeMessage: true,
+          showWelcome: false,
+          currentTutorialId: tutorialId,
+          currentTutorial: tutorial,
+          totalSteps: tutorial.steps.length,
+          currentStep: 0,
+        }));
+      }
     }
-  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.inProgressTutorials, state.isActive, state.showWelcome, state.showComplete, isProfileSwitch]);
+  }, [profile?.role, profile?.user_id, state.progressLoaded, state.completedTutorials, state.skippedTutorials, state.inProgressTutorials, state.isActive, state.showWelcome, state.showWelcomeMessage, state.showComplete, isProfileSwitch]);
 
   const startTutorial = useCallback((tutorialId: string) => {
     const tutorial = getTutorialById(tutorialId);
@@ -278,6 +300,23 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     }));
   }, [profile?.user_id, state.currentTutorialId]);
 
+  const dismissWelcomeMessage = useCallback(() => {
+    // Mark welcome message as shown in localStorage
+    if (profile?.role && profile?.user_id) {
+      const welcomeKey = `bb_welcome_shown_${profile.role}_${profile.user_id}`;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(welcomeKey, '1');
+      }
+    }
+
+    // Transition to tutorial welcome
+    setState((prev) => ({
+      ...prev,
+      showWelcomeMessage: false,
+      showWelcome: true,
+    }));
+  }, [profile?.role, profile?.user_id]);
+
   const dismissComplete = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -326,10 +365,11 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     skipTutorial: skipTutorialFn,
     completeTutorial: completeTutorialFn,
     dismissComplete,
+    dismissWelcomeMessage,
     resetTutorial: resetTutorialFn,
     isTutorialCompleted,
     shouldShowTutorial,
-  }), [state, startTutorial, beginSteps, nextStep, prevStep, skipTutorialFn, completeTutorialFn, dismissComplete, resetTutorialFn, isTutorialCompleted, shouldShowTutorial]);
+  }), [state, startTutorial, beginSteps, nextStep, prevStep, skipTutorialFn, completeTutorialFn, dismissComplete, dismissWelcomeMessage, resetTutorialFn, isTutorialCompleted, shouldShowTutorial]);
 
   return (
     <TutorialContext.Provider value={value}>

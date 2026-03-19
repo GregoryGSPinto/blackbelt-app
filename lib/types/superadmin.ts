@@ -45,6 +45,8 @@ export interface AcademyFull {
   total_professors?: number;
   total_classes?: number;
   monthly_revenue?: number;
+  acknowledged?: boolean;
+  acknowledged_at?: string | null;
   created_at: string;
   updated_at: string;
 }

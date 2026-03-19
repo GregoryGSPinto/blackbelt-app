@@ -237,6 +237,52 @@ export async function redeemOnboardToken(
   }
 }
 
+// ── Signup Link (token-only, no academy) ─────────────────────────────
+
+export async function generateSignupLink(opts: {
+  notes?: string;
+  expiresInDays?: number;
+}): Promise<OnboardToken> {
+  try {
+    if (isMock()) {
+      const { mockGenerateSignupLink } = await import('@/lib/mocks/superadmin.mock');
+      return mockGenerateSignupLink(opts);
+    }
+    const { mockGenerateSignupLink } = await import('@/lib/mocks/superadmin.mock');
+    return mockGenerateSignupLink(opts);
+  } catch (error) {
+    handleServiceError(error, 'superadmin.generateSignupLink');
+  }
+}
+
+// ── Academy Acknowledgment ──────────────────────────────────────────
+
+export async function getUnacknowledgedAcademies(): Promise<AcademyFull[]> {
+  try {
+    if (isMock()) {
+      const { mockGetUnacknowledgedAcademies } = await import('@/lib/mocks/superadmin.mock');
+      return mockGetUnacknowledgedAcademies();
+    }
+    const { mockGetUnacknowledgedAcademies } = await import('@/lib/mocks/superadmin.mock');
+    return mockGetUnacknowledgedAcademies();
+  } catch (error) {
+    handleServiceError(error, 'superadmin.getUnacknowledgedAcademies');
+  }
+}
+
+export async function acknowledgeAcademy(id: string): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockAcknowledgeAcademy } = await import('@/lib/mocks/superadmin.mock');
+      return mockAcknowledgeAcademy(id);
+    }
+    const { mockAcknowledgeAcademy } = await import('@/lib/mocks/superadmin.mock');
+    return mockAcknowledgeAcademy(id);
+  } catch (error) {
+    handleServiceError(error, 'superadmin.acknowledgeAcademy');
+  }
+}
+
 // ── Stats ────────────────────────────────────────────────────────────
 
 export async function getPlatformStats(): Promise<PlatformStats> {

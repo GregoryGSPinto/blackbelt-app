@@ -111,6 +111,8 @@ let MOCK_ACADEMIES: AcademyFull[] = [
     total_professors: 5,
     total_classes: 12,
     monthly_revenue: 199.90,
+    acknowledged: true,
+    acknowledged_at: '2025-08-16T10:00:00Z',
     ...AUDIT,
   },
   {
@@ -137,6 +139,8 @@ let MOCK_ACADEMIES: AcademyFull[] = [
     total_professors: 2,
     total_classes: 4,
     monthly_revenue: 0,
+    acknowledged: false,
+    acknowledged_at: null,
     created_at: '2026-03-01T14:00:00Z',
     updated_at: '2026-03-01T14:00:00Z',
   },
@@ -164,6 +168,8 @@ let MOCK_ACADEMIES: AcademyFull[] = [
     total_professors: 15,
     total_classes: 25,
     monthly_revenue: 499.90,
+    acknowledged: true,
+    acknowledged_at: '2025-11-16T09:00:00Z',
     created_at: '2025-11-15T09:00:00Z',
     updated_at: '2025-11-15T09:00:00Z',
   },
@@ -416,6 +422,54 @@ export async function mockRedeemOnboardToken(
   if (!found) throw new Error('Token nao encontrado');
   found.current_uses += 1;
   if (found.current_uses >= found.max_uses) found.is_active = false;
+}
+
+// Signup Link (token-only, no academy data)
+
+export async function mockGenerateSignupLink(opts: {
+  notes?: string;
+  expiresInDays?: number;
+}): Promise<OnboardToken> {
+  await delay();
+  const now = new Date();
+  const days = opts.expiresInDays ?? 7;
+  const expiresAt = new Date(now.getTime() + days * 86400000);
+
+  const token: OnboardToken = {
+    id: `onb-${Date.now()}`,
+    token: generateToken(),
+    academy_name: '(Auto-cadastro)',
+    plan_id: null,
+    trial_days: 7,
+    max_uses: 1,
+    current_uses: 0,
+    expires_at: expiresAt.toISOString(),
+    is_active: true,
+    notes: opts.notes?.trim() || null,
+    created_by: 'prof-superadmin',
+    created_at: now.toISOString(),
+  };
+
+  MOCK_ONBOARD_TOKENS = [token, ...MOCK_ONBOARD_TOKENS];
+  return token;
+}
+
+// Academy Acknowledgment
+
+export async function mockGetUnacknowledgedAcademies(): Promise<AcademyFull[]> {
+  await delay(150);
+  return MOCK_ACADEMIES.filter((a) => a.acknowledged === false);
+}
+
+export async function mockAcknowledgeAcademy(id: string): Promise<void> {
+  await delay(100);
+  const idx = MOCK_ACADEMIES.findIndex((a) => a.id === id);
+  if (idx === -1) throw new Error('Academia nao encontrada');
+  MOCK_ACADEMIES[idx] = {
+    ...MOCK_ACADEMIES[idx],
+    acknowledged: true,
+    acknowledged_at: new Date().toISOString(),
+  };
 }
 
 // Stats
