@@ -34,6 +34,8 @@ import {
   FileTextIcon,
   PackageIcon,
   GraduationCapIcon,
+  PhoneIcon,
+  GlobeIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -63,6 +65,8 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { href: '/admin/aula-experimental', label: 'Aula Experimental', icon: UserPlusIcon, id: 'sidebar-link-aula-experimental' },
       { href: '/admin/convites', label: 'Convites', icon: LinkIcon, id: 'sidebar-link-convites' },
+      { href: '/admin/whatsapp', label: 'WhatsApp', icon: PhoneIcon, id: 'sidebar-link-whatsapp' },
+      { href: '/admin/site', label: 'Meu Site', icon: GlobeIcon, id: 'sidebar-link-meu-site' },
     ],
   },
   {

@@ -22,7 +22,9 @@ import {
   UserIcon,
   AwardIcon,
   DownloadIcon,
+  AlertTriangleIcon,
 } from '@/components/shell/icons';
+import { getAlunosEmRisco, getChurnMetrics, type AlunoRisco, type ChurnMetrics } from '@/lib/api/churn-prediction.service';
 import { ReportViewer } from '@/components/reports/ReportViewer';
 import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import type { MonthlyReportData } from '@/lib/types/report';
@@ -379,6 +381,8 @@ export default function AdminDashboardPage() {
   const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
+  const [churnAlunos, setChurnAlunos] = useState<AlunoRisco[]>([]);
+  const [churnMetrics, setChurnMetrics] = useState<ChurnMetrics | null>(null);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();
@@ -402,6 +406,8 @@ export default function AdminDashboardPage() {
       }
     }
     load();
+    getAlunosEmRisco('academy-1').then(setChurnAlunos).catch(() => {});
+    getChurnMetrics('academy-1').then(setChurnMetrics).catch(() => {});
   }, []);
 
   if (loading || !data) return <DashboardSkeleton />;
@@ -1103,6 +1109,80 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </section>
+
+      {/* ═══ CHURN RISK CARD ═══════════════════════════════════════════ */}
+      {churnMetrics && churnAlunos.length > 0 && (
+        <div
+          className="rounded-xl p-5"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangleIcon className="h-5 w-5" style={{ color: '#F59E0B' }} />
+              <h3 className="text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                Alunos em Risco de Churn
+              </h3>
+            </div>
+            <Link
+              href="/admin/retencao"
+              className="text-xs font-medium"
+              style={{ color: 'var(--bb-brand)' }}
+            >
+              Ver todos →
+            </Link>
+          </div>
+          <div className="mb-4 flex gap-4 text-sm">
+            <span style={{ color: 'var(--bb-ink-60)' }}>
+              <span className="inline-block h-2 w-2 rounded-full mr-1" style={{ background: '#EF4444' }} />
+              Alto: {churnMetrics.alto}
+            </span>
+            <span style={{ color: 'var(--bb-ink-60)' }}>
+              <span className="inline-block h-2 w-2 rounded-full mr-1" style={{ background: '#F59E0B' }} />
+              Médio: {churnMetrics.medio}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {churnAlunos.filter(a => a.risco === 'alto').slice(0, 3).map((aluno) => (
+              <div
+                key={aluno.id}
+                className="flex items-center justify-between rounded-lg p-3"
+                style={{ background: 'var(--bb-depth-3)' }}
+              >
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                    <span className="inline-block h-2 w-2 rounded-full mr-2" style={{ background: '#EF4444' }} />
+                    {aluno.nome}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--bb-ink-60)' }}>
+                    Score {aluno.score} — {aluno.motivos[0]}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <a
+                    href={`https://wa.me/5531999990001?text=${encodeURIComponent('Oi ' + aluno.nome + ', tudo bem? Sentimos sua falta nos treinos!')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md px-3 py-1.5 text-xs font-medium"
+                    style={{ background: '#25D366', color: '#fff' }}
+                  >
+                    WhatsApp
+                  </a>
+                  <Link
+                    href="/admin/retencao"
+                    className="rounded-md px-3 py-1.5 text-xs font-medium"
+                    style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}
+                  >
+                    Detalhes
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ═══ SECTION 6: QUICK ACTIONS ══════════════════════════════════ */}
       <section className="animate-reveal">

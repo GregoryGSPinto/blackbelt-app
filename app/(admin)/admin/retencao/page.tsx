@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import {
   getRetentionData,
   markStudentContacted,
@@ -8,10 +9,22 @@ import {
   type RetentionFilters,
   type AtRiskStudent,
 } from '@/lib/api/retention.service';
+import { getAlunosEmRisco, getChurnMetrics, getChurnTrend, marcarAcaoTomada, type AlunoRisco, type ChurnMetrics, type ChurnTrendPoint } from '@/lib/api/churn-prediction.service';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+
+// ── Dynamic Recharts (no SSR) ──────────────────────────────────────
+const LineChart = dynamic(() => import('recharts').then((m) => m.LineChart), { ssr: false });
+const Line = dynamic(() => import('recharts').then((m) => m.Line), { ssr: false });
+const RXAxis = dynamic(() => import('recharts').then((m) => m.XAxis), { ssr: false });
+const RYAxis = dynamic(() => import('recharts').then((m) => m.YAxis), { ssr: false });
+const RTooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), { ssr: false });
+const RResponsiveContainer = dynamic(
+  () => import('recharts').then((m) => m.ResponsiveContainer),
+  { ssr: false },
+);
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -61,6 +74,10 @@ export default function RetencaoPage() {
   const [period, setPeriod] = useState<RetentionFilters['period']>('12m');
   const [modalityFilter, setModalityFilter] = useState('');
   const [classFilter, setClassFilter] = useState('');
+  const [churnTab, setChurnTab] = useState<'risco' | 'recuperados' | 'cancelados' | 'tendencia'>('risco');
+  const [alunosRisco, setAlunosRisco] = useState<AlunoRisco[]>([]);
+  const [churnMetrics, setChurnMetrics] = useState<ChurnMetrics | null>(null);
+  const [churnTrend, setChurnTrend] = useState<ChurnTrendPoint[]>([]);
 
   // ── Fetch data ─────────────────────────────────────────────────────
 
@@ -83,6 +100,21 @@ export default function RetencaoPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // ── Fetch churn data ─────────────────────────────────────────────
+  useEffect(() => {
+    getAlunosEmRisco('academy-1').then(setAlunosRisco).catch(() => {});
+    getChurnMetrics('academy-1').then(setChurnMetrics).catch(() => {});
+    getChurnTrend('academy-1').then(setChurnTrend).catch(() => {});
+  }, []);
+
+  // ── Churn actions ─────────────────────────────────────────────────
+  async function handleMarcarAcao(studentId: string, acao: string) {
+    await marcarAcaoTomada(studentId, acao);
+    setAlunosRisco((prev) =>
+      prev.map((a) => (a.id === studentId ? { ...a, statusAcao: 'acao_tomada' as const } : a)),
+    );
+  }
 
   // ── Derived values ─────────────────────────────────────────────────
 
@@ -472,6 +504,201 @@ export default function RetencaoPage() {
             Nenhum aluno em risco neste periodo
           </div>
         )}
+      </Card>
+
+      {/* ═══ CHURN PREDICTION TABS ═══════════════════════════════════ */}
+      <Card className="animate-reveal overflow-hidden p-0">
+        <div
+          className="flex items-center gap-0 px-0"
+          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+        >
+          {([
+            { key: 'risco' as const, label: 'Alunos em Risco' },
+            { key: 'recuperados' as const, label: 'Recuperados' },
+            { key: 'cancelados' as const, label: 'Cancelados' },
+            { key: 'tendencia' as const, label: 'Tendência' },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setChurnTab(tab.key)}
+              className="px-4 py-3 text-sm font-medium transition-colors"
+              style={{
+                color: churnTab === tab.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                borderBottom: churnTab === tab.key ? '2px solid var(--bb-brand)' : '2px solid transparent',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-4">
+          {/* TAB: Alunos em Risco */}
+          {churnTab === 'risco' && (
+            <div className="space-y-3">
+              {alunosRisco.length === 0 && (
+                <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  Nenhum aluno em risco identificado
+                </p>
+              )}
+              {alunosRisco.map((aluno) => (
+                <div
+                  key={aluno.id}
+                  className="flex items-center justify-between rounded-lg p-3"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ background: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B' }}
+                      />
+                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                        {aluno.nome}
+                      </p>
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                        style={{
+                          background: aluno.risco === 'alto' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                          color: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B',
+                        }}
+                      >
+                        {aluno.risco.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      Score: {aluno.score} | {aluno.motivos.slice(0, 2).join(', ')}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2 ml-3">
+                    <a
+                      href={`https://wa.me/5531999990001?text=${encodeURIComponent('Oi ' + aluno.nome + ', tudo bem? Sentimos sua falta nos treinos!')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-md px-3 py-1.5 text-xs font-medium"
+                      style={{ background: '#25D366', color: '#fff' }}
+                    >
+                      WhatsApp
+                    </a>
+                    {aluno.statusAcao === 'pendente' ? (
+                      <button
+                        onClick={() => handleMarcarAcao(aluno.id, 'contato_whatsapp')}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium"
+                        style={{ background: 'var(--bb-brand)', color: '#fff' }}
+                      >
+                        Ação tomada
+                      </button>
+                    ) : (
+                      <span
+                        className="rounded-md px-3 py-1.5 text-[10px] font-medium"
+                        style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
+                      >
+                        {aluno.statusAcao === 'acao_tomada' ? 'Em acompanhamento' : aluno.statusAcao === 'recuperado' ? 'Recuperado' : 'Cancelou'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB: Recuperados */}
+          {churnTab === 'recuperados' && (
+            <div className="py-8 text-center">
+              {churnMetrics ? (
+                <>
+                  <p className="text-4xl font-extrabold" style={{ color: '#22C55E' }}>
+                    {churnMetrics.recuperados}
+                  </p>
+                  <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                    alunos recuperados (taxa: {churnMetrics.taxaRecuperacao}%)
+                  </p>
+                  <div className="mx-auto mt-4 h-2 w-48 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${churnMetrics.taxaRecuperacao}%`, background: '#22C55E', transition: 'width 0.8s ease' }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                    De {churnMetrics.recuperados + churnMetrics.cancelados} alunos que estiveram em risco
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+              )}
+            </div>
+          )}
+
+          {/* TAB: Cancelados */}
+          {churnTab === 'cancelados' && (
+            <div className="py-8 text-center">
+              {churnMetrics ? (
+                <>
+                  <p className="text-4xl font-extrabold" style={{ color: '#EF4444' }}>
+                    {churnMetrics.cancelados}
+                  </p>
+                  <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                    alunos cancelaram no periodo
+                  </p>
+                  <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-4">
+                    <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
+                      <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.alto}</p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco alto atual</p>
+                    </div>
+                    <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
+                      <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.medio}</p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco medio atual</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+              )}
+            </div>
+          )}
+
+          {/* TAB: Tendencia */}
+          {churnTab === 'tendencia' && (
+            <div>
+              {churnTrend.length > 0 ? (
+                <div style={{ height: '300px' }}>
+                  <RResponsiveContainer width="100%" height="100%">
+                    <LineChart data={churnTrend} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
+                      <RXAxis
+                        dataKey="mes"
+                        tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <RYAxis
+                        tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={40}
+                      />
+                      <RTooltip
+                        contentStyle={{
+                          backgroundColor: 'var(--bb-depth-4, #1a1a2e)',
+                          border: '1px solid var(--bb-glass-border)',
+                          borderRadius: '8px',
+                          color: 'var(--bb-ink-100)',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Line type="monotone" dataKey="risco" stroke="#F59E0B" strokeWidth={2} dot={{ r: 4 }} name="Em Risco" />
+                      <Line type="monotone" dataKey="cancelados" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} name="Cancelados" />
+                      <Line type="monotone" dataKey="recuperados" stroke="#22C55E" strokeWidth={2} dot={{ r: 4 }} name="Recuperados" />
+                    </LineChart>
+                  </RResponsiveContainer>
+                </div>
+              ) : (
+                <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  Dados de tendencia nao disponiveis
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </Card>
 
       {/* Student Action Modal */}

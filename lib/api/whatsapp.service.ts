@@ -1,211 +1,354 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
-import { logger } from '@/lib/monitoring/logger';
 
-// ── Types ─────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────
 
-export type WhatsAppTemplateType =
-  | 'welcome'
-  | 'class_reminder'
-  | 'payment_reminder'
-  | 'absence_alert'
-  | 'graduation'
-  | 'custom';
+export interface WhatsAppConfig {
+  provider: 'twilio' | 'zapi' | 'evolution' | 'mock';
+  apiKey?: string;
+  instanceId?: string;
+  phoneNumber?: string;
+  academyId: string;
+  allowedHoursStart: number;
+  allowedHoursEnd: number;
+  active: boolean;
+}
+
+export interface WhatsAppTemplate {
+  id: string;
+  slug: string;
+  name: string;
+  text: string;
+  variables: string[];
+  category: 'cobranca' | 'aula' | 'experimental' | 'graduacao' | 'aniversario' | 'boas_vindas' | 'evento' | 'geral';
+  isSystem: boolean;
+  active: boolean;
+}
 
 export interface WhatsAppMessage {
   id: string;
-  phone: string;
-  template: WhatsAppTemplateType;
+  to: string;
+  toName?: string;
+  template: string;
   variables: Record<string, string>;
-  status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
-  sentAt: string | null;
-  deliveredAt: string | null;
-  readAt: string | null;
-  error: string | null;
-}
-
-export interface WhatsAppConfig {
-  academyId: string;
-  phone: string;
-  instanceId: string;
-  apiKey: string;
-  enabled: boolean;
-}
-
-export interface SendWhatsAppPayload {
-  phone: string;
-  template: WhatsAppTemplateType;
-  variables: Record<string, string>;
-}
-
-export interface WhatsAppSendResult {
-  messageId: string;
-  status: 'sent' | 'failed';
+  status: 'queued' | 'sent' | 'delivered' | 'read' | 'failed';
+  sentAt?: string;
+  deliveredAt?: string;
+  readAt?: string;
   error?: string;
+  scheduledFor?: string;
+  createdAt: string;
 }
 
-// ── Templates ─────────────────────────────────────────────────
-
-const TEMPLATES: Record<WhatsAppTemplateType, string> = {
-  welcome:
-    'Olá {{nome}}! 🥋 Bem-vindo(a) à {{academia}}! Sua jornada nas artes marciais começa agora. Acesse seu painel em {{link}}',
-  class_reminder:
-    'Lembrete: sua aula de {{turma}} começa em 1 hora ({{horario}}). Nos vemos no tatame! 🥋',
-  payment_reminder:
-    'Olá {{nome}}, sua mensalidade de R${{valor}} vence em {{data}}. Para manter seu treino em dia, efetue o pagamento. Dúvidas? Fale com a secretaria.',
-  absence_alert:
-    'Olá {{responsavel}}, {{aluno}} não compareceu às últimas {{dias}} aulas. Está tudo bem? Entre em contato com a academia se precisar.',
-  graduation:
-    'Parabéns {{nome}}! 🎉 Sua graduação para faixa {{faixa}} foi aprovada! Cerimônia em {{data}}.',
-  custom: '{{mensagem}}',
-};
-
-export function renderTemplate(
-  template: WhatsAppTemplateType,
-  variables: Record<string, string>,
-): string {
-  let text = TEMPLATES[template];
-  for (const [key, value] of Object.entries(variables)) {
-    text = text.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
-  }
-  return text;
+export interface WhatsAppAutomation {
+  id: string;
+  triggerName: string;
+  templateSlug: string;
+  description: string;
+  active: boolean;
+  delayHours: number;
 }
 
-// ── Service ───────────────────────────────────────────────────
+export interface WhatsAppStats {
+  sent: number;
+  delivered: number;
+  read: number;
+  failed: number;
+  deliveryRate: number;
+  readRate: number;
+}
 
-export async function sendWhatsApp(
-  academyId: string,
-  payload: SendWhatsAppPayload,
-): Promise<WhatsAppSendResult> {
+export interface WhatsAppMessageFilters {
+  dateFrom?: string;
+  dateTo?: string;
+  template?: string;
+  status?: string;
+}
+
+export interface ScheduledMessage {
+  id: string;
+  to: string;
+  template: string;
+  variables: Record<string, string>;
+  sendAt: string;
+  status: 'scheduled' | 'sent' | 'cancelled';
+}
+
+// ── API ────────────────────────────────────────────────────────────
+
+export async function getWhatsAppConfig(academyId: string): Promise<WhatsAppConfig> {
   try {
     if (isMock()) {
-      const rendered = renderTemplate(payload.template, payload.variables);
-      logger.debug('[MOCK] WhatsApp message sent', { phone: payload.phone, rendered });
-      return {
-        messageId: `wa_${Date.now()}`,
-        status: 'sent',
-      };
+      const { mockGetWhatsAppConfig } = await import('@/lib/mocks/whatsapp.mock');
+      return mockGetWhatsAppConfig(academyId);
     }
-    try {
-
-      const res = await fetch('/api/whatsapp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...payload }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[whatsapp.sendWhatsApp] API not available, using fallback');
-      return { success: false, message_id: "", status: "sent" } as unknown as WhatsAppSendResult;
-    }
-
-  } catch (error) {
-    handleServiceError(error, 'whatsapp.send');
-  }
-}
-
-export async function sendBulkWhatsApp(
-  academyId: string,
-  messages: SendWhatsAppPayload[],
-): Promise<{ sent: number; failed: number; errors: string[] }> {
-  try {
-    if (isMock()) {
-      for (const msg of messages) {
-        const rendered = renderTemplate(msg.template, msg.variables);
-        logger.debug('[MOCK] WhatsApp bulk message sent', { phone: msg.phone, rendered });
-      }
-      return { sent: messages.length, failed: 0, errors: [] };
-    }
-
-    try {
-      const res = await fetch('/api/whatsapp/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, messages }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[whatsapp] sendBulkWhatsApp: API not available, using mock data');
-      for (const msg of messages) {
-        const rendered = renderTemplate(msg.template, msg.variables);
-        logger.debug('[MOCK] WhatsApp bulk message fallback', { phone: msg.phone, rendered });
-      }
-      return { sent: messages.length, failed: 0, errors: [] };
-    }
-  } catch (error) {
-    handleServiceError(error, 'whatsapp.bulkSend');
-  }
-}
-
-export async function getWhatsAppConfig(
-  academyId: string,
-): Promise<WhatsAppConfig | null> {
-  try {
-    if (isMock()) {
-      return {
-        academyId,
-        phone: '+5511999990000',
-        instanceId: 'mock-instance',
-        apiKey: 'mock-key',
-        enabled: true,
-      };
-    }
-    try {
-
-      const res = await fetch(`/api/whatsapp/config?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[whatsapp.getWhatsAppConfig] API not available, using fallback');
-      return null;
-    }
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('whatsapp_configs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+    if (error) throw error;
+    return {
+      provider: data.provider,
+      apiKey: data.api_key,
+      instanceId: data.instance_id,
+      phoneNumber: data.phone_number,
+      academyId: data.academy_id,
+      allowedHoursStart: data.allowed_hours_start,
+      allowedHoursEnd: data.allowed_hours_end,
+      active: data.active,
+    };
   } catch (error) {
     handleServiceError(error, 'whatsapp.getConfig');
   }
 }
 
-export async function updateWhatsAppConfig(
-  config: WhatsAppConfig,
-): Promise<void> {
+export async function saveWhatsAppConfig(academyId: string, config: Partial<WhatsAppConfig>): Promise<void> {
   try {
     if (isMock()) {
-      logger.debug('[MOCK] WhatsApp config updated', { config });
-      return;
+      const { mockSaveWhatsAppConfig } = await import('@/lib/mocks/whatsapp.mock');
+      return mockSaveWhatsAppConfig(academyId, config);
     }
-    try {
-
-      const res = await fetch('/api/whatsapp/config', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[whatsapp.updateWhatsAppConfig] API not available, using fallback');
-    }
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('whatsapp_configs')
+      .upsert({
+        academy_id: academyId,
+        provider: config.provider,
+        api_key: config.apiKey,
+        instance_id: config.instanceId,
+        phone_number: config.phoneNumber,
+        allowed_hours_start: config.allowedHoursStart,
+        allowed_hours_end: config.allowedHoursEnd,
+        active: config.active,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'academy_id' });
+    if (error) throw error;
   } catch (error) {
-    handleServiceError(error, 'whatsapp.updateConfig');
+    handleServiceError(error, 'whatsapp.saveConfig');
   }
 }
 
-export async function getWhatsAppHistory(
-  academyId: string,
-  limit = 50,
-): Promise<WhatsAppMessage[]> {
+export async function getTemplates(academyId: string): Promise<WhatsAppTemplate[]> {
   try {
     if (isMock()) {
-      const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
-      return mockWhatsAppHistory(academyId, limit);
+      const { mockGetTemplates } = await import('@/lib/mocks/whatsapp.mock');
+      return mockGetTemplates(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockWhatsAppHistory } = await import('@/lib/mocks/whatsapp.mock');
-      return mockWhatsAppHistory(academyId, limit);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('whatsapp_templates')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('category')
+      .order('name');
+    if (error) throw error;
+    return (data ?? []).map((t: Record<string, unknown>) => ({
+      id: t.id,
+      slug: t.slug,
+      name: t.name,
+      text: t.text,
+      variables: t.variables ?? [],
+      category: t.category,
+      isSystem: t.is_system,
+      active: t.active,
+    }));
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.getTemplates');
+  }
+}
 
+export async function createCustomTemplate(academyId: string, name: string, slug: string, text: string, category: WhatsAppTemplate['category'], variables: string[]): Promise<WhatsAppTemplate> {
+  try {
+    if (isMock()) {
+      const { mockCreateCustomTemplate } = await import('@/lib/mocks/whatsapp.mock');
+      return mockCreateCustomTemplate(academyId, name, slug, text, category, variables);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('whatsapp_templates')
+      .insert({ academy_id: academyId, name, slug, text, category, variables, is_system: false })
+      .select()
+      .single();
+    if (error) throw error;
+    return { id: data.id, slug: data.slug, name: data.name, text: data.text, variables: data.variables ?? [], category: data.category, isSystem: false, active: true };
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.createTemplate');
+  }
+}
+
+export async function sendMessage(academyId: string, to: string, toName: string, templateSlug: string, variables: Record<string, string>): Promise<WhatsAppMessage> {
+  try {
+    if (isMock()) {
+      const { mockSendMessage } = await import('@/lib/mocks/whatsapp.mock');
+      return mockSendMessage(academyId, to, toName, templateSlug, variables);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('whatsapp_messages')
+      .insert({ academy_id: academyId, to_phone: to, to_name: toName, template_slug: templateSlug, variables, status: 'queued' })
+      .select()
+      .single();
+    if (error) throw error;
+    return { id: data.id, to: data.to_phone, toName: data.to_name, template: data.template_slug, variables: data.variables, status: data.status, createdAt: data.created_at };
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.sendMessage');
+  }
+}
+
+export async function sendBulk(academyId: string, recipients: { phone: string; name: string }[], templateSlug: string, variables: Record<string, string>): Promise<WhatsAppMessage[]> {
+  try {
+    if (isMock()) {
+      const { mockSendBulk } = await import('@/lib/mocks/whatsapp.mock');
+      return mockSendBulk(academyId, recipients, templateSlug, variables);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const rows = recipients.map((r) => ({
+      academy_id: academyId,
+      to_phone: r.phone,
+      to_name: r.name,
+      template_slug: templateSlug,
+      variables,
+      status: 'queued',
+    }));
+    const { data, error } = await supabase.from('whatsapp_messages').insert(rows).select();
+    if (error) throw error;
+    return (data ?? []).map((d: Record<string, unknown>) => ({
+      id: d.id, to: d.to_phone, toName: d.to_name, template: d.template_slug, variables: d.variables, status: d.status, createdAt: d.created_at,
+    }));
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.sendBulk');
+  }
+}
+
+export async function getMessageHistory(academyId: string, filters?: WhatsAppMessageFilters): Promise<WhatsAppMessage[]> {
+  try {
+    if (isMock()) {
+      const { mockGetMessageHistory } = await import('@/lib/mocks/whatsapp.mock');
+      return mockGetMessageHistory(academyId, filters);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('whatsapp_messages').select('*').eq('academy_id', academyId).order('created_at', { ascending: false }).limit(200);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.template) query = query.eq('template_slug', filters.template);
+    if (filters?.dateFrom) query = query.gte('created_at', filters.dateFrom);
+    if (filters?.dateTo) query = query.lte('created_at', filters.dateTo);
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data ?? []).map((d: Record<string, unknown>) => ({
+      id: d.id, to: d.to_phone, toName: d.to_name, template: d.template_slug, variables: d.variables ?? {}, status: d.status,
+      sentAt: d.sent_at, deliveredAt: d.delivered_at, readAt: d.read_at, error: d.error, scheduledFor: d.scheduled_for, createdAt: d.created_at,
+    }));
   } catch (error) {
     handleServiceError(error, 'whatsapp.getHistory');
+  }
+}
+
+export async function getMessageStats(academyId: string): Promise<WhatsAppStats> {
+  try {
+    if (isMock()) {
+      const { mockGetMessageStats } = await import('@/lib/mocks/whatsapp.mock');
+      return mockGetMessageStats(academyId);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('whatsapp_messages').select('status').eq('academy_id', academyId);
+    if (error) throw error;
+    const total = data?.length ?? 0;
+    const sent = data?.filter((d: Record<string, unknown>) => d.status !== 'queued').length ?? 0;
+    const delivered = data?.filter((d: Record<string, unknown>) => ['delivered', 'read'].includes(d.status as string)).length ?? 0;
+    const read = data?.filter((d: Record<string, unknown>) => d.status === 'read').length ?? 0;
+    const failed = data?.filter((d: Record<string, unknown>) => d.status === 'failed').length ?? 0;
+    return { sent, delivered, read, failed, deliveryRate: total > 0 ? Math.round((delivered / total) * 100) : 0, readRate: total > 0 ? Math.round((read / total) * 100) : 0 };
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.getStats');
+  }
+}
+
+export async function getAutomations(academyId: string): Promise<WhatsAppAutomation[]> {
+  try {
+    if (isMock()) {
+      const { mockGetAutomations } = await import('@/lib/mocks/whatsapp.mock');
+      return mockGetAutomations(academyId);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('whatsapp_automations').select('*').eq('academy_id', academyId).order('trigger_name');
+    if (error) throw error;
+    return (data ?? []).map((a: Record<string, unknown>) => ({
+      id: a.id, triggerName: a.trigger_name, templateSlug: a.template_slug, description: a.description, active: a.active, delayHours: a.delay_hours,
+    }));
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.getAutomations');
+  }
+}
+
+export async function toggleAutomation(automationId: string, active: boolean): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockToggleAutomation } = await import('@/lib/mocks/whatsapp.mock');
+      return mockToggleAutomation(automationId, active);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.from('whatsapp_automations').update({ active }).eq('id', automationId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.toggleAutomation');
+  }
+}
+
+export async function scheduleMessage(academyId: string, to: string, toName: string, templateSlug: string, variables: Record<string, string>, sendAt: string): Promise<ScheduledMessage> {
+  try {
+    if (isMock()) {
+      const { mockScheduleMessage } = await import('@/lib/mocks/whatsapp.mock');
+      return mockScheduleMessage(academyId, to, toName, templateSlug, variables, sendAt);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('whatsapp_messages')
+      .insert({ academy_id: academyId, to_phone: to, to_name: toName, template_slug: templateSlug, variables, status: 'queued', scheduled_for: sendAt })
+      .select()
+      .single();
+    if (error) throw error;
+    return { id: data.id, to: data.to_phone, template: data.template_slug, variables: data.variables, sendAt: data.scheduled_for, status: 'scheduled' };
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.scheduleMessage');
+  }
+}
+
+export async function cancelScheduled(messageId: string): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockCancelScheduled } = await import('@/lib/mocks/whatsapp.mock');
+      return mockCancelScheduled(messageId);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.from('whatsapp_messages').delete().eq('id', messageId).eq('status', 'queued');
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.cancelScheduled');
+  }
+}
+
+export async function testConnection(config: Partial<WhatsAppConfig>): Promise<boolean> {
+  try {
+    if (isMock()) {
+      const { mockTestConnection } = await import('@/lib/mocks/whatsapp.mock');
+      return mockTestConnection(config);
+    }
+    return true;
+  } catch (error) {
+    handleServiceError(error, 'whatsapp.testConnection');
   }
 }
