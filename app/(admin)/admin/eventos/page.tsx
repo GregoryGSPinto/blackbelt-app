@@ -10,6 +10,7 @@ import {
 import type { AcademyEvent, CreateEventData, EventType, EventStatus } from '@/lib/types/event';
 import { BeltLevel } from '@/lib/types/domain';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
 import {
   PlusIcon,
@@ -469,11 +470,23 @@ export default function AdminEventosPage() {
 
       {/* ── Event Cards ───────────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <section className="animate-reveal py-12 text-center">
-          <CalendarCheckIcon className="mx-auto mb-3 h-12 w-12" style={{ color: 'var(--bb-ink-20)' }} />
-          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-            Nenhum evento encontrado.
-          </p>
+        <section className="animate-reveal">
+          {events.length === 0 ? (
+            <EmptyState
+              icon={CalendarCheckIcon}
+              title="Nenhum evento criado"
+              description="Crie eventos para engajar seus alunos."
+              actionLabel="Novo Evento"
+              onAction={openCreate}
+            />
+          ) : (
+            <div className="py-12 text-center">
+              <CalendarCheckIcon className="mx-auto mb-3 h-12 w-12" style={{ color: 'var(--bb-ink-20)' }} />
+              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                Nenhum evento encontrado com esses filtros.
+              </p>
+            </div>
+          )}
         </section>
       ) : (
         <section className="animate-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

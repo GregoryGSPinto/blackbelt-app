@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { CalendarIcon } from '@/components/shell/icons';
 import { useToast } from '@/lib/hooks/useToast';
 
 // ── Constants ────────────────────────────────────────────────
@@ -438,9 +440,19 @@ export default function AdminTurmasPage() {
 
       {/* ── Class cards ────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <Card className="py-12 text-center">
-          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Nenhuma turma encontrada.</p>
-        </Card>
+        classes.length === 0 ? (
+          <EmptyState
+            icon={CalendarIcon}
+            title="Nenhuma turma cadastrada"
+            description="Crie sua primeira turma para organizar suas aulas."
+            actionLabel="Criar turma"
+            onAction={() => { setEditingId(null); setForm(INITIAL_FORM); setShowFormModal(true); }}
+          />
+        ) : (
+          <Card className="py-12 text-center">
+            <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Nenhuma turma encontrada com esses filtros.</p>
+          </Card>
+        )
       ) : (
         <div
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"

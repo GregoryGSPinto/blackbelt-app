@@ -9,6 +9,7 @@ import { getDailyBriefing } from '@/lib/api/painel-dia.service';
 import type { DailyBriefingDTO } from '@/lib/api/painel-dia.service';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { FirstStepsChecklist } from '@/components/onboarding/FirstStepsChecklist';
 import {
   UsersIcon,
   DollarIcon,
@@ -493,6 +494,9 @@ export default function AdminDashboardPage() {
           {reportExporting ? 'Gerando...' : 'Exportar PDF'}
         </button>
       </section>
+
+      {/* ═══ SECTION: FIRST STEPS CHECKLIST ═══════════════════════════ */}
+      <FirstStepsChecklist variant="admin" />
 
       {/* ═══ SECTION: HOJE (Daily Briefing) ═══════════════════════════ */}
       {briefing && (

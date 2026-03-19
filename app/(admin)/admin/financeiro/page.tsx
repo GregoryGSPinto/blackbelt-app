@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/financial.service';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
 import { DollarIcon, TrendingUpIcon, UsersIcon, SearchIcon } from '@/components/shell/icons';
 import { ReportViewer } from '@/components/reports/ReportViewer';
@@ -258,9 +259,11 @@ export default function AdminFinanceiroPage() {
             {/* List */}
             <div className="space-y-2">
               {mensalidades.length === 0 ? (
-                <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                  Nenhuma mensalidade encontrada.
-                </p>
+                <EmptyState
+                  icon={DollarIcon}
+                  title="Nenhuma fatura registrada"
+                  description="Gere sua primeira fatura para controlar as finanças."
+                />
               ) : (
                 mensalidades.map((m) => {
                   const sc = STATUS_COLORS[m.status] ?? STATUS_COLORS.pendente;

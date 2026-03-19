@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { getAlertasCount } from '@/lib/api/professor-alertas.service';
 import { SidebarHelpSection } from './HelpSection';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 import { usePlan } from '@/lib/hooks/usePlan';
 import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
 import { TrialBanner } from '@/components/plans/TrialBanner';
@@ -148,6 +149,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
     const { profile, logout } = useAuth();
     const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
     const [alertCount, setAlertCount] = useState(0);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef<HTMLDivElement>(null);
@@ -632,6 +634,9 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
             </div>
           </div>
         </div>
+
+        {/* Command Palette (Search) */}
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
       </div>
     );
   },

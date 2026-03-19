@@ -8,8 +8,9 @@ import {
   type Duvida,
 } from '@/lib/api/video-experience.service';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { SearchIcon } from '@/components/shell/icons';
+import { SearchIcon, MessageIcon } from '@/components/shell/icons';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -218,16 +219,23 @@ export default function ProfessorDuvidasPage() {
         )}
 
         {!loading && filteredList.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-4xl">🎉</p>
-            <p className="mt-2 text-sm font-semibold" style={{ color: 'var(--bb-ink-60)' }}>
-              {activeFilter === 'pendentes'
-                ? 'Nenhuma duvida pendente!'
+          <EmptyState
+            icon={MessageIcon}
+            title={
+              activeFilter === 'pendentes'
+                ? 'Nenhuma duvida pendente'
                 : searchQuery
-                  ? 'Nenhum resultado encontrado.'
-                  : 'Nenhuma duvida ainda.'}
-            </p>
-          </div>
+                  ? 'Nenhum resultado encontrado'
+                  : 'Nenhuma duvida ainda'
+            }
+            description={
+              activeFilter === 'pendentes'
+                ? 'Duvidas dos alunos sobre videos aparecem aqui.'
+                : searchQuery
+                  ? 'Tente ajustar sua busca.'
+                  : 'Duvidas dos alunos sobre videos aparecem aqui.'
+            }
+          />
         )}
 
         {!loading && filteredList.map((duvida) => (
