@@ -116,9 +116,9 @@ export default function SenhaAlteradaPage() {
         </div>
       ))}
 
-      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+      <div className="py-8">
         <div
-          className="relative z-50 w-full max-w-md text-center"
+          className="relative z-50 w-full text-center"
           style={{
             background: 'var(--bb-depth-3)',
             border: '1px solid var(--bb-glass-border)',

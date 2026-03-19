@@ -80,22 +80,20 @@ export default function RedefinirSenhaPage() {
   // Loading state
   if (pageState === 'loading') {
     return (
-      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
-        <div className="flex flex-col items-center gap-4">
-          <svg
-            className="h-8 w-8 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            style={{ color: 'var(--bb-brand)' }}
-          >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-            Verificando link...
-          </p>
-        </div>
+      <div className="flex flex-col items-center gap-4 py-12">
+        <svg
+          className="h-8 w-8 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          style={{ color: 'var(--bb-brand)' }}
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+          Verificando link...
+        </p>
       </div>
     );
   }
@@ -103,9 +101,9 @@ export default function RedefinirSenhaPage() {
   // Expired state
   if (pageState === 'expired') {
     return (
-      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+      <div className="py-8">
         <div
-          className="w-full max-w-md text-center"
+          className="w-full text-center"
           style={{
             background: 'var(--bb-depth-3)',
             border: '1px solid var(--bb-glass-border)',
@@ -186,9 +184,9 @@ export default function RedefinirSenhaPage() {
 
   // Valid session — reset password form
   return (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+    <div className="py-8">
       <div
-        className="w-full max-w-md"
+        className="w-full"
         style={{
           background: 'var(--bb-depth-3)',
           border: '1px solid var(--bb-glass-border)',

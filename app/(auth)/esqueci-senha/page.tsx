@@ -112,9 +112,9 @@ export default function EsqueciSenhaPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+    <div className="py-8">
       <div
-        className="w-full max-w-md"
+        className="w-full"
         style={{
           background: 'var(--bb-depth-3)',
           border: '1px solid var(--bb-glass-border)',
