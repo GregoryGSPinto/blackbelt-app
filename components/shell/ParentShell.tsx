@@ -5,7 +5,7 @@ import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { HeaderHelpButton } from './HelpSection';
-import { UsersIcon, CheckSquareIcon, MessageIcon, DollarIcon, UserIcon } from './icons';
+import { UsersIcon, CalendarIcon, CheckSquareIcon, MessageIcon, DollarIcon, UserIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
 interface ParentShellProps {
@@ -14,6 +14,7 @@ interface ParentShellProps {
 
 const navItems: NavItem[] = [
   { href: '/parent', label: 'Filhos', icon: <UsersIcon className="h-5 w-5" />, id: 'nav-filhos' },
+  { href: '/parent/agenda', label: 'Agenda', icon: <CalendarIcon className="h-5 w-5" />, id: 'nav-agenda' },
   { href: '/parent/presencas', label: 'Presenças', icon: <CheckSquareIcon className="h-5 w-5" />, id: 'nav-presencas' },
   { href: '/parent/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" />, id: 'nav-mensagens' },
   { href: '/parent/pagamentos', label: 'Pagamentos', icon: <DollarIcon className="h-5 w-5" />, id: 'nav-pagamentos' },
