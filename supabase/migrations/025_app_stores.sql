@@ -12,8 +12,12 @@ CREATE TABLE IF NOT EXISTS push_tokens (
   UNIQUE(user_id, token)
 );
 
-CREATE INDEX idx_push_tokens_user ON push_tokens(user_id);
-CREATE INDEX idx_push_tokens_active ON push_tokens(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_push_tokens_user ON push_tokens(user_id);
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'push_tokens' AND column_name = 'is_active') THEN
+    CREATE INDEX IF NOT EXISTS idx_push_tokens_active ON push_tokens(is_active) WHERE is_active = true;
+  END IF;
+END $$;
 
 ALTER TABLE push_tokens ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "push_tokens_own" ON push_tokens FOR ALL USING (user_id = auth.uid());
