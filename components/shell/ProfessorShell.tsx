@@ -26,6 +26,7 @@ import {
   UserIcon,
   SettingsIcon,
   GraduationCapIcon,
+  HelpCircleIcon,
   XIcon,
   BellIcon,
   LogOutIcon,
@@ -59,6 +60,7 @@ const drawerItems: {
   { href: '/professor/avaliacoes', label: 'Avaliacoes', icon: ClipboardCheckIcon },
   { href: '/professor/plano-aula', label: 'Plano de Aula', icon: FileTextIcon },
   { href: '/professor/tecnicas', label: 'Tecnicas', icon: BookMarkedIcon },
+  { href: '/professor/duvidas', label: 'Duvidas', icon: HelpCircleIcon },
   { href: '/professor/relatorios', label: 'Relatorios', icon: BarChartIcon },
   { href: '/professor/calendario', label: 'Calendario', icon: CalendarIcon },
   { href: '/professor/mensagens', label: 'Mensagens', icon: MessageIcon },
@@ -86,6 +88,7 @@ const sidebarGroups: SidebarGroup[] = [
       { id: 'sidebar-link-avaliacoes', href: '/professor/avaliacoes', label: 'Avaliacoes', icon: ClipboardCheckIcon },
       { id: 'sidebar-link-diario', href: '/professor/diario', label: 'Diario de Aulas', icon: BookOpenIcon },
       { id: 'sidebar-link-tecnicas', href: '/professor/tecnicas', label: 'Tecnicas', icon: BookMarkedIcon },
+      { id: 'sidebar-link-duvidas', href: '/professor/duvidas', label: 'Duvidas', icon: HelpCircleIcon },
     ],
   },
   {
