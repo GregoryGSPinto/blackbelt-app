@@ -13,6 +13,7 @@ import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import { generateAttendanceReport } from '@/lib/reports/attendance-report';
 import { generateFinancialReport } from '@/lib/reports/financial-report';
 import type { ReportData, ReportType as ReportViewType } from '@/lib/types/report';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const ReportChart = dynamic(() => import('./ReportChart'), { ssr: false });
 
@@ -75,90 +76,92 @@ export default function AdminRelatoriosPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-xl font-bold text-bb-black">Relatórios</h1>
+    <PlanGate module="relatorios">
+      <div className="space-y-6 p-6">
+        <h1 className="text-xl font-bold text-bb-black">Relatórios</h1>
 
-      {/* Report selector */}
-      <div className="flex flex-wrap gap-2">
-        {REPORTS.map((r) => (
-          <button key={r.type} onClick={() => setSelectedType(r.type)} className={`rounded-lg px-4 py-2 text-sm font-medium ${selectedType === r.type ? 'bg-bb-red text-white' : 'bg-bb-gray-100 text-bb-gray-500 hover:bg-bb-gray-200'}`}>
-            {r.label}
-          </button>
-        ))}
-      </div>
+        {/* Report selector */}
+        <div className="flex flex-wrap gap-2">
+          {REPORTS.map((r) => (
+            <button key={r.type} onClick={() => setSelectedType(r.type)} className={`rounded-lg px-4 py-2 text-sm font-medium ${selectedType === r.type ? 'bg-bb-red text-white' : 'bg-bb-gray-100 text-bb-gray-500 hover:bg-bb-gray-200'}`}>
+              {r.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Filters */}
-      <Card className="flex flex-wrap items-end gap-4 p-4">
-        <div>
-          <label className="block text-xs text-bb-gray-500">De</label>
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 rounded border border-bb-gray-300 px-3 py-1.5 text-sm" />
-        </div>
-        <div>
-          <label className="block text-xs text-bb-gray-500">Até</label>
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 rounded border border-bb-gray-300 px-3 py-1.5 text-sm" />
-        </div>
-        <div className="ml-auto flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleExport('pdf')} disabled={exporting}>{exporting ? 'Gerando...' : 'Exportar PDF'}</Button>
-          <Button variant="ghost" size="sm" onClick={() => handleExport('excel')}>Exportar Excel</Button>
-        </div>
-      </Card>
-
-      {loading ? (
-        <Skeleton variant="card" className="h-80" />
-      ) : report ? (
-        <>
-          {/* Summary KPIs */}
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {Object.entries(report.summary).map(([key, value]) => (
-              <Card key={key} className="p-4">
-                <p className="text-xs text-bb-gray-500">{key}</p>
-                <p className="mt-1 text-xl font-bold text-bb-black">{value}</p>
-              </Card>
-            ))}
+        {/* Filters */}
+        <Card className="flex flex-wrap items-end gap-4 p-4">
+          <div>
+            <label className="block text-xs text-bb-gray-500">De</label>
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 rounded border border-bb-gray-300 px-3 py-1.5 text-sm" />
           </div>
+          <div>
+            <label className="block text-xs text-bb-gray-500">Até</label>
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 rounded border border-bb-gray-300 px-3 py-1.5 text-sm" />
+          </div>
+          <div className="ml-auto flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => handleExport('pdf')} disabled={exporting}>{exporting ? 'Gerando...' : 'Exportar PDF'}</Button>
+            <Button variant="ghost" size="sm" onClick={() => handleExport('excel')}>Exportar Excel</Button>
+          </div>
+        </Card>
 
-          {/* Chart */}
-          <Card className="p-4">
-            <h2 className="mb-4 font-semibold text-bb-black">{report.title}</h2>
-            <ReportChart report={report} />
-          </Card>
-
-          {/* Data table */}
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="border-b border-bb-gray-300 bg-bb-gray-100">
-                  <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Item</th>
-                  <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Valor Principal</th>
-                  {report.data[0]?.value2 !== undefined && (
-                    <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Valor Secundário</th>
-                  )}
-                </tr></thead>
-                <tbody>
-                  {report.data.map((d) => (
-                    <tr key={d.label} className="border-b border-bb-gray-100">
-                      <td className="px-4 py-3 font-medium text-bb-black">{d.label}</td>
-                      <td className="px-4 py-3 text-right text-bb-gray-500">{selectedType === 'financeiro' ? `R$ ${d.value.toLocaleString('pt-BR')}` : selectedType === 'presenca' || selectedType === 'performance' ? `${d.value}%` : d.value}</td>
-                      {d.value2 !== undefined && (
-                        <td className="px-4 py-3 text-right text-bb-gray-500">{selectedType === 'financeiro' ? `R$ ${d.value2.toLocaleString('pt-BR')}` : d.value2}</td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {loading ? (
+          <Skeleton variant="card" className="h-80" />
+        ) : report ? (
+          <>
+            {/* Summary KPIs */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {Object.entries(report.summary).map(([key, value]) => (
+                <Card key={key} className="p-4">
+                  <p className="text-xs text-bb-gray-500">{key}</p>
+                  <p className="mt-1 text-xl font-bold text-bb-black">{value}</p>
+                </Card>
+              ))}
             </div>
-          </Card>
-        </>
-      ) : null}
 
-      {/* ── Report Viewer (PDF/Print) ──────────────────────────────── */}
-      {reportViewData && (
-        <ReportViewer
-          type={reportViewType}
-          data={reportViewData}
-          onClose={() => setReportViewData(null)}
-        />
-      )}
-    </div>
+            {/* Chart */}
+            <Card className="p-4">
+              <h2 className="mb-4 font-semibold text-bb-black">{report.title}</h2>
+              <ReportChart report={report} />
+            </Card>
+
+            {/* Data table */}
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="border-b border-bb-gray-300 bg-bb-gray-100">
+                    <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Item</th>
+                    <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Valor Principal</th>
+                    {report.data[0]?.value2 !== undefined && (
+                      <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Valor Secundário</th>
+                    )}
+                  </tr></thead>
+                  <tbody>
+                    {report.data.map((d) => (
+                      <tr key={d.label} className="border-b border-bb-gray-100">
+                        <td className="px-4 py-3 font-medium text-bb-black">{d.label}</td>
+                        <td className="px-4 py-3 text-right text-bb-gray-500">{selectedType === 'financeiro' ? `R$ ${d.value.toLocaleString('pt-BR')}` : selectedType === 'presenca' || selectedType === 'performance' ? `${d.value}%` : d.value}</td>
+                        {d.value2 !== undefined && (
+                          <td className="px-4 py-3 text-right text-bb-gray-500">{selectedType === 'financeiro' ? `R$ ${d.value2.toLocaleString('pt-BR')}` : d.value2}</td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </>
+        ) : null}
+
+        {/* ── Report Viewer (PDF/Print) ──────────────────────────────── */}
+        {reportViewData && (
+          <ReportViewer
+            type={reportViewType}
+            data={reportViewData}
+            onClose={() => setReportViewData(null)}
+          />
+        )}
+      </div>
+    </PlanGate>
   );
 }

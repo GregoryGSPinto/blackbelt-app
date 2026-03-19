@@ -21,6 +21,7 @@ import type {
 import type { StreamingSeries, StreamingTrail } from '@/lib/types/streaming';
 import { GRADIENT_PRESETS } from '@/lib/mocks/content-management.mock';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -145,128 +146,130 @@ export default function ProfessorConteudoPage() {
   ];
 
   return (
-    <div className="min-h-screen space-y-6 p-6" data-stagger>
-      {/* Header */}
-      <section className="animate-reveal flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-display font-bold" style={{ fontSize: '28px', color: 'var(--bb-ink-100)' }}>
-            Gestao de Conteudo
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-            Videos, playlists e material academico
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowNewVideo(true)}
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: '#22C55E' }}
-          >
-            + Novo Video
-          </button>
-          <button
-            onClick={() => tab === 'material' ? setShowNewMaterial(true) : setShowNewSeries(true)}
-            className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-            style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}
-          >
-            {tab === 'material' ? '+ Material' : '+ Nova Playlist'}
-          </button>
-        </div>
-      </section>
-
-      {/* Tabs */}
-      <section className="animate-reveal">
-        <div className="flex gap-1 overflow-x-auto pb-1">
-          {tabs.map((t) => (
+    <PlanGate module="conteudo">
+      <div className="min-h-screen space-y-6 p-6" data-stagger>
+        {/* Header */}
+        <section className="animate-reveal flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="font-display font-bold" style={{ fontSize: '28px', color: 'var(--bb-ink-100)' }}>
+              Gestao de Conteudo
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Videos, playlists e material academico
+            </p>
+          </div>
+          <div className="flex gap-2">
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className="shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-              style={{
-                background: tab === t.key ? 'var(--bb-brand-surface)' : 'transparent',
-                color: tab === t.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
-                fontWeight: tab === t.key ? 600 : 400,
-              }}
+              onClick={() => setShowNewVideo(true)}
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: '#22C55E' }}
             >
-              {t.label}{t.count > 0 ? ` (${t.count})` : ''}
+              + Novo Video
             </button>
-          ))}
-        </div>
-      </section>
+            <button
+              onClick={() => tab === 'material' ? setShowNewMaterial(true) : setShowNewSeries(true)}
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+              style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}
+            >
+              {tab === 'material' ? '+ Material' : '+ Nova Playlist'}
+            </button>
+          </div>
+        </section>
 
-      {/* Tab content */}
-      {tab === 'videos' && (
-        <VideosTab
-          stats={stats} videos={videos}
-          search={search} setSearch={setSearch}
-          filterPublished={filterPublished} setFilterPublished={setFilterPublished}
-          onPublish={async (id) => { await publishVideo(id); reload(); }}
-          onUnpublish={async (id) => { await unpublishVideo(id); reload(); }}
-          onDelete={async (id) => { if (confirm('Excluir este video e seu quiz?')) { await deleteVideo(id); reload(); } }}
-          onDuplicate={async (id) => { await duplicateVideo(id); reload(); }}
-          onEditQuiz={(id) => setQuizEditVideoId(id)}
-        />
-      )}
-      {tab === 'playlists' && (
-        <PlaylistsTab
-          series={series} videos={videos}
-          onNewSeries={() => setShowNewSeries(true)}
-          onDelete={async (id) => { if (confirm('Excluir esta playlist? Videos serao movidos para "sem serie".')) { await deleteSeries(id); reload(); } }}
-        />
-      )}
-      {tab === 'trilhas' && (
-        <TrailsTab
-          trails={trails}
-          onNewTrail={() => setShowNewTrail(true)}
-          onDelete={async (id) => { if (confirm('Excluir esta trilha?')) { await deleteTrail(id); reload(); } }}
-        />
-      )}
-      {tab === 'material' && (
-        <MaterialTab
-          materials={materials}
-          onNewMaterial={() => setShowNewMaterial(true)}
-          onDelete={async (id) => { if (confirm('Excluir este material?')) { await deleteMaterial(id); reload(); } }}
-        />
-      )}
-      {tab === 'analytics' && <AnalyticsTab stats={stats} videos={videos} />}
+        {/* Tabs */}
+        <section className="animate-reveal">
+          <div className="flex gap-1 overflow-x-auto pb-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className="shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                style={{
+                  background: tab === t.key ? 'var(--bb-brand-surface)' : 'transparent',
+                  color: tab === t.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                  fontWeight: tab === t.key ? 600 : 400,
+                }}
+              >
+                {t.label}{t.count > 0 ? ` (${t.count})` : ''}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      {/* Modals */}
-      {showNewVideo && (
-        <NewVideoModal
-          series={series}
-          onClose={() => setShowNewVideo(false)}
-          onCreated={() => { setShowNewVideo(false); reload(); }}
-        />
-      )}
-      {showNewSeries && (
-        <NewSeriesModal
-          onClose={() => setShowNewSeries(false)}
-          onCreated={() => { setShowNewSeries(false); reload(); }}
-        />
-      )}
-      {showNewTrail && (
-        <NewTrailModal
-          series={series}
-          onClose={() => setShowNewTrail(false)}
-          onCreated={() => { setShowNewTrail(false); reload(); }}
-        />
-      )}
-      {showNewMaterial && (
-        <NewMaterialModal
-          series={series}
-          onClose={() => setShowNewMaterial(false)}
-          onCreated={() => { setShowNewMaterial(false); reload(); }}
-        />
-      )}
-      {quizEditVideoId && (
-        <QuizEditor
-          videoId={quizEditVideoId}
-          videoTitle={videos.find(v => v.id === quizEditVideoId)?.title ?? ''}
-          onClose={() => setQuizEditVideoId(null)}
-          onSaved={() => { setQuizEditVideoId(null); reload(); }}
-        />
-      )}
-    </div>
+        {/* Tab content */}
+        {tab === 'videos' && (
+          <VideosTab
+            stats={stats} videos={videos}
+            search={search} setSearch={setSearch}
+            filterPublished={filterPublished} setFilterPublished={setFilterPublished}
+            onPublish={async (id) => { await publishVideo(id); reload(); }}
+            onUnpublish={async (id) => { await unpublishVideo(id); reload(); }}
+            onDelete={async (id) => { if (confirm('Excluir este video e seu quiz?')) { await deleteVideo(id); reload(); } }}
+            onDuplicate={async (id) => { await duplicateVideo(id); reload(); }}
+            onEditQuiz={(id) => setQuizEditVideoId(id)}
+          />
+        )}
+        {tab === 'playlists' && (
+          <PlaylistsTab
+            series={series} videos={videos}
+            onNewSeries={() => setShowNewSeries(true)}
+            onDelete={async (id) => { if (confirm('Excluir esta playlist? Videos serao movidos para "sem serie".')) { await deleteSeries(id); reload(); } }}
+          />
+        )}
+        {tab === 'trilhas' && (
+          <TrailsTab
+            trails={trails}
+            onNewTrail={() => setShowNewTrail(true)}
+            onDelete={async (id) => { if (confirm('Excluir esta trilha?')) { await deleteTrail(id); reload(); } }}
+          />
+        )}
+        {tab === 'material' && (
+          <MaterialTab
+            materials={materials}
+            onNewMaterial={() => setShowNewMaterial(true)}
+            onDelete={async (id) => { if (confirm('Excluir este material?')) { await deleteMaterial(id); reload(); } }}
+          />
+        )}
+        {tab === 'analytics' && <AnalyticsTab stats={stats} videos={videos} />}
+
+        {/* Modals */}
+        {showNewVideo && (
+          <NewVideoModal
+            series={series}
+            onClose={() => setShowNewVideo(false)}
+            onCreated={() => { setShowNewVideo(false); reload(); }}
+          />
+        )}
+        {showNewSeries && (
+          <NewSeriesModal
+            onClose={() => setShowNewSeries(false)}
+            onCreated={() => { setShowNewSeries(false); reload(); }}
+          />
+        )}
+        {showNewTrail && (
+          <NewTrailModal
+            series={series}
+            onClose={() => setShowNewTrail(false)}
+            onCreated={() => { setShowNewTrail(false); reload(); }}
+          />
+        )}
+        {showNewMaterial && (
+          <NewMaterialModal
+            series={series}
+            onClose={() => setShowNewMaterial(false)}
+            onCreated={() => { setShowNewMaterial(false); reload(); }}
+          />
+        )}
+        {quizEditVideoId && (
+          <QuizEditor
+            videoId={quizEditVideoId}
+            videoTitle={videos.find(v => v.id === quizEditVideoId)?.title ?? ''}
+            onClose={() => setQuizEditVideoId(null)}
+            onSaved={() => { setQuizEditVideoId(null); reload(); }}
+          />
+        )}
+      </div>
+    </PlanGate>
   );
 }
 

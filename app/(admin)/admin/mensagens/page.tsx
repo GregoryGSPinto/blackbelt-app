@@ -11,6 +11,7 @@ import {
 } from '@/components/shared/messaging';
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function AdminMensagensPage() {
   const { profile } = useAuth();
@@ -61,67 +62,69 @@ export default function AdminMensagensPage() {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* ── LIST PANEL ────────────────────────────────────── */}
-      <div
-        className={`flex w-full flex-col md:w-80 lg:w-96 ${
-          mobileView === 'chat' ? 'hidden md:flex' : 'flex'
-        }`}
-        style={{
-          borderRight: '1px solid var(--bb-glass-border)',
-        }}
-      >
-        <ConversationList
-          key={listKey}
-          profileId={profileId}
-          role={Role.Admin}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
-          selectedConversationId={selectedConversation?.id}
-          canBroadcast
-          onComposeBroadcast={() => setBroadcastOpen(true)}
-          className="h-full"
-        />
-      </div>
-
-      {/* ── CHAT PANEL ────────────────────────────────────── */}
-      <div
-        className={`flex flex-1 flex-col ${
-          mobileView === 'list' ? 'hidden md:flex' : 'flex'
-        }`}
-      >
-        {selectedConversation ? (
-          <ChatView
-            conversationId={selectedConversation.id}
-            currentProfileId={profileId}
-            otherParticipant={selectedConversation.other_participant}
-            onBack={handleBack}
+    <PlanGate module="mensagens">
+      <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+        {/* ── LIST PANEL ────────────────────────────────────── */}
+        <div
+          className={`flex w-full flex-col md:w-80 lg:w-96 ${
+            mobileView === 'chat' ? 'hidden md:flex' : 'flex'
+          }`}
+          style={{
+            borderRight: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <ConversationList
+            key={listKey}
+            profileId={profileId}
+            role={Role.Admin}
+            onSelectConversation={handleSelectConversation}
+            onNewConversation={handleNewConversation}
+            selectedConversationId={selectedConversation?.id}
+            canBroadcast
+            onComposeBroadcast={() => setBroadcastOpen(true)}
             className="h-full"
           />
-        ) : (
-          <EmptyChat />
-        )}
+        </div>
+
+        {/* ── CHAT PANEL ────────────────────────────────────── */}
+        <div
+          className={`flex flex-1 flex-col ${
+            mobileView === 'list' ? 'hidden md:flex' : 'flex'
+          }`}
+        >
+          {selectedConversation ? (
+            <ChatView
+              conversationId={selectedConversation.id}
+              currentProfileId={profileId}
+              otherParticipant={selectedConversation.other_participant}
+              onBack={handleBack}
+              className="h-full"
+            />
+          ) : (
+            <EmptyChat />
+          )}
+        </div>
+
+        {/* ── MODALS ────────────────────────────────────────── */}
+        <NewConversationModal
+          open={newConvOpen}
+          profileId={profileId}
+          role={Role.Admin}
+          academyId={academyId}
+          onSelect={handleSelectContact}
+          onClose={() => setNewConvOpen(false)}
+        />
+
+        <BroadcastComposer
+          open={broadcastOpen}
+          academyId={academyId}
+          senderId={profileId}
+          role={Role.Admin}
+          onSent={handleBroadcastSent}
+          onClose={() => setBroadcastOpen(false)}
+        />
       </div>
-
-      {/* ── MODALS ────────────────────────────────────────── */}
-      <NewConversationModal
-        open={newConvOpen}
-        profileId={profileId}
-        role={Role.Admin}
-        academyId={academyId}
-        onSelect={handleSelectContact}
-        onClose={() => setNewConvOpen(false)}
-      />
-
-      <BroadcastComposer
-        open={broadcastOpen}
-        academyId={academyId}
-        senderId={profileId}
-        role={Role.Admin}
-        onSent={handleBroadcastSent}
-        onClose={() => setBroadcastOpen(false)}
-      />
-    </div>
+    </PlanGate>
   );
 }
 

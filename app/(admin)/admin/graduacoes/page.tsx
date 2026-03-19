@@ -14,6 +14,7 @@ import {
   rejectPromotion,
   listGraduationHistory,
 } from '@/lib/api/graduation.service';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -318,404 +319,406 @@ export default function GraduacoesPage() {
   ];
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 animate-reveal">
-      {/* Header */}
-      <div>
-        <h1
-          className="text-xl font-bold sm:text-2xl"
-          style={{ color: 'var(--bb-ink-100)' }}
-        >
-          Graduacoes
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Gerencie promocoes de faixa e historico de graduacoes
-        </p>
-      </div>
+    <PlanGate module="graduacoes">
+      <div className="space-y-6 p-4 sm:p-6 animate-reveal">
+        {/* Header */}
+        <div>
+          <h1
+            className="text-xl font-bold sm:text-2xl"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            Graduacoes
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Gerencie promocoes de faixa e historico de graduacoes
+          </p>
+        </div>
 
-      {/* Tab Selector */}
-      <div
-        className="flex gap-1 rounded-xl p-1"
-        style={{
-          background: 'var(--bb-depth-2)',
-          border: '1px solid var(--bb-glass-border)',
-        }}
-      >
-        {tabs.map((t) => {
-          const isActive = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all"
-              style={{
-                background: isActive ? 'var(--bb-depth-4)' : 'transparent',
-                color: isActive ? 'var(--bb-ink-100)' : 'var(--bb-ink-60)',
-                boxShadow: isActive ? 'var(--bb-shadow-sm)' : 'none',
-              }}
-            >
-              {t.label}
-              <span
-                className="rounded-full px-2 py-0.5 text-xs"
+        {/* Tab Selector */}
+        <div
+          className="flex gap-1 rounded-xl p-1"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          {tabs.map((t) => {
+            const isActive = tab === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all"
                 style={{
-                  background: isActive ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
-                  color: isActive ? '#fff' : 'var(--bb-ink-60)',
+                  background: isActive ? 'var(--bb-depth-4)' : 'transparent',
+                  color: isActive ? 'var(--bb-ink-100)' : 'var(--bb-ink-60)',
+                  boxShadow: isActive ? 'var(--bb-shadow-sm)' : 'none',
                 }}
               >
-                {t.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ─── Pending Tab ──────────────────────────────────────────── */}
-      {tab === 'pending' && (
-        <div ref={listRef} className="space-y-4">
-          {pending.length === 0 ? (
-            <div
-              className="py-16 text-center rounded-xl"
-              style={{
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Nenhuma graduacao pendente no momento.
-              </p>
-            </div>
-          ) : (
-            pending.map((promo, index) => {
-              const allMet =
-                promo.criteria_met.attendance.met &&
-                promo.criteria_met.months.met &&
-                promo.criteria_met.quiz_avg.met;
-              return (
-                <Card
-                  key={promo.id}
-                  className="p-4 sm:p-5"
+                {t.label}
+                <span
+                  className="rounded-full px-2 py-0.5 text-xs"
                   style={{
-                    animationDelay: `${index * 80}ms`,
+                    background: isActive ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
+                    color: isActive ? '#fff' : 'var(--bb-ink-60)',
                   }}
-                  data-stagger={index}
                 >
-                  {/* Header */}
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-                        style={{
-                          background: 'var(--bb-brand-surface)',
-                          color: 'var(--bb-brand)',
-                        }}
-                      >
-                        {promo.student_name.charAt(0)}
-                      </div>
-                      <div>
-                        <h3
-                          className="font-semibold"
-                          style={{ color: 'var(--bb-ink-100)' }}
-                        >
-                          {promo.student_name}
-                        </h3>
-                        <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                          Proposto por {promo.proposed_by_name} em{' '}
-                          {formatDate(promo.proposed_at)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BeltBadge belt={promo.from_belt} />
-                      <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
-                      <BeltBadge belt={promo.to_belt} />
-                    </div>
-                  </div>
-
-                  {/* Criteria */}
-                  <div
-                    className="mt-4 rounded-lg p-3 sm:p-4"
-                    style={{
-                      background: 'var(--bb-depth-2)',
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <span
-                        className="text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: 'var(--bb-ink-60)' }}
-                      >
-                        Criterios de Promocao
-                      </span>
-                      <span
-                        className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                        style={{
-                          background: allMet
-                            ? 'rgba(34,197,94,0.15)'
-                            : 'rgba(239,68,68,0.15)',
-                          color: allMet ? '#22c55e' : '#ef4444',
-                        }}
-                      >
-                        {allMet ? 'Todos atendidos' : 'Pendencias'}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                      <CriteriaIndicator
-                        label="Presencas"
-                        required={promo.criteria_met.attendance.required}
-                        current={promo.criteria_met.attendance.current}
-                        met={promo.criteria_met.attendance.met}
-                        unit=""
-                      />
-                      <CriteriaIndicator
-                        label="Meses"
-                        required={promo.criteria_met.months.required}
-                        current={promo.criteria_met.months.current}
-                        met={promo.criteria_met.months.met}
-                        unit="m"
-                      />
-                      <CriteriaIndicator
-                        label="Media Quiz"
-                        required={promo.criteria_met.quiz_avg.required}
-                        current={promo.criteria_met.quiz_avg.current}
-                        met={promo.criteria_met.quiz_avg.met}
-                        unit="%"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={actionLoading === promo.id}
-                      onClick={() =>
-                        setConfirmAction({ type: 'reject', promo })
-                      }
-                    >
-                      Rejeitar
-                    </Button>
-                    <Button
-                      size="sm"
-                      disabled={actionLoading === promo.id}
-                      loading={actionLoading === promo.id}
-                      onClick={() =>
-                        setConfirmAction({ type: 'approve', promo })
-                      }
-                    >
-                      Aprovar Graduacao
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })
-          )}
+                  {t.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      {/* ─── History Tab ──────────────────────────────────────────── */}
-      {tab === 'history' && (
-        <div className="space-y-4">
-          {history.length === 0 ? (
-            <div
-              className="py-16 text-center rounded-xl"
-              style={{
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Nenhuma graduacao registrada ainda.
-              </p>
-            </div>
-          ) : (
-            <div className="relative">
-              {/* Timeline line */}
+        {/* ─── Pending Tab ──────────────────────────────────────────── */}
+        {tab === 'pending' && (
+          <div ref={listRef} className="space-y-4">
+            {pending.length === 0 ? (
               <div
-                className="absolute left-5 top-0 bottom-0 hidden w-px sm:block"
-                style={{ background: 'var(--bb-glass-border)' }}
-              />
-
-              {history.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="relative flex gap-4 pb-6 animate-reveal"
-                  style={{ animationDelay: `${index * 80}ms` }}
-                  data-stagger={index}
-                >
-                  {/* Timeline dot */}
-                  <div className="relative z-10 hidden sm:block">
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-full"
-                      style={{
-                        background: BELT_COLORS[item.to_belt],
-                        border: '3px solid var(--bb-depth-1)',
-                        boxShadow: 'var(--bb-shadow-sm)',
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke={
-                          item.to_belt === BeltLevel.White ||
-                          item.to_belt === BeltLevel.Yellow
-                            ? '#1a1a1a'
-                            : '#ffffff'
-                        }
-                        strokeWidth={2}
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Card */}
-                  <Card className="flex-1 p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <h4
-                          className="font-semibold"
-                          style={{ color: 'var(--bb-ink-100)' }}
-                        >
-                          {item.student_name}
-                        </h4>
-                        <div className="mt-1 flex items-center gap-2">
-                          <BeltBadge belt={item.from_belt} />
-                          <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
-                          <BeltBadge belt={item.to_belt} />
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                          {formatDate(item.approved_at)}
-                        </p>
-                        <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                          por {item.approved_by_name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        onClick={() => setCertItem(item)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-                        style={{
-                          background: 'var(--bb-brand-surface)',
-                          color: 'var(--bb-brand)',
-                          border: '1px solid var(--bb-brand)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-brand)';
-                          e.currentTarget.style.color = '#fff';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'var(--bb-brand-surface)';
-                          e.currentTarget.style.color = 'var(--bb-brand)';
-                        }}
-                      >
-                        Ver Certificado
-                      </button>
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ─── Confirm Action Modal ─────────────────────────────────── */}
-      <Modal
-        open={!!confirmAction}
-        onClose={() => setConfirmAction(null)}
-        title={
-          confirmAction?.type === 'approve'
-            ? 'Aprovar Graduacao'
-            : 'Rejeitar Graduacao'
-        }
-      >
-        {confirmAction && (
-          <div className="space-y-4">
-            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-              {confirmAction.type === 'approve'
-                ? `Confirma a promocao de ${confirmAction.promo.student_name} de faixa ${BELT_LABELS[confirmAction.promo.from_belt]} para ${BELT_LABELS[confirmAction.promo.to_belt]}?`
-                : `Tem certeza que deseja rejeitar a promocao de ${confirmAction.promo.student_name}?`}
-            </p>
-
-            {confirmAction.type === 'approve' && (
-              <div
-                className="rounded-lg p-3"
+                className="py-16 text-center rounded-xl"
                 style={{
                   background: 'var(--bb-depth-2)',
                   border: '1px solid var(--bb-glass-border)',
                 }}
               >
-                <div className="flex items-center justify-center gap-3">
-                  <BeltBadge belt={confirmAction.promo.from_belt} />
-                  <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
-                  <BeltBadge belt={confirmAction.promo.to_belt} />
-                </div>
+                <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                  Nenhuma graduacao pendente no momento.
+                </p>
+              </div>
+            ) : (
+              pending.map((promo, index) => {
+                const allMet =
+                  promo.criteria_met.attendance.met &&
+                  promo.criteria_met.months.met &&
+                  promo.criteria_met.quiz_avg.met;
+                return (
+                  <Card
+                    key={promo.id}
+                    className="p-4 sm:p-5"
+                    style={{
+                      animationDelay: `${index * 80}ms`,
+                    }}
+                    data-stagger={index}
+                  >
+                    {/* Header */}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                          style={{
+                            background: 'var(--bb-brand-surface)',
+                            color: 'var(--bb-brand)',
+                          }}
+                        >
+                          {promo.student_name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3
+                            className="font-semibold"
+                            style={{ color: 'var(--bb-ink-100)' }}
+                          >
+                            {promo.student_name}
+                          </h3>
+                          <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                            Proposto por {promo.proposed_by_name} em{' '}
+                            {formatDate(promo.proposed_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <BeltBadge belt={promo.from_belt} />
+                        <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
+                        <BeltBadge belt={promo.to_belt} />
+                      </div>
+                    </div>
+
+                    {/* Criteria */}
+                    <div
+                      className="mt-4 rounded-lg p-3 sm:p-4"
+                      style={{
+                        background: 'var(--bb-depth-2)',
+                        border: '1px solid var(--bb-glass-border)',
+                      }}
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <span
+                          className="text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: 'var(--bb-ink-60)' }}
+                        >
+                          Criterios de Promocao
+                        </span>
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                          style={{
+                            background: allMet
+                              ? 'rgba(34,197,94,0.15)'
+                              : 'rgba(239,68,68,0.15)',
+                            color: allMet ? '#22c55e' : '#ef4444',
+                          }}
+                        >
+                          {allMet ? 'Todos atendidos' : 'Pendencias'}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                        <CriteriaIndicator
+                          label="Presencas"
+                          required={promo.criteria_met.attendance.required}
+                          current={promo.criteria_met.attendance.current}
+                          met={promo.criteria_met.attendance.met}
+                          unit=""
+                        />
+                        <CriteriaIndicator
+                          label="Meses"
+                          required={promo.criteria_met.months.required}
+                          current={promo.criteria_met.months.current}
+                          met={promo.criteria_met.months.met}
+                          unit="m"
+                        />
+                        <CriteriaIndicator
+                          label="Media Quiz"
+                          required={promo.criteria_met.quiz_avg.required}
+                          current={promo.criteria_met.quiz_avg.current}
+                          met={promo.criteria_met.quiz_avg.met}
+                          unit="%"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={actionLoading === promo.id}
+                        onClick={() =>
+                          setConfirmAction({ type: 'reject', promo })
+                        }
+                      >
+                        Rejeitar
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={actionLoading === promo.id}
+                        loading={actionLoading === promo.id}
+                        onClick={() =>
+                          setConfirmAction({ type: 'approve', promo })
+                        }
+                      >
+                        Aprovar Graduacao
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* ─── History Tab ──────────────────────────────────────────── */}
+        {tab === 'history' && (
+          <div className="space-y-4">
+            {history.length === 0 ? (
+              <div
+                className="py-16 text-center rounded-xl"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                  Nenhuma graduacao registrada ainda.
+                </p>
+              </div>
+            ) : (
+              <div className="relative">
+                {/* Timeline line */}
+                <div
+                  className="absolute left-5 top-0 bottom-0 hidden w-px sm:block"
+                  style={{ background: 'var(--bb-glass-border)' }}
+                />
+
+                {history.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="relative flex gap-4 pb-6 animate-reveal"
+                    style={{ animationDelay: `${index * 80}ms` }}
+                    data-stagger={index}
+                  >
+                    {/* Timeline dot */}
+                    <div className="relative z-10 hidden sm:block">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        style={{
+                          background: BELT_COLORS[item.to_belt],
+                          border: '3px solid var(--bb-depth-1)',
+                          boxShadow: 'var(--bb-shadow-sm)',
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke={
+                            item.to_belt === BeltLevel.White ||
+                            item.to_belt === BeltLevel.Yellow
+                              ? '#1a1a1a'
+                              : '#ffffff'
+                          }
+                          strokeWidth={2}
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Card */}
+                    <Card className="flex-1 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h4
+                            className="font-semibold"
+                            style={{ color: 'var(--bb-ink-100)' }}
+                          >
+                            {item.student_name}
+                          </h4>
+                          <div className="mt-1 flex items-center gap-2">
+                            <BeltBadge belt={item.from_belt} />
+                            <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
+                            <BeltBadge belt={item.to_belt} />
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                            {formatDate(item.approved_at)}
+                          </p>
+                          <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                            por {item.approved_by_name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          onClick={() => setCertItem(item)}
+                          className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                          style={{
+                            background: 'var(--bb-brand-surface)',
+                            color: 'var(--bb-brand)',
+                            border: '1px solid var(--bb-brand)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'var(--bb-brand)';
+                            e.currentTarget.style.color = '#fff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--bb-brand-surface)';
+                            e.currentTarget.style.color = 'var(--bb-brand)';
+                          }}
+                        >
+                          Ver Certificado
+                        </button>
+                      </div>
+                    </Card>
+                  </div>
+                ))}
               </div>
             )}
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onClick={() => setConfirmAction(null)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant={confirmAction.type === 'approve' ? 'primary' : 'danger'}
-                className="flex-1"
-                loading={actionLoading === confirmAction.promo.id}
-                onClick={() =>
-                  confirmAction.type === 'approve'
-                    ? handleApprove(confirmAction.promo)
-                    : handleReject(confirmAction.promo)
-                }
-              >
-                {confirmAction.type === 'approve' ? 'Aprovar' : 'Rejeitar'}
-              </Button>
-            </div>
           </div>
         )}
-      </Modal>
 
-      {/* ─── Certificate Modal ────────────────────────────────────── */}
-      <Modal
-        open={!!certItem}
-        onClose={() => setCertItem(null)}
-        title="Certificado de Graduacao"
-      >
-        {certItem && (
-          <div className="space-y-4">
-            <CertificatePreview
-              studentName={certItem.student_name}
-              fromBelt={certItem.from_belt}
-              toBelt={certItem.to_belt}
-              approvedByName={certItem.approved_by_name}
-              approvedAt={certItem.approved_at}
-            />
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onClick={() => setCertItem(null)}
-              >
-                Fechar
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={() => toast('PDF sera gerado em breve!', 'info')}
-              >
-                Gerar PDF
-              </Button>
+        {/* ─── Confirm Action Modal ─────────────────────────────────── */}
+        <Modal
+          open={!!confirmAction}
+          onClose={() => setConfirmAction(null)}
+          title={
+            confirmAction?.type === 'approve'
+              ? 'Aprovar Graduacao'
+              : 'Rejeitar Graduacao'
+          }
+        >
+          {confirmAction && (
+            <div className="space-y-4">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                {confirmAction.type === 'approve'
+                  ? `Confirma a promocao de ${confirmAction.promo.student_name} de faixa ${BELT_LABELS[confirmAction.promo.from_belt]} para ${BELT_LABELS[confirmAction.promo.to_belt]}?`
+                  : `Tem certeza que deseja rejeitar a promocao de ${confirmAction.promo.student_name}?`}
+              </p>
+
+              {confirmAction.type === 'approve' && (
+                <div
+                  className="rounded-lg p-3"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <BeltBadge belt={confirmAction.promo.from_belt} />
+                    <span style={{ color: 'var(--bb-ink-40)' }}>&rarr;</span>
+                    <BeltBadge belt={confirmAction.promo.to_belt} />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => setConfirmAction(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant={confirmAction.type === 'approve' ? 'primary' : 'danger'}
+                  className="flex-1"
+                  loading={actionLoading === confirmAction.promo.id}
+                  onClick={() =>
+                    confirmAction.type === 'approve'
+                      ? handleApprove(confirmAction.promo)
+                      : handleReject(confirmAction.promo)
+                  }
+                >
+                  {confirmAction.type === 'approve' ? 'Aprovar' : 'Rejeitar'}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
-      </Modal>
-    </div>
+          )}
+        </Modal>
+
+        {/* ─── Certificate Modal ────────────────────────────────────── */}
+        <Modal
+          open={!!certItem}
+          onClose={() => setCertItem(null)}
+          title="Certificado de Graduacao"
+        >
+          {certItem && (
+            <div className="space-y-4">
+              <CertificatePreview
+                studentName={certItem.student_name}
+                fromBelt={certItem.from_belt}
+                toBelt={certItem.to_belt}
+                approvedByName={certItem.approved_by_name}
+                approvedAt={certItem.approved_at}
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => setCertItem(null)}
+                >
+                  Fechar
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => toast('PDF sera gerado em breve!', 'info')}
+                >
+                  Gerar PDF
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      </div>
+    </PlanGate>
   );
 }

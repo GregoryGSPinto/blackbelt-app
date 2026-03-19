@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider } from '@/lib/contexts/AuthContext';
+import { PlanProvider } from '@/lib/contexts/PlanContext';
 import { ToastProvider } from '@/lib/contexts/ToastContext';
 import { ThemeProvider } from '@/lib/contexts/ThemeContext';
 import { TutorialProvider } from '@/components/tutorial/TutorialProvider';
@@ -14,16 +15,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <TutorialProvider>
-          <ToastProvider>
-            {children}
-            <WelcomeMessage />
-            <TutorialWelcome />
-            <TutorialOverlay />
-            <TutorialComplete />
-            <TelemetryInit />
-          </ToastProvider>
-        </TutorialProvider>
+        <PlanProvider>
+          <TutorialProvider>
+            <ToastProvider>
+              {children}
+              <WelcomeMessage />
+              <TutorialWelcome />
+              <TutorialOverlay />
+              <TutorialComplete />
+              <TelemetryInit />
+            </ToastProvider>
+          </TutorialProvider>
+        </PlanProvider>
       </AuthProvider>
     </ThemeProvider>
   );

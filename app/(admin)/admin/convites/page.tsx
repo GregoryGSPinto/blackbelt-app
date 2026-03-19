@@ -15,6 +15,7 @@ import {
   deleteInviteToken,
   getInviteStats,
 } from '@/lib/api/invite-tokens.service';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -262,6 +263,7 @@ export default function ConvitesPage() {
   };
 
   return (
+    <PlanGate module="convites">
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -802,5 +804,6 @@ export default function ConvitesPage() {
         )}
       </Modal>
     </div>
+    </PlanGate>
   );
 }

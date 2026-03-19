@@ -7,7 +7,11 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { usePlan } from '@/lib/hooks/usePlan';
 import { getAlerts } from '@/lib/api/billing.service';
+import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
+import { TrialBanner } from '@/components/plans/TrialBanner';
+import { DiscoveryBanner } from '@/components/plans/DiscoveryBanner';
 import {
   HomeIcon,
   CalendarIcon,
@@ -38,6 +42,7 @@ import {
   GlobeIcon,
   TrophyIcon,
   MessageIcon,
+  LockIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -154,6 +159,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const pathname = usePathname();
     const router = useRouter();
     const { profile, logout } = useAuth();
+    const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -300,6 +306,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                     const Icon = item.icon;
                     const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
                     const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                    const moduleForLink = PAGE_MODULE_MAP[item.href];
+                    const isLocked = moduleForLink ? !hasAccess(moduleForLink) : false;
                     return (
                       <Link
                         key={item.href}
@@ -309,6 +317,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         style={{
                           padding: '10px 16px',
                           borderRadius: 'var(--bb-radius-sm)',
+                          opacity: isLocked ? 0.5 : 1,
                           ...(isActive
                             ? {
                                 background: 'var(--bb-brand-surface)',
@@ -334,7 +343,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                       >
                         <Icon className="h-5 w-5" />
                         {item.label}
-                        {showBadge && (
+                        {isLocked && <LockIcon className="ml-auto h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />}
+                        {showBadge && !isLocked && (
                           <span
                             className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
                             style={{ background: '#F59E0B' }}
@@ -397,6 +407,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         const Icon = item.icon;
                         const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
                         const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                        const moduleForLink = PAGE_MODULE_MAP[item.href];
+                        const isLocked = moduleForLink ? !hasAccess(moduleForLink) : false;
                         return (
                           <Link
                             key={item.href}
@@ -407,6 +419,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                             style={{
                               padding: '10px 16px',
                               borderRadius: 'var(--bb-radius-sm)',
+                              opacity: isLocked ? 0.5 : 1,
                               ...(isActive
                                 ? {
                                     background: 'var(--bb-brand-surface)',
@@ -432,7 +445,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                           >
                             <Icon className="h-5 w-5" />
                             {item.label}
-                            {showBadge && (
+                            {isLocked && <LockIcon className="ml-auto h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />}
+                            {showBadge && !isLocked && (
                               <span
                                 className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
                                 style={{ background: '#F59E0B' }}
@@ -706,7 +720,11 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               </div>
             </div>
           </header>
-          <main className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>{children}</main>
+          <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
+            {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
+            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
+            <main>{children}</main>
+          </div>
         </div>
 
         {/* Command Palette (Search) */}

@@ -8,6 +8,7 @@ import {
 } from '@/lib/api/landing-page.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -303,210 +304,124 @@ export default function AdminSitePage() {
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 animate-reveal overflow-x-hidden">
-      {/* ── Page header ──────────────────────────────────────────── */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <IconGlobe size={24} color="var(--bb-brand)" />
-          <h1
-            className="font-display text-xl font-bold sm:text-2xl"
-            style={{ color: 'var(--bb-ink-100)' }}
-          >
-            Meu Site
-          </h1>
-        </div>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Personalize a pagina publica da sua academia
-        </p>
-      </div>
-
-      <div data-stagger className="space-y-6 max-w-3xl">
-        {/* ── Link preview ─────────────────────────────────────────── */}
-        {slug && (
-          <div
-            className="flex items-center gap-3 p-4"
-            style={{
-              background: 'var(--bb-brand-surface)',
-              border: '1px solid var(--bb-brand)',
-              borderRadius: 'var(--bb-radius-lg)',
-            }}
-          >
-            <IconGlobe size={18} color="var(--bb-brand)" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-                URL publica
-              </p>
-              <p
-                className="truncate text-sm font-mono font-medium"
-                style={{ color: 'var(--bb-ink-100)' }}
-              >
-                {BASE_URL}/g/{slug}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleCopyUrl}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
-              style={{
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-                borderRadius: 'var(--bb-radius-sm)',
-                color: 'var(--bb-ink-80)',
-                minHeight: '44px',
-              }}
+    <PlanGate module="landing_page">
+      <div className="min-h-screen p-4 sm:p-6 animate-reveal overflow-x-hidden">
+        {/* ── Page header ──────────────────────────────────────────── */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3">
+            <IconGlobe size={24} color="var(--bb-brand)" />
+            <h1
+              className="font-display text-xl font-bold sm:text-2xl"
+              style={{ color: 'var(--bb-ink-100)' }}
             >
-              <IconCopy size={14} color="var(--bb-ink-60)" />
-              Copiar
-            </button>
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
-              style={{
-                background: 'var(--bb-brand)',
-                color: '#fff',
-                borderRadius: 'var(--bb-radius-sm)',
-                minHeight: '44px',
-              }}
-            >
-              <IconExternalLink size={14} color="#fff" />
-              Visitar
-            </button>
+              Meu Site
+            </h1>
           </div>
-        )}
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Personalize a pagina publica da sua academia
+          </p>
+        </div>
 
-        {/* ── Informacoes Basicas ───────────────────────────────────── */}
-        <section>
-          <SectionHeader icon={IconGlobe} title="Informacoes Basicas" />
-          <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
-            {/* Nome da academia */}
-            <div>
-              <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                Nome da Academia
-              </label>
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Ex: Guerreiros BJJ"
-                className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
-                style={inputStyle}
-              />
-            </div>
-
-            {/* Descricao */}
-            <div>
-              <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                Descricao
-              </label>
-              <textarea
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                placeholder="Descreva sua academia em poucas palavras..."
-                rows={4}
-                className="w-full resize-none px-3 py-2.5 text-sm outline-none transition-colors"
-                style={inputStyle}
-              />
-              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                Esta descricao aparece na pagina publica e nos resultados de busca
-              </p>
-            </div>
-
-            {/* Slug */}
-            <div>
-              <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                Slug (URL)
-              </label>
-              <div className="flex items-stretch">
-                <span
-                  className="flex items-center px-3 text-xs font-mono"
-                  style={{
-                    background: 'var(--bb-depth-1)',
-                    border: '1px solid var(--bb-glass-border)',
-                    borderRight: 'none',
-                    borderRadius: 'var(--bb-radius-sm) 0 0 var(--bb-radius-sm)',
-                    color: 'var(--bb-ink-40)',
-                  }}
+        <div data-stagger className="space-y-6 max-w-3xl">
+          {/* ── Link preview ─────────────────────────────────────────── */}
+          {slug && (
+            <div
+              className="flex items-center gap-3 p-4"
+              style={{
+                background: 'var(--bb-brand-surface)',
+                border: '1px solid var(--bb-brand)',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
+            >
+              <IconGlobe size={18} color="var(--bb-brand)" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  URL publica
+                </p>
+                <p
+                  className="truncate text-sm font-mono font-medium"
+                  style={{ color: 'var(--bb-ink-100)' }}
                 >
-                  {BASE_URL}/g/
-                </span>
+                  {BASE_URL}/g/{slug}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyUrl}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                  borderRadius: 'var(--bb-radius-sm)',
+                  color: 'var(--bb-ink-80)',
+                  minHeight: '44px',
+                }}
+              >
+                <IconCopy size={14} color="var(--bb-ink-60)" />
+                Copiar
+              </button>
+              <button
+                type="button"
+                onClick={handlePreview}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+                style={{
+                  background: 'var(--bb-brand)',
+                  color: '#fff',
+                  borderRadius: 'var(--bb-radius-sm)',
+                  minHeight: '44px',
+                }}
+              >
+                <IconExternalLink size={14} color="#fff" />
+                Visitar
+              </button>
+            </div>
+          )}
+
+          {/* ── Informacoes Basicas ───────────────────────────────────── */}
+          <section>
+            <SectionHeader icon={IconGlobe} title="Informacoes Basicas" />
+            <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
+              {/* Nome da academia */}
+              <div>
+                <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                  Nome da Academia
+                </label>
                 <input
                   type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                  placeholder="minha-academia"
-                  className="flex-1 px-3 py-2.5 text-sm font-mono outline-none transition-colors"
-                  style={{
-                    ...inputStyle,
-                    borderRadius: '0 var(--bb-radius-sm) var(--bb-radius-sm) 0',
-                  }}
-                />
-              </div>
-              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                Apenas letras minusculas, numeros e hifens
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Contato ──────────────────────────────────────────────── */}
-        <section>
-          <SectionHeader icon={IconPhone} title="Contato" />
-          <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Telefone */}
-              <div>
-                <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  placeholder="(11) 99999-0000"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Ex: Guerreiros BJJ"
                   className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
                   style={inputStyle}
                 />
               </div>
 
-              {/* WhatsApp */}
+              {/* Descricao */}
               <div>
                 <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  WhatsApp
+                  Descricao
                 </label>
-                <input
-                  type="tel"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="(11) 99999-0000"
-                  className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                <textarea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  placeholder="Descreva sua academia em poucas palavras..."
+                  rows={4}
+                  className="w-full resize-none px-3 py-2.5 text-sm outline-none transition-colors"
                   style={inputStyle}
                 />
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                  Esta descricao aparece na pagina publica e nos resultados de busca
+                </p>
               </div>
 
-              {/* Email */}
+              {/* Slug */}
               <div>
                 <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="contato@suaacademia.com.br"
-                  className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
-                  style={inputStyle}
-                />
-              </div>
-
-              {/* Instagram */}
-              <div>
-                <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  Instagram
+                  Slug (URL)
                 </label>
                 <div className="flex items-stretch">
                   <span
-                    className="flex items-center px-3 text-xs"
+                    className="flex items-center px-3 text-xs font-mono"
                     style={{
                       background: 'var(--bb-depth-1)',
                       border: '1px solid var(--bb-glass-border)',
@@ -515,334 +430,422 @@ export default function AdminSitePage() {
                       color: 'var(--bb-ink-40)',
                     }}
                   >
-                    @
+                    {BASE_URL}/g/
                   </span>
                   <input
                     type="text"
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    placeholder="suaacademia"
-                    className="flex-1 px-3 py-2.5 text-sm outline-none transition-colors"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    placeholder="minha-academia"
+                    className="flex-1 px-3 py-2.5 text-sm font-mono outline-none transition-colors"
                     style={{
                       ...inputStyle,
                       borderRadius: '0 var(--bb-radius-sm) var(--bb-radius-sm) 0',
                     }}
                   />
                 </div>
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                  Apenas letras minusculas, numeros e hifens
+                </p>
               </div>
+            </div>
+          </section>
 
-              {/* Facebook */}
+          {/* ── Contato ──────────────────────────────────────────────── */}
+          <section>
+            <SectionHeader icon={IconPhone} title="Contato" />
+            <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Telefone */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Telefone
+                  </label>
+                  <input
+                    type="tel"
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="(11) 99999-0000"
+                    className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* WhatsApp */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="(11) 99999-0000"
+                    className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="contato@suaacademia.com.br"
+                    className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Instagram
+                  </label>
+                  <div className="flex items-stretch">
+                    <span
+                      className="flex items-center px-3 text-xs"
+                      style={{
+                        background: 'var(--bb-depth-1)',
+                        border: '1px solid var(--bb-glass-border)',
+                        borderRight: 'none',
+                        borderRadius: 'var(--bb-radius-sm) 0 0 var(--bb-radius-sm)',
+                        color: 'var(--bb-ink-40)',
+                      }}
+                    >
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      value={instagram}
+                      onChange={(e) => setInstagram(e.target.value)}
+                      placeholder="suaacademia"
+                      className="flex-1 px-3 py-2.5 text-sm outline-none transition-colors"
+                      style={{
+                        ...inputStyle,
+                        borderRadius: '0 var(--bb-radius-sm) var(--bb-radius-sm) 0',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Facebook */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    Facebook
+                  </label>
+                  <input
+                    type="text"
+                    value={facebook}
+                    onChange={(e) => setFacebook(e.target.value)}
+                    placeholder="facebook.com/suaacademia"
+                    className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* YouTube */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                    YouTube
+                  </label>
+                  <input
+                    type="text"
+                    value={youtube}
+                    onChange={(e) => setYoutube(e.target.value)}
+                    placeholder="youtube.com/@suaacademia"
+                    className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Visual ───────────────────────────────────────────────── */}
+          <section>
+            <SectionHeader icon={IconPalette} title="Visual" />
+            <div style={cardStyle} className="p-4 sm:p-6 space-y-5">
+              {/* Cor primaria */}
               <div>
                 <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  Facebook
+                  Cor Primaria
                 </label>
-                <input
-                  type="text"
-                  value={facebook}
-                  onChange={(e) => setFacebook(e.target.value)}
-                  placeholder="facebook.com/suaacademia"
-                  className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
-                  style={inputStyle}
-                />
-              </div>
-
-              {/* YouTube */}
-              <div>
-                <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                  YouTube
-                </label>
-                <input
-                  type="text"
-                  value={youtube}
-                  onChange={(e) => setYoutube(e.target.value)}
-                  placeholder="youtube.com/@suaacademia"
-                  className="w-full px-3 py-2.5 text-sm outline-none transition-colors"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Visual ───────────────────────────────────────────────── */}
-        <section>
-          <SectionHeader icon={IconPalette} title="Visual" />
-          <div style={cardStyle} className="p-4 sm:p-6 space-y-5">
-            {/* Cor primaria */}
-            <div>
-              <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                Cor Primaria
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={corPrimaria}
-                  onChange={(e) => setCorPrimaria(e.target.value)}
-                  className="h-10 w-10 cursor-pointer rounded border-0"
-                  style={{ background: 'transparent' }}
-                />
-                <input
-                  type="text"
-                  value={corPrimaria}
-                  onChange={(e) => setCorPrimaria(e.target.value)}
-                  className="px-3 py-2.5 text-sm font-mono outline-none transition-colors"
-                  style={inputStyle}
-                />
-                <span
-                  className="h-8 w-8 rounded"
-                  style={{
-                    background: corPrimaria,
-                    border: '1px solid var(--bb-glass-border)',
-                    borderRadius: 'var(--bb-radius-sm)',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Cor secundaria */}
-            <div>
-              <label className="mb-1 block text-sm font-medium" style={labelStyle}>
-                Cor Secundaria
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={corSecundaria}
-                  onChange={(e) => setCorSecundaria(e.target.value)}
-                  className="h-10 w-10 cursor-pointer rounded border-0"
-                  style={{ background: 'transparent' }}
-                />
-                <input
-                  type="text"
-                  value={corSecundaria}
-                  onChange={(e) => setCorSecundaria(e.target.value)}
-                  className="px-3 py-2.5 text-sm font-mono outline-none transition-colors"
-                  style={inputStyle}
-                />
-                <span
-                  className="h-8 w-8 rounded"
-                  style={{
-                    background: corSecundaria,
-                    border: '1px solid var(--bb-glass-border)',
-                    borderRadius: 'var(--bb-radius-sm)',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Tema toggle */}
-            <div>
-              <label className="mb-2 block text-sm font-medium" style={labelStyle}>
-                Tema
-              </label>
-              <div
-                className="inline-flex overflow-hidden"
-                style={{
-                  borderRadius: 'var(--bb-radius-sm)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setTema('claro')}
-                  className="px-4 py-2.5 text-sm font-medium transition-colors"
-                  style={{
-                    background: tema === 'claro' ? 'var(--bb-brand)' : 'var(--bb-depth-2)',
-                    color: tema === 'claro' ? '#fff' : 'var(--bb-ink-60)',
-                    minHeight: '44px',
-                  }}
-                >
-                  Claro
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTema('escuro')}
-                  className="px-4 py-2.5 text-sm font-medium transition-colors"
-                  style={{
-                    background: tema === 'escuro' ? 'var(--bb-brand)' : 'var(--bb-depth-2)',
-                    color: tema === 'escuro' ? '#fff' : 'var(--bb-ink-60)',
-                    minHeight: '44px',
-                  }}
-                >
-                  Escuro
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Planos ───────────────────────────────────────────────── */}
-        <section>
-          <SectionHeader icon={IconTag} title="Planos" />
-          <div style={cardStyle} className="p-4 sm:p-6">
-            {planos.length > 0 ? (
-              <div className="space-y-3">
-                {planos.map((plano, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={corPrimaria}
+                    onChange={(e) => setCorPrimaria(e.target.value)}
+                    className="h-10 w-10 cursor-pointer rounded border-0"
+                    style={{ background: 'transparent' }}
+                  />
+                  <input
+                    type="text"
+                    value={corPrimaria}
+                    onChange={(e) => setCorPrimaria(e.target.value)}
+                    className="px-3 py-2.5 text-sm font-mono outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                  <span
+                    className="h-8 w-8 rounded"
                     style={{
-                      background: plano.destaque ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)',
-                      border: plano.destaque ? '1px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
+                      background: corPrimaria,
+                      border: '1px solid var(--bb-glass-border)',
                       borderRadius: 'var(--bb-radius-sm)',
                     }}
+                  />
+                </div>
+              </div>
+
+              {/* Cor secundaria */}
+              <div>
+                <label className="mb-1 block text-sm font-medium" style={labelStyle}>
+                  Cor Secundaria
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={corSecundaria}
+                    onChange={(e) => setCorSecundaria(e.target.value)}
+                    className="h-10 w-10 cursor-pointer rounded border-0"
+                    style={{ background: 'transparent' }}
+                  />
+                  <input
+                    type="text"
+                    value={corSecundaria}
+                    onChange={(e) => setCorSecundaria(e.target.value)}
+                    className="px-3 py-2.5 text-sm font-mono outline-none transition-colors"
+                    style={inputStyle}
+                  />
+                  <span
+                    className="h-8 w-8 rounded"
+                    style={{
+                      background: corSecundaria,
+                      border: '1px solid var(--bb-glass-border)',
+                      borderRadius: 'var(--bb-radius-sm)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Tema toggle */}
+              <div>
+                <label className="mb-2 block text-sm font-medium" style={labelStyle}>
+                  Tema
+                </label>
+                <div
+                  className="inline-flex overflow-hidden"
+                  style={{
+                    borderRadius: 'var(--bb-radius-sm)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setTema('claro')}
+                    className="px-4 py-2.5 text-sm font-medium transition-colors"
+                    style={{
+                      background: tema === 'claro' ? 'var(--bb-brand)' : 'var(--bb-depth-2)',
+                      color: tema === 'claro' ? '#fff' : 'var(--bb-ink-60)',
+                      minHeight: '44px',
+                    }}
                   >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                          {plano.nome}
+                    Claro
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTema('escuro')}
+                    className="px-4 py-2.5 text-sm font-medium transition-colors"
+                    style={{
+                      background: tema === 'escuro' ? 'var(--bb-brand)' : 'var(--bb-depth-2)',
+                      color: tema === 'escuro' ? '#fff' : 'var(--bb-ink-60)',
+                      minHeight: '44px',
+                    }}
+                  >
+                    Escuro
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Planos ───────────────────────────────────────────────── */}
+          <section>
+            <SectionHeader icon={IconTag} title="Planos" />
+            <div style={cardStyle} className="p-4 sm:p-6">
+              {planos.length > 0 ? (
+                <div className="space-y-3">
+                  {planos.map((plano, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between gap-4 px-4 py-3"
+                      style={{
+                        background: plano.destaque ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)',
+                        border: plano.destaque ? '1px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
+                        borderRadius: 'var(--bb-radius-sm)',
+                      }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                            {plano.nome}
+                          </p>
+                          {plano.destaque && (
+                            <span
+                              className="rounded px-2 py-0.5 text-xs font-medium"
+                              style={{
+                                background: 'var(--bb-brand)',
+                                color: '#fff',
+                                borderRadius: 'var(--bb-radius-sm)',
+                              }}
+                            >
+                              Destaque
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                          R$ {plano.preco.toFixed(2).replace('.', ',')} / {plano.periodo}
                         </p>
-                        {plano.destaque && (
-                          <span
-                            className="rounded px-2 py-0.5 text-xs font-medium"
-                            style={{
-                              background: 'var(--bb-brand)',
-                              color: '#fff',
-                              borderRadius: 'var(--bb-radius-sm)',
-                            }}
-                          >
-                            Destaque
-                          </span>
-                        )}
                       </div>
-                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                        R$ {plano.preco.toFixed(2).replace('.', ',')} / {plano.periodo}
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                        {plano.beneficios.length} beneficio{plano.beneficios.length !== 1 ? 's' : ''}
                       </p>
                     </div>
-                    <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                      {plano.beneficios.length} beneficio{plano.beneficios.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                ))}
-                <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                  Para editar planos, acesse Configuracoes &gt; Planos
-                </p>
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                  Nenhum plano cadastrado
-                </p>
-                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                  Cadastre planos em Configuracoes &gt; Planos para exibi-los no site
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* ── Aula Experimental ─────────────────────────────────────── */}
-        <section>
-          <SectionHeader icon={IconCalendarCheck} title="Aula Experimental" />
-          <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
-            {/* Toggle on/off */}
-            <div
-              className="flex items-center justify-between gap-4"
-              style={{ borderBottom: '1px solid var(--bb-glass-border)', paddingBottom: '16px' }}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                  Aula experimental ativa
-                </p>
-                <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                  Permite que visitantes agendem uma aula gratuita pelo site
-                </p>
-              </div>
-              <ToggleSwitch
-                enabled={experimentalAtiva}
-                onToggle={() => setExperimentalAtiva(!experimentalAtiva)}
-                label="Ativar aula experimental"
-              />
+                  ))}
+                  <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                    Para editar planos, acesse Configuracoes &gt; Planos
+                  </p>
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                    Nenhum plano cadastrado
+                  </p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                    Cadastre planos em Configuracoes &gt; Planos para exibi-los no site
+                  </p>
+                </div>
+              )}
             </div>
+          </section>
 
-            {/* Turmas list */}
-            {experimentalAtiva && (
-              <div>
-                <p className="mb-2 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-                  Turmas que aceitam aula experimental
-                </p>
-                {uniqueTurmas.length > 0 ? (
-                  <div className="space-y-2">
-                    {uniqueTurmas.map((turma) => (
-                      <label
-                        key={turma}
-                        className="flex cursor-pointer items-center gap-3 rounded px-3 py-2.5 transition-colors"
-                        style={{
-                          background: turmasExperimental.includes(turma)
-                            ? 'var(--bb-brand-surface)'
-                            : 'var(--bb-depth-2)',
-                          border: turmasExperimental.includes(turma)
-                            ? '1px solid var(--bb-brand)'
-                            : '1px solid var(--bb-glass-border)',
-                          borderRadius: 'var(--bb-radius-sm)',
-                          minHeight: '44px',
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={turmasExperimental.includes(turma)}
-                          onChange={() => toggleTurmaExperimental(turma)}
-                          className="h-4 w-4 accent-[var(--bb-brand)]"
-                        />
-                        <span
-                          className="text-sm"
+          {/* ── Aula Experimental ─────────────────────────────────────── */}
+          <section>
+            <SectionHeader icon={IconCalendarCheck} title="Aula Experimental" />
+            <div style={cardStyle} className="p-4 sm:p-6 space-y-4">
+              {/* Toggle on/off */}
+              <div
+                className="flex items-center justify-between gap-4"
+                style={{ borderBottom: '1px solid var(--bb-glass-border)', paddingBottom: '16px' }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                    Aula experimental ativa
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    Permite que visitantes agendem uma aula gratuita pelo site
+                  </p>
+                </div>
+                <ToggleSwitch
+                  enabled={experimentalAtiva}
+                  onToggle={() => setExperimentalAtiva(!experimentalAtiva)}
+                  label="Ativar aula experimental"
+                />
+              </div>
+
+              {/* Turmas list */}
+              {experimentalAtiva && (
+                <div>
+                  <p className="mb-2 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+                    Turmas que aceitam aula experimental
+                  </p>
+                  {uniqueTurmas.length > 0 ? (
+                    <div className="space-y-2">
+                      {uniqueTurmas.map((turma) => (
+                        <label
+                          key={turma}
+                          className="flex cursor-pointer items-center gap-3 rounded px-3 py-2.5 transition-colors"
                           style={{
-                            color: turmasExperimental.includes(turma)
-                              ? 'var(--bb-ink-100)'
-                              : 'var(--bb-ink-60)',
+                            background: turmasExperimental.includes(turma)
+                              ? 'var(--bb-brand-surface)'
+                              : 'var(--bb-depth-2)',
+                            border: turmasExperimental.includes(turma)
+                              ? '1px solid var(--bb-brand)'
+                              : '1px solid var(--bb-glass-border)',
+                            borderRadius: 'var(--bb-radius-sm)',
+                            minHeight: '44px',
                           }}
                         >
-                          {turma}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                    Nenhuma turma cadastrada. Cadastre turmas para permitir agendamento experimental.
-                  </p>
-                )}
-              </div>
-            )}
+                          <input
+                            type="checkbox"
+                            checked={turmasExperimental.includes(turma)}
+                            onChange={() => toggleTurmaExperimental(turma)}
+                            className="h-4 w-4 accent-[var(--bb-brand)]"
+                          />
+                          <span
+                            className="text-sm"
+                            style={{
+                              color: turmasExperimental.includes(turma)
+                                ? 'var(--bb-ink-100)'
+                                : 'var(--bb-ink-60)',
+                            }}
+                          >
+                            {turma}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      Nenhuma turma cadastrada. Cadastre turmas para permitir agendamento experimental.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ── Action buttons ───────────────────────────────────────── */}
+          <div className="flex items-center gap-4 pb-8">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all disabled:opacity-50"
+              style={{
+                background: 'var(--bb-brand)',
+                color: '#fff',
+                borderRadius: 'var(--bb-radius-sm)',
+                boxShadow: 'var(--bb-shadow-md)',
+                minHeight: '44px',
+              }}
+            >
+              {saving ? 'Salvando...' : 'Salvar Alteracoes'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePreview}
+              disabled={!slug}
+              className="flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all disabled:opacity-50"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-sm)',
+                color: 'var(--bb-ink-100)',
+                minHeight: '44px',
+              }}
+            >
+              <IconExternalLink size={16} color="var(--bb-ink-60)" />
+              Visualizar Site
+            </button>
           </div>
-        </section>
-
-        {/* ── Action buttons ───────────────────────────────────────── */}
-        <div className="flex items-center gap-4 pb-8">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all disabled:opacity-50"
-            style={{
-              background: 'var(--bb-brand)',
-              color: '#fff',
-              borderRadius: 'var(--bb-radius-sm)',
-              boxShadow: 'var(--bb-shadow-md)',
-              minHeight: '44px',
-            }}
-          >
-            {saving ? 'Salvando...' : 'Salvar Alteracoes'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePreview}
-            disabled={!slug}
-            className="flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all disabled:opacity-50"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-              borderRadius: 'var(--bb-radius-sm)',
-              color: 'var(--bb-ink-100)',
-              minHeight: '44px',
-            }}
-          >
-            <IconExternalLink size={16} color="var(--bb-ink-60)" />
-            Visualizar Site
-          </button>
         </div>
       </div>
-    </div>
+    </PlanGate>
   );
 }

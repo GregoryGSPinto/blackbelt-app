@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const LineChart = dynamic(() => import('recharts').then((m) => m.LineChart), { ssr: false });
@@ -167,622 +168,624 @@ export default function RetencaoPage() {
   const { summary, monthlyData, churnReasons, atRiskStudents } = data;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Title */}
-      <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-        Retencao de Alunos
-      </h1>
+    <PlanGate module="churn_prediction">
+      <div className="space-y-6 p-6">
+        {/* Title */}
+        <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+          Retencao de Alunos
+        </h1>
 
-      {/* Filters */}
-      <Card className="flex flex-wrap items-center gap-3 p-4">
-        <div
-          className="flex overflow-hidden"
-          style={{
-            borderRadius: 'var(--bb-radius-sm)',
-            border: '1px solid var(--bb-glass-border)',
-          }}
-        >
-          {(['3m', '6m', '12m'] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className="px-3 py-1.5 text-sm font-medium transition-colors"
-              style={{
-                background: period === p ? 'var(--bb-brand)' : 'transparent',
-                color: period === p ? '#fff' : 'var(--bb-ink-60)',
-              }}
-            >
-              {p === '3m' ? '3 meses' : p === '6m' ? '6 meses' : '12 meses'}
-            </button>
-          ))}
-        </div>
+        {/* Filters */}
+        <Card className="flex flex-wrap items-center gap-3 p-4">
+          <div
+            className="flex overflow-hidden"
+            style={{
+              borderRadius: 'var(--bb-radius-sm)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            {(['3m', '6m', '12m'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className="px-3 py-1.5 text-sm font-medium transition-colors"
+                style={{
+                  background: period === p ? 'var(--bb-brand)' : 'transparent',
+                  color: period === p ? '#fff' : 'var(--bb-ink-60)',
+                }}
+              >
+                {p === '3m' ? '3 meses' : p === '6m' ? '6 meses' : '12 meses'}
+              </button>
+            ))}
+          </div>
 
-        <select
-          value={modalityFilter}
-          onChange={(e) => setModalityFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm"
-          style={{
-            borderRadius: 'var(--bb-radius-sm)',
-            background: 'var(--bb-depth-4)',
-            color: 'var(--bb-ink-80)',
-            border: '1px solid var(--bb-glass-border)',
-          }}
-        >
-          <option value="">Todas Modalidades</option>
-          {modalities.map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
+          <select
+            value={modalityFilter}
+            onChange={(e) => setModalityFilter(e.target.value)}
+            className="px-3 py-1.5 text-sm"
+            style={{
+              borderRadius: 'var(--bb-radius-sm)',
+              background: 'var(--bb-depth-4)',
+              color: 'var(--bb-ink-80)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            <option value="">Todas Modalidades</option>
+            {modalities.map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
 
-        <select
-          value={classFilter}
-          onChange={(e) => setClassFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm"
-          style={{
-            borderRadius: 'var(--bb-radius-sm)',
-            background: 'var(--bb-depth-4)',
-            color: 'var(--bb-ink-80)',
-            border: '1px solid var(--bb-glass-border)',
-          }}
-        >
-          <option value="">Todas Turmas</option>
-          {classNames.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </Card>
-
-      {/* Donut + Metric Cards */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5" data-stagger>
-        {/* Large Donut */}
-        <Card className="animate-reveal flex flex-col items-center justify-center p-6 lg:col-span-2">
-          <RetentionDonut
-            retention={summary.currentRetention}
-            goal={summary.retentionGoal}
-          />
-          <p className="mt-3 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-            Retencao Atual
-          </p>
-          <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-            Meta: {summary.retentionGoal}%
-          </p>
+          <select
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            className="px-3 py-1.5 text-sm"
+            style={{
+              borderRadius: 'var(--bb-radius-sm)',
+              background: 'var(--bb-depth-4)',
+              color: 'var(--bb-ink-80)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            <option value="">Todas Turmas</option>
+            {classNames.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
         </Card>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-4 lg:col-span-3" data-stagger>
-          <StatCard
-            label="Taxa de Churn"
-            value={`${summary.churnRate}%`}
-            detail="no periodo"
-            variant="danger"
-          />
-          <StatCard
-            label="Alunos Ativos"
-            value={summary.totalActive.toString()}
-            detail={`${summary.totalChurned} cancelamentos`}
-            variant="default"
-          />
-          <StatCard
-            label="Tempo Medio antes de Cancelar"
-            value={`${summary.avgTimeBeforeCancel} meses`}
-            detail="media geral"
-            variant="warning"
-          />
-          <StatCard
-            label="Turma com Mais Churn"
-            value={summary.classWithMostChurn}
-            detail="no periodo"
-            variant="danger"
-          />
+        {/* Donut + Metric Cards */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5" data-stagger>
+          {/* Large Donut */}
+          <Card className="animate-reveal flex flex-col items-center justify-center p-6 lg:col-span-2">
+            <RetentionDonut
+              retention={summary.currentRetention}
+              goal={summary.retentionGoal}
+            />
+            <p className="mt-3 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+              Retencao Atual
+            </p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+              Meta: {summary.retentionGoal}%
+            </p>
+          </Card>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-4 lg:col-span-3" data-stagger>
+            <StatCard
+              label="Taxa de Churn"
+              value={`${summary.churnRate}%`}
+              detail="no periodo"
+              variant="danger"
+            />
+            <StatCard
+              label="Alunos Ativos"
+              value={summary.totalActive.toString()}
+              detail={`${summary.totalChurned} cancelamentos`}
+              variant="default"
+            />
+            <StatCard
+              label="Tempo Medio antes de Cancelar"
+              value={`${summary.avgTimeBeforeCancel} meses`}
+              detail="media geral"
+              variant="warning"
+            />
+            <StatCard
+              label="Turma com Mais Churn"
+              value={summary.classWithMostChurn}
+              detail="no periodo"
+              variant="danger"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Retention Chart (12 months) */}
-      <Card className="animate-reveal p-6">
-        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-          Retencao Mensal
-        </h2>
-        <RetentionLineChart data={monthlyData} />
-      </Card>
-
-      {/* Churn Reasons */}
-      <Card className="animate-reveal p-6">
-        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-          Motivos de Cancelamento
-        </h2>
-        <div className="space-y-3">
-          {churnReasons.map((reason) => (
-            <div key={reason.reason} className="flex items-center gap-3">
-              <span className="w-40 truncate text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                {reason.label}
-              </span>
-              <div
-                className="h-3 flex-1 overflow-hidden"
-                style={{
-                  borderRadius: 'var(--bb-radius-sm)',
-                  background: 'var(--bb-depth-4)',
-                }}
-              >
-                <div
-                  className="h-full transition-all"
-                  style={{
-                    width: `${reason.percentage}%`,
-                    borderRadius: 'var(--bb-radius-sm)',
-                    background: 'var(--bb-brand)',
-                    opacity: 0.7 + reason.percentage * 0.003,
-                  }}
-                />
-              </div>
-              <span className="w-16 text-right text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-                {reason.count} ({reason.percentage.toFixed(0)}%)
-              </span>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* At-Risk Students List */}
-      <Card className="animate-reveal overflow-hidden p-0">
-        <div
-          className="flex items-center justify-between px-4 py-3"
-          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-        >
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-            Alunos em Risco ({atRiskStudents.length})
+        {/* Retention Chart (12 months) */}
+        <Card className="animate-reveal p-6">
+          <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Retencao Mensal
           </h2>
-          <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-            Ordenados por urgencia
-          </span>
-        </div>
+          <RetentionLineChart data={monthlyData} />
+        </Card>
 
-        {/* Mobile: Cards */}
-        <div className="md:hidden">
-          {atRiskStudents.map((student) => (
-            <div
-              key={student.id}
-              className="flex items-center gap-3 px-4 py-3"
-              style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-            >
-              <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center text-xs font-bold"
-                style={{
-                  borderRadius: '50%',
-                  background: 'var(--bb-depth-4)',
-                  color: 'var(--bb-ink-60)',
-                }}
-              >
-                {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                  {student.name}
-                  {student.contacted && (
-                    <span className="ml-2 text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>
-                      (contatado)
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                  {student.className} | {student.daysWithoutTraining}d sem treinar
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                <TrendBadge trend={student.trend} />
-                <button
-                  onClick={() => setSelectedStudent(student)}
-                  className="text-xs font-medium transition-colors"
-                  style={{ color: 'var(--bb-brand)' }}
-                >
-                  Agir
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop: Table */}
-        <div className="hidden md:block">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                  {['Aluno', 'Faixa', 'Turma', 'Dias sem treinar', 'Tendencia', 'Ultimo check-in', 'Status', 'Acao'].map((h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-3 text-left text-xs font-medium"
-                      style={{
-                        color: 'var(--bb-ink-60)',
-                        background: 'var(--bb-depth-4)',
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {atRiskStudents.map((student) => (
-                  <tr
-                    key={student.id}
-                    style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="flex h-8 w-8 shrink-0 items-center justify-center text-[10px] font-bold"
-                          style={{
-                            borderRadius: '50%',
-                            background: 'var(--bb-depth-4)',
-                            color: 'var(--bb-ink-60)',
-                          }}
-                        >
-                          {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                        </div>
-                        <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                          {student.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 capitalize" style={{ color: 'var(--bb-ink-80)' }}>
-                      {BELT_LABELS[student.belt] ?? student.belt}
-                    </td>
-                    <td className="px-4 py-3" style={{ color: 'var(--bb-ink-80)' }}>
-                      {student.className}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="font-bold"
-                        style={{
-                          color: student.daysWithoutTraining >= 10
-                            ? 'var(--bb-error)'
-                            : student.daysWithoutTraining >= 7
-                              ? 'var(--bb-warning)'
-                              : 'var(--bb-ink-80)',
-                        }}
-                      >
-                        {student.daysWithoutTraining}d
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <TrendBadge trend={student.trend} />
-                    </td>
-                    <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>
-                      {student.lastCheckin
-                        ? new Date(student.lastCheckin).toLocaleDateString('pt-BR')
-                        : '---'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {student.contacted ? (
-                        <span
-                          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium"
-                          style={{
-                            borderRadius: 'var(--bb-radius-sm)',
-                            background: 'var(--bb-brand-surface)',
-                            color: 'var(--bb-brand)',
-                          }}
-                        >
-                          Contatado
-                        </span>
-                      ) : (
-                        <span
-                          className="px-2 py-0.5 text-[10px] font-medium"
-                          style={{
-                            borderRadius: 'var(--bb-radius-sm)',
-                            background: 'var(--bb-depth-4)',
-                            color: 'var(--bb-ink-60)',
-                          }}
-                        >
-                          Pendente
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => setSelectedStudent(student)}
-                        className="px-3 py-1 text-xs font-medium text-white transition-colors"
-                        style={{
-                          borderRadius: 'var(--bb-radius-sm)',
-                          background: 'var(--bb-brand)',
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-                      >
-                        Agir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {atRiskStudents.length === 0 && (
-          <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-            Nenhum aluno em risco neste periodo
-          </div>
-        )}
-      </Card>
-
-      {/* ═══ CHURN PREDICTION TABS ═══════════════════════════════════ */}
-      <Card className="animate-reveal overflow-hidden p-0">
-        <div
-          className="flex items-center gap-0 px-0"
-          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-        >
-          {([
-            { key: 'risco' as const, label: 'Alunos em Risco' },
-            { key: 'recuperados' as const, label: 'Recuperados' },
-            { key: 'cancelados' as const, label: 'Cancelados' },
-            { key: 'tendencia' as const, label: 'Tendência' },
-          ]).map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setChurnTab(tab.key)}
-              className="px-4 py-3 text-sm font-medium transition-colors"
-              style={{
-                color: churnTab === tab.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
-                borderBottom: churnTab === tab.key ? '2px solid var(--bb-brand)' : '2px solid transparent',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="p-4">
-          {/* TAB: Alunos em Risco */}
-          {churnTab === 'risco' && (
-            <div className="space-y-3">
-              {alunosRisco.length === 0 && (
-                <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                  Nenhum aluno em risco identificado
-                </p>
-              )}
-              {alunosRisco.map((aluno) => (
+        {/* Churn Reasons */}
+        <Card className="animate-reveal p-6">
+          <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Motivos de Cancelamento
+          </h2>
+          <div className="space-y-3">
+            {churnReasons.map((reason) => (
+              <div key={reason.reason} className="flex items-center gap-3">
+                <span className="w-40 truncate text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                  {reason.label}
+                </span>
                 <div
-                  key={aluno.id}
-                  className="flex items-center justify-between rounded-lg p-3"
-                  style={{ background: 'var(--bb-depth-3)' }}
+                  className="h-3 flex-1 overflow-hidden"
+                  style={{
+                    borderRadius: 'var(--bb-radius-sm)',
+                    background: 'var(--bb-depth-4)',
+                  }}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ background: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B' }}
-                      />
-                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                        {aluno.nome}
-                      </p>
-                      <span
-                        className="rounded px-1.5 py-0.5 text-[10px] font-bold"
-                        style={{
-                          background: aluno.risco === 'alto' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
-                          color: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B',
-                        }}
-                      >
-                        {aluno.risco.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                      Score: {aluno.score} | {aluno.motivos.slice(0, 2).join(', ')}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2 ml-3">
-                    <a
-                      href={`https://wa.me/5531999990001?text=${encodeURIComponent('Oi ' + aluno.nome + ', tudo bem? Sentimos sua falta nos treinos!')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-md px-3 py-1.5 text-xs font-medium"
-                      style={{ background: '#25D366', color: '#fff' }}
-                    >
-                      WhatsApp
-                    </a>
-                    {aluno.statusAcao === 'pendente' ? (
-                      <button
-                        onClick={() => handleMarcarAcao(aluno.id, 'contato_whatsapp')}
-                        className="rounded-md px-3 py-1.5 text-xs font-medium"
-                        style={{ background: 'var(--bb-brand)', color: '#fff' }}
-                      >
-                        Ação tomada
-                      </button>
-                    ) : (
-                      <span
-                        className="rounded-md px-3 py-1.5 text-[10px] font-medium"
-                        style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
-                      >
-                        {aluno.statusAcao === 'acao_tomada' ? 'Em acompanhamento' : aluno.statusAcao === 'recuperado' ? 'Recuperado' : 'Cancelou'}
+                  <div
+                    className="h-full transition-all"
+                    style={{
+                      width: `${reason.percentage}%`,
+                      borderRadius: 'var(--bb-radius-sm)',
+                      background: 'var(--bb-brand)',
+                      opacity: 0.7 + reason.percentage * 0.003,
+                    }}
+                  />
+                </div>
+                <span className="w-16 text-right text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  {reason.count} ({reason.percentage.toFixed(0)}%)
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* At-Risk Students List */}
+        <Card className="animate-reveal overflow-hidden p-0">
+          <div
+            className="flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+          >
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+              Alunos em Risco ({atRiskStudents.length})
+            </h2>
+            <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+              Ordenados por urgencia
+            </span>
+          </div>
+
+          {/* Mobile: Cards */}
+          <div className="md:hidden">
+            {atRiskStudents.map((student) => (
+              <div
+                key={student.id}
+                className="flex items-center gap-3 px-4 py-3"
+                style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+              >
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center text-xs font-bold"
+                  style={{
+                    borderRadius: '50%',
+                    background: 'var(--bb-depth-4)',
+                    color: 'var(--bb-ink-60)',
+                  }}
+                >
+                  {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                    {student.name}
+                    {student.contacted && (
+                      <span className="ml-2 text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>
+                        (contatado)
                       </span>
                     )}
-                  </div>
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    {student.className} | {student.daysWithoutTraining}d sem treinar
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <TrendBadge trend={student.trend} />
+                  <button
+                    onClick={() => setSelectedStudent(student)}
+                    className="text-xs font-medium transition-colors"
+                    style={{ color: 'var(--bb-brand)' }}
+                  >
+                    Agir
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
-          {/* TAB: Recuperados */}
-          {churnTab === 'recuperados' && (
-            <div className="py-8 text-center">
-              {churnMetrics ? (
-                <>
-                  <p className="text-4xl font-extrabold" style={{ color: '#22C55E' }}>
-                    {churnMetrics.recuperados}
-                  </p>
-                  <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                    alunos recuperados (taxa: {churnMetrics.taxaRecuperacao}%)
-                  </p>
-                  <div className="mx-auto mt-4 h-2 w-48 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${churnMetrics.taxaRecuperacao}%`, background: '#22C55E', transition: 'width 0.8s ease' }}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                    De {churnMetrics.recuperados + churnMetrics.cancelados} alunos que estiveram em risco
-                  </p>
-                </>
-              ) : (
-                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
-              )}
-            </div>
-          )}
-
-          {/* TAB: Cancelados */}
-          {churnTab === 'cancelados' && (
-            <div className="py-8 text-center">
-              {churnMetrics ? (
-                <>
-                  <p className="text-4xl font-extrabold" style={{ color: '#EF4444' }}>
-                    {churnMetrics.cancelados}
-                  </p>
-                  <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                    alunos cancelaram no periodo
-                  </p>
-                  <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-4">
-                    <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
-                      <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.alto}</p>
-                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco alto atual</p>
-                    </div>
-                    <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
-                      <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.medio}</p>
-                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco medio atual</p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
-              )}
-            </div>
-          )}
-
-          {/* TAB: Tendencia */}
-          {churnTab === 'tendencia' && (
-            <div>
-              {churnTrend.length > 0 ? (
-                <div style={{ height: '300px' }}>
-                  <RResponsiveContainer width="100%" height="100%">
-                    <LineChart data={churnTrend} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
-                      <RXAxis
-                        dataKey="mes"
-                        tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <RYAxis
-                        tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
-                        axisLine={false}
-                        tickLine={false}
-                        width={40}
-                      />
-                      <RTooltip
-                        contentStyle={{
-                          backgroundColor: 'var(--bb-depth-4, #1a1a2e)',
-                          border: '1px solid var(--bb-glass-border)',
-                          borderRadius: '8px',
-                          color: 'var(--bb-ink-100)',
-                          fontSize: '12px',
+          {/* Desktop: Table */}
+          <div className="hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                    {['Aluno', 'Faixa', 'Turma', 'Dias sem treinar', 'Tendencia', 'Ultimo check-in', 'Status', 'Acao'].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-3 text-left text-xs font-medium"
+                        style={{
+                          color: 'var(--bb-ink-60)',
+                          background: 'var(--bb-depth-4)',
                         }}
-                      />
-                      <Line type="monotone" dataKey="risco" stroke="#F59E0B" strokeWidth={2} dot={{ r: 4 }} name="Em Risco" />
-                      <Line type="monotone" dataKey="cancelados" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} name="Cancelados" />
-                      <Line type="monotone" dataKey="recuperados" stroke="#22C55E" strokeWidth={2} dot={{ r: 4 }} name="Recuperados" />
-                    </LineChart>
-                  </RResponsiveContainer>
-                </div>
-              ) : (
-                <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                  Dados de tendencia nao disponiveis
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Student Action Modal */}
-      <Modal
-        open={!!selectedStudent}
-        onClose={() => setSelectedStudent(null)}
-        title={selectedStudent?.name ?? ''}
-      >
-        {selectedStudent && (
-          <div className="space-y-4">
-            {/* Profile */}
-            <div className="flex items-center gap-4">
-              <div
-                className="flex h-14 w-14 items-center justify-center text-lg font-bold"
-                style={{
-                  borderRadius: '50%',
-                  background: 'var(--bb-depth-4)',
-                  color: 'var(--bb-ink-60)',
-                }}
-              >
-                {selectedStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-              </div>
-              <div>
-                <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                  {selectedStudent.name}
-                </p>
-                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                  Faixa {BELT_LABELS[selectedStudent.belt] ?? selectedStudent.belt} |{' '}
-                  {selectedStudent.className}
-                </p>
-              </div>
-            </div>
-
-            {/* Alert */}
-            <div
-              className="p-4"
-              style={{
-                borderRadius: 'var(--bb-radius-md)',
-                background: 'var(--bb-depth-4)',
-                borderLeft: '4px solid var(--bb-error)',
-              }}
-            >
-              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                {selectedStudent.daysWithoutTraining} dias sem treinar
-              </p>
-              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                Tendencia: {TREND_LABELS[selectedStudent.trend]}
-                {selectedStudent.lastCheckin && (
-                  <> | Ultimo check-in: {new Date(selectedStudent.lastCheckin).toLocaleDateString('pt-BR')}</>
-                )}
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>
-                ACOES
-              </p>
-              <Button
-                variant="primary"
-                className="w-full"
-                onClick={() => setSelectedStudent(null)}
-              >
-                Enviar Mensagem
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => setSelectedStudent(null)}
-              >
-                Agendar Conversa
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => handleMarkContacted(selectedStudent)}
-              >
-                {selectedStudent.contacted ? 'Ja Contatado' : 'Marcar como Contatado'}
-              </Button>
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {atRiskStudents.map((student) => (
+                    <tr
+                      key={student.id}
+                      style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="flex h-8 w-8 shrink-0 items-center justify-center text-[10px] font-bold"
+                            style={{
+                              borderRadius: '50%',
+                              background: 'var(--bb-depth-4)',
+                              color: 'var(--bb-ink-60)',
+                            }}
+                          >
+                            {student.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                            {student.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 capitalize" style={{ color: 'var(--bb-ink-80)' }}>
+                        {BELT_LABELS[student.belt] ?? student.belt}
+                      </td>
+                      <td className="px-4 py-3" style={{ color: 'var(--bb-ink-80)' }}>
+                        {student.className}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="font-bold"
+                          style={{
+                            color: student.daysWithoutTraining >= 10
+                              ? 'var(--bb-error)'
+                              : student.daysWithoutTraining >= 7
+                                ? 'var(--bb-warning)'
+                                : 'var(--bb-ink-80)',
+                          }}
+                        >
+                          {student.daysWithoutTraining}d
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <TrendBadge trend={student.trend} />
+                      </td>
+                      <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>
+                        {student.lastCheckin
+                          ? new Date(student.lastCheckin).toLocaleDateString('pt-BR')
+                          : '---'}
+                      </td>
+                      <td className="px-4 py-3">
+                        {student.contacted ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium"
+                            style={{
+                              borderRadius: 'var(--bb-radius-sm)',
+                              background: 'var(--bb-brand-surface)',
+                              color: 'var(--bb-brand)',
+                            }}
+                          >
+                            Contatado
+                          </span>
+                        ) : (
+                          <span
+                            className="px-2 py-0.5 text-[10px] font-medium"
+                            style={{
+                              borderRadius: 'var(--bb-radius-sm)',
+                              background: 'var(--bb-depth-4)',
+                              color: 'var(--bb-ink-60)',
+                            }}
+                          >
+                            Pendente
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelectedStudent(student)}
+                          className="px-3 py-1 text-xs font-medium text-white transition-colors"
+                          style={{
+                            borderRadius: 'var(--bb-radius-sm)',
+                            background: 'var(--bb-brand)',
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                        >
+                          Agir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
-      </Modal>
-    </div>
+
+          {atRiskStudents.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Nenhum aluno em risco neste periodo
+            </div>
+          )}
+        </Card>
+
+        {/* ═══ CHURN PREDICTION TABS ═══════════════════════════════════ */}
+        <Card className="animate-reveal overflow-hidden p-0">
+          <div
+            className="flex items-center gap-0 px-0"
+            style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+          >
+            {([
+              { key: 'risco' as const, label: 'Alunos em Risco' },
+              { key: 'recuperados' as const, label: 'Recuperados' },
+              { key: 'cancelados' as const, label: 'Cancelados' },
+              { key: 'tendencia' as const, label: 'Tendência' },
+            ]).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setChurnTab(tab.key)}
+                className="px-4 py-3 text-sm font-medium transition-colors"
+                style={{
+                  color: churnTab === tab.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                  borderBottom: churnTab === tab.key ? '2px solid var(--bb-brand)' : '2px solid transparent',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4">
+            {/* TAB: Alunos em Risco */}
+            {churnTab === 'risco' && (
+              <div className="space-y-3">
+                {alunosRisco.length === 0 && (
+                  <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                    Nenhum aluno em risco identificado
+                  </p>
+                )}
+                {alunosRisco.map((aluno) => (
+                  <div
+                    key={aluno.id}
+                    className="flex items-center justify-between rounded-lg p-3"
+                    style={{ background: 'var(--bb-depth-3)' }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B' }}
+                        />
+                        <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                          {aluno.nome}
+                        </p>
+                        <span
+                          className="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                          style={{
+                            background: aluno.risco === 'alto' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                            color: aluno.risco === 'alto' ? '#EF4444' : '#F59E0B',
+                          }}
+                        >
+                          {aluno.risco.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                        Score: {aluno.score} | {aluno.motivos.slice(0, 2).join(', ')}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2 ml-3">
+                      <a
+                        href={`https://wa.me/5531999990001?text=${encodeURIComponent('Oi ' + aluno.nome + ', tudo bem? Sentimos sua falta nos treinos!')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-md px-3 py-1.5 text-xs font-medium"
+                        style={{ background: '#25D366', color: '#fff' }}
+                      >
+                        WhatsApp
+                      </a>
+                      {aluno.statusAcao === 'pendente' ? (
+                        <button
+                          onClick={() => handleMarcarAcao(aluno.id, 'contato_whatsapp')}
+                          className="rounded-md px-3 py-1.5 text-xs font-medium"
+                          style={{ background: 'var(--bb-brand)', color: '#fff' }}
+                        >
+                          Ação tomada
+                        </button>
+                      ) : (
+                        <span
+                          className="rounded-md px-3 py-1.5 text-[10px] font-medium"
+                          style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
+                        >
+                          {aluno.statusAcao === 'acao_tomada' ? 'Em acompanhamento' : aluno.statusAcao === 'recuperado' ? 'Recuperado' : 'Cancelou'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* TAB: Recuperados */}
+            {churnTab === 'recuperados' && (
+              <div className="py-8 text-center">
+                {churnMetrics ? (
+                  <>
+                    <p className="text-4xl font-extrabold" style={{ color: '#22C55E' }}>
+                      {churnMetrics.recuperados}
+                    </p>
+                    <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                      alunos recuperados (taxa: {churnMetrics.taxaRecuperacao}%)
+                    </p>
+                    <div className="mx-auto mt-4 h-2 w-48 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${churnMetrics.taxaRecuperacao}%`, background: '#22C55E', transition: 'width 0.8s ease' }}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      De {churnMetrics.recuperados + churnMetrics.cancelados} alunos que estiveram em risco
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+                )}
+              </div>
+            )}
+
+            {/* TAB: Cancelados */}
+            {churnTab === 'cancelados' && (
+              <div className="py-8 text-center">
+                {churnMetrics ? (
+                  <>
+                    <p className="text-4xl font-extrabold" style={{ color: '#EF4444' }}>
+                      {churnMetrics.cancelados}
+                    </p>
+                    <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                      alunos cancelaram no periodo
+                    </p>
+                    <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-4">
+                      <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
+                        <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.alto}</p>
+                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco alto atual</p>
+                      </div>
+                      <div className="rounded-lg p-4" style={{ background: 'var(--bb-depth-3)' }}>
+                        <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{churnMetrics.medio}</p>
+                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Risco medio atual</p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+                )}
+              </div>
+            )}
+
+            {/* TAB: Tendencia */}
+            {churnTab === 'tendencia' && (
+              <div>
+                {churnTrend.length > 0 ? (
+                  <div style={{ height: '300px' }}>
+                    <RResponsiveContainer width="100%" height="100%">
+                      <LineChart data={churnTrend} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
+                        <RXAxis
+                          dataKey="mes"
+                          tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <RYAxis
+                          tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
+                          axisLine={false}
+                          tickLine={false}
+                          width={40}
+                        />
+                        <RTooltip
+                          contentStyle={{
+                            backgroundColor: 'var(--bb-depth-4, #1a1a2e)',
+                            border: '1px solid var(--bb-glass-border)',
+                            borderRadius: '8px',
+                            color: 'var(--bb-ink-100)',
+                            fontSize: '12px',
+                          }}
+                        />
+                        <Line type="monotone" dataKey="risco" stroke="#F59E0B" strokeWidth={2} dot={{ r: 4 }} name="Em Risco" />
+                        <Line type="monotone" dataKey="cancelados" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} name="Cancelados" />
+                        <Line type="monotone" dataKey="recuperados" stroke="#22C55E" strokeWidth={2} dot={{ r: 4 }} name="Recuperados" />
+                      </LineChart>
+                    </RResponsiveContainer>
+                  </div>
+                ) : (
+                  <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                    Dados de tendencia nao disponiveis
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Student Action Modal */}
+        <Modal
+          open={!!selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+          title={selectedStudent?.name ?? ''}
+        >
+          {selectedStudent && (
+            <div className="space-y-4">
+              {/* Profile */}
+              <div className="flex items-center gap-4">
+                <div
+                  className="flex h-14 w-14 items-center justify-center text-lg font-bold"
+                  style={{
+                    borderRadius: '50%',
+                    background: 'var(--bb-depth-4)',
+                    color: 'var(--bb-ink-60)',
+                  }}
+                >
+                  {selectedStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                </div>
+                <div>
+                  <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                    {selectedStudent.name}
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                    Faixa {BELT_LABELS[selectedStudent.belt] ?? selectedStudent.belt} |{' '}
+                    {selectedStudent.className}
+                  </p>
+                </div>
+              </div>
+
+              {/* Alert */}
+              <div
+                className="p-4"
+                style={{
+                  borderRadius: 'var(--bb-radius-md)',
+                  background: 'var(--bb-depth-4)',
+                  borderLeft: '4px solid var(--bb-error)',
+                }}
+              >
+                <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {selectedStudent.daysWithoutTraining} dias sem treinar
+                </p>
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  Tendencia: {TREND_LABELS[selectedStudent.trend]}
+                  {selectedStudent.lastCheckin && (
+                    <> | Ultimo check-in: {new Date(selectedStudent.lastCheckin).toLocaleDateString('pt-BR')}</>
+                  )}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>
+                  ACOES
+                </p>
+                <Button
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => setSelectedStudent(null)}
+                >
+                  Enviar Mensagem
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => setSelectedStudent(null)}
+                >
+                  Agendar Conversa
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => handleMarkContacted(selectedStudent)}
+                >
+                  {selectedStudent.contacted ? 'Ja Contatado' : 'Marcar como Contatado'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      </div>
+    </PlanGate>
   );
 }
 

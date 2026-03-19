@@ -23,6 +23,7 @@ import {
   RefreshIcon,
   PhoneIcon,
 } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Dynamic Recharts imports (no SSR) ────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -444,90 +445,149 @@ export default function WhatsAppPage() {
   );
 
   return (
-    <div className="min-h-screen space-y-6 p-4 sm:p-6">
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div>
-        <h1
-          className="text-2xl font-extrabold"
-          style={{ color: 'var(--bb-ink-100)' }}
+    <PlanGate module="whatsapp">
+      <div className="min-h-screen space-y-6 p-4 sm:p-6">
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div>
+          <h1
+            className="text-2xl font-extrabold"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            WhatsApp
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Gerencie mensagens, automacoes e configuracoes do WhatsApp.
+          </p>
+        </div>
+
+        {/* ── Tab Bar ─────────────────────────────────────────────── */}
+        <div
+          className="flex gap-1 overflow-x-auto"
+          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
         >
-          WhatsApp
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Gerencie mensagens, automacoes e configuracoes do WhatsApp.
-        </p>
-      </div>
-
-      {/* ── Tab Bar ─────────────────────────────────────────────── */}
-      <div
-        className="flex gap-1 overflow-x-auto"
-        style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-      >
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className="whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors"
-            style={{
-              color:
-                activeTab === tab.id
-                  ? 'var(--bb-brand)'
-                  : 'var(--bb-ink-60)',
-              borderBottom:
-                activeTab === tab.id
-                  ? '2px solid var(--bb-brand)'
-                  : '2px solid transparent',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── TAB 1: Enviar ───────────────────────────────────────── */}
-      {activeTab === 'enviar' && (
-        <div className="space-y-6">
-          {/* Template Selector */}
-          <div
-            className="rounded-lg p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <label
-              className="mb-2 block text-sm font-semibold"
-              style={{ color: 'var(--bb-ink-100)' }}
-            >
-              Template da mensagem
-            </label>
-            <select
-              value={selectedTemplate}
-              onChange={(e) =>
-                handleTemplateChange(e.target.value as WhatsAppTemplateSlug | '')
-              }
-              className="w-full rounded-lg px-3 py-2.5 text-sm"
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors"
               style={{
-                background: 'var(--bb-depth-3)',
-                color: 'var(--bb-ink-100)',
+                color:
+                  activeTab === tab.id
+                    ? 'var(--bb-brand)'
+                    : 'var(--bb-ink-60)',
+                borderBottom:
+                  activeTab === tab.id
+                    ? '2px solid var(--bb-brand)'
+                    : '2px solid transparent',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── TAB 1: Enviar ───────────────────────────────────────── */}
+        {activeTab === 'enviar' && (
+          <div className="space-y-6">
+            {/* Template Selector */}
+            <div
+              className="rounded-lg p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
                 border: '1px solid var(--bb-glass-border)',
               }}
             >
-              <option value="">Selecione um template...</option>
-              {Object.entries(templateCategories).map(([category, templates]) => (
-                <optgroup key={category} label={category}>
-                  {templates.map((tpl) => (
-                    <option key={tpl.value} value={tpl.value}>
-                      {tpl.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
+              <label
+                className="mb-2 block text-sm font-semibold"
+                style={{ color: 'var(--bb-ink-100)' }}
+              >
+                Template da mensagem
+              </label>
+              <select
+                value={selectedTemplate}
+                onChange={(e) =>
+                  handleTemplateChange(e.target.value as WhatsAppTemplateSlug | '')
+                }
+                className="w-full rounded-lg px-3 py-2.5 text-sm"
+                style={{
+                  background: 'var(--bb-depth-3)',
+                  color: 'var(--bb-ink-100)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <option value="">Selecione um template...</option>
+                {Object.entries(templateCategories).map(([category, templates]) => (
+                  <optgroup key={category} label={category}>
+                    {templates.map((tpl) => (
+                      <option key={tpl.value} value={tpl.value}>
+                        {tpl.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
 
-          {/* Template Preview + Variable fields */}
-          {selectedTemplate && (
+            {/* Template Preview + Variable fields */}
+            {selectedTemplate && (
+              <div
+                className="rounded-lg p-5"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <h3
+                  className="mb-3 text-sm font-semibold"
+                  style={{ color: 'var(--bb-ink-100)' }}
+                >
+                  Preview da Mensagem
+                </h3>
+                <div
+                  className="mb-4 rounded-lg p-4 text-sm leading-relaxed"
+                  style={{
+                    background: 'var(--bb-depth-3)',
+                    color: 'var(--bb-ink-80)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  {previewText}
+                </div>
+
+                {/* Variable inputs */}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {TEMPLATE_VARIABLES[selectedTemplate].map((varName) => (
+                    <div key={varName}>
+                      <label
+                        className="mb-1 block text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-60)' }}
+                      >
+                        {`{{${varName}}}`}
+                      </label>
+                      <input
+                        type="text"
+                        value={variables[varName] ?? ''}
+                        onChange={(e) =>
+                          setVariables((prev) => ({
+                            ...prev,
+                            [varName]: e.target.value,
+                          }))
+                        }
+                        placeholder={varName}
+                        className="w-full rounded-lg px-3 py-2 text-sm"
+                        style={{
+                          background: 'var(--bb-depth-3)',
+                          color: 'var(--bb-ink-100)',
+                          border: '1px solid var(--bb-glass-border)',
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recipient Mode */}
             <div
               className="rounded-lg p-5"
               style={{
@@ -539,39 +599,92 @@ export default function WhatsAppPage() {
                 className="mb-3 text-sm font-semibold"
                 style={{ color: 'var(--bb-ink-100)' }}
               >
-                Preview da Mensagem
+                Destinatario
               </h3>
-              <div
-                className="mb-4 rounded-lg p-4 text-sm leading-relaxed"
-                style={{
-                  background: 'var(--bb-depth-3)',
-                  color: 'var(--bb-ink-80)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              >
-                {previewText}
+
+              <div className="mb-4 flex gap-2">
+                <button
+                  onClick={() => setRecipientMode('individual')}
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                  style={{
+                    background:
+                      recipientMode === 'individual'
+                        ? 'var(--bb-brand-surface)'
+                        : 'var(--bb-depth-3)',
+                    color:
+                      recipientMode === 'individual'
+                        ? 'var(--bb-brand)'
+                        : 'var(--bb-ink-60)',
+                    border:
+                      recipientMode === 'individual'
+                        ? '1px solid var(--bb-brand)'
+                        : '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  Individual
+                </button>
+                <button
+                  onClick={() => setRecipientMode('group')}
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                  style={{
+                    background:
+                      recipientMode === 'group'
+                        ? 'var(--bb-brand-surface)'
+                        : 'var(--bb-depth-3)',
+                    color:
+                      recipientMode === 'group'
+                        ? 'var(--bb-brand)'
+                        : 'var(--bb-ink-60)',
+                    border:
+                      recipientMode === 'group'
+                        ? '1px solid var(--bb-brand)'
+                        : '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  Grupo
+                </button>
               </div>
 
-              {/* Variable inputs */}
-              <div className="grid gap-3 sm:grid-cols-2">
-                {TEMPLATE_VARIABLES[selectedTemplate].map((varName) => (
-                  <div key={varName}>
+              {recipientMode === 'individual' ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
                     <label
                       className="mb-1 block text-xs font-medium"
                       style={{ color: 'var(--bb-ink-60)' }}
                     >
-                      {`{{${varName}}}`}
+                      Telefone
+                    </label>
+                    <div className="relative">
+                      <PhoneIcon
+                        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      />
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+55 11 99999-0000"
+                        className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
+                        style={{
+                          background: 'var(--bb-depth-3)',
+                          color: 'var(--bb-ink-100)',
+                          border: '1px solid var(--bb-glass-border)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      className="mb-1 block text-xs font-medium"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      Nome (opcional)
                     </label>
                     <input
                       type="text"
-                      value={variables[varName] ?? ''}
-                      onChange={(e) =>
-                        setVariables((prev) => ({
-                          ...prev,
-                          [varName]: e.target.value,
-                        }))
-                      }
-                      placeholder={varName}
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="Nome do destinatario"
                       className="w-full rounded-lg px-3 py-2 text-sm"
                       style={{
                         background: 'var(--bb-depth-3)',
@@ -580,110 +693,76 @@ export default function WhatsAppPage() {
                       }}
                     />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Recipient Mode */}
-          <div
-            className="rounded-lg p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <h3
-              className="mb-3 text-sm font-semibold"
-              style={{ color: 'var(--bb-ink-100)' }}
-            >
-              Destinatario
-            </h3>
-
-            <div className="mb-4 flex gap-2">
-              <button
-                onClick={() => setRecipientMode('individual')}
-                className="rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                style={{
-                  background:
-                    recipientMode === 'individual'
-                      ? 'var(--bb-brand-surface)'
-                      : 'var(--bb-depth-3)',
-                  color:
-                    recipientMode === 'individual'
-                      ? 'var(--bb-brand)'
-                      : 'var(--bb-ink-60)',
-                  border:
-                    recipientMode === 'individual'
-                      ? '1px solid var(--bb-brand)'
-                      : '1px solid var(--bb-glass-border)',
-                }}
-              >
-                Individual
-              </button>
-              <button
-                onClick={() => setRecipientMode('group')}
-                className="rounded-lg px-4 py-2 text-sm font-medium transition-all"
-                style={{
-                  background:
-                    recipientMode === 'group'
-                      ? 'var(--bb-brand-surface)'
-                      : 'var(--bb-depth-3)',
-                  color:
-                    recipientMode === 'group'
-                      ? 'var(--bb-brand)'
-                      : 'var(--bb-ink-60)',
-                  border:
-                    recipientMode === 'group'
-                      ? '1px solid var(--bb-brand)'
-                      : '1px solid var(--bb-glass-border)',
-                }}
-              >
-                Grupo
-              </button>
-            </div>
-
-            {recipientMode === 'individual' ? (
-              <div className="grid gap-3 sm:grid-cols-2">
+                </div>
+              ) : (
                 <div>
                   <label
                     className="mb-1 block text-xs font-medium"
                     style={{ color: 'var(--bb-ink-60)' }}
                   >
-                    Telefone
+                    Grupo de destinatarios
                   </label>
-                  <div className="relative">
-                    <PhoneIcon
-                      className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+55 11 99999-0000"
-                      className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
+                  <select
+                    value={selectedGroup}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2.5 text-sm"
+                    style={{
+                      background: 'var(--bb-depth-3)',
+                      color: 'var(--bb-ink-100)',
+                      border: '1px solid var(--bb-glass-border)',
+                    }}
+                  >
+                    {GROUP_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Schedule + Send */}
+            <div
+              className="rounded-lg p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <div className="mb-4 flex items-center gap-3">
+                <button
+                  onClick={() => setScheduleEnabled(!scheduleEnabled)}
+                  className="flex items-center gap-2 text-sm font-medium transition-colors"
+                  style={{ color: 'var(--bb-ink-80)' }}
+                >
+                  <ClockIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
+                  Agendar envio
+                  <span
+                    className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+                    style={{
+                      background: scheduleEnabled ? 'var(--bb-brand)' : 'var(--bb-ink-30)',
+                    }}
+                  >
+                    <span
+                      className="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform"
                       style={{
-                        background: 'var(--bb-depth-3)',
-                        color: 'var(--bb-ink-100)',
-                        border: '1px solid var(--bb-glass-border)',
+                        transform: scheduleEnabled
+                          ? 'translateX(18px)'
+                          : 'translateX(3px)',
                       }}
                     />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    className="mb-1 block text-xs font-medium"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    Nome (opcional)
-                  </label>
+                  </span>
+                </button>
+              </div>
+
+              {scheduleEnabled && (
+                <div className="mb-4">
                   <input
-                    type="text"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="Nome do destinatario"
-                    className="w-full rounded-lg px-3 py-2 text-sm"
+                    type="datetime-local"
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2 text-sm sm:w-auto"
                     style={{
                       background: 'var(--bb-depth-3)',
                       color: 'var(--bb-ink-100)',
@@ -691,18 +770,589 @@ export default function WhatsAppPage() {
                     }}
                   />
                 </div>
+              )}
+
+              <button
+                onClick={handleSend}
+                disabled={sending || !selectedTemplate}
+                className="flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 sm:w-auto"
+                style={{ background: 'var(--bb-brand)' }}
+              >
+                <SendIcon className="h-4 w-4" />
+                {sending
+                  ? 'Enviando...'
+                  : scheduleEnabled
+                    ? 'Agendar Mensagem'
+                    : 'Enviar Agora'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 2: Automacoes ───────────────────────────────────── */}
+        {activeTab === 'automacoes' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                {automations.filter((a) => a.active).length} de{' '}
+                {automations.length} automacoes ativas
+              </p>
+            </div>
+
+            {automations.map((auto) => (
+              <div
+                key={auto.id}
+                className="rounded-lg p-5 transition-all"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                  opacity: auto.active ? 1 : 0.6,
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3
+                        className="font-semibold"
+                        style={{ color: 'var(--bb-ink-100)' }}
+                      >
+                        {auto.triggerName}
+                      </h3>
+                      <span
+                        className="rounded px-1.5 py-0.5 text-xs"
+                        style={{
+                          background: 'var(--bb-depth-4)',
+                          color: 'var(--bb-ink-60)',
+                        }}
+                      >
+                        {TEMPLATE_LABEL[auto.templateSlug]}
+                      </span>
+                    </div>
+                    <p
+                      className="mt-1 text-sm leading-relaxed"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      {auto.description}
+                    </p>
+                    {auto.delayHours > 0 && (
+                      <div
+                        className="mt-2 flex items-center gap-1 text-xs"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        <ClockIcon className="h-3 w-3" />
+                        <span>
+                          Atraso: {auto.delayHours}h
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handleToggleAutomation(auto.id)}
+                    className="relative h-6 w-11 flex-shrink-0 rounded-full transition-colors"
+                    style={{
+                      background: auto.active
+                        ? 'var(--bb-brand)'
+                        : 'var(--bb-ink-30)',
+                    }}
+                    aria-label={
+                      auto.active ? 'Desativar automacao' : 'Ativar automacao'
+                    }
+                  >
+                    <span
+                      className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
+                      style={{
+                        transform: auto.active
+                          ? 'translateX(20px)'
+                          : 'translateX(2px)',
+                      }}
+                    />
+                  </button>
+                </div>
               </div>
-            ) : (
+            ))}
+          </div>
+        )}
+
+        {/* ── TAB 3: Historico ────────────────────────────────────── */}
+        {activeTab === 'historico' && (
+          <div className="space-y-4">
+            {/* Filters */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <SearchIcon
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                  style={{ color: 'var(--bb-ink-40)' }}
+                />
+                <input
+                  type="text"
+                  placeholder="Buscar por telefone..."
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    color: 'var(--bb-ink-100)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                />
+              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  color: 'var(--bb-ink-100)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <option value="all">Todos os status</option>
+                <option value="queued">Na fila</option>
+                <option value="sent">Enviada</option>
+                <option value="delivered">Entregue</option>
+                <option value="read">Lida</option>
+                <option value="failed">Falhou</option>
+              </select>
+              <select
+                value={filterTemplate}
+                onChange={(e) => setFilterTemplate(e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  color: 'var(--bb-ink-100)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <option value="all">Todos os templates</option>
+                {TEMPLATE_OPTIONS.map((tpl) => (
+                  <option key={tpl.value} value={tpl.value}>
+                    {tpl.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Table */}
+            <div
+              className="overflow-hidden rounded-lg"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr
+                      style={{
+                        borderBottom: '1px solid var(--bb-glass-border)',
+                        background: 'var(--bb-depth-3)',
+                      }}
+                    >
+                      <th
+                        className="px-4 py-3 text-left text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Data
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Telefone
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Template
+                      </th>
+                      <th
+                        className="px-4 py-3 text-center text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredMessages.map((msg) => {
+                      const statusStyle = STATUS_STYLE[msg.status] ?? STATUS_STYLE.queued;
+                      return (
+                        <tr
+                          key={msg.id}
+                          style={{
+                            borderBottom: '1px solid var(--bb-glass-border)',
+                          }}
+                        >
+                          <td
+                            className="px-4 py-3 text-xs"
+                            style={{ color: 'var(--bb-ink-60)' }}
+                          >
+                            {formatDateShort(msg.sentAt ?? msg.createdAt)}
+                          </td>
+                          <td
+                            className="px-4 py-3 font-medium"
+                            style={{ color: 'var(--bb-ink-100)' }}
+                          >
+                            {msg.toName ?? msg.to}
+                          </td>
+                          <td
+                            className="px-4 py-3"
+                            style={{ color: 'var(--bb-ink-80)' }}
+                          >
+                            {TEMPLATE_LABEL[msg.template as WhatsAppTemplateSlug] ?? msg.template}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span
+                              className="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium"
+                              style={{
+                                background: statusStyle.bg,
+                                color: statusStyle.text,
+                              }}
+                            >
+                              {STATUS_LABEL[msg.status] ?? msg.status}
+                            </span>
+                            {msg.error && (
+                              <p
+                                className="mt-1 text-xs"
+                                style={{ color: '#ef4444' }}
+                              >
+                                {msg.error}
+                              </p>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredMessages.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-4 py-12 text-center text-sm"
+                          style={{ color: 'var(--bb-ink-40)' }}
+                        >
+                          Nenhuma mensagem encontrada.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 4: Estatisticas ─────────────────────────────────── */}
+        {activeTab === 'estatisticas' && (
+          <div className="space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                {
+                  label: 'Enviadas',
+                  value: stats.sent,
+                  icon: <SendIcon className="h-5 w-5" />,
+                  color: '#3b82f6',
+                },
+                {
+                  label: 'Entregues',
+                  value: `${stats.deliveryRate}%`,
+                  icon: <CheckIcon className="h-5 w-5" />,
+                  color: '#22c55e',
+                },
+                {
+                  label: 'Lidas',
+                  value: `${stats.readRate}%`,
+                  icon: <CheckIcon className="h-5 w-5" />,
+                  color: '#10b981',
+                },
+                {
+                  label: 'Falharam',
+                  value: `${stats.failedRate}%`,
+                  icon: <XIcon className="h-5 w-5" />,
+                  color: '#ef4444',
+                },
+              ].map((kpi) => (
+                <div
+                  key={kpi.label}
+                  className="rounded-lg p-4"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span style={{ color: kpi.color }}>{kpi.icon}</span>
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: 'var(--bb-ink-40)' }}
+                    >
+                      {kpi.label}
+                    </p>
+                  </div>
+                  <p
+                    className="mt-2 text-2xl font-bold"
+                    style={{ color: kpi.color }}
+                  >
+                    {kpi.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Bar Chart */}
+            <div
+              className="rounded-lg p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <h3
+                className="mb-4 text-sm font-semibold"
+                style={{ color: 'var(--bb-ink-100)' }}
+              >
+                Mensagens por Status
+              </h3>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: 'var(--bb-ink-60)', fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fill: 'var(--bb-ink-40)', fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'var(--bb-depth-3)',
+                        border: '1px solid var(--bb-glass-border)',
+                        borderRadius: 'var(--bb-radius-sm)',
+                        boxShadow: 'var(--bb-shadow-md)',
+                        color: 'var(--bb-ink-100)',
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Summary Table */}
+            <div
+              className="overflow-hidden rounded-lg"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <div
+                className="px-5 py-3"
+                style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+              >
+                <h3
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--bb-ink-100)' }}
+                >
+                  Resumo por Template
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr style={{ background: 'var(--bb-depth-3)' }}>
+                      <th
+                        className="px-4 py-2.5 text-left text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Template
+                      </th>
+                      <th
+                        className="px-4 py-2.5 text-center text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Enviadas
+                      </th>
+                      <th
+                        className="px-4 py-2.5 text-center text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Entregues
+                      </th>
+                      <th
+                        className="px-4 py-2.5 text-center text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Lidas
+                      </th>
+                      <th
+                        className="px-4 py-2.5 text-center text-xs font-medium"
+                        style={{ color: 'var(--bb-ink-40)' }}
+                      >
+                        Falharam
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(
+                      messages.reduce<
+                        Record<
+                          string,
+                          {
+                            total: number;
+                            delivered: number;
+                            read: number;
+                            failed: number;
+                          }
+                        >
+                      >((acc, msg) => {
+                        const key = msg.template;
+                        if (!acc[key])
+                          acc[key] = {
+                            total: 0,
+                            delivered: 0,
+                            read: 0,
+                            failed: 0,
+                          };
+                        acc[key].total++;
+                        if (
+                          msg.status === 'delivered' ||
+                          msg.status === 'read'
+                        )
+                          acc[key].delivered++;
+                        if (msg.status === 'read') acc[key].read++;
+                        if (msg.status === 'failed') acc[key].failed++;
+                        return acc;
+                      }, {}),
+                    ).map(([template, data]) => (
+                      <tr
+                        key={template}
+                        style={{
+                          borderBottom: '1px solid var(--bb-glass-border)',
+                        }}
+                      >
+                        <td
+                          className="px-4 py-3 font-medium"
+                          style={{ color: 'var(--bb-ink-100)' }}
+                        >
+                          {TEMPLATE_LABEL[template as WhatsAppTemplateSlug] ??
+                            template}
+                        </td>
+                        <td
+                          className="px-4 py-3 text-center"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                        >
+                          {data.total}
+                        </td>
+                        <td
+                          className="px-4 py-3 text-center"
+                          style={{ color: '#22c55e' }}
+                        >
+                          {data.delivered}
+                        </td>
+                        <td
+                          className="px-4 py-3 text-center"
+                          style={{ color: '#10b981' }}
+                        >
+                          {data.read}
+                        </td>
+                        <td
+                          className="px-4 py-3 text-center"
+                          style={{ color: '#ef4444' }}
+                        >
+                          {data.failed}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 5: Configuracao ─────────────────────────────────── */}
+        {activeTab === 'configuracao' && (
+          <div className="space-y-6">
+            {/* Connection status */}
+            <div
+              className="flex items-center gap-3 rounded-lg p-4"
+              style={{
+                background:
+                  configConnected === true
+                    ? 'rgba(34,197,94,0.1)'
+                    : configConnected === false
+                      ? 'rgba(239,68,68,0.1)'
+                      : 'var(--bb-depth-2)',
+                border: `1px solid ${
+                  configConnected === true
+                    ? 'rgba(34,197,94,0.3)'
+                    : configConnected === false
+                      ? 'rgba(239,68,68,0.3)'
+                      : 'var(--bb-glass-border)'
+                }`,
+              }}
+            >
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{
+                  background:
+                    configConnected === true
+                      ? '#22c55e'
+                      : configConnected === false
+                        ? '#ef4444'
+                        : '#9ca3af',
+                }}
+              />
+              <span
+                className="text-sm font-medium"
+                style={{
+                  color:
+                    configConnected === true
+                      ? '#22c55e'
+                      : configConnected === false
+                        ? '#ef4444'
+                        : 'var(--bb-ink-60)',
+                }}
+              >
+                {configConnected === true
+                  ? 'Conectado'
+                  : configConnected === false
+                    ? 'Desconectado'
+                    : 'Status desconhecido'}
+              </span>
+            </div>
+
+            {/* Config form */}
+            <div
+              className="space-y-5 rounded-lg p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              {/* Provider */}
               <div>
                 <label
-                  className="mb-1 block text-xs font-medium"
-                  style={{ color: 'var(--bb-ink-60)' }}
+                  className="mb-1 block text-sm font-medium"
+                  style={{ color: 'var(--bb-ink-80)' }}
                 >
-                  Grupo de destinatarios
+                  Provedor
                 </label>
                 <select
-                  value={selectedGroup}
-                  onChange={(e) => setSelectedGroup(e.target.value)}
+                  value={configProvider}
+                  onChange={(e) => setConfigProvider(e.target.value)}
                   className="w-full rounded-lg px-3 py-2.5 text-sm"
                   style={{
                     background: 'var(--bb-depth-3)',
@@ -710,57 +1360,26 @@ export default function WhatsAppPage() {
                     border: '1px solid var(--bb-glass-border)',
                   }}
                 >
-                  {GROUP_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
+                  <option value="twilio">Twilio</option>
+                  <option value="z_api">Z-API</option>
+                  <option value="evolution_api">Evolution API</option>
                 </select>
               </div>
-            )}
-          </div>
 
-          {/* Schedule + Send */}
-          <div
-            className="rounded-lg p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <button
-                onClick={() => setScheduleEnabled(!scheduleEnabled)}
-                className="flex items-center gap-2 text-sm font-medium transition-colors"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                <ClockIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
-                Agendar envio
-                <span
-                  className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
-                  style={{
-                    background: scheduleEnabled ? 'var(--bb-brand)' : 'var(--bb-ink-30)',
-                  }}
+              {/* API Key */}
+              <div>
+                <label
+                  className="mb-1 block text-sm font-medium"
+                  style={{ color: 'var(--bb-ink-80)' }}
                 >
-                  <span
-                    className="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform"
-                    style={{
-                      transform: scheduleEnabled
-                        ? 'translateX(18px)'
-                        : 'translateX(3px)',
-                    }}
-                  />
-                </span>
-              </button>
-            </div>
-
-            {scheduleEnabled && (
-              <div className="mb-4">
+                  API Key
+                </label>
                 <input
-                  type="datetime-local"
-                  value={scheduleDate}
-                  onChange={(e) => setScheduleDate(e.target.value)}
-                  className="w-full rounded-lg px-3 py-2 text-sm sm:w-auto"
+                  type="password"
+                  value={configApiKey}
+                  onChange={(e) => setConfigApiKey(e.target.value)}
+                  placeholder="Insira a API Key"
+                  className="w-full rounded-lg px-3 py-2 text-sm"
                   style={{
                     background: 'var(--bb-depth-3)',
                     color: 'var(--bb-ink-100)',
@@ -768,778 +1387,162 @@ export default function WhatsAppPage() {
                   }}
                 />
               </div>
-            )}
 
-            <button
-              onClick={handleSend}
-              disabled={sending || !selectedTemplate}
-              className="flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 sm:w-auto"
-              style={{ background: 'var(--bb-brand)' }}
-            >
-              <SendIcon className="h-4 w-4" />
-              {sending
-                ? 'Enviando...'
-                : scheduleEnabled
-                  ? 'Agendar Mensagem'
-                  : 'Enviar Agora'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 2: Automacoes ───────────────────────────────────── */}
-      {activeTab === 'automacoes' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-              {automations.filter((a) => a.active).length} de{' '}
-              {automations.length} automacoes ativas
-            </p>
-          </div>
-
-          {automations.map((auto) => (
-            <div
-              key={auto.id}
-              className="rounded-lg p-5 transition-all"
-              style={{
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-                opacity: auto.active ? 1 : 0.6,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3
-                      className="font-semibold"
-                      style={{ color: 'var(--bb-ink-100)' }}
-                    >
-                      {auto.triggerName}
-                    </h3>
-                    <span
-                      className="rounded px-1.5 py-0.5 text-xs"
-                      style={{
-                        background: 'var(--bb-depth-4)',
-                        color: 'var(--bb-ink-60)',
-                      }}
-                    >
-                      {TEMPLATE_LABEL[auto.templateSlug]}
-                    </span>
-                  </div>
-                  <p
-                    className="mt-1 text-sm leading-relaxed"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    {auto.description}
-                  </p>
-                  {auto.delayHours > 0 && (
-                    <div
-                      className="mt-2 flex items-center gap-1 text-xs"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      <ClockIcon className="h-3 w-3" />
-                      <span>
-                        Atraso: {auto.delayHours}h
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => handleToggleAutomation(auto.id)}
-                  className="relative h-6 w-11 flex-shrink-0 rounded-full transition-colors"
-                  style={{
-                    background: auto.active
-                      ? 'var(--bb-brand)'
-                      : 'var(--bb-ink-30)',
-                  }}
-                  aria-label={
-                    auto.active ? 'Desativar automacao' : 'Ativar automacao'
-                  }
+              {/* Instance ID */}
+              <div>
+                <label
+                  className="mb-1 block text-sm font-medium"
+                  style={{ color: 'var(--bb-ink-80)' }}
                 >
-                  <span
-                    className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
+                  Instance ID
+                </label>
+                <input
+                  type="text"
+                  value={configInstanceId}
+                  onChange={(e) => setConfigInstanceId(e.target.value)}
+                  placeholder="ID da instancia"
+                  className="w-full rounded-lg px-3 py-2 text-sm"
+                  style={{
+                    background: 'var(--bb-depth-3)',
+                    color: 'var(--bb-ink-100)',
+                    border: '1px solid var(--bb-glass-border)',
+                  }}
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label
+                  className="mb-1 block text-sm font-medium"
+                  style={{ color: 'var(--bb-ink-80)' }}
+                >
+                  Numero do WhatsApp
+                </label>
+                <div className="relative">
+                  <PhoneIcon
+                    className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                    style={{ color: 'var(--bb-ink-40)' }}
+                  />
+                  <input
+                    type="tel"
+                    value={configPhone}
+                    onChange={(e) => setConfigPhone(e.target.value)}
+                    placeholder="+55 11 99999-0000"
+                    className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
                     style={{
-                      transform: auto.active
-                        ? 'translateX(20px)'
-                        : 'translateX(2px)',
+                      background: 'var(--bb-depth-3)',
+                      color: 'var(--bb-ink-100)',
+                      border: '1px solid var(--bb-glass-border)',
                     }}
                   />
+                </div>
+              </div>
+
+              {/* Allowed hours */}
+              <div>
+                <label
+                  className="mb-1 block text-sm font-medium"
+                  style={{ color: 'var(--bb-ink-80)' }}
+                >
+                  Horario permitido para envios
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      De
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={23}
+                      value={configHoursStart}
+                      onChange={(e) =>
+                        setConfigHoursStart(Number(e.target.value))
+                      }
+                      className="w-16 rounded-lg px-2 py-2 text-center text-sm"
+                      style={{
+                        background: 'var(--bb-depth-3)',
+                        color: 'var(--bb-ink-100)',
+                        border: '1px solid var(--bb-glass-border)',
+                      }}
+                    />
+                    <span
+                      className="text-xs"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      h
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      ate
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={23}
+                      value={configHoursEnd}
+                      onChange={(e) =>
+                        setConfigHoursEnd(Number(e.target.value))
+                      }
+                      className="w-16 rounded-lg px-2 py-2 text-center text-sm"
+                      style={{
+                        background: 'var(--bb-depth-3)',
+                        color: 'var(--bb-ink-100)',
+                        border: '1px solid var(--bb-glass-border)',
+                      }}
+                    />
+                    <span
+                      className="text-xs"
+                      style={{ color: 'var(--bb-ink-60)' }}
+                    >
+                      h
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <button
+                  onClick={handleTestConnection}
+                  disabled={configTesting || !configApiKey || !configInstanceId}
+                  className="flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all hover:opacity-90 disabled:opacity-40"
+                  style={{
+                    background: 'var(--bb-depth-4)',
+                    color: 'var(--bb-ink-80)',
+                  }}
+                >
+                  <RefreshIcon
+                    className="h-4 w-4"
+                    style={{
+                      animation: configTesting
+                        ? 'spin 1s linear infinite'
+                        : undefined,
+                    }}
+                  />
+                  {configTesting ? 'Testando...' : 'Testar Conexao'}
+                </button>
+                <button
+                  onClick={handleSaveConfig}
+                  disabled={configSaving}
+                  className="flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40"
+                  style={{ background: 'var(--bb-brand)' }}
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                  {configSaving ? 'Salvando...' : 'Salvar Configuracao'}
                 </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── TAB 3: Historico ────────────────────────────────────── */}
-      {activeTab === 'historico' && (
-        <div className="space-y-4">
-          {/* Filters */}
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
-              <SearchIcon
-                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                style={{ color: 'var(--bb-ink-40)' }}
-              />
-              <input
-                type="text"
-                placeholder="Buscar por telefone..."
-                value={filterSearch}
-                onChange={(e) => setFilterSearch(e.target.value)}
-                className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
-                style={{
-                  background: 'var(--bb-depth-2)',
-                  color: 'var(--bb-ink-100)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              />
-            </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-lg px-3 py-2 text-sm"
-              style={{
-                background: 'var(--bb-depth-2)',
-                color: 'var(--bb-ink-100)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <option value="all">Todos os status</option>
-              <option value="queued">Na fila</option>
-              <option value="sent">Enviada</option>
-              <option value="delivered">Entregue</option>
-              <option value="read">Lida</option>
-              <option value="failed">Falhou</option>
-            </select>
-            <select
-              value={filterTemplate}
-              onChange={(e) => setFilterTemplate(e.target.value)}
-              className="rounded-lg px-3 py-2 text-sm"
-              style={{
-                background: 'var(--bb-depth-2)',
-                color: 'var(--bb-ink-100)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <option value="all">Todos os templates</option>
-              {TEMPLATE_OPTIONS.map((tpl) => (
-                <option key={tpl.value} value={tpl.value}>
-                  {tpl.label}
-                </option>
-              ))}
-            </select>
           </div>
-
-          {/* Table */}
-          <div
-            className="overflow-hidden rounded-lg"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid var(--bb-glass-border)',
-                      background: 'var(--bb-depth-3)',
-                    }}
-                  >
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Data
-                    </th>
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Telefone
-                    </th>
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Template
-                    </th>
-                    <th
-                      className="px-4 py-3 text-center text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredMessages.map((msg) => {
-                    const statusStyle = STATUS_STYLE[msg.status] ?? STATUS_STYLE.queued;
-                    return (
-                      <tr
-                        key={msg.id}
-                        style={{
-                          borderBottom: '1px solid var(--bb-glass-border)',
-                        }}
-                      >
-                        <td
-                          className="px-4 py-3 text-xs"
-                          style={{ color: 'var(--bb-ink-60)' }}
-                        >
-                          {formatDateShort(msg.sentAt ?? msg.createdAt)}
-                        </td>
-                        <td
-                          className="px-4 py-3 font-medium"
-                          style={{ color: 'var(--bb-ink-100)' }}
-                        >
-                          {msg.toName ?? msg.to}
-                        </td>
-                        <td
-                          className="px-4 py-3"
-                          style={{ color: 'var(--bb-ink-80)' }}
-                        >
-                          {TEMPLATE_LABEL[msg.template as WhatsAppTemplateSlug] ?? msg.template}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span
-                            className="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium"
-                            style={{
-                              background: statusStyle.bg,
-                              color: statusStyle.text,
-                            }}
-                          >
-                            {STATUS_LABEL[msg.status] ?? msg.status}
-                          </span>
-                          {msg.error && (
-                            <p
-                              className="mt-1 text-xs"
-                              style={{ color: '#ef4444' }}
-                            >
-                              {msg.error}
-                            </p>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {filteredMessages.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="px-4 py-12 text-center text-sm"
-                        style={{ color: 'var(--bb-ink-40)' }}
-                      >
-                        Nenhuma mensagem encontrada.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 4: Estatisticas ─────────────────────────────────── */}
-      {activeTab === 'estatisticas' && (
-        <div className="space-y-6">
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              {
-                label: 'Enviadas',
-                value: stats.sent,
-                icon: <SendIcon className="h-5 w-5" />,
-                color: '#3b82f6',
-              },
-              {
-                label: 'Entregues',
-                value: `${stats.deliveryRate}%`,
-                icon: <CheckIcon className="h-5 w-5" />,
-                color: '#22c55e',
-              },
-              {
-                label: 'Lidas',
-                value: `${stats.readRate}%`,
-                icon: <CheckIcon className="h-5 w-5" />,
-                color: '#10b981',
-              },
-              {
-                label: 'Falharam',
-                value: `${stats.failedRate}%`,
-                icon: <XIcon className="h-5 w-5" />,
-                color: '#ef4444',
-              },
-            ].map((kpi) => (
-              <div
-                key={kpi.label}
-                className="rounded-lg p-4"
-                style={{
-                  background: 'var(--bb-depth-2)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <span style={{ color: kpi.color }}>{kpi.icon}</span>
-                  <p
-                    className="text-xs font-medium"
-                    style={{ color: 'var(--bb-ink-40)' }}
-                  >
-                    {kpi.label}
-                  </p>
-                </div>
-                <p
-                  className="mt-2 text-2xl font-bold"
-                  style={{ color: kpi.color }}
-                >
-                  {kpi.value}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Bar Chart */}
-          <div
-            className="rounded-lg p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <h3
-              className="mb-4 text-sm font-semibold"
-              style={{ color: 'var(--bb-ink-100)' }}
-            >
-              Mensagens por Status
-            </h3>
-            <div style={{ width: '100%', height: 300 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: 'var(--bb-ink-60)', fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fill: 'var(--bb-ink-40)', fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'var(--bb-depth-3)',
-                      border: '1px solid var(--bb-glass-border)',
-                      borderRadius: 'var(--bb-radius-sm)',
-                      boxShadow: 'var(--bb-shadow-md)',
-                      color: 'var(--bb-ink-100)',
-                    }}
-                  />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Summary Table */}
-          <div
-            className="overflow-hidden rounded-lg"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <div
-              className="px-5 py-3"
-              style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-            >
-              <h3
-                className="text-sm font-semibold"
-                style={{ color: 'var(--bb-ink-100)' }}
-              >
-                Resumo por Template
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ background: 'var(--bb-depth-3)' }}>
-                    <th
-                      className="px-4 py-2.5 text-left text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Template
-                    </th>
-                    <th
-                      className="px-4 py-2.5 text-center text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Enviadas
-                    </th>
-                    <th
-                      className="px-4 py-2.5 text-center text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Entregues
-                    </th>
-                    <th
-                      className="px-4 py-2.5 text-center text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Lidas
-                    </th>
-                    <th
-                      className="px-4 py-2.5 text-center text-xs font-medium"
-                      style={{ color: 'var(--bb-ink-40)' }}
-                    >
-                      Falharam
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(
-                    messages.reduce<
-                      Record<
-                        string,
-                        {
-                          total: number;
-                          delivered: number;
-                          read: number;
-                          failed: number;
-                        }
-                      >
-                    >((acc, msg) => {
-                      const key = msg.template;
-                      if (!acc[key])
-                        acc[key] = {
-                          total: 0,
-                          delivered: 0,
-                          read: 0,
-                          failed: 0,
-                        };
-                      acc[key].total++;
-                      if (
-                        msg.status === 'delivered' ||
-                        msg.status === 'read'
-                      )
-                        acc[key].delivered++;
-                      if (msg.status === 'read') acc[key].read++;
-                      if (msg.status === 'failed') acc[key].failed++;
-                      return acc;
-                    }, {}),
-                  ).map(([template, data]) => (
-                    <tr
-                      key={template}
-                      style={{
-                        borderBottom: '1px solid var(--bb-glass-border)',
-                      }}
-                    >
-                      <td
-                        className="px-4 py-3 font-medium"
-                        style={{ color: 'var(--bb-ink-100)' }}
-                      >
-                        {TEMPLATE_LABEL[template as WhatsAppTemplateSlug] ??
-                          template}
-                      </td>
-                      <td
-                        className="px-4 py-3 text-center"
-                        style={{ color: 'var(--bb-ink-80)' }}
-                      >
-                        {data.total}
-                      </td>
-                      <td
-                        className="px-4 py-3 text-center"
-                        style={{ color: '#22c55e' }}
-                      >
-                        {data.delivered}
-                      </td>
-                      <td
-                        className="px-4 py-3 text-center"
-                        style={{ color: '#10b981' }}
-                      >
-                        {data.read}
-                      </td>
-                      <td
-                        className="px-4 py-3 text-center"
-                        style={{ color: '#ef4444' }}
-                      >
-                        {data.failed}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 5: Configuracao ─────────────────────────────────── */}
-      {activeTab === 'configuracao' && (
-        <div className="space-y-6">
-          {/* Connection status */}
-          <div
-            className="flex items-center gap-3 rounded-lg p-4"
-            style={{
-              background:
-                configConnected === true
-                  ? 'rgba(34,197,94,0.1)'
-                  : configConnected === false
-                    ? 'rgba(239,68,68,0.1)'
-                    : 'var(--bb-depth-2)',
-              border: `1px solid ${
-                configConnected === true
-                  ? 'rgba(34,197,94,0.3)'
-                  : configConnected === false
-                    ? 'rgba(239,68,68,0.3)'
-                    : 'var(--bb-glass-border)'
-              }`,
-            }}
-          >
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{
-                background:
-                  configConnected === true
-                    ? '#22c55e'
-                    : configConnected === false
-                      ? '#ef4444'
-                      : '#9ca3af',
-              }}
-            />
-            <span
-              className="text-sm font-medium"
-              style={{
-                color:
-                  configConnected === true
-                    ? '#22c55e'
-                    : configConnected === false
-                      ? '#ef4444'
-                      : 'var(--bb-ink-60)',
-              }}
-            >
-              {configConnected === true
-                ? 'Conectado'
-                : configConnected === false
-                  ? 'Desconectado'
-                  : 'Status desconhecido'}
-            </span>
-          </div>
-
-          {/* Config form */}
-          <div
-            className="space-y-5 rounded-lg p-5"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            {/* Provider */}
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Provedor
-              </label>
-              <select
-                value={configProvider}
-                onChange={(e) => setConfigProvider(e.target.value)}
-                className="w-full rounded-lg px-3 py-2.5 text-sm"
-                style={{
-                  background: 'var(--bb-depth-3)',
-                  color: 'var(--bb-ink-100)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              >
-                <option value="twilio">Twilio</option>
-                <option value="z_api">Z-API</option>
-                <option value="evolution_api">Evolution API</option>
-              </select>
-            </div>
-
-            {/* API Key */}
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                API Key
-              </label>
-              <input
-                type="password"
-                value={configApiKey}
-                onChange={(e) => setConfigApiKey(e.target.value)}
-                placeholder="Insira a API Key"
-                className="w-full rounded-lg px-3 py-2 text-sm"
-                style={{
-                  background: 'var(--bb-depth-3)',
-                  color: 'var(--bb-ink-100)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              />
-            </div>
-
-            {/* Instance ID */}
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Instance ID
-              </label>
-              <input
-                type="text"
-                value={configInstanceId}
-                onChange={(e) => setConfigInstanceId(e.target.value)}
-                placeholder="ID da instancia"
-                className="w-full rounded-lg px-3 py-2 text-sm"
-                style={{
-                  background: 'var(--bb-depth-3)',
-                  color: 'var(--bb-ink-100)',
-                  border: '1px solid var(--bb-glass-border)',
-                }}
-              />
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Numero do WhatsApp
-              </label>
-              <div className="relative">
-                <PhoneIcon
-                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                  style={{ color: 'var(--bb-ink-40)' }}
-                />
-                <input
-                  type="tel"
-                  value={configPhone}
-                  onChange={(e) => setConfigPhone(e.target.value)}
-                  placeholder="+55 11 99999-0000"
-                  className="w-full rounded-lg py-2 pl-10 pr-3 text-sm"
-                  style={{
-                    background: 'var(--bb-depth-3)',
-                    color: 'var(--bb-ink-100)',
-                    border: '1px solid var(--bb-glass-border)',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Allowed hours */}
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Horario permitido para envios
-              </label>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    De
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={23}
-                    value={configHoursStart}
-                    onChange={(e) =>
-                      setConfigHoursStart(Number(e.target.value))
-                    }
-                    className="w-16 rounded-lg px-2 py-2 text-center text-sm"
-                    style={{
-                      background: 'var(--bb-depth-3)',
-                      color: 'var(--bb-ink-100)',
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    h
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    ate
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={23}
-                    value={configHoursEnd}
-                    onChange={(e) =>
-                      setConfigHoursEnd(Number(e.target.value))
-                    }
-                    className="w-16 rounded-lg px-2 py-2 text-center text-sm"
-                    style={{
-                      background: 'var(--bb-depth-3)',
-                      color: 'var(--bb-ink-100)',
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    h
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-              <button
-                onClick={handleTestConnection}
-                disabled={configTesting || !configApiKey || !configInstanceId}
-                className="flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all hover:opacity-90 disabled:opacity-40"
-                style={{
-                  background: 'var(--bb-depth-4)',
-                  color: 'var(--bb-ink-80)',
-                }}
-              >
-                <RefreshIcon
-                  className="h-4 w-4"
-                  style={{
-                    animation: configTesting
-                      ? 'spin 1s linear infinite'
-                      : undefined,
-                  }}
-                />
-                {configTesting ? 'Testando...' : 'Testar Conexao'}
-              </button>
-              <button
-                onClick={handleSaveConfig}
-                disabled={configSaving}
-                className="flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40"
-                style={{ background: 'var(--bb-brand)' }}
-              >
-                <SettingsIcon className="h-4 w-4" />
-                {configSaving ? 'Salvando...' : 'Salvar Configuracao'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </PlanGate>
   );
 }

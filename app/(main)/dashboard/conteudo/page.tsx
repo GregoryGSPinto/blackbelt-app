@@ -7,6 +7,7 @@ import type { StreamingLibrary, StreamingVideo, WatchProgress, StreamingTrail } 
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { useStudentId } from '@/lib/hooks/useStudentId';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Video Card                                                    */
@@ -365,7 +366,8 @@ export default function BibliotecaStreamingPage() {
   }
 
   return (
-    <div className="min-h-screen pb-28 bg-[var(--bb-depth-1)]">
+    <PlanGate module="conteudo">
+      <div className="min-h-screen pb-28 bg-[var(--bb-depth-1)]">
       {/* Global animation keyframes */}
       <style jsx global>{`
         @keyframes fadeSlideUp {
@@ -684,5 +686,6 @@ export default function BibliotecaStreamingPage() {
         </HorizontalSection>
       )}
     </div>
+    </PlanGate>
   );
 }

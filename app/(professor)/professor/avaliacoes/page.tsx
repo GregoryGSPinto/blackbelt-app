@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Belt display helpers ────────────────────────────────────────────
 
@@ -346,12 +347,14 @@ export default function ProfessorAvaliacoesPage() {
 
   if (students.length === 0) {
     return (
-      <div className="p-4">
-        <EmptyState
-          title="Nenhum aluno encontrado"
-          description="Voce nao possui alunos matriculados nas suas turmas para avaliar."
-        />
-      </div>
+      <PlanGate module="avaliacoes">
+        <div className="p-4">
+          <EmptyState
+            title="Nenhum aluno encontrado"
+            description="Voce nao possui alunos matriculados nas suas turmas para avaliar."
+          />
+        </div>
+      </PlanGate>
     );
   }
 
@@ -361,7 +364,8 @@ export default function ProfessorAvaliacoesPage() {
     const avg = ((technique + posture + evolution + behavior) / 4).toFixed(1);
 
     return (
-      <div className="space-y-5 p-4 pb-24">
+      <PlanGate module="avaliacoes">
+        <div className="space-y-5 p-4 pb-24">
         {/* Back button */}
         <button
           onClick={() => setView('list')}
@@ -443,6 +447,7 @@ export default function ProfessorAvaliacoesPage() {
           </Button>
         </div>
       </div>
+      </PlanGate>
     );
   }
 
@@ -450,7 +455,8 @@ export default function ProfessorAvaliacoesPage() {
 
   if (view === 'history' && selectedStudent) {
     return (
-      <div className="space-y-5 p-4">
+      <PlanGate module="avaliacoes">
+        <div className="space-y-5 p-4">
         {/* Back button */}
         <button
           onClick={() => { setView('list'); setTimeline(null); }}
@@ -523,114 +529,117 @@ export default function ProfessorAvaliacoesPage() {
           </>
         )}
       </div>
+      </PlanGate>
     );
   }
 
   // ── Student List View (default) ───────────────────────────────────
 
   return (
-    <div className="space-y-5 p-4">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Avaliacoes</h1>
-        <p className="text-sm text-[var(--bb-ink-60)]">
-          Avalie seus alunos em 4 eixos de desempenho
-        </p>
-      </div>
-
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-[var(--bb-brand)]">{students.length}</p>
-          <p className="text-xs text-[var(--bb-ink-40)]">Alunos</p>
-        </Card>
-        <Card className="p-3 text-center">
-          <p className="text-2xl font-bold text-[var(--bb-ink-80)]">{classes.length}</p>
-          <p className="text-xs text-[var(--bb-ink-40)]">Turmas</p>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <div className="space-y-3">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar aluno..."
-          className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-4 py-2.5 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
-        />
-
-        <select
-          value={filterClass}
-          onChange={(e) => setFilterClass(e.target.value)}
-          className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-2 text-sm text-[var(--bb-ink-100)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
-        >
-          <option value="all">Todas as turmas</option>
-          {classes.map((cls) => (
-            <option key={cls.class_id} value={cls.class_id}>
-              {cls.class_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Student List */}
-      {filteredStudents.length === 0 ? (
-        <p className="py-8 text-center text-sm text-[var(--bb-ink-40)]">
-          Nenhum aluno encontrado com esses filtros.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {filteredStudents.map((student) => (
-            <Card key={student.student_id} className="p-4">
-              {/* Top row: avatar + name + belt */}
-              <div className="flex items-center gap-3">
-                <Avatar name={student.display_name} src={student.avatar} size="md" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-[var(--bb-ink-100)]">
-                    {student.display_name}
-                  </p>
-                  <div className="mt-0.5 flex items-center gap-2">
-                    <Badge
-                      variant="belt"
-                      beltColor={BELT_COLORS[student.belt] ?? '#D4D4D4'}
-                      size="sm"
-                    >
-                      {BELT_LABEL[student.belt] ?? student.belt}
-                    </Badge>
-                    <span className="text-xs text-[var(--bb-ink-40)]">{student.class_name}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Evaluation meta */}
-              <div className="mt-3 border-t border-[var(--bb-glass-border)] pt-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
-                      Ultima avaliacao
-                    </p>
-                    <p className="text-xs text-[var(--bb-ink-60)]">
-                      {student.last_evaluation_date
-                        ? new Date(student.last_evaluation_date).toLocaleDateString('pt-BR')
-                        : 'Nunca avaliado'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => openHistory(student)}>
-                      Historico
-                    </Button>
-                    <Button size="sm" onClick={() => openEvaluation(student)}>
-                      Avaliar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
+    <PlanGate module="avaliacoes">
+      <div className="space-y-5 p-4">
+        {/* Header */}
+        <div>
+          <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Avaliacoes</h1>
+          <p className="text-sm text-[var(--bb-ink-60)]">
+            Avalie seus alunos em 4 eixos de desempenho
+          </p>
         </div>
-      )}
-    </div>
+
+        {/* Summary */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="p-3 text-center">
+            <p className="text-2xl font-bold text-[var(--bb-brand)]">{students.length}</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Alunos</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-2xl font-bold text-[var(--bb-ink-80)]">{classes.length}</p>
+            <p className="text-xs text-[var(--bb-ink-40)]">Turmas</p>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar aluno..."
+            className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-4 py-2.5 text-sm text-[var(--bb-ink-100)] placeholder:text-[var(--bb-ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
+          />
+
+          <select
+            value={filterClass}
+            onChange={(e) => setFilterClass(e.target.value)}
+            className="w-full rounded-[var(--bb-radius-md)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] px-3 py-2 text-sm text-[var(--bb-ink-100)] focus:outline-none focus:ring-2 focus:ring-[var(--bb-brand)]"
+          >
+            <option value="all">Todas as turmas</option>
+            {classes.map((cls) => (
+              <option key={cls.class_id} value={cls.class_id}>
+                {cls.class_name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Student List */}
+        {filteredStudents.length === 0 ? (
+          <p className="py-8 text-center text-sm text-[var(--bb-ink-40)]">
+            Nenhum aluno encontrado com esses filtros.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {filteredStudents.map((student) => (
+              <Card key={student.student_id} className="p-4">
+                {/* Top row: avatar + name + belt */}
+                <div className="flex items-center gap-3">
+                  <Avatar name={student.display_name} src={student.avatar} size="md" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-[var(--bb-ink-100)]">
+                      {student.display_name}
+                    </p>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <Badge
+                        variant="belt"
+                        beltColor={BELT_COLORS[student.belt] ?? '#D4D4D4'}
+                        size="sm"
+                      >
+                        {BELT_LABEL[student.belt] ?? student.belt}
+                      </Badge>
+                      <span className="text-xs text-[var(--bb-ink-40)]">{student.class_name}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Evaluation meta */}
+                <div className="mt-3 border-t border-[var(--bb-glass-border)] pt-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">
+                        Ultima avaliacao
+                      </p>
+                      <p className="text-xs text-[var(--bb-ink-60)]">
+                        {student.last_evaluation_date
+                          ? new Date(student.last_evaluation_date).toLocaleDateString('pt-BR')
+                          : 'Nunca avaliado'}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => openHistory(student)}>
+                        Historico
+                      </Button>
+                      <Button size="sm" onClick={() => openEvaluation(student)}>
+                        Avaliar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </PlanGate>
   );
 }
 

@@ -10,6 +10,10 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { getAlertasCount } from '@/lib/api/professor-alertas.service';
 import { SidebarHelpSection } from './HelpSection';
+import { usePlan } from '@/lib/hooks/usePlan';
+import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
+import { TrialBanner } from '@/components/plans/TrialBanner';
+import { DiscoveryBanner } from '@/components/plans/DiscoveryBanner';
 import {
   HomeIcon,
   PlayIcon,
@@ -30,6 +34,7 @@ import {
   XIcon,
   BellIcon,
   LogOutIcon,
+  LockIcon,
 } from '@/components/shell/icons';
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -141,6 +146,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
   function ProfessorShell({ children }, ref) {
     const pathname = usePathname();
     const { profile, logout } = useAuth();
+    const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [alertCount, setAlertCount] = useState(0);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -304,6 +310,9 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                         );
                       }
 
+                      const moduleForLink = PAGE_MODULE_MAP[item.href];
+                      const isLocked = moduleForLink ? !hasAccess(moduleForLink) : false;
+
                       return (
                         <Link
                           key={item.href}
@@ -311,6 +320,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                           id={item.id}
                           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
                           style={{
+                            opacity: isLocked ? 0.5 : 1,
                             background: active
                               ? 'color-mix(in srgb, var(--bb-brand) 12%, transparent)'
                               : 'transparent',
@@ -328,6 +338,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                         >
                           <Icon className="h-5 w-5" />
                           <span className="flex-1">{item.label}</span>
+                          {isLocked && <LockIcon className="h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />}
                         </Link>
                       );
                     })}
@@ -448,6 +459,8 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
 
           {/* Main content (desktop) */}
           <div className="flex flex-1 flex-col lg:ml-64">
+            {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
+            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
             <main className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               {children}
             </main>
@@ -457,6 +470,8 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
         {/* ── MOBILE LAYOUT (< lg) ─────────────────────────────────────── */}
         <div className="lg:hidden pb-16">
           <ShellHeader title="BlackBelt" subtitle="Professor" rightContent={<ThemeToggle />} />
+          {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
+          {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
           <main>{children}</main>
 
           {/* Custom Bottom Nav */}

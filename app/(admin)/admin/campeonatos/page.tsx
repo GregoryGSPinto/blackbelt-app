@@ -57,6 +57,7 @@ import {
   completeTournament,
   generateStandardCategories,
 } from '@/lib/api/compete.service';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -308,65 +309,67 @@ export default function CampeonatosAdminPage() {
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen p-4 sm:p-6">
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--bb-ink-100)' }}>Campeonatos</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>Gerencie seus campeonatos e competicoes</p>
+    <PlanGate module="compete">
+      <div className="min-h-screen p-4 sm:p-6">
+        {/* Header */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--bb-ink-100)' }}>Campeonatos</h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>Gerencie seus campeonatos e competicoes</p>
+          </div>
+          {activeTab === 'campeonatos' && (
+            <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2 self-start rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: 'var(--bb-brand)' }}>
+              <PlusIcon className="h-4 w-4" /> Criar campeonato
+            </button>
+          )}
         </div>
-        {activeTab === 'campeonatos' && (
-          <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2 self-start rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: 'var(--bb-brand)' }}>
-            <PlusIcon className="h-4 w-4" /> Criar campeonato
-          </button>
+
+        {/* Tournament selector */}
+        {activeTab !== 'campeonatos' && tournaments.length > 0 && (
+          <div className="mb-4">
+            <select value={selectedTournament?.id ?? ''} onChange={(e) => { const t = tournaments.find((x) => x.id === e.target.value); if (t) setSelectedTournament(t); }} className="w-full rounded-lg px-3 py-2 text-sm sm:w-auto" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', borderRadius: 'var(--bb-radius-sm)' }}>
+              {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="mb-6 flex gap-1 overflow-x-auto rounded-lg p-1" style={{ background: 'var(--bb-depth-2)' }}>
+          {TABS.map((tab) => { const Icon = tab.icon; const active = activeTab === tab.id; return (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors sm:text-sm" style={{ background: active ? 'var(--bb-brand-surface)' : 'transparent', color: active ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}>
+              <Icon className="h-4 w-4" /><span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ); })}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'campeonatos' && <TabCampeonatos tournaments={tournaments} selected={selectedTournament} onSelect={setSelectedTournament} onPublish={(id) => handleStatusChange(id, publishTournament, 'Publicado')} onOpenReg={(id) => handleStatusChange(id, openRegistration, 'Inscricoes abertas')} onCloseReg={(id) => handleStatusChange(id, closeRegistration, 'Inscricoes encerradas')} onStart={(id) => handleStatusChange(id, startTournamentApi, 'Iniciado')} onComplete={(id) => handleStatusChange(id, completeTournament, 'Finalizado')} onCreateClick={() => setShowCreateModal(true)} />}
+        {activeTab === 'inscritos' && <TabInscritos regs={filteredRegs} categories={categories} regFilter={regFilter} setRegFilter={setRegFilter} weightInput={weightInput} setWeightInput={setWeightInput} onCheckIn={handleCheckIn} onWeighIn={handleWeighIn} selected={selectedTournament} />}
+        {activeTab === 'chaveamento' && <TabChaveamento categories={categories} brackets={brackets} bracketMatches={bracketMatches} selectedCat={selectedBracketCat} onSelectCat={(id) => { setSelectedBracketCat(id); loadBracketMatches(id); }} onGenBracket={handleGenBracket} onGenCategories={handleGenCategories} selected={selectedTournament} />}
+        {activeTab === 'aovivo' && <TabAoVivo stats={stats} liveMatches={liveMatches} nextMatches={nextMatchesList} feed={feed} selectedArea={selectedArea} setSelectedArea={setSelectedArea} announcementText={announcementText} setAnnouncementText={setAnnouncementText} onCallMatch={handleCallMatch} onStartMatch={handleStartMatch} onResult={handleResult} onAnnounce={handleAnnouncement} selected={selectedTournament} />}
+        {activeTab === 'resultados' && <TabResultados medalTable={medalTableData} academyResults={academyResults} selected={selectedTournament} />}
+
+        {/* Create Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/50" onClick={() => setShowCreateModal(false)} />
+            <div className="relative z-10 w-full max-w-md space-y-4 p-6" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Criar Campeonato</h2>
+                <button onClick={() => setShowCreateModal(false)}><XIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} /></button>
+              </div>
+              <div className="space-y-3">
+                <ModalInput placeholder="Nome do campeonato" value={newName} onChange={setNewName} />
+                <ModalInput type="date" value={newDate} onChange={setNewDate} />
+                <ModalInput placeholder="Local" value={newLocation} onChange={setNewLocation} />
+                <ModalInput placeholder="Cidade" value={newCity} onChange={setNewCity} />
+              </div>
+              <button onClick={handleCreate} className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: 'var(--bb-brand)' }}>Criar Campeonato</button>
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Tournament selector */}
-      {activeTab !== 'campeonatos' && tournaments.length > 0 && (
-        <div className="mb-4">
-          <select value={selectedTournament?.id ?? ''} onChange={(e) => { const t = tournaments.find((x) => x.id === e.target.value); if (t) setSelectedTournament(t); }} className="w-full rounded-lg px-3 py-2 text-sm sm:w-auto" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', borderRadius: 'var(--bb-radius-sm)' }}>
-            {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="mb-6 flex gap-1 overflow-x-auto rounded-lg p-1" style={{ background: 'var(--bb-depth-2)' }}>
-        {TABS.map((tab) => { const Icon = tab.icon; const active = activeTab === tab.id; return (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors sm:text-sm" style={{ background: active ? 'var(--bb-brand-surface)' : 'transparent', color: active ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}>
-            <Icon className="h-4 w-4" /><span className="hidden sm:inline">{tab.label}</span>
-          </button>
-        ); })}
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === 'campeonatos' && <TabCampeonatos tournaments={tournaments} selected={selectedTournament} onSelect={setSelectedTournament} onPublish={(id) => handleStatusChange(id, publishTournament, 'Publicado')} onOpenReg={(id) => handleStatusChange(id, openRegistration, 'Inscricoes abertas')} onCloseReg={(id) => handleStatusChange(id, closeRegistration, 'Inscricoes encerradas')} onStart={(id) => handleStatusChange(id, startTournamentApi, 'Iniciado')} onComplete={(id) => handleStatusChange(id, completeTournament, 'Finalizado')} onCreateClick={() => setShowCreateModal(true)} />}
-      {activeTab === 'inscritos' && <TabInscritos regs={filteredRegs} categories={categories} regFilter={regFilter} setRegFilter={setRegFilter} weightInput={weightInput} setWeightInput={setWeightInput} onCheckIn={handleCheckIn} onWeighIn={handleWeighIn} selected={selectedTournament} />}
-      {activeTab === 'chaveamento' && <TabChaveamento categories={categories} brackets={brackets} bracketMatches={bracketMatches} selectedCat={selectedBracketCat} onSelectCat={(id) => { setSelectedBracketCat(id); loadBracketMatches(id); }} onGenBracket={handleGenBracket} onGenCategories={handleGenCategories} selected={selectedTournament} />}
-      {activeTab === 'aovivo' && <TabAoVivo stats={stats} liveMatches={liveMatches} nextMatches={nextMatchesList} feed={feed} selectedArea={selectedArea} setSelectedArea={setSelectedArea} announcementText={announcementText} setAnnouncementText={setAnnouncementText} onCallMatch={handleCallMatch} onStartMatch={handleStartMatch} onResult={handleResult} onAnnounce={handleAnnouncement} selected={selectedTournament} />}
-      {activeTab === 'resultados' && <TabResultados medalTable={medalTableData} academyResults={academyResults} selected={selectedTournament} />}
-
-      {/* Create Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowCreateModal(false)} />
-          <div className="relative z-10 w-full max-w-md space-y-4 p-6" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Criar Campeonato</h2>
-              <button onClick={() => setShowCreateModal(false)}><XIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} /></button>
-            </div>
-            <div className="space-y-3">
-              <ModalInput placeholder="Nome do campeonato" value={newName} onChange={setNewName} />
-              <ModalInput type="date" value={newDate} onChange={setNewDate} />
-              <ModalInput placeholder="Local" value={newLocation} onChange={setNewLocation} />
-              <ModalInput placeholder="Cidade" value={newCity} onChange={setNewCity} />
-            </div>
-            <button onClick={handleCreate} className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: 'var(--bb-brand)' }}>Criar Campeonato</button>
-          </div>
-        </div>
-      )}
-    </div>
+    </PlanGate>
   );
 }
 
