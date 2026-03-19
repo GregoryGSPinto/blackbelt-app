@@ -3,10 +3,11 @@
 // Re-fetches Google Places details and runs fresh Claude analysis for a single prospect.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { getPlaceDetails } from '@/lib/integrations/google-places';
 import { analisarAcademiaIndividual } from '@/lib/integrations/claude-analysis';
 import type { AcademiaParaAnalise } from '@/lib/integrations/claude-analysis';
+import type { AcademiaProspectada } from '@/lib/api/prospeccao.service';
 
 // --- Types ---
 
@@ -14,40 +15,134 @@ interface EnriquecerBody {
   prospectId: string;
 }
 
+interface ProspectRow {
+  id: string;
+  nome: string;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  bairro: string | null;
+  telefone: string | null;
+  site: string | null;
+  google_maps_url: string | null;
+  google_place_id: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  nota_google: number | null;
+  total_avaliacoes: number | null;
+  instagram: string | null;
+  instagram_seguidores: number | null;
+  facebook: string | null;
+  modalidades: string[] | null;
+  alunos_estimados: number | null;
+  faturamento_estimado: number | null;
+  tamanho: string | null;
+  score_total: number | null;
+  score_breakdown: Record<string, number> | null;
+  classificacao: string | null;
+  sinais_dor: string[] | null;
+  sinais_oportunidade: string[] | null;
+  sistema_detectado: string | null;
+  analise: Record<string, unknown> | null;
+  abordagem: Record<string, unknown> | null;
+  status: string | null;
+  ultimo_contato: string | null;
+  proximo_contato: string | null;
+  canal_contato: string | null;
+  observacoes: string | null;
+  responsavel: string | null;
+  motivo_perda: string | null;
+  academy_id: string | null;
+  fonte: string | null;
+  buscado_em: string;
+  atualizado_em: string;
+  created_at: string;
+}
+
+// --- Helpers ---
+
+function rowToAcademiaProspectada(row: ProspectRow): AcademiaProspectada {
+  const abordagem = (row.abordagem ?? {}) as Record<string, string>;
+  const analise = (row.analise ?? {}) as Record<string, unknown>;
+  const scoreBreakdown = (row.score_breakdown ?? {}) as Record<string, number>;
+
+  return {
+    id: row.id,
+    nome: row.nome,
+    endereco: row.endereco ?? '',
+    bairro: row.bairro ?? '',
+    cidade: row.cidade ?? '',
+    estado: row.estado ?? '',
+    telefone: row.telefone ?? '',
+    website: row.site ?? undefined,
+    instagram: row.instagram ?? undefined,
+    googleMapsUrl: row.google_maps_url ?? undefined,
+    notaGoogle: row.nota_google ?? 0,
+    totalAvaliacoes: row.total_avaliacoes ?? 0,
+    modalidades: row.modalidades ?? [],
+    horarioFuncionamento: '',
+    fotos: [],
+    score: {
+      geral: row.score_total ?? 0,
+      infraestrutura: scoreBreakdown.tamanho ?? 0,
+      presencaDigital: scoreBreakdown.acessibilidade ?? 0,
+      reputacao: scoreBreakdown.capacidadePagamento ?? 0,
+      potencialConversao: scoreBreakdown.dorVisivel ?? 0,
+    },
+    estimativas: {
+      alunosEstimados: row.alunos_estimados ?? 0,
+      faturamentoEstimado: row.faturamento_estimado ?? 0,
+      ticketMedio:
+        row.alunos_estimados && row.faturamento_estimado
+          ? Math.round(row.faturamento_estimado / row.alunos_estimados)
+          : 0,
+      marketShare: 0,
+    },
+    reviews: [],
+    analise: {
+      pontosFortes: row.sinais_oportunidade ?? [],
+      pontosFracos: Array.isArray(analise.pontosFracos) ? (analise.pontosFracos as string[]) : [],
+      oportunidades: row.sinais_oportunidade ?? [],
+      ameacas: row.sinais_dor ?? [],
+    },
+    abordagem: {
+      canal: abordagem.canalRecomendado ?? 'WhatsApp',
+      mensagemSugerida: abordagem.mensagemWhatsApp ?? '',
+      melhorHorario: abordagem.melhorHorario ?? '',
+      argumentos: [abordagem.gancho, abordagem.dicaAbordagem].filter(Boolean),
+      objecoesPrevistas: [],
+    },
+    crm: {
+      status: row.status ?? 'novo',
+      ultimoContato: row.ultimo_contato ?? undefined,
+      proximoContato: row.proximo_contato ?? undefined,
+      historicoContatos: [],
+      observacoes: row.observacoes ? [row.observacoes] : [],
+      responsavel: row.responsavel ?? undefined,
+      motivoPerda: row.motivo_perda ?? undefined,
+    },
+    classificacao: (row.classificacao as 'quente' | 'morno' | 'frio') ?? 'frio',
+    criadoEm: row.created_at,
+    atualizadoEm: row.atualizado_em,
+  };
+}
+
 // --- Route Handler ---
 
 export async function POST(request: NextRequest) {
   try {
-    const body: EnriquecerBody = await request.json();
+    const body = (await request.json()) as EnriquecerBody;
 
     if (!body.prospectId || typeof body.prospectId !== 'string') {
       return NextResponse.json(
-        { error: { message: 'Campo "prospectId" é obrigatório', status: 400 } },
+        { error: 'Campo "prospectId" é obrigatório' },
         { status: 400 },
       );
     }
 
-    // --- Step 1: Get prospect from Supabase ---
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = getAdminClient();
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json(
-        { error: { message: 'Supabase não configurado', status: 500 } },
-        { status: 500 },
-      );
-    }
-
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set() { /* API routes don't set cookies */ },
-        remove() { /* API routes don't remove cookies */ },
-      },
-    });
-
+    // --- Step 1: Fetch prospect from Supabase ---
     const { data: prospect, error: fetchError } = await supabase
       .from('prospects')
       .select('*')
@@ -56,15 +151,17 @@ export async function POST(request: NextRequest) {
 
     if (fetchError || !prospect) {
       return NextResponse.json(
-        { error: { message: `Prospect ${body.prospectId} não encontrado`, status: 404 } },
+        { error: `Prospect ${body.prospectId} não encontrado` },
         { status: 404 },
       );
     }
 
-    const googlePlaceId = prospect.google_place_id as string;
+    const row = prospect as ProspectRow;
+    const googlePlaceId = row.google_place_id;
+
     if (!googlePlaceId) {
       return NextResponse.json(
-        { error: { message: 'Prospect não possui google_place_id', status: 400 } },
+        { error: 'Prospect não possui google_place_id para enriquecimento' },
         { status: 400 },
       );
     }
@@ -75,10 +172,7 @@ export async function POST(request: NextRequest) {
       details = await getPlaceDetails(googlePlaceId);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao buscar detalhes no Google Places';
-      return NextResponse.json(
-        { error: { message, status: 502 } },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: message }, { status: 502 });
     }
 
     // --- Step 3: Run Claude analysis ---
@@ -105,10 +199,7 @@ export async function POST(request: NextRequest) {
       analysis = await analisarAcademiaIndividual(academiaInput);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro na análise IA';
-      return NextResponse.json(
-        { error: { message, status: 502 } },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: message }, { status: 502 });
     }
 
     // --- Step 4: Update prospect in Supabase ---
@@ -118,63 +209,49 @@ export async function POST(request: NextRequest) {
       cidade: details.cidade,
       estado: details.estado,
       bairro: details.bairro,
-      cep: details.cep,
+      telefone: details.telefone ?? null,
+      site: details.site ?? null,
+      google_maps_url: details.googleMapsUrl,
       latitude: details.latitude,
       longitude: details.longitude,
-      telefone: details.telefone ?? null,
-      telefone_internacional: details.telefoneInternacional ?? null,
-      site: details.site ?? null,
-      instagram: null,
-      google_maps_url: details.googleMapsUrl,
-      nota: details.nota,
+      nota_google: details.nota,
       total_avaliacoes: details.totalAvaliacoes,
-      horarios: details.horarios,
-      aberto_agora: details.abertoAgora,
-      reviews: details.reviews,
-      fotos: details.fotos,
-      tipos: details.tipos,
       modalidades: analysis.modalidades,
-      estimativa_alunos: analysis.estimativaAlunos,
-      estimativa_faturamento: analysis.estimativaFaturamento,
+      alunos_estimados: analysis.estimativaAlunos,
+      faturamento_estimado: analysis.estimativaFaturamento,
       tamanho: analysis.tamanho,
-      tempo_mercado: analysis.tempoMercado,
-      sinais_dor: analysis.sinaisDor,
-      sinais_oportunidade: analysis.sinaisOportunidade,
-      pontos_fracos: analysis.pontosFracos,
-      sistema_detectado: analysis.sistemaDetectado,
-      score: analysis.score,
+      score_total: analysis.score,
       score_breakdown: analysis.scoreBreakdown,
       classificacao: analysis.classificacao,
-      motivo_classificacao: analysis.motivoClassificacao,
+      sinais_dor: analysis.sinaisDor,
+      sinais_oportunidade: analysis.sinaisOportunidade,
+      sistema_detectado: analysis.sistemaDetectado,
+      analise: {
+        pontosFracos: analysis.pontosFracos,
+        motivoClassificacao: analysis.motivoClassificacao,
+      },
       abordagem: analysis.abordagem,
-      updated_at: new Date().toISOString(),
+      buscado_em: new Date().toISOString(),
+      atualizado_em: new Date().toISOString(),
     };
 
     const { data: updated, error: updateError } = await supabase
       .from('prospects')
       .update(updatedData)
       .eq('id', body.prospectId)
-      .select()
+      .select('*')
       .single();
 
-    if (updateError) {
+    if (updateError || !updated) {
       // Return enriched data even if Supabase update fails
-      console.warn('[prospeccao/enriquecer] Failed to update Supabase:', updateError.message);
-      return NextResponse.json({
-        prospect: { ...prospect, ...updatedData },
-        savedToDb: false,
-      });
+      console.warn('[prospeccao/enriquecer] Failed to update Supabase:', updateError?.message);
+      const mergedRow: ProspectRow = { ...row, ...updatedData } as ProspectRow;
+      return NextResponse.json(rowToAcademiaProspectada(mergedRow));
     }
 
-    return NextResponse.json({
-      prospect: updated,
-      savedToDb: true,
-    });
+    return NextResponse.json(rowToAcademiaProspectada(updated as ProspectRow));
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro interno no servidor';
-    return NextResponse.json(
-      { error: { message, status: 500 } },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

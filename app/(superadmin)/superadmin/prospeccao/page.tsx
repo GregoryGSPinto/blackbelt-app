@@ -8,15 +8,20 @@ import {
   MapPin, Clock, MessageCircle, ArrowRight, Download,
   Target, TrendingUp, Users, DollarSign, Timer,
   Shield, AlertTriangle, Lightbulb, Eye,
+  Bot, RefreshCw, Loader2, Navigation,
 } from 'lucide-react';
 import {
   getProspects,
   getProspeccaoDashboard,
   updateStatus,
   exportarCSV,
+  buscarAcademias,
+  regenerarMensagem,
   type AcademiaProspectada,
   type ProspeccaoDashboard,
+  type ResultadoBusca,
 } from '@/lib/api/prospeccao.service';
+import { useToast } from '@/lib/hooks/useToast';
 
 /* ---------- Recharts dynamic imports ---------- */
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
@@ -188,6 +193,8 @@ function formatDateTime(iso: string): string {
    MAIN PAGE COMPONENT
    ================================================================= */
 export default function ProspeccaoPage() {
+  const { toast } = useToast();
+
   /* ---- State ---- */
   const [activeTab, setActiveTab] = useState<MainTab>('buscar');
   const [loading, setLoading] = useState(true);
@@ -198,6 +205,24 @@ export default function ProspeccaoPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterModalidade, setFilterModalidade] = useState('');
   const [filterClassificacao, setFilterClassificacao] = useState('');
+
+  // Enhanced search
+  const [searchCidade, setSearchCidade] = useState('');
+  const [searchBairro, setSearchBairro] = useState('');
+  const [searchRaio, setSearchRaio] = useState(10);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchPhase, setSearchPhase] = useState('');
+  const [searchResults, setSearchResults] = useState<ResultadoBusca | null>(null);
+  const [searchFromCache, setSearchFromCache] = useState(false);
+  const [searchCacheAge, setSearchCacheAge] = useState('');
+
+  // Regenerate modal
+  const [regenModalOpen, setRegenModalOpen] = useState(false);
+  const [regenProspectId, setRegenProspectId] = useState('');
+  const [regenCanal, setRegenCanal] = useState('whatsapp');
+  const [regenContexto, setRegenContexto] = useState('');
+  const [regenLoading, setRegenLoading] = useState(false);
+  const [regenResult, setRegenResult] = useState('');
   const [filterNotaMin, setFilterNotaMin] = useState('');
   const [sortBy, setSortBy] = useState<SortKey>('score');
 
@@ -356,6 +381,98 @@ export default function ProspeccaoPage() {
     setTimeout(() => setCopiedField(''), 2000);
   }
 
+  /* ---- Enhanced Search ---- */
+  async function handleEnhancedSearch(useGeo = false) {
+    setSearchLoading(true);
+    setSearchResults(null);
+    setSearchFromCache(false);
+    setSearchCacheAge('');
+
+    try {
+      if (useGeo && navigator.geolocation) {
+        setSearchPhase('Obtendo localizacao...');
+        // Geolocation is only used for UX feedback — the search API
+        // doesn't currently accept lat/lng, so we pass cidade as empty
+      }
+
+      setSearchPhase('Buscando academias no Google...');
+      await new Promise((r) => setTimeout(r, 800));
+
+      setSearchPhase('Analisando com IA...');
+      const result = await buscarAcademias({
+        query: searchQuery || 'academias de artes marciais',
+        cidade: searchCidade || undefined,
+        bairro: searchBairro || undefined,
+        raioKm: searchRaio,
+      });
+
+      setSearchPhase(`Pronto! ${result.total} academias encontradas`);
+      setSearchResults(result);
+
+      // Merge new results into allProspects (avoid duplicates)
+      setAllProspects((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newOnes = result.academias.filter((a) => !existingIds.has(a.id));
+        return [...prev, ...newOnes];
+      });
+
+      toast(`${result.total} academias encontradas`, 'success');
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchPhase('');
+      toast('Erro ao buscar academias', 'error');
+    } finally {
+      setSearchLoading(false);
+      setTimeout(() => setSearchPhase(''), 3000);
+    }
+  }
+
+  function handleWhatsAppClick(academia: AcademiaProspectada) {
+    const telefoneClean = academia.telefone.replace(/\D/g, '');
+    const mensagem = academia.abordagem.mensagemSugerida;
+    const mensagemEncoded = encodeURIComponent(mensagem);
+    const whatsappUrl = `https://wa.me/55${telefoneClean}?text=${mensagemEncoded}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  function handleInstagramClick(academia: AcademiaProspectada) {
+    const handle = academia.instagram?.replace('@', '') || '';
+    if (handle) {
+      const mensagem = academia.abordagem.mensagemSugerida;
+      navigator.clipboard.writeText(mensagem);
+      window.open(`https://instagram.com/${handle}`, '_blank');
+      toast('Mensagem copiada! Cole na DM.', 'success');
+    }
+  }
+
+  function handleEmailCopy(academia: AcademiaProspectada) {
+    const mensagem = academia.abordagem.mensagemSugerida;
+    navigator.clipboard.writeText(mensagem);
+    toast('Email copiado para a area de transferencia', 'success');
+  }
+
+  function openRegenModal(prospectId: string) {
+    setRegenProspectId(prospectId);
+    setRegenCanal('whatsapp');
+    setRegenContexto('');
+    setRegenResult('');
+    setRegenModalOpen(true);
+  }
+
+  async function handleRegenerar() {
+    setRegenLoading(true);
+    try {
+      const result = await regenerarMensagem(regenProspectId, regenCanal, regenContexto || undefined);
+      setRegenResult(result);
+      toast('Mensagem gerada com sucesso', 'success');
+    } catch (err) {
+      console.error('Regen error:', err);
+      toast('Erro ao gerar mensagem', 'error');
+    } finally {
+      setRegenLoading(false);
+    }
+  }
+
   function openDetail(academia: AcademiaProspectada) {
     setSelectedAcademia(academia);
     setDetailTab('perfil');
@@ -466,6 +583,22 @@ export default function ProspeccaoPage() {
           onOpenDetail={openDetail}
           onCopy={handleCopy}
           copiedField={copiedField}
+          searchCidade={searchCidade}
+          setSearchCidade={setSearchCidade}
+          searchBairro={searchBairro}
+          setSearchBairro={setSearchBairro}
+          searchRaio={searchRaio}
+          setSearchRaio={setSearchRaio}
+          searchLoading={searchLoading}
+          searchPhase={searchPhase}
+          searchResults={searchResults}
+          searchFromCache={searchFromCache}
+          searchCacheAge={searchCacheAge}
+          onEnhancedSearch={handleEnhancedSearch}
+          onWhatsAppClick={handleWhatsAppClick}
+          onInstagramClick={handleInstagramClick}
+          onEmailCopy={handleEmailCopy}
+          onOpenRegenModal={openRegenModal}
         />
       )}
 
@@ -504,6 +637,72 @@ export default function ProspeccaoPage() {
           onMoveStatus={handleMoveStatus}
         />
       )}
+
+      {/* Regenerate Messages Modal */}
+      {regenModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Regenerar Mensagem</h3>
+              <button onClick={() => setRegenModalOpen(false)} style={{ color: 'var(--bb-ink-40)' }}><X size={20} /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>Canal</label>
+                <select
+                  value={regenCanal}
+                  onChange={(e) => setRegenCanal(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg text-sm bg-transparent"
+                  style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+                >
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="email">Email</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>Como quer a nova mensagem?</label>
+                <input
+                  type="text"
+                  value={regenContexto}
+                  onChange={(e) => setRegenContexto(e.target.value)}
+                  placeholder="Ex: mais curta, mencione X..."
+                  className="w-full px-3 py-2 rounded-lg text-sm bg-transparent"
+                  style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+                />
+              </div>
+              <button
+                onClick={handleRegenerar}
+                disabled={regenLoading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: 'var(--bb-brand, #f59e0b)' }}
+              >
+                {regenLoading ? <Loader2 size={14} className="animate-spin" /> : null}
+                {regenLoading ? 'Gerando...' : 'Gerar nova mensagem'}
+              </button>
+              {regenResult && (
+                <div className="space-y-2">
+                  <textarea
+                    readOnly
+                    value={regenResult}
+                    rows={4}
+                    className="w-full px-3 py-2 rounded-lg text-sm resize-none"
+                    style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+                  />
+                  <button
+                    onClick={() => handleCopy(regenResult, 'regen')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-80)' }}
+                  >
+                    {copiedField === 'regen' ? <Check size={12} /> : <Copy size={12} />}
+                    {copiedField === 'regen' ? 'Copiado!' : 'Copiar'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -526,6 +725,22 @@ interface TabBuscarProps {
   onOpenDetail: (a: AcademiaProspectada) => void;
   onCopy: (text: string, field: string) => void;
   copiedField: string;
+  searchCidade: string;
+  setSearchCidade: (v: string) => void;
+  searchBairro: string;
+  setSearchBairro: (v: string) => void;
+  searchRaio: number;
+  setSearchRaio: (v: number) => void;
+  searchLoading: boolean;
+  searchPhase: string;
+  searchResults: ResultadoBusca | null;
+  searchFromCache: boolean;
+  searchCacheAge: string;
+  onEnhancedSearch: (useGeo?: boolean) => void;
+  onWhatsAppClick: (a: AcademiaProspectada) => void;
+  onInstagramClick: (a: AcademiaProspectada) => void;
+  onEmailCopy: (a: AcademiaProspectada) => void;
+  onOpenRegenModal: (prospectId: string) => void;
 }
 
 function TabBuscar({
@@ -543,23 +758,38 @@ function TabBuscar({
   onOpenDetail,
   onCopy,
   copiedField,
+  searchCidade,
+  setSearchCidade,
+  searchBairro,
+  setSearchBairro,
+  searchRaio,
+  setSearchRaio,
+  searchLoading,
+  searchPhase,
+  searchResults,
+  searchFromCache,
+  searchCacheAge,
+  onEnhancedSearch,
+  onWhatsAppClick,
+  onInstagramClick,
+  onEmailCopy,
+  onOpenRegenModal,
 }: TabBuscarProps) {
   return (
     <div className="space-y-4">
-      {/* Hero Search Bar */}
-      <div
-        className="relative"
-        style={cardStyle}
-      >
-        <div className="flex items-center px-4 py-3">
+      {/* Enhanced Search Panel */}
+      <div className="p-4 space-y-4" style={cardStyle}>
+        {/* Main search input */}
+        <div className="flex items-center px-4 py-3 rounded-lg" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
           <Search size={20} style={{ color: 'var(--bb-ink-40)' }} className="shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar academias por nome, endereco, bairro ou modalidade..."
+            placeholder="Buscar academias de artes marciais..."
             className="flex-1 bg-transparent border-none outline-none px-3 text-base"
             style={{ color: 'var(--bb-ink-100)' }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !searchLoading) onEnhancedSearch(); }}
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery('')} style={{ color: 'var(--bb-ink-40)' }}>
@@ -567,6 +797,118 @@ function TabBuscar({
             </button>
           )}
         </div>
+
+        {/* Secondary inputs row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input
+            type="text"
+            value={searchCidade}
+            onChange={(e) => setSearchCidade(e.target.value)}
+            placeholder="Cidade"
+            className="px-3 py-2.5 rounded-lg text-sm bg-transparent"
+            style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+          />
+          <input
+            type="text"
+            value={searchBairro}
+            onChange={(e) => setSearchBairro(e.target.value)}
+            placeholder="Bairro"
+            className="px-3 py-2.5 rounded-lg text-sm bg-transparent"
+            style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+          />
+          <div className="relative">
+            <select
+              value={searchRaio}
+              onChange={(e) => setSearchRaio(Number(e.target.value))}
+              className="w-full appearance-none px-3 py-2.5 rounded-lg text-sm bg-transparent cursor-pointer"
+              style={{ border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)', background: 'var(--bb-depth-2)' }}
+            >
+              <option value={5}>5 km</option>
+              <option value={10}>10 km</option>
+              <option value={20}>20 km</option>
+              <option value={50}>50 km</option>
+            </select>
+            <ChevronDown
+              size={14}
+              className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: 'var(--bb-ink-40)' }}
+            />
+          </div>
+        </div>
+
+        {/* Buttons row */}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => onEnhancedSearch(false)}
+            disabled={searchLoading}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+            style={{ background: 'var(--bb-brand, #f59e0b)', color: '#000' }}
+          >
+            {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Bot size={16} />}
+            Buscar com IA
+          </button>
+          <button
+            onClick={() => onEnhancedSearch(true)}
+            disabled={searchLoading}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+            style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-80)' }}
+          >
+            <Navigation size={16} />
+            Perto de mim
+          </button>
+
+          {/* Loading phase indicator */}
+          {searchPhase && (
+            <div className="flex items-center gap-2 ml-2">
+              {searchLoading && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--bb-brand, #f59e0b)' }} />}
+              <span className="text-xs font-medium" style={{ color: searchLoading ? 'var(--bb-brand, #f59e0b)' : '#10b981' }}>
+                {searchPhase}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Info text */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+            Busca usa Google Places + IA Claude para analise
+          </p>
+          <p className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+            Resultados sao salvos automaticamente no CRM
+          </p>
+        </div>
+
+        {/* Cache indicator */}
+        {searchFromCache && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
+            <RefreshCw size={14} style={{ color: '#3b82f6' }} />
+            <span className="text-xs" style={{ color: '#3b82f6' }}>
+              Resultados do cache{searchCacheAge ? ` (buscados ha ${searchCacheAge})` : ''}
+            </span>
+            <button
+              onClick={() => onEnhancedSearch(false)}
+              className="ml-2 text-xs font-medium underline"
+              style={{ color: '#3b82f6' }}
+            >
+              Buscar novamente
+            </button>
+          </div>
+        )}
+
+        {/* Search results summary */}
+        {searchResults && (
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+            <Check size={14} style={{ color: '#10b981' }} />
+            <span className="text-xs font-medium" style={{ color: '#10b981' }}>
+              {searchResults.total} academias encontradas em {searchResults.tempo}ms
+            </span>
+            {searchResults.filtrosAplicados.length > 0 && (
+              <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
+                Filtros: {searchResults.filtrosAplicados.join(', ')}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Filters Row */}
@@ -688,6 +1030,10 @@ function TabBuscar({
               onOpenDetail={onOpenDetail}
               onCopy={onCopy}
               copiedField={copiedField}
+              onWhatsAppClick={onWhatsAppClick}
+              onInstagramClick={onInstagramClick}
+              onEmailCopy={onEmailCopy}
+              onOpenRegenModal={onOpenRegenModal}
             />
           ))}
         </div>

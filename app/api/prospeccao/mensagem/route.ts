@@ -3,7 +3,7 @@
 // Generates a new personalized outreach message for a specific channel.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { regenerarMensagem } from '@/lib/integrations/claude-analysis';
 import type { AcademiaParaAnalise } from '@/lib/integrations/claude-analysis';
 
@@ -15,56 +15,44 @@ interface MensagemBody {
   contexto?: string;
 }
 
-const CANAIS_VALIDOS = ['WhatsApp', 'Instagram', 'Email', 'Presencial', 'Telefone'];
+interface ProspectRow {
+  id: string;
+  nome: string;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  bairro: string | null;
+  telefone: string | null;
+  site: string | null;
+  nota_google: number | null;
+  total_avaliacoes: number | null;
+  modalidades: string[] | null;
+  abordagem: Record<string, unknown> | null;
+}
 
 // --- Route Handler ---
 
 export async function POST(request: NextRequest) {
   try {
-    const body: MensagemBody = await request.json();
+    const body = (await request.json()) as MensagemBody;
 
     if (!body.prospectId || typeof body.prospectId !== 'string') {
       return NextResponse.json(
-        { error: { message: 'Campo "prospectId" é obrigatório', status: 400 } },
+        { error: 'Campo "prospectId" é obrigatório' },
         { status: 400 },
       );
     }
 
     if (!body.canal || typeof body.canal !== 'string') {
       return NextResponse.json(
-        { error: { message: 'Campo "canal" é obrigatório', status: 400 } },
+        { error: 'Campo "canal" é obrigatório' },
         { status: 400 },
       );
     }
 
-    if (!CANAIS_VALIDOS.includes(body.canal)) {
-      return NextResponse.json(
-        { error: { message: `Canal inválido. Canais válidos: ${CANAIS_VALIDOS.join(', ')}`, status: 400 } },
-        { status: 400 },
-      );
-    }
+    const supabase = getAdminClient();
 
-    // --- Step 1: Get prospect from Supabase ---
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json(
-        { error: { message: 'Supabase não configurado', status: 500 } },
-        { status: 500 },
-      );
-    }
-
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set() { /* API routes don't set cookies */ },
-        remove() { /* API routes don't remove cookies */ },
-      },
-    });
-
+    // --- Step 1: Fetch prospect from Supabase ---
     const { data: prospect, error: fetchError } = await supabase
       .from('prospects')
       .select('*')
@@ -73,36 +61,26 @@ export async function POST(request: NextRequest) {
 
     if (fetchError || !prospect) {
       return NextResponse.json(
-        { error: { message: `Prospect ${body.prospectId} não encontrado`, status: 404 } },
+        { error: `Prospect ${body.prospectId} não encontrado` },
         { status: 404 },
       );
     }
 
-    // --- Step 2: Build academia input from prospect data ---
+    const row = prospect as ProspectRow;
+
+    // --- Step 2: Build AcademiaParaAnalise from prospect data ---
     const academiaInput: AcademiaParaAnalise = {
-      nome: (prospect.nome as string) ?? '',
-      endereco: (prospect.endereco as string) ?? '',
-      bairro: (prospect.bairro as string) ?? '',
-      cidade: (prospect.cidade as string) ?? '',
-      nota: (prospect.nota as number) ?? 0,
-      totalAvaliacoes: (prospect.total_avaliacoes as number) ?? 0,
-      telefone: (prospect.telefone as string) ?? undefined,
-      site: (prospect.site as string) ?? undefined,
-      reviews: Array.isArray(prospect.reviews)
-        ? (prospect.reviews as { autor: string; nota: number; texto: string }[]).map((r) => ({
-            autor: r.autor ?? '',
-            nota: r.nota ?? 0,
-            texto: r.texto ?? '',
-          }))
-        : [],
-      horarios: Array.isArray(prospect.horarios)
-        ? (prospect.horarios as { dia: string; abre: string; fecha: string }[]).map((h) => ({
-            dia: h.dia ?? '',
-            abre: h.abre ?? '',
-            fecha: h.fecha ?? '',
-          }))
-        : [],
-      tipos: Array.isArray(prospect.tipos) ? (prospect.tipos as string[]) : [],
+      nome: row.nome ?? '',
+      endereco: row.endereco ?? '',
+      bairro: row.bairro ?? '',
+      cidade: row.cidade ?? '',
+      nota: row.nota_google ?? 0,
+      totalAvaliacoes: row.total_avaliacoes ?? 0,
+      telefone: row.telefone ?? undefined,
+      site: row.site ?? undefined,
+      reviews: [],
+      horarios: [],
+      tipos: row.modalidades ?? [],
     };
 
     // --- Step 3: Generate new message ---
@@ -111,16 +89,13 @@ export async function POST(request: NextRequest) {
       mensagem = await regenerarMensagem(academiaInput, body.canal, body.contexto);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao gerar mensagem';
-      return NextResponse.json(
-        { error: { message, status: 502 } },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: message }, { status: 502 });
     }
 
     // --- Step 4: Update prospect's abordagem in Supabase ---
     try {
-      const currentAbordagem = (prospect.abordagem as Record<string, unknown>) ?? {};
-      const canalKey = `mensagem${body.canal}` as string;
+      const currentAbordagem = (row.abordagem ?? {}) as Record<string, unknown>;
+      const canalKey = `mensagem${body.canal}`;
 
       const updatedAbordagem = {
         ...currentAbordagem,
@@ -131,7 +106,7 @@ export async function POST(request: NextRequest) {
         .from('prospects')
         .update({
           abordagem: updatedAbordagem,
-          updated_at: new Date().toISOString(),
+          atualizado_em: new Date().toISOString(),
         })
         .eq('id', body.prospectId);
     } catch {
@@ -139,16 +114,9 @@ export async function POST(request: NextRequest) {
       console.warn('[prospeccao/mensagem] Failed to update abordagem in Supabase');
     }
 
-    return NextResponse.json({
-      mensagem,
-      canal: body.canal,
-      prospectId: body.prospectId,
-    });
+    return NextResponse.json({ mensagem });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro interno no servidor';
-    return NextResponse.json(
-      { error: { message, status: 500 } },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -3,11 +3,12 @@
 // Searches Google Places, enriches with Claude AI, caches in Supabase.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { searchPlaces, getPlaceDetails } from '@/lib/integrations/google-places';
 import { analisarAcademias } from '@/lib/integrations/claude-analysis';
 import type { PlaceDetails } from '@/lib/integrations/google-places';
 import type { AcademiaParaAnalise, AnaliseIA } from '@/lib/integrations/claude-analysis';
+import type { AcademiaProspectada, ResultadoBuscaReal } from '@/lib/api/prospeccao.service';
 
 // --- Types ---
 
@@ -16,45 +17,52 @@ interface BuscarBody {
   cidade?: string;
   bairro?: string;
   raioKm?: number;
+  lat?: number;
+  lng?: number;
 }
 
-interface MergedProspect {
-  google_place_id: string;
+interface ProspectRow {
+  id: string;
   nome: string;
-  endereco: string;
-  cidade: string;
-  estado: string;
-  bairro: string;
-  cep: string;
-  latitude: number;
-  longitude: number;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  bairro: string | null;
   telefone: string | null;
-  telefone_internacional: string | null;
   site: string | null;
+  google_maps_url: string | null;
+  google_place_id: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  nota_google: number | null;
+  total_avaliacoes: number | null;
   instagram: string | null;
-  google_maps_url: string;
-  nota: number;
-  total_avaliacoes: number;
-  horarios: PlaceDetails['horarios'];
-  aberto_agora: boolean;
-  reviews: PlaceDetails['reviews'];
-  fotos: string[];
-  tipos: string[];
-  // IA analysis fields
-  modalidades: string[];
-  estimativa_alunos: number;
-  estimativa_faturamento: number;
-  tamanho: string;
-  tempo_mercado: string;
-  sinais_dor: string[];
-  sinais_oportunidade: string[];
-  pontos_fracos: string[];
+  instagram_seguidores: number | null;
+  facebook: string | null;
+  modalidades: string[] | null;
+  alunos_estimados: number | null;
+  faturamento_estimado: number | null;
+  tamanho: string | null;
+  score_total: number | null;
+  score_breakdown: Record<string, number> | null;
+  classificacao: string | null;
+  sinais_dor: string[] | null;
+  sinais_oportunidade: string[] | null;
   sistema_detectado: string | null;
-  score: number;
-  score_breakdown: AnaliseIA['scoreBreakdown'];
-  classificacao: string;
-  motivo_classificacao: string;
-  abordagem: AnaliseIA['abordagem'];
+  analise: Record<string, unknown> | null;
+  abordagem: Record<string, unknown> | null;
+  status: string | null;
+  ultimo_contato: string | null;
+  proximo_contato: string | null;
+  canal_contato: string | null;
+  observacoes: string | null;
+  responsavel: string | null;
+  motivo_perda: string | null;
+  academy_id: string | null;
+  fonte: string | null;
+  buscado_em: string;
+  atualizado_em: string;
+  created_at: string;
 }
 
 // --- Helpers ---
@@ -79,98 +87,111 @@ function placeDetailsToAnaliseInput(details: PlaceDetails): AcademiaParaAnalise 
   };
 }
 
-function mergeData(details: PlaceDetails, analysis: AnaliseIA): MergedProspect {
+function buildUpsertRow(
+  details: PlaceDetails,
+  analysis: AnaliseIA | null,
+): Record<string, unknown> {
   return {
-    google_place_id: details.placeId,
     nome: details.nome,
     endereco: details.endereco,
     cidade: details.cidade,
     estado: details.estado,
     bairro: details.bairro,
-    cep: details.cep,
+    telefone: details.telefone ?? null,
+    site: details.site ?? null,
+    google_maps_url: details.googleMapsUrl,
+    google_place_id: details.placeId,
     latitude: details.latitude,
     longitude: details.longitude,
-    telefone: details.telefone ?? null,
-    telefone_internacional: details.telefoneInternacional ?? null,
-    site: details.site ?? null,
-    instagram: null,
-    google_maps_url: details.googleMapsUrl,
-    nota: details.nota,
+    nota_google: details.nota,
     total_avaliacoes: details.totalAvaliacoes,
-    horarios: details.horarios,
-    aberto_agora: details.abertoAgora,
-    reviews: details.reviews,
-    fotos: details.fotos,
-    tipos: details.tipos,
-    modalidades: analysis.modalidades,
-    estimativa_alunos: analysis.estimativaAlunos,
-    estimativa_faturamento: analysis.estimativaFaturamento,
-    tamanho: analysis.tamanho,
-    tempo_mercado: analysis.tempoMercado,
-    sinais_dor: analysis.sinaisDor,
-    sinais_oportunidade: analysis.sinaisOportunidade,
-    pontos_fracos: analysis.pontosFracos,
-    sistema_detectado: analysis.sistemaDetectado,
-    score: analysis.score,
-    score_breakdown: analysis.scoreBreakdown,
-    classificacao: analysis.classificacao,
-    motivo_classificacao: analysis.motivoClassificacao,
-    abordagem: analysis.abordagem,
+    modalidades: analysis?.modalidades ?? [],
+    alunos_estimados: analysis?.estimativaAlunos ?? null,
+    faturamento_estimado: analysis?.estimativaFaturamento ?? null,
+    tamanho: analysis?.tamanho ?? null,
+    score_total: analysis?.score ?? 0,
+    score_breakdown: analysis?.scoreBreakdown ?? {},
+    classificacao: analysis?.classificacao ?? 'frio',
+    sinais_dor: analysis?.sinaisDor ?? [],
+    sinais_oportunidade: analysis?.sinaisOportunidade ?? [],
+    sistema_detectado: analysis?.sistemaDetectado ?? null,
+    analise: analysis
+      ? { pontosFracos: analysis.pontosFracos, motivoClassificacao: analysis.motivoClassificacao }
+      : {},
+    abordagem: analysis?.abordagem ?? {},
+    fonte: 'google_places',
+    buscado_em: new Date().toISOString(),
   };
 }
 
-function mergeDataWithoutAnalysis(details: PlaceDetails): MergedProspect {
+function rowToAcademiaProspectada(row: ProspectRow): AcademiaProspectada {
+  const abordagem = (row.abordagem ?? {}) as Record<string, string>;
+  const analise = (row.analise ?? {}) as Record<string, unknown>;
+  const scoreBreakdown = (row.score_breakdown ?? {}) as Record<string, number>;
+
   return {
-    google_place_id: details.placeId,
-    nome: details.nome,
-    endereco: details.endereco,
-    cidade: details.cidade,
-    estado: details.estado,
-    bairro: details.bairro,
-    cep: details.cep,
-    latitude: details.latitude,
-    longitude: details.longitude,
-    telefone: details.telefone ?? null,
-    telefone_internacional: details.telefoneInternacional ?? null,
-    site: details.site ?? null,
-    instagram: null,
-    google_maps_url: details.googleMapsUrl,
-    nota: details.nota,
-    total_avaliacoes: details.totalAvaliacoes,
-    horarios: details.horarios,
-    aberto_agora: details.abertoAgora,
-    reviews: details.reviews,
-    fotos: details.fotos,
-    tipos: details.tipos,
-    modalidades: [],
-    estimativa_alunos: 0,
-    estimativa_faturamento: 0,
-    tamanho: 'media',
-    tempo_mercado: 'Desconhecido',
-    sinais_dor: [],
-    sinais_oportunidade: [],
-    pontos_fracos: [],
-    sistema_detectado: null,
-    score: 0,
-    score_breakdown: { tamanho: 0, dorVisivel: 0, capacidadePagamento: 0, acessibilidade: 0 },
-    classificacao: 'frio',
-    motivo_classificacao: 'Análise IA não disponível',
-    abordagem: {
-      canalRecomendado: 'WhatsApp',
-      mensagemWhatsApp: '',
-      mensagemInstagram: '',
-      mensagemEmail: '',
-      scriptPresencial: '',
-      melhorHorario: '',
-      gancho: '',
-      dicaAbordagem: '',
+    id: row.id,
+    nome: row.nome,
+    endereco: row.endereco ?? '',
+    bairro: row.bairro ?? '',
+    cidade: row.cidade ?? '',
+    estado: row.estado ?? '',
+    telefone: row.telefone ?? '',
+    website: row.site ?? undefined,
+    instagram: row.instagram ?? undefined,
+    googleMapsUrl: row.google_maps_url ?? undefined,
+    notaGoogle: row.nota_google ?? 0,
+    totalAvaliacoes: row.total_avaliacoes ?? 0,
+    modalidades: row.modalidades ?? [],
+    horarioFuncionamento: '',
+    fotos: [],
+    score: {
+      geral: row.score_total ?? 0,
+      infraestrutura: scoreBreakdown.tamanho ?? 0,
+      presencaDigital: scoreBreakdown.acessibilidade ?? 0,
+      reputacao: scoreBreakdown.capacidadePagamento ?? 0,
+      potencialConversao: scoreBreakdown.dorVisivel ?? 0,
     },
+    estimativas: {
+      alunosEstimados: row.alunos_estimados ?? 0,
+      faturamentoEstimado: row.faturamento_estimado ?? 0,
+      ticketMedio:
+        row.alunos_estimados && row.faturamento_estimado
+          ? Math.round(row.faturamento_estimado / row.alunos_estimados)
+          : 0,
+      marketShare: 0,
+    },
+    reviews: [],
+    analise: {
+      pontosFortes: row.sinais_oportunidade ?? [],
+      pontosFracos: Array.isArray(analise.pontosFracos) ? (analise.pontosFracos as string[]) : [],
+      oportunidades: row.sinais_oportunidade ?? [],
+      ameacas: row.sinais_dor ?? [],
+    },
+    abordagem: {
+      canal: abordagem.canalRecomendado ?? 'WhatsApp',
+      mensagemSugerida: abordagem.mensagemWhatsApp ?? '',
+      melhorHorario: abordagem.melhorHorario ?? '',
+      argumentos: [abordagem.gancho, abordagem.dicaAbordagem].filter(Boolean),
+      objecoesPrevistas: [],
+    },
+    crm: {
+      status: row.status ?? 'novo',
+      ultimoContato: row.ultimo_contato ?? undefined,
+      proximoContato: row.proximo_contato ?? undefined,
+      historicoContatos: [],
+      observacoes: row.observacoes ? [row.observacoes] : [],
+      responsavel: row.responsavel ?? undefined,
+      motivoPerda: row.motivo_perda ?? undefined,
+    },
+    classificacao: (row.classificacao as 'quente' | 'morno' | 'frio') ?? 'frio',
+    criadoEm: row.created_at,
+    atualizadoEm: row.atualizado_em,
   };
 }
 
 /**
  * Process place details in batches to avoid rate limiting.
- * Max `batchSize` concurrent requests.
  */
 async function getDetailsInBatches(
   placeIds: string[],
@@ -188,36 +209,14 @@ async function getDetailsInBatches(
       if (result.status === 'fulfilled') {
         results.push(result.value);
       }
-      // Skip failed detail fetches silently
     }
   }
 
   return results;
 }
 
-function createSupabaseClient(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) return null;
-
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set() {
-        // API routes don't set cookies
-      },
-      remove() {
-        // API routes don't remove cookies
-      },
-    },
-  });
-}
-
-function formatCacheAge(createdAt: string): string {
-  const diffMs = Date.now() - new Date(createdAt).getTime();
+function formatCacheAge(buscadoEm: string): string {
+  const diffMs = Date.now() - new Date(buscadoEm).getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
@@ -230,26 +229,25 @@ function formatCacheAge(createdAt: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: BuscarBody = await request.json();
+    const body = (await request.json()) as BuscarBody;
 
     if (!body.query || typeof body.query !== 'string') {
       return NextResponse.json(
-        { error: { message: 'Campo "query" é obrigatório', status: 400 } },
+        { error: 'Campo "query" é obrigatório' },
         { status: 400 },
       );
     }
 
     // --- Step 1: Check Supabase cache ---
-    const supabase = createSupabaseClient(request);
+    let supabaseAvailable = true;
     try {
-      if (!supabase) throw new Error('Supabase not configured');
-
+      const supabase = getAdminClient();
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
       let cacheQuery = supabase
         .from('prospects')
         .select('*')
-        .gte('created_at', sevenDaysAgo);
+        .gte('buscado_em', sevenDaysAgo);
 
       if (body.cidade) {
         cacheQuery = cacheQuery.ilike('cidade', `%${body.cidade}%`);
@@ -261,119 +259,194 @@ export async function POST(request: NextRequest) {
       const { data: cached, error: cacheError } = await cacheQuery;
 
       if (!cacheError && cached && cached.length > 0) {
-        const oldestRecord = cached.reduce((oldest, current) => {
-          return new Date(current.created_at) < new Date(oldest.created_at) ? current : oldest;
-        });
+        const rows = cached as ProspectRow[];
+        const oldestBuscadoEm = rows.reduce(
+          (oldest, current) =>
+            new Date(current.buscado_em) < new Date(oldest.buscado_em) ? current : oldest,
+        ).buscado_em;
 
-        return NextResponse.json({
-          resultados: cached,
-          total: cached.length,
+        const result: ResultadoBuscaReal = {
+          prospects: rows.map(rowToAcademiaProspectada),
           fromCache: true,
-          cacheAge: formatCacheAge(oldestRecord.created_at),
-        });
+          cacheAge: formatCacheAge(oldestBuscadoEm),
+          totalEncontrados: rows.length,
+          analisadosPorIA: true,
+        };
+
+        return NextResponse.json(result);
       }
     } catch {
-      // Supabase cache check failed — continue without cache
+      supabaseAvailable = false;
       console.warn('[prospeccao/buscar] Cache check failed, proceeding with fresh search');
     }
 
-    // --- Step 2: Search Google Places ---
-    const composedQuery = [
-      body.query,
-      body.bairro,
-      body.cidade,
-    ].filter(Boolean).join(' ');
+    // --- Step 2: Build search query and call Google Places ---
+    const searchQuery = `${body.query} ${body.bairro ?? ''} ${body.cidade ?? ''}`.trim();
 
     let searchResults;
     try {
       searchResults = await searchPlaces({
-        query: composedQuery,
-        radius: body.raioKm ? body.raioKm * 1000 : undefined,
+        query: searchQuery,
+        location:
+          body.lat !== undefined && body.lng !== undefined
+            ? { lat: body.lat, lng: body.lng }
+            : undefined,
+        radius: body.raioKm ? body.raioKm * 1000 : 10000,
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao buscar no Google Places';
+    } catch {
       return NextResponse.json(
-        { error: { message, status: 502 } },
+        { error: 'Falha ao buscar no Google Places. Verifique a API key.' },
         { status: 502 },
       );
     }
 
     if (searchResults.length === 0) {
-      return NextResponse.json({
-        resultados: [],
-        total: 0,
+      const emptyResult: ResultadoBuscaReal = {
+        prospects: [],
         fromCache: false,
-        message: 'Nenhuma academia encontrada para esta busca',
-      });
+        totalEncontrados: 0,
+        analisadosPorIA: false,
+      };
+      return NextResponse.json(emptyResult);
     }
 
-    // --- Step 3: Get details for each place (batched) ---
-    const placeIds = searchResults.map((r) => r.placeId);
+    // --- Step 3: Get details for each place (limit 20, batched by 5) ---
+    const placeIds = searchResults.slice(0, 20).map((r) => r.placeId);
     const allDetails = await getDetailsInBatches(placeIds, 5);
 
     if (allDetails.length === 0) {
-      return NextResponse.json({
-        resultados: searchResults.map((r) => ({
-          google_place_id: r.placeId,
-          nome: r.nome,
-          endereco: r.endereco,
-          nota: r.nota,
-          total_avaliacoes: r.totalAvaliacoes,
-        })),
-        total: searchResults.length,
+      const emptyResult: ResultadoBuscaReal = {
+        prospects: [],
         fromCache: false,
-        message: 'Detalhes das academias não puderam ser carregados',
-      });
+        totalEncontrados: searchResults.length,
+        analisadosPorIA: false,
+      };
+      return NextResponse.json(emptyResult);
     }
 
     // --- Step 4: Claude AI analysis ---
-    let mergedResults: MergedProspect[];
+    let analyses: AnaliseIA[] = [];
+    let analisadosPorIA = false;
 
     try {
       const academiasParaAnalise = allDetails.map(placeDetailsToAnaliseInput);
-      const analyses = await analisarAcademias(academiasParaAnalise);
-
-      // Merge Google data with IA analysis
-      mergedResults = allDetails.map((details, index) => {
-        const analysis = analyses[index];
-        if (analysis) {
-          return mergeData(details, analysis);
-        }
-        return mergeDataWithoutAnalysis(details);
-      });
+      analyses = await analisarAcademias(academiasParaAnalise);
+      analisadosPorIA = analyses.length > 0;
     } catch {
-      // Claude failed — return Google data without analysis
       console.warn('[prospeccao/buscar] Claude analysis failed, returning Google data only');
-      mergedResults = allDetails.map(mergeDataWithoutAnalysis);
     }
 
-    // --- Step 5: Upsert to Supabase ---
-    try {
-      if (supabase) {
-        const upsertData = mergedResults.map((prospect) => ({
-          ...prospect,
-          updated_at: new Date().toISOString(),
-        }));
+    // --- Step 5: Merge Google data + IA analysis ---
+    const upsertRows = allDetails.map((details, index) => {
+      const analysis = analyses[index] ?? null;
+      return buildUpsertRow(details, analysis);
+    });
 
-        await supabase
+    // --- Step 6: Upsert into Supabase ---
+    let savedRows: ProspectRow[] = [];
+    try {
+      if (supabaseAvailable) {
+        const supabase = getAdminClient();
+
+        const { data: upserted, error: upsertError } = await supabase
           .from('prospects')
-          .upsert(upsertData, { onConflict: 'google_place_id' });
+          .upsert(upsertRows, { onConflict: 'google_place_id' })
+          .select('*');
+
+        if (!upsertError && upserted) {
+          savedRows = upserted as ProspectRow[];
+        }
       }
     } catch {
-      // Supabase save failed — return results without persisting
       console.warn('[prospeccao/buscar] Failed to save to Supabase, returning results anyway');
     }
 
-    return NextResponse.json({
-      resultados: mergedResults,
-      total: mergedResults.length,
+    // --- Step 7: Return merged results in AcademiaProspectada format ---
+    let prospects: AcademiaProspectada[];
+
+    if (savedRows.length > 0) {
+      prospects = savedRows.map(rowToAcademiaProspectada);
+    } else {
+      // Build prospects from raw data if Supabase save failed
+      prospects = allDetails.map((details, index) => {
+        const analysis = analyses[index] ?? null;
+        const abordagemIA = analysis?.abordagem;
+
+        return {
+          id: details.placeId,
+          nome: details.nome,
+          endereco: details.endereco,
+          bairro: details.bairro,
+          cidade: details.cidade,
+          estado: details.estado,
+          telefone: details.telefone ?? '',
+          website: details.site ?? undefined,
+          googleMapsUrl: details.googleMapsUrl,
+          notaGoogle: details.nota,
+          totalAvaliacoes: details.totalAvaliacoes,
+          modalidades: analysis?.modalidades ?? [],
+          horarioFuncionamento: '',
+          fotos: details.fotos,
+          score: {
+            geral: analysis?.score ?? 0,
+            infraestrutura: analysis?.scoreBreakdown.tamanho ?? 0,
+            presencaDigital: analysis?.scoreBreakdown.acessibilidade ?? 0,
+            reputacao: analysis?.scoreBreakdown.capacidadePagamento ?? 0,
+            potencialConversao: analysis?.scoreBreakdown.dorVisivel ?? 0,
+          },
+          estimativas: {
+            alunosEstimados: analysis?.estimativaAlunos ?? 0,
+            faturamentoEstimado: analysis?.estimativaFaturamento ?? 0,
+            ticketMedio:
+              analysis && analysis.estimativaAlunos > 0
+                ? Math.round(analysis.estimativaFaturamento / analysis.estimativaAlunos)
+                : 0,
+            marketShare: 0,
+          },
+          reviews: details.reviews.map((r) => ({
+            autor: r.autor,
+            nota: r.nota,
+            texto: r.texto,
+            data: r.data,
+            plataforma: 'Google',
+          })),
+          analise: {
+            pontosFortes: analysis?.sinaisOportunidade ?? [],
+            pontosFracos: analysis?.pontosFracos ?? [],
+            oportunidades: analysis?.sinaisOportunidade ?? [],
+            ameacas: analysis?.sinaisDor ?? [],
+          },
+          abordagem: {
+            canal: abordagemIA?.canalRecomendado ?? 'WhatsApp',
+            mensagemSugerida: abordagemIA?.mensagemWhatsApp ?? '',
+            melhorHorario: abordagemIA?.melhorHorario ?? '',
+            argumentos: [abordagemIA?.gancho, abordagemIA?.dicaAbordagem].filter(
+              (s): s is string => Boolean(s),
+            ),
+            objecoesPrevistas: [],
+          },
+          crm: {
+            status: 'novo',
+            historicoContatos: [],
+            observacoes: [],
+          },
+          classificacao: analysis?.classificacao ?? 'frio',
+          criadoEm: new Date().toISOString(),
+          atualizadoEm: new Date().toISOString(),
+        } satisfies AcademiaProspectada;
+      });
+    }
+
+    const result: ResultadoBuscaReal = {
+      prospects,
       fromCache: false,
-    });
+      totalEncontrados: searchResults.length,
+      analisadosPorIA,
+    };
+
+    return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro interno no servidor';
-    return NextResponse.json(
-      { error: { message, status: 500 } },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
