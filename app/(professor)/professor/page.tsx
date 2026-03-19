@@ -20,7 +20,10 @@ import {
   TrendingUpIcon,
   EyeIcon,
   PlusIcon,
+  HelpCircleIcon,
 } from '@/components/shell/icons';
+import { getDuvidasPendentes } from '@/lib/api/video-experience.service';
+import type { Duvida } from '@/lib/api/video-experience.service';
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -309,6 +312,7 @@ function StatCard({ label, value, icon, accent, inView }: StatCardProps) {
 export default function ProfessorDashboardPage() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [duvidasPendentes, setDuvidasPendentes] = useState<(Duvida & { videoTitulo: string; videoId: string })[]>([]);
 
   const statsSection = useInView(0.1);
 
@@ -316,6 +320,10 @@ export default function ProfessorDashboardPage() {
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    getDuvidasPendentes().then(setDuvidasPendentes).catch(() => {});
   }, []);
 
   const greeting = useMemo(() => getGreeting(), []);
@@ -810,6 +818,84 @@ export default function ProfessorDashboardPage() {
           ))}
         </div>
       </section>
+
+      {/* ── DUVIDAS PENDENTES ─────────────────────────────────────── */}
+      {duvidasPendentes.length > 0 && (
+        <section className="animate-reveal" style={{ animationDelay: '0.37s' }}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2
+              className="text-base font-semibold"
+              style={{ color: 'var(--bb-ink-100)' }}
+            >
+              Duvidas Pendentes
+              <span
+                className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1 text-[11px] font-bold text-white"
+                style={{ background: 'var(--bb-warning)' }}
+              >
+                {duvidasPendentes.length}
+              </span>
+            </h2>
+            <Link
+              href="/professor/duvidas"
+              className="flex items-center gap-1 text-xs font-medium transition-colors"
+              style={{ color: 'var(--bb-brand)' }}
+            >
+              Ver todas <ChevronRightIcon className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="space-y-2" data-stagger>
+            {duvidasPendentes.slice(0, 3).map((duvida) => (
+              <Link
+                key={duvida.id}
+                href={`/professor/duvidas`}
+                className="block p-3 transition-all duration-200 hover:scale-[1.01]"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                  borderRadius: 'var(--bb-radius-lg)',
+                  borderLeft: '3px solid var(--bb-warning)',
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center"
+                    style={{
+                      borderRadius: 'var(--bb-radius-full)',
+                      background: 'var(--bb-warning-surface)',
+                      color: 'var(--bb-warning)',
+                    }}
+                  >
+                    <HelpCircleIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="text-sm font-medium line-clamp-2"
+                      style={{ color: 'var(--bb-ink-100)' }}
+                    >
+                      &quot;{duvida.pergunta}&quot;
+                    </p>
+                    <div className="mt-1 flex items-center gap-2 text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                      <span>{duvida.alunoNome}</span>
+                      <span>·</span>
+                      <span>{duvida.videoTitulo}</span>
+                      {duvida.timestampFormatado && (
+                        <>
+                          <span>·</span>
+                          <span>{duvida.timestampFormatado}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-1 text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                      <span>{duvida.votos} votos</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── QUICK ACTIONS ───────────────────────────────────────────── */}
       <section className="animate-reveal" style={{ animationDelay: '0.4s' }}>
