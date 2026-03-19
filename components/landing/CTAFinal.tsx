@@ -23,7 +23,7 @@ export function CTAFinal() {
       </h3>
 
       <Link
-        href="/cadastro-academia"
+        href="/cadastrar-academia"
         className="mt-10 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
         style={{
           background: 'var(--bb-brand-gradient)',

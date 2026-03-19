@@ -39,7 +39,6 @@ export interface PlaceDetails {
   telefone?: string;
   telefoneInternacional?: string;
   site?: string;
-  instagram?: string;
   googleMapsUrl: string;
   nota: number;
   totalAvaliacoes: number;
@@ -117,33 +116,6 @@ function extractAddressComponent(
   return comp?.longText ?? comp?.shortText ?? '';
 }
 
-function tryExtractInstagram(websiteUri?: string, reviews?: GooglePlace['reviews']): string | undefined {
-  // Check websiteUri first
-  if (websiteUri) {
-    const instagramMatch = websiteUri.match(/instagram\.com\/([^/?#]+)/i);
-    if (instagramMatch) {
-      return `@${instagramMatch[1]}`;
-    }
-  }
-
-  // Check reviews for Instagram mentions
-  if (reviews) {
-    for (const review of reviews) {
-      const text = review.text?.text ?? '';
-      const match = text.match(/@([a-zA-Z0-9_.]+)/);
-      if (match) {
-        // Only return if it looks like an Instagram handle (not just an @mention)
-        const handle = match[1];
-        if (handle.length > 2 && !handle.includes(' ')) {
-          return `@${handle}`;
-        }
-      }
-    }
-  }
-
-  return undefined;
-}
-
 // --- Exported Functions ---
 
 /**
@@ -176,7 +148,6 @@ export async function searchPlaces(params: PlacesSearchParams): Promise<PlacesSe
     textQuery: params.query,
     languageCode: params.language ?? 'pt-BR',
     maxResultCount: params.maxResults ?? 20,
-    includedType: 'gym',
   };
 
   if (params.location) {
@@ -296,11 +267,8 @@ export async function getPlaceDetails(placeId: string): Promise<PlaceDetails> {
   // Build photo URLs
   const fotos: string[] = (place.photos ?? [])
     .filter((p) => p.name)
-    .slice(0, 10)
+    .slice(0, 5)
     .map((p) => getPhotoUrl(p.name!, 800));
-
-  // Try extracting Instagram
-  const instagram = tryExtractInstagram(place.websiteUri, place.reviews);
 
   return {
     placeId: place.id ?? placeId,
@@ -315,7 +283,6 @@ export async function getPlaceDetails(placeId: string): Promise<PlaceDetails> {
     telefone: place.nationalPhoneNumber,
     telefoneInternacional: place.internationalPhoneNumber,
     site: place.websiteUri,
-    instagram,
     googleMapsUrl: place.googleMapsUri ?? '',
     nota: place.rating ?? 0,
     totalAvaliacoes: place.userRatingCount ?? 0,

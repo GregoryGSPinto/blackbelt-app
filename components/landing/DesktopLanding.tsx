@@ -257,7 +257,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
             Entrar
           </button>
           <Link
-            href="/cadastro-academia"
+            href="/cadastrar-academia"
             className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)' }}
           >
@@ -291,7 +291,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
 
         <div className="mt-10 flex items-center gap-4">
           <Link
-            href="/cadastro-academia"
+            href="/cadastrar-academia"
             className="rounded-xl px-8 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)', boxShadow: '0 4px 24px rgba(239,68,68,0.25)' }}
             onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--bb-brand-glow)'; }}
@@ -665,7 +665,7 @@ export function DesktopLanding({ onLoginClick }: DesktopLandingProps) {
 
         <div className="mt-10 flex items-center justify-center gap-4">
           <Link
-            href="/cadastro-academia"
+            href="/cadastrar-academia"
             className="rounded-xl px-8 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: 'var(--bb-brand-gradient)', boxShadow: '0 4px 24px rgba(239,68,68,0.25)' }}
           >

@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       telefone: details.telefone ?? null,
       telefone_internacional: details.telefoneInternacional ?? null,
       site: details.site ?? null,
-      instagram: details.instagram ?? null,
+      instagram: null,
       google_maps_url: details.googleMapsUrl,
       nota: details.nota,
       total_avaliacoes: details.totalAvaliacoes,

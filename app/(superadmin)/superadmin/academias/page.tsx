@@ -61,8 +61,8 @@ function getOnboardUrl(token: string): string {
 }
 
 function getSignupUrl(token: string): string {
-  if (typeof window !== 'undefined') return `${window.location.origin}/cadastro-academia?ref=${token}`;
-  return `/cadastro-academia?ref=${token}`;
+  if (typeof window !== 'undefined') return `${window.location.origin}/cadastrar-academia?ref=${token}`;
+  return `/cadastrar-academia?ref=${token}`;
 }
 
 function getHealthColor(score: number): string {

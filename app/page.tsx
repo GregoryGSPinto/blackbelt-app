@@ -138,7 +138,7 @@ export default function LandingPage() {
           {/* CTAs */}
           <div className="mt-10 flex w-full max-w-xs flex-col gap-3">
             <Link
-              href="/cadastro-academia"
+              href="/cadastrar-academia"
               className="flex items-center justify-center rounded-xl py-3.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 background: 'var(--bb-brand-gradient)',
@@ -269,7 +269,7 @@ export default function LandingPage() {
             </h3>
 
             <Link
-              href="/cadastro-academia"
+              href="/cadastrar-academia"
               className="mt-10 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 background: 'var(--bb-brand-gradient)',

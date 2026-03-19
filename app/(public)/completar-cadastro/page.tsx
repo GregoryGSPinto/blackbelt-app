@@ -328,7 +328,7 @@ export default function CompletarCadastroPage() {
                   Voce sera redirecionado para o cadastro completo da academia.
                 </p>
                 <Link
-                  href="/cadastro-academia"
+                  href="/cadastrar-academia"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
                   style={{ background: 'var(--bb-brand-gradient, var(--bb-brand))' }}
                 >

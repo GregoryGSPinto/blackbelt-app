@@ -20,6 +20,7 @@ export interface AcademiaParaAnalise {
 }
 
 export interface AnaliseIA {
+  nomeAcademia: string;
   modalidades: string[];
   estimativaAlunos: number;
   estimativaFaturamento: number;
@@ -138,6 +139,7 @@ IMPORTANTE:
 Formato de resposta (array JSON, um objeto por academia na mesma ordem recebida):
 [
   {
+    "nomeAcademia": "Nome da Academia",
     "modalidades": ["BJJ", "Muay Thai"],
     "estimativaAlunos": 120,
     "estimativaFaturamento": 48000,
@@ -221,6 +223,7 @@ function parseAnalysisResponse(text: string, count: number): AnaliseIA[] {
 
   // Validate and type-cast each entry
   return parsed.slice(0, count).map((item: Record<string, unknown>) => ({
+    nomeAcademia: typeof item.nomeAcademia === 'string' ? item.nomeAcademia : '',
     modalidades: Array.isArray(item.modalidades) ? (item.modalidades as string[]) : [],
     estimativaAlunos: typeof item.estimativaAlunos === 'number' ? item.estimativaAlunos : 0,
     estimativaFaturamento: typeof item.estimativaFaturamento === 'number' ? item.estimativaFaturamento : 0,
@@ -301,7 +304,7 @@ export async function analisarAcademias(academias: AcademiaParaAnalise[]): Promi
   const responseText = await callClaude(
     systemPrompt,
     [{ role: 'user', content: `Analise as seguintes ${academias.length} academia(s):\n\n${userMessage}` }],
-    8192,
+    8000,
   );
 
   return parseAnalysisResponse(responseText, academias.length);
@@ -353,6 +356,6 @@ Responda apenas com a mensagem pronta para enviar.`;
   return callClaude(
     systemPrompt,
     [{ role: 'user', content: userMessage }],
-    1024,
+    500,
   );
 }
