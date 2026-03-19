@@ -1,20 +1,22 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   listVideos, listSeries, listTrails, listMaterials,
-  getContentStats, extractVideoInfo, createVideo,
+  getContentStats, createVideo,
   publishVideo, unpublishVideo, deleteVideo, duplicateVideo,
   createSeries, deleteSeries,
   createTrail, deleteTrail,
   createMaterial, deleteMaterial,
   setQuizForVideo, getQuizForVideo,
 } from '@/lib/api/content-management.service';
+import { uploadVideo } from '@/lib/api/video-storage.service';
+import type { UploadProgress } from '@/lib/types/video-storage';
 import { handleServiceError } from '@/lib/api/errors';
 import type {
   ContentVideo, ContentStats, VideoFormData, SeriesFormData,
   AcademicMaterial, AcademicMaterialInput,
-  ExtractedVideoInfo, QuizQuestionInput,
+  QuizQuestionInput,
 } from '@/lib/types/content-management';
 import type { StreamingSeries, StreamingTrail } from '@/lib/types/streaming';
 import { GRADIENT_PRESETS } from '@/lib/mocks/content-management.mock';
@@ -479,9 +481,11 @@ function PlaylistsTab({
   onNewSeries: () => void;
   onDelete: (id: string) => void;
 }) {
+  const orphanVideos = videos.filter(v => !v.series_id);
+
   return (
     <section className="animate-reveal space-y-4">
-      {series.length === 0 ? (
+      {series.length === 0 && orphanVideos.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Nenhuma playlist criada.</p>
           <button onClick={onNewSeries} className="mt-3 rounded-lg px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--bb-brand)' }}>
@@ -489,35 +493,39 @@ function PlaylistsTab({
           </button>
         </div>
       ) : (
-        series.map((s) => {
-          const seriesVideos = videos.filter(v => v.series_id === s.id).sort((a, b) => a.order - b.order);
-          return (
-            <div
-              key={s.id} className="overflow-hidden"
-              style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)' }}
-            >
-              {/* Header with gradient */}
-              <div className="flex items-center gap-4 p-4">
-                <div className="h-14 w-14 shrink-0 rounded-lg" style={{ background: s.gradient_css }} />
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                    {'\uD83C\uDFAC'} {s.title}
-                  </h3>
-                  <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                    {seriesVideos.length} videos \u00B7 {s.total_duration} \u00B7 Faixa: {BELT_OPTIONS.find(b => b.value === s.min_belt)?.label ?? s.min_belt} \u00B7 {s.modality}
-                  </p>
+        <>
+          {series.map((s) => {
+            const seriesVideos = videos.filter(v => v.series_id === s.id).sort((a, b) => a.order - b.order);
+            const publishedCount = seriesVideos.filter(v => v.is_published).length;
+            const draftCount = seriesVideos.length - publishedCount;
+            return (
+              <div
+                key={s.id} className="overflow-hidden"
+                style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)' }}
+              >
+                {/* Header with gradient */}
+                <div className="flex items-center gap-4 p-4">
+                  <div className="h-14 w-14 shrink-0 rounded-lg" style={{ background: s.gradient_css }} />
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                      {s.title} ({seriesVideos.length} videos)
+                    </h3>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      {s.modality} &middot; Faixa: {BELT_OPTIONS.find(b => b.value === s.min_belt)?.label ?? s.min_belt}
+                      {publishedCount > 0 && ` · ${publishedCount} publicados`}
+                      {draftCount > 0 && ` · ${draftCount} rascunhos`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onDelete(s.id)}
+                    className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+                    style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444' }}
+                  >
+                    Excluir
+                  </button>
                 </div>
-                <button
-                  onClick={() => onDelete(s.id)}
-                  className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
-                  style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444' }}
-                >
-                  {'\uD83D\uDDD1\uFE0F'}
-                </button>
-              </div>
 
-              {/* Episodes */}
-              {seriesVideos.length > 0 && (
+                {/* Episodes */}
                 <div className="px-4 pb-4">
                   <div className="space-y-1.5">
                     {seriesVideos.map((v) => (
@@ -529,7 +537,7 @@ function PlaylistsTab({
                           {v.order}
                         </span>
                         <span className="flex-1 truncate text-xs" style={{ color: 'var(--bb-ink-100)' }}>
-                          {v.title}
+                          {v.is_published ? '' : '(rascunho) '}{v.title}
                         </span>
                         <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                           {fmtDuration(v.duration_seconds)}
@@ -539,12 +547,59 @@ function PlaylistsTab({
                         </span>
                       </div>
                     ))}
+                    {seriesVideos.length === 0 && (
+                      <p className="py-4 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                        Nenhum video nesta playlist. Ao criar um video, selecione esta playlist.
+                      </p>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
+            );
+          })}
+
+          {/* Orphan videos (without playlist) */}
+          {orphanVideos.length > 0 && (
+            <div
+              className="overflow-hidden"
+              style={{ background: 'var(--bb-depth-2)', border: '1px dashed var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)' }}
+            >
+              <div className="p-4">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>
+                  Videos sem playlist ({orphanVideos.length})
+                </h3>
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                  Estes videos nao pertencem a nenhuma playlist. Edite o video para adicionar a uma playlist.
+                </p>
+              </div>
+              <div className="px-4 pb-4 space-y-1.5">
+                {orphanVideos.map((v) => (
+                  <div
+                    key={v.id} className="flex items-center gap-3 rounded-md px-3 py-2"
+                    style={{ background: 'var(--bb-depth-3)' }}
+                  >
+                    <span className="flex-1 truncate text-xs" style={{ color: 'var(--bb-ink-100)' }}>
+                      {v.title}
+                    </span>
+                    <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      {fmtDuration(v.duration_seconds)}
+                    </span>
+                    <span className="text-xs">
+                      {v.is_published ? '\u2705' : '\uD83D\uDCDD'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          );
-        })
+          )}
+
+          {/* New playlist button at bottom */}
+          <button onClick={onNewSeries}
+            className="w-full rounded-lg py-3 text-sm font-medium transition-colors"
+            style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)', border: '1px dashed var(--bb-glass-border)' }}>
+            + Nova Playlist
+          </button>
+        </>
       )}
     </section>
   );
@@ -753,8 +808,11 @@ function AnalyticsTab({ stats, videos }: { stats: ContentStats; videos: ContentV
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// MODAL: NEW VIDEO (Multi-step)
+// MODAL: NEW VIDEO (Upload-only, multi-step)
 // ══════════════════════════════════════════════════════════════════════
+
+const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 
 function NewVideoModal({
   series, onClose, onCreated,
@@ -764,16 +822,20 @@ function NewVideoModal({
   onCreated: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [url, setUrl] = useState('');
-  const [extracting, setExtracting] = useState(false);
-  const [extracted, setExtracted] = useState<ExtractedVideoInfo | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [saving, setSaving] = useState(false);
+  const [fileError, setFileError] = useState('');
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [modality, setModality] = useState('BJJ');
   const [minBelt, setMinBelt] = useState('white');
+  const [difficulty, setDifficulty] = useState('iniciante');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [seriesId, setSeriesId] = useState<string | null>(null);
@@ -782,18 +844,49 @@ function NewVideoModal({
   // Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestionInput[]>([]);
 
-  async function handleExtract() {
-    if (!url.trim()) return;
-    setExtracting(true);
-    try {
-      const info = await extractVideoInfo(url);
-      setExtracted(info);
-      setTitle(info.original_title);
+  function validateFile(f: File): boolean {
+    setFileError('');
+    if (!ACCEPTED_VIDEO_TYPES.includes(f.type)) {
+      setFileError('Formato nao suportado. Use MP4, MOV ou WebM.');
+      return false;
+    }
+    if (f.size > MAX_FILE_SIZE) {
+      setFileError('Arquivo muito grande. Maximo: 500MB.');
+      return false;
+    }
+    return true;
+  }
+
+  function handleFileSelect(f: File) {
+    if (validateFile(f)) {
+      setFile(f);
+      setTitle(f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '));
       setStep(2);
-    } catch {
-      alert('Erro ao extrair informacoes do video.');
-    } finally {
-      setExtracting(false);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFileSelect(f);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(true);
+  }
+
+  function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (f) handleFileSelect(f);
+  }
+
+  function handleRecordClick() {
+    if (fileInputRef.current) {
+      fileInputRef.current.setAttribute('capture', 'environment');
+      fileInputRef.current.click();
+      fileInputRef.current.removeAttribute('capture');
     }
   }
 
@@ -817,15 +910,31 @@ function NewVideoModal({
   }
 
   async function handleSave() {
-    if (!extracted) return;
+    if (!file) return;
     setSaving(true);
+    setUploading(true);
     try {
+      // Upload via unified storage service
+      await uploadVideo(file, {
+        title,
+        description,
+        academy_id: 'academy-1',
+        professor_id: 'prof-andre',
+        modality,
+        belt_level: minBelt,
+        difficulty,
+        tags,
+        audience: [],
+        class_ids: [],
+      }, (progress) => setUploadProgress(progress));
+
+      // Also create video entry in content management
       const seriesVideos = seriesId ? series.find(s => s.id === seriesId)?.videos ?? [] : [];
       const data: VideoFormData = {
-        source: extracted.source, source_url: extracted.source_url,
-        embed_url: extracted.embed_url, source_video_id: extracted.source_video_id,
-        thumbnail_url: extracted.thumbnail_url, duration_seconds: extracted.duration_seconds,
-        original_title: extracted.original_title,
+        source: 'upload', source_url: '',
+        embed_url: '', source_video_id: '',
+        thumbnail_url: '', duration_seconds: 0,
+        original_title: file.name,
         title, description, modality, min_belt: minBelt, tags,
         series_id: seriesId, order: seriesVideos.length + 1,
         is_published: publishNow, is_free: false, quiz_questions: quizQuestions,
@@ -833,9 +942,10 @@ function NewVideoModal({
       await createVideo('academy-1', 'prof-andre', data);
       setStep(4);
     } catch {
-      alert('Erro ao salvar video.');
+      alert('Erro ao enviar video.');
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   }
 
@@ -848,51 +958,82 @@ function NewVideoModal({
           borderRadius: 'var(--bb-radius-lg)', boxShadow: 'var(--bb-shadow-lg)',
         }}
       >
-        {/* Step 1: Paste link */}
+        {/* Step 1: Upload file */}
         {step === 1 && (
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{'\uD83D\uDCF9'} Novo Video</h2>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Novo Video</h2>
               <button onClick={onClose} className="text-lg" style={{ color: 'var(--bb-ink-60)' }}>{'\u2715'}</button>
             </div>
-            <div>
-              <label style={labelStyle}>Cole o link do video:</label>
-              <input type="text" value={url} onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..." className="mt-1 text-sm" style={inputStyle}
+
+            {/* Drop zone */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={() => setDragging(false)}
+              onClick={() => fileInputRef.current?.click()}
+              className="cursor-pointer rounded-xl p-8 text-center transition-all"
+              style={{
+                border: `2px dashed ${dragging ? 'var(--bb-brand)' : 'var(--bb-glass-border)'}`,
+                background: dragging ? 'var(--bb-brand-surface)' : 'var(--bb-depth-3)',
+              }}
+            >
+              <p className="text-3xl mb-2">{'\uD83D\uDCC1'}</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                Arraste o video aqui
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--bb-ink-60)' }}>
+                ou clique para selecionar
+              </p>
+              <p className="text-xs mt-3" style={{ color: 'var(--bb-ink-40)' }}>
+                Formatos: MP4, MOV, WebM &middot; Max: 500MB
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm"
+                onChange={handleFileInput}
+                className="hidden"
               />
             </div>
-            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Plataformas suportadas: {'\uD83D\uDD34'} YouTube {'\uD83D\uDD35'} Vimeo {'\uD83D\uDCC1'} Google Drive
-            </p>
+
+            {fileError && (
+              <p className="text-xs font-medium" style={{ color: '#EF4444' }}>{fileError}</p>
+            )}
+
+            {/* Record button */}
             <button
-              onClick={handleExtract} disabled={extracting || !url.trim()}
-              className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              style={{ background: 'var(--bb-brand)' }}
+              onClick={handleRecordClick}
+              className="w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+              style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
-              {extracting ? 'Extraindo informacoes...' : 'Extrair Informacoes \u2192'}
+              Gravar agora
             </button>
           </div>
         )}
 
-        {/* Step 2: Video data */}
-        {step === 2 && extracted && (
+        {/* Step 2: Video metadata */}
+        {step === 2 && file && (
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{'\u2705'} Video detectado!</h2>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Detalhes do Video</h2>
               <button onClick={onClose} className="text-lg" style={{ color: 'var(--bb-ink-60)' }}>{'\u2715'}</button>
             </div>
 
-            {/* Preview */}
+            {/* File info */}
             <div className="flex items-center gap-3 rounded-lg p-3" style={{ background: 'var(--bb-depth-3)' }}>
-              <div className="h-16 w-24 shrink-0 rounded" style={{ background: `url(${extracted.thumbnail_url}) center/cover` }} />
-              <div>
-                <p className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>Duracao: {fmtDuration(extracted.duration_seconds)}</p>
-                <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Plataforma: {extracted.source}</p>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ background: 'var(--bb-brand-surface)' }}>
+                <span className="text-lg">{'\uD83C\uDFAC'}</span>
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{file.name}</p>
+                <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{fmtBytes(file.size)}</p>
+              </div>
+              <button onClick={() => { setFile(null); setStep(1); }} className="text-xs" style={{ color: '#EF4444' }}>Trocar</button>
             </div>
 
             <div>
-              <label style={labelStyle}>Titulo</label>
+              <label style={labelStyle}>Titulo *</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 text-sm" style={inputStyle} />
             </div>
             <div>
@@ -913,6 +1054,14 @@ function NewVideoModal({
                   {BELT_OPTIONS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
                 </select>
               </div>
+            </div>
+            <div>
+              <label style={labelStyle}>Dificuldade</label>
+              <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="mt-1 text-sm" style={selectStyle}>
+                <option value="iniciante">Iniciante</option>
+                <option value="intermediario">Intermediario</option>
+                <option value="avancado">Avancado</option>
+              </select>
             </div>
             <div>
               <label style={labelStyle}>Tags</label>
@@ -942,13 +1091,14 @@ function NewVideoModal({
               Publicar imediatamente
             </label>
             <div className="flex gap-2">
-              <button onClick={() => setStep(1)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+              <button onClick={() => { setFile(null); setStep(1); }} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
                 style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>
-                {'\u2190'} Voltar
+                Voltar
               </button>
-              <button onClick={() => setStep(3)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              <button onClick={() => setStep(3)} disabled={!title.trim()}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                 style={{ background: 'var(--bb-brand)' }}>
-                Proximo: Quiz {'\u2192'}
+                Proximo: Quiz
               </button>
             </div>
           </div>
@@ -958,7 +1108,7 @@ function NewVideoModal({
         {step === 3 && (
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{'\uD83D\uDCDD'} Quiz (opcional)</h2>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Quiz (opcional)</h2>
               <button onClick={onClose} className="text-lg" style={{ color: 'var(--bb-ink-60)' }}>{'\u2715'}</button>
             </div>
             <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
@@ -969,7 +1119,7 @@ function NewVideoModal({
               <div key={qi} className="rounded-lg p-4 space-y-2" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold" style={{ color: 'var(--bb-ink-100)' }}>Pergunta {qi + 1}</span>
-                  <button onClick={() => removeQuestion(qi)} className="text-xs" style={{ color: '#EF4444' }}>{'\uD83D\uDDD1\uFE0F'} Remover</button>
+                  <button onClick={() => removeQuestion(qi)} className="text-xs" style={{ color: '#EF4444' }}>Remover</button>
                 </div>
                 <input type="text" value={q.question} onChange={(e) => updateQuestion(qi, 'question', e.target.value)}
                   placeholder="Pergunta..." className="text-sm" style={inputStyle} />
@@ -991,7 +1141,7 @@ function NewVideoModal({
                       placeholder={`Opcao ${String.fromCharCode(65 + oi)}`}
                       className="text-sm" style={inputStyle} />
                     {q.correct_index === oi && (
-                      <span className="shrink-0 text-xs" style={{ color: '#22C55E' }}>{'\u2705'}</span>
+                      <span className="shrink-0 text-xs" style={{ color: '#22C55E' }}>Correta</span>
                     )}
                   </div>
                 ))}
@@ -1008,12 +1158,29 @@ function NewVideoModal({
               </button>
             )}
 
+            {/* Upload progress (shown during save) */}
+            {uploading && uploadProgress && (
+              <div className="rounded-lg p-3 space-y-2" style={{ background: 'var(--bb-depth-3)' }}>
+                <div className="flex justify-between text-xs" style={{ color: 'var(--bb-ink-80)' }}>
+                  <span>Enviando...</span>
+                  <span>{uploadProgress.percentage}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${uploadProgress.percentage}%`, background: 'var(--bb-brand)' }} />
+                </div>
+                <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                  {fmtBytes(uploadProgress.loaded)} / {fmtBytes(uploadProgress.total)}
+                  {uploadProgress.estimated_seconds_remaining !== null && ` — ${Math.ceil(uploadProgress.estimated_seconds_remaining / 60)}min restantes`}
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-2">
-              <button onClick={() => setStep(2)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+              <button onClick={() => setStep(2)} disabled={uploading} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
                 style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>
-                {'\u2190'} Voltar
+                Voltar
               </button>
-              <button onClick={() => { setQuizQuestions([]); handleSave(); }}
+              <button onClick={() => { setQuizQuestions([]); handleSave(); }} disabled={saving}
                 className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
                 style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>
                 Pular Quiz
@@ -1021,7 +1188,7 @@ function NewVideoModal({
               <button onClick={handleSave} disabled={saving}
                 className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                 style={{ background: '#22C55E' }}>
-                {saving ? 'Salvando...' : 'Salvar e Finalizar \u2192'}
+                {saving ? 'Enviando...' : 'Publicar'}
               </button>
             </div>
           </div>
@@ -1031,16 +1198,16 @@ function NewVideoModal({
         {step === 4 && (
           <div className="p-6 space-y-4 text-center">
             <p className="text-4xl">{'\u2705'}</p>
-            <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Video adicionado!</h2>
+            <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Video enviado!</h2>
             <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
               &quot;{title}&quot; foi adicionado{seriesId ? ' a serie selecionada' : ' como avulso'}.
             </p>
             <div className="space-y-1 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-              <p>Status: {publishNow ? '\u2705 Publicado' : '\uD83D\uDCDD Rascunho'}</p>
-              <p>Quiz: {quizQuestions.length > 0 ? `${quizQuestions.length} perguntas \u2705` : 'Sem quiz'}</p>
+              <p>Status: {publishNow ? 'Publicado' : 'Rascunho'}</p>
+              <p>Quiz: {quizQuestions.length > 0 ? `${quizQuestions.length} perguntas` : 'Sem quiz'}</p>
             </div>
             <div className="flex flex-col gap-2">
-              <button onClick={() => { setStep(1); setUrl(''); setExtracted(null); setTitle(''); setDescription(''); setTags([]); setQuizQuestions([]); }}
+              <button onClick={() => { setStep(1); setFile(null); setTitle(''); setDescription(''); setTags([]); setQuizQuestions([]); setUploadProgress(null); }}
                 className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style={{ background: 'var(--bb-brand)' }}>
                 Adicionar Outro Video
