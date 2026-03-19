@@ -37,6 +37,7 @@ import {
   PhoneIcon,
   GlobeIcon,
   TrophyIcon,
+  MessageIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -97,6 +98,12 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'COMPETICAO',
     items: [
       { href: '/admin/campeonatos', label: 'Campeonatos', icon: TrophyIcon, id: 'sidebar-link-campeonatos' },
+    ],
+  },
+  {
+    label: 'COMUNICACAO',
+    items: [
+      { href: '/admin/mensagens', label: 'Mensagens', icon: MessageIcon, id: 'sidebar-link-mensagens' },
     ],
   },
   {

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, type CSSProperties } from 'react';
 import {
   listClasses,
   createClass,
+  updateClass,
   deleteClass,
 } from '@/lib/api/class.service';
 import type {
@@ -11,6 +12,7 @@ import type {
   ClassStatus,
   DaySchedule,
   CreateClassDTO,
+  UpdateClassDTO,
 } from '@/lib/types/class';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -170,8 +172,9 @@ export default function AdminTurmasPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterModality, setFilterModality] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<ClassFormState>(INITIAL_FORM);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -205,9 +208,31 @@ export default function AdminTurmasPage() {
   const activeClasses = classes.filter((c) => c.status === 'active').length;
   const totalEnrolled = classes.reduce((sum, c) => sum + c.enrolled_count, 0);
 
-  // ── Create handler ──────────────────────────────────────────
+  // ── Open edit modal ─────────────────────────────────────────
 
-  async function handleCreate() {
+  function openEdit(cls: ClassItem) {
+    const days = [false, false, false, false, false, false, false];
+    cls.schedule.forEach((s) => { days[s.day_of_week] = true; });
+    setForm({
+      name: cls.name,
+      modality: cls.modality,
+      professor_id: cls.professor_id,
+      capacity: String(cls.capacity),
+      room: cls.room || '',
+      min_belt: cls.min_belt || 'white',
+      max_belt: cls.max_belt || 'black',
+      description: cls.description || '',
+      scheduleDays: days,
+      start_time: cls.schedule[0]?.start_time || '19:00',
+      end_time: cls.schedule[0]?.end_time || '20:30',
+    });
+    setEditingId(cls.id);
+    setShowFormModal(true);
+  }
+
+  // ── Save handler (create or update) ────────────────────────
+
+  async function handleSave() {
     if (!form.name.trim() || !form.professor_id) {
       toast('Preencha nome e professor', 'error');
       return;
@@ -228,30 +253,47 @@ export default function AdminTurmasPage() {
       end_time: form.end_time,
     }));
 
-    const dto: CreateClassDTO = {
-      academy_id: 'academy-1',
-      name: form.name,
-      modality: form.modality,
-      professor_id: form.professor_id,
-      schedule,
-      capacity: parseInt(form.capacity, 10) || 25,
-      room: form.room,
-      min_belt: form.min_belt,
-      max_belt: form.max_belt,
-      description: form.description,
-    };
-
-    setCreating(true);
+    setSaving(true);
     try {
-      const newClass = await createClass(dto);
-      setClasses((prev) => [...prev, newClass]);
-      setShowCreateModal(false);
+      if (editingId) {
+        const dto: UpdateClassDTO = {
+          name: form.name,
+          modality: form.modality,
+          professor_id: form.professor_id,
+          schedule,
+          capacity: parseInt(form.capacity, 10) || 25,
+          room: form.room,
+          min_belt: form.min_belt,
+          max_belt: form.max_belt,
+          description: form.description,
+        };
+        const updated = await updateClass(editingId, dto);
+        setClasses((prev) => prev.map((c) => (c.id === editingId ? updated : c)));
+        toast('Turma atualizada com sucesso', 'success');
+      } else {
+        const dto: CreateClassDTO = {
+          academy_id: 'academy-1',
+          name: form.name,
+          modality: form.modality,
+          professor_id: form.professor_id,
+          schedule,
+          capacity: parseInt(form.capacity, 10) || 25,
+          room: form.room,
+          min_belt: form.min_belt,
+          max_belt: form.max_belt,
+          description: form.description,
+        };
+        const newClass = await createClass(dto);
+        setClasses((prev) => [...prev, newClass]);
+        toast('Turma criada com sucesso', 'success');
+      }
+      setShowFormModal(false);
+      setEditingId(null);
       setForm(INITIAL_FORM);
-      toast('Turma criada com sucesso', 'success');
     } catch {
-      toast('Erro ao criar turma', 'error');
+      toast(editingId ? 'Erro ao atualizar turma' : 'Erro ao criar turma', 'error');
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   }
 
@@ -357,7 +399,7 @@ export default function AdminTurmasPage() {
             {filtered.length} turma{filtered.length !== 1 ? 's' : ''} encontrada{filtered.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>Nova Turma</Button>
+        <Button onClick={() => { setEditingId(null); setForm(INITIAL_FORM); setShowFormModal(true); }}>Nova Turma</Button>
       </div>
 
       {/* ── Modality filters ───────────────────────────────── */}
@@ -526,6 +568,17 @@ export default function AdminTurmasPage() {
                   <button
                     type="button"
                     className="text-xs font-medium transition-colors hover:underline min-h-[44px] min-w-[44px] px-2"
+                    style={{ color: 'var(--bb-brand)' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEdit(cls);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium transition-colors hover:underline min-h-[44px] min-w-[44px] px-2"
                     style={{ color: 'var(--bb-error)' }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -541,11 +594,11 @@ export default function AdminTurmasPage() {
         </div>
       )}
 
-      {/* ── Create Class Modal ─────────────────────────────── */}
+      {/* ── Create/Edit Class Modal ────────────────────────── */}
       <Modal
-        open={showCreateModal}
-        onClose={() => { setShowCreateModal(false); setForm(INITIAL_FORM); }}
-        title="Nova Turma"
+        open={showFormModal}
+        onClose={() => { setShowFormModal(false); setEditingId(null); setForm(INITIAL_FORM); }}
+        title={editingId ? 'Editar Turma' : 'Nova Turma'}
       >
         <div className="space-y-4">
           {/* Name */}
@@ -774,17 +827,17 @@ export default function AdminTurmasPage() {
             <Button
               variant="ghost"
               className="flex-1"
-              onClick={() => { setShowCreateModal(false); setForm(INITIAL_FORM); }}
+              onClick={() => { setShowFormModal(false); setEditingId(null); setForm(INITIAL_FORM); }}
             >
               Cancelar
             </Button>
             <Button
               className="flex-1"
-              onClick={handleCreate}
-              loading={creating}
+              onClick={handleSave}
+              loading={saving}
               disabled={!form.name.trim() || !form.professor_id}
             >
-              Criar Turma
+              {editingId ? 'Salvar' : 'Criar Turma'}
             </Button>
           </div>
         </div>
