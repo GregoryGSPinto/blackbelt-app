@@ -6,15 +6,6 @@ import { useScrollReveal } from '@/lib/hooks/useScrollReveal';
 export function CTAFinal() {
   const sectionRef = useScrollReveal();
 
-  function handleScrollToTop() {
-    const loginSection = document.getElementById('login-section');
-    if (loginSection) {
-      loginSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
   return (
     <section
       ref={sectionRef}
@@ -32,7 +23,7 @@ export function CTAFinal() {
       </h3>
 
       <Link
-        href="/cadastro"
+        href="/cadastro-academia"
         className="mt-10 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
         style={{
           background: 'var(--bb-brand-gradient)',
@@ -45,26 +36,16 @@ export function CTAFinal() {
           e.currentTarget.style.boxShadow = '0 4px 24px rgba(239, 68, 68, 0.25)';
         }}
       >
-        CRIAR MINHA CONTA
+        COMECAR GRATIS — 7 DIAS
       </Link>
 
-      <button
-        type="button"
-        onClick={handleScrollToTop}
-        className="mt-6 border-none bg-transparent text-sm transition-colors duration-200"
-        style={{
-          color: 'var(--bb-ink-60)',
-          cursor: 'pointer',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = 'var(--bb-ink-100)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = 'var(--bb-ink-60)';
-        }}
+      <Link
+        href="/login"
+        className="mt-6 text-sm transition-colors duration-200"
+        style={{ color: 'var(--bb-ink-60)' }}
       >
         Ja tem conta? <span style={{ textDecoration: 'underline' }}>Entrar</span>
-      </button>
+      </Link>
     </section>
   );
 }

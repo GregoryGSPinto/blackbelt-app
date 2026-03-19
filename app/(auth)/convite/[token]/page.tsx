@@ -100,7 +100,7 @@ export default function ConviteTokenPage() {
   // ── Navigate to registration ─────────────────────────────────────
 
   function handleCreateAccount() {
-    router.push(`/cadastro?invite=${encodeURIComponent(token)}`);
+    router.push(`/convite/${encodeURIComponent(token)}`);
   }
 
   // ── Loading ──────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/login', '/cadastro', '/convite', '/esqueci-senha', '/selecionar-perfil', '/status', '/termos', '/privacidade', '/verificar', '/onboarding', '/cadastrar-academia', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog', '/comecar'];
+const PUBLIC_PATHS = ['/', '/login', '/cadastro', '/cadastro-academia', '/convite', '/esqueci-senha', '/redefinir-senha', '/senha-alterada', '/selecionar-perfil', '/completar-cadastro', '/status', '/termos', '/privacidade', '/verificar', '/onboarding', '/cadastrar-academia', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog', '/comecar', '/g', '/auth/callback'];
 
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',
@@ -49,8 +49,8 @@ function handleMockAuth(request: NextRequest): NextResponse {
   const token = request.cookies.get('bb-token')?.value;
 
   if (isPublic && token) {
-    // Never block login/cadastro — user may be switching accounts
-    if (pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil') {
+    // Never block these pages — user may be switching accounts or browsing
+    if (pathname === '/' || pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil' || pathname === '/completar-cadastro' || pathname.startsWith('/convite') || pathname.startsWith('/comecar')) {
       return NextResponse.next();
     }
     const payload = decodeTokenPayload(token);
@@ -121,9 +121,9 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Authenticated user on public page → redirect to dashboard
-  // EXCEPT login/cadastro/selecionar-perfil — always allow (user switching accounts)
+  // EXCEPT these pages — always allow (user switching accounts or browsing)
   if (isPublic && user) {
-    if (pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil') {
+    if (pathname === '/' || pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil' || pathname === '/completar-cadastro' || pathname.startsWith('/convite') || pathname.startsWith('/comecar')) {
       return response;
     }
     const activeRole = request.cookies.get('bb-active-role')?.value;
