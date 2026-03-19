@@ -14,18 +14,19 @@ import {
 } from '@/lib/api/academia-teorica.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 /* ── Skeleton ────────────────────────────────────────────────────── */
 
 function PageSkeleton() {
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="h-4 w-20 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-6 w-48 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-3 w-full animate-pulse rounded-full" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-32 w-full animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+      <Skeleton variant="text" className="h-4 w-20" />
+      <Skeleton variant="text" className="h-6 w-48" />
+      <Skeleton variant="text" className="h-3 w-full rounded-full" />
+      <Skeleton variant="card" className="h-32" />
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-14 w-full animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+        <Skeleton key={i} variant="card" className="h-14" />
       ))}
     </div>
   );

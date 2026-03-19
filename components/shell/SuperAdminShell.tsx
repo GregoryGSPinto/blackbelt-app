@@ -203,7 +203,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
             </div>
 
             {/* Nav Groups */}
-            <nav className="flex-1 overflow-y-auto px-3 py-4">
+            <nav aria-label="Menu principal" className="flex-1 overflow-y-auto px-3 py-4">
               {sidebarGroups.map((group, gi) => (
                 <div key={group.label} className={gi > 0 ? 'mt-5' : ''}>
                   {/* Group Label */}
@@ -291,6 +291,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                 className="lg:hidden"
                 onClick={() => setSidebarOpen(true)}
                 style={{ color: 'var(--bb-ink-60)' }}
+                aria-label="Abrir menu"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -317,6 +318,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                     ref={userMenuButtonRef}
                     onClick={() => setUserMenuOpen((prev) => !prev)}
                     className="flex h-9 w-9 items-center justify-center cursor-pointer"
+                    aria-label="Menu do usuario"
                   >
                     <Avatar name={userName} size="sm" />
                   </button>

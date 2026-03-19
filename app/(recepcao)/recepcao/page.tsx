@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -113,6 +114,37 @@ export default function RecepcaoDashboardPage() {
           )}
         </div>
       </section>
+
+      {/* ── ACOES RAPIDAS ────────────────────────────────── */}
+      <div className="mb-4">
+        <p
+          className="text-xs font-medium mb-2"
+          style={{ color: 'var(--bb-ink-50)' }}
+        >
+          Acoes Rapidas
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: 'Buscar Aluno', href: '/recepcao/busca' },
+            { label: 'Cadastro Rapido', href: '/recepcao/cadastro' },
+            { label: 'Check-in Manual', href: '/recepcao/caixa' },
+          ].map((action) => (
+            <Link
+              key={action.label}
+              href={action.href}
+              className="px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:brightness-110"
+              style={{
+                background: 'var(--bb-depth-3)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-md)',
+                color: 'var(--bb-ink-80)',
+              }}
+            >
+              {action.label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {/* ── AULA EM ANDAMENTO ─────────────────────────────── */}
       {data.aulaEmAndamento && (

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { listAuditEntries } from '@/lib/api/audit.service';
 import type { AuditEntry, AuditEntryAction } from '@/lib/types/audit';
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   UserIcon,
   PlusIcon,
@@ -310,19 +311,10 @@ export default function AuditoriaPage() {
         <div className="space-y-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex gap-4">
-              <div
-                className="h-10 w-10 shrink-0 animate-pulse rounded-full"
-                style={{ background: 'var(--bb-depth-3)' }}
-              />
+              <Skeleton variant="circle" className="h-10 w-10 shrink-0" />
               <div className="flex-1 space-y-2">
-                <div
-                  className="h-4 w-3/4 animate-pulse rounded"
-                  style={{ background: 'var(--bb-depth-3)' }}
-                />
-                <div
-                  className="h-3 w-1/2 animate-pulse rounded"
-                  style={{ background: 'var(--bb-depth-3)' }}
-                />
+                <Skeleton variant="text" className="h-4 w-3/4" />
+                <Skeleton variant="text" className="h-3 w-1/2" />
               </div>
             </div>
           ))}

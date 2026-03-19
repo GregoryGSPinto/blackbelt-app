@@ -498,6 +498,39 @@ export default function AdminDashboardPage() {
       {/* ═══ SECTION: FIRST STEPS CHECKLIST ═══════════════════════════ */}
       <FirstStepsChecklist variant="admin" />
 
+      {/* ═══ SECTION: QUICK ACTIONS (TOP) ═════════════════════════════ */}
+      <div className="mb-4">
+        <p
+          className="text-xs font-medium mb-2"
+          style={{ color: 'var(--bb-ink-50)' }}
+        >
+          Acoes Rapidas
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: '+ Aluno', href: '/admin/alunos' },
+            { label: '+ Turma', href: '/admin/turmas' },
+            { label: '+ Fatura', href: '/admin/financeiro' },
+            { label: 'WhatsApp', href: '/admin/whatsapp' },
+            { label: 'Convite', href: '/admin/convites' },
+          ].map((action) => (
+            <Link
+              key={action.label}
+              href={action.href}
+              className="px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:brightness-110"
+              style={{
+                background: 'var(--bb-depth-3)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-md)',
+                color: 'var(--bb-ink-80)',
+              }}
+            >
+              {action.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* ═══ SECTION: HOJE (Daily Briefing) ═══════════════════════════ */}
       {briefing && (
         <section className="animate-reveal space-y-4">

@@ -246,6 +246,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                 href="/professor/alertas"
                 className="relative"
                 style={{ color: 'var(--bb-ink-60)' }}
+                aria-label="Alertas"
               >
                 <BellIcon className="h-5 w-5" />
                 {alertCount > 0 && (
@@ -260,7 +261,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
             </div>
 
             {/* Nav Groups */}
-            <nav className="flex-1 overflow-y-auto px-3 py-4">
+            <nav aria-label="Menu principal" className="flex-1 overflow-y-auto px-3 py-4">
               {sidebarGroups.map((group, gi) => (
                 <div key={group.label} className={gi > 0 ? 'mt-5' : ''}>
                   <p
@@ -478,6 +479,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
 
           {/* Custom Bottom Nav */}
           <nav
+            aria-label="Navegacao principal"
             className="fixed bottom-0 left-0 right-0 z-30 safe-area-bottom"
             style={{
               background: 'var(--bb-depth-2)',

@@ -12,6 +12,7 @@ import {
 } from '@/lib/api/academia-teorica.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 
 /* ── Belt color map ─────────────────────────────────────────────── */
@@ -45,12 +46,12 @@ const HIGHLIGHT_STYLE: Record<string, { bg: string; border: string; text: string
 function PageSkeleton() {
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="h-4 w-20 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-6 w-56 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-4 w-72 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-3 w-full animate-pulse rounded-full" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+      <Skeleton variant="text" className="h-4 w-20" />
+      <Skeleton variant="text" className="h-6 w-56" />
+      <Skeleton variant="text" className="h-4 w-72" />
+      <Skeleton variant="text" className="h-3 w-full rounded-full" />
       {[1, 2, 3].map((i) => (
-        <div key={i} className="h-16 w-full animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+        <Skeleton key={i} variant="card" className="h-16" />
       ))}
     </div>
   );

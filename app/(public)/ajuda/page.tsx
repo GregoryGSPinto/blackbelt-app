@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -190,12 +191,12 @@ function AccordionItem({
 function HelpSkeleton() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
-      <div className="h-8 w-48 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
-      <div className="h-5 w-72 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
-      <div className="h-12 animate-pulse rounded-[var(--bb-radius-md)] bg-[var(--bb-depth-4)]" />
+      <Skeleton variant="text" className="h-8 w-48" />
+      <Skeleton variant="text" className="h-5 w-72" />
+      <Skeleton variant="text" className="h-12 w-full" />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-20 animate-pulse rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-4)]" />
+          <Skeleton key={i} variant="card" className="h-20" />
         ))}
       </div>
     </div>

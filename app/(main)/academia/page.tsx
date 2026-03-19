@@ -11,6 +11,7 @@ import {
   type CertificadoTeorico,
 } from '@/lib/api/academia-teorica.service';
 import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { PlanGate } from '@/components/plans/PlanGate';
 
@@ -31,16 +32,16 @@ function beltStyle(faixa: string) {
   return BELT_COLORS[faixa] ?? BELT_COLORS.branca;
 }
 
-/* ── Skeleton ────────────────────────────────────────────────────── */
+/* ── Loading Skeleton ────────────────────────────────────────────── */
 
-function Skeleton() {
+function AcademiaSkeleton() {
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="h-6 w-48 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-4 w-64 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-28 w-full animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+      <Skeleton variant="text" className="h-6 w-48" />
+      <Skeleton variant="text" className="h-4 w-64" />
+      <Skeleton variant="card" className="h-28" />
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-20 w-full animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+        <Skeleton key={i} variant="card" className="h-20" />
       ))}
     </div>
   );
@@ -64,7 +65,7 @@ export default function AcademiaPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Skeleton />;
+  if (loading) return <AcademiaSkeleton />;
 
   return (
     <PlanGate module="academia_teorica">

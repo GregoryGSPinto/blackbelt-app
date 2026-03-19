@@ -8,6 +8,7 @@ import {
   type TermoArtesMarciais,
 } from '@/lib/api/academia-teorica.service';
 import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -42,21 +43,21 @@ function langStyle(idioma: string) {
   return LANGUAGE_BADGE[idioma] ?? { bg: 'var(--bb-depth-4)', text: 'var(--bb-ink-60)' };
 }
 
-/* ── Skeleton ────────────────────────────────────────────────────── */
+/* ── Loading Skeleton ────────────────────────────────────────────── */
 
-function Skeleton() {
+function GlossarioSkeleton() {
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="h-6 w-56 animate-pulse rounded" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
-      <div className="h-10 w-full animate-pulse rounded-xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+      <Skeleton variant="text" className="h-6 w-56" />
+      <Skeleton variant="text" className="h-10 w-full rounded-xl" />
       <div className="flex gap-2">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-8 w-16 animate-pulse rounded-full" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+          <Skeleton key={i} variant="text" className="h-8 w-16 rounded-full" />
         ))}
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-36 animate-pulse rounded-2xl" style={{ backgroundColor: 'var(--bb-depth-4)' }} />
+          <Skeleton key={i} variant="card" className="h-36" />
         ))}
       </div>
     </div>
@@ -192,7 +193,7 @@ export default function GlossarioPage() {
 
       {/* ── Results ───────────────────────────────────────────────── */}
       {loading ? (
-        <Skeleton />
+        <GlossarioSkeleton />
       ) : termos.length === 0 ? (
         <EmptyState
           variant="search"

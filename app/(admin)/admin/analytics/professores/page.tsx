@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getProfessorPerformance } from '@/lib/api/analytics.service';
 import type { ProfessorMetricsDTO } from '@/lib/api/analytics.service';
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   UsersIcon,
   AwardIcon,
@@ -71,7 +72,7 @@ export default function ProfessorAnalyticsPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-xl" style={{ background: 'var(--bb-depth-3)' }} />
+            <Skeleton key={i} variant="card" className="h-32" />
           ))}
         </div>
       ) : (

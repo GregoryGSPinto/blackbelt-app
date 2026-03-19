@@ -376,6 +376,37 @@ export default function ProfessorDashboardPage() {
         </p>
       </section>
 
+      {/* ── ACOES RAPIDAS ────────────────────────────────────────────── */}
+      <div className="mb-4">
+        <p
+          className="text-xs font-medium mb-2"
+          style={{ color: 'var(--bb-ink-50)' }}
+        >
+          Acoes Rapidas
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: 'Presenca', href: '/professor/turma-ativa' },
+            { label: 'Avaliar', href: '/professor/avaliacoes' },
+            { label: 'Upload Video', href: '/professor/conteudo' },
+          ].map((action) => (
+            <Link
+              key={action.label}
+              href={action.href}
+              className="px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:brightness-110"
+              style={{
+                background: 'var(--bb-depth-3)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-md)',
+                color: 'var(--bb-ink-80)',
+              }}
+            >
+              {action.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* ── STAT CARDS ──────────────────────────────────────────────── */}
       <section ref={statsSection.ref}>
         <div className="grid grid-cols-2 gap-3" data-stagger>

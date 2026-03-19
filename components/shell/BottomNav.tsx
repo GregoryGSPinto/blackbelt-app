@@ -22,6 +22,7 @@ const BottomNav = forwardRef<HTMLElement, BottomNavProps>(
     return (
       <nav
         ref={ref}
+        aria-label="Navegacao principal"
         className="fixed bottom-0 left-0 right-0 z-30 safe-area-bottom"
         style={{
           background: 'var(--bb-depth-2)',

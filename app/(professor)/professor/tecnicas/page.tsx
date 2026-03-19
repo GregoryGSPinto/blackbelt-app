@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, type CSSProperties } from 'react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { listTecnicas, createTecnica } from '@/lib/api/banco-tecnicas.service';
 import type { Tecnica, TecnicaFiltros, CreateTecnicaPayload } from '@/lib/api/banco-tecnicas.service';
 import { useToast } from '@/lib/hooks/useToast';
@@ -58,13 +59,12 @@ function beltLabel(key: string): string {
 
 // ── Skeleton ────────────────────────────────────────────────────────
 function PageSkeleton() {
-  const bar: CSSProperties = { backgroundColor: 'var(--bb-depth-3)', borderRadius: 'var(--bb-radius-md)' };
   return (
     <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div className="animate-pulse" style={{ ...bar, width: '50%', height: 28 }} />
-      <div className="animate-pulse" style={{ ...bar, width: '100%', height: 44 }} />
-      <div style={{ display: 'flex', gap: 8 }}>{[1, 2, 3, 4].map(i => <div key={i} className="animate-pulse" style={{ ...bar, width: 80, height: 36 }} />)}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="animate-pulse" style={{ ...bar, width: '100%', height: 140 }} />)}</div>
+      <Skeleton variant="text" className="h-7 w-1/2" />
+      <Skeleton variant="text" className="h-11 w-full" />
+      <div style={{ display: 'flex', gap: 8 }}>{[1, 2, 3, 4].map(i => <Skeleton key={i} variant="text" className="h-9 w-20" />)}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>{[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} variant="card" className="h-[140px]" />)}</div>
     </div>
   );
 }

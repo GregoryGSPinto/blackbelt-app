@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   getVideoExperience,
   curtirVideo,
@@ -185,35 +186,37 @@ function Avatar({ nome, size = 32, faixa }: { nome: string; size?: number; faixa
 function PageSkeleton() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--bb-depth-1)' }}>
-      <div className="w-full aspect-video animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+      <Skeleton variant="card" className="w-full aspect-video rounded-none" />
       <div className="flex gap-4 px-4 py-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="w-10 h-10 rounded-full animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+          <Skeleton key={i} variant="circle" className="h-10 w-10" />
         ))}
       </div>
       <div className="px-4 space-y-2">
-        <div className="h-6 w-3/4 rounded animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+        <Skeleton variant="text" className="h-6 w-3/4" />
         <div className="flex gap-2">
-          <div className="h-5 w-16 rounded-full animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
-          <div className="h-5 w-20 rounded-full animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
-          <div className="h-5 w-14 rounded-full animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+          <Skeleton variant="text" className="h-5 w-16 rounded-full" />
+          <Skeleton variant="text" className="h-5 w-20 rounded-full" />
+          <Skeleton variant="text" className="h-5 w-14 rounded-full" />
         </div>
-        <div className="h-4 w-48 rounded animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+        <Skeleton variant="text" className="h-4 w-48" />
       </div>
-      <div className="mx-4 mt-4 p-3 rounded-xl animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)', height: 80 }} />
+      <div className="mx-4 mt-4">
+        <Skeleton variant="card" className="h-20" />
+      </div>
       <div className="flex gap-2 px-4 mt-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-8 w-28 rounded-full animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+          <Skeleton key={i} variant="text" className="h-8 w-28 rounded-full" />
         ))}
       </div>
       <div className="flex gap-1 px-4 mt-6">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-9 flex-1 rounded-lg animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+          <Skeleton key={i} variant="text" className="h-9 flex-1" />
         ))}
       </div>
       <div className="px-4 mt-4 space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: 'var(--bb-depth-3)' }} />
+          <Skeleton key={i} variant="card" className="h-20" />
         ))}
       </div>
     </div>

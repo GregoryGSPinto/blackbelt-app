@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getChurnPredictions } from '@/lib/api/analytics.service';
 import type { ChurnPrediction } from '@/lib/types/analytics';
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   AlertTriangleIcon,
   UserIcon,
@@ -75,7 +76,7 @@ export default function ChurnPredictionPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl" style={{ background: 'var(--bb-depth-3)' }} />
+            <Skeleton key={i} variant="card" className="h-24" />
           ))}
         </div>
       ) : (

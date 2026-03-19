@@ -286,7 +286,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               Academia Admin
             </span>
           </div>
-          <nav className="flex-1 overflow-y-auto p-3">
+          <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
             {sidebarGroups.map((group, gi) => (
               <div key={group.label}>
                 <p
@@ -387,7 +387,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                   Academia Admin
                 </span>
               </div>
-              <nav className="overflow-y-auto p-3">
+              <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                 {sidebarGroups.map((group, gi) => (
                   <div key={group.label}>
                     <p

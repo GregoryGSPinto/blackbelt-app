@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
@@ -217,17 +218,17 @@ function EvaluationSkeleton() {
   return (
     <div className="space-y-5 p-4">
       <div className="space-y-2">
-        <div className="h-6 w-40 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
-        <div className="h-4 w-64 animate-pulse rounded-md bg-[var(--bb-depth-4)]" />
+        <Skeleton variant="text" className="h-6 w-40" />
+        <Skeleton variant="text" className="h-4 w-64" />
       </div>
       <div className="grid grid-cols-2 gap-3">
         {[1, 2].map((i) => (
-          <div key={i} className="h-12 animate-pulse rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-4)]" />
+          <Skeleton key={i} variant="card" className="h-12" />
         ))}
       </div>
-      <div className="h-10 animate-pulse rounded-lg bg-[var(--bb-depth-4)]" />
+      <Skeleton variant="text" className="h-10 w-full" />
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-24 animate-pulse rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-4)]" />
+        <Skeleton key={i} variant="card" className="h-24" />
       ))}
     </div>
   );
