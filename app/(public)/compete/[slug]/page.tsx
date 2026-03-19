@@ -21,11 +21,13 @@ import {
 } from '@/components/shell/icons';
 
 const STATUS_CONFIG: Record<Tournament['status'], { label: string; bg: string; text: string }> = {
+  aguardando_aprovacao: { label: 'Aguardando aprovacao', bg: 'rgba(234,179,8,0.1)', text: '#ca8a04' },
   draft: { label: 'Rascunho', bg: 'rgba(156,163,175,0.1)', text: 'var(--bb-ink-40)' },
   published: { label: 'Publicado', bg: 'rgba(156,163,175,0.15)', text: 'var(--bb-ink-60)' },
   registration_open: { label: 'Inscricoes abertas', bg: 'rgba(34,197,94,0.15)', text: '#16a34a' },
   registration_closed: { label: 'Inscricoes encerradas', bg: 'rgba(234,179,8,0.15)', text: '#ca8a04' },
-  in_progress: { label: 'Ao vivo', bg: 'rgba(59,130,246,0.15)', text: '#2563eb' },
+  weigh_in: { label: 'Pesagem', bg: 'rgba(59,130,246,0.1)', text: '#2563eb' },
+  live: { label: 'Ao vivo', bg: 'rgba(59,130,246,0.15)', text: '#2563eb' },
   completed: { label: 'Finalizado', bg: 'rgba(156,163,175,0.1)', text: 'var(--bb-ink-40)' },
   cancelled: { label: 'Cancelado', bg: 'rgba(239,68,68,0.1)', text: '#dc2626' },
 };
@@ -110,8 +112,8 @@ export default function TournamentDetailPage() {
       <div
         className="relative h-48 sm:h-64"
         style={{
-          background: tournament.bannerUrl
-            ? `url(${tournament.bannerUrl}) center/cover`
+          background: tournament.banner_url
+            ? `url(${tournament.banner_url}) center/cover`
             : 'var(--bb-brand-gradient)',
         }}
       >
@@ -144,11 +146,11 @@ export default function TournamentDetailPage() {
             <CalendarIcon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
             <div>
               <div className="font-semibold">
-                {new Date(tournament.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                {new Date(tournament.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
               </div>
-              {tournament.endDate !== tournament.date && (
+              {tournament.end_date !== tournament.start_date && (
                 <div className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                  ate {new Date(tournament.endDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                  ate {new Date(tournament.end_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
                 </div>
               )}
             </div>
@@ -157,7 +159,7 @@ export default function TournamentDetailPage() {
           <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
             <MapPinIcon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
             <div>
-              <div className="font-semibold">{tournament.venue}</div>
+              <div className="font-semibold">{tournament.location}</div>
               <div className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                 {tournament.address} - {tournament.city}/{tournament.state}
               </div>
@@ -167,8 +169,8 @@ export default function TournamentDetailPage() {
           <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
             <UsersIcon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
             <div>
-              <div className="font-semibold">{tournament.totalRegistrations} inscritos</div>
-              <div className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{tournament.totalAcademies} academias</div>
+              <div className="font-semibold">{registrations.length} inscritos</div>
+              <div className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{categories.length} categorias</div>
             </div>
           </div>
 
@@ -240,7 +242,7 @@ export default function TournamentDetailPage() {
                     }}
                   >
                     <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Organizador</p>
-                    <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{tournament.organizerId}</p>
+                    <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{tournament.organizer_name}</p>
                   </div>
                   <div
                     className="rounded-xl p-4"
@@ -252,7 +254,7 @@ export default function TournamentDetailPage() {
                   >
                     <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Taxa de inscricao</p>
                     <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                      R$ {tournament.registrationFee.toFixed(2).replace('.', ',')}
+                      R$ {tournament.registration_fee.toFixed(2).replace('.', ',')}
                     </p>
                   </div>
                   <div
@@ -265,7 +267,7 @@ export default function TournamentDetailPage() {
                   >
                     <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Prazo de inscricao</p>
                     <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                      {new Date(tournament.registrationDeadline).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      {new Date(tournament.registration_deadline).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
                   <div
@@ -277,7 +279,7 @@ export default function TournamentDetailPage() {
                     }}
                   >
                     <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Areas de luta</p>
-                    <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{tournament.totalAreas} areas</p>
+                    <p className="mt-1 font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{tournament.areas_count} areas</p>
                   </div>
                 </div>
 
@@ -290,14 +292,17 @@ export default function TournamentDetailPage() {
                     borderRadius: 'var(--bb-radius-lg)',
                   }}
                 >
-                  <h3 className="mb-3 text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>Modalidade</h3>
+                  <h3 className="mb-3 text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>Modalidades</h3>
                   <div className="flex flex-wrap gap-2">
-                    <span
-                      className="rounded-full px-3 py-1.5 text-sm font-medium"
-                      style={{ backgroundColor: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
-                    >
-                      {tournament.modality}
-                    </span>
+                    {tournament.modalities.map((mod) => (
+                      <span
+                        key={mod}
+                        className="rounded-full px-3 py-1.5 text-sm font-medium"
+                        style={{ backgroundColor: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
+                      >
+                        {mod}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -368,15 +373,17 @@ export default function TournamentDetailPage() {
                       <span>Resultados</span>
                       <ChevronRightIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
                     </Link>
-                    {tournament.rules && (
-                      <Link
-                        href={`/compete/${slug}/regulamento`}
+                    {tournament.rules_url && (
+                      <a
+                        href={tournament.rules_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-center justify-between rounded-lg p-2 text-sm transition-colors"
                         style={{ color: 'var(--bb-ink-80)' }}
                       >
                         <span>Regulamento</span>
                         <ChevronRightIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
-                      </Link>
+                      </a>
                     )}
                   </div>
                 </div>
@@ -406,12 +413,12 @@ export default function TournamentDetailPage() {
                     <div>
                       <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{cat.name}</p>
                       <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                        {cat.modality} | {cat.beltRange} | {cat.weightRange} | {cat.ageRange} | {cat.gender === 'M' ? 'Masculino' : 'Feminino'}
+                        {cat.modality} | {cat.belt_min ?? '?'}–{cat.belt_max ?? '?'} | {cat.weight_min ?? '?'}–{cat.weight_max ?? '?'}kg | {cat.age_min ?? '?'}–{cat.age_max ?? '?'} anos | {cat.gender === 'male' ? 'Masculino' : cat.gender === 'female' ? 'Feminino' : 'Misto'}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                        {cat.totalRegistrations}
+                        {cat.registered_count}
                       </p>
                       <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>inscritos</p>
                     </div>
@@ -442,7 +449,6 @@ export default function TournamentDetailPage() {
                       <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                         <th className="px-4 py-3 text-left text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Atleta</th>
                         <th className="hidden px-4 py-3 text-left text-xs font-bold sm:table-cell" style={{ color: 'var(--bb-ink-40)' }}>Academia</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Faixa</th>
                         <th className="hidden px-4 py-3 text-center text-xs font-bold sm:table-cell" style={{ color: 'var(--bb-ink-40)' }}>Peso</th>
                         <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Status</th>
                       </tr>
@@ -451,11 +457,10 @@ export default function TournamentDetailPage() {
                       {registrations.map((reg) => (
                         <tr key={reg.id} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                           <td className="px-4 py-3 font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                            {reg.athleteName}
-                            <span className="block text-xs sm:hidden" style={{ color: 'var(--bb-ink-40)' }}>{reg.academyName}</span>
+                            {reg.athlete_name}
+                            <span className="block text-xs sm:hidden" style={{ color: 'var(--bb-ink-40)' }}>{reg.academy_name}</span>
                           </td>
-                          <td className="hidden px-4 py-3 sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{reg.academyName}</td>
-                          <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>{reg.belt}</td>
+                          <td className="hidden px-4 py-3 sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{reg.academy_name}</td>
                           <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{reg.weight}kg</td>
                           <td className="px-4 py-3 text-center">
                             <span

@@ -24,6 +24,8 @@ export interface RegisterResponse {
   profile: Profile;
 }
 
+export type OAuthProvider = 'google' | 'apple';
+
 export interface RefreshResponse {
   accessToken: string;
 }
@@ -107,6 +109,36 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
     };
   } catch (error) {
     handleServiceError(error, 'auth.register');
+  }
+}
+
+export async function loginWithOAuth(
+  provider: OAuthProvider,
+  options?: { inviteToken?: string },
+): Promise<LoginResponse | void> {
+  try {
+    if (isMock()) {
+      const { mockLoginWithOAuth } = await import('@/lib/mocks/auth.mock');
+      return mockLoginWithOAuth(provider);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let redirectTo = `${window.location.origin}/auth/callback`;
+    if (options?.inviteToken) {
+      redirectTo += `?invite_token=${encodeURIComponent(options.inviteToken)}`;
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+
+    if (error) throw new ServiceError(400, 'auth.oauth', error.message);
+    // In real mode, browser redirects away — no return value
+  } catch (error) {
+    handleServiceError(error, 'auth.oauth');
   }
 }
 

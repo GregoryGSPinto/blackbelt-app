@@ -6,7 +6,7 @@ import {
   getTournaments,
   getCircuits,
 } from '@/lib/api/compete.service';
-import type { Tournament, TournamentCircuit } from '@/lib/api/compete.service';
+import type { Tournament, TournamentCircuit, TournamentStatus } from '@/lib/api/compete.service';
 import {
   TrophyIcon,
   UsersIcon,
@@ -25,24 +25,26 @@ import {
 
 const AMBER = '#f59e0b';
 
-type TournamentStatus = Tournament['status'];
-
 const STATUS_LABELS: Record<TournamentStatus, string> = {
+  aguardando_aprovacao: 'Aguardando Aprovacao',
   draft: 'Rascunho',
   published: 'Publicado',
   registration_open: 'Inscricoes Abertas',
   registration_closed: 'Inscricoes Encerradas',
-  in_progress: 'Em Andamento',
+  weigh_in: 'Pesagem',
+  live: 'Ao Vivo',
   completed: 'Finalizado',
   cancelled: 'Cancelado',
 };
 
 const STATUS_COLORS: Record<TournamentStatus, { bg: string; text: string }> = {
+  aguardando_aprovacao: { bg: 'rgba(234,179,8,0.15)', text: '#EAB308' },
   draft: { bg: 'rgba(107,114,128,0.15)', text: '#6B7280' },
   published: { bg: 'rgba(59,130,246,0.15)', text: '#3B82F6' },
   registration_open: { bg: 'rgba(34,197,94,0.15)', text: '#22C55E' },
   registration_closed: { bg: 'rgba(234,179,8,0.15)', text: '#EAB308' },
-  in_progress: { bg: 'rgba(168,85,247,0.15)', text: '#A855F7' },
+  weigh_in: { bg: 'rgba(168,85,247,0.15)', text: '#A855F7' },
+  live: { bg: 'rgba(239,68,68,0.15)', text: '#EF4444' },
   completed: { bg: 'rgba(59,130,246,0.15)', text: '#3B82F6' },
   cancelled: { bg: 'rgba(239,68,68,0.15)', text: '#EF4444' },
 };
@@ -82,8 +84,8 @@ export default function SuperAdminCompetePage() {
     load();
   }, []);
 
-  const totalAthletes = tournaments.reduce((sum, t) => sum + t.totalRegistrations, 0);
-  const liveNow = tournaments.filter((t) => t.status === 'in_progress').length;
+  const totalAthletes = tournaments.reduce((sum, t) => sum + (t.max_athletes ?? 0), 0);
+  const liveNow = tournaments.filter((t) => t.status === 'live').length;
   const filteredTournaments = tournaments
     .filter((t) => {
       if (statusFilter && t.status !== statusFilter) return false;
@@ -92,7 +94,7 @@ export default function SuperAdminCompetePage() {
         return (
           t.name.toLowerCase().includes(q) ||
           t.city.toLowerCase().includes(q) ||
-          t.organizerId.toLowerCase().includes(q)
+          t.organizer_id.toLowerCase().includes(q)
         );
       }
       return true;
@@ -272,8 +274,8 @@ export default function SuperAdminCompetePage() {
                       {circuit.name}
                     </h3>
                     <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                      {circuit.season} &middot; {circuit.totalStages} etapa
-                      {circuit.totalStages !== 1 ? 's' : ''}
+                      {circuit.season} &middot; {circuit.tournament_ids.length} etapa
+                      {circuit.tournament_ids.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <button
@@ -290,7 +292,7 @@ export default function SuperAdminCompetePage() {
                     className="rounded px-2 py-0.5 text-[10px] font-medium"
                     style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)' }}
                   >
-                    {circuit.region}
+                    {circuit.slug}
                   </span>
                 </div>
                 {circuit.description && (
@@ -438,16 +440,16 @@ export default function SuperAdminCompetePage() {
                           </div>
                         </td>
                         <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>
-                          {t.organizerId}
+                          {t.organizer_name || t.organizer_id}
                         </td>
                         <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>
-                          {formatDate(t.date)}
+                          {formatDate(t.start_date)}
                         </td>
                         <td className="px-4 py-3 text-center font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                          {t.totalRegistrations}
+                          {t.max_athletes ?? '—'}
                         </td>
                         <td className="px-4 py-3 text-center font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                          {t.totalAcademies}
+                          {t.areas_count}
                         </td>
                         <td className="px-4 py-3">
                           <span

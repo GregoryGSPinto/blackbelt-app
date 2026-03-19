@@ -187,16 +187,16 @@ export default function CompeteRankingPage() {
                           color: place === 1 ? 'white' : 'var(--bb-ink-60)',
                         }}
                       >
-                        {a.photoUrl ? (
-                          <img src={a.photoUrl} alt={a.fullName} className="h-full w-full object-cover" />
+                        {a.avatar_url ? (
+                          <img src={a.avatar_url} alt={a.display_name} className="h-full w-full object-cover" />
                         ) : (
-                          a.fullName.charAt(0)
+                          a.display_name.charAt(0)
                         )}
                       </div>
                       <p className="truncate text-center text-xs font-semibold group-hover:underline" style={{ color: 'var(--bb-ink-100)', maxWidth: '100%' }}>
-                        {a.fullName}
+                        {a.display_name}
                       </p>
-                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{a.academyName}</p>
+                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{a.academy_id}</p>
                       <div
                         className={`mt-2 w-full flex items-center justify-center rounded-t-lg ${heights[place as 1 | 2 | 3]}`}
                         style={{
@@ -241,33 +241,33 @@ export default function CompeteRankingPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {athletes.map((a) => (
+                      {athletes.map((a, index) => (
                         <tr
                           key={a.id}
                           className="transition-colors"
                           style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                         >
                           <td className="px-4 py-3">
-                            <span className="text-sm font-bold" style={{ color: (a.rankingPosition ?? 999) <= 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}>
-                              {a.rankingPosition ?? '-'}
+                            <span className="text-sm font-bold" style={{ color: index < 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}>
+                              {index + 1}
                             </span>
                           </td>
                           <td className="px-4 py-3">
                             <Link href={`/compete/atleta/${a.id}`} className="hover:underline">
-                              <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{a.fullName}</p>
-                              <p className="text-xs sm:hidden" style={{ color: 'var(--bb-ink-40)' }}>{a.academyName}</p>
+                              <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{a.display_name}</p>
+                              <p className="text-xs sm:hidden" style={{ color: 'var(--bb-ink-40)' }}>{a.academy_id}</p>
                             </Link>
                           </td>
-                          <td className="hidden px-4 py-3 sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.academyName}</td>
+                          <td className="hidden px-4 py-3 sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.academy_id}</td>
                           <td className="hidden px-4 py-3 text-center md:table-cell">
                             <span className="rounded px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)' }}>
                               {a.belt}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.rankingPoints}</td>
-                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.goldMedals || '-'}</td>
-                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.silverMedals || '-'}</td>
-                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.bronzeMedals || '-'}</td>
+                          <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.ranking_points}</td>
+                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.medals_gold || '-'}</td>
+                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.medals_silver || '-'}</td>
+                          <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.medals_bronze || '-'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -305,23 +305,23 @@ export default function CompeteRankingPage() {
                   <tbody>
                     {academies.map((a) => (
                       <tr
-                        key={a.academyId}
+                        key={a.academy_id}
                         className="transition-colors"
                         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                       >
                         <td className="px-4 py-3">
-                          <span className="text-sm font-bold" style={{ color: (a.rankingPosition ?? 999) <= 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}>
-                            {a.rankingPosition ?? '-'}
+                          <span className="text-sm font-bold" style={{ color: a.ranking_position <= 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}>
+                            {a.ranking_position}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{a.academyName}</p>
+                          <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{a.academy_name}</p>
                         </td>
-                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.totalAthletes}</td>
-                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.points}</td>
-                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.gold || '-'}</td>
-                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.silver || '-'}</td>
-                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.bronze || '-'}</td>
+                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.total_athletes}</td>
+                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.total_points}</td>
+                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{a.medals_gold || '-'}</td>
+                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.medals_silver || '-'}</td>
+                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{a.medals_bronze || '-'}</td>
                       </tr>
                     ))}
                   </tbody>

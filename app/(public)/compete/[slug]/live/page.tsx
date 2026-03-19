@@ -47,9 +47,9 @@ function MatchCard({ match, isLive }: { match: TournamentMatch; isLive: boolean 
           Rodada {match.round}
         </span>
         <div className="flex items-center gap-2">
-          {match.areaNumber != null && (
+          {match.area != null && (
             <span className="text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>
-              Area {match.areaNumber}
+              Area {match.area}
             </span>
           )}
           {isLive && (
@@ -68,33 +68,33 @@ function MatchCard({ match, isLive }: { match: TournamentMatch; isLive: boolean 
           <div
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold"
             style={{
-              backgroundColor: match.winnerId === match.fighterAId ? 'var(--bb-brand-surface)' : 'var(--bb-depth-3)',
-              color: match.winnerId === match.fighterAId ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+              backgroundColor: match.winner_id === match.athlete1_id ? 'var(--bb-brand-surface)' : 'var(--bb-depth-3)',
+              color: match.winner_id === match.athlete1_id ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
               borderRadius: 'var(--bb-radius-sm)',
             }}
           >
-            {match.fighterAName?.charAt(0) ?? '?'}
+            {match.athlete1_name?.charAt(0) ?? '?'}
           </div>
           <div className="flex-1 min-w-0">
             <p
               className="truncate text-sm font-semibold"
-              style={{ color: match.winnerId === match.fighterAId ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
+              style={{ color: match.winner_id === match.athlete1_id ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
             >
-              {match.fighterAName ?? 'A definir'}
+              {match.athlete1_name ?? 'A definir'}
             </p>
           </div>
           <div className="flex items-center gap-3 text-center">
             <div>
-              <p className="text-xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.scoreA}</p>
+              <p className="text-xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.score_athlete1}</p>
             </div>
             <div className="flex gap-2">
               <div>
                 <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>V</p>
-                <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-80)' }}>{match.advantagesA}</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-80)' }}>{match.advantages_athlete1}</p>
               </div>
               <div>
                 <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>P</p>
-                <p className="text-sm font-bold" style={{ color: match.penaltiesA > 0 ? '#dc2626' : 'var(--bb-ink-80)' }}>{match.penaltiesA}</p>
+                <p className="text-sm font-bold" style={{ color: match.penalties_athlete1 > 0 ? '#dc2626' : 'var(--bb-ink-80)' }}>{match.penalties_athlete1}</p>
               </div>
             </div>
           </div>
@@ -112,33 +112,33 @@ function MatchCard({ match, isLive }: { match: TournamentMatch; isLive: boolean 
           <div
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold"
             style={{
-              backgroundColor: match.winnerId === match.fighterBId ? 'var(--bb-brand-surface)' : 'var(--bb-depth-3)',
-              color: match.winnerId === match.fighterBId ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+              backgroundColor: match.winner_id === match.athlete2_id ? 'var(--bb-brand-surface)' : 'var(--bb-depth-3)',
+              color: match.winner_id === match.athlete2_id ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
               borderRadius: 'var(--bb-radius-sm)',
             }}
           >
-            {match.fighterBName?.charAt(0) ?? '?'}
+            {match.athlete2_name?.charAt(0) ?? '?'}
           </div>
           <div className="flex-1 min-w-0">
             <p
               className="truncate text-sm font-semibold"
-              style={{ color: match.winnerId === match.fighterBId ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
+              style={{ color: match.winner_id === match.athlete2_id ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
             >
-              {match.fighterBName ?? 'A definir'}
+              {match.athlete2_name ?? 'A definir'}
             </p>
           </div>
           <div className="flex items-center gap-3 text-center">
             <div>
-              <p className="text-xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.scoreB}</p>
+              <p className="text-xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.score_athlete2}</p>
             </div>
             <div className="flex gap-2">
               <div>
                 <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>V</p>
-                <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-80)' }}>{match.advantagesB}</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-80)' }}>{match.advantages_athlete2}</p>
               </div>
               <div>
                 <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>P</p>
-                <p className="text-sm font-bold" style={{ color: match.penaltiesB > 0 ? '#dc2626' : 'var(--bb-ink-80)' }}>{match.penaltiesB}</p>
+                <p className="text-sm font-bold" style={{ color: match.penalties_athlete2 > 0 ? '#dc2626' : 'var(--bb-ink-80)' }}>{match.penalties_athlete2}</p>
               </div>
             </div>
           </div>
@@ -146,14 +146,14 @@ function MatchCard({ match, isLive }: { match: TournamentMatch; isLive: boolean 
 
         {/* Timer / Result */}
         <div className="mt-3 text-center">
-          {isLive && match.durationSeconds != null && (
+          {isLive && match.duration_seconds != null && (
             <p className="text-sm font-mono font-bold" style={{ color: 'var(--bb-brand)' }}>
-              {formatTime(match.durationSeconds)}
+              {formatTime(match.duration_seconds)}
             </p>
           )}
           {isFinished && match.method && (
             <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-40)' }}>
-              {match.winnerName} venceu por {match.method}
+              {match.athlete1_name && match.winner_id === match.athlete1_id ? match.athlete1_name : match.athlete2_name} venceu por {match.method}
             </p>
           )}
         </div>
@@ -210,7 +210,7 @@ export default function LivePage() {
   }
 
   // Group live matches by area
-  const areas = Array.from(new Set(liveMatches.map((m) => m.areaNumber ?? 0))).sort();
+  const areas = Array.from(new Set(liveMatches.map((m) => m.area ?? 0))).sort();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bb-depth-1)' }}>
@@ -256,7 +256,7 @@ export default function LivePage() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {areas.map((area) => {
-                  const areaMatches = liveMatches.filter((m) => (m.areaNumber ?? 0) === area);
+                  const areaMatches = liveMatches.filter((m) => (m.area ?? 0) === area);
                   return areaMatches.map((match) => (
                     <MatchCard key={match.id} match={match} isLive />
                   ));
@@ -282,21 +282,21 @@ export default function LivePage() {
                       }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        {match.areaNumber != null && (
+                        {match.area != null && (
                           <span className="flex-shrink-0 rounded px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: 'var(--bb-depth-3)', color: 'var(--bb-ink-40)' }}>
-                            A{match.areaNumber}
+                            A{match.area}
                           </span>
                         )}
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                            {match.fighterAName ?? 'A definir'} <span style={{ color: 'var(--bb-ink-40)' }}>vs</span> {match.fighterBName ?? 'A definir'}
+                            {match.athlete1_name ?? 'A definir'} <span style={{ color: 'var(--bb-ink-40)' }}>vs</span> {match.athlete2_name ?? 'A definir'}
                           </p>
                           <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Rodada {match.round}</p>
                         </div>
                       </div>
-                      {match.scheduledTime && (
+                      {match.scheduled_time && (
                         <span className="flex-shrink-0 text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-                          {new Date(match.scheduledTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(match.scheduled_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>
@@ -332,7 +332,7 @@ export default function LivePage() {
                           className="h-2 w-2 rounded-full"
                           style={{
                             backgroundColor:
-                              item.type === 'result' || item.type === 'medal_ceremony'
+                              item.type === 'result' || item.type === 'medal'
                                 ? 'var(--bb-brand)'
                                 : item.type === 'announcement'
                                 ? '#16a34a'
@@ -347,7 +347,7 @@ export default function LivePage() {
                           <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{item.content}</p>
                         )}
                         <p className="mt-0.5 text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
-                          {new Date(item.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>

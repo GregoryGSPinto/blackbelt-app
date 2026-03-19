@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
+import { SidebarHelpSection } from './HelpSection';
 import {
   LayoutDashboardIcon,
   BuildingIcon,
@@ -254,6 +255,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                   </div>
                 </div>
               ))}
+              <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
             </nav>
 
             {/* User card */}

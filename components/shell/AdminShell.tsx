@@ -40,6 +40,7 @@ import {
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
+import { SidebarHelpSection } from './HelpSection';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -340,6 +341,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                 </div>
               </div>
             ))}
+            <SidebarHelpSection />
           </nav>
         </aside>
 
@@ -437,6 +439,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                     </div>
                   </div>
                 ))}
+                <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
               </nav>
             </aside>
           </div>

@@ -4,6 +4,7 @@ import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { BottomNav } from './BottomNav';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { HeaderHelpButton } from './HelpSection';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
@@ -120,6 +121,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
               BlackBelt Kids
             </h1>
             <div className="flex items-center gap-3">
+              <HeaderHelpButton />
               <ThemeToggle />
 
               {/* Notifications */}

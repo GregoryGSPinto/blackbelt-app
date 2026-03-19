@@ -28,3 +28,4 @@ export * from './branch';
 export * from './webhook';
 export * from './chat';
 export * from './gamification';
+export * from './compete';

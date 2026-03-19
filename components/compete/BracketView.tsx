@@ -45,9 +45,9 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
         if (m.round > maxRound) maxRound = m.round;
       }
 
-      // Sort each round by position
+      // Sort each round by match_number
       for (const r of Object.keys(roundMap)) {
-        roundMap[Number(r)].sort((a, b) => a.position - b.position);
+        roundMap[Number(r)].sort((a, b) => a.match_number - b.match_number);
       }
 
       const tRounds = maxRound;
@@ -133,7 +133,7 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
 
               // Find the two source matches from previous round that feed into this match
               const prevRound = rounds[match.round - 1] ?? [];
-              const sourceIndex = (match.position - 1) * 2;
+              const sourceIndex = (match.match_number - 1) * 2;
               const sourceMatches = prevRound.slice(sourceIndex, sourceIndex + 2);
 
               return sourceMatches.map((src) => {
@@ -203,17 +203,17 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     x={8}
                     y={MATCH_H / 2 - 8}
                     fill={
-                      isFinished && match.winnerId === match.fighterAId
+                      isFinished && match.winner_id === match.athlete1_id
                         ? 'var(--bb-brand)'
                         : 'var(--bb-ink-100)'
                     }
                     fontSize="11"
                     fontWeight={
-                      isFinished && match.winnerId === match.fighterAId ? '700' : '500'
+                      isFinished && match.winner_id === match.athlete1_id ? '700' : '500'
                     }
                     fontFamily="inherit"
                   >
-                    {match.fighterAName || 'A definir'}
+                    {match.athlete1_name || 'A definir'}
                   </text>
                   {/* Score A */}
                   <text
@@ -221,7 +221,7 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     y={MATCH_H / 2 - 8}
                     textAnchor="end"
                     fill={
-                      isFinished && match.winnerId === match.fighterAId
+                      isFinished && match.winner_id === match.athlete1_id
                         ? 'var(--bb-brand)'
                         : 'var(--bb-ink-80)'
                     }
@@ -229,7 +229,7 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     fontWeight="700"
                     fontFamily="inherit"
                   >
-                    {match.scoreA}
+                    {match.score_athlete1}
                   </text>
 
                   {/* Fighter B */}
@@ -237,17 +237,17 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     x={8}
                     y={MATCH_H / 2 + 18}
                     fill={
-                      isFinished && match.winnerId === match.fighterBId
+                      isFinished && match.winner_id === match.athlete2_id
                         ? 'var(--bb-brand)'
                         : 'var(--bb-ink-100)'
                     }
                     fontSize="11"
                     fontWeight={
-                      isFinished && match.winnerId === match.fighterBId ? '700' : '500'
+                      isFinished && match.winner_id === match.athlete2_id ? '700' : '500'
                     }
                     fontFamily="inherit"
                   >
-                    {match.fighterBName || 'A definir'}
+                    {match.athlete2_name || 'A definir'}
                   </text>
                   {/* Score B */}
                   <text
@@ -255,7 +255,7 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     y={MATCH_H / 2 + 18}
                     textAnchor="end"
                     fill={
-                      isFinished && match.winnerId === match.fighterBId
+                      isFinished && match.winner_id === match.athlete2_id
                         ? 'var(--bb-brand)'
                         : 'var(--bb-ink-80)'
                     }
@@ -263,7 +263,7 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(
                     fontWeight="700"
                     fontFamily="inherit"
                   >
-                    {match.scoreB}
+                    {match.score_athlete2}
                   </text>
                 </g>
               );

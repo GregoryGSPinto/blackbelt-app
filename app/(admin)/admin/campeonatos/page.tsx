@@ -26,10 +26,10 @@ import type {
   TournamentMatch,
   TournamentBracket,
   TournamentFeedItem,
-  MedalTableEntry,
+  MedalTable,
   TournamentStats,
   AcademyTournamentStats,
-  RecordResultPayload,
+  MatchResult,
 } from '@/lib/api/compete.service';
 import {
   getTournaments,
@@ -39,6 +39,7 @@ import {
   weighInAthlete,
   getAllBrackets,
   generateBracket,
+  getBracket,
   getLiveMatches,
   getNextMatches,
   callMatch,
@@ -47,7 +48,6 @@ import {
   getFeed,
   postAnnouncement,
   getMedalTable,
-  getResults,
   getTournamentStats,
   createTournament,
   publishTournament,
@@ -71,11 +71,13 @@ const TABS: { id: TabId; label: string; icon: typeof TrophyIcon }[] = [
 ];
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  aguardando_aprovacao: { bg: 'rgba(234,179,8,0.15)', text: '#eab308', label: 'Aguardando Aprovacao' },
   draft: { bg: 'rgba(107,114,128,0.15)', text: '#6B7280', label: 'Rascunho' },
   published: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6', label: 'Publicado' },
   registration_open: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'Inscricoes Abertas' },
   registration_closed: { bg: 'rgba(234,179,8,0.15)', text: '#eab308', label: 'Inscricoes Encerradas' },
-  in_progress: { bg: 'rgba(168,85,247,0.15)', text: '#a855f7', label: 'Em Andamento' },
+  weigh_in: { bg: 'rgba(168,85,247,0.15)', text: '#a855f7', label: 'Pesagem' },
+  live: { bg: 'rgba(168,85,247,0.15)', text: '#a855f7', label: 'Em Andamento' },
   completed: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6', label: 'Finalizado' },
   cancelled: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'Cancelado' },
 };
@@ -100,23 +102,23 @@ export default function CampeonatosAdminPage() {
   const [categories, setCategories] = useState<TournamentCategory[]>([]);
   const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
   const [brackets, setBrackets] = useState<TournamentBracket[]>([]);
+  const [bracketMatches, setBracketMatches] = useState<Record<string, TournamentMatch[]>>({});
   const [liveMatches, setLiveMatches] = useState<TournamentMatch[]>([]);
   const [nextMatchesList, setNextMatchesList] = useState<TournamentMatch[]>([]);
   const [feed, setFeed] = useState<TournamentFeedItem[]>([]);
-  const [medalTable, setMedalTable] = useState<MedalTableEntry[]>([]);
-  const [academyResults, setAcademyResults] = useState<AcademyTournamentStats[]>([]);
+  const [medalTableData, setMedalTableData] = useState<MedalTable[]>([]);
+  const [academyResults] = useState<AcademyTournamentStats[]>([]);
   const [stats, setStats] = useState<TournamentStats | null>(null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [weightInput, setWeightInput] = useState<Record<string, string>>({});
-  const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementText, setAnnouncementText] = useState('');
   const [regFilter, setRegFilter] = useState('');
   const [selectedBracketCat, setSelectedBracketCat] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState(1);
   const [newName, setNewName] = useState('');
   const [newDate, setNewDate] = useState('');
-  const [newVenue, setNewVenue] = useState('');
+  const [newLocation, setNewLocation] = useState('');
   const [newCity, setNewCity] = useState('');
 
   // ── Load ────────────────────────────────────────────────────────────
@@ -148,8 +150,8 @@ export default function CampeonatosAdminPage() {
         const [live, next, f, s] = await Promise.all([getLiveMatches(tid), getNextMatches(tid), getFeed(tid), getTournamentStats(tid)]);
         setLiveMatches(live); setNextMatchesList(next); setFeed(f); setStats(s);
       } else if (activeTab === 'resultados') {
-        const [m, r] = await Promise.all([getMedalTable(tid), getResults(tid)]);
-        setMedalTable(m); setAcademyResults(r);
+        const [m, r] = await Promise.all([getMedalTable(tid), getTournamentStats(tid)]);
+        setMedalTableData(m); setStats(r);
       }
     } catch { toast('Erro ao carregar dados', 'error'); }
   }, [selectedTournament, activeTab, toast, selectedBracketCat]);
@@ -159,28 +161,53 @@ export default function CampeonatosAdminPage() {
   // ── Actions ─────────────────────────────────────────────────────────
 
   async function handleCreate() {
-    if (!newName || !newDate || !newVenue) { toast('Preencha os campos obrigatorios', 'error'); return; }
+    if (!newName || !newDate || !newLocation) { toast('Preencha os campos obrigatorios', 'error'); return; }
     try {
-      const t = await createTournament({ name: newName, slug: slugify(newName), description: '', date: newDate, venue: newVenue, city: newCity });
+      const t = await createTournament({
+        academy_id: '',
+        circuit_id: null,
+        name: newName,
+        slug: slugify(newName),
+        description: '',
+        banner_url: null,
+        location: newLocation,
+        address: '',
+        city: newCity,
+        state: '',
+        start_date: newDate,
+        end_date: newDate,
+        registration_deadline: newDate,
+        modalities: [],
+        rules_url: null,
+        max_athletes: null,
+        registration_fee: 0,
+        areas_count: 1,
+        organizer_id: '',
+        organizer_name: '',
+        sponsors: [],
+      });
       setTournaments((prev) => [t, ...prev]); setShowCreateModal(false);
-      setNewName(''); setNewDate(''); setNewVenue(''); setNewCity('');
+      setNewName(''); setNewDate(''); setNewLocation(''); setNewCity('');
       toast('Campeonato criado', 'success');
     } catch { toast('Erro ao criar', 'error'); }
   }
 
-  async function handleStatusChange(id: string, action: (id: string) => Promise<Tournament>, msg: string) {
+  async function handleStatusChange(id: string, action: (id: string) => Promise<void>, msg: string) {
     try {
-      const t = await action(id);
-      setTournaments((prev) => prev.map((x) => (x.id === id ? t : x)));
-      if (selectedTournament?.id === id) setSelectedTournament(t);
+      await action(id);
+      await loadTournaments();
       toast(msg, 'success');
     } catch { toast('Erro na operacao', 'error'); }
   }
 
   async function handleCheckIn(regId: string) {
     try {
-      const u = await checkInAthlete(regId);
-      setRegistrations((prev) => prev.map((r) => (r.id === regId ? u : r)));
+      await checkInAthlete(regId);
+      // Reload registrations to get updated state
+      if (selectedTournament) {
+        const regs = await getRegistrations(selectedTournament.id);
+        setRegistrations(regs);
+      }
       toast('Check-in realizado', 'success');
     } catch { toast('Erro no check-in', 'error'); }
   }
@@ -189,16 +216,24 @@ export default function CampeonatosAdminPage() {
     const w = parseFloat(weightInput[regId] ?? '');
     if (isNaN(w) || w <= 0) { toast('Peso invalido', 'error'); return; }
     try {
-      const u = await weighInAthlete(regId, w);
-      setRegistrations((prev) => prev.map((r) => (r.id === regId ? u : r)));
-      toast('Pesagem registrada', 'success');
+      const result = await weighInAthlete(regId, w);
+      if (!result.passed) {
+        toast(`Peso fora da categoria: ${result.category.name}`, 'error');
+      } else {
+        toast('Pesagem registrada', 'success');
+      }
+      // Reload registrations to get updated state
+      if (selectedTournament) {
+        const regs = await getRegistrations(selectedTournament.id);
+        setRegistrations(regs);
+      }
     } catch { toast('Erro na pesagem', 'error'); }
   }
 
   async function handleGenBracket(catId: string) {
     try {
       const b = await generateBracket(catId);
-      setBrackets((prev) => [...prev.filter((x) => x.categoryId !== catId), b]);
+      setBrackets((prev) => [...prev.filter((x) => x.category_id !== catId), b]);
       toast('Chaveamento gerado', 'success');
     } catch { toast('Erro ao gerar', 'error'); }
   }
@@ -206,13 +241,17 @@ export default function CampeonatosAdminPage() {
   async function handleGenCategories() {
     if (!selectedTournament) return;
     try {
-      const cats = await generateStandardCategories(selectedTournament.id);
+      const cats = await generateStandardCategories(
+        selectedTournament.id,
+        selectedTournament.modalities[0] ?? 'jiu-jitsu',
+        { gender: ['male', 'female'], includeAbsolute: true },
+      );
       setCategories(cats); toast('Categorias geradas', 'success');
     } catch { toast('Erro ao gerar categorias', 'error'); }
   }
 
   async function handleCallMatch(mId: string) {
-    try { await callMatch(mId); toast('Atletas chamados', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
+    try { await callMatch(mId, selectedArea); toast('Atletas chamados', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
   }
 
   async function handleStartMatch(mId: string) {
@@ -220,22 +259,39 @@ export default function CampeonatosAdminPage() {
   }
 
   async function handleResult(match: TournamentMatch) {
-    if (!match.fighterAId) return;
-    const p: RecordResultPayload = { winnerId: match.fighterAId, winnerName: match.fighterAName ?? '', method: 'points', scoreA: match.scoreA, scoreB: match.scoreB, durationSeconds: match.durationSeconds ?? 0 };
+    if (!match.athlete1_id) return;
+    const p: MatchResult = {
+      winner_id: match.athlete1_id,
+      method: 'pontos',
+      score_athlete1: match.score_athlete1 ?? 0,
+      score_athlete2: match.score_athlete2 ?? 0,
+      penalties_athlete1: match.penalties_athlete1,
+      penalties_athlete2: match.penalties_athlete2,
+      advantages_athlete1: match.advantages_athlete1,
+      advantages_athlete2: match.advantages_athlete2,
+      duration_seconds: match.duration_seconds ?? 0,
+    };
     try { await recordResult(match.id, p); toast('Resultado registrado', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
   }
 
   async function handleAnnouncement() {
     if (!selectedTournament || !announcementText.trim()) return;
     try {
-      const item = await postAnnouncement(selectedTournament.id, announcementTitle || 'Comunicado', announcementText);
-      setFeed((prev) => [item, ...prev]); setAnnouncementTitle(''); setAnnouncementText('');
+      const item = await postAnnouncement(selectedTournament.id, announcementText);
+      setFeed((prev) => [item, ...prev]); setAnnouncementText('');
       toast('Comunicado publicado', 'success');
     } catch { toast('Erro', 'error'); }
   }
 
+  async function loadBracketMatches(catId: string) {
+    try {
+      const { matches } = await getBracket(catId);
+      setBracketMatches((prev) => ({ ...prev, [catId]: matches }));
+    } catch { /* bracket not yet generated */ }
+  }
+
   const filteredRegs = regFilter
-    ? registrations.filter((r) => r.athleteName.toLowerCase().includes(regFilter.toLowerCase()) || (r.academyName ?? '').toLowerCase().includes(regFilter.toLowerCase()) || r.categoryId === regFilter)
+    ? registrations.filter((r) => r.athlete_name.toLowerCase().includes(regFilter.toLowerCase()) || (r.academy_name ?? '').toLowerCase().includes(regFilter.toLowerCase()) || r.category_id === regFilter)
     : registrations;
 
   // ── Skeleton ────────────────────────────────────────────────────────
@@ -287,9 +343,9 @@ export default function CampeonatosAdminPage() {
       {/* Tab Content */}
       {activeTab === 'campeonatos' && <TabCampeonatos tournaments={tournaments} selected={selectedTournament} onSelect={setSelectedTournament} onPublish={(id) => handleStatusChange(id, publishTournament, 'Publicado')} onOpenReg={(id) => handleStatusChange(id, openRegistration, 'Inscricoes abertas')} onCloseReg={(id) => handleStatusChange(id, closeRegistration, 'Inscricoes encerradas')} onStart={(id) => handleStatusChange(id, startTournamentApi, 'Iniciado')} onComplete={(id) => handleStatusChange(id, completeTournament, 'Finalizado')} onCreateClick={() => setShowCreateModal(true)} />}
       {activeTab === 'inscritos' && <TabInscritos regs={filteredRegs} categories={categories} regFilter={regFilter} setRegFilter={setRegFilter} weightInput={weightInput} setWeightInput={setWeightInput} onCheckIn={handleCheckIn} onWeighIn={handleWeighIn} selected={selectedTournament} />}
-      {activeTab === 'chaveamento' && <TabChaveamento categories={categories} brackets={brackets} selectedCat={selectedBracketCat} onSelectCat={setSelectedBracketCat} onGenBracket={handleGenBracket} onGenCategories={handleGenCategories} selected={selectedTournament} />}
-      {activeTab === 'aovivo' && <TabAoVivo stats={stats} liveMatches={liveMatches} nextMatches={nextMatchesList} feed={feed} selectedArea={selectedArea} setSelectedArea={setSelectedArea} announcementTitle={announcementTitle} setAnnouncementTitle={setAnnouncementTitle} announcementText={announcementText} setAnnouncementText={setAnnouncementText} onCallMatch={handleCallMatch} onStartMatch={handleStartMatch} onResult={handleResult} onAnnounce={handleAnnouncement} selected={selectedTournament} />}
-      {activeTab === 'resultados' && <TabResultados medalTable={medalTable} academyResults={academyResults} selected={selectedTournament} />}
+      {activeTab === 'chaveamento' && <TabChaveamento categories={categories} brackets={brackets} bracketMatches={bracketMatches} selectedCat={selectedBracketCat} onSelectCat={(id) => { setSelectedBracketCat(id); loadBracketMatches(id); }} onGenBracket={handleGenBracket} onGenCategories={handleGenCategories} selected={selectedTournament} />}
+      {activeTab === 'aovivo' && <TabAoVivo stats={stats} liveMatches={liveMatches} nextMatches={nextMatchesList} feed={feed} selectedArea={selectedArea} setSelectedArea={setSelectedArea} announcementText={announcementText} setAnnouncementText={setAnnouncementText} onCallMatch={handleCallMatch} onStartMatch={handleStartMatch} onResult={handleResult} onAnnounce={handleAnnouncement} selected={selectedTournament} />}
+      {activeTab === 'resultados' && <TabResultados medalTable={medalTableData} academyResults={academyResults} selected={selectedTournament} />}
 
       {/* Create Modal */}
       {showCreateModal && (
@@ -303,7 +359,7 @@ export default function CampeonatosAdminPage() {
             <div className="space-y-3">
               <ModalInput placeholder="Nome do campeonato" value={newName} onChange={setNewName} />
               <ModalInput type="date" value={newDate} onChange={setNewDate} />
-              <ModalInput placeholder="Local" value={newVenue} onChange={setNewVenue} />
+              <ModalInput placeholder="Local" value={newLocation} onChange={setNewLocation} />
               <ModalInput placeholder="Cidade" value={newCity} onChange={setNewCity} />
             </div>
             <button onClick={handleCreate} className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: 'var(--bb-brand)' }}>Criar Campeonato</button>
@@ -351,16 +407,16 @@ function TabCampeonatos({ tournaments, selected, onSelect, onPublish, onOpenReg,
               <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: s.bg, color: s.text }}>{s.label}</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-              <span className="flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{formatDate(t.date)}</span>
-              <span className="flex items-center gap-1"><UsersIcon className="h-3.5 w-3.5" />{t.totalRegistrations} inscritos</span>
+              <span className="flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{formatDate(t.start_date)}</span>
+              <span className="flex items-center gap-1"><UsersIcon className="h-3.5 w-3.5" />{t.max_athletes ?? 0} vagas</span>
             </div>
-            <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{t.venue} - {t.city}</p>
+            <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{t.location} - {t.city}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {t.status === 'draft' && <Btn onClick={(e) => { e.stopPropagation(); onPublish(t.id); }} bg="var(--bb-brand-surface)" color="var(--bb-brand)" label="Publicar" />}
               {t.status === 'published' && <Btn onClick={(e) => { e.stopPropagation(); onOpenReg(t.id); }} bg="rgba(34,197,94,0.15)" color="#22c55e" label="Abrir Inscricoes" />}
               {t.status === 'registration_open' && <Btn onClick={(e) => { e.stopPropagation(); onCloseReg(t.id); }} bg="rgba(234,179,8,0.15)" color="#eab308" label="Encerrar Inscricoes" />}
               {t.status === 'registration_closed' && <Btn onClick={(e) => { e.stopPropagation(); onStart(t.id); }} bg="rgba(59,130,246,0.15)" color="#3b82f6" label="Iniciar" />}
-              {t.status === 'in_progress' && <Btn onClick={(e) => { e.stopPropagation(); onComplete(t.id); }} bg="rgba(168,85,247,0.15)" color="#a855f7" label="Finalizar" />}
+              {t.status === 'live' && <Btn onClick={(e) => { e.stopPropagation(); onComplete(t.id); }} bg="rgba(168,85,247,0.15)" color="#a855f7" label="Finalizar" />}
             </div>
           </div>
         </div>
@@ -377,24 +433,23 @@ function TabInscritos({ regs, categories, regFilter, setRegFilter, weightInput, 
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Total" value={regs.length} />
-        <StatCard label="Check-ins" value={regs.filter((r) => r.checkedInAt).length} />
+        <StatCard label="Check-ins" value={regs.filter((r) => r.checked_in_at).length} />
         <StatCard label="Categorias" value={categories.length} />
-        <StatCard label="Academias" value={new Set(regs.map((r) => r.academyName).filter(Boolean)).size} />
+        <StatCard label="Academias" value={new Set(regs.map((r) => r.academy_name).filter(Boolean)).size} />
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <input type="text" placeholder="Buscar atleta ou academia..." value={regFilter} onChange={(e) => setRegFilter(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} />
       </div>
       <div className="overflow-x-auto" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
         <table className="w-full text-sm">
-          <thead><tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>{['Atleta', 'Academia', 'Faixa', 'Peso', 'Acoes'].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: 'var(--bb-ink-40)' }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>{['Atleta', 'Academia', 'Peso', 'Acoes'].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: 'var(--bb-ink-40)' }}>{h}</th>)}</tr></thead>
           <tbody>
             {regs.map((r) => (
               <tr key={r.id} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                <td className="px-4 py-3 font-medium" style={{ color: 'var(--bb-ink-100)' }}>{r.athleteName}</td>
-                <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>{r.academyName ?? '—'}</td>
-                <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>{r.belt}</td>
-                <td className="px-4 py-3"><div className="flex items-center gap-1"><input type="number" step="0.1" placeholder={r.weighInValue ? String(r.weighInValue) : 'kg'} value={weightInput[r.id] ?? ''} onChange={(e) => setWeightInput((prev) => ({ ...prev, [r.id]: e.target.value }))} className="w-16 rounded px-2 py-1 text-xs" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} /><button onClick={() => onWeighIn(r.id)} className="rounded p-1" style={{ color: 'var(--bb-brand)' }}><ScaleIcon className="h-4 w-4" /></button></div></td>
-                <td className="px-4 py-3"><button onClick={() => onCheckIn(r.id)} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium" style={{ background: r.checkedInAt ? 'rgba(34,197,94,0.15)' : 'var(--bb-depth-3)', color: r.checkedInAt ? '#22c55e' : 'var(--bb-ink-60)' }}><CheckCircleIcon className="h-3.5 w-3.5" />{r.checkedInAt ? 'OK' : 'Check-in'}</button></td>
+                <td className="px-4 py-3 font-medium" style={{ color: 'var(--bb-ink-100)' }}>{r.athlete_name}</td>
+                <td className="px-4 py-3" style={{ color: 'var(--bb-ink-60)' }}>{r.academy_name ?? '—'}</td>
+                <td className="px-4 py-3"><div className="flex items-center gap-1"><input type="number" step="0.1" placeholder={r.weigh_in_weight ? String(r.weigh_in_weight) : 'kg'} value={weightInput[r.id] ?? ''} onChange={(e) => setWeightInput((prev) => ({ ...prev, [r.id]: e.target.value }))} className="w-16 rounded px-2 py-1 text-xs" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} /><button onClick={() => onWeighIn(r.id)} className="rounded p-1" style={{ color: 'var(--bb-brand)' }}><ScaleIcon className="h-4 w-4" /></button></div></td>
+                <td className="px-4 py-3"><button onClick={() => onCheckIn(r.id)} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium" style={{ background: r.checked_in_at ? 'rgba(34,197,94,0.15)' : 'var(--bb-depth-3)', color: r.checked_in_at ? '#22c55e' : 'var(--bb-ink-60)' }}><CheckCircleIcon className="h-3.5 w-3.5" />{r.checked_in_at ? 'OK' : 'Check-in'}</button></td>
               </tr>
             ))}
           </tbody>
@@ -407,22 +462,23 @@ function TabInscritos({ regs, categories, regFilter, setRegFilter, weightInput, 
 
 // ── Tab: Chaveamento ──────────────────────────────────────────────────
 
-function TabChaveamento({ categories, brackets, selectedCat, onSelectCat, onGenBracket, onGenCategories, selected }: { categories: TournamentCategory[]; brackets: TournamentBracket[]; selectedCat: string | null; onSelectCat: (id: string) => void; onGenBracket: (id: string) => void; onGenCategories: () => void; selected: Tournament | null }) {
+function TabChaveamento({ categories, brackets, bracketMatches, selectedCat, onSelectCat, onGenBracket, onGenCategories, selected }: { categories: TournamentCategory[]; brackets: TournamentBracket[]; bracketMatches: Record<string, TournamentMatch[]>; selectedCat: string | null; onSelectCat: (id: string) => void; onGenBracket: (id: string) => void; onGenCategories: () => void; selected: Tournament | null }) {
   if (!selected) return <EmptyState icon={SwordsIcon} text="Selecione um campeonato" />;
-  const bracket = selectedCat ? brackets.find((b) => b.categoryId === selectedCat) : undefined;
+  const bracket = selectedCat ? brackets.find((b) => b.category_id === selectedCat) : undefined;
+  const matches = selectedCat ? bracketMatches[selectedCat] ?? [] : [];
   const catName = selectedCat ? categories.find((c) => c.id === selectedCat)?.name ?? '' : '';
   return (
     <div className="space-y-4">
       <button onClick={onGenCategories} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium sm:text-sm" style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}>Gerar Categorias Padrao</button>
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2">{categories.map((c) => (
-          <button key={c.id} onClick={() => onSelectCat(c.id)} className="rounded-lg px-3 py-1.5 text-xs font-medium" style={{ background: selectedCat === c.id ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)', color: selectedCat === c.id ? 'var(--bb-brand)' : 'var(--bb-ink-60)', border: `1px solid ${selectedCat === c.id ? 'var(--bb-brand)' : 'var(--bb-glass-border)'}` }}>{c.name} <span className="opacity-60">({c.totalRegistrations})</span></button>
+          <button key={c.id} onClick={() => onSelectCat(c.id)} className="rounded-lg px-3 py-1.5 text-xs font-medium" style={{ background: selectedCat === c.id ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)', color: selectedCat === c.id ? 'var(--bb-brand)' : 'var(--bb-ink-60)', border: `1px solid ${selectedCat === c.id ? 'var(--bb-brand)' : 'var(--bb-glass-border)'}` }}>{c.name} <span className="opacity-60">({c.registered_count})</span></button>
         ))}</div>
       )}
       {selectedCat && (
         <div className="p-4" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
-          {bracket && bracket.matches.length > 0
-            ? <BracketView matches={bracket.matches} categoryLabel={catName} />
+          {bracket && matches.length > 0
+            ? <BracketView matches={matches} categoryLabel={catName} />
             : <div className="flex flex-col items-center py-8"><p className="mb-3 text-sm" style={{ color: 'var(--bb-ink-40)' }}>Chaveamento nao gerado</p><button onClick={() => onGenBracket(selectedCat)} className="rounded-lg px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--bb-brand)' }}>Gerar Chaveamento</button></div>
           }
         </div>
@@ -434,24 +490,24 @@ function TabChaveamento({ categories, brackets, selectedCat, onSelectCat, onGenB
 
 // ── Tab: Ao Vivo ──────────────────────────────────────────────────────
 
-function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSelectedArea, announcementTitle, setAnnouncementTitle, announcementText, setAnnouncementText, onCallMatch, onStartMatch, onResult, onAnnounce, selected }: { stats: TournamentStats | null; liveMatches: TournamentMatch[]; nextMatches: TournamentMatch[]; feed: TournamentFeedItem[]; selectedArea: number; setSelectedArea: (a: number) => void; announcementTitle: string; setAnnouncementTitle: (v: string) => void; announcementText: string; setAnnouncementText: (v: string) => void; onCallMatch: (id: string) => void; onStartMatch: (id: string) => void; onResult: (m: TournamentMatch) => void; onAnnounce: () => void; selected: Tournament | null }) {
+function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSelectedArea, announcementText, setAnnouncementText, onCallMatch, onStartMatch, onResult, onAnnounce, selected }: { stats: TournamentStats | null; liveMatches: TournamentMatch[]; nextMatches: TournamentMatch[]; feed: TournamentFeedItem[]; selectedArea: number; setSelectedArea: (a: number) => void; announcementText: string; setAnnouncementText: (v: string) => void; onCallMatch: (id: string) => void; onStartMatch: (id: string) => void; onResult: (m: TournamentMatch) => void; onAnnounce: () => void; selected: Tournament | null }) {
   if (!selected) return <EmptyState icon={RadioIcon} text="Selecione um campeonato" />;
   return (
     <div className="space-y-6">
       {stats && <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-        <StatCard label="Inscricoes" value={stats.totalRegistrations} />
-        <StatCard label="Academias" value={stats.totalAcademies} />
-        <StatCard label="Categorias" value={stats.totalCategories} />
-        <StatCard label="Lutas" value={`${stats.completedMatches}/${stats.totalMatches}`} />
-        <StatCard label="Finalizacoes" value={stats.totalSubmissions} />
+        <StatCard label="Inscricoes" value={stats.total_registrations} />
+        <StatCard label="Academias" value={stats.academies_count} />
+        <StatCard label="Categorias" value={stats.categories_count} />
+        <StatCard label="Lutas" value={`${stats.matches_completed}/${stats.matches_total}`} />
+        <StatCard label="Em andamento" value={stats.matches_in_progress} />
       </div>}
-      <div className="flex gap-2">{Array.from({ length: selected.totalAreas }, (_, i) => i + 1).map((a) => (
+      <div className="flex gap-2">{Array.from({ length: selected.areas_count }, (_, i) => i + 1).map((a) => (
         <button key={a} onClick={() => setSelectedArea(a)} className="rounded-lg px-3 py-1.5 text-sm font-medium" style={{ background: selectedArea === a ? 'var(--bb-brand-surface)' : 'var(--bb-depth-2)', color: selectedArea === a ? 'var(--bb-brand)' : 'var(--bb-ink-60)', border: `1px solid ${selectedArea === a ? 'var(--bb-brand)' : 'var(--bb-glass-border)'}` }}>Area {a}</button>
       ))}</div>
       <div>
         <h3 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Lutas ao Vivo</h3>
         {liveMatches.filter((m) => m.status === 'in_progress').length > 0
-          ? <div className="grid gap-4 lg:grid-cols-2">{liveMatches.filter((m) => m.status === 'in_progress').map((m) => <LiveScoreboard key={m.id} match={m} area={m.areaNumber ?? 1} />)}</div>
+          ? <div className="grid gap-4 lg:grid-cols-2">{liveMatches.filter((m) => m.status === 'in_progress').map((m) => <LiveScoreboard key={m.id} match={m} area={m.area ?? 1} />)}</div>
           : <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Nenhuma luta em andamento</p>}
       </div>
       <div>
@@ -459,8 +515,8 @@ function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSel
         <div className="space-y-2">{nextMatches.map((m) => (
           <div key={m.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{m.fighterAName || 'TBD'} vs {m.fighterBName || 'TBD'}</p>
-              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Area {m.areaNumber ?? '—'}</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{m.athlete1_name || 'TBD'} vs {m.athlete2_name || 'TBD'}</p>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Area {m.area ?? '—'}</p>
             </div>
             <div className="flex gap-2">
               <Btn onClick={() => onCallMatch(m.id)} bg="rgba(234,179,8,0.15)" color="#eab308" label="Chamar" />
@@ -472,10 +528,7 @@ function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSel
       </div>
       <div className="p-4" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}><MegaphoneIcon className="h-4 w-4" /> Comunicado</h3>
-        <div className="space-y-2">
-          <input type="text" placeholder="Titulo" value={announcementTitle} onChange={(e) => setAnnouncementTitle(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} />
-          <div className="flex gap-2"><input type="text" placeholder="Mensagem..." value={announcementText} onChange={(e) => setAnnouncementText(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} onKeyDown={(e) => e.key === 'Enter' && onAnnounce()} /><button onClick={onAnnounce} className="rounded-lg px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--bb-brand)' }}>Enviar</button></div>
-        </div>
+        <div className="flex gap-2"><input type="text" placeholder="Mensagem..." value={announcementText} onChange={(e) => setAnnouncementText(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }} onKeyDown={(e) => e.key === 'Enter' && onAnnounce()} /><button onClick={onAnnounce} className="rounded-lg px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--bb-brand)' }}>Enviar</button></div>
       </div>
       <div>
         <h3 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Feed</h3>
@@ -485,7 +538,7 @@ function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSel
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{item.title}</p>
               {item.content && <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>{item.content}</p>}
-              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{new Date(item.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
           </div>
         ))}</div>
@@ -496,22 +549,22 @@ function TabAoVivo({ stats, liveMatches, nextMatches, feed, selectedArea, setSel
 
 // ── Tab: Resultados ───────────────────────────────────────────────────
 
-function TabResultados({ medalTable, academyResults, selected }: { medalTable: MedalTableEntry[]; academyResults: AcademyTournamentStats[]; selected: Tournament | null }) {
+function TabResultados({ medalTable, academyResults, selected }: { medalTable: MedalTable[]; academyResults: AcademyTournamentStats[]; selected: Tournament | null }) {
   if (!selected) return <EmptyState icon={AwardIcon} text="Selecione um campeonato" />;
   return (
     <div className="space-y-6">
       <div>
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}><AwardIcon className="h-4 w-4" /> Quadro de Medalhas</h3>
         <div className="overflow-x-auto" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
-          <table className="w-full text-sm"><thead><tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}><th className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>#</th><th className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>Academia</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#eab308' }}>Ouro</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#9ca3af' }}>Prata</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#cd7f32' }}>Bronze</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>Pts</th></tr></thead>
+          <table className="w-full text-sm"><thead><tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}><th className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>#</th><th className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>Academia</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#eab308' }}>Ouro</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#9ca3af' }}>Prata</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: '#cd7f32' }}>Bronze</th><th className="px-4 py-3 text-center text-xs font-semibold" style={{ color: 'var(--bb-ink-40)' }}>Total</th></tr></thead>
           <tbody>{medalTable.map((e) => (
-            <tr key={e.academyId} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-              <td className="px-4 py-3 font-bold" style={{ color: 'var(--bb-ink-60)' }}>{e.position}</td>
-              <td className="px-4 py-3"><p className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{e.academyName}</p><p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{e.totalAthletes} atletas</p></td>
+            <tr key={e.academy_id} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+              <td className="px-4 py-3 font-bold" style={{ color: 'var(--bb-ink-60)' }}>{e.ranking_position}</td>
+              <td className="px-4 py-3"><p className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{e.academy_name}</p></td>
               <td className="px-4 py-3 text-center font-bold" style={{ color: '#eab308' }}>{e.gold}</td>
               <td className="px-4 py-3 text-center font-bold" style={{ color: '#9ca3af' }}>{e.silver}</td>
               <td className="px-4 py-3 text-center font-bold" style={{ color: '#cd7f32' }}>{e.bronze}</td>
-              <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{e.points}</td>
+              <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{e.total}</td>
             </tr>
           ))}</tbody></table>
         </div>
@@ -520,8 +573,8 @@ function TabResultados({ medalTable, academyResults, selected }: { medalTable: M
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}><BarChartIcon className="h-4 w-4" /> Desempenho por Academia</h3>
         <div className="space-y-2">{academyResults.map((a) => (
           <div key={a.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
-            <div><p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{a.academyName}</p><p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{a.totalAthletes} atletas | {a.wins}V {a.losses}D | {a.submissions} finalizacoes</p></div>
-            <div className="flex items-center gap-2 text-xs font-bold"><span style={{ color: '#eab308' }}>{a.gold}G</span><span style={{ color: '#9ca3af' }}>{a.silver}P</span><span style={{ color: '#cd7f32' }}>{a.bronze}B</span></div>
+            <div><p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{a.academy_name}</p><p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{a.total_athletes} atletas | {a.total_points} pontos</p></div>
+            <div className="flex items-center gap-2 text-xs font-bold"><span style={{ color: '#eab308' }}>{a.medals_gold}G</span><span style={{ color: '#9ca3af' }}>{a.medals_silver}P</span><span style={{ color: '#cd7f32' }}>{a.medals_bronze}B</span></div>
           </div>
         ))}{academyResults.length === 0 && <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Nenhum resultado</p>}</div>
       </div>

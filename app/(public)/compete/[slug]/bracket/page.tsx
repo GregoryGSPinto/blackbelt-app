@@ -28,8 +28,8 @@ function getRoundLabel(round: number, maxRound: number): string {
 }
 
 function BracketMatch({ match }: { match: TournamentMatch }) {
-  const aWon = match.winnerId === match.fighterAId;
-  const bWon = match.winnerId === match.fighterBId;
+  const aWon = match.winner_id === match.athlete1_id;
+  const bWon = match.winner_id === match.athlete2_id;
   const isFinished = match.status === 'completed';
   const isLive = match.status === 'in_progress';
 
@@ -55,18 +55,18 @@ function BracketMatch({ match }: { match: TournamentMatch }) {
             className="truncate text-xs font-medium"
             style={{ color: aWon ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
           >
-            {match.fighterAName || 'A definir'}
+            {match.athlete1_name || 'A definir'}
           </p>
         </div>
         <div className="ml-2 flex items-center gap-1">
           {isFinished && (
             <span className="text-xs font-bold" style={{ color: aWon ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}>
-              {match.scoreA}
+              {match.score_athlete1}
             </span>
           )}
           {isLive && (
             <span className="text-xs font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              {match.scoreA}
+              {match.score_athlete1}
             </span>
           )}
         </div>
@@ -82,18 +82,18 @@ function BracketMatch({ match }: { match: TournamentMatch }) {
             className="truncate text-xs font-medium"
             style={{ color: bWon ? 'var(--bb-brand)' : 'var(--bb-ink-100)' }}
           >
-            {match.fighterBName || 'A definir'}
+            {match.athlete2_name || 'A definir'}
           </p>
         </div>
         <div className="ml-2 flex items-center gap-1">
           {isFinished && (
             <span className="text-xs font-bold" style={{ color: bWon ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}>
-              {match.scoreB}
+              {match.score_athlete2}
             </span>
           )}
           {isLive && (
             <span className="text-xs font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              {match.scoreB}
+              {match.score_athlete2}
             </span>
           )}
         </div>
@@ -231,7 +231,7 @@ export default function BracketPage() {
           </div>
           {selectedCatObj && (
             <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              {selectedCatObj.totalRegistrations} atletas inscritos
+              {selectedCatObj.registered_count} atletas inscritos
             </span>
           )}
         </div>
@@ -256,7 +256,7 @@ export default function BracketPage() {
           <div className="overflow-x-auto pb-4">
             <div className="flex items-stretch gap-6" style={{ minWidth: `${sortedRounds.length * 240}px` }}>
               {sortedRounds.map((round) => {
-                const roundMatches = rounds[round].sort((a, b) => a.position - b.position);
+                const roundMatches = rounds[round].sort((a, b) => a.match_number - b.match_number);
                 const label = getRoundLabel(round, maxRound);
 
                 return (
@@ -288,7 +288,10 @@ export default function BracketPage() {
               {sortedRounds.length > 0 && (() => {
                 const finalMatches = rounds[maxRound];
                 const finalMatch = finalMatches?.[0];
-                if (!finalMatch?.winnerName) return null;
+                const winnerName = finalMatch?.winner_id
+                  ? (finalMatch.winner_id === finalMatch.athlete1_id ? finalMatch.athlete1_name : finalMatch.athlete2_name)
+                  : null;
+                if (!winnerName) return null;
                 return (
                   <div className="flex flex-col items-center justify-center">
                     <div className="mb-2">
@@ -303,7 +306,7 @@ export default function BracketPage() {
                       }}
                     >
                       <div className="text-2xl">&#127942;</div>
-                      <p className="mt-1 text-sm font-bold text-white">{finalMatch.winnerName}</p>
+                      <p className="mt-1 text-sm font-bold text-white">{winnerName}</p>
                       <p className="text-xs text-white/70">Campeao</p>
                     </div>
                   </div>

@@ -10,7 +10,7 @@ import {
   getCategories,
   type Tournament,
   type TournamentMatch,
-  type MedalTableEntry,
+  type MedalTable,
   type TournamentCategory,
 } from '@/lib/api/compete.service';
 import {
@@ -25,7 +25,7 @@ export default function ResultadosPage() {
   const slug = params.slug as string;
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [medalTable, setMedalTable] = useState<MedalTableEntry[]>([]);
+  const [medalTable, setMedalTable] = useState<MedalTable[]>([]);
   const [results, setResults] = useState<TournamentMatch[]>([]);
   const [categories, setCategories] = useState<TournamentCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ export default function ResultadosPage() {
   }, [slug]);
 
   const filteredResults = categoryFilter
-    ? results.filter((r) => r.categoryId === categoryFilter)
+    ? results.filter((r) => r.category_id === categoryFilter)
     : results;
 
   // Build a map of categoryId -> category name
@@ -64,7 +64,7 @@ export default function ResultadosPage() {
 
   // Group results by category
   const grouped = filteredResults.reduce<Record<string, TournamentMatch[]>>((acc, match) => {
-    const key = categoryNameMap[match.categoryId] ?? `Categoria ${match.categoryId}`;
+    const key = categoryNameMap[match.category_id] ?? `Categoria ${match.category_id}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push(match);
     return acc;
@@ -126,35 +126,33 @@ export default function ResultadosPage() {
                     <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                       <th className="px-4 py-3 text-left text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>#</th>
                       <th className="px-4 py-3 text-left text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Academia</th>
-                      <th className="hidden px-4 py-3 text-center text-xs font-bold sm:table-cell" style={{ color: 'var(--bb-ink-40)' }}>Atletas</th>
                       <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: '#eab308' }}>Ouro</th>
                       <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: '#9ca3af' }}>Prata</th>
                       <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: '#d97706' }}>Bronze</th>
-                      <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Pts</th>
+                      <th className="px-4 py-3 text-center text-xs font-bold" style={{ color: 'var(--bb-ink-40)' }}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {medalTable.map((entry) => (
                       <tr
-                        key={entry.academyId}
+                        key={entry.academy_id}
                         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                       >
                         <td className="px-4 py-3">
                           <span
                             className="text-sm font-bold"
-                            style={{ color: entry.position <= 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}
+                            style={{ color: entry.ranking_position <= 3 ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}
                           >
-                            {entry.position}
+                            {entry.ranking_position}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{entry.academyName}</p>
+                          <p className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{entry.academy_name}</p>
                         </td>
-                        <td className="hidden px-4 py-3 text-center sm:table-cell" style={{ color: 'var(--bb-ink-60)' }}>{entry.totalAthletes}</td>
                         <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{entry.gold}</td>
                         <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{entry.silver}</td>
                         <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-ink-100)' }}>{entry.bronze}</td>
-                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-brand)' }}>{entry.points}</td>
+                        <td className="px-4 py-3 text-center font-bold" style={{ color: 'var(--bb-brand)' }}>{entry.total}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -227,6 +225,9 @@ export default function ResultadosPage() {
                 // Find final match (highest round)
                 const sortedByRound = [...matches].sort((a, b) => b.round - a.round);
                 const finalMatch = sortedByRound[0];
+                const winnerName = finalMatch?.winner_id
+                  ? (finalMatch.winner_id === finalMatch.athlete1_id ? finalMatch.athlete1_name : finalMatch.athlete2_name)
+                  : null;
 
                 return (
                   <div
@@ -247,13 +248,13 @@ export default function ResultadosPage() {
                     </div>
 
                     {/* Winners highlight */}
-                    {finalMatch?.winnerName && (
+                    {winnerName && (
                       <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                         <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm" style={{ backgroundColor: 'rgba(234,179,8,0.15)', color: '#eab308' }}>
                           1
                         </div>
                         <div>
-                          <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>{finalMatch.winnerName}</p>
+                          <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>{winnerName}</p>
                           <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                             {finalMatch.method && `Venceu por ${finalMatch.method}`}
                           </p>
@@ -271,19 +272,19 @@ export default function ResultadosPage() {
                             </span>
                             <div className="min-w-0">
                               <p className="truncate text-sm" style={{ color: 'var(--bb-ink-100)' }}>
-                                <span className={match.winnerId === match.fighterAId ? 'font-bold' : ''}>
-                                  {match.fighterAName ?? 'A definir'}
+                                <span className={match.winner_id === match.athlete1_id ? 'font-bold' : ''}>
+                                  {match.athlete1_name ?? 'A definir'}
                                 </span>
                                 <span style={{ color: 'var(--bb-ink-40)' }}> vs </span>
-                                <span className={match.winnerId === match.fighterBId ? 'font-bold' : ''}>
-                                  {match.fighterBName ?? 'A definir'}
+                                <span className={match.winner_id === match.athlete2_id ? 'font-bold' : ''}>
+                                  {match.athlete2_name ?? 'A definir'}
                                 </span>
                               </p>
                             </div>
                           </div>
                           <div className="flex-shrink-0 text-right">
                             <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                              {match.scoreA} x {match.scoreB}
+                              {match.score_athlete1} x {match.score_athlete2}
                             </p>
                             {match.method && (
                               <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{match.method}</p>

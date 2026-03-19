@@ -19,11 +19,13 @@ import {
 } from '@/components/shell/icons';
 
 const STATUS_CONFIG: Record<TournamentStatus, { label: string; bg: string; text: string }> = {
+  aguardando_aprovacao: { label: 'Aguardando aprovacao', bg: 'rgba(234,179,8,0.1)', text: '#ca8a04' },
   draft: { label: 'Rascunho', bg: 'rgba(156,163,175,0.1)', text: 'var(--bb-ink-40)' },
   published: { label: 'Publicado', bg: 'rgba(156,163,175,0.15)', text: 'var(--bb-ink-60)' },
   registration_open: { label: 'Inscricoes abertas', bg: 'rgba(34,197,94,0.15)', text: '#16a34a' },
   registration_closed: { label: 'Inscricoes encerradas', bg: 'rgba(234,179,8,0.15)', text: '#ca8a04' },
-  in_progress: { label: 'Ao vivo', bg: 'rgba(59,130,246,0.15)', text: '#2563eb' },
+  weigh_in: { label: 'Pesagem', bg: 'rgba(59,130,246,0.1)', text: '#2563eb' },
+  live: { label: 'Ao vivo', bg: 'rgba(59,130,246,0.15)', text: '#2563eb' },
   completed: { label: 'Finalizado', bg: 'rgba(156,163,175,0.1)', text: 'var(--bb-ink-40)' },
   cancelled: { label: 'Cancelado', bg: 'rgba(239,68,68,0.1)', text: '#dc2626' },
 };
@@ -42,7 +44,7 @@ export default function CompeteListPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const filters: { status?: TournamentStatus; modality?: string; featured?: boolean } = {};
+      const filters: { status?: TournamentStatus; modality?: string } = {};
       if (statusFilter) filters.status = statusFilter as TournamentStatus;
       if (modalityFilter) filters.modality = modalityFilter;
       const data = await getTournaments(filters);
@@ -68,7 +70,7 @@ export default function CompeteListPage() {
     : afterCity;
 
   const featured = filtered.find(
-    (t) => t.status === 'registration_open' || t.status === 'in_progress'
+    (t) => t.status === 'registration_open' || t.status === 'live'
   );
   const rest = featured ? filtered.filter((t) => t.id !== featured.id) : filtered;
 
@@ -146,7 +148,7 @@ export default function CompeteListPage() {
               <option value="published">Publicado</option>
               <option value="registration_open">Inscricoes abertas</option>
               <option value="registration_closed">Inscricoes encerradas</option>
-              <option value="in_progress">Ao vivo</option>
+              <option value="live">Ao vivo</option>
               <option value="completed">Finalizado</option>
             </select>
 
@@ -235,21 +237,23 @@ export default function CompeteListPage() {
                     <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-white/80">
                       <span className="flex items-center gap-1.5">
                         <CalendarIcon className="h-4 w-4" />
-                        {new Date(featured.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        {new Date(featured.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <MapPinIcon className="h-4 w-4" />
-                        {featured.venue} - {featured.city}/{featured.state}
+                        {featured.location} - {featured.city}/{featured.state}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <UsersIcon className="h-4 w-4" />
-                        {featured.totalRegistrations} inscritos
+                        {featured.max_athletes ?? 'Ilimitado'} vagas
                       </span>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                        {featured.modality}
-                      </span>
+                      {featured.modalities.map((mod) => (
+                        <span key={mod} className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
+                          {mod}
+                        </span>
+                      ))}
                     </div>
                     <div className="mt-6 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                       Ver detalhes
@@ -280,8 +284,8 @@ export default function CompeteListPage() {
                     <div
                       className="relative h-36 overflow-hidden"
                       style={{
-                        background: tournament.bannerUrl
-                          ? `url(${tournament.bannerUrl}) center/cover`
+                        background: tournament.banner_url
+                          ? `url(${tournament.banner_url}) center/cover`
                           : 'var(--bb-brand-gradient)',
                       }}
                     >
@@ -293,11 +297,6 @@ export default function CompeteListPage() {
                         >
                           {statusCfg.label}
                         </span>
-                        {tournament.isFeatured && (
-                          <span className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
-                            Destaque
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -311,26 +310,29 @@ export default function CompeteListPage() {
                         <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                           <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" />
                           <span>
-                            {new Date(tournament.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {new Date(tournament.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                           <MapPinIcon className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="truncate">{tournament.venue} - {tournament.city}/{tournament.state}</span>
+                          <span className="truncate">{tournament.location} - {tournament.city}/{tournament.state}</span>
                         </div>
                       </div>
 
-                      {/* Modality */}
+                      {/* Modalities */}
                       <div className="mt-3 flex flex-wrap gap-1">
-                        <span
-                          className="rounded-full px-2 py-0.5 text-[10px] font-medium"
-                          style={{
-                            backgroundColor: 'var(--bb-brand-surface)',
-                            color: 'var(--bb-brand)',
-                          }}
-                        >
-                          {tournament.modality}
-                        </span>
+                        {tournament.modalities.map((mod) => (
+                          <span
+                            key={mod}
+                            className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                            style={{
+                              backgroundColor: 'var(--bb-brand-surface)',
+                              color: 'var(--bb-brand)',
+                            }}
+                          >
+                            {mod}
+                          </span>
+                        ))}
                       </div>
 
                       {/* Footer */}
@@ -340,10 +342,10 @@ export default function CompeteListPage() {
                       >
                         <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                           <UsersIcon className="h-3.5 w-3.5" />
-                          <span>{tournament.totalRegistrations} inscritos</span>
+                          <span>{tournament.max_athletes ?? 'Ilimitado'} vagas</span>
                         </div>
                         <span className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                          R$ {tournament.registrationFee.toFixed(2).replace('.', ',')}
+                          R$ {tournament.registration_fee.toFixed(2).replace('.', ',')}
                         </span>
                       </div>
                     </div>

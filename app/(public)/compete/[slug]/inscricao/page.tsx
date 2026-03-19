@@ -47,7 +47,8 @@ export default function InscricaoPage() {
         const t = await getTournament(slug);
         setTournament(t);
         const cats = await getCategories(t.id);
-        setCategories(cats.filter((c) => c.status === 'open'));
+        // Filter by available spots if max_athletes is set
+        setCategories(cats.filter((c) => c.max_athletes == null || c.registered_count < c.max_athletes));
       } finally {
         setLoading(false);
       }
@@ -70,13 +71,11 @@ export default function InscricaoPage() {
     setSubmitting(true);
     setError('');
     try {
-      const result = await registerAthlete({
-        tournamentId: tournament.id,
-        categoryId,
-        athleteId: cpf.replace(/\D/g, ''),
-        athleteName: name,
-        academyName: academy,
-        belt,
+      const result = await registerAthlete(tournament.id, categoryId, {
+        athlete_profile_id: cpf.replace(/\D/g, ''),
+        academy_id: 'guest',
+        athlete_name: name,
+        academy_name: academy,
         weight: parseFloat(weight),
       });
       setSuccess(result);
@@ -141,15 +140,11 @@ export default function InscricaoPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span style={{ color: 'var(--bb-ink-40)' }}>Atleta</span>
-                <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{success.athleteName}</span>
+                <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{success.athlete_name}</span>
               </div>
               <div className="flex justify-between">
                 <span style={{ color: 'var(--bb-ink-40)' }}>Academia</span>
-                <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{success.academyName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span style={{ color: 'var(--bb-ink-40)' }}>Faixa</span>
-                <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{success.belt}</span>
+                <span className="font-medium" style={{ color: 'var(--bb-ink-100)' }}>{success.academy_name}</span>
               </div>
               <div className="flex justify-between">
                 <span style={{ color: 'var(--bb-ink-40)' }}>Peso</span>
@@ -209,7 +204,7 @@ export default function InscricaoPage() {
           <div className="mt-2 flex flex-wrap gap-4 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
             <span className="flex items-center gap-1">
               <CalendarIcon className="h-3.5 w-3.5" />
-              {new Date(tournament.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+              {new Date(tournament.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
             </span>
             <span className="flex items-center gap-1">
               <MapPinIcon className="h-3.5 w-3.5" />
@@ -273,7 +268,7 @@ export default function InscricaoPage() {
                   <option value="">Selecione a categoria</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name} ({cat.totalRegistrations} inscritos)
+                      {cat.name} ({cat.registered_count} inscritos)
                     </option>
                   ))}
                 </select>
@@ -426,7 +421,7 @@ export default function InscricaoPage() {
                 color: 'var(--bb-brand)',
               }}
             >
-              Taxa de inscricao: <strong>R$ {tournament.registrationFee.toFixed(2).replace('.', ',')}</strong>
+              Taxa de inscricao: <strong>R$ {tournament.registration_fee.toFixed(2).replace('.', ',')}</strong>
             </div>
 
             {/* Submit */}

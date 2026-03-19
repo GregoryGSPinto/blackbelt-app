@@ -7,9 +7,7 @@ import { TutorialProvider } from '@/components/tutorial/TutorialProvider';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { TutorialWelcome } from '@/components/tutorial/TutorialWelcome';
 import { TutorialComplete } from '@/components/tutorial/TutorialComplete';
-import { TutorialFAB } from '@/components/tutorial/TutorialFAB';
 import { WelcomeMessage } from '@/components/shared/WelcomeMessage';
-import SupportWidget from '@/components/support/SupportWidget';
 import { TelemetryInit } from '@/components/support/TelemetryInit';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -23,8 +21,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <TutorialWelcome />
             <TutorialOverlay />
             <TutorialComplete />
-            <TutorialFAB />
-            <SupportWidget />
             <TelemetryInit />
           </ToastProvider>
         </TutorialProvider>

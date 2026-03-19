@@ -3,57 +3,80 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
-  getRegistrationsByChampionship,
-  confirmWeighIn,
-  changeCategory,
-  type RegistrationDTO,
-} from '@/lib/api/championship-registration.service';
+  getRegistrations,
+  getCategories,
+  weighInAthlete,
+  type TournamentRegistration,
+  type TournamentCategory,
+} from '@/lib/api/compete.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
 
 const STATUS_COLORS: Record<string, string> = {
-  inscrito: 'bg-blue-100 text-blue-700',
-  pesagem: 'bg-green-100 text-green-700',
-  competindo: 'bg-yellow-100 text-yellow-700',
-  resultado: 'bg-bb-gray-100 text-bb-gray-600',
+  pending: 'bg-blue-100 text-blue-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  checked_in: 'bg-yellow-100 text-yellow-700',
+  weighed_in: 'bg-green-100 text-green-700',
+  competing: 'bg-yellow-100 text-yellow-700',
+  eliminated: 'bg-bb-gray-100 text-bb-gray-600',
+  winner: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+  no_show: 'bg-bb-gray-100 text-bb-gray-600',
 };
 
 export default function PesagemPage() {
   const params = useParams();
-  const championshipId = params.id as string;
+  const tournamentId = params.id as string;
 
-  const [registrations, setRegistrations] = useState<RegistrationDTO[]>([]);
+  const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
+  const [categories, setCategories] = useState<TournamentCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [weighInModal, setWeighInModal] = useState<RegistrationDTO | null>(null);
+  const [weighInModal, setWeighInModal] = useState<TournamentRegistration | null>(null);
   const [weightInput, setWeightInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    getRegistrationsByChampionship(championshipId)
-      .then(setRegistrations)
+    Promise.all([
+      getRegistrations(tournamentId),
+      getCategories(tournamentId),
+    ])
+      .then(([regs, cats]) => {
+        setRegistrations(regs);
+        setCategories(cats);
+      })
       .finally(() => setLoading(false));
-  }, [championshipId]);
+  }, [tournamentId]);
 
-  // Unique categories
-  const categories = [...new Set(registrations.map((r) => r.category_label))];
+  // Get category name by id
+  function getCategoryName(categoryId: string): string {
+    return categories.find((c) => c.id === categoryId)?.name ?? categoryId;
+  }
+
+  // Unique category ids from registrations
+  const categoryIds = [...new Set(registrations.map((r) => r.category_id))];
 
   // Filter
   let filtered = registrations;
   if (filterCategory) {
-    filtered = filtered.filter((r) => r.category_label === filterCategory);
+    filtered = filtered.filter((r) => r.category_id === filterCategory);
   }
   if (filterStatus) {
-    filtered = filtered.filter((r) => r.status === filterStatus);
+    if (filterStatus === 'pending_weigh') {
+      filtered = filtered.filter((r) => !r.weighed_in_at);
+    } else if (filterStatus === 'weighed') {
+      filtered = filtered.filter((r) => r.weighed_in_at !== null);
+    }
   }
 
   // Group by category
-  const grouped = filtered.reduce<Record<string, RegistrationDTO[]>>((acc, r) => {
-    if (!acc[r.category_label]) acc[r.category_label] = [];
-    acc[r.category_label].push(r);
+  const grouped = filtered.reduce<Record<string, TournamentRegistration[]>>((acc, r) => {
+    const catName = getCategoryName(r.category_id);
+    if (!acc[catName]) acc[catName] = [];
+    acc[catName].push(r);
     return acc;
   }, {});
 
@@ -61,32 +84,18 @@ export default function PesagemPage() {
     if (!weighInModal || !weightInput) return;
     setSubmitting(true);
     try {
-      const updated = await confirmWeighIn(weighInModal.id, Number(weightInput));
-      setRegistrations((prev) =>
-        prev.map((r) => (r.id === updated.id ? updated : r)),
-      );
+      const result = await weighInAthlete(weighInModal.id, Number(weightInput));
 
-      // Check auto re-categorization: if actual weight exceeds declared category
-      const actualWeight = Number(weightInput);
-      const declaredWeight = weighInModal.weight_declared;
-      if (actualWeight > declaredWeight + 2) {
-        // Auto-suggest re-categorization
-        const heavierCategory = categories.find((c) =>
-          c.includes('Pesado') || c.includes('Médio'),
+      // Reload registrations to reflect updated state
+      const updatedRegs = await getRegistrations(tournamentId);
+      setRegistrations(updatedRegs);
+
+      if (!result.passed) {
+        const confirmChange = window.confirm(
+          `Atleta pesou ${weightInput}kg e nao se encaixa na categoria atual. Categoria sugerida: "${result.category.name}". Deseja continuar?`,
         );
-        if (heavierCategory && heavierCategory !== weighInModal.category_label) {
-          const confirmChange = window.confirm(
-            `Atleta pesou ${actualWeight}kg (declarado ${declaredWeight}kg). Deseja mover para "${heavierCategory}"?`,
-          );
-          if (confirmChange) {
-            const newCatReg = registrations.find((r) => r.category_label === heavierCategory);
-            if (newCatReg) {
-              const changed = await changeCategory(weighInModal.id, newCatReg.category_id);
-              setRegistrations((prev) =>
-                prev.map((r) => (r.id === changed.id ? changed : r)),
-              );
-            }
-          }
+        if (!confirmChange) {
+          // User declined, no further action
         }
       }
 
@@ -99,14 +108,14 @@ export default function PesagemPage() {
 
   // Stats
   const totalRegistrations = registrations.length;
-  const weighedIn = registrations.filter((r) => r.status === 'pesagem' || r.status === 'competindo' || r.status === 'resultado').length;
-  const pending = registrations.filter((r) => r.status === 'inscrito').length;
+  const weighedIn = registrations.filter((r) => r.weighed_in_at !== null).length;
+  const pending = registrations.filter((r) => r.weighed_in_at === null).length;
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <div className="space-y-6 p-6">
-      <PageHeader title="Pesagem" subtitle={`Campeonato ${championshipId}`} />
+      <PageHeader title="Pesagem" subtitle={`Campeonato ${tournamentId}`} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -132,8 +141,8 @@ export default function PesagemPage() {
           className="rounded-lg border border-bb-gray-200 px-3 py-2 text-sm"
         >
           <option value="">Todas as categorias</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+          {categoryIds.map((catId) => (
+            <option key={catId} value={catId}>{getCategoryName(catId)}</option>
           ))}
         </select>
         <select
@@ -142,8 +151,8 @@ export default function PesagemPage() {
           className="rounded-lg border border-bb-gray-200 px-3 py-2 text-sm"
         >
           <option value="">Todos os status</option>
-          <option value="inscrito">Pendente pesagem</option>
-          <option value="pesagem">Pesado</option>
+          <option value="pending_weigh">Pendente pesagem</option>
+          <option value="weighed">Pesado</option>
         </select>
         <Button variant="ghost" className="ml-auto">
           Exportar PDF
@@ -168,28 +177,28 @@ export default function PesagemPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-bb-black">{reg.athlete_name}</p>
-                  <p className="text-xs text-bb-gray-500">{reg.academy} | {reg.belt} | Declarado: {reg.weight_declared}kg</p>
+                  <p className="text-xs text-bb-gray-500">{reg.academy_name} | Peso: {reg.weight ?? '—'}kg</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {reg.weight_actual !== null && (
+                  {reg.weigh_in_weight !== null && (
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      Math.abs(reg.weight_actual - reg.weight_declared) > 2
+                      reg.weight !== null && Math.abs(reg.weigh_in_weight - reg.weight) > 2
                         ? 'bg-red-100 text-red-700'
                         : 'bg-green-100 text-green-700'
                     }`}>
-                      {reg.weight_actual}kg
+                      {reg.weigh_in_weight}kg
                     </span>
                   )}
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[reg.status]}`}>
-                    {reg.status === 'inscrito' ? 'Pendente' : 'Pesado'}
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[reg.status] ?? 'bg-bb-gray-100 text-bb-gray-600'}`}>
+                    {reg.weighed_in_at ? 'Pesado' : 'Pendente'}
                   </span>
-                  {reg.status === 'inscrito' && (
+                  {!reg.weighed_in_at && (
                     <Button
                       variant="primary"
                       className="text-xs"
                       onClick={() => {
                         setWeighInModal(reg);
-                        setWeightInput(String(reg.weight_declared));
+                        setWeightInput(String(reg.weight ?? ''));
                       }}
                     >
                       Pesar
@@ -207,13 +216,13 @@ export default function PesagemPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md p-6">
             <h3 className="text-lg font-bold text-bb-black">Registrar Pesagem</h3>
-            <p className="mt-1 text-sm text-bb-gray-500">{weighInModal.athlete_name} | {weighInModal.academy}</p>
+            <p className="mt-1 text-sm text-bb-gray-500">{weighInModal.athlete_name} | {weighInModal.academy_name}</p>
 
             <div className="mt-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg bg-bb-gray-50 p-3">
                   <p className="text-xs text-bb-gray-500">Peso declarado</p>
-                  <p className="text-lg font-bold text-bb-black">{weighInModal.weight_declared}kg</p>
+                  <p className="text-lg font-bold text-bb-black">{weighInModal.weight ?? '—'}kg</p>
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-bb-gray-500">Peso real (kg)</label>
@@ -228,10 +237,10 @@ export default function PesagemPage() {
                 </div>
               </div>
 
-              {weightInput && Math.abs(Number(weightInput) - weighInModal.weight_declared) > 2 && (
+              {weightInput && weighInModal.weight !== null && Math.abs(Number(weightInput) - weighInModal.weight) > 2 && (
                 <div className="rounded-lg border border-red-200 bg-red-50 p-3">
                   <p className="text-xs font-medium text-red-700">
-                    Diferença superior a 2kg. O atleta pode ser recategorizado automaticamente.
+                    Diferenca superior a 2kg. O atleta pode ser recategorizado automaticamente.
                   </p>
                 </div>
               )}

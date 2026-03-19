@@ -188,6 +188,19 @@ export async function mockLogin(data: LoginRequest): Promise<LoginResponse> {
   return { accessToken, refreshToken, profiles };
 }
 
+export async function mockLoginWithOAuth(_provider: string): Promise<LoginResponse> {
+  await delay(500);
+  // Simulate OAuth by logging in as the demo user (Roberto Guerreiro)
+  const user = MOCK_USERS.find((u) => u.email === 'roberto@guerreiros.com')!;
+  const profiles = getProfilesByUserId(user.id);
+  const firstProfile = profiles[0];
+
+  const accessToken = createMockToken(user.id, firstProfile.id, firstProfile.role, firstProfile.display_name);
+  const refreshToken = createMockToken(user.id, firstProfile.id, firstProfile.role, firstProfile.display_name, 60 * 24 * 7);
+
+  return { accessToken, refreshToken, profiles };
+}
+
 export async function mockRegister(data: RegisterRequest): Promise<RegisterResponse> {
   await delay();
 

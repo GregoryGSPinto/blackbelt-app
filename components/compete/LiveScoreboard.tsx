@@ -30,8 +30,8 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
     const isLive = match.status === 'in_progress';
     const isFinished = match.status === 'completed';
 
-    const winnerIsA = match.winnerId === match.fighterAId;
-    const winnerIsB = match.winnerId === match.fighterBId;
+    const winnerIsA = match.winner_id === match.athlete1_id;
+    const winnerIsB = match.winner_id === match.athlete2_id;
 
     return (
       <div
@@ -59,7 +59,7 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
               A{area}
             </span>
             <span className="text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-              {categoryLabel ?? match.categoryId}
+              {categoryLabel ?? match.category_name}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
                 color: isFinished && winnerIsA ? 'var(--bb-brand)' : 'var(--bb-ink-100)',
               }}
             >
-              {match.fighterAName || 'A definir'}
+              {match.athlete1_name || 'A definir'}
             </p>
 
             {/* Score */}
@@ -124,14 +124,14 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
                 color: isFinished && winnerIsA ? 'var(--bb-brand)' : 'var(--bb-ink-100)',
               }}
             >
-              {match.scoreA}
+              {match.score_athlete1}
             </p>
 
             {/* Advantages / Penalties */}
             <div className="mt-2 flex gap-3">
               <div className="text-center">
                 <p className="text-lg font-bold" style={{ color: '#EAB308' }}>
-                  {match.advantagesA}
+                  {match.advantages_athlete1}
                 </p>
                 <p className="text-[9px] uppercase" style={{ color: 'var(--bb-ink-40)' }}>
                   Vant.
@@ -139,7 +139,7 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
               </div>
               <div className="text-center">
                 <p className="text-lg font-bold" style={{ color: '#EF4444' }}>
-                  {match.penaltiesA}
+                  {match.penalties_athlete1}
                 </p>
                 <p className="text-[9px] uppercase" style={{ color: 'var(--bb-ink-40)' }}>
                   Pen.
@@ -183,7 +183,7 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
                 color: isFinished && winnerIsB ? 'var(--bb-brand)' : 'var(--bb-ink-100)',
               }}
             >
-              {match.fighterBName || 'A definir'}
+              {match.athlete2_name || 'A definir'}
             </p>
 
             {/* Score */}
@@ -193,14 +193,14 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
                 color: isFinished && winnerIsB ? 'var(--bb-brand)' : 'var(--bb-ink-100)',
               }}
             >
-              {match.scoreB}
+              {match.score_athlete2}
             </p>
 
             {/* Advantages / Penalties */}
             <div className="mt-2 flex gap-3">
               <div className="text-center">
                 <p className="text-lg font-bold" style={{ color: '#EAB308' }}>
-                  {match.advantagesB}
+                  {match.advantages_athlete2}
                 </p>
                 <p className="text-[9px] uppercase" style={{ color: 'var(--bb-ink-40)' }}>
                   Vant.
@@ -208,7 +208,7 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
               </div>
               <div className="text-center">
                 <p className="text-lg font-bold" style={{ color: '#EF4444' }}>
-                  {match.penaltiesB}
+                  {match.penalties_athlete2}
                 </p>
                 <p className="text-[9px] uppercase" style={{ color: 'var(--bb-ink-40)' }}>
                   Pen.
@@ -245,10 +245,10 @@ const LiveScoreboard = forwardRef<HTMLDivElement, LiveScoreboardProps>(
               className="text-sm font-mono font-bold"
               style={{ color: isLive ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}
             >
-              {formatTime(match.durationSeconds ?? 0)}
+              {formatTime(match.duration_seconds ?? 0)}
             </span>
             <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
-              {match.status === 'completed' ? '' : `/ ${formatTime(match.durationSeconds ?? 0)}`}
+              {match.status === 'completed' ? '' : `/ ${formatTime(match.duration_seconds ?? 0)}`}
             </span>
           </div>
           {match.method && (

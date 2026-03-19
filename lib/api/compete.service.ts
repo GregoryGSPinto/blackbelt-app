@@ -1,362 +1,88 @@
+// ============================================================
+// BlackBelt v2 — Compete Service
+// Torneios, chaves, inscrições, resultados, rankings, predições
+// 40+ funções · isMock() pattern · handleServiceError
+// ============================================================
+
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { handleServiceError } from '@/lib/api/errors';
+import type { BeltLevel } from '@/lib/types/domain';
+import type {
+  Tournament,
+  TournamentCircuit,
+  TournamentCategory,
+  TournamentRegistration,
+  TournamentBracket,
+  TournamentMatch,
+  AthleteProfile,
+  AcademyTournamentStats,
+  TournamentPrediction,
+  TournamentFeedItem,
+  TournamentFilters,
+  CategoryFilters,
+  RegistrationFilters,
+  MatchResult,
+  MedalTable,
+  TournamentStats,
+  SocialCardType,
+} from '@/lib/types/compete';
 
-// ── Types ─────────────────────────────────────────────────────
+// Re-export all types so pages can import from service
+export type {
+  Tournament,
+  TournamentCircuit,
+  TournamentCategory,
+  TournamentRegistration,
+  TournamentBracket,
+  TournamentMatch,
+  AthleteProfile,
+  AcademyTournamentStats,
+  TournamentPrediction,
+  TournamentFeedItem,
+  TournamentFilters,
+  CategoryFilters,
+  RegistrationFilters,
+  MatchResult,
+  MatchMethod,
+  MedalTable,
+  TournamentStats,
+  TournamentStatus,
+  SocialCardType,
+} from '@/lib/types/compete';
 
-export type TournamentStatus = 'draft' | 'published' | 'registration_open' | 'registration_closed' | 'in_progress' | 'completed' | 'cancelled';
-export type RegistrationStatus = 'pending' | 'confirmed' | 'paid' | 'checked_in' | 'weighed_in' | 'cancelled' | 'no_show';
-export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'waived';
-export type BracketMethodType = 'single_elimination' | 'double_elimination' | 'round_robin';
-export type MatchMethodType = 'submission' | 'points' | 'dq' | 'walkover' | 'referee_decision' | 'draw';
-export type MatchStatus = 'pending' | 'called' | 'in_progress' | 'completed' | 'cancelled';
-export type CategoryStatus = 'open' | 'closed' | 'in_progress' | 'completed';
-export type BracketStatus = 'pending' | 'in_progress' | 'completed';
-export type CircuitStatus = 'active' | 'completed' | 'cancelled';
-export type FeedItemType = 'result' | 'announcement' | 'photo' | 'bracket_update' | 'schedule_change' | 'medal_ceremony';
+// ────────────────────────────────────────────────────────────
+// TOURNAMENTS
+// ────────────────────────────────────────────────────────────
 
-export interface Tournament {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  rules: string;
-  date: string;
-  endDate: string;
-  venue: string;
-  address: string;
-  city: string;
-  state: string;
-  organizerId: string;
-  academyId: string | null;
-  circuitId: string | null;
-  circuitStage: number | null;
-  status: TournamentStatus;
-  modality: string;
-  registrationFee: number;
-  registrationDeadline: string;
-  maxRegistrations: number | null;
-  totalRegistrations: number;
-  totalAcademies: number;
-  totalAreas: number;
-  bannerUrl: string | null;
-  logoUrl: string | null;
-  isFeatured: boolean;
-  publishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TournamentCircuit {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  season: string;
-  region: string;
-  organizerId: string;
-  totalStages: number;
-  status: CircuitStatus;
-  logoUrl: string | null;
-  stages: Tournament[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TournamentCategory {
-  id: string;
-  tournamentId: string;
-  name: string;
-  beltRange: string;
-  weightRange: string;
-  ageRange: string;
-  gender: string;
-  modality: string;
-  matchDurationSeconds: number;
-  totalRegistrations: number;
-  status: CategoryStatus;
-  createdAt: string;
-}
-
-export interface TournamentRegistration {
-  id: string;
-  tournamentId: string;
-  categoryId: string;
-  athleteId: string;
-  athleteName: string;
-  academyId: string | null;
-  academyName: string | null;
-  belt: string;
-  weight: number | null;
-  seed: number | null;
-  status: RegistrationStatus;
-  paymentStatus: PaymentStatus;
-  paymentRef: string | null;
-  checkedInAt: string | null;
-  weighedInAt: string | null;
-  weighInValue: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TournamentBracket {
-  id: string;
-  tournamentId: string;
-  categoryId: string;
-  method: BracketMethodType;
-  totalRounds: number;
-  totalAthletes: number;
-  status: BracketStatus;
-  generatedAt: string | null;
-  matches: TournamentMatch[];
-  createdAt: string;
-}
-
-export interface TournamentMatch {
-  id: string;
-  bracketId: string;
-  tournamentId: string;
-  categoryId: string;
-  round: number;
-  position: number;
-  fighterAId: string | null;
-  fighterAName: string | null;
-  fighterBId: string | null;
-  fighterBName: string | null;
-  winnerId: string | null;
-  winnerName: string | null;
-  method: MatchMethodType | null;
-  submissionName: string | null;
-  scoreA: number;
-  scoreB: number;
-  advantagesA: number;
-  advantagesB: number;
-  penaltiesA: number;
-  penaltiesB: number;
-  durationSeconds: number | null;
-  matNumber: number | null;
-  areaNumber: number | null;
-  scheduledTime: string | null;
-  startedAt: string | null;
-  endedAt: string | null;
-  status: MatchStatus;
-  notes: string | null;
-  createdAt: string;
-}
-
-export interface AthleteProfile {
-  id: string;
-  userId: string;
-  fullName: string;
-  nickname: string | null;
-  photoUrl: string | null;
-  belt: string;
-  weight: number | null;
-  weightClass: string | null;
-  ageGroup: string | null;
-  academyId: string | null;
-  academyName: string | null;
-  modality: string;
-  totalFights: number;
-  wins: number;
-  losses: number;
-  draws: number;
-  submissions: number;
-  submissionsSuffered: number;
-  goldMedals: number;
-  silverMedals: number;
-  bronzeMedals: number;
-  rankingPoints: number;
-  rankingPosition: number | null;
-  winRate: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AcademyTournamentStats {
-  id: string;
-  academyId: string;
-  tournamentId: string;
-  academyName: string;
-  totalAthletes: number;
-  gold: number;
-  silver: number;
-  bronze: number;
-  totalFights: number;
-  wins: number;
-  losses: number;
-  submissions: number;
-  points: number;
-  rankingPosition: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TournamentFeedItem {
-  id: string;
-  tournamentId: string;
-  type: FeedItemType;
-  title: string;
-  content: string | null;
-  imageUrl: string | null;
-  matchId: string | null;
-  categoryId: string | null;
-  authorId: string | null;
-  authorName: string | null;
-  pinned: boolean;
-  createdAt: string;
-}
-
-export interface TournamentPrediction {
-  id: string;
-  tournamentId: string;
-  userId: string;
-  matchId: string | null;
-  categoryId: string | null;
-  predictedWinnerId: string;
-  predictedMethod: string | null;
-  isCorrect: boolean | null;
-  pointsEarned: number;
-  createdAt: string;
-}
-
-export interface MedalTableEntry {
-  position: number;
-  academyId: string;
-  academyName: string;
-  gold: number;
-  silver: number;
-  bronze: number;
-  total: number;
-  points: number;
-  totalAthletes: number;
-}
-
-export interface TournamentStats {
-  totalRegistrations: number;
-  totalAcademies: number;
-  totalCategories: number;
-  totalMatches: number;
-  completedMatches: number;
-  totalSubmissions: number;
-  averageMatchDuration: number;
-  registrationsByStatus: Record<RegistrationStatus, number>;
-}
-
-export interface CreateTournamentPayload {
-  name: string;
-  slug: string;
-  description: string;
-  rules?: string;
-  date: string;
-  endDate?: string;
-  venue: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  modality?: string;
-  registrationFee?: number;
-  registrationDeadline?: string;
-  maxRegistrations?: number;
-  totalAreas?: number;
-  circuitId?: string;
-  circuitStage?: number;
-  bannerUrl?: string;
-  logoUrl?: string;
-}
-
-export interface UpdateTournamentPayload extends Partial<CreateTournamentPayload> {
-  id: string;
-}
-
-export interface CreateCategoryPayload {
-  tournamentId: string;
-  name: string;
-  beltRange: string;
-  weightRange: string;
-  ageRange: string;
-  gender?: string;
-  modality?: string;
-  matchDurationSeconds?: number;
-}
-
-export interface RegisterAthletePayload {
-  tournamentId: string;
-  categoryId: string;
-  athleteId: string;
-  athleteName: string;
-  academyId?: string;
-  academyName?: string;
-  belt: string;
-  weight?: number;
-}
-
-export interface RecordResultPayload {
-  winnerId: string;
-  winnerName: string;
-  method: MatchMethodType;
-  submissionName?: string;
-  scoreA: number;
-  scoreB: number;
-  advantagesA?: number;
-  advantagesB?: number;
-  penaltiesA?: number;
-  penaltiesB?: number;
-  durationSeconds: number;
-  notes?: string;
-}
-
-export interface SubmitPredictionPayload {
-  tournamentId: string;
-  matchId: string;
-  categoryId?: string;
-  predictedWinnerId: string;
-  predictedMethod?: string;
-}
-
-export interface PredictionLeaderboardEntry {
-  userId: string;
-  userName: string;
-  totalPredictions: number;
-  correctPredictions: number;
-  accuracy: number;
-  totalPoints: number;
-  position: number;
-}
-
-export interface CircuitRankingEntry {
-  position: number;
-  athleteId: string;
-  athleteName: string;
-  academyName: string;
-  totalPoints: number;
-  stagesParticipated: number;
-  gold: number;
-  silver: number;
-  bronze: number;
-}
-
-// ── Tournaments ──────────────────────────────────────────────
-
-export async function getTournaments(filters?: { status?: TournamentStatus; modality?: string; featured?: boolean }): Promise<Tournament[]> {
+export async function getTournaments(filters?: TournamentFilters): Promise<Tournament[]> {
   try {
     if (isMock()) {
       const { mockGetTournaments } = await import('@/lib/mocks/compete.mock');
       return mockGetTournaments(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.featured !== undefined) params.set('featured', String(filters.featured));
-      const res = await fetch(`/api/compete/tournaments?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getTournaments');
-      return res.json();
-    } catch {
-      console.warn('[compete.getTournaments] API not available, using mock fallback');
-      const { mockGetTournaments } = await import('@/lib/mocks/compete.mock');
-      return mockGetTournaments(filters);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getTournaments'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase.from('tournaments').select('*');
+
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.modality) query = query.contains('modalities', [filters.modality]);
+    if (filters?.city) query = query.eq('city', filters.city);
+    if (filters?.state) query = query.eq('state', filters.state);
+    if (filters?.circuit_id) query = query.eq('circuit_id', filters.circuit_id);
+    if (filters?.start_date_from) query = query.gte('start_date', filters.start_date_from);
+    if (filters?.start_date_to) query = query.lte('start_date', filters.start_date_to);
+    if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
+    if (filters?.limit) query = query.limit(filters.limit);
+
+    const { data, error } = await query.order('start_date', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as Tournament[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getTournaments');
+  }
 }
 
 export async function getTournament(slug: string): Promise<Tournament> {
@@ -365,191 +91,299 @@ export async function getTournament(slug: string): Promise<Tournament> {
       const { mockGetTournament } = await import('@/lib/mocks/compete.mock');
       return mockGetTournament(slug);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${slug}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.getTournament] API not available, using mock fallback');
-      const { mockGetTournament } = await import('@/lib/mocks/compete.mock');
-      return mockGetTournament(slug);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournaments')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (error) throw error;
+
+    return data as Tournament;
+  } catch (error) {
+    handleServiceError(error, 'compete.getTournament');
+  }
 }
 
-export async function createTournament(payload: CreateTournamentPayload): Promise<Tournament> {
+export async function createTournament(
+  data: Omit<Tournament, 'id' | 'created_at' | 'updated_at' | 'status' | 'approved_at' | 'approved_by' | 'rejection_reason'>,
+): Promise<Tournament> {
   try {
     if (isMock()) {
       const { mockCreateTournament } = await import('@/lib/mocks/compete.mock');
-      return mockCreateTournament(payload);
+      return mockCreateTournament(data);
     }
-    try {
-      const res = await fetch('/api/compete/tournaments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.createTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.createTournament] API not available, using mock fallback');
-      const { mockCreateTournament } = await import('@/lib/mocks/compete.mock');
-      return mockCreateTournament(payload);
-    }
-  } catch (error) { handleServiceError(error, 'compete.createTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: created, error } = await supabase
+      .from('tournaments')
+      .insert({ ...data, status: 'aguardando_aprovacao' })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return created as Tournament;
+  } catch (error) {
+    handleServiceError(error, 'compete.createTournament');
+  }
 }
 
-export async function updateTournament(payload: UpdateTournamentPayload): Promise<Tournament> {
+export async function updateTournament(
+  id: string,
+  data: Partial<Omit<Tournament, 'id' | 'created_at' | 'updated_at'>>,
+): Promise<Tournament> {
   try {
     if (isMock()) {
       const { mockUpdateTournament } = await import('@/lib/mocks/compete.mock');
-      return mockUpdateTournament(payload);
+      return mockUpdateTournament(id, data);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${payload.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.updateTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.updateTournament] API not available, using mock fallback');
-      const { mockUpdateTournament } = await import('@/lib/mocks/compete.mock');
-      return mockUpdateTournament(payload);
-    }
-  } catch (error) { handleServiceError(error, 'compete.updateTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: updated, error } = await supabase
+      .from('tournaments')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    return updated as Tournament;
+  } catch (error) {
+    handleServiceError(error, 'compete.updateTournament');
+  }
 }
 
-export async function publishTournament(tournamentId: string): Promise<Tournament> {
+export async function approveTournament(id: string): Promise<Tournament> {
+  try {
+    if (isMock()) {
+      const { mockApproveTournament } = await import('@/lib/mocks/compete.mock');
+      return mockApproveTournament(id);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: user } = await supabase.auth.getUser();
+    const { data: updated, error } = await supabase
+      .from('tournaments')
+      .update({
+        status: 'published',
+        approved_at: new Date().toISOString(),
+        approved_by: user.user?.id ?? null,
+        rejection_reason: null,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    return updated as Tournament;
+  } catch (error) {
+    handleServiceError(error, 'compete.approveTournament');
+  }
+}
+
+export async function rejectTournament(id: string, reason: string): Promise<Tournament> {
+  try {
+    if (isMock()) {
+      const { mockRejectTournament } = await import('@/lib/mocks/compete.mock');
+      return mockRejectTournament(id, reason);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: updated, error } = await supabase
+      .from('tournaments')
+      .update({
+        status: 'cancelled',
+        rejection_reason: reason,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    return updated as Tournament;
+  } catch (error) {
+    handleServiceError(error, 'compete.rejectTournament');
+  }
+}
+
+export async function getPendingTournaments(): Promise<Tournament[]> {
+  try {
+    if (isMock()) {
+      const { mockGetPendingTournaments } = await import('@/lib/mocks/compete.mock');
+      return mockGetPendingTournaments();
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournaments')
+      .select('*')
+      .eq('status', 'aguardando_aprovacao')
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+
+    return (data ?? []) as Tournament[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getPendingTournaments');
+  }
+}
+
+export async function publishTournament(id: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockPublishTournament } = await import('@/lib/mocks/compete.mock');
-      return mockPublishTournament(tournamentId);
+      return mockPublishTournament(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/publish`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.publishTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.publishTournament] API not available, using mock fallback');
-      const { mockPublishTournament } = await import('@/lib/mocks/compete.mock');
-      return mockPublishTournament(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.publishTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({ status: 'published' })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.publishTournament');
+  }
 }
 
-export async function openRegistration(tournamentId: string): Promise<Tournament> {
+export async function openRegistration(id: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockOpenRegistration } = await import('@/lib/mocks/compete.mock');
-      return mockOpenRegistration(tournamentId);
+      return mockOpenRegistration(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/open-registration`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.openRegistration');
-      return res.json();
-    } catch {
-      console.warn('[compete.openRegistration] API not available, using mock fallback');
-      const { mockOpenRegistration } = await import('@/lib/mocks/compete.mock');
-      return mockOpenRegistration(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.openRegistration'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({ status: 'registration_open' })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.openRegistration');
+  }
 }
 
-export async function closeRegistration(tournamentId: string): Promise<Tournament> {
+export async function closeRegistration(id: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockCloseRegistration } = await import('@/lib/mocks/compete.mock');
-      return mockCloseRegistration(tournamentId);
+      return mockCloseRegistration(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/close-registration`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.closeRegistration');
-      return res.json();
-    } catch {
-      console.warn('[compete.closeRegistration] API not available, using mock fallback');
-      const { mockCloseRegistration } = await import('@/lib/mocks/compete.mock');
-      return mockCloseRegistration(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.closeRegistration'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({ status: 'registration_closed' })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.closeRegistration');
+  }
 }
 
-export async function startTournament(tournamentId: string): Promise<Tournament> {
+export async function startTournament(id: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockStartTournament } = await import('@/lib/mocks/compete.mock');
-      return mockStartTournament(tournamentId);
+      return mockStartTournament(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/start`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.startTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.startTournament] API not available, using mock fallback');
-      const { mockStartTournament } = await import('@/lib/mocks/compete.mock');
-      return mockStartTournament(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.startTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({ status: 'live' })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.startTournament');
+  }
 }
 
-export async function completeTournament(tournamentId: string): Promise<Tournament> {
+export async function completeTournament(id: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockCompleteTournament } = await import('@/lib/mocks/compete.mock');
-      return mockCompleteTournament(tournamentId);
+      return mockCompleteTournament(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/complete`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.completeTournament');
-      return res.json();
-    } catch {
-      console.warn('[compete.completeTournament] API not available, using mock fallback');
-      const { mockCompleteTournament } = await import('@/lib/mocks/compete.mock');
-      return mockCompleteTournament(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.completeTournament'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({ status: 'completed' })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.completeTournament');
+  }
 }
 
-export async function getTournamentStats(tournamentId: string): Promise<TournamentStats> {
+export async function getTournamentStats(id: string): Promise<TournamentStats> {
   try {
     if (isMock()) {
       const { mockGetTournamentStats } = await import('@/lib/mocks/compete.mock');
-      return mockGetTournamentStats(tournamentId);
+      return mockGetTournamentStats(id);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/stats`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getTournamentStats');
-      return res.json();
-    } catch {
-      console.warn('[compete.getTournamentStats] API not available, using mock fallback');
-      const { mockGetTournamentStats } = await import('@/lib/mocks/compete.mock');
-      return mockGetTournamentStats(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getTournamentStats'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('get_tournament_stats', { p_tournament_id: id });
+    if (error) throw error;
+
+    return data as TournamentStats;
+  } catch (error) {
+    handleServiceError(error, 'compete.getTournamentStats');
+  }
 }
 
-// ── Circuits ────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// CIRCUITS
+// ────────────────────────────────────────────────────────────
 
-export async function getCircuits(filters?: { season?: string; status?: CircuitStatus }): Promise<TournamentCircuit[]> {
+export async function getCircuits(): Promise<TournamentCircuit[]> {
   try {
     if (isMock()) {
       const { mockGetCircuits } = await import('@/lib/mocks/compete.mock');
-      return mockGetCircuits(filters);
+      return mockGetCircuits();
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.season) params.set('season', filters.season);
-      if (filters?.status) params.set('status', filters.status);
-      const res = await fetch(`/api/compete/circuits?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getCircuits');
-      return res.json();
-    } catch {
-      console.warn('[compete.getCircuits] API not available, using mock fallback');
-      const { mockGetCircuits } = await import('@/lib/mocks/compete.mock');
-      return mockGetCircuits(filters);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getCircuits'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_circuits')
+      .select('*')
+      .order('season', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentCircuit[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getCircuits');
+  }
 }
 
 export async function getCircuit(slug: string): Promise<TournamentCircuit> {
@@ -558,160 +392,308 @@ export async function getCircuit(slug: string): Promise<TournamentCircuit> {
       const { mockGetCircuit } = await import('@/lib/mocks/compete.mock');
       return mockGetCircuit(slug);
     }
-    try {
-      const res = await fetch(`/api/compete/circuits/${slug}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getCircuit');
-      return res.json();
-    } catch {
-      console.warn('[compete.getCircuit] API not available, using mock fallback');
-      const { mockGetCircuit } = await import('@/lib/mocks/compete.mock');
-      return mockGetCircuit(slug);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getCircuit'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_circuits')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (error) throw error;
+
+    return data as TournamentCircuit;
+  } catch (error) {
+    handleServiceError(error, 'compete.getCircuit');
+  }
 }
 
-export async function getCircuitRanking(circuitId: string): Promise<CircuitRankingEntry[]> {
+export async function getCircuitRanking(circuitId: string): Promise<AcademyTournamentStats[]> {
   try {
     if (isMock()) {
       const { mockGetCircuitRanking } = await import('@/lib/mocks/compete.mock');
       return mockGetCircuitRanking(circuitId);
     }
-    try {
-      const res = await fetch(`/api/compete/circuits/${circuitId}/ranking`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getCircuitRanking');
-      return res.json();
-    } catch {
-      console.warn('[compete.getCircuitRanking] API not available, using mock fallback');
-      const { mockGetCircuitRanking } = await import('@/lib/mocks/compete.mock');
-      return mockGetCircuitRanking(circuitId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getCircuitRanking'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_tournament_stats')
+      .select('*')
+      .eq('circuit_id', circuitId)
+      .order('total_points', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as AcademyTournamentStats[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getCircuitRanking');
+  }
 }
 
-// ── Categories ──────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// CATEGORIES
+// ────────────────────────────────────────────────────────────
 
-export async function getCategories(tournamentId: string): Promise<TournamentCategory[]> {
+export async function getCategories(
+  tournamentId: string,
+  filters?: CategoryFilters,
+): Promise<TournamentCategory[]> {
   try {
     if (isMock()) {
       const { mockGetCategories } = await import('@/lib/mocks/compete.mock');
-      return mockGetCategories(tournamentId);
+      return mockGetCategories(tournamentId, filters);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/categories`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getCategories');
-      return res.json();
-    } catch {
-      console.warn('[compete.getCategories] API not available, using mock fallback');
-      const { mockGetCategories } = await import('@/lib/mocks/compete.mock');
-      return mockGetCategories(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getCategories'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('tournament_categories')
+      .select('*')
+      .eq('tournament_id', tournamentId);
+
+    if (filters?.modality) query = query.eq('modality', filters.modality);
+    if (filters?.gender) query = query.eq('gender', filters.gender);
+    if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
+
+    const { data, error } = await query.order('name');
+    if (error) throw error;
+
+    return (data ?? []) as TournamentCategory[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getCategories');
+  }
 }
 
-export async function createCategory(payload: CreateCategoryPayload): Promise<TournamentCategory> {
+export async function createCategory(
+  tournamentId: string,
+  data: Omit<TournamentCategory, 'id' | 'tournament_id' | 'created_at' | 'updated_at' | 'registered_count'>,
+): Promise<TournamentCategory> {
   try {
     if (isMock()) {
       const { mockCreateCategory } = await import('@/lib/mocks/compete.mock');
-      return mockCreateCategory(payload);
+      return mockCreateCategory(tournamentId, data);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${payload.tournamentId}/categories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.createCategory');
-      return res.json();
-    } catch {
-      console.warn('[compete.createCategory] API not available, using mock fallback');
-      const { mockCreateCategory } = await import('@/lib/mocks/compete.mock');
-      return mockCreateCategory(payload);
-    }
-  } catch (error) { handleServiceError(error, 'compete.createCategory'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: created, error } = await supabase
+      .from('tournament_categories')
+      .insert({ ...data, tournament_id: tournamentId, registered_count: 0 })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return created as TournamentCategory;
+  } catch (error) {
+    handleServiceError(error, 'compete.createCategory');
+  }
 }
 
-export async function generateStandardCategories(tournamentId: string): Promise<TournamentCategory[]> {
+export async function generateStandardCategories(
+  tournamentId: string,
+  modality: string,
+  config: { gender: ('male' | 'female' | 'mixed')[]; includeAbsolute: boolean },
+): Promise<TournamentCategory[]> {
   try {
     if (isMock()) {
       const { mockGenerateStandardCategories } = await import('@/lib/mocks/compete.mock');
-      return mockGenerateStandardCategories(tournamentId);
+      return mockGenerateStandardCategories(tournamentId, modality, config);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/categories/generate`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.generateStandardCategories');
-      return res.json();
-    } catch {
-      console.warn('[compete.generateStandardCategories] API not available, using mock fallback');
-      const { mockGenerateStandardCategories } = await import('@/lib/mocks/compete.mock');
-      return mockGenerateStandardCategories(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.generateStandardCategories'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('generate_standard_categories', {
+        p_tournament_id: tournamentId,
+        p_modality: modality,
+        p_config: config,
+      });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentCategory[];
+  } catch (error) {
+    handleServiceError(error, 'compete.generateStandardCategories');
+  }
 }
 
-// ── Registrations ───────────────────────────────────────────
+export async function suggestCategory(
+  birthDate: string,
+  weight: number,
+  gender: 'male' | 'female',
+  belt: BeltLevel,
+): Promise<TournamentCategory> {
+  try {
+    if (isMock()) {
+      const { mockSuggestCategory } = await import('@/lib/mocks/compete.mock');
+      return mockSuggestCategory(birthDate, weight, gender, belt);
+    }
 
-export async function registerAthlete(payload: RegisterAthletePayload): Promise<TournamentRegistration> {
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('suggest_category', {
+        p_birth_date: birthDate,
+        p_weight: weight,
+        p_gender: gender,
+        p_belt: belt,
+      });
+    if (error) throw error;
+
+    return data as TournamentCategory;
+  } catch (error) {
+    handleServiceError(error, 'compete.suggestCategory');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// REGISTRATIONS
+// ────────────────────────────────────────────────────────────
+
+export async function registerAthlete(
+  tournamentId: string,
+  categoryId: string,
+  data: {
+    athlete_profile_id: string;
+    academy_id: string;
+    athlete_name: string;
+    academy_name: string;
+    weight?: number;
+  },
+): Promise<TournamentRegistration> {
   try {
     if (isMock()) {
       const { mockRegisterAthlete } = await import('@/lib/mocks/compete.mock');
-      return mockRegisterAthlete(payload);
+      return mockRegisterAthlete(tournamentId, categoryId, data);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${payload.tournamentId}/registrations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.registerAthlete');
-      return res.json();
-    } catch {
-      console.warn('[compete.registerAthlete] API not available, using mock fallback');
-      const { mockRegisterAthlete } = await import('@/lib/mocks/compete.mock');
-      return mockRegisterAthlete(payload);
-    }
-  } catch (error) { handleServiceError(error, 'compete.registerAthlete'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: created, error } = await supabase
+      .from('tournament_registrations')
+      .insert({
+        tournament_id: tournamentId,
+        category_id: categoryId,
+        ...data,
+        status: 'pending',
+        payment_status: 'pending',
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return created as TournamentRegistration;
+  } catch (error) {
+    handleServiceError(error, 'compete.registerAthlete');
+  }
 }
 
-export async function registerBatch(tournamentId: string, athletes: RegisterAthletePayload[]): Promise<TournamentRegistration[]> {
+export async function registerBatch(
+  tournamentId: string,
+  academyId: string,
+  athletes: {
+    category_id: string;
+    athlete_profile_id: string;
+    athlete_name: string;
+    weight?: number;
+  }[],
+): Promise<TournamentRegistration[]> {
   try {
     if (isMock()) {
       const { mockRegisterBatch } = await import('@/lib/mocks/compete.mock');
-      return mockRegisterBatch(tournamentId, athletes);
+      return mockRegisterBatch(tournamentId, academyId, athletes);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/registrations/batch`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ athletes }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.registerBatch');
-      return res.json();
-    } catch {
-      console.warn('[compete.registerBatch] API not available, using mock fallback');
-      const { mockRegisterBatch } = await import('@/lib/mocks/compete.mock');
-      return mockRegisterBatch(tournamentId, athletes);
-    }
-  } catch (error) { handleServiceError(error, 'compete.registerBatch'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const rows = athletes.map((a) => ({
+      tournament_id: tournamentId,
+      academy_id: academyId,
+      category_id: a.category_id,
+      athlete_profile_id: a.athlete_profile_id,
+      athlete_name: a.athlete_name,
+      weight: a.weight ?? null,
+      status: 'pending' as const,
+      payment_status: 'pending' as const,
+    }));
+
+    const { data, error } = await supabase
+      .from('tournament_registrations')
+      .insert(rows)
+      .select();
+    if (error) throw error;
+
+    return (data ?? []) as TournamentRegistration[];
+  } catch (error) {
+    handleServiceError(error, 'compete.registerBatch');
+  }
 }
 
-export async function getRegistrations(tournamentId: string, categoryId?: string): Promise<TournamentRegistration[]> {
+export async function getRegistrations(
+  tournamentId: string,
+  filters?: RegistrationFilters,
+): Promise<TournamentRegistration[]> {
   try {
     if (isMock()) {
       const { mockGetRegistrations } = await import('@/lib/mocks/compete.mock');
-      return mockGetRegistrations(tournamentId, categoryId);
+      return mockGetRegistrations(tournamentId, filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (categoryId) params.set('categoryId', categoryId);
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/registrations?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getRegistrations');
-      return res.json();
-    } catch {
-      console.warn('[compete.getRegistrations] API not available, using mock fallback');
-      const { mockGetRegistrations } = await import('@/lib/mocks/compete.mock');
-      return mockGetRegistrations(tournamentId, categoryId);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('tournament_registrations')
+      .select('*')
+      .eq('tournament_id', tournamentId);
+
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.payment_status) query = query.eq('payment_status', filters.payment_status);
+    if (filters?.category_id) query = query.eq('category_id', filters.category_id);
+    if (filters?.academy_id) query = query.eq('academy_id', filters.academy_id);
+    if (filters?.search) query = query.ilike('athlete_name', `%${filters.search}%`);
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentRegistration[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getRegistrations');
+  }
+}
+
+export async function getRegistrationsByAcademy(
+  tournamentId: string,
+  academyId: string,
+): Promise<TournamentRegistration[]> {
+  try {
+    if (isMock()) {
+      const { mockGetRegistrationsByAcademy } = await import('@/lib/mocks/compete.mock');
+      return mockGetRegistrationsByAcademy(tournamentId, academyId);
     }
-  } catch (error) { handleServiceError(error, 'compete.getRegistrations'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_registrations')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .eq('academy_id', academyId)
+      .order('athlete_name');
+    if (error) throw error;
+
+    return (data ?? []) as TournamentRegistration[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getRegistrationsByAcademy');
+  }
 }
 
 export async function getMyRegistrations(userId: string): Promise<TournamentRegistration[]> {
@@ -720,99 +702,133 @@ export async function getMyRegistrations(userId: string): Promise<TournamentRegi
       const { mockGetMyRegistrations } = await import('@/lib/mocks/compete.mock');
       return mockGetMyRegistrations(userId);
     }
-    try {
-      const res = await fetch('/api/compete/registrations/me');
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getMyRegistrations');
-      return res.json();
-    } catch {
-      console.warn('[compete.getMyRegistrations] API not available, using mock fallback');
-      const { mockGetMyRegistrations } = await import('@/lib/mocks/compete.mock');
-      return mockGetMyRegistrations(userId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getMyRegistrations'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // First get athlete profile for this user
+    const { data: profile } = await supabase
+      .from('athlete_profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    if (!profile) return [];
+
+    const { data, error } = await supabase
+      .from('tournament_registrations')
+      .select('*')
+      .eq('athlete_profile_id', profile.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentRegistration[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getMyRegistrations');
+  }
 }
 
-export async function confirmPayment(registrationId: string, paymentRef: string): Promise<TournamentRegistration> {
+export async function confirmPayment(
+  registrationId: string,
+  paymentData: { method: string; reference: string; amount: number },
+): Promise<void> {
   try {
     if (isMock()) {
       const { mockConfirmPayment } = await import('@/lib/mocks/compete.mock');
-      return mockConfirmPayment(registrationId, paymentRef);
+      return mockConfirmPayment(registrationId, paymentData);
     }
-    try {
-      const res = await fetch(`/api/compete/registrations/${registrationId}/payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentRef }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.confirmPayment');
-      return res.json();
-    } catch {
-      console.warn('[compete.confirmPayment] API not available, using mock fallback');
-      const { mockConfirmPayment } = await import('@/lib/mocks/compete.mock');
-      return mockConfirmPayment(registrationId, paymentRef);
-    }
-  } catch (error) { handleServiceError(error, 'compete.confirmPayment'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_registrations')
+      .update({
+        payment_status: 'paid',
+        payment_method: paymentData.method,
+        payment_reference: paymentData.reference,
+        payment_amount: paymentData.amount,
+        status: 'confirmed',
+      })
+      .eq('id', registrationId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.confirmPayment');
+  }
 }
 
-export async function cancelRegistration(registrationId: string): Promise<TournamentRegistration> {
+export async function cancelRegistration(registrationId: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockCancelRegistration } = await import('@/lib/mocks/compete.mock');
       return mockCancelRegistration(registrationId);
     }
-    try {
-      const res = await fetch(`/api/compete/registrations/${registrationId}/cancel`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.cancelRegistration');
-      return res.json();
-    } catch {
-      console.warn('[compete.cancelRegistration] API not available, using mock fallback');
-      const { mockCancelRegistration } = await import('@/lib/mocks/compete.mock');
-      return mockCancelRegistration(registrationId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.cancelRegistration'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_registrations')
+      .update({ status: 'cancelled' })
+      .eq('id', registrationId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.cancelRegistration');
+  }
 }
 
-export async function checkInAthlete(registrationId: string): Promise<TournamentRegistration> {
+export async function checkInAthlete(registrationId: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockCheckInAthlete } = await import('@/lib/mocks/compete.mock');
       return mockCheckInAthlete(registrationId);
     }
-    try {
-      const res = await fetch(`/api/compete/registrations/${registrationId}/checkin`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.checkInAthlete');
-      return res.json();
-    } catch {
-      console.warn('[compete.checkInAthlete] API not available, using mock fallback');
-      const { mockCheckInAthlete } = await import('@/lib/mocks/compete.mock');
-      return mockCheckInAthlete(registrationId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.checkInAthlete'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_registrations')
+      .update({
+        status: 'checked_in',
+        checked_in_at: new Date().toISOString(),
+      })
+      .eq('id', registrationId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.checkInAthlete');
+  }
 }
 
-export async function weighInAthlete(registrationId: string, weight: number): Promise<TournamentRegistration> {
+export async function weighInAthlete(
+  registrationId: string,
+  weight: number,
+): Promise<{ passed: boolean; category: TournamentCategory }> {
   try {
     if (isMock()) {
       const { mockWeighInAthlete } = await import('@/lib/mocks/compete.mock');
       return mockWeighInAthlete(registrationId, weight);
     }
-    try {
-      const res = await fetch(`/api/compete/registrations/${registrationId}/weighin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ weight }),
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('weigh_in_athlete', {
+        p_registration_id: registrationId,
+        p_weight: weight,
       });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.weighInAthlete');
-      return res.json();
-    } catch {
-      console.warn('[compete.weighInAthlete] API not available, using mock fallback');
-      const { mockWeighInAthlete } = await import('@/lib/mocks/compete.mock');
-      return mockWeighInAthlete(registrationId, weight);
-    }
-  } catch (error) { handleServiceError(error, 'compete.weighInAthlete'); }
+    if (error) throw error;
+
+    return data as { passed: boolean; category: TournamentCategory };
+  } catch (error) {
+    handleServiceError(error, 'compete.weighInAthlete');
+  }
 }
 
-// ── Brackets ────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// BRACKETS
+// ────────────────────────────────────────────────────────────
 
 export async function generateBracket(categoryId: string): Promise<TournamentBracket> {
   try {
@@ -820,34 +836,54 @@ export async function generateBracket(categoryId: string): Promise<TournamentBra
       const { mockGenerateBracket } = await import('@/lib/mocks/compete.mock');
       return mockGenerateBracket(categoryId);
     }
-    try {
-      const res = await fetch(`/api/compete/categories/${categoryId}/bracket`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.generateBracket');
-      return res.json();
-    } catch {
-      console.warn('[compete.generateBracket] API not available, using mock fallback');
-      const { mockGenerateBracket } = await import('@/lib/mocks/compete.mock');
-      return mockGenerateBracket(categoryId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.generateBracket'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('generate_bracket', { p_category_id: categoryId });
+    if (error) throw error;
+
+    return data as TournamentBracket;
+  } catch (error) {
+    handleServiceError(error, 'compete.generateBracket');
+  }
 }
 
-export async function getBracket(categoryId: string): Promise<TournamentBracket> {
+export async function getBracket(
+  categoryId: string,
+): Promise<{ bracket: TournamentBracket; matches: TournamentMatch[] }> {
   try {
     if (isMock()) {
       const { mockGetBracket } = await import('@/lib/mocks/compete.mock');
       return mockGetBracket(categoryId);
     }
-    try {
-      const res = await fetch(`/api/compete/categories/${categoryId}/bracket`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getBracket');
-      return res.json();
-    } catch {
-      console.warn('[compete.getBracket] API not available, using mock fallback');
-      const { mockGetBracket } = await import('@/lib/mocks/compete.mock');
-      return mockGetBracket(categoryId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getBracket'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: bracket, error: bracketError } = await supabase
+      .from('tournament_brackets')
+      .select('*')
+      .eq('category_id', categoryId)
+      .single();
+    if (bracketError) throw bracketError;
+
+    const { data: matches, error: matchesError } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .eq('bracket_id', bracket.id)
+      .order('round')
+      .order('match_number');
+    if (matchesError) throw matchesError;
+
+    return {
+      bracket: bracket as TournamentBracket,
+      matches: (matches ?? []) as TournamentMatch[],
+    };
+  } catch (error) {
+    handleServiceError(error, 'compete.getBracket');
+  }
 }
 
 export async function getAllBrackets(tournamentId: string): Promise<TournamentBracket[]> {
@@ -856,114 +892,151 @@ export async function getAllBrackets(tournamentId: string): Promise<TournamentBr
       const { mockGetAllBrackets } = await import('@/lib/mocks/compete.mock');
       return mockGetAllBrackets(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/brackets`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAllBrackets');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAllBrackets] API not available, using mock fallback');
-      const { mockGetAllBrackets } = await import('@/lib/mocks/compete.mock');
-      return mockGetAllBrackets(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAllBrackets'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_brackets')
+      .select('*')
+      .eq('tournament_id', tournamentId);
+    if (error) throw error;
+
+    return (data ?? []) as TournamentBracket[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getAllBrackets');
+  }
 }
 
-// ── Matches ─────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// MATCHES
+// ────────────────────────────────────────────────────────────
 
-export async function getMatchesByArea(tournamentId: string, areaNumber: number): Promise<TournamentMatch[]> {
+export async function getMatchesByArea(
+  tournamentId: string,
+  area: number,
+): Promise<TournamentMatch[]> {
   try {
     if (isMock()) {
       const { mockGetMatchesByArea } = await import('@/lib/mocks/compete.mock');
-      return mockGetMatchesByArea(tournamentId, areaNumber);
+      return mockGetMatchesByArea(tournamentId, area);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/matches?area=${areaNumber}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getMatchesByArea');
-      return res.json();
-    } catch {
-      console.warn('[compete.getMatchesByArea] API not available, using mock fallback');
-      const { mockGetMatchesByArea } = await import('@/lib/mocks/compete.mock');
-      return mockGetMatchesByArea(tournamentId, areaNumber);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getMatchesByArea'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .eq('area', area)
+      .order('scheduled_time');
+    if (error) throw error;
+
+    return (data ?? []) as TournamentMatch[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getMatchesByArea');
+  }
 }
 
-export async function getNextMatches(tournamentId: string, limit?: number): Promise<TournamentMatch[]> {
+export async function getNextMatches(tournamentId: string): Promise<TournamentMatch[]> {
   try {
     if (isMock()) {
       const { mockGetNextMatches } = await import('@/lib/mocks/compete.mock');
-      return mockGetNextMatches(tournamentId, limit);
+      return mockGetNextMatches(tournamentId);
     }
-    try {
-      const params = new URLSearchParams();
-      if (limit) params.set('limit', String(limit));
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/matches/next?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getNextMatches');
-      return res.json();
-    } catch {
-      console.warn('[compete.getNextMatches] API not available, using mock fallback');
-      const { mockGetNextMatches } = await import('@/lib/mocks/compete.mock');
-      return mockGetNextMatches(tournamentId, limit);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getNextMatches'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .in('status', ['pending', 'called'])
+      .order('scheduled_time')
+      .limit(20);
+    if (error) throw error;
+
+    return (data ?? []) as TournamentMatch[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getNextMatches');
+  }
 }
 
-export async function callMatch(matchId: string): Promise<TournamentMatch> {
+export async function callMatch(matchId: string, area: number): Promise<void> {
   try {
     if (isMock()) {
       const { mockCallMatch } = await import('@/lib/mocks/compete.mock');
-      return mockCallMatch(matchId);
+      return mockCallMatch(matchId, area);
     }
-    try {
-      const res = await fetch(`/api/compete/matches/${matchId}/call`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.callMatch');
-      return res.json();
-    } catch {
-      console.warn('[compete.callMatch] API not available, using mock fallback');
-      const { mockCallMatch } = await import('@/lib/mocks/compete.mock');
-      return mockCallMatch(matchId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.callMatch'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_matches')
+      .update({ status: 'called', area })
+      .eq('id', matchId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.callMatch');
+  }
 }
 
-export async function startMatch(matchId: string): Promise<TournamentMatch> {
+export async function startMatch(matchId: string): Promise<void> {
   try {
     if (isMock()) {
       const { mockStartMatch } = await import('@/lib/mocks/compete.mock');
       return mockStartMatch(matchId);
     }
-    try {
-      const res = await fetch(`/api/compete/matches/${matchId}/start`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.startMatch');
-      return res.json();
-    } catch {
-      console.warn('[compete.startMatch] API not available, using mock fallback');
-      const { mockStartMatch } = await import('@/lib/mocks/compete.mock');
-      return mockStartMatch(matchId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.startMatch'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_matches')
+      .update({
+        status: 'in_progress',
+        started_at: new Date().toISOString(),
+      })
+      .eq('id', matchId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.startMatch');
+  }
 }
 
-export async function recordResult(matchId: string, result: RecordResultPayload): Promise<TournamentMatch> {
+export async function recordResult(matchId: string, result: MatchResult): Promise<void> {
   try {
     if (isMock()) {
       const { mockRecordResult } = await import('@/lib/mocks/compete.mock');
       return mockRecordResult(matchId, result);
     }
-    try {
-      const res = await fetch(`/api/compete/matches/${matchId}/result`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.recordResult');
-      return res.json();
-    } catch {
-      console.warn('[compete.recordResult] API not available, using mock fallback');
-      const { mockRecordResult } = await import('@/lib/mocks/compete.mock');
-      return mockRecordResult(matchId, result);
-    }
-  } catch (error) { handleServiceError(error, 'compete.recordResult'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('tournament_matches')
+      .update({
+        winner_id: result.winner_id,
+        method: result.method,
+        score_athlete1: result.score_athlete1,
+        score_athlete2: result.score_athlete2,
+        penalties_athlete1: result.penalties_athlete1,
+        penalties_athlete2: result.penalties_athlete2,
+        advantages_athlete1: result.advantages_athlete1,
+        advantages_athlete2: result.advantages_athlete2,
+        duration_seconds: result.duration_seconds,
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', matchId);
+    if (error) throw error;
+  } catch (error) {
+    handleServiceError(error, 'compete.recordResult');
+  }
 }
 
 export async function getLiveMatches(tournamentId: string): Promise<TournamentMatch[]> {
@@ -972,16 +1045,22 @@ export async function getLiveMatches(tournamentId: string): Promise<TournamentMa
       const { mockGetLiveMatches } = await import('@/lib/mocks/compete.mock');
       return mockGetLiveMatches(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/matches/live`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getLiveMatches');
-      return res.json();
-    } catch {
-      console.warn('[compete.getLiveMatches] API not available, using mock fallback');
-      const { mockGetLiveMatches } = await import('@/lib/mocks/compete.mock');
-      return mockGetLiveMatches(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getLiveMatches'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .eq('status', 'in_progress')
+      .order('area');
+    if (error) throw error;
+
+    return (data ?? []) as TournamentMatch[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getLiveMatches');
+  }
 }
 
 export async function getCompletedMatches(tournamentId: string): Promise<TournamentMatch[]> {
@@ -990,277 +1069,489 @@ export async function getCompletedMatches(tournamentId: string): Promise<Tournam
       const { mockGetCompletedMatches } = await import('@/lib/mocks/compete.mock');
       return mockGetCompletedMatches(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/matches/completed`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getCompletedMatches');
-      return res.json();
-    } catch {
-      console.warn('[compete.getCompletedMatches] API not available, using mock fallback');
-      const { mockGetCompletedMatches } = await import('@/lib/mocks/compete.mock');
-      return mockGetCompletedMatches(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getCompletedMatches'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentMatch[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getCompletedMatches');
+  }
 }
 
-// ── Feed ────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// FEED
+// ────────────────────────────────────────────────────────────
 
-export async function getFeed(tournamentId: string, type?: FeedItemType): Promise<TournamentFeedItem[]> {
+export async function getFeed(
+  tournamentId: string,
+  limit?: number,
+): Promise<TournamentFeedItem[]> {
   try {
     if (isMock()) {
       const { mockGetFeed } = await import('@/lib/mocks/compete.mock');
-      return mockGetFeed(tournamentId, type);
+      return mockGetFeed(tournamentId, limit);
     }
-    try {
-      const params = new URLSearchParams();
-      if (type) params.set('type', type);
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/feed?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getFeed');
-      return res.json();
-    } catch {
-      console.warn('[compete.getFeed] API not available, using mock fallback');
-      const { mockGetFeed } = await import('@/lib/mocks/compete.mock');
-      return mockGetFeed(tournamentId, type);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getFeed'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('tournament_feed')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .order('created_at', { ascending: false });
+
+    if (limit) query = query.limit(limit);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return (data ?? []) as TournamentFeedItem[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getFeed');
+  }
 }
 
-export async function postAnnouncement(tournamentId: string, title: string, content: string): Promise<TournamentFeedItem> {
+export async function postAnnouncement(
+  tournamentId: string,
+  text: string,
+): Promise<TournamentFeedItem> {
   try {
     if (isMock()) {
       const { mockPostAnnouncement } = await import('@/lib/mocks/compete.mock');
-      return mockPostAnnouncement(tournamentId, title, content);
+      return mockPostAnnouncement(tournamentId, text);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/feed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'announcement', title, content }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.postAnnouncement');
-      return res.json();
-    } catch {
-      console.warn('[compete.postAnnouncement] API not available, using mock fallback');
-      const { mockPostAnnouncement } = await import('@/lib/mocks/compete.mock');
-      return mockPostAnnouncement(tournamentId, title, content);
-    }
-  } catch (error) { handleServiceError(error, 'compete.postAnnouncement'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_feed')
+      .insert({
+        tournament_id: tournamentId,
+        type: 'announcement',
+        title: 'Anúncio',
+        content: text,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return data as TournamentFeedItem;
+  } catch (error) {
+    handleServiceError(error, 'compete.postAnnouncement');
+  }
 }
 
-export async function postPhoto(tournamentId: string, title: string, imageUrl: string): Promise<TournamentFeedItem> {
+export async function postPhoto(
+  tournamentId: string,
+  photoUrl: string,
+  caption: string,
+): Promise<TournamentFeedItem> {
   try {
     if (isMock()) {
       const { mockPostPhoto } = await import('@/lib/mocks/compete.mock');
-      return mockPostPhoto(tournamentId, title, imageUrl);
+      return mockPostPhoto(tournamentId, photoUrl, caption);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/feed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'photo', title, imageUrl }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.postPhoto');
-      return res.json();
-    } catch {
-      console.warn('[compete.postPhoto] API not available, using mock fallback');
-      const { mockPostPhoto } = await import('@/lib/mocks/compete.mock');
-      return mockPostPhoto(tournamentId, title, imageUrl);
-    }
-  } catch (error) { handleServiceError(error, 'compete.postPhoto'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_feed')
+      .insert({
+        tournament_id: tournamentId,
+        type: 'photo',
+        title: caption,
+        content: caption,
+        image_url: photoUrl,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return data as TournamentFeedItem;
+  } catch (error) {
+    handleServiceError(error, 'compete.postPhoto');
+  }
 }
 
-// ── Results & Medal Table ───────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// RESULTS
+// ────────────────────────────────────────────────────────────
 
-export async function getResults(tournamentId: string): Promise<AcademyTournamentStats[]> {
+export async function getResults(
+  tournamentId: string,
+): Promise<{ categories: { category: TournamentCategory; podium: TournamentRegistration[] }[] }> {
   try {
     if (isMock()) {
       const { mockGetResults } = await import('@/lib/mocks/compete.mock');
       return mockGetResults(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/results`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getResults');
-      return res.json();
-    } catch {
-      console.warn('[compete.getResults] API not available, using mock fallback');
-      const { mockGetResults } = await import('@/lib/mocks/compete.mock');
-      return mockGetResults(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getResults'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('get_tournament_results', { p_tournament_id: tournamentId });
+    if (error) throw error;
+
+    return data as { categories: { category: TournamentCategory; podium: TournamentRegistration[] }[] };
+  } catch (error) {
+    handleServiceError(error, 'compete.getResults');
+  }
 }
 
-export async function getMedalTable(tournamentId: string): Promise<MedalTableEntry[]> {
+export async function getResultsByAcademy(
+  tournamentId: string,
+): Promise<{ academies: { academy_id: string; academy_name: string; athletes: TournamentRegistration[] }[] }> {
+  try {
+    if (isMock()) {
+      const { mockGetResultsByAcademy } = await import('@/lib/mocks/compete.mock');
+      return mockGetResultsByAcademy(tournamentId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('get_tournament_results_by_academy', { p_tournament_id: tournamentId });
+    if (error) throw error;
+
+    return data as { academies: { academy_id: string; academy_name: string; athletes: TournamentRegistration[] }[] };
+  } catch (error) {
+    handleServiceError(error, 'compete.getResultsByAcademy');
+  }
+}
+
+export async function getMedalTable(tournamentId: string): Promise<MedalTable[]> {
   try {
     if (isMock()) {
       const { mockGetMedalTable } = await import('@/lib/mocks/compete.mock');
       return mockGetMedalTable(tournamentId);
     }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/medal-table`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getMedalTable');
-      return res.json();
-    } catch {
-      console.warn('[compete.getMedalTable] API not available, using mock fallback');
-      const { mockGetMedalTable } = await import('@/lib/mocks/compete.mock');
-      return mockGetMedalTable(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getMedalTable'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('get_medal_table', { p_tournament_id: tournamentId });
+    if (error) throw error;
+
+    return (data ?? []) as MedalTable[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getMedalTable');
+  }
 }
 
-export async function getAthleteResults(athleteId: string): Promise<TournamentMatch[]> {
+export async function generateCertificate(
+  registrationId: string,
+): Promise<{ url: string }> {
+  try {
+    if (isMock()) {
+      const { mockGenerateCertificate } = await import('@/lib/mocks/compete.mock');
+      return mockGenerateCertificate(registrationId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('generate_certificate', { p_registration_id: registrationId });
+    if (error) throw error;
+
+    return data as { url: string };
+  } catch (error) {
+    handleServiceError(error, 'compete.generateCertificate');
+  }
+}
+
+export async function getAthleteResults(
+  athleteProfileId: string,
+): Promise<TournamentMatch[]> {
   try {
     if (isMock()) {
       const { mockGetAthleteResults } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteResults(athleteId);
+      return mockGetAthleteResults(athleteProfileId);
     }
-    try {
-      const res = await fetch(`/api/compete/athletes/${athleteId}/results`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAthleteResults');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAthleteResults] API not available, using mock fallback');
-      const { mockGetAthleteResults } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteResults(athleteId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAthleteResults'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select('*')
+      .or(`athlete1_id.eq.${athleteProfileId},athlete2_id.eq.${athleteProfileId}`)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentMatch[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getAthleteResults');
+  }
 }
 
-// ── Athlete Profiles & Rankings ─────────────────────────────
+// ────────────────────────────────────────────────────────────
+// ATHLETE PROFILES
+// ────────────────────────────────────────────────────────────
 
-export async function getAthleteProfile(userId: string): Promise<AthleteProfile> {
+export async function getAthleteProfile(id: string): Promise<AthleteProfile> {
   try {
     if (isMock()) {
       const { mockGetAthleteProfile } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteProfile(userId);
+      return mockGetAthleteProfile(id);
     }
-    try {
-      const res = await fetch(`/api/compete/athletes/${userId}/profile`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAthleteProfile');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAthleteProfile] API not available, using mock fallback');
-      const { mockGetAthleteProfile } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteProfile(userId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAthleteProfile'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('athlete_profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+
+    return data as AthleteProfile;
+  } catch (error) {
+    handleServiceError(error, 'compete.getAthleteProfile');
+  }
 }
 
-export async function getAthleteRanking(modality?: string): Promise<AthleteProfile[]> {
+export async function getAthleteByUser(userId: string): Promise<AthleteProfile> {
   try {
     if (isMock()) {
-      const { mockGetAthleteRanking } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteRanking(modality);
+      const { mockGetAthleteByUser } = await import('@/lib/mocks/compete.mock');
+      return mockGetAthleteByUser(userId);
     }
-    try {
-      const params = new URLSearchParams();
-      if (modality) params.set('modality', modality);
-      const res = await fetch(`/api/compete/athletes/ranking?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAthleteRanking');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAthleteRanking] API not available, using mock fallback');
-      const { mockGetAthleteRanking } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteRanking(modality);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAthleteRanking'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('athlete_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (error) throw error;
+
+    return data as AthleteProfile;
+  } catch (error) {
+    handleServiceError(error, 'compete.getAthleteByUser');
+  }
 }
 
-export async function getAcademyRanking(tournamentId?: string): Promise<AcademyTournamentStats[]> {
+export async function updateAthleteProfile(
+  id: string,
+  data: Partial<Omit<AthleteProfile, 'id' | 'created_at' | 'updated_at'>>,
+): Promise<AthleteProfile> {
+  try {
+    if (isMock()) {
+      const { mockUpdateAthleteProfile } = await import('@/lib/mocks/compete.mock');
+      return mockUpdateAthleteProfile(id, data);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: updated, error } = await supabase
+      .from('athlete_profiles')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    return updated as AthleteProfile;
+  } catch (error) {
+    handleServiceError(error, 'compete.updateAthleteProfile');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// RANKINGS
+// ────────────────────────────────────────────────────────────
+
+export async function getAcademyRanking(
+  circuitId?: string,
+): Promise<AcademyTournamentStats[]> {
   try {
     if (isMock()) {
       const { mockGetAcademyRanking } = await import('@/lib/mocks/compete.mock');
-      return mockGetAcademyRanking(tournamentId);
+      return mockGetAcademyRanking(circuitId);
     }
-    try {
-      const params = new URLSearchParams();
-      if (tournamentId) params.set('tournamentId', tournamentId);
-      const res = await fetch(`/api/compete/academies/ranking?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAcademyRanking');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAcademyRanking] API not available, using mock fallback');
-      const { mockGetAcademyRanking } = await import('@/lib/mocks/compete.mock');
-      return mockGetAcademyRanking(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAcademyRanking'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('academy_tournament_stats')
+      .select('*')
+      .order('total_points', { ascending: false });
+
+    if (circuitId) query = query.eq('circuit_id', circuitId);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return (data ?? []) as AcademyTournamentStats[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getAcademyRanking');
+  }
 }
 
-export async function getAthleteRankingList(filters?: { belt?: string; weightClass?: string }): Promise<AthleteProfile[]> {
+export async function getAthleteRanking(
+  modality?: string,
+  belt?: BeltLevel,
+): Promise<AthleteProfile[]> {
   try {
     if (isMock()) {
-      const { mockGetAthleteRankingList } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteRankingList(filters);
+      const { mockGetAthleteRanking } = await import('@/lib/mocks/compete.mock');
+      return mockGetAthleteRanking(modality, belt);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.belt) params.set('belt', filters.belt);
-      if (filters?.weightClass) params.set('weightClass', filters.weightClass);
-      const res = await fetch(`/api/compete/athletes/ranking-list?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getAthleteRankingList');
-      return res.json();
-    } catch {
-      console.warn('[compete.getAthleteRankingList] API not available, using mock fallback');
-      const { mockGetAthleteRankingList } = await import('@/lib/mocks/compete.mock');
-      return mockGetAthleteRankingList(filters);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getAthleteRankingList'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('athlete_profiles')
+      .select('*')
+      .order('ranking_points', { ascending: false });
+
+    if (modality) query = query.contains('modalities', [modality]);
+    if (belt) query = query.eq('belt', belt);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return (data ?? []) as AthleteProfile[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getAthleteRanking');
+  }
 }
 
-// ── Predictions ─────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// PREDICTIONS
+// ────────────────────────────────────────────────────────────
 
-export async function submitPrediction(payload: SubmitPredictionPayload): Promise<TournamentPrediction> {
+export async function submitPrediction(
+  tournamentId: string,
+  categoryId: string,
+  winnerId: string,
+): Promise<TournamentPrediction> {
   try {
     if (isMock()) {
       const { mockSubmitPrediction } = await import('@/lib/mocks/compete.mock');
-      return mockSubmitPrediction(payload);
+      return mockSubmitPrediction(tournamentId, categoryId, winnerId);
     }
-    try {
-      const res = await fetch('/api/compete/predictions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: user } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('tournament_predictions')
+      .upsert({
+        tournament_id: tournamentId,
+        category_id: categoryId,
+        user_id: user.user?.id,
+        predicted_winner_id: winnerId,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return data as TournamentPrediction;
+  } catch (error) {
+    handleServiceError(error, 'compete.submitPrediction');
+  }
+}
+
+export async function getMyPredictions(
+  tournamentId: string,
+): Promise<TournamentPrediction[]> {
+  try {
+    if (isMock()) {
+      const { mockGetMyPredictions } = await import('@/lib/mocks/compete.mock');
+      return mockGetMyPredictions(tournamentId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: user } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('tournament_predictions')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .eq('user_id', user.user?.id ?? '')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []) as TournamentPrediction[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getMyPredictions');
+  }
+}
+
+export async function getPredictionLeaderboard(
+  tournamentId: string,
+): Promise<{ userId: string; name: string; correct: number; points: number }[]> {
+  try {
+    if (isMock()) {
+      const { mockGetPredictionLeaderboard } = await import('@/lib/mocks/compete.mock');
+      return mockGetPredictionLeaderboard(tournamentId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('get_prediction_leaderboard', { p_tournament_id: tournamentId });
+    if (error) throw error;
+
+    return (data ?? []) as { userId: string; name: string; correct: number; points: number }[];
+  } catch (error) {
+    handleServiceError(error, 'compete.getPredictionLeaderboard');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// SOCIAL CARDS
+// ────────────────────────────────────────────────────────────
+
+export async function generateSocialCard(
+  type: SocialCardType,
+  data: Record<string, unknown>,
+): Promise<{ imageUrl: string }> {
+  try {
+    if (isMock()) {
+      const { mockGenerateSocialCard } = await import('@/lib/mocks/compete.mock');
+      return mockGenerateSocialCard(type, data);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: result, error } = await supabase
+      .rpc('generate_social_card', {
+        p_type: type,
+        p_data: data,
       });
-      if (!res.ok) throw new ServiceError(res.status, 'compete.submitPrediction');
-      return res.json();
-    } catch {
-      console.warn('[compete.submitPrediction] API not available, using mock fallback');
-      const { mockSubmitPrediction } = await import('@/lib/mocks/compete.mock');
-      return mockSubmitPrediction(payload);
-    }
-  } catch (error) { handleServiceError(error, 'compete.submitPrediction'); }
-}
+    if (error) throw error;
 
-export async function getMyPredictions(tournamentId: string, userId: string): Promise<TournamentPrediction[]> {
-  try {
-    if (isMock()) {
-      const { mockGetMyPredictions } = await import('@/lib/mocks/compete.mock');
-      return mockGetMyPredictions(tournamentId, userId);
-    }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/predictions/me`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getMyPredictions');
-      return res.json();
-    } catch {
-      console.warn('[compete.getMyPredictions] API not available, using mock fallback');
-      const { mockGetMyPredictions } = await import('@/lib/mocks/compete.mock');
-      return mockGetMyPredictions(tournamentId, userId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getMyPredictions'); }
-}
-
-export async function getPredictionLeaderboard(tournamentId: string): Promise<PredictionLeaderboardEntry[]> {
-  try {
-    if (isMock()) {
-      const { mockGetPredictionLeaderboard } = await import('@/lib/mocks/compete.mock');
-      return mockGetPredictionLeaderboard(tournamentId);
-    }
-    try {
-      const res = await fetch(`/api/compete/tournaments/${tournamentId}/predictions/leaderboard`);
-      if (!res.ok) throw new ServiceError(res.status, 'compete.getPredictionLeaderboard');
-      return res.json();
-    } catch {
-      console.warn('[compete.getPredictionLeaderboard] API not available, using mock fallback');
-      const { mockGetPredictionLeaderboard } = await import('@/lib/mocks/compete.mock');
-      return mockGetPredictionLeaderboard(tournamentId);
-    }
-  } catch (error) { handleServiceError(error, 'compete.getPredictionLeaderboard'); }
+    return result as { imageUrl: string };
+  } catch (error) {
+    handleServiceError(error, 'compete.generateSocialCard');
+  }
 }

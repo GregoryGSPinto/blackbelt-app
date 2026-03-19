@@ -9,6 +9,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { getAlertasCount } from '@/lib/api/professor-alertas.service';
+import { SidebarHelpSection } from './HelpSection';
 import {
   HomeIcon,
   PlayIcon,
@@ -330,6 +331,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                   </div>
                 </div>
               ))}
+              <SidebarHelpSection />
             </nav>
 
             {/* Theme toggle */}

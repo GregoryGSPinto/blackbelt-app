@@ -16,7 +16,7 @@ import {
   ChevronRightIcon,
 } from '@/components/shell/icons';
 
-// ── Helpers ─────────────────────────────────────────────────────────
+// -- Helpers -----------------------------------------------------------------
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -24,9 +24,13 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// ── Match Detail Modal ──────────────────────────────────────────────
+// -- Match Detail Modal ------------------------------------------------------
 
 function MatchDetailModal({ match, onClose }: { match: TournamentMatch; onClose: () => void }) {
+  const winnerName = match.winner_id
+    ? (match.winner_id === match.athlete1_id ? match.athlete1_name : match.athlete2_name)
+    : null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
@@ -47,19 +51,19 @@ function MatchDetailModal({ match, onClose }: { match: TournamentMatch; onClose:
         </button>
 
         <p className="mb-4 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-          Round {match.round} - Posicao {match.position}
-          {match.areaNumber != null && ` | Area ${match.areaNumber}`}
+          Round {match.round} - Luta {match.match_number}
+          {match.area != null && ` | Area ${match.area}`}
         </p>
 
         <div className="flex items-center gap-4">
           {/* Fighter A */}
           <div className="flex-1 text-center">
-            <p className="text-sm font-bold" style={{ color: match.winnerId === match.fighterAId ? '#22c55e' : 'var(--bb-ink-100)' }}>
-              {match.fighterAName ?? '—'}
+            <p className="text-sm font-bold" style={{ color: match.winner_id === match.athlete1_id ? '#22c55e' : 'var(--bb-ink-100)' }}>
+              {match.athlete1_name ?? '\u2014'}
             </p>
-            <p className="mt-2 text-3xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.scoreA}</p>
+            <p className="mt-2 text-3xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.score_athlete1}</p>
             <div className="mt-1 text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
-              V: {match.advantagesA} | P: {match.penaltiesA}
+              V: {match.advantages_athlete1} | P: {match.penalties_athlete1}
             </div>
           </div>
 
@@ -67,25 +71,25 @@ function MatchDetailModal({ match, onClose }: { match: TournamentMatch; onClose:
 
           {/* Fighter B */}
           <div className="flex-1 text-center">
-            <p className="text-sm font-bold" style={{ color: match.winnerId === match.fighterBId ? '#22c55e' : 'var(--bb-ink-100)' }}>
-              {match.fighterBName ?? '—'}
+            <p className="text-sm font-bold" style={{ color: match.winner_id === match.athlete2_id ? '#22c55e' : 'var(--bb-ink-100)' }}>
+              {match.athlete2_name ?? '\u2014'}
             </p>
-            <p className="mt-2 text-3xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.scoreB}</p>
+            <p className="mt-2 text-3xl font-black" style={{ color: 'var(--bb-ink-100)' }}>{match.score_athlete2}</p>
             <div className="mt-1 text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
-              V: {match.advantagesB} | P: {match.penaltiesB}
+              V: {match.advantages_athlete2} | P: {match.penalties_athlete2}
             </div>
           </div>
         </div>
 
-        {match.winnerName && (
+        {winnerName && (
           <div className="mt-4 rounded-lg p-3 text-center" style={{ backgroundColor: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 'var(--bb-radius-sm)' }}>
             <p className="text-sm font-bold" style={{ color: '#22c55e' }}>
-              Vencedor: {match.winnerName}
+              Vencedor: {winnerName}
             </p>
             {match.method && (
               <p className="mt-0.5 text-xs" style={{ color: '#22c55e' }}>
                 por {match.method}
-                {match.durationSeconds != null && ` | ${formatTime(match.durationSeconds)}`}
+                {match.duration_seconds != null && ` | ${formatTime(match.duration_seconds)}`}
               </p>
             )}
           </div>
@@ -94,8 +98,8 @@ function MatchDetailModal({ match, onClose }: { match: TournamentMatch; onClose:
         {match.status === 'pending' && (
           <div className="mt-4 text-center">
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              {match.scheduledTime
-                ? `Agendado para ${new Date(match.scheduledTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+              {match.scheduled_time
+                ? `Agendado para ${new Date(match.scheduled_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
                 : 'Aguardando'
               }
             </p>
@@ -106,7 +110,7 @@ function MatchDetailModal({ match, onClose }: { match: TournamentMatch; onClose:
   );
 }
 
-// ── Bracket Match Slot ──────────────────────────────────────────────
+// -- Bracket Match Slot ------------------------------------------------------
 
 function BracketMatchSlot({ match, onClick }: { match: TournamentMatch; onClick: () => void }) {
   const isFinished = match.status === 'completed';
@@ -127,30 +131,30 @@ function BracketMatchSlot({ match, onClick }: { match: TournamentMatch; onClick:
         className="flex items-center justify-between px-3 py-1.5"
         style={{
           borderBottom: '1px solid var(--bb-glass-border)',
-          opacity: isFinished && match.winnerId !== match.fighterAId ? 0.4 : 1,
-          backgroundColor: isFinished && match.winnerId === match.fighterAId ? 'rgba(34,197,94,0.1)' : 'transparent',
+          opacity: isFinished && match.winner_id !== match.athlete1_id ? 0.4 : 1,
+          backgroundColor: isFinished && match.winner_id === match.athlete1_id ? 'rgba(34,197,94,0.1)' : 'transparent',
         }}
       >
         <span className="truncate text-xs font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-          {match.fighterAName ?? '—'}
+          {match.athlete1_name ?? '\u2014'}
         </span>
         <span className="ml-2 text-xs font-bold" style={{ color: 'var(--bb-ink-80)' }}>
-          {isFinished || isLive ? match.scoreA : ''}
+          {isFinished || isLive ? match.score_athlete1 : ''}
         </span>
       </div>
       {/* Fighter B */}
       <div
         className="flex items-center justify-between px-3 py-1.5"
         style={{
-          opacity: isFinished && match.winnerId !== match.fighterBId ? 0.4 : 1,
-          backgroundColor: isFinished && match.winnerId === match.fighterBId ? 'rgba(34,197,94,0.1)' : 'transparent',
+          opacity: isFinished && match.winner_id !== match.athlete2_id ? 0.4 : 1,
+          backgroundColor: isFinished && match.winner_id === match.athlete2_id ? 'rgba(34,197,94,0.1)' : 'transparent',
         }}
       >
         <span className="truncate text-xs font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-          {match.fighterBName ?? '—'}
+          {match.athlete2_name ?? '\u2014'}
         </span>
         <span className="ml-2 text-xs font-bold" style={{ color: 'var(--bb-ink-80)' }}>
-          {isFinished || isLive ? match.scoreB : ''}
+          {isFinished || isLive ? match.score_athlete2 : ''}
         </span>
       </div>
       {/* Status */}
@@ -163,7 +167,7 @@ function BracketMatchSlot({ match, onClick }: { match: TournamentMatch; onClick:
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────────────
+// -- Main Page ---------------------------------------------------------------
 
 export default function BracketPage() {
   const params = useParams();
@@ -236,9 +240,13 @@ export default function BracketPage() {
 
   // Find winner of the final
   const finalMatch = rounds[maxRound]?.[0];
-  const champion = finalMatch?.winnerName;
+  const champion = finalMatch?.winner_id
+    ? (finalMatch.winner_id === finalMatch.athlete1_id ? finalMatch.athlete1_name : finalMatch.athlete2_name)
+    : null;
 
-  const categoryLabel = category ? `${category.modality} ${category.beltRange} ${category.weightRange} ${category.ageRange} ${category.gender}` : '';
+  const categoryLabel = category
+    ? `${category.modality} ${category.belt_min ?? ''}–${category.belt_max ?? ''} ${category.weight_min ?? ''}–${category.weight_max ?? ''}kg ${category.age_min ?? ''}–${category.age_max ?? ''} ${category.gender === 'male' ? 'Masculino' : category.gender === 'female' ? 'Feminino' : 'Misto'}`
+    : '';
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bb-depth-1)' }}>
@@ -294,7 +302,7 @@ export default function BracketPage() {
           <div className="overflow-x-auto pb-4">
             <div className="flex gap-8" style={{ minWidth: `${sortedRounds.length * 220}px` }}>
               {sortedRounds.map((round) => {
-                const roundMatches = rounds[round].sort((a, b) => a.position - b.position);
+                const roundMatches = rounds[round].sort((a, b) => a.match_number - b.match_number);
                 return (
                   <div key={round} className="flex flex-col">
                     {/* Round label */}

@@ -63,12 +63,9 @@ export default function AtletaPage() {
     );
   }
 
-  const winRateDisplay = athlete.totalFights > 0
-    ? `${(athlete.winRate * 100).toFixed(0)}%`
-    : '0%';
-
-  const submissionRate = athlete.totalFights > 0
-    ? `${((athlete.submissions / athlete.totalFights) * 100).toFixed(0)}%`
+  const totalFights = athlete.wins + athlete.losses + athlete.draws;
+  const winRateDisplay = totalFights > 0
+    ? `${((athlete.wins / totalFights) * 100).toFixed(0)}%`
     : '0%';
 
   return (
@@ -88,38 +85,30 @@ export default function AtletaPage() {
                 borderRadius: 'var(--bb-radius-lg)',
               }}
             >
-              {athlete.photoUrl ? (
-                <img src={athlete.photoUrl} alt={athlete.fullName} className="h-full w-full object-cover" />
+              {athlete.avatar_url ? (
+                <img src={athlete.avatar_url} alt={athlete.display_name} className="h-full w-full object-cover" />
               ) : (
-                athlete.fullName.charAt(0)
+                athlete.display_name.charAt(0)
               )}
             </div>
 
             <div className="text-center sm:text-left">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <h1 className="text-2xl font-black text-white sm:text-3xl">{athlete.fullName}</h1>
-                {athlete.nickname && (
-                  <span className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white/80" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                    &quot;{athlete.nickname}&quot;
-                  </span>
-                )}
+                <h1 className="text-2xl font-black text-white sm:text-3xl">{athlete.display_name}</h1>
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-sm text-white/70 sm:justify-start">
                 <span>{athlete.belt}</span>
-                {athlete.weightClass && (
+                {athlete.weight && (
                   <>
                     <span>|</span>
-                    <span>{athlete.weightClass}</span>
+                    <span>{athlete.weight}kg</span>
                   </>
                 )}
               </div>
-              {athlete.academyName && (
-                <p className="mt-1 text-sm text-white/60">{athlete.academyName}</p>
-              )}
             </div>
 
             {/* Ranking badge */}
-            {athlete.rankingPosition != null && (
+            {athlete.ranking_points > 0 && (
               <div className="sm:ml-auto">
                 <div
                   className="flex flex-col items-center rounded-xl px-6 py-3"
@@ -128,8 +117,8 @@ export default function AtletaPage() {
                     borderRadius: 'var(--bb-radius-lg)',
                   }}
                 >
-                  <span className="text-xs text-white/60">Ranking</span>
-                  <span className="text-3xl font-black text-white">#{athlete.rankingPosition}</span>
+                  <span className="text-xs text-white/60">Pontos</span>
+                  <span className="text-3xl font-black text-white">{athlete.ranking_points}</span>
                 </div>
               </div>
             )}
@@ -139,14 +128,13 @@ export default function AtletaPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {/* Stats */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {[
             { label: 'Vitorias', value: athlete.wins, color: '#16a34a' },
             { label: 'Derrotas', value: athlete.losses, color: '#dc2626' },
             { label: 'Empates', value: athlete.draws, color: 'var(--bb-ink-60)' },
             { label: 'Aproveitamento', value: winRateDisplay, color: 'var(--bb-brand)' },
-            { label: 'Finalizacao', value: submissionRate, color: 'var(--bb-brand)' },
-            { label: 'Pontos', value: athlete.rankingPoints, color: 'var(--bb-brand)' },
+            { label: 'Pontos', value: athlete.ranking_points, color: 'var(--bb-brand)' },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -176,21 +164,21 @@ export default function AtletaPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-full text-lg" style={{ backgroundColor: 'rgba(234,179,8,0.15)' }}>
               &#129351;
             </div>
-            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.goldMedals}</p>
+            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.medals_gold}</p>
             <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Ouro</p>
           </div>
           <div className="text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full text-lg" style={{ backgroundColor: 'rgba(156,163,175,0.15)' }}>
               &#129352;
             </div>
-            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.silverMedals}</p>
+            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.medals_silver}</p>
             <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Prata</p>
           </div>
           <div className="text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full text-lg" style={{ backgroundColor: 'rgba(217,119,6,0.15)' }}>
               &#129353;
             </div>
-            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.bronzeMedals}</p>
+            <p className="mt-1 text-lg font-black" style={{ color: 'var(--bb-ink-100)' }}>{athlete.medals_bronze}</p>
             <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Bronze</p>
           </div>
         </div>
@@ -226,10 +214,10 @@ export default function AtletaPage() {
                   </thead>
                   <tbody>
                     {matchHistory.map((match) => {
-                      const isAthleteA = match.fighterAId === id;
-                      const opponentName = isAthleteA ? match.fighterBName : match.fighterAName;
-                      const won = match.winnerId === id;
-                      const isDraw = match.winnerId == null && match.status === 'completed';
+                      const isAthleteA = match.athlete1_id === id;
+                      const opponentName = isAthleteA ? match.athlete2_name : match.athlete1_name;
+                      const won = match.winner_id === id;
+                      const isDraw = match.winner_id == null && match.status === 'completed';
 
                       return (
                         <tr key={match.id} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
@@ -241,7 +229,7 @@ export default function AtletaPage() {
                           </td>
                           <td className="px-4 py-3 text-center">
                             <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                              {match.scoreA} x {match.scoreB}
+                              {match.score_athlete1} x {match.score_athlete2}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center">

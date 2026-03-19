@@ -4,6 +4,7 @@ import { forwardRef } from 'react';
 import { BottomNav } from './BottomNav';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { HeaderHelpButton } from './HelpSection';
 import { HomeIcon, CalendarIcon, StarIcon, UserIcon, BookOpenIcon } from './icons';
 import type { NavItem } from './BottomNav';
 
@@ -42,7 +43,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
             />
           </div>
         </div>
-        <ShellHeader title="BlackBelt" subtitle="Teen" rightContent={<ThemeToggle />} />
+        <ShellHeader title="BlackBelt" subtitle="Teen" rightContent={<><HeaderHelpButton /><ThemeToggle /></>} />
         <main>{children}</main>
         <BottomNav items={navItems} />
       </div>

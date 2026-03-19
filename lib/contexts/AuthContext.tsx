@@ -11,6 +11,7 @@ import {
 } from 'react';
 import type { Profile } from '@/lib/types';
 import { Role, ROLE_DASHBOARD } from '@/lib/types';
+import type { OAuthProvider } from '@/lib/api/auth.service';
 import { isMock } from '@/lib/env';
 import {
   setTokens,
@@ -33,6 +34,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<Profile[]>;
+  loginWithOAuth: (provider: OAuthProvider, inviteToken?: string) => Promise<Profile[]>;
   logout: () => Promise<void>;
   selectProfile: (profileId: string) => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -169,6 +171,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return response.profiles;
   }, []);
 
+  const loginWithOAuth = useCallback(async (provider: OAuthProvider, inviteToken?: string): Promise<Profile[]> => {
+    const response = await authService.loginWithOAuth(provider, { inviteToken });
+
+    // In real mode, browser redirects to OAuth provider — we never reach here.
+    // In mock mode, we get a response back.
+    if (response) {
+      if (isMock()) {
+        setTokens(response.accessToken, response.refreshToken);
+      }
+
+      setState({
+        profile: null,
+        profiles: response.profiles,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+      trackEvent(AnalyticsEvents.USER_LOGGED_IN, { provider });
+
+      return response.profiles;
+    }
+
+    return [];
+  }, []);
+
   const selectProfile = useCallback(
     async (profileId: string) => {
       profileSwitchRef.current = true;
@@ -251,6 +277,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         ...state,
         login,
+        loginWithOAuth,
         logout,
         selectProfile,
         refreshSession,
