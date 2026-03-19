@@ -25,6 +25,7 @@ import {
   UsersIcon,
   BellIcon,
   XIcon,
+  TrophyIcon,
 } from './icons';
 
 interface SuperAdminShellProps {
@@ -72,6 +73,12 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { href: '/superadmin/comunicacao', label: 'Comunicação', icon: MegaphoneIcon, badge: 2, id: 'sidebar-link-comunicacao' },
       { href: '/superadmin/contatos', label: 'Contatos Site', icon: MailIcon, id: 'sidebar-link-contatos' },
+    ],
+  },
+  {
+    label: 'COMPETE',
+    items: [
+      { href: '/superadmin/compete', label: 'Compete', icon: TrophyIcon, id: 'sidebar-link-compete' },
     ],
   },
   {

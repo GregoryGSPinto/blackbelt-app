@@ -36,6 +36,7 @@ import {
   GraduationCapIcon,
   PhoneIcon,
   GlobeIcon,
+  TrophyIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -78,11 +79,23 @@ const sidebarGroups: SidebarGroup[] = [
     ],
   },
   {
+    label: 'PEDAGOGICO',
+    items: [
+      { href: '/admin/pedagogico', label: 'Coord. Pedagogica', icon: GraduationCapIcon, id: 'sidebar-link-pedagogico' },
+    ],
+  },
+  {
     label: 'CONTEUDO',
     items: [
       { href: '/admin/conteudo', label: 'Conteudo', icon: SettingsIcon, id: 'sidebar-link-conteudo' },
       { href: '/admin/eventos', label: 'Eventos', icon: CalendarCheckIcon, id: 'sidebar-link-eventos' },
       { href: '/admin/comunicados', label: 'Comunicados', icon: MegaphoneIcon, id: 'sidebar-link-comunicados' },
+    ],
+  },
+  {
+    label: 'COMPETICAO',
+    items: [
+      { href: '/admin/campeonatos', label: 'Campeonatos', icon: TrophyIcon, id: 'sidebar-link-campeonatos' },
     ],
   },
   {

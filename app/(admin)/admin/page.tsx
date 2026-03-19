@@ -23,8 +23,11 @@ import {
   AwardIcon,
   DownloadIcon,
   AlertTriangleIcon,
+  GraduationCapIcon,
 } from '@/components/shell/icons';
 import { getAlunosEmRisco, getChurnMetrics, type AlunoRisco, type ChurnMetrics } from '@/lib/api/churn-prediction.service';
+import { getPedagogicoDashboard } from '@/lib/api/pedagogico.service';
+import type { PedagogicoDashboardDTO } from '@/lib/api/pedagogico.service';
 import { ReportViewer } from '@/components/reports/ReportViewer';
 import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import type { MonthlyReportData } from '@/lib/types/report';
@@ -383,6 +386,7 @@ export default function AdminDashboardPage() {
   const [reportExporting, setReportExporting] = useState(false);
   const [churnAlunos, setChurnAlunos] = useState<AlunoRisco[]>([]);
   const [churnMetrics, setChurnMetrics] = useState<ChurnMetrics | null>(null);
+  const [pedagogicoData, setPedagogicoData] = useState<PedagogicoDashboardDTO | null>(null);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();
@@ -408,6 +412,7 @@ export default function AdminDashboardPage() {
     load();
     getAlunosEmRisco('academy-1').then(setChurnAlunos).catch(() => {});
     getChurnMetrics('academy-1').then(setChurnMetrics).catch(() => {});
+    getPedagogicoDashboard(getActiveAcademyId()).then(setPedagogicoData).catch(() => {});
   }, []);
 
   if (loading || !data) return <DashboardSkeleton />;
@@ -1181,6 +1186,69 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ═══ PEDAGOGICO CARD ═══════════════════════════════════════════ */}
+      {pedagogicoData && (
+        <div
+          className="rounded-xl p-5"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <GraduationCapIcon className="h-5 w-5" style={{ color: 'var(--bb-brand)' }} />
+              <h3 className="text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                Pedagogico
+              </h3>
+            </div>
+            <Link
+              href="/admin/pedagogico"
+              className="text-xs font-medium"
+              style={{ color: 'var(--bb-brand)' }}
+            >
+              Ver painel pedagogico →
+            </Link>
+          </div>
+          <div className="mb-4 flex flex-wrap gap-4 text-sm">
+            <span style={{ color: 'var(--bb-ink-60)' }}>
+              Presenca: <span className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{pedagogicoData.resumo.mediaPresencaGeral}%</span>
+            </span>
+            <span style={{ color: 'var(--bb-ink-60)' }}>
+              Evolucao: <span className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{pedagogicoData.resumo.mediaEvolucaoGeral.toFixed(1)}</span>
+            </span>
+            {pedagogicoData.resumo.alunosEstagnadosMes > 0 && (
+              <span style={{ color: '#F59E0B' }}>
+                <AlertTriangleIcon className="mr-1 inline h-3.5 w-3.5" />
+                Estagnados: {pedagogicoData.resumo.alunosEstagnadosMes}
+              </span>
+            )}
+          </div>
+          {pedagogicoData.alunosAtencao.length > 0 && (
+            <div className="space-y-2">
+              {pedagogicoData.alunosAtencao.slice(0, 2).map((aluno) => (
+                <div
+                  key={aluno.alunoId}
+                  className="flex items-center justify-between rounded-lg p-3"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                      <span
+                        className="mr-2 inline-block h-2 w-2 rounded-full"
+                        style={{ background: aluno.urgencia === 'alta' ? '#EF4444' : aluno.urgencia === 'media' ? '#F59E0B' : '#6B7280' }}
+                      />
+                      {aluno.alunoNome}
+                    </p>
+                    <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>{aluno.motivo}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -6,12 +6,12 @@ export async function openSubscriptionPage(): Promise<void> {
   if (isNative()) {
     try {
       const { Browser } = await import('@capacitor/browser');
-      await Browser.open({ url: `${BASE_URL}/precos` });
+      await Browser.open({ url: `${BASE_URL}/cadastrar-academia` });
     } catch {
-      window.open(`${BASE_URL}/precos`, '_blank');
+      window.open(`${BASE_URL}/cadastrar-academia`, '_blank');
     }
   } else {
-    window.location.href = '/precos';
+    window.location.href = '/cadastrar-academia';
   }
 }
 

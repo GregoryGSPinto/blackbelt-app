@@ -8,7 +8,7 @@ import {
   MapPin, Clock, MessageCircle, ArrowRight, Download,
   Target, TrendingUp, Users, DollarSign, Timer,
   Shield, AlertTriangle, Lightbulb, Eye,
-  Bot, RefreshCw, Loader2, Navigation,
+  Bot, RefreshCw, Loader2, Wand2, Navigation,
 } from 'lucide-react';
 import {
   getProspects,
@@ -1048,14 +1048,41 @@ interface ProspectCardProps {
   onOpenDetail: (a: AcademiaProspectada) => void;
   onCopy: (text: string, field: string) => void;
   copiedField: string;
+  onWhatsAppClick?: (a: AcademiaProspectada) => void;
+  onInstagramClick?: (a: AcademiaProspectada) => void;
+  onEmailCopy?: (a: AcademiaProspectada) => void;
+  onOpenRegenModal?: (prospectId: string) => void;
 }
 
-function ProspectCard({ academia, onOpenDetail, onCopy, copiedField }: ProspectCardProps) {
+function ProspectCard({
+  academia,
+  onOpenDetail,
+  onCopy,
+  copiedField: _copiedField,
+  onWhatsAppClick,
+  onInstagramClick,
+  onEmailCopy,
+  onOpenRegenModal,
+}: ProspectCardProps) {
   const sc = academia.score.geral;
   const classColor = CLASSIFICATION_COLORS[academia.classificacao] ?? '#6b7280';
+  const hasIAAnalysis = sc > 0 && academia.analise.pontosFortes.length > 0;
 
   return (
-    <div className="flex flex-col p-4 space-y-3" style={cardStyle}>
+    <div className="flex flex-col p-4 space-y-3 relative" style={cardStyle}>
+      {/* IA Analysis Badge (top right) */}
+      {hasIAAnalysis && (
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <span
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+            style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}
+          >
+            <Bot size={10} />
+            Analisado por IA
+          </span>
+        </div>
+      )}
+
       {/* Header: Name + Score Badge */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -1073,7 +1100,7 @@ function ProspectCard({ academia, onOpenDetail, onCopy, copiedField }: ProspectC
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-5">
           {/* Classification Badge */}
           <span
             className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
@@ -1084,12 +1111,13 @@ function ProspectCard({ academia, onOpenDetail, onCopy, copiedField }: ProspectC
           >
             {CLASSIFICATION_LABELS[academia.classificacao] ?? academia.classificacao}
           </span>
-          {/* Score Badge */}
+          {/* Score Badge - prominent */}
           <span
-            className="flex items-center justify-center h-8 w-8 rounded-lg text-xs font-bold"
+            className="flex items-center justify-center h-9 min-w-[36px] px-1 rounded-lg text-xs font-bold"
             style={{
               background: scoreBg(sc),
               color: scoreColor(sc),
+              border: `1px solid ${scoreColor(sc)}30`,
             }}
           >
             {sc}
@@ -1154,60 +1182,99 @@ function ProspectCard({ academia, onOpenDetail, onCopy, copiedField }: ProspectC
         <span>{formatCurrency(academia.estimativas.faturamentoEstimado)}/mes</span>
       </div>
 
-      {/* Sinais de Dor / Oportunidade */}
-      {(academia.analise.oportunidades.length > 0 || academia.analise.pontosFracos.length > 0) && (
-        <div className="space-y-1">
-          {academia.analise.pontosFracos.slice(0, 1).map((pf, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <AlertTriangle size={12} className="shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-              <span className="text-[11px]" style={{ color: 'var(--bb-ink-60)' }}>{pf}</span>
+      {/* IA Analysis Section (expanded when available) */}
+      {hasIAAnalysis && (
+        <div
+          className="space-y-2 p-3 rounded-lg"
+          style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
+        >
+          <p className="text-[10px] uppercase font-semibold tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+            Analise IA
+          </p>
+
+          {/* Sinais de Dor (red dots) */}
+          {academia.analise.pontosFracos.length > 0 && (
+            <div className="space-y-1">
+              {academia.analise.pontosFracos.slice(0, 2).map((pf, i) => (
+                <div key={`dor-${i}`} className="flex items-start gap-1.5">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#ef4444' }} />
+                  <span className="text-[11px]" style={{ color: 'var(--bb-ink-60)' }}>{pf}</span>
+                </div>
+              ))}
             </div>
-          ))}
-          {academia.analise.oportunidades.slice(0, 1).map((op, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <Lightbulb size={12} className="shrink-0 mt-0.5" style={{ color: '#10b981' }} />
-              <span className="text-[11px]" style={{ color: 'var(--bb-ink-60)' }}>{op}</span>
+          )}
+
+          {/* Oportunidades (green dots) */}
+          {academia.analise.oportunidades.length > 0 && (
+            <div className="space-y-1">
+              {academia.analise.oportunidades.slice(0, 2).map((op, i) => (
+                <div key={`op-${i}`} className="flex items-start gap-1.5">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#10b981' }} />
+                  <span className="text-[11px]" style={{ color: 'var(--bb-ink-60)' }}>{op}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {/* Gancho quote */}
+          {academia.abordagem.argumentos.length > 0 && (
+            <div
+              className="mt-1 px-2.5 py-1.5 rounded text-[11px] italic"
+              style={{
+                background: 'rgba(245,158,11,0.06)',
+                borderLeft: '2px solid var(--bb-brand, #f59e0b)',
+                color: 'var(--bb-ink-60)',
+              }}
+            >
+              &ldquo;{academia.abordagem.argumentos[0]}&rdquo;
+            </div>
+          )}
         </div>
       )}
 
       {/* Action Buttons */}
       <div
-        className="flex items-center gap-2 pt-2"
+        className="flex flex-wrap items-center gap-2 pt-2"
         style={{ borderTop: '1px solid var(--bb-glass-border)' }}
       >
-        <a
-          href={whatsappLink(academia.telefone, academia.abordagem.mensagemSugerida)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => onWhatsAppClick ? onWhatsAppClick(academia) : window.open(whatsappLink(academia.telefone, academia.abordagem.mensagemSugerida), '_blank')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
           style={{ background: 'rgba(37,211,102,0.15)', color: '#25d366' }}
         >
           <MessageCircle size={14} />
           WhatsApp
-        </a>
+        </button>
 
         {academia.instagram && (
-          <a
-            href={`https://instagram.com/${academia.instagram.replace('@', '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => onInstagramClick ? onInstagramClick(academia) : undefined}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
             style={{ background: 'rgba(131,58,180,0.15)', color: '#c13584' }}
           >
             <Instagram size={14} />
-          </a>
+          </button>
         )}
 
         {academia.email && (
           <button
-            onClick={() => onCopy(academia.email!, `email-${academia.id}`)}
+            onClick={() => onEmailCopy ? onEmailCopy(academia) : onCopy(academia.email!, `email-${academia.id}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
             style={{ background: 'rgba(59,130,246,0.15)', color: '#3b82f6' }}
           >
-            {copiedField === `email-${academia.id}` ? <Check size={14} /> : <Copy size={14} />}
-            {copiedField === `email-${academia.id}` ? 'Copiado' : 'Email'}
+            <Mail size={14} />
+            Email
+          </button>
+        )}
+
+        {onOpenRegenModal && (
+          <button
+            onClick={() => onOpenRegenModal(academia.id)}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors"
+            style={{ background: 'rgba(139,92,246,0.12)', color: '#8b5cf6' }}
+            title="Regenerar mensagens"
+          >
+            <Wand2 size={14} />
           </button>
         )}
 
@@ -2566,3 +2633,4 @@ function DetailCRM({
     </div>
   );
 }
+

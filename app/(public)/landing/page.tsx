@@ -310,7 +310,7 @@ export default function LandingPage() {
               <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </Link>
             <Link
-              href="/precos"
+              href="/cadastrar-academia"
               className="inline-flex items-center gap-2 rounded-xl px-8 py-4 text-base font-medium transition-all sm:text-lg"
               style={{
                 border: '1px solid var(--bb-glass-border)',
@@ -578,7 +578,7 @@ export default function LandingPage() {
                 <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               </Link>
               <Link
-                href="/precos"
+                href="/cadastrar-academia"
                 className="rounded-xl border border-white/30 px-8 py-4 text-base font-medium text-white transition-all hover:bg-white/10"
               >
                 Ver Planos

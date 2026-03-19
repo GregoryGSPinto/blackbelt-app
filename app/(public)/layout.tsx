@@ -7,7 +7,7 @@ import { MenuIcon, XIcon } from '@/components/shell/icons';
 
 const NAV_LINKS = [
   { href: '/landing#funcionalidades', label: 'Funcionalidades' },
-  { href: '/precos', label: 'Planos' },
+  { href: '/cadastrar-academia', label: 'Planos' },
   { href: '/landing#por-perfil', label: 'Por Perfil' },
   { href: '/landing#faq', label: 'FAQ' },
   { href: '/contato', label: 'Contato' },
@@ -172,7 +172,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               <ul className="space-y-3">
                 {[
                   { href: '/landing#funcionalidades', label: 'Funcionalidades' },
-                  { href: '/precos', label: 'Planos e Preços' },
+                  { href: '/cadastrar-academia', label: 'Planos e Preços' },
                   { href: '/landing#faq', label: 'FAQ' },
                   { href: '/status', label: 'Status' },
                 ].map((l) => (
