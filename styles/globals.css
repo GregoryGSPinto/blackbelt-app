@@ -483,3 +483,57 @@ body.capacitor {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PRINT STYLES
+   ══════════════════════════════════════════════════════════════ */
+
+@media print {
+  nav, .bottom-nav, .sidebar, .fab, .toast, .modal-overlay,
+  button:not(.print-btn), .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  main { padding: 0 !important; }
+  .print-only { display: block !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INTERACTION ANIMATIONS
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes checkIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.page-enter {
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-interactive {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.card-interactive:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-feedback:active {
+  transform: scale(0.96);
+}
+
+.checkin-success {
+  animation: checkIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.count-up {
+  animation: countUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
