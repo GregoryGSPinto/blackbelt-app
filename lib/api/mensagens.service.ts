@@ -1,148 +1,316 @@
 import { isMock } from '@/lib/env';
 import { ServiceError, handleServiceError } from '@/lib/api/errors';
-// types defined locally
+import { Role } from '@/lib/types/domain';
+import type {
+  Contact,
+  Conversation,
+  ConversationMessage,
+  BroadcastMessage,
+  MessageTarget,
+  MessageType,
+  SendBroadcastOptions,
+} from '@/lib/types/messaging';
 
-export interface ConversationDTO {
-  id: string;
-  participant_id: string;
-  participant_name: string;
-  participant_avatar: string | null;
-  participant_belt: string;
-  last_message: string;
-  last_message_time: string;
-  unread_count: number;
-  is_at_risk: boolean;
+// Re-export all types for consumers
+export type {
+  Contact,
+  Conversation,
+  ConversationMessage,
+  BroadcastMessage,
+  BroadcastRecipient,
+  MessageTarget,
+  MessageType,
+  MessageMetadata,
+  ConversationType,
+  UserRole,
+  SendBroadcastOptions,
+} from '@/lib/types/messaging';
+
+// ────────────────────────────────────────────────────────────
+// getMyContacts
+// ────────────────────────────────────────────────────────────
+
+export async function getMyContacts(
+  profileId: string,
+  role: Role,
+  academyId: string,
+): Promise<Contact[]> {
+  try {
+    if (isMock()) {
+      const { mockGetMyContacts } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetMyContacts(profileId, role, academyId);
+    }
+    const res = await fetch(
+      `/api/mensagens/contacts?profile_id=${profileId}&role=${role}&academy_id=${academyId}`,
+    );
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.contacts');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'mensagens.contacts');
+  }
 }
 
-export interface MessageDTO {
-  id: string;
-  from_id: string;
-  from_name: string;
-  from_avatar: string | null;
-  content: string;
-  sent_at: string;
-  is_mine: boolean;
-  read_at: string | null;
-}
+// ────────────────────────────────────────────────────────────
+// getConversations
+// ────────────────────────────────────────────────────────────
 
-export interface StudentContextDTO {
-  student_id: string;
-  display_name: string;
-  belt: string;
-  avatar: string | null;
-  last_attendance: string | null;
-  streak: number;
-  health_score: number;
-  latest_evaluation: {
-    technique: number;
-    discipline: number;
-    attendance: number;
-    evolution: number;
-    date: string;
-  } | null;
-  current_plan: string | null;
-  plan_status: 'active' | 'past_due' | 'cancelled' | null;
-  is_at_risk: boolean;
-}
-
-export interface SuggestedMessageDTO {
-  id: string;
-  label: string;
-  content: string;
-}
-
-export async function getConversations(profileId: string): Promise<ConversationDTO[]> {
+export async function getConversations(profileId: string): Promise<Conversation[]> {
   try {
     if (isMock()) {
       const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
       return mockGetConversations(profileId);
     }
-    // API not yet implemented — use mock
-    const { mockGetConversations } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetConversations(profileId);
+    const res = await fetch(`/api/mensagens/conversations?profile_id=${profileId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.conversations');
+    return res.json();
   } catch (error) {
     handleServiceError(error, 'mensagens.conversations');
   }
 }
 
-export async function getMessages(conversationId: string): Promise<MessageDTO[]> {
+// ────────────────────────────────────────────────────────────
+// getOrCreateConversation
+// ────────────────────────────────────────────────────────────
+
+export async function getOrCreateConversation(
+  profileId: string,
+  otherProfileId: string,
+  academyId: string,
+): Promise<Conversation> {
+  try {
+    if (isMock()) {
+      const { mockGetOrCreateConversation } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetOrCreateConversation(profileId, otherProfileId, academyId);
+    }
+    const res = await fetch('/api/mensagens/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profile_id: profileId,
+        other_profile_id: otherProfileId,
+        academy_id: academyId,
+      }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.getOrCreate');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'mensagens.getOrCreate');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// getMessages
+// ────────────────────────────────────────────────────────────
+
+export async function getMessages(
+  conversationId: string,
+  page?: number,
+  limit?: number,
+): Promise<ConversationMessage[]> {
   try {
     if (isMock()) {
       const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetMessages(conversationId);
+      return mockGetMessages(conversationId, page, limit);
     }
-    // API not yet implemented — use mock
-    const { mockGetMessages } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetMessages(conversationId);
+    const params = new URLSearchParams({ conversation_id: conversationId });
+    if (page !== undefined) params.set('page', String(page));
+    if (limit !== undefined) params.set('limit', String(limit));
+    const res = await fetch(`/api/mensagens/messages?${params.toString()}`);
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.messages');
+    return res.json();
   } catch (error) {
     handleServiceError(error, 'mensagens.messages');
   }
 }
 
-export async function sendMessage(conversationId: string, content: string): Promise<MessageDTO> {
+// ────────────────────────────────────────────────────────────
+// sendMessage
+// ────────────────────────────────────────────────────────────
+
+export async function sendMessage(
+  conversationId: string,
+  senderId: string,
+  text: string,
+  type: MessageType = 'text',
+): Promise<ConversationMessage> {
   try {
     if (isMock()) {
       const { mockSendMessage } = await import('@/lib/mocks/mensagens.mock');
-      return mockSendMessage(conversationId, content);
+      return mockSendMessage(conversationId, senderId, text, type);
     }
-    try {
-      const res = await fetch(`/api/mensagens/${conversationId}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'mensagens.send');
-      return res.json();
-    } catch {
-      console.warn('[mensagens.sendMessage] API not available, using mock fallback');
-      const { mockSendMessage } = await import('@/lib/mocks/mensagens.mock');
-      return mockSendMessage(conversationId, content);
-    }
+    const res = await fetch('/api/mensagens/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversation_id: conversationId,
+        sender_id: senderId,
+        text,
+        type,
+      }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.send');
+    return res.json();
   } catch (error) {
     handleServiceError(error, 'mensagens.send');
   }
 }
 
-export async function getStudentContext(studentId: string): Promise<StudentContextDTO> {
-  try {
-    if (isMock()) {
-      const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetStudentContext(studentId);
-    }
-    // API not yet implemented — use mock
-    const { mockGetStudentContext } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetStudentContext(studentId);
-  } catch (error) {
-    handleServiceError(error, 'mensagens.studentContext');
-  }
-}
+// ────────────────────────────────────────────────────────────
+// markAsRead
+// ────────────────────────────────────────────────────────────
 
-export async function getSuggestedMessages(studentId: string): Promise<SuggestedMessageDTO[]> {
+export async function markAsRead(
+  conversationId: string,
+  profileId: string,
+): Promise<void> {
   try {
     if (isMock()) {
-      const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetSuggestedMessages(studentId);
+      const { mockMarkAsRead } = await import('@/lib/mocks/mensagens.mock');
+      return mockMarkAsRead(conversationId, profileId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSuggestedMessages } = await import('@/lib/mocks/mensagens.mock');
-      return mockGetSuggestedMessages(studentId);
-  } catch (error) {
-    handleServiceError(error, 'mensagens.suggestions');
-  }
-}
-
-export async function markRead(conversationId: string): Promise<void> {
-  try {
-    if (isMock()) {
-      const { mockMarkRead } = await import('@/lib/mocks/mensagens.mock');
-      return mockMarkRead(conversationId);
-    }
-    try {
-      await fetch(`/api/mensagens/${conversationId}/read`, { method: 'POST' });
-    } catch {
-      console.warn('[mensagens.markRead] API not available, using fallback');
-    }
+    const res = await fetch(`/api/mensagens/conversations/${conversationId}/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profileId }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.markRead');
   } catch (error) {
     handleServiceError(error, 'mensagens.markRead');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// deleteMessage
+// ────────────────────────────────────────────────────────────
+
+export async function deleteMessage(messageId: string): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockDeleteMessage } = await import('@/lib/mocks/mensagens.mock');
+      return mockDeleteMessage(messageId);
+    }
+    const res = await fetch(`/api/mensagens/messages/${messageId}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.delete');
+  } catch (error) {
+    handleServiceError(error, 'mensagens.delete');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// sendBroadcast
+// ────────────────────────────────────────────────────────────
+
+export async function sendBroadcast(
+  academyId: string,
+  senderId: string,
+  target: MessageTarget,
+  text: string,
+  opts?: SendBroadcastOptions,
+): Promise<BroadcastMessage> {
+  try {
+    if (isMock()) {
+      const { mockSendBroadcast } = await import('@/lib/mocks/mensagens.mock');
+      return mockSendBroadcast(academyId, senderId, target, text, opts);
+    }
+    const res = await fetch('/api/mensagens/broadcasts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        academy_id: academyId,
+        sender_id: senderId,
+        target,
+        text,
+        ...opts,
+      }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.broadcast');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'mensagens.broadcast');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// getBroadcasts
+// ────────────────────────────────────────────────────────────
+
+export async function getBroadcasts(profileId: string): Promise<BroadcastMessage[]> {
+  try {
+    if (isMock()) {
+      const { mockGetBroadcasts } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetBroadcasts(profileId);
+    }
+    const res = await fetch(`/api/mensagens/broadcasts?profile_id=${profileId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.broadcasts');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'mensagens.broadcasts');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// markBroadcastRead
+// ────────────────────────────────────────────────────────────
+
+export async function markBroadcastRead(
+  broadcastId: string,
+  profileId: string,
+): Promise<void> {
+  try {
+    if (isMock()) {
+      const { mockMarkBroadcastRead } = await import('@/lib/mocks/mensagens.mock');
+      return mockMarkBroadcastRead(broadcastId, profileId);
+    }
+    const res = await fetch(`/api/mensagens/broadcasts/${broadcastId}/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profileId }),
+    });
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.broadcastRead');
+  } catch (error) {
+    handleServiceError(error, 'mensagens.broadcastRead');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// getTotalUnread
+// ────────────────────────────────────────────────────────────
+
+export async function getTotalUnread(profileId: string): Promise<number> {
+  try {
+    if (isMock()) {
+      const { mockGetTotalUnread } = await import('@/lib/mocks/mensagens.mock');
+      return mockGetTotalUnread(profileId);
+    }
+    const res = await fetch(`/api/mensagens/unread?profile_id=${profileId}`);
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.unread');
+    const data: { count: number } = await res.json();
+    return data.count;
+  } catch (error) {
+    handleServiceError(error, 'mensagens.unread');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// searchMessages
+// ────────────────────────────────────────────────────────────
+
+export async function searchMessages(
+  profileId: string,
+  query: string,
+): Promise<ConversationMessage[]> {
+  try {
+    if (isMock()) {
+      const { mockSearchMessages } = await import('@/lib/mocks/mensagens.mock');
+      return mockSearchMessages(profileId, query);
+    }
+    const params = new URLSearchParams({ profile_id: profileId, q: query });
+    const res = await fetch(`/api/mensagens/search?${params.toString()}`);
+    if (!res.ok) throw new ServiceError(res.status, 'mensagens.search');
+    return res.json();
+  } catch (error) {
+    handleServiceError(error, 'mensagens.search');
   }
 }

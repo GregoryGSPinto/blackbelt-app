@@ -1,479 +1,203 @@
 'use client';
 
-import { useState, useEffect, type CSSProperties } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useToast } from '@/lib/hooks/useToast';
-import { TutorialSettings } from '@/components/shared/TutorialSettings';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { BeltLevel } from '@/lib/types/domain';
+import { TutorialSettings } from '@/components/shared/TutorialSettings';
+import {
+  SettingsSection,
+  SettingsToggle,
+  SettingsInput,
+  SettingsAvatar,
+  DangerZone,
+} from '@/components/shared/settings';
+import {
+  getUserPreferences,
+  updateUserPreferences,
+  getAcademySettings,
+  updateAcademySettings,
+  changePassword,
+  exportUserData,
+  deleteAccount,
+  deactivateAcademy,
+  deleteAcademy,
+  uploadAvatar,
+  uploadAcademyLogo,
+} from '@/lib/api/preferences.service';
+import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
 
-// ── Inline SVG icons (lucide-style, stroke-width 1.5) ────────────────
+// ── Constants ────────────────────────────────────────────────────────
 
-function IconBuilding({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-      <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01" />
-    </svg>
-  );
-}
+const TABS = [
+  { key: 'perfil', label: 'Meu Perfil', icon: 'user' },
+  { key: 'academia', label: 'Academia', icon: 'building' },
+  { key: 'seguranca', label: 'Seguranca', icon: 'lock' },
+  { key: 'notificacoes', label: 'Notificacoes', icon: 'bell' },
+  { key: 'aparencia', label: 'Aparencia', icon: 'palette' },
+  { key: 'integracoes', label: 'Integracoes', icon: 'plug' },
+  { key: 'avancado', label: 'Avancado', icon: 'settings' },
+] as const;
 
-function IconUsers({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
+type TabKey = (typeof TABS)[number]['key'];
 
-function IconAward({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="6" />
-      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
-    </svg>
-  );
-}
+type ThemeOption = 'light' | 'dark' | 'system';
 
-function IconBell({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  );
-}
+const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
+  { value: 'light', label: 'Claro' },
+  { value: 'dark', label: 'Escuro' },
+  { value: 'system', label: 'Sistema' },
+];
 
-function IconPlug({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22v-5" />
-      <path d="M9 8V2" />
-      <path d="M15 8V2" />
-      <path d="M18 8v5a6 6 0 0 1-12 0V8z" />
-    </svg>
-  );
-}
-
-function IconCreditCard({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-      <line x1="1" y1="10" x2="23" y2="10" />
-    </svg>
-  );
-}
-
-function IconDownload({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" y1="15" x2="12" y2="3" />
-    </svg>
-  );
-}
-
-function IconSun({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-    </svg>
-  );
-}
-
-function IconMoon({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function IconMonitor({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-      <path d="M8 21h8M12 17v4" />
-    </svg>
-  );
-}
-
-function IconLock({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
-
-function IconUpload({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-  );
-}
-
-function IconChevronRight({ size = 16, color }: { size?: number; color: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  );
-}
-
-// ── Icon type ─────────────────────────────────────────────────────────
-type IconComponent = React.ComponentType<{ size?: number; color: string }>;
-
-// ── Card style ────────────────────────────────────────────────────────
-const cardStyle: CSSProperties = {
-  background: 'var(--bb-depth-3)',
-  border: '1px solid var(--bb-glass-border)',
-  borderRadius: 'var(--bb-radius-lg)',
+const DAY_NAMES: Record<string, string> = {
+  monday: 'Segunda',
+  tuesday: 'Terca',
+  wednesday: 'Quarta',
+  thursday: 'Quinta',
+  friday: 'Sexta',
+  saturday: 'Sabado',
+  sunday: 'Domingo',
 };
 
-// ── Section header ────────────────────────────────────────────────────
-function SectionHeader({
-  icon: Icon,
-  title,
-}: {
-  icon: IconComponent;
-  title: string;
-}) {
-  return (
-    <div className="mb-3 flex items-center gap-2">
-      <Icon size={16} color="var(--bb-ink-40)" />
-      <h2
-        className="font-display text-sm font-semibold uppercase"
-        style={{
-          color: 'var(--bb-ink-60)',
-          letterSpacing: '0.06em',
-        }}
-      >
-        {title}
-      </h2>
-    </div>
-  );
-}
+const MOCK_PROFILE_ID = 'admin-1';
+const MOCK_ACADEMY_ID = 'academy-1';
 
-// ── Toggle switch (44px touch target) ────────────────────────────────
-function ToggleSwitch({
-  enabled,
-  onToggle,
-  label,
-}: {
-  enabled: boolean;
-  onToggle: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      aria-label={label}
-      onClick={onToggle}
-      className="relative inline-flex h-7 w-12 flex-shrink-0 items-center transition-colors duration-200"
-      style={{
-        borderRadius: '9999px',
-        background: enabled ? 'var(--bb-brand)' : 'var(--bb-ink-20)',
-        minWidth: '48px',
-        minHeight: '44px',
-      }}
-    >
-      <span
-        className="inline-block h-5 w-5 transform transition-transform duration-200"
-        style={{
-          borderRadius: '50%',
-          background: '#fff',
-          transform: enabled ? 'translateX(24px)' : 'translateX(4px)',
-        }}
-      />
-    </button>
-  );
-}
-
-// ── Toggle row ───────────────────────────────────────────────────────
-function ToggleRow({
-  label,
-  description,
-  enabled,
-  onToggle,
-}: {
-  label: string;
-  description: string;
-  enabled: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div
-      className="flex items-center justify-between gap-4 px-4 py-3"
-      style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-    >
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-          {label}
-        </p>
-        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-          {description}
-        </p>
-      </div>
-      <ToggleSwitch enabled={enabled} onToggle={onToggle} label={label} />
-    </div>
-  );
-}
-
-// ── Theme button ─────────────────────────────────────────────────────
-function ThemeButton({
-  icon: Icon,
-  label,
-  value,
-  currentTheme,
-  onClick,
-}: {
-  icon: IconComponent;
-  label: string;
-  value: 'light' | 'dark' | 'system';
-  currentTheme: string;
-  onClick: () => void;
-}) {
-  const isActive = currentTheme === value;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex flex-1 flex-col items-center gap-2 py-4 transition-all duration-200"
-      style={{
-        borderRadius: 'var(--bb-radius-md)',
-        background: isActive ? 'var(--bb-brand-surface)' : 'var(--bb-depth-4)',
-        border: isActive
-          ? '2px solid var(--bb-brand)'
-          : '1px solid var(--bb-glass-border)',
-        minHeight: '44px',
-      }}
-    >
-      <Icon
-        size={20}
-        color={isActive ? 'var(--bb-brand)' : 'var(--bb-ink-40)'}
-      />
-      <span
-        className="text-xs font-medium"
-        style={{ color: isActive ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}
-      >
-        {label}
-      </span>
-    </button>
-  );
-}
-
-// ── Mock data ────────────────────────────────────────────────────────
-
-const MOCK_ACADEMY = {
-  name: 'Guerreiros BJJ',
-  cnpj: '12.345.678/0001-00',
-  address: 'Rua das Artes Marciais, 123 - Centro, Sao Paulo/SP',
-  phone: '(11) 99999-0000',
-  email: 'contato@guerreirosbjj.com.br',
-  brandColors: {
-    primary: '#EF4444',
-    secondary: '#B91C1C',
-  },
-};
-
-const MOCK_MODALITIES = [
-  { id: 'bjj', name: 'Jiu-Jitsu', enabled: true },
-  { id: 'muay-thai', name: 'Muay Thai', enabled: true },
-  { id: 'judo', name: 'Judo', enabled: false },
-  { id: 'karate', name: 'Karate', enabled: false },
-  { id: 'boxe', name: 'Boxe', enabled: true },
-  { id: 'wrestling', name: 'Wrestling', enabled: false },
-  { id: 'mma', name: 'MMA', enabled: true },
-  { id: 'capoeira', name: 'Capoeira', enabled: false },
-];
-
-interface GradCriteria {
-  belt: BeltLevel;
-  label: string;
-  attendance: number;
-  months: number;
-  quizAvg: number;
-  color: string;
-  textColor: string;
-}
-
-const MOCK_GRAD_CRITERIA: GradCriteria[] = [
-  { belt: BeltLevel.White, label: 'Branca', attendance: 0, months: 0, quizAvg: 0, color: 'var(--bb-belt-white)', textColor: '#1a1a1a' },
-  { belt: BeltLevel.Gray, label: 'Cinza', attendance: 20, months: 3, quizAvg: 60, color: 'var(--bb-belt-gray)', textColor: '#fff' },
-  { belt: BeltLevel.Yellow, label: 'Amarela', attendance: 30, months: 4, quizAvg: 65, color: 'var(--bb-belt-yellow)', textColor: '#1a1a1a' },
-  { belt: BeltLevel.Orange, label: 'Laranja', attendance: 40, months: 6, quizAvg: 70, color: 'var(--bb-belt-orange)', textColor: '#fff' },
-  { belt: BeltLevel.Green, label: 'Verde', attendance: 50, months: 8, quizAvg: 70, color: 'var(--bb-belt-green)', textColor: '#fff' },
-  { belt: BeltLevel.Blue, label: 'Azul', attendance: 60, months: 12, quizAvg: 75, color: 'var(--bb-belt-blue)', textColor: '#fff' },
-  { belt: BeltLevel.Purple, label: 'Roxa', attendance: 80, months: 18, quizAvg: 80, color: 'var(--bb-belt-purple)', textColor: '#fff' },
-  { belt: BeltLevel.Brown, label: 'Marrom', attendance: 100, months: 24, quizAvg: 85, color: 'var(--bb-belt-brown)', textColor: '#fff' },
-  { belt: BeltLevel.Black, label: 'Preta', attendance: 150, months: 36, quizAvg: 90, color: 'var(--bb-belt-black)', textColor: '#fff' },
-];
-
-const MOCK_INTEGRATIONS: Array<{
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-}> = [
-  {
-    id: 'pagamento',
-    name: 'Pagamento',
-    description: 'Integre com gateways de pagamento (Stripe, PagSeguro)',
-    icon: '\uD83D\uDCB3',
-  },
-  {
-    id: 'whatsapp',
-    name: 'WhatsApp',
-    description: 'Envie notificacoes automaticas via WhatsApp Business',
-    icon: '\uD83D\uDCAC',
-  },
-  {
-    id: 'google-calendar',
-    name: 'Google Calendar',
-    description: 'Sincronize turmas e eventos com o Google Calendar',
-    icon: '\uD83D\uDCC5',
-  },
-];
-
-// ── Loading skeleton ─────────────────────────────────────────────────
+// ── Loading Skeleton ─────────────────────────────────────────────────
 
 function SettingsSkeleton() {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <Skeleton variant="text" className="h-8 w-48" />
       <Skeleton variant="text" className="h-4 w-64" />
+      <div className="flex gap-2 overflow-x-auto">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <Skeleton key={i} variant="text" className="h-10 w-28 flex-shrink-0" />
+        ))}
+      </div>
       <Skeleton variant="card" className="h-64" />
       <Skeleton variant="card" className="h-48" />
-      <Skeleton variant="card" className="h-56" />
-      <Skeleton variant="card" className="h-40" />
-      <Skeleton variant="card" className="h-32" />
     </div>
   );
 }
 
-// ── Main page component ──────────────────────────────────────────────
+// ── Main Component ───────────────────────────────────────────────────
 
 export default function AdminConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabKey>('perfil');
+  const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const [academy, setAcademy] = useState<AcademySettings | null>(null);
 
-  // Academy data
-  const [academy, setAcademy] = useState(MOCK_ACADEMY);
+  // Password state
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
 
-  // Class config
-  const [defaultCapacity, setDefaultCapacity] = useState(30);
-  const [modalities, setModalities] = useState(MOCK_MODALITIES);
+  // ── Load data ────────────────────────────────────────────────────
 
-  // Graduation criteria (editable)
-  const [gradCriteria, setGradCriteria] = useState(MOCK_GRAD_CRITERIA);
-
-  // Notifications
-  const [notifications, setNotifications] = useState({
-    absenceAlert: true,
-    paymentReminder: true,
-    graduationNotification: true,
-    newStudentAlert: false,
-    systemAlerts: true,
-  });
-
-  // LGPD export
-  const [exporting, setExporting] = useState(false);
-
-  // Saving states
-  const [savingAcademy, setSavingAcademy] = useState(false);
-  const [savingClass, setSavingClass] = useState(false);
-  const [savingGrad, setSavingGrad] = useState(false);
-  const [savingNotif, setSavingNotif] = useState(false);
-
-  // Simulate loading
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
+    async function load() {
+      try {
+        const [p, a] = await Promise.all([
+          getUserPreferences(MOCK_PROFILE_ID),
+          getAcademySettings(MOCK_ACADEMY_ID),
+        ]);
+        setPrefs(p);
+        setAcademy(a);
+      } catch {
+        toast('Erro ao carregar configuracoes', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Handlers ────────────────────────────────────────────────────────
+  // ── Save helpers ─────────────────────────────────────────────────
 
-  function toggleModality(id: string) {
-    setModalities((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, enabled: !m.enabled } : m)),
-    );
+  const savePref = useCallback(
+    async (partial: Partial<UserPreferences>) => {
+      try {
+        await updateUserPreferences(MOCK_PROFILE_ID, partial);
+        setPrefs((p) => (p ? { ...p, ...partial } : p));
+        toast('Salvo!', 'success');
+      } catch {
+        toast('Erro ao salvar', 'error');
+      }
+    },
+    [toast],
+  );
+
+  const saveAcademy = useCallback(
+    async (partial: Partial<AcademySettings>) => {
+      try {
+        await updateAcademySettings(MOCK_ACADEMY_ID, partial);
+        setAcademy((a) => (a ? { ...a, ...partial } : a));
+        toast('Salvo!', 'success');
+      } catch {
+        toast('Erro ao salvar', 'error');
+      }
+    },
+    [toast],
+  );
+
+  // ── Handlers ─────────────────────────────────────────────────────
+
+  async function handleSalvarSenha() {
+    if (!senhaAtual || !novaSenha || !confirmarSenha) {
+      toast('Preencha todos os campos.', 'error');
+      return;
+    }
+    if (novaSenha !== confirmarSenha) {
+      toast('As senhas nao coincidem.', 'error');
+      return;
+    }
+    if (novaSenha.length < 8) {
+      toast('A nova senha deve ter no minimo 8 caracteres.', 'error');
+      return;
+    }
+    try {
+      await changePassword(senhaAtual, novaSenha);
+      toast('Senha alterada com sucesso!', 'success');
+      setSenhaAtual('');
+      setNovaSenha('');
+      setConfirmarSenha('');
+    } catch {
+      toast('Erro ao alterar senha.', 'error');
+    }
   }
 
-  function toggleNotification(key: keyof typeof notifications) {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+  async function handleUploadAvatar(file: File) {
+    try {
+      await uploadAvatar(MOCK_PROFILE_ID, file);
+      toast('Avatar atualizado!', 'success');
+    } catch {
+      toast('Erro ao enviar avatar.', 'error');
+    }
   }
 
-  function updateGradCriteria(
-    belt: BeltLevel,
-    field: 'attendance' | 'months' | 'quizAvg',
-    value: number,
-  ) {
-    setGradCriteria((prev) =>
-      prev.map((c) => (c.belt === belt ? { ...c, [field]: value } : c)),
-    );
+  async function handleUploadLogo(file: File) {
+    try {
+      await uploadAcademyLogo(MOCK_ACADEMY_ID, file);
+      toast('Logo atualizada!', 'success');
+    } catch {
+      toast('Erro ao enviar logo.', 'error');
+    }
   }
 
-  async function handleSaveAcademy() {
-    setSavingAcademy(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingAcademy(false);
-    toast('Dados da academia salvos com sucesso!', 'success');
-  }
+  // ── Loading state ────────────────────────────────────────────────
 
-  async function handleSaveClass() {
-    setSavingClass(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingClass(false);
-    toast('Configuracoes de turma salvas!', 'success');
-  }
+  if (loading || !prefs || !academy) return <SettingsSkeleton />;
 
-  async function handleSaveGrad() {
-    setSavingGrad(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingGrad(false);
-    toast('Criterios de graduacao atualizados!', 'success');
-  }
-
-  async function handleSaveNotif() {
-    setSavingNotif(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingNotif(false);
-    toast('Preferencias de notificacao salvas!', 'success');
-  }
-
-  async function handleExport() {
-    setExporting(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    setExporting(false);
-    toast('Exportacao LGPD iniciada! Voce recebera o arquivo por email.', 'success');
-  }
-
-  // ── Loading ─────────────────────────────────────────────────────────
-
-  if (loading) return <SettingsSkeleton />;
-
-  // ── Render ──────────────────────────────────────────────────────────
+  // ── Render ───────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 animate-reveal overflow-x-hidden">
-      {/* ── Page header ──────────────────────────────────────────── */}
+    <div className="min-h-screen p-4 sm:p-6">
+      {/* Header */}
       <div className="mb-6">
         <h1
           className="font-display text-xl font-bold sm:text-2xl"
@@ -482,723 +206,533 @@ export default function AdminConfiguracoesPage() {
           Configuracoes
         </h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Gerencie as configuracoes da sua academia
+          Gerencie as configuracoes da sua academia e perfil
         </p>
       </div>
 
-      <div data-stagger className="space-y-6">
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 1: Dados da Academia
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconBuilding} title="Dados da Academia" />
-          <div style={cardStyle} className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
+      {/* Tabs */}
+      <div className="mb-6 flex gap-1 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key)}
+            className="flex-shrink-0 px-4 py-2.5 text-sm font-medium transition-all duration-200"
+            style={{
+              borderRadius: 'var(--bb-radius-md)',
+              background: activeTab === tab.key ? 'var(--bb-brand-surface)' : 'transparent',
+              color: activeTab === tab.key ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+              border: activeTab === tab.key ? '1px solid var(--bb-brand)' : '1px solid transparent',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="space-y-6">
+        {/* ── Meu Perfil ────────────────────────────────────────────── */}
+        {activeTab === 'perfil' && (
+          <>
+            <SettingsSection icon="user" title="Foto de Perfil">
+              <SettingsAvatar
+                name="Admin"
+                onUpload={handleUploadAvatar}
+                size="lg"
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="user" title="Informacoes Pessoais">
+              <SettingsInput
+                label="Nome completo"
+                value="Administrador"
+                onSave={(v) => savePref({ nickname: v })}
+              />
+              <SettingsInput
+                label="Email"
+                value="admin@guerreirosbjj.com.br"
+                type="email"
+                onSave={() => toast('Email atualizado!', 'success')}
+              />
+              <SettingsInput
+                label="Telefone"
+                value="(11) 99999-0000"
+                type="tel"
+                onSave={() => toast('Telefone atualizado!', 'success')}
+              />
+            </SettingsSection>
+          </>
+        )}
+
+        {/* ── Academia ──────────────────────────────────────────────── */}
+        {activeTab === 'academia' && (
+          <>
+            <SettingsSection icon="building" title="Logo da Academia">
+              <SettingsAvatar
+                name={academy.name}
+                onUpload={handleUploadLogo}
+                size="lg"
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="building" title="Dados da Academia">
+              <SettingsInput
                 label="Nome da academia"
                 value={academy.name}
-                onChange={(e) => setAcademy({ ...academy, name: e.target.value })}
+                onSave={(v) => saveAcademy({ name: v })}
               />
-              <Input
+              <SettingsInput
                 label="CNPJ"
                 value={academy.cnpj}
-                onChange={(e) => setAcademy({ ...academy, cnpj: e.target.value })}
+                onSave={(v) => saveAcademy({ cnpj: v })}
               />
-              <div className="sm:col-span-2">
-                <Input
-                  label="Endereco"
-                  value={academy.address}
-                  onChange={(e) => setAcademy({ ...academy, address: e.target.value })}
-                />
-              </div>
-              <Input
+              <SettingsInput
+                label="Razao Social"
+                value={academy.legal_name}
+                onSave={(v) => saveAcademy({ legal_name: v })}
+              />
+              <SettingsInput
                 label="Telefone"
-                type="tel"
                 value={academy.phone}
-                onChange={(e) => setAcademy({ ...academy, phone: e.target.value })}
+                type="tel"
+                onSave={(v) => saveAcademy({ phone: v })}
               />
-              <Input
+              <SettingsInput
                 label="Email"
-                type="email"
                 value={academy.email}
-                onChange={(e) => setAcademy({ ...academy, email: e.target.value })}
+                type="email"
+                onSave={(v) => saveAcademy({ email: v })}
               />
-            </div>
+              <SettingsInput
+                label="Website"
+                value={academy.website}
+                onSave={(v) => saveAcademy({ website: v })}
+              />
+              <SettingsInput
+                label="Instagram"
+                value={academy.instagram}
+                onSave={(v) => saveAcademy({ instagram: v })}
+              />
+            </SettingsSection>
 
-            {/* Logo upload placeholder */}
-            <div className="mt-6">
-              <p
-                className="mb-2 text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
+            <SettingsSection icon="building" title="Endereco">
+              <SettingsInput
+                label="CEP"
+                value={academy.cep}
+                onSave={(v) => saveAcademy({ cep: v })}
+              />
+              <SettingsInput
+                label="Rua"
+                value={academy.street}
+                onSave={(v) => saveAcademy({ street: v })}
+              />
+              <SettingsInput
+                label="Bairro"
+                value={academy.neighborhood}
+                onSave={(v) => saveAcademy({ neighborhood: v })}
+              />
+              <SettingsInput
+                label="Cidade"
+                value={academy.city}
+                onSave={(v) => saveAcademy({ city: v })}
+              />
+              <SettingsInput
+                label="Estado"
+                value={academy.state}
+                onSave={(v) => saveAcademy({ state: v })}
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="building" title="Horarios de Funcionamento">
+              {Object.entries(academy.hours).map(([day, hours]) => (
+                <div key={day} className="flex items-center justify-between gap-3 py-2">
+                  <span className="w-24 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
+                    {DAY_NAMES[day] ?? day}
+                  </span>
+                  <SettingsToggle
+                    label=""
+                    enabled={hours.is_open}
+                    onChange={(v) => {
+                      const newHours = { ...academy.hours, [day]: { ...hours, is_open: v } };
+                      saveAcademy({ hours: newHours });
+                    }}
+                  />
+                  {hours.is_open && (
+                    <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                      {hours.open} - {hours.close}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </SettingsSection>
+
+            <SettingsSection icon="settings" title="Check-in">
+              <SettingsInput
+                label="Tolerancia de atraso (minutos)"
+                value={String(academy.late_tolerance_minutes)}
+                type="number"
+                onSave={(v) => saveAcademy({ late_tolerance_minutes: parseInt(v, 10) })}
+              />
+              <SettingsToggle
+                label="Permitir check-in fora do horario"
+                description="Alunos podem fazer check-in mesmo sem turma no horario"
+                enabled={academy.allow_off_schedule_checkin}
+                onChange={(v) => saveAcademy({ allow_off_schedule_checkin: v })}
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="settings" title="Graduacoes">
+              <SettingsInput
+                label="Frequencia minima para graduacao (%)"
+                value={String(academy.min_attendance_for_graduation)}
+                type="number"
+                onSave={(v) => saveAcademy({ min_attendance_for_graduation: parseInt(v, 10) })}
+              />
+              <SettingsToggle
+                label="Aprovacao de video antes de publicar"
+                description="Videos enviados precisam ser aprovados por admin/professor"
+                enabled={academy.require_approval_before_publish}
+                onChange={(v) => saveAcademy({ require_approval_before_publish: v })}
+              />
+              <SettingsInput
+                label="Tamanho maximo de video (MB)"
+                value={String(academy.max_video_size_mb)}
+                type="number"
+                onSave={(v) => saveAcademy({ max_video_size_mb: parseInt(v, 10) })}
+              />
+            </SettingsSection>
+          </>
+        )}
+
+        {/* ── Seguranca ─────────────────────────────────────────────── */}
+        {activeTab === 'seguranca' && (
+          <>
+            <SettingsSection icon="lock" title="Alterar Senha">
+              <div className="space-y-3">
+                <SettingsInput
+                  label="Senha atual"
+                  value={senhaAtual}
+                  type="password"
+                  placeholder="Digite sua senha atual"
+                  onSave={(v) => setSenhaAtual(v)}
+                />
+                <SettingsInput
+                  label="Nova senha"
+                  value={novaSenha}
+                  type="password"
+                  placeholder="Digite a nova senha"
+                  onSave={(v) => setNovaSenha(v)}
+                  validation={(v) => (v.length < 8 ? 'Minimo 8 caracteres' : null)}
+                />
+                <SettingsInput
+                  label="Confirmar nova senha"
+                  value={confirmarSenha}
+                  type="password"
+                  placeholder="Confirme a nova senha"
+                  onSave={(v) => setConfirmarSenha(v)}
+                  validation={(v) => (v !== novaSenha ? 'As senhas nao coincidem' : null)}
+                />
+                <button
+                  type="button"
+                  onClick={handleSalvarSenha}
+                  className="mt-2 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200"
+                  style={{
+                    background: 'var(--bb-brand)',
+                    borderRadius: 'var(--bb-radius-md)',
+                  }}
+                >
+                  Alterar senha
+                </button>
+              </div>
+            </SettingsSection>
+
+            <SettingsSection icon="shield" title="Sessoes Ativas">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Funcionalidade de gerenciamento de sessoes em breve.
+              </p>
+            </SettingsSection>
+          </>
+        )}
+
+        {/* ── Notificacoes ──────────────────────────────────────────── */}
+        {activeTab === 'notificacoes' && (
+          <>
+            <SettingsSection icon="bell" title="Notificacoes Push">
+              <SettingsToggle
+                label="Notificacoes push"
+                description="Receba notificacoes no dispositivo"
+                enabled={prefs.notifications_push}
+                onChange={(v) => savePref({ notifications_push: v })}
+              />
+              <SettingsToggle
+                label="Sons"
+                description="Reproduzir som ao receber notificacao"
+                enabled={prefs.notifications_sound}
+                onChange={(v) => savePref({ notifications_sound: v })}
+              />
+              <SettingsToggle
+                label="Vibracao"
+                description="Vibrar ao receber notificacao"
+                enabled={prefs.notifications_vibration}
+                onChange={(v) => savePref({ notifications_vibration: v })}
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="bell" title="Notificacoes do App">
+              {Object.entries(prefs.notifications_app).map(([key, enabled]) => (
+                <SettingsToggle
+                  key={key}
+                  label={key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                  enabled={enabled}
+                  onChange={(v) =>
+                    savePref({
+                      notifications_app: { ...prefs.notifications_app, [key]: v },
+                    })
+                  }
+                />
+              ))}
+            </SettingsSection>
+
+            <SettingsSection icon="bell" title="Notificacoes por Email">
+              {Object.entries(prefs.notifications_email).map(([key, enabled]) => (
+                <SettingsToggle
+                  key={key}
+                  label={key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                  enabled={enabled}
+                  onChange={(v) =>
+                    savePref({
+                      notifications_email: { ...prefs.notifications_email, [key]: v },
+                    })
+                  }
+                />
+              ))}
+            </SettingsSection>
+
+            <SettingsSection icon="bell" title="Notificacoes via WhatsApp">
+              {Object.entries(prefs.notifications_whatsapp).map(([key, enabled]) => (
+                <SettingsToggle
+                  key={key}
+                  label={key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                  enabled={enabled}
+                  onChange={(v) =>
+                    savePref({
+                      notifications_whatsapp: { ...prefs.notifications_whatsapp, [key]: v },
+                    })
+                  }
+                />
+              ))}
+            </SettingsSection>
+          </>
+        )}
+
+        {/* ── Aparencia ─────────────────────────────────────────────── */}
+        {activeTab === 'aparencia' && (
+          <>
+            <SettingsSection icon="palette" title="Tema">
+              <div className="flex gap-3">
+                {THEME_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setTheme(opt.value)}
+                    className="flex-1 py-3 text-sm font-semibold transition-all duration-200"
+                    style={{
+                      borderRadius: 'var(--bb-radius-md)',
+                      background: theme === opt.value ? 'var(--bb-brand-surface)' : 'var(--bb-depth-4)',
+                      color: theme === opt.value ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                      border: theme === opt.value ? '2px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </SettingsSection>
+
+            <SettingsSection icon="palette" title="Marca da Academia">
+              <SettingsInput
+                label="Cor primaria"
+                value={academy.primary_color}
+                onSave={(v) => saveAcademy({ primary_color: v })}
+                suffix="HEX"
+              />
+              <SettingsInput
+                label="Cor secundaria"
+                value={academy.secondary_color}
+                onSave={(v) => saveAcademy({ secondary_color: v })}
+                suffix="HEX"
+              />
+              <Link
+                href="/admin/configuracoes/marca"
+                className="mt-3 inline-block text-sm font-medium transition-colors duration-200"
+                style={{ color: 'var(--bb-brand)' }}
               >
-                Logo da academia
+                Configurar white-label completo &rarr;
+              </Link>
+            </SettingsSection>
+
+            <SettingsSection icon="palette" title="Idioma e Regiao">
+              <SettingsInput
+                label="Idioma"
+                value={prefs.language}
+                onSave={(v) => savePref({ language: v })}
+              />
+              <SettingsInput
+                label="Fuso horario"
+                value={prefs.timezone}
+                onSave={(v) => savePref({ timezone: v })}
+              />
+              <SettingsInput
+                label="Moeda"
+                value={prefs.currency}
+                onSave={(v) => savePref({ currency: v })}
+              />
+            </SettingsSection>
+          </>
+        )}
+
+        {/* ── Integracoes ───────────────────────────────────────────── */}
+        {activeTab === 'integracoes' && (
+          <>
+            <SettingsSection icon="plug" title="Pagamento">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Integre com gateways de pagamento (Stripe, PagSeguro).
+              </p>
+              <Link
+                href="/admin/configuracoes/pagamento"
+                className="mt-3 inline-block text-sm font-medium"
+                style={{ color: 'var(--bb-brand)' }}
+              >
+                Configurar pagamento &rarr;
+              </Link>
+            </SettingsSection>
+
+            <SettingsSection icon="plug" title="WhatsApp Business">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Envie notificacoes automaticas via WhatsApp Business API.
               </p>
               <button
                 type="button"
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-8 transition-colors duration-200"
+                className="mt-3 px-4 py-2 text-sm font-medium"
                 style={{
-                  borderColor: 'var(--bb-glass-border)',
                   background: 'var(--bb-depth-4)',
-                  minHeight: '44px',
+                  borderRadius: 'var(--bb-radius-md)',
+                  color: 'var(--bb-ink-80)',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--bb-brand)';
-                  e.currentTarget.style.background = 'var(--bb-brand-surface)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--bb-glass-border)';
-                  e.currentTarget.style.background = 'var(--bb-depth-4)';
-                }}
-                onClick={() => toast('Upload de logo sera disponibilizado em breve', 'info')}
               >
-                <IconUpload size={24} color="var(--bb-ink-40)" />
-                <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                  Clique para fazer upload da logo
-                </span>
-                <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                  PNG, JPG ou SVG. Max 2MB
-                </span>
+                Conectar WhatsApp
               </button>
-            </div>
+            </SettingsSection>
 
-            {/* Brand colors display */}
-            <div className="mt-6">
-              <p
-                className="mb-2 text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Cores da marca
+            <SettingsSection icon="plug" title="Google Calendar">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Sincronize turmas e eventos com o Google Calendar.
               </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-8 w-8 flex-shrink-0 rounded-lg"
-                    style={{
-                      background: academy.brandColors.primary,
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  />
-                  <div>
-                    <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-                      Primaria
-                    </p>
-                    <p className="font-mono text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                      {academy.brandColors.primary}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-8 w-8 flex-shrink-0 rounded-lg"
-                    style={{
-                      background: academy.brandColors.secondary,
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  />
-                  <div>
-                    <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-                      Secundaria
-                    </p>
-                    <p className="font-mono text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                      {academy.brandColors.secondary}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="/admin/configuracoes/marca"
-                  className="flex items-center gap-1 self-start rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:self-center"
-                  style={{
-                    background: 'var(--bb-brand-surface)',
-                    color: 'var(--bb-brand)',
-                    minHeight: '44px',
-                  }}
-                >
-                  Editar cores
-                  <IconChevronRight size={14} color="var(--bb-brand)" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button
-                onClick={handleSaveAcademy}
-                loading={savingAcademy}
-                size="md"
-                className="w-full sm:w-auto"
-              >
-                Salvar dados
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 2: Configuracoes de Turma
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconUsers} title="Configuracoes de Turma" />
-          <div style={cardStyle} className="p-4 sm:p-6">
-            <div className="max-w-full sm:max-w-xs">
-              <Input
-                label="Capacidade padrao por turma"
-                type="number"
-                value={String(defaultCapacity)}
-                onChange={(e) => setDefaultCapacity(Number(e.target.value))}
-                helperText="Numero maximo de alunos por turma (padrao)"
-              />
-            </div>
-
-            <div className="mt-6">
-              <p
-                className="mb-3 text-sm font-medium"
-                style={{ color: 'var(--bb-ink-80)' }}
-              >
-                Modalidades disponiveis
-              </p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {modalities.map((mod) => (
-                  <div
-                    key={mod.id}
-                    className="flex items-center justify-between rounded-lg px-4 py-3"
-                    style={{
-                      background: mod.enabled ? 'var(--bb-brand-surface)' : 'var(--bb-depth-4)',
-                      border: mod.enabled
-                        ? '1px solid rgba(239, 68, 68, 0.2)'
-                        : '1px solid var(--bb-glass-border)',
-                      minHeight: '44px',
-                    }}
-                  >
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: mod.enabled ? 'var(--bb-ink-100)' : 'var(--bb-ink-60)' }}
-                    >
-                      {mod.name}
-                    </span>
-                    <ToggleSwitch
-                      enabled={mod.enabled}
-                      onToggle={() => toggleModality(mod.id)}
-                      label={`Toggle ${mod.name}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button
-                onClick={handleSaveClass}
-                loading={savingClass}
-                size="md"
-                className="w-full sm:w-auto"
-              >
-                Salvar turma
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 3: Configuracoes de Graduacao
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconAward} title="Configuracoes de Graduacao" />
-          <div style={cardStyle} className="overflow-hidden">
-            <p
-              className="px-4 pt-4 text-sm sm:px-6 sm:pt-6"
-              style={{ color: 'var(--bb-ink-60)' }}
-            >
-              Defina os criterios minimos para promocao a cada faixa
-            </p>
-
-            {/* Desktop table */}
-            <div className="mt-4 hidden overflow-x-auto sm:block">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                    <th
-                      className="px-6 py-3 text-left font-mono text-xs uppercase"
-                      style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
-                    >
-                      Faixa
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left font-mono text-xs uppercase"
-                      style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
-                    >
-                      Presencas min.
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left font-mono text-xs uppercase"
-                      style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
-                    >
-                      Meses min.
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left font-mono text-xs uppercase"
-                      style={{ color: 'var(--bb-ink-40)', letterSpacing: '0.05em' }}
-                    >
-                      Media quiz (%)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gradCriteria.map((criteria) => {
-                    const isInitial = criteria.belt === BeltLevel.White;
-                    return (
-                      <tr
-                        key={criteria.belt}
-                        style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                      >
-                        <td className="px-6 py-3">
-                          <span
-                            className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
-                            style={{
-                              background: criteria.color,
-                              color: criteria.textColor,
-                              border: criteria.belt === BeltLevel.White
-                                ? '1px solid var(--bb-glass-border)'
-                                : 'none',
-                            }}
-                          >
-                            {criteria.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-3">
-                          {isInitial ? (
-                            <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                              -
-                            </span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              value={criteria.attendance}
-                              onChange={(e) =>
-                                updateGradCriteria(
-                                  criteria.belt,
-                                  'attendance',
-                                  Number(e.target.value),
-                                )
-                              }
-                              className="h-9 w-20 rounded-lg px-2 text-center text-sm"
-                              style={{
-                                background: 'var(--bb-depth-5)',
-                                border: '1px solid var(--bb-glass-border)',
-                                color: 'var(--bb-ink-100)',
-                              }}
-                            />
-                          )}
-                        </td>
-                        <td className="px-6 py-3">
-                          {isInitial ? (
-                            <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                              -
-                            </span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              value={criteria.months}
-                              onChange={(e) =>
-                                updateGradCriteria(
-                                  criteria.belt,
-                                  'months',
-                                  Number(e.target.value),
-                                )
-                              }
-                              className="h-9 w-20 rounded-lg px-2 text-center text-sm"
-                              style={{
-                                background: 'var(--bb-depth-5)',
-                                border: '1px solid var(--bb-glass-border)',
-                                color: 'var(--bb-ink-100)',
-                              }}
-                            />
-                          )}
-                        </td>
-                        <td className="px-6 py-3">
-                          {isInitial ? (
-                            <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                              -
-                            </span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              max={100}
-                              value={criteria.quizAvg}
-                              onChange={(e) =>
-                                updateGradCriteria(
-                                  criteria.belt,
-                                  'quizAvg',
-                                  Number(e.target.value),
-                                )
-                              }
-                              className="h-9 w-20 rounded-lg px-2 text-center text-sm"
-                              style={{
-                                background: 'var(--bb-depth-5)',
-                                border: '1px solid var(--bb-glass-border)',
-                                color: 'var(--bb-ink-100)',
-                              }}
-                            />
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile cards for graduation criteria */}
-            <div className="mt-4 space-y-3 px-4 pb-4 sm:hidden">
-              {gradCriteria.map((criteria) => {
-                const isInitial = criteria.belt === BeltLevel.White;
-                return (
-                  <div
-                    key={criteria.belt}
-                    className="rounded-lg p-3"
-                    style={{
-                      background: 'var(--bb-depth-4)',
-                      border: '1px solid var(--bb-glass-border)',
-                    }}
-                  >
-                    <div className="mb-3">
-                      <span
-                        className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{
-                          background: criteria.color,
-                          color: criteria.textColor,
-                          border: criteria.belt === BeltLevel.White
-                            ? '1px solid var(--bb-glass-border)'
-                            : 'none',
-                        }}
-                      >
-                        {criteria.label}
-                      </span>
-                    </div>
-                    {isInitial ? (
-                      <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                        Faixa inicial — sem requisitos
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-2">
-                        <div>
-                          <label
-                            className="mb-1 block text-xs"
-                            style={{ color: 'var(--bb-ink-40)' }}
-                          >
-                            Presencas
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            value={criteria.attendance}
-                            onChange={(e) =>
-                              updateGradCriteria(
-                                criteria.belt,
-                                'attendance',
-                                Number(e.target.value),
-                              )
-                            }
-                            className="h-11 w-full rounded-lg px-2 text-center text-sm"
-                            style={{
-                              background: 'var(--bb-depth-5)',
-                              border: '1px solid var(--bb-glass-border)',
-                              color: 'var(--bb-ink-100)',
-                              minHeight: '44px',
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label
-                            className="mb-1 block text-xs"
-                            style={{ color: 'var(--bb-ink-40)' }}
-                          >
-                            Meses
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            value={criteria.months}
-                            onChange={(e) =>
-                              updateGradCriteria(
-                                criteria.belt,
-                                'months',
-                                Number(e.target.value),
-                              )
-                            }
-                            className="h-11 w-full rounded-lg px-2 text-center text-sm"
-                            style={{
-                              background: 'var(--bb-depth-5)',
-                              border: '1px solid var(--bb-glass-border)',
-                              color: 'var(--bb-ink-100)',
-                              minHeight: '44px',
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <label
-                            className="mb-1 block text-xs"
-                            style={{ color: 'var(--bb-ink-40)' }}
-                          >
-                            Quiz %
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={criteria.quizAvg}
-                            onChange={(e) =>
-                              updateGradCriteria(
-                                criteria.belt,
-                                'quizAvg',
-                                Number(e.target.value),
-                              )
-                            }
-                            className="h-11 w-full rounded-lg px-2 text-center text-sm"
-                            style={{
-                              background: 'var(--bb-depth-5)',
-                              border: '1px solid var(--bb-glass-border)',
-                              color: 'var(--bb-ink-100)',
-                              minHeight: '44px',
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:justify-end sm:px-6 sm:pb-6">
-              <Button
-                onClick={handleSaveGrad}
-                loading={savingGrad}
-                size="md"
-                className="w-full sm:w-auto"
-              >
-                Salvar criterios
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 4: Tema
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconSun} title="Tema" />
-          <div style={cardStyle} className="p-4 sm:p-6">
-            <div className="flex gap-3">
-              <ThemeButton
-                icon={IconSun}
-                label="Claro"
-                value="light"
-                currentTheme={theme}
-                onClick={() => setTheme('light')}
-              />
-              <ThemeButton
-                icon={IconMoon}
-                label="Escuro"
-                value="dark"
-                currentTheme={theme}
-                onClick={() => setTheme('dark')}
-              />
-              <ThemeButton
-                icon={IconMonitor}
-                label="Sistema"
-                value="system"
-                currentTheme={theme}
-                onClick={() => setTheme('system')}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 5: Notificacoes
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconBell} title="Notificacoes" />
-          <div style={cardStyle} className="overflow-hidden">
-            <ToggleRow
-              label="Alerta de ausencia"
-              description="Notificar quando alunos faltarem mais de 3 aulas consecutivas"
-              enabled={notifications.absenceAlert}
-              onToggle={() => toggleNotification('absenceAlert')}
-            />
-            <ToggleRow
-              label="Lembrete de pagamento"
-              description="Enviar lembretes automaticos de mensalidades em atraso"
-              enabled={notifications.paymentReminder}
-              onToggle={() => toggleNotification('paymentReminder')}
-            />
-            <ToggleRow
-              label="Notificacao de graduacao"
-              description="Alerta quando um aluno atinge os criterios para promocao de faixa"
-              enabled={notifications.graduationNotification}
-              onToggle={() => toggleNotification('graduationNotification')}
-            />
-            <ToggleRow
-              label="Novos alunos"
-              description="Receber alerta quando um novo aluno se cadastrar"
-              enabled={notifications.newStudentAlert}
-              onToggle={() => toggleNotification('newStudentAlert')}
-            />
-            <ToggleRow
-              label="Alertas do sistema"
-              description="Notificacoes sobre atualizacoes e manutencao do sistema"
-              enabled={notifications.systemAlerts}
-              onToggle={() => toggleNotification('systemAlerts')}
-            />
-            <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:justify-end">
-              <Button
-                onClick={handleSaveNotif}
-                loading={savingNotif}
-                size="md"
-                className="w-full sm:w-auto"
-              >
-                Salvar preferencias
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 6: Integracoes
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconPlug} title="Integracoes" />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {MOCK_INTEGRATIONS.map((integration) => (
-              <div
-                key={integration.id}
+              <button
+                type="button"
+                className="mt-3 px-4 py-2 text-sm font-medium"
                 style={{
-                  ...cardStyle,
-                  opacity: 0.7,
+                  background: 'var(--bb-depth-4)',
+                  borderRadius: 'var(--bb-radius-md)',
+                  color: 'var(--bb-ink-80)',
                 }}
-                className="relative overflow-hidden p-4 sm:p-5"
               >
-                {/* Locked icon */}
-                <div className="absolute right-3 top-3">
-                  <IconLock size={16} color="var(--bb-ink-40)" />
-                </div>
+                Conectar Google Calendar
+              </button>
+            </SettingsSection>
 
-                <div className="mb-2 text-2xl">{integration.icon}</div>
-                <h3
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--bb-ink-100)' }}
-                >
-                  {integration.name}
-                </h3>
-                <p
-                  className="mt-1 text-xs"
-                  style={{ color: 'var(--bb-ink-60)' }}
-                >
-                  {integration.description}
-                </p>
-                <div className="mt-3">
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-                    style={{
-                      background: 'var(--bb-depth-4)',
-                      color: 'var(--bb-ink-40)',
-                    }}
-                  >
-                    Em breve
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 7: Plano
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconCreditCard} title="Plano" />
-          <Link href="/admin/plano">
-            <div
-              style={cardStyle}
-              className="flex items-center justify-between p-4 sm:p-5 transition-all duration-200 cursor-pointer"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--bb-glass-border-hover)';
-                e.currentTarget.style.boxShadow = 'var(--bb-shadow-sm)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '';
-                e.currentTarget.style.boxShadow = '';
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <h3
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--bb-ink-100)' }}
-                >
-                  Gerenciar Plano & Uso
-                </h3>
-                <p
-                  className="mt-1 text-xs"
-                  style={{ color: 'var(--bb-ink-60)' }}
-                >
-                  Veja seu plano atual, uso de recursos e historico de faturas
-                </p>
-              </div>
-              <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ minWidth: '44px', minHeight: '44px' }}
+            <SettingsSection icon="plug" title="SSO (Single Sign-On)">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Configure login via Google, Facebook ou Microsoft.
+              </p>
+              <Link
+                href="/admin/configuracoes/sso"
+                className="mt-3 inline-block text-sm font-medium"
+                style={{ color: 'var(--bb-brand)' }}
               >
-                <IconChevronRight size={20} color="var(--bb-ink-40)" />
-              </div>
-            </div>
-          </Link>
-        </section>
+                Configurar SSO &rarr;
+              </Link>
+            </SettingsSection>
+          </>
+        )}
 
-        {/* ══════════════════════════════════════════════════════════
-           TUTORIAL
-           ══════════════════════════════════════════════════════════ */}
-        <TutorialSettings />
+        {/* ── Avancado ──────────────────────────────────────────────── */}
+        {activeTab === 'avancado' && (
+          <>
+            <TutorialSettings />
 
-        {/* ══════════════════════════════════════════════════════════
-           SECTION 8: Exportar Dados (LGPD)
-           ══════════════════════════════════════════════════════════ */}
-        <section>
-          <SectionHeader icon={IconDownload} title="Exportar Dados" />
-          <div style={cardStyle} className="p-4 sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex-1 min-w-0">
-                <h3
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--bb-ink-100)' }}
-                >
-                  Exportacao LGPD
-                </h3>
-                <p
-                  className="mt-1 text-xs"
-                  style={{ color: 'var(--bb-ink-60)' }}
-                >
-                  Exporte todos os dados da sua academia em formato compativel com a
-                  Lei Geral de Protecao de Dados. O arquivo sera enviado para o email
-                  cadastrado.
-                </p>
-              </div>
-              <Button
-                variant="secondary"
-                onClick={handleExport}
-                loading={exporting}
-                size="md"
-                className="w-full sm:w-auto"
+            <SettingsSection icon="settings" title="Exportacao de Dados (LGPD)">
+              <p className="mb-3 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Exporte todos os dados da sua conta em formato compativel com a LGPD.
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await exportUserData(MOCK_PROFILE_ID);
+                    toast('Exportacao iniciada! Voce recebera o arquivo por email.', 'success');
+                  } catch {
+                    toast('Erro ao exportar dados.', 'error');
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium"
+                style={{
+                  background: 'var(--bb-depth-4)',
+                  borderRadius: 'var(--bb-radius-md)',
+                  color: 'var(--bb-ink-80)',
+                }}
               >
-                <span className="flex items-center gap-2">
-                  <IconDownload size={16} color="var(--bb-ink-100)" />
-                  Exportar dados
-                </span>
-              </Button>
-            </div>
-          </div>
-        </section>
+                Exportar meus dados
+              </button>
+            </SettingsSection>
+
+            <SettingsSection icon="settings" title="Log de Auditoria">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Veja todas as acoes realizadas na plataforma.
+              </p>
+              <Link
+                href="/admin/configuracoes/audit-log"
+                className="mt-3 inline-block text-sm font-medium"
+                style={{ color: 'var(--bb-brand)' }}
+              >
+                Ver log de auditoria &rarr;
+              </Link>
+            </SettingsSection>
+
+            <DangerZone
+              items={[
+                {
+                  label: 'Desativar academia',
+                  description: 'A academia sera desativada e os alunos nao poderao acessar.',
+                  action: async () => {
+                    await deactivateAcademy(MOCK_ACADEMY_ID);
+                    toast('Academia desativada.', 'success');
+                  },
+                  confirmText: 'DESATIVAR',
+                },
+                {
+                  label: 'Excluir academia',
+                  description: 'Todos os dados serao removidos permanentemente. Essa acao e irreversivel.',
+                  action: async () => {
+                    await deleteAcademy(MOCK_ACADEMY_ID, academy.name);
+                    toast('Academia excluida.', 'success');
+                  },
+                  confirmText: academy.name,
+                },
+                {
+                  label: 'Excluir minha conta',
+                  description: 'Sua conta sera excluida permanentemente.',
+                  action: async () => {
+                    await deleteAccount(MOCK_PROFILE_ID, 'EXCLUIR');
+                    toast('Conta excluida.', 'success');
+                  },
+                  confirmText: 'EXCLUIR MINHA CONTA',
+                },
+              ]}
+            />
+          </>
+        )}
       </div>
     </div>
   );

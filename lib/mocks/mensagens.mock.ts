@@ -1,243 +1,767 @@
+import { Role } from '@/lib/types/domain';
 import type {
-  ConversationDTO,
-  MessageDTO,
-  StudentContextDTO,
-  SuggestedMessageDTO,
-} from '@/lib/api/mensagens.service';
+  Contact,
+  Conversation,
+  ConversationMessage,
+  BroadcastMessage,
+  MessageTarget,
+  MessageType,
+  SendBroadcastOptions,
+} from '@/lib/types/messaging';
 
-const delay = () => new Promise((r) => setTimeout(r, 300));
+const delay = () => new Promise<void>((r) => setTimeout(r, 250));
 
-const CONVERSATIONS: ConversationDTO[] = [
-  {
-    id: 'conv-1',
-    participant_id: 'stu-1',
-    participant_name: 'Joao Mendes',
-    participant_avatar: null,
-    participant_belt: 'blue',
-    last_message: 'Professor, preciso de ajuda com a tecnica de guarda',
-    last_message_time: '14:30',
-    unread_count: 2,
-    is_at_risk: true,
-  },
-  {
-    id: 'conv-2',
-    participant_id: 'stu-2',
-    participant_name: 'Maria Oliveira',
-    participant_avatar: null,
-    participant_belt: 'purple',
-    last_message: 'Obrigada pela dica de ontem!',
-    last_message_time: '10:15',
-    unread_count: 0,
-    is_at_risk: false,
-  },
-  {
-    id: 'conv-3',
-    participant_id: 'stu-3',
-    participant_name: 'Rafael Souza',
-    participant_avatar: null,
-    participant_belt: 'white',
-    last_message: 'Posso fazer reposicao na turma de manha?',
-    last_message_time: 'Ontem',
-    unread_count: 1,
-    is_at_risk: true,
-  },
-  {
-    id: 'conv-4',
-    participant_id: 'stu-4',
-    participant_name: 'Lucas Ferreira',
-    participant_avatar: null,
-    participant_belt: 'green',
-    last_message: 'Quando sera a proxima avaliacao?',
-    last_message_time: 'Ontem',
-    unread_count: 0,
-    is_at_risk: false,
-  },
-  {
-    id: 'conv-5',
-    participant_id: 'stu-5',
-    participant_name: 'Ana Costa',
-    participant_avatar: null,
-    participant_belt: 'yellow',
-    last_message: 'Vou faltar amanha, tudo bem?',
-    last_message_time: '2 dias',
-    unread_count: 0,
-    is_at_risk: true,
-  },
-];
+// ────────────────────────────────────────────────────────────
+// MOCK PROFILES
+// ────────────────────────────────────────────────────────────
 
-const MESSAGES_BY_CONV: Record<string, MessageDTO[]> = {
-  'conv-1': [
-    { id: 'm-1', from_id: 'stu-1', from_name: 'Joao Mendes', from_avatar: null, content: 'Professor, tudo bem?', sent_at: '2026-03-14T14:00:00Z', is_mine: false, read_at: '2026-03-14T14:01:00Z' },
-    { id: 'm-2', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Tudo sim, Joao! Em que posso ajudar?', sent_at: '2026-03-14T14:05:00Z', is_mine: true, read_at: '2026-03-14T14:06:00Z' },
-    { id: 'm-3', from_id: 'stu-1', from_name: 'Joao Mendes', from_avatar: null, content: 'Estou com dificuldade na passagem de guarda. Tem alguma dica?', sent_at: '2026-03-14T14:10:00Z', is_mine: false, read_at: '2026-03-14T14:11:00Z' },
-    { id: 'm-4', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Claro! Foca na pressao do quadril e no controle das mangas. Amanha vamos treinar isso.', sent_at: '2026-03-14T14:15:00Z', is_mine: true, read_at: '2026-03-14T14:16:00Z' },
-    { id: 'm-5', from_id: 'stu-1', from_name: 'Joao Mendes', from_avatar: null, content: 'Perfeito, obrigado! Vou assistir o video que voce compartilhou tambem.', sent_at: '2026-03-14T14:20:00Z', is_mine: false, read_at: '2026-03-14T14:21:00Z' },
-    { id: 'm-6', from_id: 'stu-1', from_name: 'Joao Mendes', from_avatar: null, content: 'Professor, preciso de ajuda com a tecnica de guarda', sent_at: '2026-03-14T14:30:00Z', is_mine: false, read_at: null },
-  ],
-  'conv-2': [
-    { id: 'm-10', from_id: 'stu-2', from_name: 'Maria Oliveira', from_avatar: null, content: 'Professor, aquela dica da raspagem foi otima!', sent_at: '2026-03-14T10:00:00Z', is_mine: false, read_at: '2026-03-14T10:02:00Z' },
-    { id: 'm-11', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Que bom! Continue praticando, voce esta evoluindo muito.', sent_at: '2026-03-14T10:10:00Z', is_mine: true, read_at: '2026-03-14T10:11:00Z' },
-    { id: 'm-12', from_id: 'stu-2', from_name: 'Maria Oliveira', from_avatar: null, content: 'Obrigada pela dica de ontem!', sent_at: '2026-03-14T10:15:00Z', is_mine: false, read_at: '2026-03-14T10:16:00Z' },
-  ],
-  'conv-3': [
-    { id: 'm-20', from_id: 'stu-3', from_name: 'Rafael Souza', from_avatar: null, content: 'Oi professor, nao consegui ir na aula de ontem.', sent_at: '2026-03-13T18:00:00Z', is_mine: false, read_at: '2026-03-13T18:30:00Z' },
-    { id: 'm-21', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Sem problemas! Pode repor amanha na turma das 8h.', sent_at: '2026-03-13T18:35:00Z', is_mine: true, read_at: '2026-03-13T19:00:00Z' },
-    { id: 'm-22', from_id: 'stu-3', from_name: 'Rafael Souza', from_avatar: null, content: 'Posso fazer reposicao na turma de manha?', sent_at: '2026-03-14T08:00:00Z', is_mine: false, read_at: null },
-  ],
-  'conv-4': [
-    { id: 'm-30', from_id: 'stu-4', from_name: 'Lucas Ferreira', from_avatar: null, content: 'Professor, quando sera a proxima avaliacao de faixa?', sent_at: '2026-03-13T16:00:00Z', is_mine: false, read_at: '2026-03-13T16:05:00Z' },
-    { id: 'm-31', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Final do mes, dia 28. Voce ja esta quase pronto!', sent_at: '2026-03-13T16:10:00Z', is_mine: true, read_at: '2026-03-13T16:15:00Z' },
-    { id: 'm-32', from_id: 'stu-4', from_name: 'Lucas Ferreira', from_avatar: null, content: 'Quando sera a proxima avaliacao?', sent_at: '2026-03-13T16:20:00Z', is_mine: false, read_at: '2026-03-13T16:25:00Z' },
-  ],
-  'conv-5': [
-    { id: 'm-40', from_id: 'stu-5', from_name: 'Ana Costa', from_avatar: null, content: 'Professor, estou com uma lesao no joelho.', sent_at: '2026-03-12T09:00:00Z', is_mine: false, read_at: '2026-03-12T09:05:00Z' },
-    { id: 'm-41', from_id: 'prof-1', from_name: 'Carlos Silva', from_avatar: null, content: 'Cuide-se! Quando melhorar, fazemos um treino adaptado.', sent_at: '2026-03-12T09:10:00Z', is_mine: true, read_at: '2026-03-12T09:15:00Z' },
-    { id: 'm-42', from_id: 'stu-5', from_name: 'Ana Costa', from_avatar: null, content: 'Vou faltar amanha, tudo bem?', sent_at: '2026-03-13T20:00:00Z', is_mine: false, read_at: '2026-03-13T20:10:00Z' },
-  ],
-};
-
-const STUDENT_CONTEXTS: Record<string, StudentContextDTO> = {
-  'stu-1': {
-    student_id: 'stu-1',
+const PROFILES = {
+  joao: {
+    profile_id: 'prof-joao-001',
     display_name: 'Joao Mendes',
-    belt: 'blue',
-    avatar: null,
-    last_attendance: '2026-03-14T19:00:00Z',
-    streak: 12,
-    health_score: 45,
-    latest_evaluation: {
-      technique: 7,
-      discipline: 8,
-      attendance: 6,
-      evolution: 7,
-      date: '2026-02-28',
-    },
-    current_plan: 'Plano Mensal',
-    plan_status: 'active',
-    is_at_risk: true,
+    avatar_url: null,
+    role: Role.AlunoAdulto,
+    role_badge: 'Aluno',
+    classes_in_common: ['BJJ Iniciante', 'BJJ Avancado'],
+    children_linked: [] as string[],
   },
-  'stu-2': {
-    student_id: 'stu-2',
-    display_name: 'Maria Oliveira',
-    belt: 'purple',
-    avatar: null,
-    last_attendance: '2026-03-14T07:00:00Z',
-    streak: 28,
-    health_score: 92,
-    latest_evaluation: {
-      technique: 9,
-      discipline: 10,
-      attendance: 9,
-      evolution: 9,
-      date: '2026-03-01',
-    },
-    current_plan: 'Plano Trimestral',
-    plan_status: 'active',
-    is_at_risk: false,
+  andre: {
+    profile_id: 'prof-andre-001',
+    display_name: 'Andre Oliveira',
+    avatar_url: null,
+    role: Role.Professor,
+    role_badge: 'Professor',
+    classes_in_common: ['BJJ Iniciante', 'BJJ Avancado', 'BJJ Kids'],
+    children_linked: [] as string[],
   },
-  'stu-3': {
-    student_id: 'stu-3',
-    display_name: 'Rafael Souza',
-    belt: 'white',
-    avatar: null,
-    last_attendance: '2026-03-10T19:00:00Z',
-    streak: 0,
-    health_score: 32,
-    latest_evaluation: null,
-    current_plan: 'Plano Mensal',
-    plan_status: 'past_due',
-    is_at_risk: true,
+  patricia: {
+    profile_id: 'prof-patricia-001',
+    display_name: 'Patricia Santos',
+    avatar_url: null,
+    role: Role.Responsavel,
+    role_badge: 'Responsavel',
+    classes_in_common: [] as string[],
+    children_linked: ['Sophia Santos'],
   },
-  'stu-4': {
-    student_id: 'stu-4',
-    display_name: 'Lucas Ferreira',
-    belt: 'green',
-    avatar: null,
-    last_attendance: '2026-03-14T19:00:00Z',
-    streak: 8,
-    health_score: 78,
-    latest_evaluation: {
-      technique: 8,
-      discipline: 7,
-      attendance: 8,
-      evolution: 8,
-      date: '2026-02-15',
-    },
-    current_plan: 'Plano Anual',
-    plan_status: 'active',
-    is_at_risk: false,
+  roberto: {
+    profile_id: 'prof-roberto-001',
+    display_name: 'Roberto Almeida',
+    avatar_url: null,
+    role: Role.Admin,
+    role_badge: 'Admin',
+    classes_in_common: [] as string[],
+    children_linked: [] as string[],
   },
-  'stu-5': {
-    student_id: 'stu-5',
-    display_name: 'Ana Costa',
-    belt: 'yellow',
-    avatar: null,
-    last_attendance: '2026-03-08T07:00:00Z',
-    streak: 0,
-    health_score: 28,
-    latest_evaluation: {
-      technique: 5,
-      discipline: 6,
-      attendance: 3,
-      evolution: 4,
-      date: '2026-01-20',
-    },
-    current_plan: 'Plano Mensal',
-    plan_status: 'past_due',
-    is_at_risk: true,
+  recepcao: {
+    profile_id: 'prof-recepcao-001',
+    display_name: 'Carla Souza',
+    avatar_url: null,
+    role: Role.Recepcao,
+    role_badge: 'Recepcao',
+    classes_in_common: [] as string[],
+    children_linked: [] as string[],
   },
-};
+  maria: {
+    profile_id: 'prof-maria-001',
+    display_name: 'Maria Ferreira',
+    avatar_url: null,
+    role: Role.AlunoAdulto,
+    role_badge: 'Aluna',
+    classes_in_common: ['BJJ Iniciante'],
+    children_linked: [] as string[],
+  },
+  lucas: {
+    profile_id: 'prof-lucas-001',
+    display_name: 'Lucas Silva',
+    avatar_url: null,
+    role: Role.AlunoTeen,
+    role_badge: 'Aluno Teen',
+    classes_in_common: ['BJJ Iniciante'],
+    children_linked: [] as string[],
+  },
+} as const;
 
-const SUGGESTED_MESSAGES: Record<string, SuggestedMessageDTO[]> = {
-  'stu-1': [
-    { id: 'sug-1', label: 'Motivacao', content: 'Joao, percebi que voce esta com dificuldades. Vamos marcar um treino especial essa semana? Quero te ajudar a evoluir!' },
-    { id: 'sug-2', label: 'Retorno', content: 'Oi Joao! Sentimos sua falta nos ultimos treinos. Esta tudo bem?' },
-  ],
-  'stu-3': [
-    { id: 'sug-3', label: 'Boas-vindas', content: 'Rafael, vi que voce esta no inicio da jornada. Que tal vir no treino de sabado? Vai ser mais leve e otimo pra praticar!' },
-    { id: 'sug-4', label: 'Pagamento', content: 'Rafael, notei que ha uma pendencia no seu plano. Posso te ajudar a resolver?' },
-  ],
-  'stu-5': [
-    { id: 'sug-5', label: 'Recuperacao', content: 'Ana, como esta o joelho? Quando voce estiver melhor, temos treino adaptado esperando por voce!' },
-    { id: 'sug-6', label: 'Retorno', content: 'Ana, sentimos sua falta! O grupo esta perguntando por voce. Quando pode voltar?' },
-  ],
-};
+// ────────────────────────────────────────────────────────────
+// MOCK CONVERSATIONS
+// ────────────────────────────────────────────────────────────
 
-export async function mockGetConversations(_profileId: string): Promise<ConversationDTO[]> {
-  await delay();
-  return CONVERSATIONS;
-}
-
-export async function mockGetMessages(conversationId: string): Promise<MessageDTO[]> {
-  await delay();
-  return MESSAGES_BY_CONV[conversationId] ?? [];
-}
-
-export async function mockSendMessage(conversationId: string, content: string): Promise<MessageDTO> {
-  await delay();
-  const now = new Date().toISOString();
+function makeContact(key: keyof typeof PROFILES, overrides?: Partial<Contact>): Contact {
+  const p = PROFILES[key];
   return {
-    id: `msg-${Date.now()}`,
-    from_id: 'prof-1',
-    from_name: 'Carlos Silva',
-    from_avatar: null,
-    content,
-    sent_at: now,
-    is_mine: true,
-    read_at: null,
+    profile_id: p.profile_id,
+    display_name: p.display_name,
+    avatar_url: p.avatar_url,
+    role: p.role,
+    role_badge: p.role_badge,
+    classes_in_common: [...p.classes_in_common],
+    children_linked: [...p.children_linked],
+    last_message: null,
+    last_message_at: null,
+    unread_count: 0,
+    ...overrides,
   };
 }
 
-export async function mockGetStudentContext(studentId: string): Promise<StudentContextDTO> {
-  await delay();
-  return STUDENT_CONTEXTS[studentId] ?? STUDENT_CONTEXTS['stu-1'];
+const CONVERSATIONS: Conversation[] = [
+  // 1. Joao (aluno) <-> Andre (professor) — aula de reposicao
+  {
+    id: 'conv-001',
+    academy_id: 'acad-001',
+    participant_a: PROFILES.andre.profile_id,
+    participant_b: PROFILES.joao.profile_id,
+    other_participant: makeContact('joao', {
+      last_message: 'Professor, posso fazer reposicao na sexta?',
+      last_message_at: '2026-03-19T14:30:00Z',
+      unread_count: 2,
+    }),
+    type: 'direct',
+    last_message_text: 'Professor, posso fazer reposicao na sexta?',
+    last_message_at: '2026-03-19T14:30:00Z',
+    last_message_by: PROFILES.joao.profile_id,
+    unread_count: 2,
+    is_archived: false,
+    created_at: '2026-03-10T10:00:00Z',
+  },
+  // 2. Patricia (responsavel) <-> Andre (professor) — sobre a Sophia
+  {
+    id: 'conv-002',
+    academy_id: 'acad-001',
+    participant_a: PROFILES.andre.profile_id,
+    participant_b: PROFILES.patricia.profile_id,
+    other_participant: makeContact('patricia', {
+      last_message: 'Como a Sophia esta evoluindo nas aulas?',
+      last_message_at: '2026-03-19T10:15:00Z',
+      unread_count: 1,
+    }),
+    type: 'direct',
+    last_message_text: 'Como a Sophia esta evoluindo nas aulas?',
+    last_message_at: '2026-03-19T10:15:00Z',
+    last_message_by: PROFILES.patricia.profile_id,
+    unread_count: 1,
+    is_archived: false,
+    created_at: '2026-03-08T09:00:00Z',
+  },
+  // 3. Roberto (admin) <-> Andre (professor) — avaliacao de alunos
+  {
+    id: 'conv-003',
+    academy_id: 'acad-001',
+    participant_a: PROFILES.andre.profile_id,
+    participant_b: PROFILES.roberto.profile_id,
+    other_participant: makeContact('roberto', {
+      last_message: 'Andre, preciso da avaliacao dos alunos ate sexta.',
+      last_message_at: '2026-03-18T16:00:00Z',
+      unread_count: 0,
+    }),
+    type: 'direct',
+    last_message_text: 'Andre, preciso da avaliacao dos alunos ate sexta.',
+    last_message_at: '2026-03-18T16:00:00Z',
+    last_message_by: PROFILES.roberto.profile_id,
+    unread_count: 0,
+    is_archived: false,
+    created_at: '2026-03-05T08:00:00Z',
+  },
+  // 4. Roberto (admin) <-> Joao (aluno) — graduacao de faixa
+  {
+    id: 'conv-004',
+    academy_id: 'acad-001',
+    participant_a: PROFILES.joao.profile_id,
+    participant_b: PROFILES.roberto.profile_id,
+    other_participant: makeContact('joao', {
+      last_message: 'Obrigado pela informacao sobre a graduacao!',
+      last_message_at: '2026-03-17T20:00:00Z',
+      unread_count: 0,
+    }),
+    type: 'direct',
+    last_message_text: 'Obrigado pela informacao sobre a graduacao!',
+    last_message_at: '2026-03-17T20:00:00Z',
+    last_message_by: PROFILES.joao.profile_id,
+    unread_count: 0,
+    is_archived: false,
+    created_at: '2026-03-01T12:00:00Z',
+  },
+  // 5. Recepcao <-> Patricia (responsavel) — pagamento
+  {
+    id: 'conv-005',
+    academy_id: 'acad-001',
+    participant_a: PROFILES.patricia.profile_id,
+    participant_b: PROFILES.recepcao.profile_id,
+    other_participant: makeContact('patricia', {
+      last_message: 'O boleto da mensalidade ja esta disponivel?',
+      last_message_at: '2026-03-16T11:00:00Z',
+      unread_count: 1,
+    }),
+    type: 'direct',
+    last_message_text: 'O boleto da mensalidade ja esta disponivel?',
+    last_message_at: '2026-03-16T11:00:00Z',
+    last_message_by: PROFILES.patricia.profile_id,
+    unread_count: 1,
+    is_archived: false,
+    created_at: '2026-02-20T09:00:00Z',
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// MOCK MESSAGES
+// ────────────────────────────────────────────────────────────
+
+const MESSAGES: Record<string, ConversationMessage[]> = {
+  'conv-001': [
+    {
+      id: 'msg-001-1',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Oi professor, tudo bem?',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T14:01:00Z',
+      metadata: null,
+      created_at: '2026-03-19T14:00:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-001-2',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.andre.profile_id,
+      text: 'Tudo sim, Joao! Em que posso te ajudar?',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T14:06:00Z',
+      metadata: null,
+      created_at: '2026-03-19T14:05:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-001-3',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Perdi a aula de quarta por causa do trabalho. Tem como fazer reposicao?',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T14:11:00Z',
+      metadata: null,
+      created_at: '2026-03-19T14:10:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-001-4',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.andre.profile_id,
+      text: 'Claro! Pode vir na turma de sabado as 10h. Vai ser um treino mais leve, otimo para reposicao.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T14:16:00Z',
+      metadata: null,
+      created_at: '2026-03-19T14:15:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-001-5',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Perfeito, obrigado! Vou sim.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T14:21:00Z',
+      metadata: null,
+      created_at: '2026-03-19T14:20:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-001-6',
+      conversation_id: 'conv-001',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Professor, posso fazer reposicao na sexta?',
+      type: 'text',
+      attachment_url: null,
+      read_at: null,
+      metadata: null,
+      created_at: '2026-03-19T14:30:00Z',
+      deleted_at: null,
+    },
+  ],
+  'conv-002': [
+    {
+      id: 'msg-002-1',
+      conversation_id: 'conv-002',
+      sender_id: PROFILES.patricia.profile_id,
+      text: 'Boa tarde, professor! Queria saber sobre o progresso da Sophia.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T10:02:00Z',
+      metadata: null,
+      created_at: '2026-03-19T10:00:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-002-2',
+      conversation_id: 'conv-002',
+      sender_id: PROFILES.andre.profile_id,
+      text: 'Oi Patricia! A Sophia esta indo muito bem. Ela tem se destacado na disciplina e na tecnica.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-19T10:11:00Z',
+      metadata: null,
+      created_at: '2026-03-19T10:10:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-002-3',
+      conversation_id: 'conv-002',
+      sender_id: PROFILES.patricia.profile_id,
+      text: 'Como a Sophia esta evoluindo nas aulas?',
+      type: 'text',
+      attachment_url: null,
+      read_at: null,
+      metadata: null,
+      created_at: '2026-03-19T10:15:00Z',
+      deleted_at: null,
+    },
+  ],
+  'conv-003': [
+    {
+      id: 'msg-003-1',
+      conversation_id: 'conv-003',
+      sender_id: PROFILES.roberto.profile_id,
+      text: 'Andre, precisamos alinhar a avaliacao trimestral dos alunos.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-18T15:32:00Z',
+      metadata: null,
+      created_at: '2026-03-18T15:30:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-003-2',
+      conversation_id: 'conv-003',
+      sender_id: PROFILES.andre.profile_id,
+      text: 'Claro, Roberto. Ja estou preparando as fichas de avaliacao.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-18T15:41:00Z',
+      metadata: null,
+      created_at: '2026-03-18T15:40:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-003-3',
+      conversation_id: 'conv-003',
+      sender_id: PROFILES.roberto.profile_id,
+      text: 'Andre, preciso da avaliacao dos alunos ate sexta.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-18T16:05:00Z',
+      metadata: null,
+      created_at: '2026-03-18T16:00:00Z',
+      deleted_at: null,
+    },
+  ],
+  'conv-004': [
+    {
+      id: 'msg-004-1',
+      conversation_id: 'conv-004',
+      sender_id: PROFILES.roberto.profile_id,
+      text: 'Joao, parabens pela sua evolucao! Voce esta apto para a graduacao de faixa azul.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-17T19:32:00Z',
+      metadata: null,
+      created_at: '2026-03-17T19:30:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-004-2',
+      conversation_id: 'conv-004',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Serio? Que noticia incrivel! Quando sera a cerimonia?',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-17T19:41:00Z',
+      metadata: null,
+      created_at: '2026-03-17T19:40:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-004-3',
+      conversation_id: 'conv-004',
+      sender_id: PROFILES.roberto.profile_id,
+      text: 'Sera no dia 28 de marco, as 19h. Convide sua familia!',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-17T19:51:00Z',
+      metadata: null,
+      created_at: '2026-03-17T19:50:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-004-4',
+      conversation_id: 'conv-004',
+      sender_id: PROFILES.joao.profile_id,
+      text: 'Obrigado pela informacao sobre a graduacao!',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-17T20:01:00Z',
+      metadata: null,
+      created_at: '2026-03-17T20:00:00Z',
+      deleted_at: null,
+    },
+  ],
+  'conv-005': [
+    {
+      id: 'msg-005-1',
+      conversation_id: 'conv-005',
+      sender_id: PROFILES.patricia.profile_id,
+      text: 'Ola, bom dia! Gostaria de saber sobre a mensalidade da Sophia.',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-16T10:32:00Z',
+      metadata: null,
+      created_at: '2026-03-16T10:30:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-005-2',
+      conversation_id: 'conv-005',
+      sender_id: PROFILES.recepcao.profile_id,
+      text: 'Bom dia, Patricia! A mensalidade de marco vence dia 20. Posso enviar o boleto por aqui?',
+      type: 'text',
+      attachment_url: null,
+      read_at: '2026-03-16T10:41:00Z',
+      metadata: null,
+      created_at: '2026-03-16T10:40:00Z',
+      deleted_at: null,
+    },
+    {
+      id: 'msg-005-3',
+      conversation_id: 'conv-005',
+      sender_id: PROFILES.patricia.profile_id,
+      text: 'O boleto da mensalidade ja esta disponivel?',
+      type: 'text',
+      attachment_url: null,
+      read_at: null,
+      metadata: null,
+      created_at: '2026-03-16T11:00:00Z',
+      deleted_at: null,
+    },
+  ],
+};
+
+// ────────────────────────────────────────────────────────────
+// MOCK BROADCASTS
+// ────────────────────────────────────────────────────────────
+
+const BROADCASTS: BroadcastMessage[] = [
+  {
+    id: 'bcast-001',
+    academy_id: 'acad-001',
+    sender_id: PROFILES.roberto.profile_id,
+    sender_name: 'Roberto Almeida',
+    target: 'all_students',
+    target_class_id: null,
+    target_belt: null,
+    target_profile_ids: null,
+    subject: 'Lembrete: Graduacao de Faixas',
+    text: 'Atencao alunos! A cerimonia de graduacao de faixas sera no dia 28/03 as 19h. Confirme sua presenca na recepcao. Venham com o kimono limpo e tragam seus familiares!',
+    total_recipients: 45,
+    read_count: 32,
+    created_at: '2026-03-18T09:00:00Z',
+  },
+  {
+    id: 'bcast-002',
+    academy_id: 'acad-001',
+    sender_id: PROFILES.andre.profile_id,
+    sender_name: 'Andre Oliveira',
+    target: 'class',
+    target_class_id: 'class-bjj-ini',
+    target_belt: null,
+    target_profile_ids: null,
+    subject: 'Aula especial amanha',
+    text: 'Turma de BJJ Iniciante: amanha teremos uma aula especial com foco em raspagens e passagens de guarda. Nao faltem! Tragam disposicao extra.',
+    total_recipients: 18,
+    read_count: 12,
+    created_at: '2026-03-19T08:00:00Z',
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// CONTACT MATRIX BY ROLE
+// ────────────────────────────────────────────────────────────
+
+function getContactsForRole(
+  _profileId: string,
+  role: Role,
+  _academyId: string,
+): Contact[] {
+  switch (role) {
+    case Role.Admin:
+    case Role.Gestor:
+      // Admin can message anyone
+      return [
+        makeContact('andre', { last_message: 'Avaliacao pronta', last_message_at: '2026-03-18T16:00:00Z' }),
+        makeContact('joao', { last_message: 'Graduacao de faixa', last_message_at: '2026-03-17T20:00:00Z' }),
+        makeContact('patricia', { last_message: 'Sobre a Sophia', last_message_at: '2026-03-19T10:15:00Z' }),
+        makeContact('recepcao', { last_message: 'Pagamento ok', last_message_at: '2026-03-15T09:00:00Z' }),
+        makeContact('maria', { last_message: null, last_message_at: null }),
+        makeContact('lucas', { last_message: null, last_message_at: null }),
+      ];
+    case Role.Professor:
+      // Professor: admin + students of his classes + parents
+      return [
+        makeContact('roberto', { last_message: 'Avaliacao ate sexta', last_message_at: '2026-03-18T16:00:00Z' }),
+        makeContact('joao', { last_message: 'Reposicao na sexta?', last_message_at: '2026-03-19T14:30:00Z', unread_count: 2 }),
+        makeContact('patricia', { last_message: 'Sophia evoluindo', last_message_at: '2026-03-19T10:15:00Z', unread_count: 1 }),
+        makeContact('maria', { last_message: null, last_message_at: null }),
+        makeContact('lucas', { last_message: null, last_message_at: null }),
+      ];
+    case Role.AlunoAdulto:
+      // Aluno: admin + professors of his classes
+      return [
+        makeContact('andre', { last_message: 'Pode vir sabado as 10h', last_message_at: '2026-03-19T14:15:00Z' }),
+        makeContact('roberto', { last_message: 'Graduacao dia 28/03', last_message_at: '2026-03-17T19:50:00Z' }),
+      ];
+    case Role.AlunoTeen:
+      // Teen: only professors of his classes
+      return [
+        makeContact('andre', { last_message: null, last_message_at: null }),
+      ];
+    case Role.Responsavel:
+      // Responsavel: admin + professors of children
+      return [
+        makeContact('andre', { last_message: 'Sophia se destacou', last_message_at: '2026-03-19T10:10:00Z' }),
+        makeContact('roberto', { last_message: null, last_message_at: null }),
+        makeContact('recepcao', { last_message: 'Boleto disponivel', last_message_at: '2026-03-16T10:40:00Z', unread_count: 0 }),
+      ];
+    case Role.Recepcao:
+      // Recepcao: admin + professors + students + parents
+      return [
+        makeContact('roberto', { last_message: null, last_message_at: null }),
+        makeContact('andre', { last_message: null, last_message_at: null }),
+        makeContact('joao', { last_message: null, last_message_at: null }),
+        makeContact('patricia', { last_message: 'Boleto da mensalidade', last_message_at: '2026-03-16T11:00:00Z', unread_count: 1 }),
+        makeContact('maria', { last_message: null, last_message_at: null }),
+      ];
+    default:
+      return [];
+  }
 }
 
-export async function mockGetSuggestedMessages(studentId: string): Promise<SuggestedMessageDTO[]> {
+// ────────────────────────────────────────────────────────────
+// EXPORTED MOCK FUNCTIONS
+// ────────────────────────────────────────────────────────────
+
+export async function mockGetMyContacts(
+  profileId: string,
+  role: Role,
+  academyId: string,
+): Promise<Contact[]> {
   await delay();
-  return SUGGESTED_MESSAGES[studentId] ?? [];
+  return getContactsForRole(profileId, role, academyId);
 }
 
-export async function mockMarkRead(_conversationId: string): Promise<void> {
+export async function mockGetConversations(profileId: string): Promise<Conversation[]> {
   await delay();
+  // Return conversations where profileId is a participant
+  return CONVERSATIONS
+    .filter(
+      (c) => c.participant_a === profileId || c.participant_b === profileId,
+    )
+    .map((c) => {
+      // Swap other_participant perspective
+      const isA = c.participant_a === profileId;
+      const otherKey = isA ? c.participant_b : c.participant_a;
+      const otherProfile = Object.values(PROFILES).find((p) => p.profile_id === otherKey);
+      if (!otherProfile) return c;
+
+      return {
+        ...c,
+        other_participant: makeContact(
+          Object.keys(PROFILES).find(
+            (k) => PROFILES[k as keyof typeof PROFILES].profile_id === otherKey,
+          ) as keyof typeof PROFILES,
+          {
+            last_message: c.last_message_text,
+            last_message_at: c.last_message_at,
+            unread_count: c.last_message_by !== profileId ? c.unread_count : 0,
+          },
+        ),
+        unread_count: c.last_message_by !== profileId ? c.unread_count : 0,
+      };
+    })
+    .sort((a, b) => {
+      const dateA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+      const dateB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+      return dateB - dateA;
+    });
+}
+
+export async function mockGetOrCreateConversation(
+  profileId: string,
+  otherProfileId: string,
+  academyId: string,
+): Promise<Conversation> {
+  await delay();
+  // Find existing
+  const existing = CONVERSATIONS.find(
+    (c) =>
+      (c.participant_a === profileId && c.participant_b === otherProfileId) ||
+      (c.participant_a === otherProfileId && c.participant_b === profileId),
+  );
+  if (existing) return existing;
+
+  // Create new
+  const otherKey = Object.keys(PROFILES).find(
+    (k) => PROFILES[k as keyof typeof PROFILES].profile_id === otherProfileId,
+  ) as keyof typeof PROFILES | undefined;
+
+  const newConv: Conversation = {
+    id: `conv-${Date.now()}`,
+    academy_id: academyId,
+    participant_a: profileId < otherProfileId ? profileId : otherProfileId,
+    participant_b: profileId < otherProfileId ? otherProfileId : profileId,
+    other_participant: otherKey
+      ? makeContact(otherKey)
+      : {
+          profile_id: otherProfileId,
+          display_name: 'Desconhecido',
+          avatar_url: null,
+          role: Role.AlunoAdulto,
+          role_badge: 'Aluno',
+          classes_in_common: [],
+          children_linked: [],
+          last_message: null,
+          last_message_at: null,
+          unread_count: 0,
+        },
+    type: 'direct',
+    last_message_text: null,
+    last_message_at: null,
+    last_message_by: null,
+    unread_count: 0,
+    is_archived: false,
+    created_at: new Date().toISOString(),
+  };
+  CONVERSATIONS.push(newConv);
+  return newConv;
+}
+
+export async function mockGetMessages(
+  conversationId: string,
+  _page?: number,
+  _limit?: number,
+): Promise<ConversationMessage[]> {
+  await delay();
+  return MESSAGES[conversationId] ?? [];
+}
+
+export async function mockSendMessage(
+  conversationId: string,
+  senderId: string,
+  text: string,
+  type: MessageType = 'text',
+): Promise<ConversationMessage> {
+  await delay();
+  const now = new Date().toISOString();
+  const msg: ConversationMessage = {
+    id: `msg-${Date.now()}`,
+    conversation_id: conversationId,
+    sender_id: senderId,
+    text,
+    type,
+    attachment_url: null,
+    read_at: null,
+    metadata: null,
+    created_at: now,
+    deleted_at: null,
+  };
+  // Add to local store
+  if (!MESSAGES[conversationId]) {
+    MESSAGES[conversationId] = [];
+  }
+  MESSAGES[conversationId].push(msg);
+  return msg;
+}
+
+export async function mockMarkAsRead(
+  _conversationId: string,
+  _profileId: string,
+): Promise<void> {
+  await delay();
+}
+
+export async function mockDeleteMessage(_messageId: string): Promise<void> {
+  await delay();
+}
+
+export async function mockSendBroadcast(
+  academyId: string,
+  senderId: string,
+  target: MessageTarget,
+  text: string,
+  opts?: SendBroadcastOptions,
+): Promise<BroadcastMessage> {
+  await delay();
+  const senderProfile = Object.values(PROFILES).find((p) => p.profile_id === senderId);
+  const broadcast: BroadcastMessage = {
+    id: `bcast-${Date.now()}`,
+    academy_id: academyId,
+    sender_id: senderId,
+    sender_name: senderProfile?.display_name ?? 'Desconhecido',
+    target,
+    target_class_id: opts?.target_class_id ?? null,
+    target_belt: opts?.target_belt ?? null,
+    target_profile_ids: opts?.target_profile_ids ?? null,
+    subject: opts?.subject ?? null,
+    text,
+    total_recipients: target === 'all' ? 60 : target === 'class' ? 18 : 45,
+    read_count: 0,
+    created_at: new Date().toISOString(),
+  };
+  BROADCASTS.push(broadcast);
+  return broadcast;
+}
+
+export async function mockGetBroadcasts(_profileId: string): Promise<BroadcastMessage[]> {
+  await delay();
+  return [...BROADCASTS].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
+}
+
+export async function mockMarkBroadcastRead(
+  _broadcastId: string,
+  _profileId: string,
+): Promise<void> {
+  await delay();
+}
+
+export async function mockGetTotalUnread(profileId: string): Promise<number> {
+  await delay();
+  // Find role by profileId
+  const profile = Object.values(PROFILES).find((p) => p.profile_id === profileId);
+  if (!profile) return 0;
+  switch (profile.role) {
+    case Role.AlunoAdulto:
+      return 3;
+    case Role.Professor:
+      return 5;
+    case Role.Admin:
+      return 2;
+    case Role.Responsavel:
+      return 1;
+    case Role.AlunoTeen:
+      return 1;
+    case Role.Recepcao:
+      return 2;
+    default:
+      return 0;
+  }
+}
+
+export async function mockSearchMessages(
+  _profileId: string,
+  query: string,
+): Promise<ConversationMessage[]> {
+  await delay();
+  const allMessages = Object.values(MESSAGES).flat();
+  const q = query.toLowerCase();
+  return allMessages.filter((m) => m.text.toLowerCase().includes(q));
 }

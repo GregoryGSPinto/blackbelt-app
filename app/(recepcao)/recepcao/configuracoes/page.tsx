@@ -16,7 +16,6 @@ import {
   getUserPreferences,
   updateUserPreferences,
   changePassword,
-  exportUserData,
   deleteAccount,
   uploadAvatar,
 } from '@/lib/api/preferences.service';
@@ -29,8 +28,7 @@ const TABS = [
   { key: 'seguranca', label: 'Seguranca' },
   { key: 'notificacoes', label: 'Notificacoes' },
   { key: 'aparencia', label: 'Aparencia' },
-  { key: 'treino', label: 'Treino' },
-  { key: 'avancado', label: 'Avancado' },
+  { key: 'atendimento', label: 'Atendimento' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -43,20 +41,7 @@ const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
   { value: 'system', label: 'Sistema' },
 ];
 
-const REST_DAYS: { value: string; label: string }[] = [
-  { value: 'sunday', label: 'Domingo' },
-  { value: 'saturday', label: 'Sabado' },
-  { value: 'none', label: 'Nenhum' },
-];
-
-const VIDEO_QUALITY: { value: string; label: string }[] = [
-  { value: 'auto', label: 'Automatico' },
-  { value: '1080p', label: '1080p' },
-  { value: '720p', label: '720p' },
-  { value: '480p', label: '480p' },
-];
-
-const MOCK_PROFILE_ID = 'aluno-1';
+const MOCK_PROFILE_ID = 'recepcao-1';
 
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
@@ -65,7 +50,7 @@ function SettingsSkeleton() {
     <div className="space-y-6 p-4 sm:p-6">
       <Skeleton variant="text" className="h-8 w-48" />
       <div className="flex gap-2 overflow-x-auto">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} variant="text" className="h-10 w-28 flex-shrink-0" />
         ))}
       </div>
@@ -77,7 +62,7 @@ function SettingsSkeleton() {
 
 // ── Main Component ───────────────────────────────────────────────────
 
-export default function AlunoConfiguracoesPage() {
+export default function RecepcaoConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
@@ -145,7 +130,7 @@ export default function AlunoConfiguracoesPage() {
           Configuracoes
         </h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Personalize sua experiencia de treino
+          Personalize o atendimento da recepcao
         </p>
       </div>
 
@@ -175,7 +160,7 @@ export default function AlunoConfiguracoesPage() {
           <>
             <SettingsSection icon="user" title="Foto de Perfil">
               <SettingsAvatar
-                name="Aluno"
+                name="Recepcao"
                 onUpload={async (file) => {
                   try {
                     await uploadAvatar(MOCK_PROFILE_ID, file);
@@ -191,20 +176,14 @@ export default function AlunoConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Aluno Silva"
+                value="Recepcao"
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput
                 label="Email"
-                value="aluno@email.com"
+                value="recepcao@guerreirosbjj.com.br"
                 type="email"
                 onSave={() => toast('Email atualizado!', 'success')}
-              />
-              <SettingsInput
-                label="Telefone"
-                value="(11) 97777-0000"
-                type="tel"
-                onSave={() => toast('Telefone atualizado!', 'success')}
               />
             </SettingsSection>
           </>
@@ -218,14 +197,14 @@ export default function AlunoConfiguracoesPage() {
                 label="Senha atual"
                 value={senhaAtual}
                 type="password"
-                placeholder="Digite sua senha atual"
+                placeholder="Senha atual"
                 onSave={(v) => setSenhaAtual(v)}
               />
               <SettingsInput
                 label="Nova senha"
                 value={novaSenha}
                 type="password"
-                placeholder="Digite a nova senha"
+                placeholder="Nova senha"
                 onSave={(v) => setNovaSenha(v)}
                 validation={(v) => (v.length < 8 ? 'Minimo 8 caracteres' : null)}
               />
@@ -262,26 +241,6 @@ export default function AlunoConfiguracoesPage() {
                 label="Sons"
                 enabled={prefs.notifications_sound}
                 onChange={(v) => savePref({ notifications_sound: v })}
-              />
-              <SettingsToggle
-                label="Vibracao"
-                enabled={prefs.notifications_vibration}
-                onChange={(v) => savePref({ notifications_vibration: v })}
-              />
-            </SettingsSection>
-
-            <SettingsSection icon="bell" title="Lembretes de Treino">
-              <SettingsToggle
-                label="Treino perdido"
-                description="Avisar quando voce perder um treino agendado"
-                enabled={prefs.training_reminder_missed}
-                onChange={(v) => savePref({ training_reminder_missed: v })}
-              />
-              <SettingsToggle
-                label="Meta semanal"
-                description="Lembrete sobre progresso da meta semanal"
-                enabled={prefs.training_reminder_weekly_goal}
-                onChange={(v) => savePref({ training_reminder_weekly_goal: v })}
               />
             </SettingsSection>
 
@@ -324,156 +283,68 @@ export default function AlunoConfiguracoesPage() {
           </SettingsSection>
         )}
 
-        {/* ── Treino ─────────────────────────────────────────────── */}
-        {activeTab === 'treino' && (
+        {/* ── Atendimento ────────────────────────────────────────── */}
+        {activeTab === 'atendimento' && (
           <>
-            <SettingsSection icon="dumbbell" title="Metas de Treino">
+            <SettingsSection icon="headset" title="Cadastro Rapido">
+              <SettingsToggle
+                label="Registrar pagamentos"
+                description="Permitir registro de pagamentos na recepcao"
+                enabled={prefs.register_payments}
+                onChange={(v) => savePref({ register_payments: v })}
+              />
+              <SettingsToggle
+                label="Recibo automatico"
+                description="Gerar recibo automaticamente ao registrar pagamento"
+                enabled={prefs.auto_receipt}
+                onChange={(v) => savePref({ auto_receipt: v })}
+              />
+              <SettingsToggle
+                label="Fechamento de caixa obrigatorio"
+                description="Exigir fechamento de caixa ao final do turno"
+                enabled={prefs.mandatory_cash_closing}
+                onChange={(v) => savePref({ mandatory_cash_closing: v })}
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="headset" title="Aula Experimental">
               <SettingsInput
-                label="Meta semanal (treinos)"
-                value={String(prefs.training_goal_weekly)}
+                label="Duracao padrao da aula experimental (dias)"
+                value={String(prefs.trial_duration_days)}
                 type="number"
-                onSave={(v) => savePref({ training_goal_weekly: parseInt(v, 10) })}
-                suffix="treinos"
+                onSave={(v) => savePref({ trial_duration_days: parseInt(v, 10) })}
+                suffix="dias"
+              />
+              <SettingsToggle
+                label="Lembrete automatico"
+                description="Enviar lembrete ao aluno experimental antes do vencimento"
+                enabled={prefs.trial_auto_reminder}
+                onChange={(v) => savePref({ trial_auto_reminder: v })}
+              />
+            </SettingsSection>
+
+            <SettingsSection icon="headset" title="Padroes de Cadastro">
+              <SettingsInput
+                label="Turma padrao"
+                value={prefs.default_class}
+                placeholder="Ex: Turma Iniciantes"
+                onSave={(v) => savePref({ default_class: v })}
               />
               <SettingsInput
-                label="Meta mensal de frequencia (%)"
-                value={String(prefs.training_goal_monthly_percent)}
-                type="number"
-                onSave={(v) => savePref({ training_goal_monthly_percent: parseInt(v, 10) })}
-                suffix="%"
+                label="Modalidade padrao"
+                value={prefs.default_modality}
+                placeholder="Ex: Jiu-Jitsu"
+                onSave={(v) => savePref({ default_modality: v })}
               />
             </SettingsSection>
 
-            <SettingsSection icon="dumbbell" title="Streak">
-              <SettingsToggle
-                label="Contar finais de semana"
-                description="Incluir sabado e domingo na contagem de streak"
-                enabled={prefs.streak_count_weekends}
-                onChange={(v) => savePref({ streak_count_weekends: v })}
-              />
-              <div className="py-2">
-                <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-                  Dia de descanso
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {REST_DAYS.map((d) => (
-                    <button
-                      key={d.value}
-                      type="button"
-                      onClick={() => savePref({ streak_rest_day: d.value })}
-                      className="px-3 py-2 text-sm font-medium transition-all duration-200"
-                      style={{
-                        borderRadius: 'var(--bb-radius-md)',
-                        background: prefs.streak_rest_day === d.value ? 'var(--bb-brand-surface)' : 'var(--bb-depth-4)',
-                        color: prefs.streak_rest_day === d.value ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
-                        border: prefs.streak_rest_day === d.value ? '1px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
-                      }}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </SettingsSection>
-
-            <SettingsSection icon="user" title="Privacidade">
-              <SettingsToggle
-                label="Mostrar no ranking"
-                description="Exibir sua posicao no ranking da academia"
-                enabled={prefs.privacy_show_ranking}
-                onChange={(v) => savePref({ privacy_show_ranking: v })}
-              />
-              <SettingsToggle
-                label="Mostrar streak"
-                description="Exibir seu streak publicamente"
-                enabled={prefs.privacy_show_streak}
-                onChange={(v) => savePref({ privacy_show_streak: v })}
-              />
-              <SettingsToggle
-                label="Mostrar conquistas"
-                description="Exibir suas conquistas para outros alunos"
-                enabled={prefs.privacy_show_achievements}
-                onChange={(v) => savePref({ privacy_show_achievements: v })}
-              />
-              <SettingsToggle
-                label="Anotacoes do professor"
-                description="Permitir que professores vejam suas anotacoes"
-                enabled={prefs.privacy_professor_notes}
-                onChange={(v) => savePref({ privacy_professor_notes: v })}
-              />
-            </SettingsSection>
-
-            <SettingsSection icon="settings" title="Videos">
-              <div className="py-2">
-                <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
-                  Qualidade do video
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {VIDEO_QUALITY.map((q) => (
-                    <button
-                      key={q.value}
-                      type="button"
-                      onClick={() => savePref({ video_quality: q.value })}
-                      className="px-3 py-2 text-sm font-medium transition-all duration-200"
-                      style={{
-                        borderRadius: 'var(--bb-radius-md)',
-                        background: prefs.video_quality === q.value ? 'var(--bb-brand-surface)' : 'var(--bb-depth-4)',
-                        color: prefs.video_quality === q.value ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
-                        border: prefs.video_quality === q.value ? '1px solid var(--bb-brand)' : '1px solid var(--bb-glass-border)',
-                      }}
-                    >
-                      {q.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <SettingsToggle
-                label="Download offline"
-                description="Permitir download de videos para assistir offline"
-                enabled={prefs.video_download_offline}
-                onChange={(v) => savePref({ video_download_offline: v })}
-              />
-              <SettingsToggle
-                label="Reproduzir proximo automaticamente"
-                description="Iniciar o proximo video da trilha automaticamente"
-                enabled={prefs.video_autoplay_next}
-                onChange={(v) => savePref({ video_autoplay_next: v })}
-              />
-            </SettingsSection>
-          </>
-        )}
-
-        {/* ── Avancado ───────────────────────────────────────────── */}
-        {activeTab === 'avancado' && (
-          <>
             <TutorialSettings />
-
-            <SettingsSection icon="settings" title="Exportacao de Dados (LGPD)">
-              <p className="mb-3 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                Exporte todos os seus dados em formato compativel com a LGPD.
-              </p>
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    await exportUserData(MOCK_PROFILE_ID);
-                    toast('Exportacao iniciada!', 'success');
-                  } catch {
-                    toast('Erro ao exportar.', 'error');
-                  }
-                }}
-                className="px-4 py-2 text-sm font-medium"
-                style={{ background: 'var(--bb-depth-4)', borderRadius: 'var(--bb-radius-md)', color: 'var(--bb-ink-80)' }}
-              >
-                Exportar meus dados
-              </button>
-            </SettingsSection>
 
             <DangerZone
               items={[
                 {
                   label: 'Excluir minha conta',
-                  description: 'Sua conta e todos os dados serao excluidos permanentemente.',
+                  description: 'Sua conta sera excluida permanentemente.',
                   action: async () => {
                     await deleteAccount(MOCK_PROFILE_ID, 'EXCLUIR');
                     toast('Conta excluida.', 'success');

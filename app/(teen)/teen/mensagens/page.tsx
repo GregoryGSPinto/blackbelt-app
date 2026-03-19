@@ -11,11 +11,10 @@ import {
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
 
-export default function MensagensPage() {
+export default function TeenMensagensPage() {
   const { profile } = useAuth();
-  const profileId = profile?.id ?? 'prof-joao-001';
+  const profileId = profile?.id ?? 'prof-lucas-001';
   const academyId = 'acad-001';
-  const userRole = (profile?.role as Role) ?? Role.AlunoAdulto;
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
@@ -70,7 +69,7 @@ export default function MensagensPage() {
       <div className="min-h-screen pb-24 md:hidden">
         <ConversationList
           profileId={profileId}
-          role={userRole}
+          role={Role.AlunoTeen}
           onSelectConversation={handleSelectConversation}
           onNewConversation={() => setNewConvOpen(true)}
           selectedConversationId={null}
@@ -86,7 +85,7 @@ export default function MensagensPage() {
         >
           <ConversationList
             profileId={profileId}
-            role={userRole}
+            role={Role.AlunoTeen}
             onSelectConversation={handleSelectConversation}
             onNewConversation={() => setNewConvOpen(true)}
             selectedConversationId={selectedConversation?.id}
@@ -126,24 +125,24 @@ export default function MensagensPage() {
                 className="text-lg font-semibold"
                 style={{ color: 'var(--bb-ink-60)' }}
               >
-                Selecione uma conversa
+                Fale com seus professores
               </h2>
               <p
                 className="mt-1 text-sm"
                 style={{ color: 'var(--bb-ink-40)' }}
               >
-                Escolha uma conversa para comecar
+                Escolha uma conversa ao lado
               </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal — teen only contacts professors */}
       <NewConversationModal
         open={newConvOpen}
         profileId={profileId}
-        role={userRole}
+        role={Role.AlunoTeen}
         academyId={academyId}
         onSelect={handleSelectContact}
         onClose={() => setNewConvOpen(false)}
