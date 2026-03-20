@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ── Tipos ──────────────────────────────────────────────────────────
 
@@ -116,6 +115,28 @@ export interface ResultadoQuiz {
   explicacoes: { perguntaId: string; correta: boolean; explicacao: string }[];
 }
 
+// ── Helper: empty fallback objects ──────────────────────────────────
+
+function emptyModulo(): ModuloTeorico & { licoes: Licao[] } {
+  return { id: '', modalidade: '', faixa: '', titulo: '', descricao: '', icone: '', ordem: 0, totalLicoes: 0, licoesCompletadas: 0, certificadoEmitido: false, bloqueado: false, categoria: 'requisitos', licoes: [] };
+}
+
+function emptyLicao(): Licao {
+  return { id: '', moduloId: '', titulo: '', ordem: 0, tipo: 'texto', conteudo: { blocos: [] }, duracao: '0', concluida: false };
+}
+
+function emptyQuizModulo(moduloId: string): QuizModulo {
+  return { id: '', moduloId, titulo: '', descricao: '', perguntas: [], totalPerguntas: 0, notaMinima: 0, tentativas: 0, melhorNota: 0, aprovado: false };
+}
+
+function emptyResultadoQuiz(): ResultadoQuiz {
+  return { nota: 0, aprovado: false, total: 0, acertos: 0, explicacoes: [] };
+}
+
+function emptyCertificado(): CertificadoTeorico {
+  return { id: '', alunoNome: '', moduloTitulo: '', modalidade: '', faixa: '', nota: 0, emitidoEm: '', academiaNome: '', professorNome: '', qrCodeUrl: '', codigoVerificacao: '' };
+}
+
 // ── Módulos ────────────────────────────────────────────────────────
 
 export async function getModulos(modalidade?: string, faixa?: string): Promise<ModuloTeorico[]> {
@@ -124,18 +145,26 @@ export async function getModulos(modalidade?: string, faixa?: string): Promise<M
       const { mockGetModulos } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetModulos(modalidade, faixa);
     }
-    try {
-      const params = new URLSearchParams();
-      if (modalidade) params.set('modalidade', modalidade);
-      if (faixa) params.set('faixa', faixa);
-      const res = await fetch(`/api/academia-teorica/modulos?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getModulos');
-      return res.json();
-    } catch {
-      const { mockGetModulos } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetModulos(modalidade, faixa);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('theoretical_modules')
+      .select('*')
+      .order('ordem', { ascending: true });
+
+    if (modalidade) query = query.eq('modalidade', modalidade);
+    if (faixa) query = query.eq('faixa', faixa);
+
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[getModulos] Query failed:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getModulos'); }
+    return (data ?? []) as unknown as ModuloTeorico[];
+  } catch (error) {
+    console.warn('[getModulos] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: Licao[] }> {
@@ -144,15 +173,25 @@ export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: L
       const { mockGetModulo } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetModulo(id);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/modulos/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getModulo');
-      return res.json();
-    } catch {
-      const { mockGetModulo } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetModulo(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('theoretical_modules')
+      .select('*, theoretical_lessons(*)')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getModulo] Query failed:', error?.message);
+      return emptyModulo();
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getModulo'); }
+    const licoes = ((data.theoretical_lessons as unknown[]) ?? []) as unknown as Licao[];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { theoretical_lessons: _lessons, ...modulo } = data;
+    return { ...(modulo as unknown as ModuloTeorico), licoes };
+  } catch (error) {
+    console.warn('[getModulo] Fallback:', error);
+    return emptyModulo();
+  }
 }
 
 export async function getLicao(id: string): Promise<Licao> {
@@ -161,15 +200,22 @@ export async function getLicao(id: string): Promise<Licao> {
       const { mockGetLicao } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetLicao(id);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/licoes/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getLicao');
-      return res.json();
-    } catch {
-      const { mockGetLicao } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetLicao(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('theoretical_lessons')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getLicao] Query failed:', error?.message);
+      return emptyLicao();
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getLicao'); }
+    return data as unknown as Licao;
+  } catch (error) {
+    console.warn('[getLicao] Fallback:', error);
+    return emptyLicao();
+  }
 }
 
 export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
@@ -178,14 +224,27 @@ export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
       const { mockMarcarLicaoConcluida } = await import('@/lib/mocks/academia-teorica.mock');
       return mockMarcarLicaoConcluida(licaoId);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/licoes/${licaoId}/concluir`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.marcarConcluida');
-    } catch {
-      const { mockMarcarLicaoConcluida } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockMarcarLicaoConcluida(licaoId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[marcarLicaoConcluida] No authenticated user');
+      return;
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.marcarConcluida'); }
+    const { error } = await supabase
+      .from('theoretical_lesson_progress')
+      .upsert({
+        lesson_id: licaoId,
+        user_id: user.id,
+        completed: true,
+        completed_at: new Date().toISOString(),
+      }, { onConflict: 'lesson_id,user_id' });
+    if (error) {
+      console.warn('[marcarLicaoConcluida] Upsert failed:', error.message);
+    }
+  } catch (error) {
+    console.warn('[marcarLicaoConcluida] Fallback:', error);
+  }
 }
 
 export async function getProgressoGeral(): Promise<ProgressoGeral> {
@@ -194,15 +253,30 @@ export async function getProgressoGeral(): Promise<ProgressoGeral> {
       const { mockGetProgressoGeral } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetProgressoGeral();
     }
-    try {
-      const res = await fetch('/api/academia-teorica/progresso');
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getProgresso');
-      return res.json();
-    } catch {
-      const { mockGetProgressoGeral } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetProgressoGeral();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[getProgressoGeral] No authenticated user');
+      return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getProgresso'); }
+    const [modulosRes, certRes] = await Promise.all([
+      supabase.from('theoretical_modules').select('id', { count: 'exact' }),
+      supabase.from('theoretical_certificates').select('id', { count: 'exact' }).eq('user_id', user.id),
+    ]);
+    const totalModulos = modulosRes.count ?? 0;
+    const certificados = certRes.count ?? 0;
+    return {
+      totalModulos,
+      completados: certificados,
+      emProgresso: Math.max(0, totalModulos - certificados),
+      certificados,
+      percentual: totalModulos > 0 ? Math.round((certificados / totalModulos) * 100) : 0,
+    };
+  } catch (error) {
+    console.warn('[getProgressoGeral] Fallback:', error);
+    return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
+  }
 }
 
 // ── Quiz ───────────────────────────────────────────────────────────
@@ -213,15 +287,22 @@ export async function getQuiz(moduloId: string): Promise<QuizModulo> {
       const { mockGetQuiz } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetQuiz(moduloId);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/modulos/${moduloId}/quiz`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getQuiz');
-      return res.json();
-    } catch {
-      const { mockGetQuiz } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetQuiz(moduloId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('theoretical_quizzes')
+      .select('*')
+      .eq('module_id', moduloId)
+      .single();
+    if (error || !data) {
+      console.warn('[getQuiz] Query failed:', error?.message);
+      return emptyQuizModulo(moduloId);
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getQuiz'); }
+    return data as unknown as QuizModulo;
+  } catch (error) {
+    console.warn('[getQuiz] Fallback:', error);
+    return emptyQuizModulo(moduloId);
+  }
 }
 
 export async function submeterQuiz(
@@ -233,19 +314,50 @@ export async function submeterQuiz(
       const { mockSubmeterQuiz } = await import('@/lib/mocks/academia-teorica.mock');
       return mockSubmeterQuiz(moduloId, respostas);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/modulos/${moduloId}/quiz`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ respostas }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.submeterQuiz');
-      return res.json();
-    } catch {
-      const { mockSubmeterQuiz } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockSubmeterQuiz(moduloId, respostas);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[submeterQuiz] No authenticated user');
+      return emptyResultadoQuiz();
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.submeterQuiz'); }
+    // Get quiz questions to evaluate
+    const { data: quiz } = await supabase
+      .from('theoretical_quizzes')
+      .select('*')
+      .eq('module_id', moduloId)
+      .single();
+    if (!quiz) {
+      console.warn('[submeterQuiz] Quiz not found for module:', moduloId);
+      return emptyResultadoQuiz();
+    }
+    const perguntas = ((quiz.perguntas ?? quiz.questions) as QuizPergunta[]) || [];
+    const total = perguntas.length;
+    let acertos = 0;
+    const explicacoes: ResultadoQuiz['explicacoes'] = [];
+    for (const p of perguntas) {
+      const resposta = respostas[p.id];
+      const correta = p.opcoes?.find((o) => o.correta)?.texto === resposta;
+      if (correta) acertos++;
+      explicacoes.push({ perguntaId: p.id, correta: !!correta, explicacao: p.explicacao });
+    }
+    const nota = total > 0 ? Math.round((acertos / total) * 100) : 0;
+    const notaMinima = (quiz.nota_minima as number) ?? 70;
+    const aprovado = nota >= notaMinima;
+    // Save attempt
+    await supabase.from('theoretical_quiz_attempts').insert({
+      quiz_id: quiz.id,
+      module_id: moduloId,
+      user_id: user.id,
+      score: nota,
+      passed: aprovado,
+      answers: respostas,
+    });
+    return { nota, aprovado, total, acertos, explicacoes };
+  } catch (error) {
+    console.warn('[submeterQuiz] Fallback:', error);
+    return emptyResultadoQuiz();
+  }
 }
 
 // ── Terminologia ───────────────────────────────────────────────────
@@ -260,19 +372,27 @@ export async function getTermos(
       const { mockGetTermos } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetTermos(modalidade, categoria, faixaMinima);
     }
-    try {
-      const params = new URLSearchParams();
-      if (modalidade) params.set('modalidade', modalidade);
-      if (categoria) params.set('categoria', categoria);
-      if (faixaMinima) params.set('faixaMinima', faixaMinima);
-      const res = await fetch(`/api/academia-teorica/glossario?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getTermos');
-      return res.json();
-    } catch {
-      const { mockGetTermos } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetTermos(modalidade, categoria, faixaMinima);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('martial_arts_terms')
+      .select('*')
+      .order('original', { ascending: true });
+
+    if (modalidade) query = query.eq('modalidade', modalidade);
+    if (categoria) query = query.eq('categoria', categoria);
+    if (faixaMinima) query = query.eq('faixa_minima', faixaMinima);
+
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[getTermos] Query failed:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getTermos'); }
+    return (data ?? []) as unknown as TermoArtesMarciais[];
+  } catch (error) {
+    console.warn('[getTermos] Fallback:', error);
+    return [];
+  }
 }
 
 export async function buscarTermo(query: string): Promise<TermoArtesMarciais[]> {
@@ -281,15 +401,22 @@ export async function buscarTermo(query: string): Promise<TermoArtesMarciais[]> 
       const { mockBuscarTermo } = await import('@/lib/mocks/academia-teorica.mock');
       return mockBuscarTermo(query);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/glossario/buscar?q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.buscarTermo');
-      return res.json();
-    } catch {
-      const { mockBuscarTermo } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockBuscarTermo(query);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('martial_arts_terms')
+      .select('*')
+      .or(`original.ilike.%${query}%,traducao.ilike.%${query}%,descricao.ilike.%${query}%`)
+      .order('original', { ascending: true });
+    if (error) {
+      console.warn('[buscarTermo] Query failed:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.buscarTermo'); }
+    return (data ?? []) as unknown as TermoArtesMarciais[];
+  } catch (error) {
+    console.warn('[buscarTermo] Fallback:', error);
+    return [];
+  }
 }
 
 // ── Certificados ───────────────────────────────────────────────────
@@ -300,15 +427,27 @@ export async function getCertificados(): Promise<CertificadoTeorico[]> {
       const { mockGetCertificados } = await import('@/lib/mocks/academia-teorica.mock');
       return mockGetCertificados();
     }
-    try {
-      const res = await fetch('/api/academia-teorica/certificados');
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.getCertificados');
-      return res.json();
-    } catch {
-      const { mockGetCertificados } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockGetCertificados();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[getCertificados] No authenticated user');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.getCertificados'); }
+    const { data, error } = await supabase
+      .from('theoretical_certificates')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('emitido_em', { ascending: false });
+    if (error) {
+      console.warn('[getCertificados] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as CertificadoTeorico[];
+  } catch (error) {
+    console.warn('[getCertificados] Fallback:', error);
+    return [];
+  }
 }
 
 export async function emitirCertificado(moduloId: string): Promise<CertificadoTeorico> {
@@ -317,19 +456,33 @@ export async function emitirCertificado(moduloId: string): Promise<CertificadoTe
       const { mockEmitirCertificado } = await import('@/lib/mocks/academia-teorica.mock');
       return mockEmitirCertificado(moduloId);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/certificados`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduloId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.emitirCertificado');
-      return res.json();
-    } catch {
-      const { mockEmitirCertificado } = await import('@/lib/mocks/academia-teorica.mock');
-      return mockEmitirCertificado(moduloId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[emitirCertificado] No authenticated user');
+      return emptyCertificado();
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.emitirCertificado'); }
+    const codigoVerificacao = crypto.randomUUID().slice(0, 8).toUpperCase();
+    const { data: row, error } = await supabase
+      .from('theoretical_certificates')
+      .insert({
+        module_id: moduloId,
+        user_id: user.id,
+        codigo_verificacao: codigoVerificacao,
+        emitido_em: new Date().toISOString(),
+      })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[emitirCertificado] Insert failed:', error?.message);
+      return emptyCertificado();
+    }
+    return row as unknown as CertificadoTeorico;
+  } catch (error) {
+    console.warn('[emitirCertificado] Fallback:', error);
+    return emptyCertificado();
+  }
 }
 
 export async function validarCertificado(code: string): Promise<CertificadoTeorico | null> {
@@ -338,13 +491,20 @@ export async function validarCertificado(code: string): Promise<CertificadoTeori
       const { mockValidarCertificado } = await import('@/lib/mocks/academia-teorica.mock');
       return mockValidarCertificado(code);
     }
-    try {
-      const res = await fetch(`/api/academia-teorica/certificados/verificar/${code}`);
-      if (res.status === 404) return null;
-      if (!res.ok) throw new ServiceError(res.status, 'academiaTeorica.validarCertificado');
-      return res.json();
-    } catch {
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('theoretical_certificates')
+      .select('*')
+      .eq('codigo_verificacao', code)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[validarCertificado] Not found or error:', error?.message);
       return null;
     }
-  } catch (error) { handleServiceError(error, 'academiaTeorica.validarCertificado'); }
+    return data as unknown as CertificadoTeorico;
+  } catch (error) {
+    console.warn('[validarCertificado] Fallback:', error);
+    return null;
+  }
 }

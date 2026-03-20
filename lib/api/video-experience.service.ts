@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -153,6 +152,38 @@ export interface NotaPessoal {
   atualizadaEm: string;
 }
 
+// ── Helper: empty fallback objects ─────────────────────────────────────
+
+function emptyVideoExperience(videoId: string): VideoExperience {
+  return {
+    video: { id: videoId, titulo: '', descricao: '', descricaoCompleta: '', videoUrl: '', thumbnailUrl: '', duracaoSegundos: 0, duracaoFormatada: '0:00', qualidade: '', modalidade: '', faixa: '', categoria: '', dificuldade: '', tags: [], publicadoEm: '', atualizadoEm: '' },
+    professor: { id: '', nome: '', faixa: '', graus: 0, bio: '', totalVideos: 0, totalAlunos: 0 },
+    progresso: { assistido: false, progressoSegundos: 0, progressoPercentual: 0, tempoTotalAssistido: 0, vezesAssistido: 0 },
+    social: { curtidas: 0, curtidoPorMim: false, comentarios: 0, duvidas: 0, compartilhamentos: 0, salvos: 0, salvoPorMim: false, mediaAvaliacao: 0, totalAvaliacoes: 0 },
+    comentarios: [],
+    duvidas: [],
+    tecnicasRelacionadas: [],
+    capitulos: [],
+    videosRelacionados: [],
+    notasPessoais: [],
+    temQuiz: false,
+    quizCompletado: false,
+    downloadPermitido: false,
+  };
+}
+
+function emptyComentario(texto: string): Comentario {
+  return { id: '', autorId: '', autorNome: '', autorFaixa: '', texto, curtidas: 0, curtidoPorMim: false, respostas: [], criadoEm: new Date().toISOString(), editado: false, fixado: false, ehProfessor: false };
+}
+
+function emptyDuvida(pergunta: string): Duvida {
+  return { id: '', alunoId: '', alunoNome: '', alunoFaixa: '', pergunta, votos: 0, votadoPorMim: false, respondida: false, criadoEm: new Date().toISOString() };
+}
+
+function emptyNota(videoId: string, texto: string): NotaPessoal {
+  return { id: '', videoId, texto, criadaEm: new Date().toISOString(), atualizadaEm: new Date().toISOString() };
+}
+
 // ── Service Functions ──────────────────────────────────────────────────
 
 export async function getVideoExperience(videoId: string): Promise<VideoExperience> {
@@ -161,14 +192,42 @@ export async function getVideoExperience(videoId: string): Promise<VideoExperien
       const { mockGetVideoExperience } = await import('@/lib/mocks/video-experience.mock');
       return mockGetVideoExperience(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/experience`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('content_videos')
+      .select('*')
+      .eq('id', videoId)
+      .single();
+    if (error || !data) {
+      console.warn('[getVideoExperience] Query failed:', error?.message);
+      return emptyVideoExperience(videoId);
+    }
+    // Map DB row to VideoExperience shape — partial mapping, full experience requires joins
+    return {
+      ...emptyVideoExperience(videoId),
+      video: {
+        id: data.id as string,
+        titulo: (data.title as string) || '',
+        descricao: (data.description as string) || '',
+        descricaoCompleta: (data.description as string) || '',
+        videoUrl: (data.source_url as string) || '',
+        thumbnailUrl: (data.thumbnail_url as string) || '',
+        duracaoSegundos: (data.duration_seconds as number) || 0,
+        duracaoFormatada: '0:00',
+        qualidade: '',
+        modalidade: (data.modality as string) || '',
+        faixa: (data.min_belt as string) || '',
+        categoria: '',
+        dificuldade: '',
+        tags: (data.tags as string[]) || [],
+        publicadoEm: (data.created_at as string) || '',
+        atualizadoEm: (data.updated_at as string) || '',
+      },
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.get');
-    console.warn('[video-experience] getVideoExperience: API not available, using mock');
-    const { mockGetVideoExperience } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetVideoExperience(videoId);
+    console.warn('[getVideoExperience] Fallback:', error);
+    return emptyVideoExperience(videoId);
   }
 }
 
@@ -178,17 +237,26 @@ export async function registrarProgresso(videoId: string, segundos: number): Pro
       const { mockRegistrarProgresso } = await import('@/lib/mocks/video-experience.mock');
       return mockRegistrarProgresso(videoId, segundos);
     }
-    const res = await fetch(`/api/video/${videoId}/progress`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ segundos }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[registrarProgresso] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_progress')
+      .upsert({
+        video_id: videoId,
+        user_id: user.id,
+        progress_seconds: segundos,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'video_id,user_id' });
+    if (error) {
+      console.warn('[registrarProgresso] Upsert failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.registrarProgresso');
-    console.warn('[video-experience] registrarProgresso: API not available, using mock');
-    const { mockRegistrarProgresso } = await import('@/lib/mocks/video-experience.mock');
-    return mockRegistrarProgresso(videoId, segundos);
+    console.warn('[registrarProgresso] Fallback:', error);
   }
 }
 
@@ -198,13 +266,27 @@ export async function marcarCompleto(videoId: string): Promise<void> {
       const { mockMarcarCompleto } = await import('@/lib/mocks/video-experience.mock');
       return mockMarcarCompleto(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/complete`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[marcarCompleto] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_progress')
+      .upsert({
+        video_id: videoId,
+        user_id: user.id,
+        completed: true,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'video_id,user_id' });
+    if (error) {
+      console.warn('[marcarCompleto] Upsert failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.marcarCompleto');
-    console.warn('[video-experience] marcarCompleto: API not available, using mock');
-    const { mockMarcarCompleto } = await import('@/lib/mocks/video-experience.mock');
-    return mockMarcarCompleto(videoId);
+    console.warn('[marcarCompleto] Fallback:', error);
   }
 }
 
@@ -214,17 +296,26 @@ export async function avaliarVideo(videoId: string, nota: number): Promise<void>
       const { mockAvaliarVideo } = await import('@/lib/mocks/video-experience.mock');
       return mockAvaliarVideo(videoId, nota);
     }
-    const res = await fetch(`/api/video/${videoId}/rate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nota }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[avaliarVideo] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_ratings')
+      .upsert({
+        video_id: videoId,
+        user_id: user.id,
+        rating: nota,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'video_id,user_id' });
+    if (error) {
+      console.warn('[avaliarVideo] Upsert failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.avaliarVideo');
-    console.warn('[video-experience] avaliarVideo: API not available, using mock');
-    const { mockAvaliarVideo } = await import('@/lib/mocks/video-experience.mock');
-    return mockAvaliarVideo(videoId, nota);
+    console.warn('[avaliarVideo] Fallback:', error);
   }
 }
 
@@ -234,14 +325,27 @@ export async function curtirVideo(videoId: string): Promise<{ curtidas: number }
       const { mockCurtirVideo } = await import('@/lib/mocks/video-experience.mock');
       return mockCurtirVideo(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/like`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[curtirVideo] No authenticated user');
+      return { curtidas: 0 };
+    }
+    const { error } = await supabase
+      .from('video_likes')
+      .insert({ video_id: videoId, user_id: user.id });
+    if (error) {
+      console.warn('[curtirVideo] Insert failed:', error.message);
+    }
+    const { count } = await supabase
+      .from('video_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('video_id', videoId);
+    return { curtidas: count ?? 0 };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.curtirVideo');
-    console.warn('[video-experience] curtirVideo: API not available, using mock');
-    const { mockCurtirVideo } = await import('@/lib/mocks/video-experience.mock');
-    return mockCurtirVideo(videoId);
+    console.warn('[curtirVideo] Fallback:', error);
+    return { curtidas: 0 };
   }
 }
 
@@ -251,14 +355,29 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
       const { mockDescurtirVideo } = await import('@/lib/mocks/video-experience.mock');
       return mockDescurtirVideo(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/unlike`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[descurtirVideo] No authenticated user');
+      return { curtidas: 0 };
+    }
+    const { error } = await supabase
+      .from('video_likes')
+      .delete()
+      .eq('video_id', videoId)
+      .eq('user_id', user.id);
+    if (error) {
+      console.warn('[descurtirVideo] Delete failed:', error.message);
+    }
+    const { count } = await supabase
+      .from('video_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('video_id', videoId);
+    return { curtidas: count ?? 0 };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.descurtirVideo');
-    console.warn('[video-experience] descurtirVideo: API not available, using mock');
-    const { mockDescurtirVideo } = await import('@/lib/mocks/video-experience.mock');
-    return mockDescurtirVideo(videoId);
+    console.warn('[descurtirVideo] Fallback:', error);
+    return { curtidas: 0 };
   }
 }
 
@@ -268,13 +387,21 @@ export async function salvarVideo(videoId: string): Promise<void> {
       const { mockSalvarVideo } = await import('@/lib/mocks/video-experience.mock');
       return mockSalvarVideo(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/save`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[salvarVideo] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_saved')
+      .insert({ video_id: videoId, user_id: user.id });
+    if (error) {
+      console.warn('[salvarVideo] Insert failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.salvarVideo');
-    console.warn('[video-experience] salvarVideo: API not available, using mock');
-    const { mockSalvarVideo } = await import('@/lib/mocks/video-experience.mock');
-    return mockSalvarVideo(videoId);
+    console.warn('[salvarVideo] Fallback:', error);
   }
 }
 
@@ -284,13 +411,23 @@ export async function removerSalvo(videoId: string): Promise<void> {
       const { mockRemoverSalvo } = await import('@/lib/mocks/video-experience.mock');
       return mockRemoverSalvo(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/unsave`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[removerSalvo] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_saved')
+      .delete()
+      .eq('video_id', videoId)
+      .eq('user_id', user.id);
+    if (error) {
+      console.warn('[removerSalvo] Delete failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.removerSalvo');
-    console.warn('[video-experience] removerSalvo: API not available, using mock');
-    const { mockRemoverSalvo } = await import('@/lib/mocks/video-experience.mock');
-    return mockRemoverSalvo(videoId);
+    console.warn('[removerSalvo] Fallback:', error);
   }
 }
 
@@ -300,17 +437,21 @@ export async function compartilharVideo(videoId: string, canal: string): Promise
       const { mockCompartilharVideo } = await import('@/lib/mocks/video-experience.mock');
       return mockCompartilharVideo(videoId, canal);
     }
-    const res = await fetch(`/api/video/${videoId}/share`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ canal }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[compartilharVideo] No authenticated user');
+      return;
+    }
+    const { error } = await supabase
+      .from('video_shares')
+      .insert({ video_id: videoId, user_id: user.id, channel: canal });
+    if (error) {
+      console.warn('[compartilharVideo] Insert failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.compartilharVideo');
-    console.warn('[video-experience] compartilharVideo: API not available, using mock');
-    const { mockCompartilharVideo } = await import('@/lib/mocks/video-experience.mock');
-    return mockCompartilharVideo(videoId, canal);
+    console.warn('[compartilharVideo] Fallback:', error);
   }
 }
 
@@ -320,17 +461,40 @@ export async function getComentarios(videoId: string, pagina?: number): Promise<
       const { mockGetComentarios } = await import('@/lib/mocks/video-experience.mock');
       return mockGetComentarios(videoId, pagina);
     }
-    const url = pagina
-      ? `/api/video/${videoId}/comments?page=${pagina}`
-      : `/api/video/${videoId}/comments`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const limit = 20;
+    const from = ((pagina ?? 1) - 1) * limit;
+    const to = from + limit - 1;
+    const { data, error } = await supabase
+      .from('video_comments')
+      .select('*')
+      .eq('video_id', videoId)
+      .is('parent_id', null)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (error) {
+      console.warn('[getComentarios] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: row.id as string,
+      autorId: row.user_id as string,
+      autorNome: (row.user_name as string) || '',
+      autorFaixa: '',
+      texto: (row.text as string) || '',
+      curtidas: (row.likes as number) || 0,
+      curtidoPorMim: false,
+      respostas: [],
+      criadoEm: (row.created_at as string) || '',
+      editado: (row.edited as boolean) || false,
+      fixado: (row.pinned as boolean) || false,
+      ehProfessor: (row.is_professor as boolean) || false,
+      timestamp: row.timestamp as number | undefined,
+    }));
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getComentarios');
-    console.warn('[video-experience] getComentarios: API not available, using mock');
-    const { mockGetComentarios } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetComentarios(videoId, pagina);
+    console.warn('[getComentarios] Fallback:', error);
+    return [];
   }
 }
 
@@ -340,18 +504,40 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
       const { mockAddComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockAddComentario(videoId, texto, timestamp);
     }
-    const res = await fetch(`/api/video/${videoId}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto, timestamp }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[addComentario] No authenticated user');
+      return emptyComentario(texto);
+    }
+    const { data: row, error } = await supabase
+      .from('video_comments')
+      .insert({ video_id: videoId, user_id: user.id, text: texto, timestamp })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[addComentario] Insert failed:', error?.message);
+      return emptyComentario(texto);
+    }
+    return {
+      id: row.id as string,
+      autorId: row.user_id as string,
+      autorNome: '',
+      autorFaixa: '',
+      texto: (row.text as string) || '',
+      curtidas: 0,
+      curtidoPorMim: false,
+      respostas: [],
+      criadoEm: (row.created_at as string) || '',
+      editado: false,
+      fixado: false,
+      ehProfessor: false,
+      timestamp: row.timestamp as number | undefined,
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.addComentario');
-    console.warn('[video-experience] addComentario: API not available, using mock');
-    const { mockAddComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockAddComentario(videoId, texto, timestamp);
+    console.warn('[addComentario] Fallback:', error);
+    return emptyComentario(texto);
   }
 }
 
@@ -361,18 +547,35 @@ export async function editarComentario(comentarioId: string, texto: string): Pro
       const { mockEditarComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockEditarComentario(comentarioId, texto);
     }
-    const res = await fetch(`/api/video/comments/${comentarioId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('video_comments')
+      .update({ text: texto, edited: true, updated_at: new Date().toISOString() })
+      .eq('id', comentarioId)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[editarComentario] Update failed:', error?.message);
+      return emptyComentario(texto);
+    }
+    return {
+      id: row.id as string,
+      autorId: row.user_id as string,
+      autorNome: '',
+      autorFaixa: '',
+      texto: (row.text as string) || '',
+      curtidas: (row.likes as number) || 0,
+      curtidoPorMim: false,
+      respostas: [],
+      criadoEm: (row.created_at as string) || '',
+      editado: true,
+      fixado: (row.pinned as boolean) || false,
+      ehProfessor: (row.is_professor as boolean) || false,
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.editarComentario');
-    console.warn('[video-experience] editarComentario: API not available, using mock');
-    const { mockEditarComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockEditarComentario(comentarioId, texto);
+    console.warn('[editarComentario] Fallback:', error);
+    return emptyComentario(texto);
   }
 }
 
@@ -382,13 +585,17 @@ export async function deletarComentario(comentarioId: string): Promise<void> {
       const { mockDeletarComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockDeletarComentario(comentarioId);
     }
-    const res = await fetch(`/api/video/comments/${comentarioId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('video_comments')
+      .delete()
+      .eq('id', comentarioId);
+    if (error) {
+      console.warn('[deletarComentario] Delete failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.deletarComentario');
-    console.warn('[video-experience] deletarComentario: API not available, using mock');
-    const { mockDeletarComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockDeletarComentario(comentarioId);
+    console.warn('[deletarComentario] Fallback:', error);
   }
 }
 
@@ -398,13 +605,19 @@ export async function curtirComentario(comentarioId: string): Promise<void> {
       const { mockCurtirComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockCurtirComentario(comentarioId);
     }
-    const res = await fetch(`/api/video/comments/${comentarioId}/like`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('video_comments')
+      .update({ likes: supabase.rpc ? undefined : 0 })
+      .eq('id', comentarioId);
+    // Use RPC for atomic increment if available, otherwise just log
+    const { error: rpcError } = await supabase.rpc('increment_comment_likes', { comment_id: comentarioId });
+    if (rpcError && error) {
+      console.warn('[curtirComentario] Update failed:', rpcError.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.curtirComentario');
-    console.warn('[video-experience] curtirComentario: API not available, using mock');
-    const { mockCurtirComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockCurtirComentario(comentarioId);
+    console.warn('[curtirComentario] Fallback:', error);
   }
 }
 
@@ -414,18 +627,50 @@ export async function responderComentario(comentarioId: string, texto: string): 
       const { mockResponderComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockResponderComentario(comentarioId, texto);
     }
-    const res = await fetch(`/api/video/comments/${comentarioId}/reply`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[responderComentario] No authenticated user');
+      return emptyComentario(texto);
+    }
+    // Get parent comment to know the video_id
+    const { data: parent } = await supabase
+      .from('video_comments')
+      .select('video_id')
+      .eq('id', comentarioId)
+      .single();
+    const { data: row, error } = await supabase
+      .from('video_comments')
+      .insert({
+        video_id: parent?.video_id ?? '',
+        user_id: user.id,
+        text: texto,
+        parent_id: comentarioId,
+      })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[responderComentario] Insert failed:', error?.message);
+      return emptyComentario(texto);
+    }
+    return {
+      id: row.id as string,
+      autorId: row.user_id as string,
+      autorNome: '',
+      autorFaixa: '',
+      texto: (row.text as string) || '',
+      curtidas: 0,
+      curtidoPorMim: false,
+      respostas: [],
+      criadoEm: (row.created_at as string) || '',
+      editado: false,
+      fixado: false,
+      ehProfessor: false,
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.responderComentario');
-    console.warn('[video-experience] responderComentario: API not available, using mock');
-    const { mockResponderComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockResponderComentario(comentarioId, texto);
+    console.warn('[responderComentario] Fallback:', error);
+    return emptyComentario(texto);
   }
 }
 
@@ -435,13 +680,17 @@ export async function fixarComentario(comentarioId: string): Promise<void> {
       const { mockFixarComentario } = await import('@/lib/mocks/video-experience.mock');
       return mockFixarComentario(comentarioId);
     }
-    const res = await fetch(`/api/video/comments/${comentarioId}/pin`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('video_comments')
+      .update({ pinned: true })
+      .eq('id', comentarioId);
+    if (error) {
+      console.warn('[fixarComentario] Update failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.fixarComentario');
-    console.warn('[video-experience] fixarComentario: API not available, using mock');
-    const { mockFixarComentario } = await import('@/lib/mocks/video-experience.mock');
-    return mockFixarComentario(comentarioId);
+    console.warn('[fixarComentario] Fallback:', error);
   }
 }
 
@@ -451,14 +700,37 @@ export async function getDuvidas(videoId: string): Promise<Duvida[]> {
       const { mockGetDuvidas } = await import('@/lib/mocks/video-experience.mock');
       return mockGetDuvidas(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/questions`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('video_questions')
+      .select('*')
+      .eq('video_id', videoId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getDuvidas] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: row.id as string,
+      alunoId: row.user_id as string,
+      alunoNome: (row.user_name as string) || '',
+      alunoFaixa: '',
+      pergunta: (row.question as string) || '',
+      timestamp: row.timestamp as number | undefined,
+      votos: (row.votes as number) || 0,
+      votadoPorMim: false,
+      respondida: !!(row.answer as string),
+      resposta: (row.answer as string) ? {
+        professorNome: (row.answered_by_name as string) || '',
+        texto: (row.answer as string) || '',
+        respondidoEm: (row.answered_at as string) || '',
+      } : undefined,
+      criadoEm: (row.created_at as string) || '',
+    }));
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getDuvidas');
-    console.warn('[video-experience] getDuvidas: API not available, using mock');
-    const { mockGetDuvidas } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetDuvidas(videoId);
+    console.warn('[getDuvidas] Fallback:', error);
+    return [];
   }
 }
 
@@ -468,18 +740,37 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
       const { mockAddDuvida } = await import('@/lib/mocks/video-experience.mock');
       return mockAddDuvida(videoId, pergunta, timestamp);
     }
-    const res = await fetch(`/api/video/${videoId}/questions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pergunta, timestamp }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[addDuvida] No authenticated user');
+      return emptyDuvida(pergunta);
+    }
+    const { data: row, error } = await supabase
+      .from('video_questions')
+      .insert({ video_id: videoId, user_id: user.id, question: pergunta, timestamp })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[addDuvida] Insert failed:', error?.message);
+      return emptyDuvida(pergunta);
+    }
+    return {
+      id: row.id as string,
+      alunoId: row.user_id as string,
+      alunoNome: '',
+      alunoFaixa: '',
+      pergunta: (row.question as string) || '',
+      timestamp: row.timestamp as number | undefined,
+      votos: 0,
+      votadoPorMim: false,
+      respondida: false,
+      criadoEm: (row.created_at as string) || '',
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.addDuvida');
-    console.warn('[video-experience] addDuvida: API not available, using mock');
-    const { mockAddDuvida } = await import('@/lib/mocks/video-experience.mock');
-    return mockAddDuvida(videoId, pergunta, timestamp);
+    console.warn('[addDuvida] Fallback:', error);
+    return emptyDuvida(pergunta);
   }
 }
 
@@ -489,13 +780,14 @@ export async function votarDuvida(duvidaId: string): Promise<void> {
       const { mockVotarDuvida } = await import('@/lib/mocks/video-experience.mock');
       return mockVotarDuvida(duvidaId);
     }
-    const res = await fetch(`/api/video/questions/${duvidaId}/vote`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.rpc('increment_question_votes', { question_id: duvidaId });
+    if (error) {
+      console.warn('[votarDuvida] RPC failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.votarDuvida');
-    console.warn('[video-experience] votarDuvida: API not available, using mock');
-    const { mockVotarDuvida } = await import('@/lib/mocks/video-experience.mock');
-    return mockVotarDuvida(duvidaId);
+    console.warn('[votarDuvida] Fallback:', error);
   }
 }
 
@@ -505,17 +797,22 @@ export async function responderDuvida(duvidaId: string, resposta: string): Promi
       const { mockResponderDuvida } = await import('@/lib/mocks/video-experience.mock');
       return mockResponderDuvida(duvidaId, resposta);
     }
-    const res = await fetch(`/api/video/questions/${duvidaId}/answer`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resposta }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from('video_questions')
+      .update({
+        answer: resposta,
+        answered_by: user?.id ?? '',
+        answered_at: new Date().toISOString(),
+      })
+      .eq('id', duvidaId);
+    if (error) {
+      console.warn('[responderDuvida] Update failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.responderDuvida');
-    console.warn('[video-experience] responderDuvida: API not available, using mock');
-    const { mockResponderDuvida } = await import('@/lib/mocks/video-experience.mock');
-    return mockResponderDuvida(duvidaId, resposta);
+    console.warn('[responderDuvida] Fallback:', error);
   }
 }
 
@@ -525,14 +822,34 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
       const { mockGetNotas } = await import('@/lib/mocks/video-experience.mock');
       return mockGetNotas(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/notes`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[getNotas] No authenticated user');
+      return [];
+    }
+    const { data, error } = await supabase
+      .from('video_notes')
+      .select('*')
+      .eq('video_id', videoId)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getNotas] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: row.id as string,
+      videoId: row.video_id as string,
+      texto: (row.text as string) || '',
+      timestamp: row.timestamp as number | undefined,
+      criadaEm: (row.created_at as string) || '',
+      atualizadaEm: (row.updated_at as string) || '',
+    }));
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getNotas');
-    console.warn('[video-experience] getNotas: API not available, using mock');
-    const { mockGetNotas } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetNotas(videoId);
+    console.warn('[getNotas] Fallback:', error);
+    return [];
   }
 }
 
@@ -542,18 +859,33 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
       const { mockAddNota } = await import('@/lib/mocks/video-experience.mock');
       return mockAddNota(videoId, texto, timestamp);
     }
-    const res = await fetch(`/api/video/${videoId}/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto, timestamp }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[addNota] No authenticated user');
+      return emptyNota(videoId, texto);
+    }
+    const { data: row, error } = await supabase
+      .from('video_notes')
+      .insert({ video_id: videoId, user_id: user.id, text: texto, timestamp })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[addNota] Insert failed:', error?.message);
+      return emptyNota(videoId, texto);
+    }
+    return {
+      id: row.id as string,
+      videoId: row.video_id as string,
+      texto: (row.text as string) || '',
+      timestamp: row.timestamp as number | undefined,
+      criadaEm: (row.created_at as string) || '',
+      atualizadaEm: (row.updated_at as string) || '',
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.addNota');
-    console.warn('[video-experience] addNota: API not available, using mock');
-    const { mockAddNota } = await import('@/lib/mocks/video-experience.mock');
-    return mockAddNota(videoId, texto, timestamp);
+    console.warn('[addNota] Fallback:', error);
+    return emptyNota(videoId, texto);
   }
 }
 
@@ -563,18 +895,29 @@ export async function editarNota(notaId: string, texto: string): Promise<NotaPes
       const { mockEditarNota } = await import('@/lib/mocks/video-experience.mock');
       return mockEditarNota(notaId, texto);
     }
-    const res = await fetch(`/api/video/notes/${notaId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('video_notes')
+      .update({ text: texto, updated_at: new Date().toISOString() })
+      .eq('id', notaId)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[editarNota] Update failed:', error?.message);
+      return emptyNota('', texto);
+    }
+    return {
+      id: row.id as string,
+      videoId: row.video_id as string,
+      texto: (row.text as string) || '',
+      timestamp: row.timestamp as number | undefined,
+      criadaEm: (row.created_at as string) || '',
+      atualizadaEm: (row.updated_at as string) || '',
+    };
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.editarNota');
-    console.warn('[video-experience] editarNota: API not available, using mock');
-    const { mockEditarNota } = await import('@/lib/mocks/video-experience.mock');
-    return mockEditarNota(notaId, texto);
+    console.warn('[editarNota] Fallback:', error);
+    return emptyNota('', texto);
   }
 }
 
@@ -584,13 +927,17 @@ export async function deletarNota(notaId: string): Promise<void> {
       const { mockDeletarNota } = await import('@/lib/mocks/video-experience.mock');
       return mockDeletarNota(notaId);
     }
-    const res = await fetch(`/api/video/notes/${notaId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('video_notes')
+      .delete()
+      .eq('id', notaId);
+    if (error) {
+      console.warn('[deletarNota] Delete failed:', error.message);
+    }
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.deletarNota');
-    console.warn('[video-experience] deletarNota: API not available, using mock');
-    const { mockDeletarNota } = await import('@/lib/mocks/video-experience.mock');
-    return mockDeletarNota(notaId);
+    console.warn('[deletarNota] Fallback:', error);
   }
 }
 
@@ -600,15 +947,21 @@ export async function getDownloadUrl(videoId: string): Promise<string | null> {
       const { mockGetDownloadUrl } = await import('@/lib/mocks/video-experience.mock');
       return mockGetDownloadUrl(videoId);
     }
-    const res = await fetch(`/api/video/${videoId}/download`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return data.url ?? null;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('content_videos')
+      .select('source_url')
+      .eq('id', videoId)
+      .single();
+    if (error || !data) {
+      console.warn('[getDownloadUrl] Query failed:', error?.message);
+      return null;
+    }
+    return (data.source_url as string) || null;
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getDownloadUrl');
-    console.warn('[video-experience] getDownloadUrl: API not available, using mock');
-    const { mockGetDownloadUrl } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetDownloadUrl(videoId);
+    console.warn('[getDownloadUrl] Fallback:', error);
+    return null;
   }
 }
 
@@ -618,14 +971,37 @@ export async function getDuvidasPendentes(): Promise<(Duvida & { videoTitulo: st
       const { mockGetDuvidasPendentes } = await import('@/lib/mocks/video-experience.mock');
       return mockGetDuvidasPendentes();
     }
-    const res = await fetch('/api/video/questions/pending');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('video_questions')
+      .select('*, content_videos(id, title)')
+      .is('answer', null)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getDuvidasPendentes] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const video = row.content_videos as Record<string, unknown> | null;
+      return {
+        id: row.id as string,
+        alunoId: row.user_id as string,
+        alunoNome: (row.user_name as string) || '',
+        alunoFaixa: '',
+        pergunta: (row.question as string) || '',
+        timestamp: row.timestamp as number | undefined,
+        votos: (row.votes as number) || 0,
+        votadoPorMim: false,
+        respondida: false,
+        criadoEm: (row.created_at as string) || '',
+        videoTitulo: (video?.title as string) || '',
+        videoId: (video?.id as string) || (row.video_id as string) || '',
+      };
+    });
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getDuvidasPendentes');
-    console.warn('[video-experience] getDuvidasPendentes: API not available, using mock');
-    const { mockGetDuvidasPendentes } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetDuvidasPendentes();
+    console.warn('[getDuvidasPendentes] Fallback:', error);
+    return [];
   }
 }
 
@@ -635,13 +1011,41 @@ export async function getDuvidasRespondidas(): Promise<(Duvida & { videoTitulo: 
       const { mockGetDuvidasRespondidas } = await import('@/lib/mocks/video-experience.mock');
       return mockGetDuvidasRespondidas();
     }
-    const res = await fetch('/api/video/questions/answered');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('video_questions')
+      .select('*, content_videos(id, title)')
+      .not('answer', 'is', null)
+      .order('answered_at', { ascending: false });
+    if (error) {
+      console.warn('[getDuvidasRespondidas] Query failed:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const video = row.content_videos as Record<string, unknown> | null;
+      return {
+        id: row.id as string,
+        alunoId: row.user_id as string,
+        alunoNome: (row.user_name as string) || '',
+        alunoFaixa: '',
+        pergunta: (row.question as string) || '',
+        timestamp: row.timestamp as number | undefined,
+        votos: (row.votes as number) || 0,
+        votadoPorMim: false,
+        respondida: true,
+        resposta: {
+          professorNome: (row.answered_by_name as string) || '',
+          texto: (row.answer as string) || '',
+          respondidoEm: (row.answered_at as string) || '',
+        },
+        criadoEm: (row.created_at as string) || '',
+        videoTitulo: (video?.title as string) || '',
+        videoId: (video?.id as string) || (row.video_id as string) || '',
+      };
+    });
   } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoExperience.getDuvidasRespondidas');
-    console.warn('[video-experience] getDuvidasRespondidas: API not available, using mock');
-    const { mockGetDuvidasRespondidas } = await import('@/lib/mocks/video-experience.mock');
-    return mockGetDuvidasRespondidas();
+    console.warn('[getDuvidasRespondidas] Fallback:', error);
+    return [];
   }
 }
