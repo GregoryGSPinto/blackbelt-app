@@ -4,7 +4,6 @@
 // ============================================================
 
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -27,22 +26,31 @@ export async function bulkUpdateStudents(
       const { mockBulkUpdateStudents } = await import('@/lib/mocks/bulk.mock');
       return mockBulkUpdateStudents(studentIds, updates);
     }
-    try {
-      const res = await fetch('/api/students/bulk', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: studentIds, updates }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[bulk.bulkUpdateStudents] API not available, using mock fallback');
-      const { mockBulkUpdateStudents } = await import('@/lib/mocks/bulk.mock');
-      return mockBulkUpdateStudents(studentIds, updates);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let success = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const id of studentIds) {
+      const { error } = await supabase
+        .from('students')
+        .update(updates)
+        .eq('id', id);
+      if (error) {
+        failed++;
+        errors.push(`Student ${id}: ${error.message}`);
+      } else {
+        success++;
+      }
     }
 
+    return { success, failed, errors };
   } catch (error) {
-    handleServiceError(error, 'bulk.updateStudents');
+    console.warn('[bulkUpdateStudents] Fallback:', error);
+    return { success: 0, failed: studentIds.length, errors: ['Bulk update failed'] };
   }
 }
 
@@ -57,22 +65,30 @@ export async function bulkSendCommunication(
       const { mockBulkSendCommunication } = await import('@/lib/mocks/bulk.mock');
       return mockBulkSendCommunication(studentIds, message);
     }
-    try {
-      const res = await fetch('/api/communications/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student_ids: studentIds, message }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[bulk.bulkSendCommunication] API not available, using mock fallback');
-      const { mockBulkSendCommunication } = await import('@/lib/mocks/bulk.mock');
-      return mockBulkSendCommunication(studentIds, message);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const rows = studentIds.map((sid) => ({
+      student_id: sid,
+      message,
+      type: 'bulk',
+      sent_at: new Date().toISOString(),
+    }));
+
+    const { error, count } = await supabase
+      .from('communications')
+      .insert(rows);
+
+    if (error) {
+      console.warn('[bulkSendCommunication] insert error:', error.message);
+      return { success: 0, failed: studentIds.length, errors: [error.message] };
     }
 
+    return { success: count ?? studentIds.length, failed: 0, errors: [] };
   } catch (error) {
-    handleServiceError(error, 'bulk.sendCommunication');
+    console.warn('[bulkSendCommunication] Fallback:', error);
+    return { success: 0, failed: studentIds.length, errors: ['Bulk communication failed'] };
   }
 }
 
@@ -88,22 +104,37 @@ export async function bulkMarkAttendance(
       const { mockBulkMarkAttendance } = await import('@/lib/mocks/bulk.mock');
       return mockBulkMarkAttendance(classId, date, statuses);
     }
-    try {
-      const res = await fetch('/api/attendance/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ class_id: classId, date, statuses }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[bulk.bulkMarkAttendance] API not available, using mock fallback');
-      const { mockBulkMarkAttendance } = await import('@/lib/mocks/bulk.mock');
-      return mockBulkMarkAttendance(classId, date, statuses);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let success = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const [studentId, status] of Object.entries(statuses)) {
+      const { error } = await supabase
+        .from('attendance')
+        .upsert({
+          class_id: classId,
+          student_id: studentId,
+          date,
+          status,
+          checked_in_at: status === 'present' ? new Date().toISOString() : null,
+        }, { onConflict: 'class_id,student_id,date' });
+
+      if (error) {
+        failed++;
+        errors.push(`Student ${studentId}: ${error.message}`);
+      } else {
+        success++;
+      }
     }
 
+    return { success, failed, errors };
   } catch (error) {
-    handleServiceError(error, 'bulk.markAttendance');
+    console.warn('[bulkMarkAttendance] Fallback:', error);
+    return { success: 0, failed: Object.keys(statuses).length, errors: ['Bulk attendance failed'] };
   }
 }
 
@@ -115,21 +146,24 @@ export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult>
       const { mockBulkPublishVideos } = await import('@/lib/mocks/bulk.mock');
       return mockBulkPublishVideos(videoIds);
     }
-    try {
-      const res = await fetch('/api/videos/bulk/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: videoIds }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[bulk.bulkPublishVideos] API not available, using mock fallback');
-      const { mockBulkPublishVideos } = await import('@/lib/mocks/bulk.mock');
-      return mockBulkPublishVideos(videoIds);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error, count } = await supabase
+      .from('videos')
+      .update({ published: true })
+      .in('id', videoIds);
+
+    if (error) {
+      console.warn('[bulkPublishVideos] error:', error.message);
+      return { success: 0, failed: videoIds.length, errors: [error.message] };
     }
+
+    return { success: count ?? videoIds.length, failed: 0, errors: [] };
   } catch (error) {
-    handleServiceError(error, 'bulk.publishVideos');
+    console.warn('[bulkPublishVideos] Fallback:', error);
+    return { success: 0, failed: videoIds.length, errors: ['Bulk publish failed'] };
   }
 }
 
@@ -141,20 +175,23 @@ export async function bulkUnpublishVideos(videoIds: string[]): Promise<BulkResul
       const { mockBulkUnpublishVideos } = await import('@/lib/mocks/bulk.mock');
       return mockBulkUnpublishVideos(videoIds);
     }
-    try {
-      const res = await fetch('/api/videos/bulk/unpublish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: videoIds }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[bulk.bulkUnpublishVideos] API not available, using mock fallback');
-      const { mockBulkUnpublishVideos } = await import('@/lib/mocks/bulk.mock');
-      return mockBulkUnpublishVideos(videoIds);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error, count } = await supabase
+      .from('videos')
+      .update({ published: false })
+      .in('id', videoIds);
+
+    if (error) {
+      console.warn('[bulkUnpublishVideos] error:', error.message);
+      return { success: 0, failed: videoIds.length, errors: [error.message] };
     }
+
+    return { success: count ?? videoIds.length, failed: 0, errors: [] };
   } catch (error) {
-    handleServiceError(error, 'bulk.unpublishVideos');
+    console.warn('[bulkUnpublishVideos] Fallback:', error);
+    return { success: 0, failed: videoIds.length, errors: ['Bulk unpublish failed'] };
   }
 }

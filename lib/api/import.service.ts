@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -126,7 +125,8 @@ export async function previewImport(
       suggestedMappings,
     };
   } catch (error) {
-    handleServiceError(error, 'import.preview');
+    console.warn('[previewImport] Fallback:', error);
+    return { headers: [], totalRows: 0, validRows: 0, invalidRows: 0, rows: [], suggestedMappings: [] };
   }
 }
 
@@ -151,25 +151,54 @@ export async function executeImport(
         ],
       };
     }
-    try {
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('academyId', academyId);
-      formData.append('mappings', JSON.stringify(mappings));
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
 
-      const res = await fetch('/api/import/students', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[import.executeImport] API not available, using fallback');
-      return { imported: 0, skipped: 0, errors: [] } as ImportResult;
+    const text = await file.text();
+    const { rows } = parseCSV(text);
+
+    let imported = 0;
+    let skipped = 0;
+    const errors: { row: number; message: string }[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const studentData: Record<string, string> = {};
+
+      for (const mapping of mappings) {
+        studentData[mapping.systemField] = row[mapping.csvColumn] || '';
+      }
+
+      if (!studentData.name || !studentData.email) {
+        skipped++;
+        errors.push({ row: i + 2, message: 'Nome ou email ausente' });
+        continue;
+      }
+
+      const { error } = await supabase
+        .from('students')
+        .insert({
+          academy_id: academyId,
+          name: studentData.name,
+          email: studentData.email,
+          phone: studentData.phone || null,
+          belt: studentData.belt || 'white',
+          birth_date: studentData.birth_date || null,
+          cpf: studentData.cpf || null,
+        });
+
+      if (error) {
+        skipped++;
+        errors.push({ row: i + 2, message: error.message });
+      } else {
+        imported++;
+      }
     }
 
+    return { imported, skipped, errors };
   } catch (error) {
-    handleServiceError(error, 'import.execute');
+    console.warn('[executeImport] Fallback:', error);
+    return { imported: 0, skipped: 0, errors: [] };
   }
 }
