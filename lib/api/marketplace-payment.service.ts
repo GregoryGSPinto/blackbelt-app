@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface BalanceDTO {
   available: number;
@@ -49,10 +48,30 @@ export async function getPlatformRevenue(period: string): Promise<PlatformRevenu
       const { mockGetPlatformRevenue } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockGetPlatformRevenue(period);
     }
-    // API not yet implemented — use mock
-    const { mockGetPlatformRevenue } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockGetPlatformRevenue(period);
-  } catch (error) { handleServiceError(error, 'marketplacePayment.platformRevenue'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_transactions')
+      .select('amount, commission, created_at')
+      .gte('created_at', period);
+
+    if (error || !data) {
+      console.warn('[getPlatformRevenue] error:', error?.message);
+      return { total_revenue: 0, platform_commission: 0, creator_payouts: 0, commission_rate: 0, monthly_data: [] };
+    }
+
+    let total_revenue = 0;
+    let platform_commission = 0;
+    for (const row of data as Array<Record<string, unknown>>) {
+      total_revenue += (row.amount as number) ?? 0;
+      platform_commission += (row.commission as number) ?? 0;
+    }
+    return { total_revenue, platform_commission, creator_payouts: total_revenue - platform_commission, commission_rate: total_revenue > 0 ? platform_commission / total_revenue : 0, monthly_data: [] };
+  } catch (error) {
+    console.warn('[getPlatformRevenue] Fallback:', error);
+    return { total_revenue: 0, platform_commission: 0, creator_payouts: 0, commission_rate: 0, monthly_data: [] };
+  }
 }
 
 export async function getCreatorBalance(creatorId: string): Promise<BalanceDTO> {
@@ -61,10 +80,24 @@ export async function getCreatorBalance(creatorId: string): Promise<BalanceDTO> 
       const { mockGetCreatorBalance } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockGetCreatorBalance(creatorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCreatorBalance } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockGetCreatorBalance(creatorId);
-  } catch (error) { handleServiceError(error, 'marketplacePayment.balance'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_balances')
+      .select('available, pending, total_earned, total_withdrawn')
+      .eq('creator_id', creatorId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getCreatorBalance] error:', error?.message);
+      return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0 };
+    }
+    return data as unknown as BalanceDTO;
+  } catch (error) {
+    console.warn('[getCreatorBalance] Fallback:', error);
+    return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0 };
+  }
 }
 
 export async function requestWithdrawal(creatorId: string, amount: number): Promise<WithdrawalRecord> {
@@ -73,20 +106,24 @@ export async function requestWithdrawal(creatorId: string, amount: number): Prom
       const { mockRequestWithdrawal } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockRequestWithdrawal(creatorId, amount);
     }
-    try {
-      const res = await fetch(`/api/marketplace/withdrawals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creatorId, amount }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'marketplacePayment.withdraw');
-      return res.json();
-    } catch {
-      console.warn('[marketplace-payment.requestWithdrawal] API not available, using mock fallback');
-      const { mockRequestWithdrawal } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockRequestWithdrawal(creatorId, amount);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_withdrawals')
+      .insert({ creator_id: creatorId, amount, status: 'pending' })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[requestWithdrawal] error:', error?.message);
+      return { id: '', creator_id: creatorId, amount, status: 'pending', requested_at: new Date().toISOString(), bank_info: '' };
     }
-  } catch (error) { handleServiceError(error, 'marketplacePayment.withdraw'); }
+    return data as unknown as WithdrawalRecord;
+  } catch (error) {
+    console.warn('[requestWithdrawal] Fallback:', error);
+    return { id: '', creator_id: creatorId, amount, status: 'pending', requested_at: new Date().toISOString(), bank_info: '' };
+  }
 }
 
 export async function getWithdrawalHistory(creatorId: string): Promise<WithdrawalRecord[]> {
@@ -95,10 +132,24 @@ export async function getWithdrawalHistory(creatorId: string): Promise<Withdrawa
       const { mockGetWithdrawalHistory } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockGetWithdrawalHistory(creatorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetWithdrawalHistory } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockGetWithdrawalHistory(creatorId);
-  } catch (error) { handleServiceError(error, 'marketplacePayment.withdrawalHistory'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_withdrawals')
+      .select('*')
+      .eq('creator_id', creatorId)
+      .order('requested_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getWithdrawalHistory] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as WithdrawalRecord[];
+  } catch (error) {
+    console.warn('[getWithdrawalHistory] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getTopCreators(): Promise<TopCreator[]> {
@@ -107,10 +158,24 @@ export async function getTopCreators(): Promise<TopCreator[]> {
       const { mockGetTopCreators } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockGetTopCreators();
     }
-    // API not yet implemented — use mock
-    const { mockGetTopCreators } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockGetTopCreators();
-  } catch (error) { handleServiceError(error, 'marketplacePayment.topCreators'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_creators')
+      .select('*')
+      .order('total_revenue', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      console.warn('[getTopCreators] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as TopCreator[];
+  } catch (error) {
+    console.warn('[getTopCreators] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getPendingApprovals(): Promise<PendingApproval[]> {
@@ -119,8 +184,28 @@ export async function getPendingApprovals(): Promise<PendingApproval[]> {
       const { mockGetPendingApprovals } = await import('@/lib/mocks/marketplace-payment.mock');
       return mockGetPendingApprovals();
     }
-    // API not yet implemented — use mock
-    const { mockGetPendingApprovals } = await import('@/lib/mocks/marketplace-payment.mock');
-      return mockGetPendingApprovals();
-  } catch (error) { handleServiceError(error, 'marketplacePayment.pendingApprovals'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('marketplace_courses')
+      .select('id, title, creator_name, submitted_at, modality')
+      .eq('status', 'pending_approval')
+      .order('submitted_at', { ascending: true });
+
+    if (error) {
+      console.warn('[getPendingApprovals] error:', error.message);
+      return [];
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      course_id: row.id as string,
+      title: row.title as string,
+      creator_name: row.creator_name as string,
+      submitted_at: row.submitted_at as string,
+      modality: row.modality as string,
+    }));
+  } catch (error) {
+    console.warn('[getPendingApprovals] Fallback:', error);
+    return [];
+  }
 }

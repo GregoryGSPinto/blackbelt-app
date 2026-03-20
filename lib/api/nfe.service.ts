@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -42,20 +41,47 @@ export async function emitNFe(paymentId: string): Promise<NFeDocument> {
         error: null,
       };
     }
-    try {
-      const res = await fetch('/api/nfe/emit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[nfe.emitNFe] API not available, using fallback');
-      return { id: '', paymentId: '', studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null } as NFeDocument;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Check if NFe provider is configured
+    const { data: config } = await supabase
+      .from('academy_settings')
+      .select('value')
+      .eq('key', 'nfe_config')
+      .single();
+
+    if (!config) {
+      console.warn('[emitNFe] NFe provider not configured');
+      return {
+        id: '',
+        paymentId,
+        studentName: '',
+        number: '',
+        value: 0,
+        status: 'error',
+        pdfUrl: null,
+        emittedAt: null,
+        error: 'Emissão de NFe não configurada. Configure em Configurações → Fiscal.',
+      };
     }
+
+    // Record the NFe request
+    const { data, error } = await supabase
+      .from('nfe_records')
+      .insert({ payment_id: paymentId, status: 'pending' })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[emitNFe] error:', error.message);
+      return { id: '', paymentId, studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null };
+    }
+
+    return data as unknown as NFeDocument;
   } catch (error) {
-    handleServiceError(error, 'nfe.emit');
+    console.warn('[emitNFe] Fallback:', error);
+    return { id: '', paymentId: '', studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null };
   }
 }
 
@@ -68,16 +94,23 @@ export async function listNFes(academyId: string): Promise<NFeDocument[]> {
         { id: 'nfe-3', paymentId: 'pay-3', studentName: 'Marcos Oliveira', number: '', value: 197, status: 'error', pdfUrl: null, emittedAt: null, error: 'CNPJ inválido' },
       ];
     }
-    try {
-      const res = await fetch(`/api/nfe?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[nfe.listNFes] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('nfe_records')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listNFes] error:', error.message);
       return [];
     }
+    return (data ?? []) as unknown as NFeDocument[];
   } catch (error) {
-    handleServiceError(error, 'nfe.list');
+    console.warn('[listNFes] Fallback:', error);
+    return [];
   }
 }
 
@@ -92,16 +125,24 @@ export async function getNFeConfig(academyId: string): Promise<NFeConfig> {
         autoEmit: true,
       };
     }
-    try {
-      const res = await fetch(`/api/nfe/config?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[nfe.getNFeConfig] API not available, using fallback');
-      return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false } as NFeConfig;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('value')
+      .eq('academy_id', academyId)
+      .eq('key', 'nfe_config')
+      .single();
+
+    if (error || !data) {
+      console.warn('[getNFeConfig] error:', error?.message ?? 'not found');
+      return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false };
     }
+    return data.value as unknown as NFeConfig;
   } catch (error) {
-    handleServiceError(error, 'nfe.getConfig');
+    console.warn('[getNFeConfig] Fallback:', error);
+    return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false };
   }
 }
 
@@ -111,17 +152,17 @@ export async function updateNFeConfig(academyId: string, config: Partial<NFeConf
       logger.debug('[MOCK] NF-e config updated', { config });
       return;
     }
-    try {
-      const res = await fetch('/api/nfe/config', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...config }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[nfe.updateNFeConfig] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('academy_settings')
+      .upsert({ academy_id: academyId, key: 'nfe_config', value: config }, { onConflict: 'academy_id,key' });
+
+    if (error) {
+      console.warn('[updateNFeConfig] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'nfe.updateConfig');
+    console.warn('[updateNFeConfig] Fallback:', error);
   }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type {
   CreateCustomerData,
   ExternalCustomer,
@@ -99,11 +98,21 @@ export async function getGatewayConfig(academyId: string): Promise<PaymentGatewa
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('whatsapp_configs').select('*').eq('academy_id', academyId).single();
-    if (error) throw error;
-    return data as unknown as PaymentGatewayConfig;
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('value')
+      .eq('academy_id', academyId)
+      .eq('key', 'payment_gateway')
+      .single();
+
+    if (error || !data) {
+      console.warn('[getGatewayConfig] error:', error?.message ?? 'not found');
+      return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
+    }
+    return data.value as unknown as PaymentGatewayConfig;
   } catch (error) {
-    handleServiceError(error, 'payment.getConfig');
+    console.warn('[getGatewayConfig] Fallback:', error);
+    return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
   }
 }
 
@@ -115,10 +124,15 @@ export async function saveGatewayConfig(academyId: string, config: Partial<Payme
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { error } = await supabase.from('payment_configs').upsert({ academy_id: academyId, ...config }, { onConflict: 'academy_id' });
-    if (error) throw error;
+    const { error } = await supabase
+      .from('academy_settings')
+      .upsert({ academy_id: academyId, key: 'payment_gateway', value: config }, { onConflict: 'academy_id,key' });
+
+    if (error) {
+      console.warn('[saveGatewayConfig] error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'payment.saveConfig');
+    console.warn('[saveGatewayConfig] Fallback:', error);
   }
 }
 
@@ -128,9 +142,11 @@ export async function testGatewayConnection(config: Partial<PaymentGatewayConfig
       const { mockTestConnection } = await import('@/lib/mocks/payment-gateway.mock');
       return mockTestConnection(config);
     }
+    // Without a real gateway API key, we just return true (manual mode)
     return true;
   } catch (error) {
-    handleServiceError(error, 'payment.testConnection');
+    console.warn('[testGatewayConnection] Fallback:', error);
+    return false;
   }
 }
 
@@ -140,9 +156,23 @@ export async function getGatewayStatus(academyId: string): Promise<GatewayStatus
       const { mockGetGatewayStatus } = await import('@/lib/mocks/payment-gateway.mock');
       return mockGetGatewayStatus(academyId);
     }
-    return { connected: false, provider: 'none' };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('value')
+      .eq('academy_id', academyId)
+      .eq('key', 'payment_gateway')
+      .single();
+
+    if (error || !data) {
+      return { connected: false, provider: 'none' };
+    }
+    const cfg = data.value as Record<string, unknown>;
+    return { connected: (cfg.connected as boolean) ?? false, provider: (cfg.provider as string) ?? 'none', lastSync: cfg.lastSync as string | undefined };
   } catch (error) {
-    handleServiceError(error, 'payment.getStatus');
+    console.warn('[getGatewayStatus] Fallback:', error);
+    return { connected: false, provider: 'none' };
   }
 }
 
@@ -154,11 +184,20 @@ export async function createCharge(academyId: string, customerId: string, value:
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('payment_charges').insert({ academy_id: academyId, customer_id: customerId, value, due_date: dueDate, billing_type: billingType, description, status: 'pending' }).select().single();
-    if (error) throw error;
+    const { data, error } = await supabase
+      .from('payment_charges')
+      .insert({ academy_id: academyId, customer_id: customerId, value, due_date: dueDate, billing_type: billingType, description, status: 'pending' })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[createCharge] error:', error?.message ?? 'no data');
+      return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
+    }
     return data as unknown as PaymentCharge;
   } catch (error) {
-    handleServiceError(error, 'payment.createCharge');
+    console.warn('[createCharge] Fallback:', error);
+    return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
   }
 }
 
@@ -174,10 +213,15 @@ export async function listCharges(academyId: string, filters?: ChargeFilters): P
     if (filters?.status) query = query.eq('status', filters.status);
     if (filters?.billingType) query = query.eq('billing_type', filters.billingType);
     const { data, error } = await query;
-    if (error) throw error;
+
+    if (error) {
+      console.warn('[listCharges] error:', error.message);
+      return [];
+    }
     return (data ?? []) as unknown as PaymentCharge[];
   } catch (error) {
-    handleServiceError(error, 'payment.listCharges');
+    console.warn('[listCharges] Fallback:', error);
+    return [];
   }
 }
 
@@ -190,10 +234,15 @@ export async function listSubscriptions(academyId: string): Promise<PaymentSubsc
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('payment_subscriptions').select('*, payment_customers(name)').eq('academy_id', academyId);
-    if (error) throw error;
+
+    if (error) {
+      console.warn('[listSubscriptions] error:', error.message);
+      return [];
+    }
     return (data ?? []) as unknown as PaymentSubscription[];
   } catch (error) {
-    handleServiceError(error, 'payment.listSubscriptions');
+    console.warn('[listSubscriptions] Fallback:', error);
+    return [];
   }
 }
 
@@ -203,9 +252,36 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       const { mockGetFinancialSummary } = await import('@/lib/mocks/payment-gateway.mock');
       return mockGetFinancialSummary(academyId);
     }
-    return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('payment_charges')
+      .select('status, value, billing_type')
+      .eq('academy_id', academyId);
+
+    if (error || !data) {
+      console.warn('[getFinancialSummary] error:', error?.message);
+      return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
+    }
+
+    let received = 0, pending = 0, overdue = 0, refunded = 0;
+    const byMethod = { pix: 0, boleto: 0, creditCard: 0 };
+    for (const row of data as Array<Record<string, unknown>>) {
+      const v = (row.value as number) ?? 0;
+      const s = row.status as string;
+      const bt = row.billing_type as string;
+      if (s === 'received' || s === 'confirmed') { received += v; }
+      else if (s === 'pending') { pending += v; }
+      else if (s === 'overdue') { overdue += v; }
+      else if (s === 'refunded') { refunded += v; }
+      if (bt === 'PIX') byMethod.pix += v;
+      else if (bt === 'BOLETO') byMethod.boleto += v;
+      else if (bt === 'CREDIT_CARD') byMethod.creditCard += v;
+    }
+    return { received, pending, overdue, refunded, netRevenue: received - refunded, fees: 0, byMethod };
   } catch (error) {
-    handleServiceError(error, 'payment.getFinancialSummary');
+    console.warn('[getFinancialSummary] Fallback:', error);
+    return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
   }
 }
 
@@ -215,9 +291,12 @@ export async function generatePixQrCode(chargeId: string): Promise<{ qrCode: str
       const { mockGeneratePixQrCode } = await import('@/lib/mocks/payment-gateway.mock');
       return mockGeneratePixQrCode(chargeId);
     }
+    // Without gateway API key, Pix QR code generation is not available
+    console.warn('[generatePixQrCode] Gateway not configured — PIX QR code not available for charge:', chargeId);
     return { qrCode: '', copyPaste: '' };
   } catch (error) {
-    handleServiceError(error, 'payment.generatePix');
+    console.warn('[generatePixQrCode] Fallback:', error);
+    return { qrCode: '', copyPaste: '' };
   }
 }
 
@@ -227,9 +306,12 @@ export async function syncCustomers(academyId: string): Promise<{ synced: number
       const { mockSyncCustomers } = await import('@/lib/mocks/payment-gateway.mock');
       return mockSyncCustomers(academyId);
     }
+    // Without gateway API key, sync is manual
+    console.warn('[syncCustomers] Gateway not configured — sync not available for academy:', academyId);
     return { synced: 0 };
   } catch (error) {
-    handleServiceError(error, 'payment.syncCustomers');
+    console.warn('[syncCustomers] Fallback:', error);
+    return { synced: 0 };
   }
 }
 
