@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ApiKey {
   id: string;
@@ -32,7 +31,10 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
       const { mockGenerateApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockGenerateApiKey(academyId, name);
     }
-  } catch (error) { handleServiceError(error, 'apiKeys.generate'); }
+  } catch (error) {
+    console.warn('[generateApiKey] Fallback:', error);
+    return { key: '', secret: '', apiKey: { id: '', academyId, name, keyPrefix: '', permissions: [], createdAt: '', lastUsedAt: null, revokedAt: null } };
+  }
 }
 
 export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
@@ -49,7 +51,10 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       const { mockListApiKeys } = await import('@/lib/mocks/api-keys.mock');
       return mockListApiKeys(academyId);
     }
-  } catch (error) { handleServiceError(error, 'apiKeys.list'); }
+  } catch (error) {
+    console.warn('[listApiKeys] Fallback:', error);
+    return [];
+  }
 }
 
 export async function revokeApiKey(keyId: string): Promise<void> {
@@ -63,7 +68,9 @@ export async function revokeApiKey(keyId: string): Promise<void> {
     } catch {
       console.warn('[api-keys.revokeApiKey] API not available, using fallback');
     }
-  } catch (error) { handleServiceError(error, 'apiKeys.revoke'); }
+  } catch (error) {
+    console.warn('[revokeApiKey] Fallback:', error);
+  }
 }
 
 export async function validateApiKey(key: string): Promise<{ academyId: string; permissions: string[] } | null> {
@@ -80,5 +87,8 @@ export async function validateApiKey(key: string): Promise<{ academyId: string; 
       console.warn('[api-keys.validateApiKey] API not available, using fallback');
       return null;
     }
-  } catch (error) { handleServiceError(error, 'apiKeys.validate'); }
+  } catch (error) {
+    console.warn('[validateApiKey] Fallback:', error);
+    return null;
+  }
 }

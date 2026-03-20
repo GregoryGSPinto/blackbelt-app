@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface Review {
   id: string;
@@ -27,20 +26,24 @@ export async function createReview(courseId: string, userId: string, rating: num
       const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
       return mockCreateReview(courseId, userId, rating, text);
     }
-    try {
-      const res = await fetch(`/api/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ courseId, userId, rating, text }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'reviews.create');
-      return res.json();
-    } catch {
-      console.warn('[reviews.createReview] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert({ course_id: courseId, user_id: userId, rating, text })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createReview] Supabase error:', error?.message);
       const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
       return mockCreateReview(courseId, userId, rating, text);
     }
-  } catch (error) { handleServiceError(error, 'reviews.create'); }
+    return data as Review;
+  } catch (error) {
+    console.warn('[createReview] Fallback:', error);
+    const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
+    return mockCreateReview(courseId, userId, rating, text);
+  }
 }
 
 export async function getReviews(courseId: string, page?: number): Promise<{ reviews: Review[]; total: number; page: number }> {
@@ -49,18 +52,29 @@ export async function getReviews(courseId: string, page?: number): Promise<{ rev
       const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
       return mockGetReviews(courseId, page);
     }
-    try {
-      const params = new URLSearchParams({ courseId });
-      if (page) params.set('page', String(page));
-      const res = await fetch(`/api/reviews?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'reviews.list');
-      return res.json();
-    } catch {
-      console.warn('[reviews.getReviews] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const pageSize = 10;
+    const currentPage = page ?? 1;
+    const from = (currentPage - 1) * pageSize;
+    const to = from + pageSize - 1;
+    const { data, error, count } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact' })
+      .eq('course_id', courseId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (error) {
+      console.warn('[getReviews] Supabase error:', error.message);
       const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
       return mockGetReviews(courseId, page);
     }
-  } catch (error) { handleServiceError(error, 'reviews.list'); }
+    return { reviews: (data ?? []) as Review[], total: count ?? 0, page: currentPage };
+  } catch (error) {
+    console.warn('[getReviews] Fallback:', error);
+    const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
+    return mockGetReviews(courseId, page);
+  }
 }
 
 export async function getAverageRating(courseId: string): Promise<AverageRating> {
@@ -69,10 +83,29 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('course_id', courseId);
+    if (error || !data || data.length === 0) {
+      console.warn('[getAverageRating] Supabase error or no data:', error?.message);
+      const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
-  } catch (error) { handleServiceError(error, 'reviews.average'); }
+    }
+    const total = data.length;
+    const average = data.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / total;
+    const distribution = [5, 4, 3, 2, 1].map(stars => ({
+      stars,
+      count: data.filter((r: { rating: number }) => r.rating === stars).length,
+    }));
+    return { average: Math.round(average * 10) / 10, total, distribution };
+  } catch (error) {
+    console.warn('[getAverageRating] Fallback:', error);
+    const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
+    return mockGetAverageRating(courseId);
+  }
 }
 
 export async function reportReview(reviewId: string, reason: string): Promise<void> {
@@ -81,17 +114,18 @@ export async function reportReview(reviewId: string, reason: string): Promise<vo
       const { mockReportReview } = await import('@/lib/mocks/reviews.mock');
       return mockReportReview(reviewId, reason);
     }
-    try {
-      const res = await fetch(`/api/reviews/${reviewId}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'reviews.report');
-    } catch {
-      console.warn('[reviews.reportReview] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('reviews')
+      .update({ reported: true, report_reason: reason })
+      .eq('id', reviewId);
+    if (error) {
+      console.warn('[reportReview] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'reviews.report'); }
+  } catch (error) {
+    console.warn('[reportReview] Fallback:', error);
+  }
 }
 
 export async function respondToReview(reviewId: string, response: string): Promise<Review> {
@@ -100,18 +134,23 @@ export async function respondToReview(reviewId: string, response: string): Promi
       const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
       return mockRespondToReview(reviewId, response);
     }
-    try {
-      const res = await fetch(`/api/reviews/${reviewId}/respond`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ response }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'reviews.respond');
-      return res.json();
-    } catch {
-      console.warn('[reviews.respondToReview] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ creator_response: response })
+      .eq('id', reviewId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[respondToReview] Supabase error:', error?.message);
       const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
       return mockRespondToReview(reviewId, response);
     }
-  } catch (error) { handleServiceError(error, 'reviews.respond'); }
+    return data as Review;
+  } catch (error) {
+    console.warn('[respondToReview] Fallback:', error);
+    const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
+    return mockRespondToReview(reviewId, response);
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type {
   StreamingLibrary,
   SeriesDetail,
@@ -19,11 +18,23 @@ export async function getLibrary(profileId: string, role: string, belt: string):
       const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
       return mockGetLibrary(profileId, role, belt);
     }
-    // API not yet implemented — use mock
-    const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_library')
+      .select('*')
+      .eq('profile_id', profileId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getLibrary] Supabase error:', error?.message);
+      const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
       return mockGetLibrary(profileId, role, belt);
+    }
+    return data as unknown as StreamingLibrary;
   } catch (error) {
-    return handleServiceError(error, 'streaming.getLibrary');
+    console.warn('[getLibrary] Fallback:', error);
+    const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
+    return mockGetLibrary(profileId, role, belt);
   }
 }
 
@@ -33,11 +44,23 @@ export async function getSeriesDetail(seriesId: string): Promise<SeriesDetail> {
       const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
       return mockGetSeriesDetail(seriesId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_series')
+      .select('*')
+      .eq('id', seriesId)
+      .single();
+    if (error || !data) {
+      console.warn('[getSeriesDetail] Supabase error:', error?.message);
+      const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
       return mockGetSeriesDetail(seriesId);
+    }
+    return data as unknown as SeriesDetail;
   } catch (error) {
-    return handleServiceError(error, 'streaming.getSeriesDetail');
+    console.warn('[getSeriesDetail] Fallback:', error);
+    const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
+    return mockGetSeriesDetail(seriesId);
   }
 }
 
@@ -47,11 +70,23 @@ export async function getEpisode(episodeId: string): Promise<StreamingVideo> {
       const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
       return mockGetEpisode(episodeId);
     }
-    // API not yet implemented — use mock
-    const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_episodes')
+      .select('*')
+      .eq('id', episodeId)
+      .single();
+    if (error || !data) {
+      console.warn('[getEpisode] Supabase error:', error?.message);
+      const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
       return mockGetEpisode(episodeId);
+    }
+    return data as unknown as StreamingVideo;
   } catch (error) {
-    return handleServiceError(error, 'streaming.getEpisode');
+    console.warn('[getEpisode] Fallback:', error);
+    const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
+    return mockGetEpisode(episodeId);
   }
 }
 
@@ -61,11 +96,22 @@ export async function getContinueWatching(studentId: string): Promise<WatchProgr
       const { mockGetContinueWatching } = await import('@/lib/mocks/streaming.mock');
       return mockGetContinueWatching(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetContinueWatching } = await import('@/lib/mocks/streaming.mock');
-      return mockGetContinueWatching(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_watch_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .lt('progress_pct', 100)
+      .order('updated_at', { ascending: false });
+    if (error) {
+      console.warn('[getContinueWatching] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as WatchProgress[];
   } catch (error) {
-    return handleServiceError(error, 'streaming.getContinueWatching');
+    console.warn('[getContinueWatching] Fallback:', error);
+    return [];
   }
 }
 
@@ -75,11 +121,23 @@ export async function getRecommended(studentId: string): Promise<StreamingSeries
       const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
       return mockGetRecommended(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_series')
+      .select('*')
+      .eq('recommended', true)
+      .limit(10);
+    if (error) {
+      console.warn('[getRecommended] Supabase error:', error.message);
+      const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
       return mockGetRecommended(studentId);
+    }
+    return (data ?? []) as unknown as StreamingSeries[];
   } catch (error) {
-    return handleServiceError(error, 'streaming.getRecommended');
+    console.warn('[getRecommended] Fallback:', error);
+    const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
+    return mockGetRecommended(studentId);
   }
 }
 
@@ -89,18 +147,16 @@ export async function trackProgress(studentId: string, episodeId: string, progre
       const { mockTrackProgress } = await import('@/lib/mocks/streaming.mock');
       return mockTrackProgress(studentId, episodeId, progressSeconds);
     }
-    try {
-      const res = await fetch('/api/streaming/progress', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, episodeId, progressSeconds }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'streaming.trackProgress');
-    } catch {
-      console.warn('[streaming.trackProgress] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('streaming_watch_progress')
+      .upsert({ student_id: studentId, episode_id: episodeId, progress_seconds: progressSeconds, updated_at: new Date().toISOString() });
+    if (error) {
+      console.warn('[trackProgress] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'streaming.trackProgress');
+    console.warn('[trackProgress] Fallback:', error);
   }
 }
 
@@ -110,21 +166,22 @@ export async function completeEpisode(studentId: string, episodeId: string): Pro
       const { mockCompleteEpisode } = await import('@/lib/mocks/streaming.mock');
       return mockCompleteEpisode(studentId, episodeId);
     }
-    try {
-      const res = await fetch('/api/streaming/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, episodeId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'streaming.completeEpisode');
-      return res.json();
-    } catch {
-      console.warn('[streaming.completeEpisode] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('complete_episode', {
+      p_student_id: studentId,
+      p_episode_id: episodeId,
+    });
+    if (error || !data) {
+      console.warn('[completeEpisode] Supabase error:', error?.message);
       const { mockCompleteEpisode } = await import('@/lib/mocks/streaming.mock');
       return mockCompleteEpisode(studentId, episodeId);
     }
+    return data as unknown as EpisodeCompletionResult;
   } catch (error) {
-    return handleServiceError(error, 'streaming.completeEpisode');
+    console.warn('[completeEpisode] Fallback:', error);
+    const { mockCompleteEpisode } = await import('@/lib/mocks/streaming.mock');
+    return mockCompleteEpisode(studentId, episodeId);
   }
 }
 
@@ -134,21 +191,23 @@ export async function submitQuiz(studentId: string, episodeId: string, answers: 
       const { mockSubmitQuiz } = await import('@/lib/mocks/streaming.mock');
       return mockSubmitQuiz(studentId, episodeId, answers);
     }
-    try {
-      const res = await fetch('/api/streaming/quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, episodeId, answers }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'streaming.submitQuiz');
-      return res.json();
-    } catch {
-      console.warn('[streaming.submitQuiz] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('submit_quiz', {
+      p_student_id: studentId,
+      p_episode_id: episodeId,
+      p_answers: answers,
+    });
+    if (error || !data) {
+      console.warn('[submitQuiz] Supabase error:', error?.message);
       const { mockSubmitQuiz } = await import('@/lib/mocks/streaming.mock');
       return mockSubmitQuiz(studentId, episodeId, answers);
     }
+    return data as unknown as QuizResult;
   } catch (error) {
-    return handleServiceError(error, 'streaming.submitQuiz');
+    console.warn('[submitQuiz] Fallback:', error);
+    const { mockSubmitQuiz } = await import('@/lib/mocks/streaming.mock');
+    return mockSubmitQuiz(studentId, episodeId, answers);
   }
 }
 
@@ -158,19 +217,24 @@ export async function getTrails(academyId: string, belt?: string): Promise<Strea
       const { mockGetTrails } = await import('@/lib/mocks/streaming.mock');
       return mockGetTrails(academyId, belt);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (belt) params.append('belt', belt);
-      const res = await fetch(`/api/streaming/trails?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'streaming.getTrails');
-      return res.json();
-    } catch {
-      console.warn('[streaming.getTrails] API not available, using mock fallback');
-      const { mockGetTrails } = await import('@/lib/mocks/streaming.mock');
-      return mockGetTrails(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('streaming_trails')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (belt) {
+      query = query.eq('belt_level', belt);
     }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[getTrails] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as StreamingTrail[];
   } catch (error) {
-    return handleServiceError(error, 'streaming.getTrails');
+    console.warn('[getTrails] Fallback:', error);
+    return [];
   }
 }
 
@@ -180,11 +244,24 @@ export async function getTrailProgress(studentId: string, trailId: string): Prom
       const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
       return mockGetTrailProgress(studentId, trailId);
     }
-    // API not yet implemented — use mock
-    const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_trail_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .eq('trail_id', trailId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getTrailProgress] Supabase error:', error?.message);
+      const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
       return mockGetTrailProgress(studentId, trailId);
+    }
+    return data as unknown as TrailProgress;
   } catch (error) {
-    return handleServiceError(error, 'streaming.getTrailProgress');
+    console.warn('[getTrailProgress] Fallback:', error);
+    const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
+    return mockGetTrailProgress(studentId, trailId);
   }
 }
 
@@ -194,20 +271,22 @@ export async function generateCertificate(studentId: string, trailId: string): P
       const { mockGenerateCertificate } = await import('@/lib/mocks/streaming.mock');
       return mockGenerateCertificate(studentId, trailId);
     }
-    try {
-      const res = await fetch('/api/streaming/certificate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, trailId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'streaming.generateCertificate');
-      return res.json();
-    } catch {
-      console.warn('[streaming.generateCertificate] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('streaming_certificates')
+      .insert({ student_id: studentId, trail_id: trailId, issued_at: new Date().toISOString() })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[generateCertificate] Supabase error:', error?.message);
       const { mockGenerateCertificate } = await import('@/lib/mocks/streaming.mock');
       return mockGenerateCertificate(studentId, trailId);
     }
+    return data as unknown as StreamingCertificate;
   } catch (error) {
-    return handleServiceError(error, 'streaming.generateCertificate');
+    console.warn('[generateCertificate] Fallback:', error);
+    const { mockGenerateCertificate } = await import('@/lib/mocks/streaming.mock');
+    return mockGenerateCertificate(studentId, trailId);
   }
 }

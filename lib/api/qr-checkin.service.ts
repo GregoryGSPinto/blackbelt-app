@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -38,20 +37,23 @@ export async function generateQRCode(classId: string): Promise<QRCheckInCode> {
       };
     }
     try {
-
       const res = await fetch('/api/checkin/qr/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ classId }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.warn('[generateQRCode] error:', `HTTP ${res.status}`);
+        return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
+      }
       return res.json();
     } catch {
       console.warn('[qr-checkin.generateQRCode] API not available, using fallback');
-      return { code: "", class_id: "", class_name: "", valid_until: "", academy_id: "" } as unknown as QRCheckInCode;
+      return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
     }
   } catch (error) {
-    handleServiceError(error, 'qrCheckin.generate');
+    console.warn('[generateQRCode] Fallback:', error);
+    return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
   }
 }
 
@@ -74,21 +76,23 @@ export async function validateQRCode(
       };
     }
     try {
-
       const res = await fetch('/api/checkin/qr/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, studentId }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.warn('[validateQRCode] error:', `HTTP ${res.status}`);
+        return { valid: false, message: 'Erro ao validar QR code' };
+      }
       return res.json();
     } catch {
       console.warn('[qr-checkin.validateQRCode] API not available, using fallback');
-      return { valid: false, student_id: "", student_name: "", class_name: "", checked_in: false, message: "" } as QRValidationResult;
+      return { valid: false, message: 'Erro ao validar QR code' };
     }
-
   } catch (error) {
-    handleServiceError(error, 'qrCheckin.validate');
+    console.warn('[validateQRCode] Fallback:', error);
+    return { valid: false, message: 'Erro ao validar QR code' };
   }
 }
 
@@ -116,15 +120,18 @@ export async function getActiveQRCodes(academyId: string): Promise<QRCheckInCode
       ];
     }
     try {
-
       const res = await fetch(`/api/checkin/qr/active?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.warn('[getActiveQRCodes] error:', `HTTP ${res.status}`);
+        return [];
+      }
       return res.json();
     } catch {
       console.warn('[qr-checkin.getActiveQRCodes] API not available, using fallback');
       return [];
     }
   } catch (error) {
-    handleServiceError(error, 'qrCheckin.getActive');
+    console.warn('[getActiveQRCodes] Fallback:', error);
+    return [];
   }
 }

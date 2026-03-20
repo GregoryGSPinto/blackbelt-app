@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type RewardTransactionType = 'checkin' | 'purchase' | 'redemption' | 'bonus';
 
@@ -24,10 +23,22 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetBalance(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBalance } = await import('@/lib/mocks/store-rewards.mock');
-      return mockGetBalance(userId);
-  } catch (error) { handleServiceError(error, 'storeRewards.getBalance'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reward_balances')
+      .select('points, value_brl')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getBalance] Supabase error:', error?.message);
+      return { points: 0, value_brl: 0 };
+    }
+    return data as RewardBalance;
+  } catch (error) {
+    console.warn('[getBalance] Fallback:', error);
+    return { points: 0, value_brl: 0 };
+  }
 }
 
 export async function getHistory(userId: string): Promise<RewardTransaction[]> {
@@ -36,10 +47,22 @@ export async function getHistory(userId: string): Promise<RewardTransaction[]> {
       const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
       return mockGetHistory(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHistory } = await import('@/lib/mocks/store-rewards.mock');
-      return mockGetHistory(userId);
-  } catch (error) { handleServiceError(error, 'storeRewards.getHistory'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reward_transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getHistory] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as RewardTransaction[];
+  } catch (error) {
+    console.warn('[getHistory] Fallback:', error);
+    return [];
+  }
 }
 
 export async function redeemPoints(userId: string, amount: number, orderId: string): Promise<RewardTransaction> {
@@ -48,18 +71,22 @@ export async function redeemPoints(userId: string, amount: number, orderId: stri
       const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
       return mockRedeemPoints(userId, amount, orderId);
     }
-    try {
-      const res = await fetch('/api/store/rewards/redeem', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, amount, orderId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'storeRewards.redeemPoints');
-      return res.json();
-    } catch {
-      console.warn('[store-rewards.redeemPoints] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reward_transactions')
+      .insert({ user_id: userId, type: 'redemption', points: -amount, description: `Resgate pedido ${orderId}`, reference_id: orderId })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[redeemPoints] Supabase error:', error?.message);
       const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
       return mockRedeemPoints(userId, amount, orderId);
     }
-  } catch (error) { handleServiceError(error, 'storeRewards.redeemPoints'); }
+    return data as RewardTransaction;
+  } catch (error) {
+    console.warn('[redeemPoints] Fallback:', error);
+    const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
+    return mockRedeemPoints(userId, amount, orderId);
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type CampaignStatus = 'draft' | 'active' | 'completed';
 export type CampaignTemplate = 'volte_treinar' | 'traga_amigo' | 'upgrade_premium' | 'familia' | 'competicao';
@@ -59,11 +58,21 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaigns(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCampaigns } = await import('@/lib/mocks/campanhas.mock');
-      return mockGetCampaigns(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getCampaigns] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as CampaignDTO[];
   } catch (error) {
-    handleServiceError(error, 'campanhas.list');
+    console.warn('[getCampaigns] Fallback:', error);
+    return [];
   }
 }
 
@@ -73,34 +82,45 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       const { mockCreateCampaign } = await import('@/lib/mocks/campanhas.mock');
       return mockCreateCampaign(data);
     }
-    try {
-      const res = await fetch('/api/campanhas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'campanhas.create');
-      return res.json();
-    } catch {
-      console.warn('[campanhas.createCampaign] API not available, using mock fallback');
-      const { mockCreateCampaign } = await import('@/lib/mocks/campanhas.mock');
-      return mockCreateCampaign(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('campaigns')
+      .insert({ ...data, status: 'draft' })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createCampaign] Supabase error:', error?.message);
+      return {} as CampaignDTO;
     }
+    return row as unknown as CampaignDTO;
   } catch (error) {
-    handleServiceError(error, 'campanhas.create');
+    console.warn('[createCampaign] Fallback:', error);
+    return {} as CampaignDTO;
   }
 }
 
 export async function getCampaignMetrics(campaignId: string): Promise<CampaignMetricsDTO> {
+  const fallback: CampaignMetricsDTO = { campaign_id: campaignId, sent: 0, opened: 0, open_rate: 0, converted: 0, conversion_rate: 0 };
   try {
     if (isMock()) {
       const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
       return mockGetCampaignMetrics(campaignId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCampaignMetrics } = await import('@/lib/mocks/campanhas.mock');
-      return mockGetCampaignMetrics(campaignId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('campaign_metrics')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .single();
+    if (error || !data) {
+      console.warn('[getCampaignMetrics] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as CampaignMetricsDTO;
   } catch (error) {
-    handleServiceError(error, 'campanhas.metrics');
+    console.warn('[getCampaignMetrics] Fallback:', error);
+    return fallback;
   }
 }

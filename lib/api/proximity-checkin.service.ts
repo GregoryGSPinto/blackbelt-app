@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ProximityData {
   student_id: string;
@@ -47,7 +46,10 @@ export async function detectProximity(data: ProximityData): Promise<ProximityRes
       const { mockDetectProximity } = await import('@/lib/mocks/proximity-checkin.mock');
       return mockDetectProximity(data);
     }
-  } catch (error) { handleServiceError(error, 'proximity.detect'); }
+  } catch (error) {
+    console.warn('[detectProximity] Fallback:', error);
+    return { detected: false, signal_quality: 'none' };
+  }
 }
 
 export async function autoCheckin(studentId: string, classId: string): Promise<AutoCheckinResult> {
@@ -64,5 +66,8 @@ export async function autoCheckin(studentId: string, classId: string): Promise<A
       const { mockAutoCheckin } = await import('@/lib/mocks/proximity-checkin.mock');
       return mockAutoCheckin(studentId, classId);
     }
-  } catch (error) { handleServiceError(error, 'proximity.checkin'); }
+  } catch (error) {
+    console.warn('[autoCheckin] Fallback:', error);
+    return { success: false, class_name: '', checked_in_at: '', method: 'ble_beacon', message: 'Erro ao fazer check-in' };
+  }
 }

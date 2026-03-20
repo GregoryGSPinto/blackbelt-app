@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type TrialOrigin = 'site' | 'indicacao' | 'instagram' | 'whatsapp' | 'presencial';
 export type TrialStatus = 'agendada' | 'confirmada' | 'compareceu' | 'nao_compareceu' | 'matriculou' | 'desistiu';
@@ -49,16 +48,22 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       const { mockCreateTrialClass } = await import('@/lib/mocks/aula-experimental.mock');
       return mockCreateTrialClass(academyId, data);
     }
-    try {
-      const res = await fetch(`/api/aula-experimental`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.create');
-      return res.json();
-    } catch {
-      console.warn('[aula-experimental.createTrialClass] API not available, using mock fallback');
-      const { mockCreateTrialClass } = await import('@/lib/mocks/aula-experimental.mock');
-      return mockCreateTrialClass(academyId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('trial_classes')
+      .insert({ academy_id: academyId, lead_nome: data.leadNome, lead_email: data.leadEmail, lead_telefone: data.leadTelefone, lead_origem: data.leadOrigem, turma_id: data.turmaId, data_agendada: data.dataAgendada, status: 'agendada' })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createTrialClass] Supabase error:', error?.message);
+      return {} as TrialClass;
     }
-  } catch (error) { handleServiceError(error, 'aula-experimental.create'); }
+    return row as unknown as TrialClass;
+  } catch (error) {
+    console.warn('[createTrialClass] Fallback:', error);
+    return {} as TrialClass;
+  }
 }
 
 export async function listTrialClasses(academyId: string, filters?: TrialFilters): Promise<TrialClass[]> {
@@ -67,19 +72,21 @@ export async function listTrialClasses(academyId: string, filters?: TrialFilters
       const { mockListTrialClasses } = await import('@/lib/mocks/aula-experimental.mock');
       return mockListTrialClasses(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.origem) params.set('origem', filters.origem);
-      const res = await fetch(`/api/aula-experimental?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.list');
-      return res.json();
-    } catch {
-      console.warn('[aula-experimental.listTrialClasses] API not available, using mock fallback');
-      const { mockListTrialClasses } = await import('@/lib/mocks/aula-experimental.mock');
-      return mockListTrialClasses(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('trial_classes').select('*').eq('academy_id', academyId);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.origem) query = query.eq('lead_origem', filters.origem);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[listTrialClasses] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'aula-experimental.list'); }
+    return data as unknown as TrialClass[];
+  } catch (error) {
+    console.warn('[listTrialClasses] Fallback:', error);
+    return [];
+  }
 }
 
 export async function updateTrialStatus(id: string, status: TrialStatus): Promise<TrialClass> {
@@ -88,26 +95,49 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       const { mockUpdateTrialStatus } = await import('@/lib/mocks/aula-experimental.mock');
       return mockUpdateTrialStatus(id, status);
     }
-    try {
-      const res = await fetch(`/api/aula-experimental/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-      if (!res.ok) throw new ServiceError(res.status, 'aula-experimental.updateStatus');
-      return res.json();
-    } catch {
-      console.warn('[aula-experimental.updateTrialStatus] API not available, using mock fallback');
-      const { mockUpdateTrialStatus } = await import('@/lib/mocks/aula-experimental.mock');
-      return mockUpdateTrialStatus(id, status);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('trial_classes')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[updateTrialStatus] Supabase error:', error?.message);
+      return {} as TrialClass;
     }
-  } catch (error) { handleServiceError(error, 'aula-experimental.updateStatus'); }
+    return data as unknown as TrialClass;
+  } catch (error) {
+    console.warn('[updateTrialStatus] Fallback:', error);
+    return {} as TrialClass;
+  }
 }
 
 export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> {
+  const fallback: TrialMetrics = { agendadas: 0, confirmadas: 0, compareceram: 0, matricularam: 0, taxaConversao: 0 };
   try {
     if (isMock()) {
       const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
       return mockGetTrialMetrics(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetTrialMetrics } = await import('@/lib/mocks/aula-experimental.mock');
-      return mockGetTrialMetrics(academyId);
-  } catch (error) { handleServiceError(error, 'aula-experimental.metrics'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('trial_classes')
+      .select('status')
+      .eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[getTrialMetrics] Supabase error:', error?.message);
+      return fallback;
+    }
+    const agendadas = data.length;
+    const confirmadas = data.filter((r: { status: string }) => r.status === 'confirmada' || r.status === 'compareceu' || r.status === 'matriculou').length;
+    const compareceram = data.filter((r: { status: string }) => r.status === 'compareceu' || r.status === 'matriculou').length;
+    const matricularam = data.filter((r: { status: string }) => r.status === 'matriculou').length;
+    return { agendadas, confirmadas, compareceram, matricularam, taxaConversao: agendadas > 0 ? matricularam / agendadas : 0 };
+  } catch (error) {
+    console.warn('[getTrialMetrics] Fallback:', error);
+    return fallback;
+  }
 }

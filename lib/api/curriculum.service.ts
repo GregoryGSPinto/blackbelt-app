@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type RequirementCategory = 'tecnicas_obrigatorias' | 'opcionais' | 'teoricos' | 'comportamentais';
 
@@ -45,15 +44,24 @@ export async function getCurriculum(academyId: string, modality: string, belt: s
       const { mockGetCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockGetCurriculum(academyId, modality, belt);
     }
-    try {
-      const res = await fetch(`/api/curriculum?academyId=${academyId}&modality=${modality}&belt=${belt}`);
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.get');
-      return res.json();
-    } catch {
-      console.warn('[curriculum.getCurriculum] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('curricula')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('modality', modality)
+      .eq('target_belt', belt)
+      .single();
+    if (error || !data) {
+      console.warn('[getCurriculum] Supabase error:', error?.message);
       return null;
     }
-  } catch (error) { handleServiceError(error, 'curriculum.get'); }
+    return data as unknown as CurriculumDTO;
+  } catch (error) {
+    console.warn('[getCurriculum] Fallback:', error);
+    return null;
+  }
 }
 
 export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): Promise<CurriculumDTO> {
@@ -62,16 +70,22 @@ export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): P
       const { mockCreateCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockCreateCurriculum(curriculum);
     }
-    try {
-      const res = await fetch('/api/curriculum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(curriculum) });
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.create');
-      return res.json();
-    } catch {
-      console.warn('[curriculum.createCurriculum] API not available, using mock fallback');
-      const { mockCreateCurriculum } = await import('@/lib/mocks/curriculum.mock');
-      return mockCreateCurriculum(curriculum);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('curricula')
+      .insert(curriculum)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createCurriculum] Supabase error:', error?.message);
+      return {} as CurriculumDTO;
     }
-  } catch (error) { handleServiceError(error, 'curriculum.create'); }
+    return data as unknown as CurriculumDTO;
+  } catch (error) {
+    console.warn('[createCurriculum] Fallback:', error);
+    return {} as CurriculumDTO;
+  }
 }
 
 export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>): Promise<CurriculumDTO> {
@@ -80,16 +94,23 @@ export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>)
       const { mockUpdateCurriculum } = await import('@/lib/mocks/curriculum.mock');
       return mockUpdateCurriculum(id, data);
     }
-    try {
-      const res = await fetch(`/api/curriculum/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.update');
-      return res.json();
-    } catch {
-      console.warn('[curriculum.updateCurriculum] API not available, using mock fallback');
-      const { mockUpdateCurriculum } = await import('@/lib/mocks/curriculum.mock');
-      return mockUpdateCurriculum(id, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('curricula')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updateCurriculum] Supabase error:', error?.message);
+      return {} as CurriculumDTO;
     }
-  } catch (error) { handleServiceError(error, 'curriculum.update'); }
+    return row as unknown as CurriculumDTO;
+  } catch (error) {
+    console.warn('[updateCurriculum] Fallback:', error);
+    return {} as CurriculumDTO;
+  }
 }
 
 export async function addRequirement(curriculumId: string, requirement: Omit<CurriculumRequirement, 'id'>): Promise<CurriculumRequirement> {
@@ -98,16 +119,22 @@ export async function addRequirement(curriculumId: string, requirement: Omit<Cur
       const { mockAddRequirement } = await import('@/lib/mocks/curriculum.mock');
       return mockAddRequirement(curriculumId, requirement);
     }
-    try {
-      const res = await fetch(`/api/curriculum/${curriculumId}/requirements`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requirement) });
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.addReq');
-      return res.json();
-    } catch {
-      console.warn('[curriculum.addRequirement] API not available, using mock fallback');
-      const { mockAddRequirement } = await import('@/lib/mocks/curriculum.mock');
-      return mockAddRequirement(curriculumId, requirement);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('curriculum_requirements')
+      .insert({ curriculum_id: curriculumId, ...requirement })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[addRequirement] Supabase error:', error?.message);
+      return {} as CurriculumRequirement;
     }
-  } catch (error) { handleServiceError(error, 'curriculum.addReq'); }
+    return data as unknown as CurriculumRequirement;
+  } catch (error) {
+    console.warn('[addRequirement] Fallback:', error);
+    return {} as CurriculumRequirement;
+  }
 }
 
 export async function removeRequirement(curriculumId: string, requirementId: string): Promise<void> {
@@ -116,23 +143,44 @@ export async function removeRequirement(curriculumId: string, requirementId: str
       const { mockRemoveRequirement } = await import('@/lib/mocks/curriculum.mock');
       return mockRemoveRequirement(curriculumId, requirementId);
     }
-    try {
-      const res = await fetch(`/api/curriculum/${curriculumId}/requirements/${requirementId}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'curriculum.removeReq');
-    } catch {
-      console.warn('[curriculum.removeRequirement] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('curriculum_requirements')
+      .delete()
+      .eq('id', requirementId)
+      .eq('curriculum_id', curriculumId);
+    if (error) {
+      console.warn('[removeRequirement] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'curriculum.removeReq'); }
+  } catch (error) {
+    console.warn('[removeRequirement] Fallback:', error);
+  }
 }
 
 export async function getStudentProgress(studentId: string, modality: string, belt: string): Promise<StudentCurriculumProgress> {
+  const fallback: StudentCurriculumProgress = { curriculum: {} as CurriculumDTO, completed: [], total: 0, completedCount: 0, percentage: 0 };
   try {
     if (isMock()) {
       const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
       return mockGetStudentProgress(studentId, modality, belt);
     }
-    // API not yet implemented — use mock
-    const { mockGetStudentProgress } = await import('@/lib/mocks/curriculum.mock');
-      return mockGetStudentProgress(studentId, modality, belt);
-  } catch (error) { handleServiceError(error, 'curriculum.progress'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('student_curriculum_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .eq('modality', modality)
+      .eq('target_belt', belt)
+      .single();
+    if (error || !data) {
+      console.warn('[getStudentProgress] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as StudentCurriculumProgress;
+  } catch (error) {
+    console.warn('[getStudentProgress] Fallback:', error);
+    return fallback;
+  }
 }

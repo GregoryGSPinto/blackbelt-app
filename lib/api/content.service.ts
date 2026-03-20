@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, Video } from '@/lib/types';
 
 export interface VideoFilters {
@@ -44,21 +43,21 @@ export async function listVideos(academyId: string, filters?: VideoFilters): Pro
       const { mockListVideos } = await import('@/lib/mocks/content.mock');
       return mockListVideos(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters?.belt) params.set('belt', filters.belt);
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.search) params.set('search', filters.search);
-      const res = await fetch(`/api/content/videos?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'content.listVideos');
-      return res.json();
-    } catch {
-      console.warn('[content.listVideos] API not available, using mock fallback');
-      const { mockListVideos } = await import('@/lib/mocks/content.mock');
-      return mockListVideos(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('videos').select('*').eq('academy_id', academyId);
+    if (filters?.belt) query = query.eq('belt_level', filters.belt);
+    if (filters?.modality) query = query.eq('modality', filters.modality);
+    if (filters?.search) query = query.ilike('title', `%${filters.search}%`);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[listVideos] Supabase error:', error?.message);
+      return [];
     }
+    return data as unknown as VideoCardDTO[];
   } catch (error) {
-    handleServiceError(error, 'content.listVideos');
+    console.warn('[listVideos] Fallback:', error);
+    return [];
   }
 }
 
@@ -68,11 +67,21 @@ export async function getVideo(id: string): Promise<VideoDetail> {
       const { mockGetVideo } = await import('@/lib/mocks/content.mock');
       return mockGetVideo(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetVideo } = await import('@/lib/mocks/content.mock');
-      return mockGetVideo(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('videos')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getVideo] Supabase error:', error?.message);
+      return {} as VideoDetail;
+    }
+    return data as unknown as VideoDetail;
   } catch (error) {
-    handleServiceError(error, 'content.getVideo');
+    console.warn('[getVideo] Fallback:', error);
+    return {} as VideoDetail;
   }
 }
 
@@ -82,10 +91,19 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
       const { mockGetSeries } = await import('@/lib/mocks/content.mock');
       return mockGetSeries(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSeries } = await import('@/lib/mocks/content.mock');
-      return mockGetSeries(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('video_series')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[getSeries] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as SeriesDTO[];
   } catch (error) {
-    handleServiceError(error, 'content.getSeries');
+    console.warn('[getSeries] Fallback:', error);
+    return [];
   }
 }

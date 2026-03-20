@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type NotificationPriority = 'urgent' | 'important' | 'info' | 'silent';
 
@@ -43,12 +42,21 @@ export async function getNotifications(
       );
       return mockGetNotifications(profileId);
     }
-    // API not yet implemented — use mock
-    const { mockGetNotifications } = await import('@/lib/mocks/notifications.mock');
-      return mockGetNotifications(profileId);
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('profile_id', profileId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getNotifications] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as IntelligentNotification[];
   } catch (error) {
-    handleServiceError(error, 'notifications.get');
+    console.warn('[getNotifications] Fallback:', error);
+    return [];
   }
 }
 
@@ -60,16 +68,17 @@ export async function markAsRead(notificationId: string): Promise<void> {
       );
       return mockMarkAsRead(notificationId);
     }
-    try {
-      const res = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'POST',
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'notifications.markRead');
-    } catch {
-      console.warn('[notifications.markAsRead] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('id', notificationId);
+    if (error) {
+      console.warn('[markAsRead] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'notifications.markRead');
+    console.warn('[markAsRead] Fallback:', error);
   }
 }
 
@@ -83,20 +92,18 @@ export async function markAllNotificationsRead(
       );
       return mockMarkAllNotificationsRead(profileId);
     }
-    try {
-      const res = await fetch('/api/notifications/read-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileId }),
-      });
-      if (!res.ok)
-        throw new ServiceError(res.status, 'notifications.markAllRead');
-    } catch {
-      console.warn('[notifications.markAllNotificationsRead] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('profile_id', profileId)
+      .eq('read', false);
+    if (error) {
+      console.warn('[markAllNotificationsRead] Supabase error:', error.message);
     }
-
   } catch (error) {
-    handleServiceError(error, 'notifications.markAllRead');
+    console.warn('[markAllNotificationsRead] Fallback:', error);
   }
 }
 

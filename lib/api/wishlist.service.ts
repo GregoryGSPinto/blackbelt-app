@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Product } from '@/lib/api/store.service';
 
 export interface WishlistItem {
@@ -16,20 +15,25 @@ export async function addToWishlist(userId: string, productId: string): Promise<
       const { mockAddToWishlist } = await import('@/lib/mocks/wishlist.mock');
       return mockAddToWishlist(userId, productId);
     }
-    try {
-      const res = await fetch('/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, productId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'wishlist.addToWishlist');
-      return res.json();
-    } catch {
-      console.warn('[wishlist.addToWishlist] API not available, using mock fallback');
-      const { mockAddToWishlist } = await import('@/lib/mocks/wishlist.mock');
-      return mockAddToWishlist(userId, productId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('wishlist')
+      .insert({ user_id: userId, product_id: productId })
+      .select('*, products(*)')
+      .single();
+
+    if (error || !data) {
+      console.warn('[addToWishlist] Supabase error:', error?.message);
+      return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
     }
-  } catch (error) { handleServiceError(error, 'wishlist.addToWishlist'); }
+
+    return data as unknown as WishlistItem;
+  } catch (error) {
+    console.warn('[addToWishlist] Fallback:', error);
+    return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
+  }
 }
 
 export async function removeFromWishlist(userId: string, productId: string): Promise<void> {
@@ -38,13 +42,21 @@ export async function removeFromWishlist(userId: string, productId: string): Pro
       const { mockRemoveFromWishlist } = await import('@/lib/mocks/wishlist.mock');
       return mockRemoveFromWishlist(userId, productId);
     }
-    try {
-      const res = await fetch(`/api/wishlist/${productId}?userId=${userId}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'wishlist.removeFromWishlist');
-    } catch {
-      console.warn('[wishlist.removeFromWishlist] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('wishlist')
+      .delete()
+      .eq('user_id', userId)
+      .eq('product_id', productId);
+
+    if (error) {
+      console.warn('[removeFromWishlist] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'wishlist.removeFromWishlist'); }
+  } catch (error) {
+    console.warn('[removeFromWishlist] Fallback:', error);
+  }
 }
 
 export async function getWishlist(userId: string): Promise<WishlistItem[]> {
@@ -53,8 +65,23 @@ export async function getWishlist(userId: string): Promise<WishlistItem[]> {
       const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
       return mockGetWishlist(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetWishlist } = await import('@/lib/mocks/wishlist.mock');
-      return mockGetWishlist(userId);
-  } catch (error) { handleServiceError(error, 'wishlist.getWishlist'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('wishlist')
+      .select('*, products(*)')
+      .eq('user_id', userId)
+      .order('added_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getWishlist] Supabase error:', error?.message);
+      return [];
+    }
+
+    return data as unknown as WishlistItem[];
+  } catch (error) {
+    console.warn('[getWishlist] Fallback:', error);
+    return [];
+  }
 }

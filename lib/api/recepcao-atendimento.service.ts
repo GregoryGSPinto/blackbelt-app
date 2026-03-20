@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -34,17 +33,21 @@ export async function buscarAlunoAtendimento(query: string): Promise<AlunoAtendi
       const { mockBuscarAluno } = await import('@/lib/mocks/recepcao-atendimento.mock');
       return mockBuscarAluno(query);
     }
-    try {
-      const res = await fetch(`/api/recepcao/atendimento/buscar?q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.buscar');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-atendimento.buscarAlunoAtendimento] API not available, using mock fallback');
-      const { mockBuscarAluno } = await import('@/lib/mocks/recepcao-atendimento.mock');
-      return mockBuscarAluno(query);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .or(`nome.ilike.%${query}%,email.ilike.%${query}%,telefone.ilike.%${query}%`)
+      .limit(20);
+    if (error) {
+      console.warn('[buscarAlunoAtendimento] Supabase error:', error.message);
+      return [];
     }
+    return (data ?? []) as unknown as AlunoAtendimento[];
   } catch (error) {
-    handleServiceError(error, 'recepcao-atendimento.buscar');
+    console.warn('[buscarAlunoAtendimento] Fallback:', error);
+    return [];
   }
 }
 
@@ -54,21 +57,19 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       const { mockCheckinManual } = await import('@/lib/mocks/recepcao-atendimento.mock');
       return mockCheckinManual(alunoId, turmaId);
     }
-    try {
-      const res = await fetch('/api/recepcao/atendimento/checkin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alunoId, turmaId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.checkin');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-atendimento.checkinManual] API not available, using mock fallback');
-      const { mockCheckinManual } = await import('@/lib/mocks/recepcao-atendimento.mock');
-      return mockCheckinManual(alunoId, turmaId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('checkins')
+      .insert({ student_id: alunoId, class_id: turmaId, checked_in_at: new Date().toISOString(), method: 'manual' });
+    if (error) {
+      console.warn('[checkinManual] Supabase error:', error.message);
+      return { ok: false };
     }
+    return { ok: true };
   } catch (error) {
-    handleServiceError(error, 'recepcao-atendimento.checkin');
+    console.warn('[checkinManual] Fallback:', error);
+    return { ok: false };
   }
 }
 
@@ -83,14 +84,24 @@ export async function registrarPagamento(data: {
       const { mockRegistrarPagamento } = await import('@/lib/mocks/recepcao-atendimento.mock');
       return mockRegistrarPagamento(data);
     }
-    const res = await fetch('/api/recepcao/atendimento/pagamento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'recepcao-atendimento.pagamento');
-    return res.json();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('payments')
+      .insert({
+        student_id: data.alunoId,
+        amount: data.valor,
+        method: data.metodo,
+        reference: data.referencia,
+        paid_at: new Date().toISOString(),
+      });
+    if (error) {
+      console.warn('[registrarPagamento] Supabase error:', error.message);
+      return { ok: false };
+    }
+    return { ok: true };
   } catch (error) {
-    handleServiceError(error, 'recepcao-atendimento.pagamento');
+    console.warn('[registrarPagamento] Fallback:', error);
+    return { ok: false };
   }
 }

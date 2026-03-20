@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -54,10 +53,35 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       const { mockGetModoAula } = await import('@/lib/mocks/modo-aula.mock');
       return mockGetModoAula(turmaId);
     }
-    console.warn('[modoAula.get] fallback — not yet connected to Supabase');
-    return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] } as ModoAulaDTO;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('classes')
+      .select('id, name, modality, schedule, room, capacity')
+      .eq('id', turmaId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getModoAula] Supabase error:', error?.message);
+      return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
+    }
+
+    return {
+      turma: {
+        id: String(data.id),
+        nome: String(data.name ?? ''),
+        modalidade: String(data.modality ?? ''),
+        horario: String(data.schedule ?? ''),
+        sala: String(data.room ?? ''),
+        capacidade: Number(data.capacity ?? 0),
+      },
+      alunos: [],
+      alertas: [],
+    };
   } catch (error) {
-    handleServiceError(error, 'modoAula.get');
+    console.warn('[getModoAula] Fallback:', error);
+    return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
   }
 }
 
@@ -67,10 +91,18 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
       const { mockRegistrarPresenca } = await import('@/lib/mocks/modo-aula.mock');
       return mockRegistrarPresenca(turmaId, alunoId, presente);
     }
-    console.warn('[modoAula.registrarPresenca] fallback — not yet connected to Supabase');
-    return;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('attendance')
+      .upsert({ class_id: turmaId, student_id: alunoId, present: presente, date: new Date().toISOString().split('T')[0] });
+
+    if (error) {
+      console.warn('[registrarPresenca] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'modoAula.registrarPresenca');
+    console.warn('[registrarPresenca] Fallback:', error);
   }
 }
 
@@ -80,9 +112,25 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       const { mockEncerrarAula } = await import('@/lib/mocks/modo-aula.mock');
       return mockEncerrarAula(turmaId);
     }
-    console.warn('[modoAula.encerrar] fallback — not yet connected to Supabase');
-    return { totalPresentes: 0, totalAlunos: 0 };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const today = new Date().toISOString().split('T')[0];
+    const { count, error } = await supabase
+      .from('attendance')
+      .select('*', { count: 'exact', head: true })
+      .eq('class_id', turmaId)
+      .eq('date', today)
+      .eq('present', true);
+
+    if (error) {
+      console.warn('[encerrarAula] Supabase error:', error.message);
+      return { totalPresentes: 0, totalAlunos: 0 };
+    }
+
+    return { totalPresentes: count ?? 0, totalAlunos: 0 };
   } catch (error) {
-    handleServiceError(error, 'modoAula.encerrar');
+    console.warn('[encerrarAula] Fallback:', error);
+    return { totalPresentes: 0, totalAlunos: 0 };
   }
 }

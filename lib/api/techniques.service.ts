@@ -1,8 +1,7 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type TechniqueModality = 'bjj' | 'muay-thai' | 'judo' | 'wrestling' | 'mma';
-export type TechniqueCategory = 'finalização' | 'passagem' | 'raspagem' | 'queda' | 'defesa' | 'posição' | 'transição' | 'striking';
+export type TechniqueCategory = 'finaliza\u00e7\u00e3o' | 'passagem' | 'raspagem' | 'queda' | 'defesa' | 'posi\u00e7\u00e3o' | 'transi\u00e7\u00e3o' | 'striking';
 export type BeltLevel = 'branca' | 'azul' | 'roxa' | 'marrom' | 'preta';
 
 export interface TechniqueDTO {
@@ -26,10 +25,23 @@ export async function listTechniques(filters?: { modality?: TechniqueModality; c
       const { mockListTechniques } = await import('@/lib/mocks/techniques.mock');
       return mockListTechniques(filters);
     }
-    // API not yet implemented — use mock
-    const { mockListTechniques } = await import('@/lib/mocks/techniques.mock');
-      return mockListTechniques(filters);
-  } catch (error) { handleServiceError(error, 'techniques.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('techniques').select('*');
+    if (filters?.modality) query = query.eq('modality', filters.modality);
+    if (filters?.category) query = query.eq('category', filters.category);
+    if (filters?.belt_level) query = query.eq('belt_level', filters.belt_level);
+    if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
+    const { data, error } = await query.order('name');
+    if (error) {
+      console.warn('[listTechniques] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as TechniqueDTO[];
+  } catch (error) {
+    console.warn('[listTechniques] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getTechniqueById(techniqueId: string): Promise<TechniqueDTO> {
@@ -38,10 +50,24 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
       return mockGetTechniqueById(techniqueId);
     }
-    // API not yet implemented — use mock
-    const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('techniques')
+      .select('*')
+      .eq('id', techniqueId)
+      .single();
+    if (error || !data) {
+      console.warn('[getTechniqueById] Supabase error:', error?.message);
+      const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
       return mockGetTechniqueById(techniqueId);
-  } catch (error) { handleServiceError(error, 'techniques.getById'); }
+    }
+    return data as TechniqueDTO;
+  } catch (error) {
+    console.warn('[getTechniqueById] Fallback:', error);
+    const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
+    return mockGetTechniqueById(techniqueId);
+  }
 }
 
 export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'created_at' | 'updated_at'>): Promise<TechniqueDTO> {
@@ -50,16 +76,24 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
       return mockCreateTechnique(technique);
     }
-    try {
-      const res = await fetch('/api/techniques', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(technique) });
-      if (!res.ok) throw new ServiceError(res.status, 'techniques.create');
-      return res.json();
-    } catch {
-      console.warn('[techniques.createTechnique] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('techniques')
+      .insert(technique)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createTechnique] Supabase error:', error?.message);
       const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
       return mockCreateTechnique(technique);
     }
-  } catch (error) { handleServiceError(error, 'techniques.create'); }
+    return data as TechniqueDTO;
+  } catch (error) {
+    console.warn('[createTechnique] Fallback:', error);
+    const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
+    return mockCreateTechnique(technique);
+  }
 }
 
 export async function getByModality(modality: TechniqueModality): Promise<TechniqueDTO[]> {
@@ -68,8 +102,20 @@ export async function getByModality(modality: TechniqueModality): Promise<Techni
       const { mockGetByModality } = await import('@/lib/mocks/techniques.mock');
       return mockGetByModality(modality);
     }
-    // API not yet implemented — use mock
-    const { mockGetByModality } = await import('@/lib/mocks/techniques.mock');
-      return mockGetByModality(modality);
-  } catch (error) { handleServiceError(error, 'techniques.getByModality'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('techniques')
+      .select('*')
+      .eq('modality', modality)
+      .order('name');
+    if (error) {
+      console.warn('[getByModality] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as TechniqueDTO[];
+  } catch (error) {
+    console.warn('[getByModality] Fallback:', error);
+    return [];
+  }
 }

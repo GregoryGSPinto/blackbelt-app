@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type TipoContrato = 'matricula' | 'termo_responsabilidade' | 'codigo_conduta' | 'cancelamento';
 export type StatusContrato = 'rascunho' | 'enviado' | 'visualizado' | 'assinado' | 'expirado';
@@ -40,10 +39,21 @@ export async function listContratosTemplates(academyId: string): Promise<Contrat
       const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratosTemplates(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListContratosTemplates } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockListContratosTemplates(academyId);
-  } catch (error) { handleServiceError(error, 'contratos-v2.listTemplates'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contrato_templates')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[listContratosTemplates] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as ContratoTemplate[];
+  } catch (error) {
+    console.warn('[listContratosTemplates] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getContratoTemplate(id: string): Promise<ContratoTemplate> {
@@ -52,10 +62,22 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratoTemplate(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockGetContratoTemplate(id);
-  } catch (error) { handleServiceError(error, 'contratos-v2.getTemplate'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contrato_templates')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getContratoTemplate] Supabase error:', error?.message);
+      return {} as ContratoTemplate;
+    }
+    return data as unknown as ContratoTemplate;
+  } catch (error) {
+    console.warn('[getContratoTemplate] Fallback:', error);
+    return {} as ContratoTemplate;
+  }
 }
 
 export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' | 'criadoEm'>): Promise<ContratoTemplate> {
@@ -64,16 +86,22 @@ export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' |
       const { mockCreateContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
       return mockCreateContratoTemplate(data);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/templates`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.createTemplate');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.createContratoTemplate] API not available, using mock fallback');
-      const { mockCreateContratoTemplate } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockCreateContratoTemplate(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('contrato_templates')
+      .insert(data)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createContratoTemplate] Supabase error:', error?.message);
+      return {} as ContratoTemplate;
     }
-  } catch (error) { handleServiceError(error, 'contratos-v2.createTemplate'); }
+    return row as unknown as ContratoTemplate;
+  } catch (error) {
+    console.warn('[createContratoTemplate] Fallback:', error);
+    return {} as ContratoTemplate;
+  }
 }
 
 export async function gerarContrato(templateId: string, alunoId: string, dados: Record<string, string>): Promise<Contrato> {
@@ -82,16 +110,22 @@ export async function gerarContrato(templateId: string, alunoId: string, dados: 
       const { mockGerarContrato } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGerarContrato(templateId, alunoId, dados);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, alunoId, dados }) });
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.gerar');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.gerarContrato] API not available, using mock fallback');
-      const { mockGerarContrato } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockGerarContrato(templateId, alunoId, dados);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contratos')
+      .insert({ template_id: templateId, aluno_id: alunoId, dados, status: 'rascunho' })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[gerarContrato] Supabase error:', error?.message);
+      return {} as Contrato;
     }
-  } catch (error) { handleServiceError(error, 'contratos-v2.gerar'); }
+    return data as unknown as Contrato;
+  } catch (error) {
+    console.warn('[gerarContrato] Fallback:', error);
+    return {} as Contrato;
+  }
 }
 
 export async function enviarParaAssinatura(contratoId: string, metodo: 'email' | 'whatsapp'): Promise<void> {
@@ -100,13 +134,18 @@ export async function enviarParaAssinatura(contratoId: string, metodo: 'email' |
       const { mockEnviarParaAssinatura } = await import('@/lib/mocks/contratos-v2.mock');
       return mockEnviarParaAssinatura(contratoId, metodo);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/${contratoId}/enviar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ metodo }) });
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.enviar');
-    } catch {
-      console.warn('[contratos-v2.enviarParaAssinatura] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('contratos')
+      .update({ status: 'enviado', enviado_por: metodo })
+      .eq('id', contratoId);
+    if (error) {
+      console.warn('[enviarParaAssinatura] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'contratos-v2.enviar'); }
+  } catch (error) {
+    console.warn('[enviarParaAssinatura] Fallback:', error);
+  }
 }
 
 export async function assinarContrato(contratoId: string, assinatura: string): Promise<Contrato> {
@@ -115,16 +154,23 @@ export async function assinarContrato(contratoId: string, assinatura: string): P
       const { mockAssinarContrato } = await import('@/lib/mocks/contratos-v2.mock');
       return mockAssinarContrato(contratoId, assinatura);
     }
-    try {
-      const res = await fetch(`/api/contratos-v2/${contratoId}/assinar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assinatura }) });
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.assinar');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.assinarContrato] API not available, using mock fallback');
-      const { mockAssinarContrato } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockAssinarContrato(contratoId, assinatura);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contratos')
+      .update({ status: 'assinado', assinatura_base64: assinatura, assinado_em: new Date().toISOString() })
+      .eq('id', contratoId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[assinarContrato] Supabase error:', error?.message);
+      return {} as Contrato;
     }
-  } catch (error) { handleServiceError(error, 'contratos-v2.assinar'); }
+    return data as unknown as Contrato;
+  } catch (error) {
+    console.warn('[assinarContrato] Fallback:', error);
+    return {} as Contrato;
+  }
 }
 
 export async function listContratos(academyId: string, filters?: { status?: StatusContrato }): Promise<Contrato[]> {
@@ -133,28 +179,45 @@ export async function listContratos(academyId: string, filters?: { status?: Stat
       const { mockListContratos } = await import('@/lib/mocks/contratos-v2.mock');
       return mockListContratos(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters?.status) params.set('status', filters.status);
-      const res = await fetch(`/api/contratos-v2?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'contratos-v2.list');
-      return res.json();
-    } catch {
-      console.warn('[contratos-v2.listContratos] API not available, using mock fallback');
-      const { mockListContratos } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockListContratos(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('contratos').select('*').eq('academy_id', academyId);
+    if (filters?.status) query = query.eq('status', filters.status);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[listContratos] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'contratos-v2.list'); }
+    return data as unknown as Contrato[];
+  } catch (error) {
+    console.warn('[listContratos] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getContratosMetrics(academyId: string): Promise<ContratosMetrics> {
+  const fallback: ContratosMetrics = { contratosAtivos: 0, pendentesAssinatura: 0, taxaAssinatura: 0 };
   try {
     if (isMock()) {
       const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
       return mockGetContratosMetrics(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetContratosMetrics } = await import('@/lib/mocks/contratos-v2.mock');
-      return mockGetContratosMetrics(academyId);
-  } catch (error) { handleServiceError(error, 'contratos-v2.metrics'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contratos')
+      .select('status')
+      .eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[getContratosMetrics] Supabase error:', error?.message);
+      return fallback;
+    }
+    const ativos = data.filter((c: { status: string }) => c.status === 'assinado').length;
+    const pendentes = data.filter((c: { status: string }) => c.status === 'enviado' || c.status === 'visualizado').length;
+    const total = data.length;
+    return { contratosAtivos: ativos, pendentesAssinatura: pendentes, taxaAssinatura: total > 0 ? ativos / total : 0 };
+  } catch (error) {
+    console.warn('[getContratosMetrics] Fallback:', error);
+    return fallback;
+  }
 }

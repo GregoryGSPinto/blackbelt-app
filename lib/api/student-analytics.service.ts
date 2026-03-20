@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface RadarMetrics {
   technique: number;
@@ -31,11 +30,17 @@ export async function getStudentPerformance(studentId: string): Promise<StudentP
     }
     try {
       const res = await fetch(`/api/students/${studentId}/performance`);
-      if (!res.ok) throw new ServiceError(res.status, 'studentAnalytics.performance');
+      if (!res.ok) {
+        console.warn('[getStudentPerformance] error:', `HTTP ${res.status}`);
+        return { radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, class_avg_radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, monthly_attendance: [], max_streak: 0, total_training_hours: 0, recommendations: [], video_suggestions: [] };
+      }
       return res.json();
     } catch {
       console.warn('[student-analytics.getStudentPerformance] API not available, using fallback');
-      return { student_id: "", radar: { technique: 0, strength: 0, flexibility: 0, cardio: 0, discipline: 0 }, monthly_attendance: [], xp_total: 0, belt: "", ranking_position: 0 } as unknown as StudentPerformanceDTO;
+      return { radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, class_avg_radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, monthly_attendance: [], max_streak: 0, total_training_hours: 0, recommendations: [], video_suggestions: [] };
     }
-  } catch (error) { handleServiceError(error, 'studentAnalytics.performance'); }
+  } catch (error) {
+    console.warn('[getStudentPerformance] Fallback:', error);
+    return { radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, class_avg_radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, monthly_attendance: [], max_streak: 0, total_training_hours: 0, recommendations: [], video_suggestions: [] };
+  }
 }

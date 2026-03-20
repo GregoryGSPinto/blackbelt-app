@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface AgendaSlot {
   id: string;
@@ -28,10 +27,33 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetAgenda(professorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAgenda } = await import('@/lib/mocks/professor-agenda.mock');
-      return mockGetAgenda(professorId);
-  } catch (error) { handleServiceError(error, 'professorAgenda.get'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('agenda_slots')
+      .select('*')
+      .eq('professor_id', professorId);
+
+    if (error || !data) {
+      console.warn('[getAgenda] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      type: (row.type ?? 'class') as AgendaSlot['type'],
+      title: String(row.title ?? ''),
+      day: Number(row.day ?? 0),
+      startTime: String(row.start_time ?? ''),
+      endTime: String(row.end_time ?? ''),
+      studentName: row.student_name ? String(row.student_name) : undefined,
+      status: row.status as AgendaSlot['status'],
+    }));
+  } catch (error) {
+    console.warn('[getAgenda] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getLessonRequests(professorId: string): Promise<LessonRequest[]> {
@@ -40,10 +62,33 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
       return mockGetLessonRequests(professorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetLessonRequests } = await import('@/lib/mocks/professor-agenda.mock');
-      return mockGetLessonRequests(professorId);
-  } catch (error) { handleServiceError(error, 'professorAgenda.requests'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('lesson_requests')
+      .select('*')
+      .eq('professor_id', professorId)
+      .eq('status', 'pending');
+
+    if (error || !data) {
+      console.warn('[getLessonRequests] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      studentId: String(row.student_id ?? ''),
+      studentName: String(row.student_name ?? ''),
+      requestedDate: String(row.requested_date ?? ''),
+      requestedTime: String(row.requested_time ?? ''),
+      status: (row.status ?? 'pending') as LessonRequest['status'],
+      reason: row.reason ? String(row.reason) : undefined,
+    }));
+  } catch (error) {
+    console.warn('[getLessonRequests] Fallback:', error);
+    return [];
+  }
 }
 
 export async function approveLesson(requestId: string): Promise<void> {
@@ -52,13 +97,20 @@ export async function approveLesson(requestId: string): Promise<void> {
       const { mockApproveLesson } = await import('@/lib/mocks/professor-agenda.mock');
       return mockApproveLesson(requestId);
     }
-    try {
-      const res = await fetch(`/api/lesson-requests/${requestId}/approve`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.approve');
-    } catch {
-      console.warn('[professor-agenda.approveLesson] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('lesson_requests')
+      .update({ status: 'approved' })
+      .eq('id', requestId);
+
+    if (error) {
+      console.warn('[approveLesson] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'professorAgenda.approve'); }
+  } catch (error) {
+    console.warn('[approveLesson] Fallback:', error);
+  }
 }
 
 export async function rejectLesson(requestId: string, reason: string): Promise<void> {
@@ -67,11 +119,18 @@ export async function rejectLesson(requestId: string, reason: string): Promise<v
       const { mockRejectLesson } = await import('@/lib/mocks/professor-agenda.mock');
       return mockRejectLesson(requestId, reason);
     }
-    try {
-      const res = await fetch(`/api/lesson-requests/${requestId}/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
-      if (!res.ok) throw new ServiceError(res.status, 'professorAgenda.reject');
-    } catch {
-      console.warn('[professor-agenda.rejectLesson] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('lesson_requests')
+      .update({ status: 'rejected', reason })
+      .eq('id', requestId);
+
+    if (error) {
+      console.warn('[rejectLesson] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'professorAgenda.reject'); }
+  } catch (error) {
+    console.warn('[rejectLesson] Fallback:', error);
+  }
 }

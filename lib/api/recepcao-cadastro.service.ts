@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -60,21 +59,21 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       const { mockCadastrarRapido } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockCadastrarRapido(data);
     }
-    try {
-      const res = await fetch('/api/recepcao/cadastro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-cadastro.create');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-cadastro.cadastrarRapido] API not available, using mock fallback');
-      const { mockCadastrarRapido } = await import('@/lib/mocks/recepcao-cadastro.mock');
-      return mockCadastrarRapido(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('cadastros')
+      .insert(data)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[cadastrarRapido] Supabase error:', error?.message);
+      return { alunoId: '', tipo: data.tipo };
     }
+    return row as unknown as CadastroResult;
   } catch (error) {
-    handleServiceError(error, 'recepcao-cadastro.create');
+    console.warn('[cadastrarRapido] Fallback:', error);
+    return { alunoId: '', tipo: data.tipo };
   }
 }
 
@@ -84,11 +83,20 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetPlanos();
     }
-    // API not yet implemented — use mock
-    const { mockGetPlanos } = await import('@/lib/mocks/recepcao-cadastro.mock');
-      return mockGetPlanos();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('plans')
+      .select('id, name, price, features')
+      .eq('active', true);
+    if (error || !data) {
+      console.warn('[getPlanos] Supabase error:', error?.message);
+      return [];
+    }
+    return data.map((p: { id: string; name: string; price: number; features: string[] | null }) => ({ id: p.id, nome: p.name, valor: p.price, beneficios: p.features ?? [] })) as PlanoResumo[];
   } catch (error) {
-    handleServiceError(error, 'recepcao-cadastro.planos');
+    console.warn('[getPlanos] Fallback:', error);
+    return [];
   }
 }
 
@@ -98,10 +106,19 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockGetTurmasDisponiveis();
     }
-    // API not yet implemented — use mock
-    const { mockGetTurmasDisponiveis } = await import('@/lib/mocks/recepcao-cadastro.mock');
-      return mockGetTurmasDisponiveis();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('classes')
+      .select('id, name, schedule, professor_name, capacity, enrolled_count')
+      .eq('status', 'active');
+    if (error || !data) {
+      console.warn('[getTurmasDisponiveis] Supabase error:', error?.message);
+      return [];
+    }
+    return data.map((c: { id: string; name: string; schedule: string | null; professor_name: string | null; capacity: number | null; enrolled_count: number | null }) => ({ id: c.id, nome: c.name, horario: c.schedule ?? '', professor: c.professor_name ?? '', vagas: (c.capacity ?? 0) - (c.enrolled_count ?? 0) })) as TurmaResumo[];
   } catch (error) {
-    handleServiceError(error, 'recepcao-cadastro.turmas');
+    console.warn('[getTurmasDisponiveis] Fallback:', error);
+    return [];
   }
 }

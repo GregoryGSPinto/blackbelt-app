@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -25,11 +24,24 @@ export async function getNotificacoes(guardianId: string): Promise<NotificacaoRe
       const { mockGetNotificacoes } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockGetNotificacoes(guardianId);
     }
-    // API not yet implemented — use mock
-    const { mockGetNotificacoes } = await import('@/lib/mocks/responsavel-notificacoes.mock');
-      return mockGetNotificacoes(guardianId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('guardian_notifications')
+      .select('*')
+      .eq('guardian_id', guardianId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getNotificacoes] Supabase error:', error?.message);
+      return [];
+    }
+
+    return data as unknown as NotificacaoResponsavel[];
   } catch (error) {
-    handleServiceError(error, 'responsavel.notificacoes');
+    console.warn('[getNotificacoes] Fallback:', error);
+    return [];
   }
 }
 
@@ -39,16 +51,19 @@ export async function marcarLida(id: string): Promise<void> {
       const { mockMarcarLida } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockMarcarLida(id);
     }
-    try {
-      const res = await fetch(`/api/responsavel/notificacoes/${id}/read`, {
-        method: 'PATCH',
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarLida');
-    } catch {
-      console.warn('[responsavel-notificacoes.marcarLida] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('guardian_notifications')
+      .update({ read: true })
+      .eq('id', id);
+
+    if (error) {
+      console.warn('[marcarLida] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'responsavel.notificacoes.marcarLida');
+    console.warn('[marcarLida] Fallback:', error);
   }
 }
 
@@ -58,17 +73,19 @@ export async function marcarTodasLidas(guardianId: string): Promise<void> {
       const { mockMarcarTodasLidas } = await import('@/lib/mocks/responsavel-notificacoes.mock');
       return mockMarcarTodasLidas(guardianId);
     }
-    try {
-      const res = await fetch(`/api/responsavel/notificacoes/read-all`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guardianId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'responsavel.notificacoes.marcarTodasLidas');
-    } catch {
-      console.warn('[responsavel-notificacoes.marcarTodasLidas] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('guardian_notifications')
+      .update({ read: true })
+      .eq('guardian_id', guardianId)
+      .eq('read', false);
+
+    if (error) {
+      console.warn('[marcarTodasLidas] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'responsavel.notificacoes.marcarTodasLidas');
+    console.warn('[marcarTodasLidas] Fallback:', error);
   }
 }

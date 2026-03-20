@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface SystemStatus {
   uptime: number;
@@ -26,5 +25,8 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       const { mockGetSystemStatus } = await import('@/lib/mocks/observability.mock');
       return mockGetSystemStatus();
     }
-  } catch (error) { handleServiceError(error, 'observability.status'); }
+  } catch (error) {
+    console.warn('[getSystemStatus] Fallback:', error);
+    return { uptime: 0, version: '', healthStatus: 'unhealthy', avgResponseTime: 0, errorRate: 0, activeUsers: 0, recentErrors: [], uptimeHistory: [] };
+  }
 }

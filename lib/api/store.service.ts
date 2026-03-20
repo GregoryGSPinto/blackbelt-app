@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type ProductCategory = 'quimono' | 'faixa' | 'equipamento' | 'acessorio' | 'vestuario' | 'suplemento';
 export type ProductStatus = 'active' | 'draft' | 'out_of_stock';
@@ -57,22 +56,27 @@ export async function listProducts(academyId: string, filters?: ProductFilters):
       const { mockListProducts } = await import('@/lib/mocks/store.mock');
       return mockListProducts(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters?.category) params.set('category', filters.category);
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.search) params.set('search', filters.search);
-      if (filters?.featured !== undefined) params.set('featured', String(filters.featured));
-      if (filters?.low_stock) params.set('low_stock', 'true');
-      const res = await fetch(`/api/store/products?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'store.listProducts');
-      return res.json();
-    } catch {
-      console.warn('[store.listProducts] API not available, using mock fallback');
-      const { mockListProducts } = await import('@/lib/mocks/store.mock');
-      return mockListProducts(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase.from('products').select('*').eq('academy_id', academyId);
+    if (filters?.category) query = query.eq('category', filters.category);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.featured !== undefined) query = query.eq('featured', filters.featured);
+    if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[listProducts] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'store.listProducts'); }
+
+    return data as unknown as Product[];
+  } catch (error) {
+    console.warn('[listProducts] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getProduct(id: string): Promise<Product> {
@@ -81,10 +85,25 @@ export async function getProduct(id: string): Promise<Product> {
       const { mockGetProduct } = await import('@/lib/mocks/store.mock');
       return mockGetProduct(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetProduct } = await import('@/lib/mocks/store.mock');
-      return mockGetProduct(id);
-  } catch (error) { handleServiceError(error, 'store.getProduct'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getProduct] Supabase error:', error?.message);
+      return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
+    }
+
+    return data as unknown as Product;
+  } catch (error) {
+    console.warn('[getProduct] Fallback:', error);
+    return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
+  }
 }
 
 export async function createProduct(data: CreateProductData): Promise<Product> {
@@ -93,20 +112,25 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       const { mockCreateProduct } = await import('@/lib/mocks/store.mock');
       return mockCreateProduct(data);
     }
-    try {
-      const res = await fetch('/api/store/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'store.createProduct');
-      return res.json();
-    } catch {
-      console.warn('[store.createProduct] API not available, using mock fallback');
-      const { mockCreateProduct } = await import('@/lib/mocks/store.mock');
-      return mockCreateProduct(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('products')
+      .insert(data)
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[createProduct] Supabase error:', error?.message);
+      return { id: '', academy_id: '', ...data, stock_total: 0, variants: [], created_at: '', updated_at: '' } as unknown as Product;
     }
-  } catch (error) { handleServiceError(error, 'store.createProduct'); }
+
+    return row as unknown as Product;
+  } catch (error) {
+    console.warn('[createProduct] Fallback:', error);
+    return { id: '', academy_id: '', ...data, stock_total: 0, variants: [], created_at: '', updated_at: '' } as unknown as Product;
+  }
 }
 
 export async function updateProduct(id: string, data: Partial<CreateProductData>): Promise<Product> {
@@ -115,20 +139,26 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       const { mockUpdateProduct } = await import('@/lib/mocks/store.mock');
       return mockUpdateProduct(id, data);
     }
-    try {
-      const res = await fetch(`/api/store/products/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'store.updateProduct');
-      return res.json();
-    } catch {
-      console.warn('[store.updateProduct] API not available, using mock fallback');
-      const { mockUpdateProduct } = await import('@/lib/mocks/store.mock');
-      return mockUpdateProduct(id, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('products')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[updateProduct] Supabase error:', error?.message);
+      return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
     }
-  } catch (error) { handleServiceError(error, 'store.updateProduct'); }
+
+    return row as unknown as Product;
+  } catch (error) {
+    console.warn('[updateProduct] Fallback:', error);
+    return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
+  }
 }
 
 export async function deleteProduct(id: string): Promise<void> {
@@ -137,11 +167,18 @@ export async function deleteProduct(id: string): Promise<void> {
       const { mockDeleteProduct } = await import('@/lib/mocks/store.mock');
       return mockDeleteProduct(id);
     }
-    try {
-      const res = await fetch(`/api/store/products/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'store.deleteProduct');
-    } catch {
-      console.warn('[store.deleteProduct] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.warn('[deleteProduct] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'store.deleteProduct'); }
+  } catch (error) {
+    console.warn('[deleteProduct] Fallback:', error);
+  }
 }

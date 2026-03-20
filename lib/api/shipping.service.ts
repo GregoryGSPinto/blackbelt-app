@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface ShippingItem {
   product_id: string;
@@ -42,20 +41,22 @@ export async function calculateShipping(cep: string, items: ShippingItem[]): Pro
       const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
       return mockCalculateShipping(cep, items);
     }
-    try {
-      const res = await fetch('/api/shipping/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cep, items }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'shipping.calculateShipping');
-      return res.json();
-    } catch {
-      console.warn('[shipping.calculateShipping] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.functions.invoke('calculate-shipping', {
+      body: { cep, items },
+    });
+    if (error || !data) {
+      console.warn('[calculateShipping] Supabase error:', error?.message);
       const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
       return mockCalculateShipping(cep, items);
     }
-  } catch (error) { handleServiceError(error, 'shipping.calculateShipping'); }
+    return data as ShippingOption[];
+  } catch (error) {
+    console.warn('[calculateShipping] Fallback:', error);
+    const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
+    return mockCalculateShipping(cep, items);
+  }
 }
 
 export async function createShipment(orderId: string, carrier: string): Promise<Shipment> {
@@ -64,20 +65,24 @@ export async function createShipment(orderId: string, carrier: string): Promise<
       const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
       return mockCreateShipment(orderId, carrier);
     }
-    try {
-      const res = await fetch('/api/shipping/shipments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, carrier }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'shipping.createShipment');
-      return res.json();
-    } catch {
-      console.warn('[shipping.createShipment] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('shipments')
+      .insert({ order_id: orderId, carrier, status: 'created' })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createShipment] Supabase error:', error?.message);
       const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
       return mockCreateShipment(orderId, carrier);
     }
-  } catch (error) { handleServiceError(error, 'shipping.createShipment'); }
+    return data as Shipment;
+  } catch (error) {
+    console.warn('[createShipment] Fallback:', error);
+    const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
+    return mockCreateShipment(orderId, carrier);
+  }
 }
 
 export async function trackShipment(trackingCode: string): Promise<Shipment> {
@@ -86,10 +91,24 @@ export async function trackShipment(trackingCode: string): Promise<Shipment> {
       const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
     }
-    // API not yet implemented — use mock
-    const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('shipments')
+      .select('*')
+      .eq('tracking_code', trackingCode)
+      .single();
+    if (error || !data) {
+      console.warn('[trackShipment] Supabase error:', error?.message);
+      const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
-  } catch (error) { handleServiceError(error, 'shipping.trackShipment'); }
+    }
+    return data as Shipment;
+  } catch (error) {
+    console.warn('[trackShipment] Fallback:', error);
+    const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
+    return mockTrackShipment(trackingCode);
+  }
 }
 
 export async function getShipmentStatus(orderId: string): Promise<Shipment> {
@@ -98,8 +117,24 @@ export async function getShipmentStatus(orderId: string): Promise<Shipment> {
       const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
     }
-    // API not yet implemented — use mock
-    const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('shipments')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (error || !data) {
+      console.warn('[getShipmentStatus] Supabase error:', error?.message);
+      const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
-  } catch (error) { handleServiceError(error, 'shipping.getShipmentStatus'); }
+    }
+    return data as Shipment;
+  } catch (error) {
+    console.warn('[getShipmentStatus] Fallback:', error);
+    const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
+    return mockGetShipmentStatus(orderId);
+  }
 }

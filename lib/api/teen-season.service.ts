@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -59,14 +58,18 @@ export async function getTeenSeasonPass(studentId: string): Promise<TeenSeasonPa
     }
     try {
       const res = await fetch(`/api/teen/season?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'teen.season');
+      if (!res.ok) {
+        console.warn('[getTeenSeasonPass] error:', `HTTP ${res.status}`);
+        return { season: { id: '', name: '', theme: '', start_date: '', end_date: '', days_remaining: 0 }, my_progress: { points: 0, rank: 0, tier: 'bronze', next_tier_at: 0, achievements_count: 0 }, rewards: [], leaderboard: [] };
+      }
       return res.json();
     } catch {
       console.warn('[teen-season.getTeenSeasonPass] API not available, using fallback');
-      return { season: { id: "", name: "", start_date: "", end_date: "", theme: "", max_level: 0 }, progress: { current_level: 0, current_xp: 0, xp_for_next: 0, rank: 0, total_participants: 0 }, rewards: [], ranking: [] } as unknown as TeenSeasonPass;
+      return { season: { id: '', name: '', theme: '', start_date: '', end_date: '', days_remaining: 0 }, my_progress: { points: 0, rank: 0, tier: 'bronze', next_tier_at: 0, achievements_count: 0 }, rewards: [], leaderboard: [] };
     }
   } catch (error) {
-    handleServiceError(error, 'teen.season');
+    console.warn('[getTeenSeasonPass] Fallback:', error);
+    return { season: { id: '', name: '', theme: '', start_date: '', end_date: '', days_remaining: 0 }, my_progress: { points: 0, rank: 0, tier: 'bronze', next_tier_at: 0, achievements_count: 0 }, rewards: [], leaderboard: [] };
   }
 }
 
@@ -78,11 +81,13 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
     }
     try {
       const res = await fetch(`/api/teen/season/rewards/${rewardId}/claim`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'teen.season.claim');
+      if (!res.ok) {
+        console.warn('[claimSeasonReward] error:', `HTTP ${res.status}`);
+      }
     } catch {
       console.warn('[teen-season.claimSeasonReward] API not available, using fallback');
     }
   } catch (error) {
-    handleServiceError(error, 'teen.season.claim');
+    console.warn('[claimSeasonReward] Fallback:', error);
   }
 }

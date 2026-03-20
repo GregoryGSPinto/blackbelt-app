@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface SentimentResult {
   score: number; // -1 to 1
@@ -13,8 +12,8 @@ export interface SentimentTrend {
   negative: number;
 }
 
-const POSITIVE_WORDS = ['obrigado', 'parabéns', 'excelente', 'ótimo', 'muito bom', 'adorei', 'gostei', 'incrível', 'top', 'show', 'amei', 'feliz', 'legal', 'maravilhoso'];
-const NEGATIVE_WORDS = ['ruim', 'péssimo', 'horrível', 'não gostei', 'decepcionado', 'triste', 'reclamação', 'problema', 'insatisfeito', 'cancelar', 'chateado', 'frustrado'];
+const POSITIVE_WORDS = ['obrigado', 'parab\u00e9ns', 'excelente', '\u00f3timo', 'muito bom', 'adorei', 'gostei', 'incr\u00edvel', 'top', 'show', 'amei', 'feliz', 'legal', 'maravilhoso'];
+const NEGATIVE_WORDS = ['ruim', 'p\u00e9ssimo', 'horr\u00edvel', 'n\u00e3o gostei', 'decepcionado', 'triste', 'reclama\u00e7\u00e3o', 'problema', 'insatisfeito', 'cancelar', 'chateado', 'frustrado'];
 
 export function analyzeSentimentLocal(message: string): SentimentResult {
   const lower = message.toLowerCase();
@@ -32,13 +31,20 @@ export async function getSentimentTrend(academyId: string): Promise<SentimentTre
       const { mockGetSentimentTrend } = await import('@/lib/mocks/sentiment.mock');
       return mockGetSentimentTrend(academyId);
     }
-    try {
-      const res = await fetch(`/api/sentiment/trend?academyId=${academyId}`);
-      return res.json();
-    } catch {
-      console.warn('[sentiment.getSentimentTrend] API not available, using mock fallback');
-      const { mockGetSentimentTrend } = await import('@/lib/mocks/sentiment.mock');
-      return mockGetSentimentTrend(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('sentiment_trends')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('month', { ascending: true });
+    if (error) {
+      console.warn('[getSentimentTrend] Supabase error:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'sentiment.trend'); }
+    return (data ?? []) as SentimentTrend[];
+  } catch (error) {
+    console.warn('[getSentimentTrend] Fallback:', error);
+    return [];
+  }
 }

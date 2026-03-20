@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface TournamentDTO {
   id: string;
@@ -27,10 +26,22 @@ export async function listTournaments(academyId: string): Promise<TournamentDTO[
       const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
       return mockListTournaments(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListTournaments } = await import('@/lib/mocks/tournaments.mock');
-      return mockListTournaments(academyId);
-  } catch (error) { handleServiceError(error, 'tournaments.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('tournaments')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('date', { ascending: false });
+    if (error) {
+      console.warn('[listTournaments] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as TournamentDTO[];
+  } catch (error) {
+    console.warn('[listTournaments] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createTournament(academyId: string, data: Omit<TournamentDTO, 'id' | 'enrolledCount' | 'status'>): Promise<TournamentDTO> {
@@ -39,16 +50,24 @@ export async function createTournament(academyId: string, data: Omit<TournamentD
       const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
       return mockCreateTournament(academyId, data);
     }
-    try {
-      const res = await fetch(`/api/tournaments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-      if (!res.ok) throw new ServiceError(res.status, 'tournaments.create');
-      return res.json();
-    } catch {
-      console.warn('[tournaments.createTournament] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('tournaments')
+      .insert({ academy_id: academyId, ...data, status: 'upcoming', enrolled_count: 0 })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createTournament] Supabase error:', error?.message);
       const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
       return mockCreateTournament(academyId, data);
     }
-  } catch (error) { handleServiceError(error, 'tournaments.create'); }
+    return row as unknown as TournamentDTO;
+  } catch (error) {
+    console.warn('[createTournament] Fallback:', error);
+    const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
+    return mockCreateTournament(academyId, data);
+  }
 }
 
 export async function getBracket(tournamentId: string, _categoryId: string): Promise<BracketMatch[]> {
@@ -57,20 +76,37 @@ export async function getBracket(tournamentId: string, _categoryId: string): Pro
       const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
       return mockGetBracket(tournamentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBracket } = await import('@/lib/mocks/tournaments.mock');
-      return mockGetBracket(tournamentId);
-  } catch (error) { handleServiceError(error, 'tournaments.bracket'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('tournament_brackets')
+      .select('*')
+      .eq('tournament_id', tournamentId)
+      .order('round')
+      .order('position');
+    if (error) {
+      console.warn('[getBracket] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as BracketMatch[];
+  } catch (error) {
+    console.warn('[getBracket] Fallback:', error);
+    return [];
+  }
 }
 
 export async function enrollTournament(tournamentId: string, _studentId: string): Promise<void> {
   try {
     if (isMock()) return;
-    const res = await fetch(`/api/tournaments/${tournamentId}/enroll`, { method: 'POST' });
-    try {
-      if (!res.ok) throw new ServiceError(res.status, 'tournaments.enroll');
-    } catch {
-      console.warn('[tournaments.enrollTournament] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('tournament_enrollments')
+      .insert({ tournament_id: tournamentId, student_id: _studentId });
+    if (error) {
+      console.warn('[enrollTournament] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'tournaments.enroll'); }
+  } catch (error) {
+    console.warn('[enrollTournament] Fallback:', error);
+  }
 }

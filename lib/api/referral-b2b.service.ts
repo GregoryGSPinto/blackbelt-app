@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ReferralStatsDTO {
   code: string;
@@ -16,15 +15,22 @@ export async function getReferralCode(academyId: string): Promise<string> {
       const { mockGetReferralCode } = await import('@/lib/mocks/referral-b2b.mock');
       return mockGetReferralCode(academyId);
     }
-    try {
-      const res = await fetch(`/api/referral/code?academyId=${academyId}`);
-      return res.json().then((r: { code: string }) => r.code);
-    } catch {
-      console.warn('[referral-b2b.getReferralCode] API not available, using mock fallback');
-      const { mockGetReferralCode } = await import('@/lib/mocks/referral-b2b.mock');
-      return mockGetReferralCode(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('referral_codes')
+      .select('code')
+      .eq('academy_id', academyId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getReferralCode] Supabase error:', error?.message);
+      return '';
     }
-  } catch (error) { handleServiceError(error, 'referral.getCode'); }
+    return String(data.code ?? '');
+  } catch (error) {
+    console.warn('[getReferralCode] Fallback:', error);
+    return '';
+  }
 }
 
 export async function getReferralStats(academyId: string): Promise<ReferralStatsDTO> {
@@ -33,15 +39,22 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       const { mockGetReferralStats } = await import('@/lib/mocks/referral-b2b.mock');
       return mockGetReferralStats(academyId);
     }
-    try {
-      const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
-      return res.json();
-    } catch {
-      console.warn('[referral-b2b.getReferralStats] API not available, using mock fallback');
-      const { mockGetReferralStats } = await import('@/lib/mocks/referral-b2b.mock');
-      return mockGetReferralStats(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('referral_stats')
+      .select('*')
+      .eq('academy_id', academyId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getReferralStats] Supabase error:', error?.message);
+      return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
     }
-  } catch (error) { handleServiceError(error, 'referral.getStats'); }
+    return data as unknown as ReferralStatsDTO;
+  } catch (error) {
+    console.warn('[getReferralStats] Fallback:', error);
+    return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
+  }
 }
 
 export async function applyReferralCredit(academyId: string): Promise<void> {
@@ -50,17 +63,27 @@ export async function applyReferralCredit(academyId: string): Promise<void> {
       const { mockApplyCredit } = await import('@/lib/mocks/referral-b2b.mock');
       return mockApplyCredit(academyId);
     }
-    try {
-      await fetch('/api/referral/apply-credit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId }) });
-    } catch {
-      console.warn('[referral-b2b.applyReferralCredit] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.rpc('apply_referral_credit', {
+      p_academy_id: academyId,
+    });
+    if (error) {
+      console.warn('[applyReferralCredit] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'referral.applyCredit'); }
+  } catch (error) {
+    console.warn('[applyReferralCredit] Fallback:', error);
+  }
 }
 
 export async function trackReferralClick(code: string): Promise<void> {
   try {
     if (isMock()) return;
-    fetch('/api/referral/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }).catch(() => {});
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    supabase
+      .from('referral_clicks')
+      .insert({ code, clicked_at: new Date().toISOString() })
+      .then(() => {});
   } catch { /* fire-and-forget */ }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type BracketMethod = 'single_elimination' | 'double_elimination' | 'round_robin';
 export type MatchResultMethod = 'submission' | 'points' | 'dq' | 'walkover';
@@ -42,26 +41,34 @@ export interface SubmitResultPayload {
   notes?: string;
 }
 
+const EMPTY_BRACKET: BracketDTO = { id: '', championship_id: '', category_id: '', method: 'single_elimination', total_rounds: 0, matches: [] };
+const EMPTY_MATCH: MatchDTO = { id: '', bracket_id: '', round: 0, position: 0, fighter_a_id: null, fighter_a_name: null, fighter_b_id: null, fighter_b_name: null, winner_id: null, winner_name: null, method: null, score_a: null, score_b: null, duration_seconds: null, notes: null, mat_number: null, scheduled_time: null };
+
 export async function generateBracket(championshipId: string, categoryId: string, method: BracketMethod): Promise<BracketDTO> {
   try {
     if (isMock()) {
       const { mockGenerateBracket } = await import('@/lib/mocks/brackets.mock');
       return mockGenerateBracket(championshipId, categoryId, method);
     }
-    try {
-      const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/bracket`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'brackets.generate');
-      return res.json();
-    } catch {
-      console.warn('[brackets.generateBracket] API not available, using mock fallback');
-      const { mockGenerateBracket } = await import('@/lib/mocks/brackets.mock');
-      return mockGenerateBracket(championshipId, categoryId, method);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('brackets')
+      .insert({ championship_id: championshipId, category_id: categoryId, method })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[generateBracket] Supabase error:', error?.message);
+      return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
     }
-  } catch (error) { handleServiceError(error, 'brackets.generate'); }
+
+    return { ...(data as unknown as BracketDTO), matches: [] };
+  } catch (error) {
+    console.warn('[generateBracket] Fallback:', error);
+    return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
+  }
 }
 
 export async function getBracketByCategory(categoryId: string): Promise<BracketDTO> {
@@ -70,10 +77,28 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
       return mockGetBracketByCategory(categoryId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBracketByCategory } = await import('@/lib/mocks/brackets.mock');
-      return mockGetBracketByCategory(categoryId);
-  } catch (error) { handleServiceError(error, 'brackets.get'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('brackets')
+      .select('*, bracket_matches(*)')
+      .eq('category_id', categoryId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getBracketByCategory] Supabase error:', error?.message);
+      return { ...EMPTY_BRACKET, category_id: categoryId };
+    }
+
+    return {
+      ...(data as unknown as BracketDTO),
+      matches: ((data as Record<string, unknown>).bracket_matches ?? []) as MatchDTO[],
+    };
+  } catch (error) {
+    console.warn('[getBracketByCategory] Fallback:', error);
+    return { ...EMPTY_BRACKET, category_id: categoryId };
+  }
 }
 
 export async function submitResult(matchId: string, result: SubmitResultPayload): Promise<MatchDTO> {
@@ -82,20 +107,33 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       const { mockSubmitResult } = await import('@/lib/mocks/brackets.mock');
       return mockSubmitResult(matchId, result);
     }
-    try {
-      const res = await fetch(`/api/brackets/matches/${matchId}/result`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'brackets.submitResult');
-      return res.json();
-    } catch {
-      console.warn('[brackets.submitResult] API not available, using mock fallback');
-      const { mockSubmitResult } = await import('@/lib/mocks/brackets.mock');
-      return mockSubmitResult(matchId, result);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('bracket_matches')
+      .update({
+        winner_id: result.winner_id,
+        method: result.method,
+        score_a: result.score_a,
+        score_b: result.score_b,
+        duration_seconds: result.duration_seconds,
+        notes: result.notes,
+      })
+      .eq('id', matchId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[submitResult] Supabase error:', error?.message);
+      return { ...EMPTY_MATCH, id: matchId };
     }
-  } catch (error) { handleServiceError(error, 'brackets.submitResult'); }
+
+    return data as unknown as MatchDTO;
+  } catch (error) {
+    console.warn('[submitResult] Fallback:', error);
+    return { ...EMPTY_MATCH, id: matchId };
+  }
 }
 
 export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
@@ -104,8 +142,23 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
       return mockGetMatchDetails(matchId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMatchDetails } = await import('@/lib/mocks/brackets.mock');
-      return mockGetMatchDetails(matchId);
-  } catch (error) { handleServiceError(error, 'brackets.matchDetails'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('bracket_matches')
+      .select('*')
+      .eq('id', matchId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getMatchDetails] Supabase error:', error?.message);
+      return { ...EMPTY_MATCH, id: matchId };
+    }
+
+    return data as unknown as MatchDTO;
+  } catch (error) {
+    console.warn('[getMatchDetails] Fallback:', error);
+    return { ...EMPTY_MATCH, id: matchId };
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface NetworkAcademy {
   id: string;
@@ -45,7 +44,10 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkDashboard(ownerId);
     }
-  } catch (error) { handleServiceError(error, 'network.dashboard'); }
+  } catch (error) {
+    console.warn('[getNetworkDashboard] Fallback:', error);
+    return { totalAcademies: 0, totalStudents: 0, totalRevenue: 0, avgAttendance: 0, academies: [] };
+  }
 }
 
 export async function getAcademyComparison(academyIds: string[], metric: string): Promise<ComparisonDTO> {
@@ -62,7 +64,10 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
       const { mockGetAcademyComparison } = await import('@/lib/mocks/network.mock');
       return mockGetAcademyComparison(academyIds, metric);
     }
-  } catch (error) { handleServiceError(error, 'network.comparison'); }
+  } catch (error) {
+    console.warn('[getAcademyComparison] Fallback:', error);
+    return { metric, academies: [] };
+  }
 }
 
 export async function getNetworkFinancials(ownerId: string): Promise<ConsolidatedFinancials> {
@@ -79,7 +84,10 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
       const { mockGetNetworkFinancials } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkFinancials(ownerId);
     }
-  } catch (error) { handleServiceError(error, 'network.financials'); }
+  } catch (error) {
+    console.warn('[getNetworkFinancials] Fallback:', error);
+    return { totalMRR: 0, totalOverdue: 0, byAcademy: [] };
+  }
 }
 
 export async function transferStudent(studentId: string, fromAcademy: string, toAcademy: string): Promise<void> {
@@ -93,5 +101,7 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
     } catch {
       console.warn('[network.transferStudent] API not available, using fallback');
     }
-  } catch (error) { handleServiceError(error, 'network.transfer'); }
+  } catch (error) {
+    console.warn('[transferStudent] Fallback:', error);
+  }
 }

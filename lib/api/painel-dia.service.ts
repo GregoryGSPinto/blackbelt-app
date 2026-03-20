@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface AulaHoje {
   id: string;
@@ -64,7 +63,17 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
     }
     try {
       const res = await fetch(`/api/painel-dia?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'painel-dia.briefing');
+      if (!res.ok) {
+        console.warn('[getDailyBriefing] error:', `HTTP ${res.status}`);
+        return {
+          aulasHoje: [],
+          aniversariantes: [],
+          vencendoAmanha: [],
+          alunosRisco: [],
+          graduacoesProntas: [],
+          resumo: { alunosAtivos: 0, aulasHoje: 0, receitaMes: 0, taxaPresencaSemana: 0 },
+        };
+      }
       return res.json();
     } catch {
       console.warn('[painel-dia.getDailyBriefing] API not available, using fallback');
@@ -77,5 +86,15 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
         resumo: { alunosAtivos: 0, aulasHoje: 0, receitaMes: 0, taxaPresencaSemana: 0 },
       };
     }
-  } catch (error) { handleServiceError(error, 'painel-dia.briefing'); }
+  } catch (error) {
+    console.warn('[getDailyBriefing] Fallback:', error);
+    return {
+      aulasHoje: [],
+      aniversariantes: [],
+      vencendoAmanha: [],
+      alunosRisco: [],
+      graduacoesProntas: [],
+      resumo: { alunosAtivos: 0, aulasHoje: 0, receitaMes: 0, taxaPresencaSemana: 0 },
+    };
+  }
 }

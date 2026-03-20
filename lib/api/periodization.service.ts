@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type PhaseName = 'base' | 'build' | 'peak' | 'taper' | 'recovery';
 
@@ -49,14 +48,20 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
     }
     try {
       const res = await fetch('/api/periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(macrocycle) });
-      if (!res.ok) throw new ServiceError(res.status, 'periodization.create');
+      if (!res.ok) {
+        console.warn('[createMacrocycle] error:', `HTTP ${res.status}`);
+        return { id: '', student_id: macrocycle.student_id, competition_name: macrocycle.competition_name, competition_date: macrocycle.competition_date, phases: macrocycle.phases, created_at: new Date().toISOString(), created_by: macrocycle.created_by };
+      }
       return res.json();
     } catch {
       console.warn('[periodization.createMacrocycle] API not available, using mock fallback');
       const { mockCreateMacrocycle } = await import('@/lib/mocks/periodization.mock');
       return mockCreateMacrocycle(macrocycle);
     }
-  } catch (error) { handleServiceError(error, 'periodization.create'); }
+  } catch (error) {
+    console.warn('[createMacrocycle] Fallback:', error);
+    return { id: '', student_id: macrocycle.student_id, competition_name: macrocycle.competition_name, competition_date: macrocycle.competition_date, phases: macrocycle.phases, created_at: new Date().toISOString(), created_by: macrocycle.created_by };
+  }
 }
 
 export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | null> {
@@ -67,13 +72,19 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
     }
     try {
       const res = await fetch(`/api/periodization?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'periodization.get');
+      if (!res.ok) {
+        console.warn('[getMacrocycle] error:', `HTTP ${res.status}`);
+        return null;
+      }
       return res.json();
     } catch {
       console.warn('[periodization.getMacrocycle] API not available, using fallback');
       return null;
     }
-  } catch (error) { handleServiceError(error, 'periodization.get'); }
+  } catch (error) {
+    console.warn('[getMacrocycle] Fallback:', error);
+    return null;
+  }
 }
 
 export async function updatePhase(macrocycleId: string, phaseId: string, data: Partial<Phase>): Promise<Phase> {
@@ -84,12 +95,18 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
     }
     try {
       const res = await fetch(`/api/periodization/${macrocycleId}/phases/${phaseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new ServiceError(res.status, 'periodization.updatePhase');
+      if (!res.ok) {
+        console.warn('[updatePhase] error:', `HTTP ${res.status}`);
+        return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
+      }
       return res.json();
     } catch {
       console.warn('[periodization.updatePhase] API not available, using mock fallback');
       const { mockUpdatePhase } = await import('@/lib/mocks/periodization.mock');
       return mockUpdatePhase(macrocycleId, phaseId, data);
     }
-  } catch (error) { handleServiceError(error, 'periodization.updatePhase'); }
+  } catch (error) {
+    console.warn('[updatePhase] Fallback:', error);
+    return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
+  }
 }

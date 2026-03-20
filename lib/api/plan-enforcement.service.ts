@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type PlanTier = 'free' | 'pro' | 'enterprise';
 
@@ -58,17 +57,33 @@ export async function checkLimit(
       const { mockCheckLimit } = await import('@/lib/mocks/plan-enforcement.mock');
       return mockCheckLimit(academyId, resource);
     }
-    try {
-      const res = await fetch(`/api/plan-enforcement/check?academyId=${academyId}&resource=${resource}`);
-      return res.json();
-    } catch {
-      console.warn('[plan-enforcement.checkLimit] API not available, using mock fallback');
-      const { mockCheckLimit } = await import('@/lib/mocks/plan-enforcement.mock');
-      return mockCheckLimit(academyId, resource);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_plans')
+      .select('plan_tier')
+      .eq('academy_id', academyId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[checkLimit] Supabase error:', error?.message);
+      return { allowed: true, current: 0, limit: null, plan: 'free', resource };
     }
 
+    const plan = (data.plan_tier ?? 'free') as PlanTier;
+    const limit = PLAN_LIMITS[resource][plan];
+
+    return {
+      allowed: typeof limit === 'boolean' ? limit : true,
+      current: 0,
+      limit: typeof limit === 'number' ? limit : null,
+      plan,
+      resource,
+    };
   } catch (error) {
-    handleServiceError(error, 'plan-enforcement.checkLimit');
+    console.warn('[checkLimit] Fallback:', error);
+    return { allowed: true, current: 0, limit: null, plan: 'free', resource };
   }
 }
 
@@ -78,16 +93,24 @@ export async function getUsage(academyId: string): Promise<UsageData> {
       const { mockGetUsage } = await import('@/lib/mocks/plan-enforcement.mock');
       return mockGetUsage(academyId);
     }
-    try {
-      const res = await fetch(`/api/plan-enforcement/usage?academyId=${academyId}`);
-      return res.json();
-    } catch {
-      console.warn('[plan-enforcement.getUsage] API not available, using mock fallback');
-      const { mockGetUsage } = await import('@/lib/mocks/plan-enforcement.mock');
-      return mockGetUsage(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_usage')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getUsage] Supabase error:', error?.message);
+      return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
     }
+
+    return data as unknown as UsageData;
   } catch (error) {
-    handleServiceError(error, 'plan-enforcement.getUsage');
+    console.warn('[getUsage] Fallback:', error);
+    return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
   }
 }
 
@@ -97,7 +120,7 @@ export function getLimit(plan: PlanTier, resource: PlanResource): number | boole
 
 export function getLimitLabel(plan: PlanTier, resource: PlanResource): string {
   const limit = PLAN_LIMITS[resource][plan];
-  if (typeof limit === 'boolean') return limit ? 'Incluído' : 'Não disponível';
+  if (typeof limit === 'boolean') return limit ? 'Incluido' : 'Nao disponivel';
   if (limit === Infinity) return 'Ilimitado';
   return String(limit);
 }

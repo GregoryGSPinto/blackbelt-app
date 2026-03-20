@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -61,11 +60,24 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       const { mockGetFamilyCalendar } = await import('@/lib/mocks/agenda-familiar.mock');
       return mockGetFamilyCalendar(profileId);
     }
-    // API not yet implemented — use mock
-    const { mockGetFamilyCalendar } = await import('@/lib/mocks/agenda-familiar.mock');
-      return mockGetFamilyCalendar(profileId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('family_calendar')
+      .select('*')
+      .eq('profile_id', profileId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getFamilyCalendar] Supabase error:', error?.message);
+      return { profile_id: profileId, week_start: '', week_end: '', events: [] };
+    }
+
+    return data as unknown as FamilyCalendarDTO;
   } catch (error) {
-    handleServiceError(error, 'agenda-familiar.calendar');
+    console.warn('[getFamilyCalendar] Fallback:', error);
+    return { profile_id: profileId, week_start: '', week_end: '', events: [] };
   }
 }
 
@@ -75,10 +87,24 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       const { mockGetMonthlyReport } = await import('@/lib/mocks/agenda-familiar.mock');
       return mockGetMonthlyReport(profileId, month);
     }
-    // API not yet implemented — use mock
-    const { mockGetMonthlyReport } = await import('@/lib/mocks/agenda-familiar.mock');
-      return mockGetMonthlyReport(profileId, month);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('family_monthly_reports')
+      .select('*')
+      .eq('profile_id', profileId)
+      .eq('month', month)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getMonthlyReport] Supabase error:', error?.message);
+      return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
+    }
+
+    return data as unknown as MonthlyReportDTO;
   } catch (error) {
-    handleServiceError(error, 'agenda-familiar.report');
+    console.warn('[getMonthlyReport] Fallback:', error);
+    return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
   }
 }

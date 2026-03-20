@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -67,11 +66,21 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
       return mockGetGoals(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetGoals } = await import('@/lib/mocks/metas.mock');
-      return mockGetGoals(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getGoals] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as GoalDTO[];
   } catch (error) {
-    handleServiceError(error, 'metas.getGoals');
+    console.warn('[getGoals] Fallback:', error);
+    return [];
   }
 }
 
@@ -81,21 +90,21 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       const { mockCreateGoal } = await import('@/lib/mocks/metas.mock');
       return mockCreateGoal(data);
     }
-    try {
-      const res = await fetch('/api/metas/goals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'metas.createGoal');
-      return res.json();
-    } catch {
-      console.warn('[metas.createGoal] API not available, using mock fallback');
-      const { mockCreateGoal } = await import('@/lib/mocks/metas.mock');
-      return mockCreateGoal(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('goals')
+      .insert({ ...data, status: 'active', progress_percent: 0 })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createGoal] Supabase error:', error?.message);
+      return {} as GoalDTO;
     }
+    return row as unknown as GoalDTO;
   } catch (error) {
-    handleServiceError(error, 'metas.createGoal');
+    console.warn('[createGoal] Fallback:', error);
+    return {} as GoalDTO;
   }
 }
 
@@ -105,11 +114,22 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
       return mockGetDiary(studentId, month);
     }
-    // API not yet implemented — use mock
-    const { mockGetDiary } = await import('@/lib/mocks/metas.mock');
-      return mockGetDiary(studentId, month);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('diary_entries')
+      .select('*')
+      .eq('student_id', studentId)
+      .like('date', `${month}%`)
+      .order('date', { ascending: false });
+    if (error || !data) {
+      console.warn('[getDiary] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as DiaryEntryDTO[];
   } catch (error) {
-    handleServiceError(error, 'metas.getDiary');
+    console.warn('[getDiary] Fallback:', error);
+    return [];
   }
 }
 
@@ -119,20 +139,20 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       const { mockSaveDiaryEntry } = await import('@/lib/mocks/metas.mock');
       return mockSaveDiaryEntry(data);
     }
-    try {
-      const res = await fetch('/api/metas/diary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'metas.saveDiary');
-      return res.json();
-    } catch {
-      console.warn('[metas.saveDiaryEntry] API not available, using mock fallback');
-      const { mockSaveDiaryEntry } = await import('@/lib/mocks/metas.mock');
-      return mockSaveDiaryEntry(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('diary_entries')
+      .insert(data)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[saveDiaryEntry] Supabase error:', error?.message);
+      return {} as DiaryEntryDTO;
     }
+    return row as unknown as DiaryEntryDTO;
   } catch (error) {
-    handleServiceError(error, 'metas.saveDiary');
+    console.warn('[saveDiaryEntry] Fallback:', error);
+    return {} as DiaryEntryDTO;
   }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type ChallengeType = 'presenca' | 'streak' | 'social' | 'conteudo' | 'avaliacao';
 
@@ -24,10 +23,38 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
       return mockListChallenges(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListChallenges } = await import('@/lib/mocks/challenges.mock');
-      return mockListChallenges(academyId);
-  } catch (error) { handleServiceError(error, 'challenges.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('start_date', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[listChallenges] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      title: String(row.title ?? ''),
+      description: String(row.description ?? ''),
+      type: (row.type ?? 'presenca') as ChallengeType,
+      startDate: String(row.start_date ?? ''),
+      endDate: String(row.end_date ?? ''),
+      target: Number(row.target ?? 0),
+      progress: Number(row.progress ?? 0),
+      reward: String(row.reward ?? ''),
+      badge: row.badge ? String(row.badge) : undefined,
+      active: Boolean(row.active),
+      participantCount: Number(row.participant_count ?? 0),
+    }));
+  } catch (error) {
+    console.warn('[listChallenges] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createChallenge(academyId: string, data: Omit<ChallengeDTO, 'id' | 'progress' | 'participantCount'>): Promise<ChallengeDTO> {
@@ -36,14 +63,47 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       const { mockCreateChallenge } = await import('@/lib/mocks/challenges.mock');
       return mockCreateChallenge(academyId, data);
     }
-    try {
-      const res = await fetch(`/api/challenges`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-      if (!res.ok) throw new ServiceError(res.status, 'challenges.create');
-      return res.json();
-    } catch {
-      console.warn('[challenges.createChallenge] API not available, using mock fallback');
-      const { mockCreateChallenge } = await import('@/lib/mocks/challenges.mock');
-      return mockCreateChallenge(academyId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('challenges')
+      .insert({
+        academy_id: academyId,
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        target: data.target,
+        reward: data.reward,
+        badge: data.badge,
+        active: data.active,
+      })
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[createChallenge] Supabase error:', error?.message);
+      return { id: '', ...data, progress: 0, participantCount: 0 };
     }
-  } catch (error) { handleServiceError(error, 'challenges.create'); }
+
+    return {
+      id: String(row.id),
+      title: String(row.title ?? ''),
+      description: String(row.description ?? ''),
+      type: (row.type ?? 'presenca') as ChallengeType,
+      startDate: String(row.start_date ?? ''),
+      endDate: String(row.end_date ?? ''),
+      target: Number(row.target ?? 0),
+      progress: 0,
+      reward: String(row.reward ?? ''),
+      badge: row.badge ? String(row.badge) : undefined,
+      active: Boolean(row.active),
+      participantCount: 0,
+    };
+  } catch (error) {
+    console.warn('[createChallenge] Fallback:', error);
+    return { id: '', ...data, progress: 0, participantCount: 0 };
+  }
 }

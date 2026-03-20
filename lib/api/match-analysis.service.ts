@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type MatchEventType =
   | 'takedown'
@@ -87,25 +86,39 @@ export interface ManualAnnotation {
   created_at: string;
 }
 
+const EMPTY_ANALYSIS: MatchAnalysis = {
+  id: '', video_id: '', duration_sec: 0, rounds: 0, timeline: [], positions: [],
+  submission_attempts: [], takedowns: [],
+  points_breakdown: { student_total: 0, opponent_total: 0, student_advantages: 0, opponent_advantages: 0, student_penalties: 0, opponent_penalties: 0, categories: [] },
+  tactical_summary: '', improvement_areas: [], analyzed_at: '',
+};
+
 export async function analyzeMatch(videoId: string): Promise<MatchAnalysis> {
   try {
     if (isMock()) {
       const { mockAnalyzeMatch } = await import('@/lib/mocks/match-analysis.mock');
       return mockAnalyzeMatch(videoId);
     }
-    try {
-      const res = await fetch('/api/ai/match-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId }),
-      });
-      return res.json();
-    } catch {
-      console.warn('[match-analysis.analyzeMatch] API not available, using fallback');
-      return { id: '', video_id: '', duration_sec: 0, rounds: 0, timeline: [], positions: [], submission_attempts: [], takedowns: [], points_breakdown: { student_total: 0, opponent_total: 0, student_advantages: 0, opponent_advantages: 0, student_penalties: 0, opponent_penalties: 0, categories: [] }, tactical_summary: '', improvement_areas: [], analyzed_at: '' } as MatchAnalysis;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('match_analyses')
+      .select('*')
+      .eq('video_id', videoId)
+      .order('analyzed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.warn('[analyzeMatch] Supabase error:', error?.message);
+      return { ...EMPTY_ANALYSIS, video_id: videoId };
     }
+
+    return data as unknown as MatchAnalysis;
   } catch (error) {
-    handleServiceError(error, 'matchAnalysis.analyze');
+    console.warn('[analyzeMatch] Fallback:', error);
+    return { ...EMPTY_ANALYSIS, video_id: videoId };
   }
 }
 
@@ -115,20 +128,24 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       const { mockAddAnnotation } = await import('@/lib/mocks/match-analysis.mock');
       return mockAddAnnotation(videoId, timestampSec, text);
     }
-    try {
-      const res = await fetch('/api/ai/match-analysis/annotate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId, timestampSec, text }),
-      });
-      return res.json();
-    } catch {
-      console.warn('[match-analysis.addAnnotation] API not available, using mock fallback');
-      const { mockAddAnnotation } = await import('@/lib/mocks/match-analysis.mock');
-      return mockAddAnnotation(videoId, timestampSec, text);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('match_annotations')
+      .insert({ video_id: videoId, timestamp_sec: timestampSec, text })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[addAnnotation] Supabase error:', error?.message);
+      return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
     }
+
+    return data as unknown as ManualAnnotation;
   } catch (error) {
-    handleServiceError(error, 'matchAnalysis.annotate');
+    console.warn('[addAnnotation] Fallback:', error);
+    return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
   }
 }
 
@@ -138,16 +155,24 @@ export async function getAnnotations(videoId: string): Promise<ManualAnnotation[
       const { mockGetAnnotations } = await import('@/lib/mocks/match-analysis.mock');
       return mockGetAnnotations(videoId);
     }
-    try {
-      const res = await fetch(`/api/ai/match-analysis/annotations/${videoId}`);
-      return res.json();
-    } catch {
-      console.warn('[match-analysis.getAnnotations] API not available, using mock fallback');
-      const { mockGetAnnotations } = await import('@/lib/mocks/match-analysis.mock');
-      return mockGetAnnotations(videoId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('match_annotations')
+      .select('*')
+      .eq('video_id', videoId)
+      .order('timestamp_sec', { ascending: true });
+
+    if (error || !data) {
+      console.warn('[getAnnotations] Supabase error:', error?.message);
+      return [];
     }
+
+    return data as unknown as ManualAnnotation[];
   } catch (error) {
-    handleServiceError(error, 'matchAnalysis.getAnnotations');
+    console.warn('[getAnnotations] Fallback:', error);
+    return [];
   }
 }
 
@@ -157,19 +182,21 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       const { mockShareAnalysis } = await import('@/lib/mocks/match-analysis.mock');
       return mockShareAnalysis(videoId, studentId);
     }
-    try {
-      const res = await fetch('/api/ai/match-analysis/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId, studentId }),
-      });
-      return res.json();
-    } catch {
-      console.warn('[match-analysis.shareAnalysis] API not available, using mock fallback');
-      const { mockShareAnalysis } = await import('@/lib/mocks/match-analysis.mock');
-      return mockShareAnalysis(videoId, studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('match_analysis_shares')
+      .insert({ video_id: videoId, student_id: studentId });
+
+    if (error) {
+      console.warn('[shareAnalysis] Supabase error:', error.message);
+      return { shared: false };
     }
+
+    return { shared: true };
   } catch (error) {
-    handleServiceError(error, 'matchAnalysis.share');
+    console.warn('[shareAnalysis] Fallback:', error);
+    return { shared: false };
   }
 }

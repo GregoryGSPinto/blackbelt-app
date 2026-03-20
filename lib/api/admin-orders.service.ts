@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Order, OrderStatus } from '@/lib/api/orders.service';
 
 export interface OrderFilters {
@@ -22,26 +21,33 @@ export interface StoreDashboard {
   top_products: TopProduct[];
 }
 
+const EMPTY_ORDER = { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as unknown as Order;
+
 export async function listOrders(filters?: OrderFilters): Promise<Order[]> {
   try {
     if (isMock()) {
       const { mockListOrders } = await import('@/lib/mocks/admin-orders.mock');
       return mockListOrders(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.period) params.set('period', filters.period);
-      if (filters?.search) params.set('search', filters.search);
-      const res = await fetch(`/api/admin/orders?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'adminOrders.listOrders');
-      return res.json();
-    } catch {
-      console.warn('[admin-orders.listOrders] API not available, using mock fallback');
-      const { mockListOrders } = await import('@/lib/mocks/admin-orders.mock');
-      return mockListOrders(filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.search) query = query.ilike('user_name', `%${filters.search}%`);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[listOrders] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'adminOrders.listOrders'); }
+
+    return data as unknown as Order[];
+  } catch (error) {
+    console.warn('[listOrders] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getOrderDetail(id: string): Promise<Order> {
@@ -50,15 +56,25 @@ export async function getOrderDetail(id: string): Promise<Order> {
       const { mockGetOrderDetail } = await import('@/lib/mocks/admin-orders.mock');
       return mockGetOrderDetail(id);
     }
-    try {
-      const res = await fetch(`/api/admin/orders/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'adminOrders.getOrderDetail');
-      return res.json();
-    } catch {
-      console.warn('[admin-orders.getOrderDetail] API not available, using fallback');
-      return { id: "", user_id: "", user_name: "", items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: "", cep: "", street: "", number: "", neighborhood: "", city: "", state: "" }, delivery_option: "pickup", payment_method: "pix", status: "pending", created_at: "", updated_at: "" } as unknown as Order;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getOrderDetail] Supabase error:', error?.message);
+      return { ...EMPTY_ORDER, id };
     }
-  } catch (error) { handleServiceError(error, 'adminOrders.getOrderDetail'); }
+
+    return data as unknown as Order;
+  } catch (error) {
+    console.warn('[getOrderDetail] Fallback:', error);
+    return { ...EMPTY_ORDER, id };
+  }
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus, trackingCode?: string): Promise<Order> {
@@ -67,19 +83,29 @@ export async function updateOrderStatus(id: string, status: OrderStatus, trackin
       const { mockUpdateOrderStatus } = await import('@/lib/mocks/admin-orders.mock');
       return mockUpdateOrderStatus(id, status, trackingCode);
     }
-    try {
-      const res = await fetch(`/api/admin/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, trackingCode }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'adminOrders.updateOrderStatus');
-      return res.json();
-    } catch {
-      console.warn('[admin-orders.updateOrderStatus] API not available, using fallback');
-      return { id: "", user_id: "", user_name: "", items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: "", cep: "", street: "", number: "", neighborhood: "", city: "", state: "" }, delivery_option: "pickup", payment_method: "pix", status: "pending", created_at: "", updated_at: "" } as unknown as Order;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const updatePayload: Record<string, unknown> = { status };
+    if (trackingCode) updatePayload.tracking_code = trackingCode;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[updateOrderStatus] Supabase error:', error?.message);
+      return { ...EMPTY_ORDER, id, status };
     }
-  } catch (error) { handleServiceError(error, 'adminOrders.updateOrderStatus'); }
+
+    return data as unknown as Order;
+  } catch (error) {
+    console.warn('[updateOrderStatus] Fallback:', error);
+    return { ...EMPTY_ORDER, id, status };
+  }
 }
 
 export async function getStoreDashboard(): Promise<StoreDashboard> {
@@ -88,8 +114,34 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
       return mockGetStoreDashboard();
     }
-    // API not yet implemented — use mock
-    const { mockGetStoreDashboard } = await import('@/lib/mocks/admin-orders.mock');
-      return mockGetStoreDashboard();
-  } catch (error) { handleServiceError(error, 'adminOrders.getStoreDashboard'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('total')
+      .gte('created_at', monthStart);
+
+    if (error || !data) {
+      console.warn('[getStoreDashboard] Supabase error:', error?.message);
+      return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
+    }
+
+    const orders = data as Record<string, unknown>[];
+    const revenue = orders.reduce((acc, o) => acc + Number(o.total ?? 0), 0);
+    const count = orders.length;
+
+    return {
+      orders_month: count,
+      revenue,
+      avg_ticket: count > 0 ? Math.round(revenue / count) : 0,
+      top_products: [],
+    };
+  } catch (error) {
+    console.warn('[getStoreDashboard] Fallback:', error);
+    return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
+  }
 }

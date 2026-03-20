@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -53,10 +52,19 @@ export async function listRelatorios(
       const { mockListRelatorios } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockListRelatorios(professorId, filtros);
     }
-    console.warn('[relatorioAula.list] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('relatorios_aula').select('*').eq('professor_id', professorId);
+    if (filtros?.turmaId) query = query.eq('turma_id', filtros.turmaId);
+    const { data, error } = await query.order('data', { ascending: false });
+    if (error) {
+      console.warn('[listRelatorios] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as RelatorioAula[];
   } catch (error) {
-    handleServiceError(error, 'relatorioAula.list');
+    console.warn('[listRelatorios] Fallback:', error);
+    return [];
   }
 }
 
@@ -66,10 +74,17 @@ export async function getRelatorio(turmaId: string, data: string): Promise<Relat
       const { mockGetRelatorio } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockGetRelatorio(turmaId, data);
     }
-    console.warn('[relatorioAula.get] fallback — not yet connected to Supabase');
-    return { id: '', turmaId, turmaNome: '', modalidade: '', professorId: '', professorNome: '', data, horario: '', totalMatriculados: 0, totalPresentes: 0, taxaPresenca: 0, alunosPresentes: [], alunosAusentes: [], presencaVsMediaTurma: 0, presencaVsAulaAnterior: 0, criadoEm: '' } as RelatorioAula;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase.from('relatorios_aula').select('*').eq('turma_id', turmaId).eq('data', data).single();
+    if (error) {
+      console.warn('[getRelatorio] error:', error.message);
+      return { id: '', turmaId, turmaNome: '', modalidade: '', professorId: '', professorNome: '', data, horario: '', totalMatriculados: 0, totalPresentes: 0, taxaPresenca: 0, alunosPresentes: [], alunosAusentes: [], presencaVsMediaTurma: 0, presencaVsAulaAnterior: 0, criadoEm: '' } as RelatorioAula;
+    }
+    return row as unknown as RelatorioAula;
   } catch (error) {
-    handleServiceError(error, 'relatorioAula.get');
+    console.warn('[getRelatorio] Fallback:', error);
+    return { id: '', turmaId, turmaNome: '', modalidade: '', professorId: '', professorNome: '', data, horario: '', totalMatriculados: 0, totalPresentes: 0, taxaPresenca: 0, alunosPresentes: [], alunosAusentes: [], presencaVsMediaTurma: 0, presencaVsAulaAnterior: 0, criadoEm: '' } as RelatorioAula;
   }
 }
 
@@ -79,10 +94,17 @@ export async function getRelatorioMetricas(professorId: string): Promise<Relator
       const { mockGetRelatorioMetricas } = await import('@/lib/mocks/relatorio-aula.mock');
       return mockGetRelatorioMetricas(professorId);
     }
-    console.warn('[relatorioAula.metricas] fallback — not yet connected to Supabase');
-    return { aulasEsteMes: 0, mediaPresenca: 0, melhorTurma: { nome: '', presenca: 0 }, alunoMaisFrequente: { nome: '', presenca: 0 }, alunoMenosFrequente: { nome: '', presenca: 0 } } as RelatorioMetricas;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('relatorios_aula').select('*').eq('professor_id', professorId);
+    if (error || !data || data.length === 0) {
+      console.warn('[getRelatorioMetricas] error:', error?.message ?? 'no data');
+      return { aulasEsteMes: 0, mediaPresenca: 0, melhorTurma: { nome: '', presenca: 0 }, alunoMaisFrequente: { nome: '', presenca: 0 }, alunoMenosFrequente: { nome: '', presenca: 0 } } as RelatorioMetricas;
+    }
+    return { aulasEsteMes: data.length, mediaPresenca: 0, melhorTurma: { nome: '', presenca: 0 }, alunoMaisFrequente: { nome: '', presenca: 0 }, alunoMenosFrequente: { nome: '', presenca: 0 } } as RelatorioMetricas;
   } catch (error) {
-    handleServiceError(error, 'relatorioAula.metricas');
+    console.warn('[getRelatorioMetricas] Fallback:', error);
+    return { aulasEsteMes: 0, mediaPresenca: 0, melhorTurma: { nome: '', presenca: 0 }, alunoMaisFrequente: { nome: '', presenca: 0 }, alunoMenosFrequente: { nome: '', presenca: 0 } } as RelatorioMetricas;
   }
 }
 
@@ -95,6 +117,7 @@ export async function exportarPDF(_relatorioId: string): Promise<void> {
     console.warn('[relatorioAula.exportarPDF] fallback — not yet connected to Supabase');
     return;
   } catch (error) {
-    handleServiceError(error, 'relatorioAula.exportarPDF');
+    console.warn('[exportarPDF] Fallback:', error);
+    return;
   }
 }

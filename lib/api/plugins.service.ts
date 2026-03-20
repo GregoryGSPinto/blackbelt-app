@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { Plugin, PluginLog } from '@/lib/types/plugins';
 
 export async function listPlugins(): Promise<Plugin[]> {
@@ -16,7 +15,10 @@ export async function listPlugins(): Promise<Plugin[]> {
       const { mockListPlugins } = await import('@/lib/mocks/plugins.mock');
       return mockListPlugins();
     }
-  } catch (error) { handleServiceError(error, 'plugins.list'); }
+  } catch (error) {
+    console.warn('[listPlugins] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getPlugin(pluginId: string): Promise<Plugin> {
@@ -32,7 +34,10 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       console.warn('[plugins.getPlugin] API not available, using fallback');
       return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
-  } catch (error) { handleServiceError(error, 'plugins.get'); }
+  } catch (error) {
+    console.warn('[getPlugin] Fallback:', error);
+    return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
+  }
 }
 
 export async function installPlugin(pluginId: string): Promise<Plugin> {
@@ -48,7 +53,10 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
       console.warn('[plugins.installPlugin] API not available, using fallback');
       return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
-  } catch (error) { handleServiceError(error, 'plugins.install'); }
+  } catch (error) {
+    console.warn('[installPlugin] Fallback:', error);
+    return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
+  }
 }
 
 export async function uninstallPlugin(pluginId: string): Promise<void> {
@@ -62,7 +70,9 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
     } catch {
       console.warn('[plugins.uninstallPlugin] API not available, using fallback');
     }
-  } catch (error) { handleServiceError(error, 'plugins.uninstall'); }
+  } catch (error) {
+    console.warn('[uninstallPlugin] Fallback:', error);
+  }
 }
 
 export async function updatePluginConfig(
@@ -85,8 +95,10 @@ export async function updatePluginConfig(
       console.warn('[plugins.updatePluginConfig] API not available, using fallback');
       return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
     }
-
-  } catch (error) { handleServiceError(error, 'plugins.updateConfig'); }
+  } catch (error) {
+    console.warn('[updatePluginConfig] Fallback:', error);
+    return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
+  }
 }
 
 export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
@@ -103,5 +115,8 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
       const { mockGetPluginLogs } = await import('@/lib/mocks/plugins.mock');
       return mockGetPluginLogs(pluginId);
     }
-  } catch (error) { handleServiceError(error, 'plugins.logs'); }
+  } catch (error) {
+    console.warn('[getPluginLogs] Fallback:', error);
+    return [];
+  }
 }

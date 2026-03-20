@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types/domain';
 
 // ────────────────────────────────────────────────────────────
@@ -73,7 +72,18 @@ export async function getKidsDashboard(studentId: string): Promise<KidsDashboard
     }
     try {
       const res = await fetch(`/api/kids/dashboard?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'kids.dashboard');
+      if (!res.ok) {
+        console.warn('[getKidsDashboard] error:', `HTTP ${res.status}`);
+        return {
+          student_id: '', display_name: '', avatar: null,
+          belt: { current: 'branca' as BeltLevel, current_label: 'Branca', current_color: '#fff', next: 'cinza' as BeltLevel, next_label: 'Cinza', next_color: '#9ca3af', stars_to_next: 0 },
+          stars: { total: 0, new_this_week: 0 },
+          next_class: null,
+          sticker_album: { total: 0, collected: 0, stickers: [] },
+          exchange_options: [],
+          motivational_message: 'Bem-vindo ao BlackBelt!',
+        };
+      }
       return res.json();
     } catch {
       console.warn('[kids.getKidsDashboard] API not available, using fallback');
@@ -88,6 +98,15 @@ export async function getKidsDashboard(studentId: string): Promise<KidsDashboard
       };
     }
   } catch (error) {
-    handleServiceError(error, 'kids.dashboard');
+    console.warn('[getKidsDashboard] Fallback:', error);
+    return {
+      student_id: '', display_name: '', avatar: null,
+      belt: { current: 'branca' as BeltLevel, current_label: 'Branca', current_color: '#fff', next: 'cinza' as BeltLevel, next_label: 'Cinza', next_color: '#9ca3af', stars_to_next: 0 },
+      stars: { total: 0, new_this_week: 0 },
+      next_class: null,
+      sticker_album: { total: 0, collected: 0, stickers: [] },
+      exchange_options: [],
+      motivational_message: 'Bem-vindo ao BlackBelt!',
+    };
   }
 }

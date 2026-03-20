@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
 export type PaymentMethod = 'pix' | 'boleto' | 'credit_card';
@@ -51,25 +50,30 @@ export interface CreateOrderData {
   shipping_cost: number;
 }
 
+const emptyOrder: Order = { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' };
+
 export async function createOrder(userId: string, data: CreateOrderData): Promise<Order> {
   try {
     if (isMock()) {
       const { mockCreateOrder } = await import('@/lib/mocks/orders.mock');
       return mockCreateOrder(userId, data);
     }
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, ...data }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'orders.createOrder');
-      return res.json();
-    } catch {
-      console.warn('[orders.createOrder] API not available, using fallback');
-      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('orders')
+      .insert({ user_id: userId, ...data, status: 'pending' })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createOrder] Supabase error:', error?.message);
+      return emptyOrder;
     }
-  } catch (error) { handleServiceError(error, 'orders.createOrder'); }
+    return row as unknown as Order;
+  } catch (error) {
+    console.warn('[createOrder] Fallback:', error);
+    return emptyOrder;
+  }
 }
 
 export async function getMyOrders(userId: string): Promise<Order[]> {
@@ -78,10 +82,22 @@ export async function getMyOrders(userId: string): Promise<Order[]> {
       const { mockGetMyOrders } = await import('@/lib/mocks/orders.mock');
       return mockGetMyOrders(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyOrders } = await import('@/lib/mocks/orders.mock');
-      return mockGetMyOrders(userId);
-  } catch (error) { handleServiceError(error, 'orders.getMyOrders'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getMyOrders] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as Order[];
+  } catch (error) {
+    console.warn('[getMyOrders] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getOrderById(id: string): Promise<Order> {
@@ -90,15 +106,22 @@ export async function getOrderById(id: string): Promise<Order> {
       const { mockGetOrderById } = await import('@/lib/mocks/orders.mock');
       return mockGetOrderById(id);
     }
-    try {
-      const res = await fetch(`/api/orders/${id}`);
-      if (!res.ok) throw new ServiceError(res.status, 'orders.getOrderById');
-      return res.json();
-    } catch {
-      console.warn('[orders.getOrderById] API not available, using fallback');
-      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getOrderById] Supabase error:', error?.message);
+      return emptyOrder;
     }
-  } catch (error) { handleServiceError(error, 'orders.getOrderById'); }
+    return data as unknown as Order;
+  } catch (error) {
+    console.warn('[getOrderById] Fallback:', error);
+    return emptyOrder;
+  }
 }
 
 export async function cancelOrder(id: string): Promise<Order> {
@@ -107,13 +130,21 @@ export async function cancelOrder(id: string): Promise<Order> {
       const { mockCancelOrder } = await import('@/lib/mocks/orders.mock');
       return mockCancelOrder(id);
     }
-    try {
-      const res = await fetch(`/api/orders/${id}/cancel`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'orders.cancelOrder');
-      return res.json();
-    } catch {
-      console.warn('[orders.cancelOrder] API not available, using fallback');
-      return { id: '', user_id: '', user_name: '', items: [], subtotal: 0, shipping_cost: 0, total: 0, shipping_address: { name: '', cep: '', street: '', number: '', neighborhood: '', city: '', state: '' }, delivery_option: 'pickup', payment_method: 'pix', status: 'pending', created_at: '', updated_at: '' } as Order;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[cancelOrder] Supabase error:', error?.message);
+      return emptyOrder;
     }
-  } catch (error) { handleServiceError(error, 'orders.cancelOrder'); }
+    return data as unknown as Order;
+  } catch (error) {
+    console.warn('[cancelOrder] Fallback:', error);
+    return emptyOrder;
+  }
 }

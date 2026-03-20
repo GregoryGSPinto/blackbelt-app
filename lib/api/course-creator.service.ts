@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { MarketplaceCourse, CourseModality, BeltLevel, CourseModule } from '@/lib/api/marketplace.service';
 
 export interface CourseAnalytics {
@@ -41,20 +40,22 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       const { mockCreateCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockCreateCourse(creatorId, payload);
     }
-    try {
-      const res = await fetch(`/api/courses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creatorId, ...payload }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.create');
-      return res.json();
-    } catch {
-      console.warn('[course-creator.createCourse] API not available, using mock fallback');
-      const { mockCreateCourse } = await import('@/lib/mocks/course-creator.mock');
-      return mockCreateCourse(creatorId, payload);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('courses')
+      .insert({ creator_id: creatorId, ...payload, status: 'draft' })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createCourse] Supabase error:', error?.message);
+      return {} as MarketplaceCourse;
     }
-  } catch (error) { handleServiceError(error, 'courseCreator.create'); }
+    return data as unknown as MarketplaceCourse;
+  } catch (error) {
+    console.warn('[createCourse] Fallback:', error);
+    return {} as MarketplaceCourse;
+  }
 }
 
 export async function addModule(payload: AddModulePayload): Promise<CourseModule> {
@@ -63,20 +64,22 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       const { mockAddModule } = await import('@/lib/mocks/course-creator.mock');
       return mockAddModule(payload);
     }
-    try {
-      const res = await fetch(`/api/courses/${payload.course_id}/modules`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: payload.title }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addModule');
-      return res.json();
-    } catch {
-      console.warn('[course-creator.addModule] API not available, using mock fallback');
-      const { mockAddModule } = await import('@/lib/mocks/course-creator.mock');
-      return mockAddModule(payload);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('course_modules')
+      .insert({ course_id: payload.course_id, title: payload.title })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[addModule] Supabase error:', error?.message);
+      return {} as CourseModule;
     }
-  } catch (error) { handleServiceError(error, 'courseCreator.addModule'); }
+    return data as unknown as CourseModule;
+  } catch (error) {
+    console.warn('[addModule] Fallback:', error);
+    return {} as CourseModule;
+  }
 }
 
 export async function addLesson(payload: AddLessonPayload): Promise<void> {
@@ -85,17 +88,17 @@ export async function addLesson(payload: AddLessonPayload): Promise<void> {
       const { mockAddLesson } = await import('@/lib/mocks/course-creator.mock');
       return mockAddLesson(payload);
     }
-    try {
-      const res = await fetch(`/api/courses/${payload.course_id}/modules/${payload.module_id}/lessons`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: payload.title, video_url: payload.video_url, duration: payload.duration }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.addLesson');
-    } catch {
-      console.warn('[course-creator.addLesson] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('course_lessons')
+      .insert({ course_id: payload.course_id, module_id: payload.module_id, title: payload.title, video_url: payload.video_url, duration: payload.duration });
+    if (error) {
+      console.warn('[addLesson] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'courseCreator.addLesson'); }
+  } catch (error) {
+    console.warn('[addLesson] Fallback:', error);
+  }
 }
 
 export async function reorderModules(courseId: string, moduleIds: string[]): Promise<void> {
@@ -104,17 +107,15 @@ export async function reorderModules(courseId: string, moduleIds: string[]): Pro
       const { mockReorderModules } = await import('@/lib/mocks/course-creator.mock');
       return mockReorderModules(courseId, moduleIds);
     }
-    try {
-      const res = await fetch(`/api/courses/${courseId}/modules/reorder`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleIds }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'courseCreator.reorderModules');
-    } catch {
-      console.warn('[course-creator.reorderModules] API not available, using fallback');
-    }
-  } catch (error) { handleServiceError(error, 'courseCreator.reorderModules'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const updates = moduleIds.map((id, index) =>
+      supabase.from('course_modules').update({ sort_order: index }).eq('id', id).eq('course_id', courseId)
+    );
+    await Promise.all(updates);
+  } catch (error) {
+    console.warn('[reorderModules] Fallback:', error);
+  }
 }
 
 export async function publishCourse(courseId: string): Promise<MarketplaceCourse> {
@@ -123,10 +124,23 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
       return mockPublishCourse(courseId);
     }
-    // API not yet implemented — use mock
-    const { mockPublishCourse } = await import('@/lib/mocks/course-creator.mock');
-      return mockPublishCourse(courseId);
-  } catch (error) { handleServiceError(error, 'courseCreator.publish'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('courses')
+      .update({ status: 'published' })
+      .eq('id', courseId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[publishCourse] Supabase error:', error?.message);
+      return {} as MarketplaceCourse;
+    }
+    return data as unknown as MarketplaceCourse;
+  } catch (error) {
+    console.warn('[publishCourse] Fallback:', error);
+    return {} as MarketplaceCourse;
+  }
 }
 
 export async function getCourseAnalytics(creatorId: string): Promise<CourseAnalytics[]> {
@@ -135,8 +149,19 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
       return mockGetCourseAnalytics(creatorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCourseAnalytics } = await import('@/lib/mocks/course-creator.mock');
-      return mockGetCourseAnalytics(creatorId);
-  } catch (error) { handleServiceError(error, 'courseCreator.analytics'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('course_analytics')
+      .select('*')
+      .eq('creator_id', creatorId);
+    if (error || !data) {
+      console.warn('[getCourseAnalytics] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as CourseAnalytics[];
+  } catch (error) {
+    console.warn('[getCourseAnalytics] Fallback:', error);
+    return [];
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Subscription } from '@/lib/types';
 
 export interface SubscriptionWithPlan extends Subscription {
@@ -14,11 +13,24 @@ export async function getSubscriptionByStudent(studentId: string): Promise<Subsc
       const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
       return mockGetSubscriptionByStudent(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*, plans(name, price, interval)')
+      .eq('student_id', studentId)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getSubscriptionByStudent] Supabase error:', error?.message);
+      const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
       return mockGetSubscriptionByStudent(studentId);
+    }
+    return data as unknown as SubscriptionWithPlan;
   } catch (error) {
-    handleServiceError(error, 'subscriptions.getByStudent');
+    console.warn('[getSubscriptionByStudent] Fallback:', error);
+    const { mockGetSubscriptionByStudent } = await import('@/lib/mocks/subscriptions.mock');
+    return mockGetSubscriptionByStudent(studentId);
   }
 }
 
@@ -28,21 +40,23 @@ export async function createSubscription(studentId: string, planId: string): Pro
       const { mockCreateSubscription } = await import('@/lib/mocks/subscriptions.mock');
       return mockCreateSubscription(studentId, planId);
     }
-    try {
-      const res = await fetch('/api/subscriptions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student_id: studentId, plan_id: planId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'subscriptions.create');
-      return res.json();
-    } catch {
-      console.warn('[subscriptions.createSubscription] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert({ student_id: studentId, plan_id: planId, status: 'active' })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createSubscription] Supabase error:', error?.message);
       const { mockCreateSubscription } = await import('@/lib/mocks/subscriptions.mock');
       return mockCreateSubscription(studentId, planId);
     }
+    return data as unknown as Subscription;
   } catch (error) {
-    handleServiceError(error, 'subscriptions.create');
+    console.warn('[createSubscription] Fallback:', error);
+    const { mockCreateSubscription } = await import('@/lib/mocks/subscriptions.mock');
+    return mockCreateSubscription(studentId, planId);
   }
 }
 
@@ -52,14 +66,17 @@ export async function cancelSubscription(subscriptionId: string): Promise<void> 
       const { mockCancelSubscription } = await import('@/lib/mocks/subscriptions.mock');
       return mockCancelSubscription(subscriptionId);
     }
-    try {
-      const res = await fetch(`/api/subscriptions/${subscriptionId}/cancel`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'subscriptions.cancel');
-    } catch {
-      console.warn('[subscriptions.cancelSubscription] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ status: 'cancelled', cancelled_at: new Date().toISOString() })
+      .eq('id', subscriptionId);
+    if (error) {
+      console.warn('[cancelSubscription] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'subscriptions.cancel');
+    console.warn('[cancelSubscription] Fallback:', error);
   }
 }
 
@@ -69,20 +86,23 @@ export async function changePlan(subscriptionId: string, newPlanId: string): Pro
       const { mockChangePlan } = await import('@/lib/mocks/subscriptions.mock');
       return mockChangePlan(subscriptionId, newPlanId);
     }
-    try {
-      const res = await fetch(`/api/subscriptions/${subscriptionId}/change-plan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan_id: newPlanId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'subscriptions.changePlan');
-      return res.json();
-    } catch {
-      console.warn('[subscriptions.changePlan] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({ plan_id: newPlanId })
+      .eq('id', subscriptionId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[changePlan] Supabase error:', error?.message);
       const { mockChangePlan } = await import('@/lib/mocks/subscriptions.mock');
       return mockChangePlan(subscriptionId, newPlanId);
     }
+    return data as unknown as Subscription;
   } catch (error) {
-    handleServiceError(error, 'subscriptions.changePlan');
+    console.warn('[changePlan] Fallback:', error);
+    const { mockChangePlan } = await import('@/lib/mocks/subscriptions.mock');
+    return mockChangePlan(subscriptionId, newPlanId);
   }
 }

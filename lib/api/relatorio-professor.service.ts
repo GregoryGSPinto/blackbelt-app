@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface RelatorioProfessor {
   professorId: string;
@@ -38,18 +37,23 @@ export async function getRelatorioProfessores(academyId: string, periodo?: strin
       const { mockGetRelatorioProfessores } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetRelatorioProfessores(academyId, periodo);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (periodo) params.set('periodo', periodo);
-      const res = await fetch(`/api/relatorio-professores?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'relatorio-professor.list');
-      return res.json();
-    } catch {
-      console.warn('[relatorio-professor.getRelatorioProfessores] API not available, using mock fallback');
-      const { mockGetRelatorioProfessores } = await import('@/lib/mocks/relatorio-professor.mock');
-      return mockGetRelatorioProfessores(academyId, periodo);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('professor_reports')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (periodo) query = query.eq('periodo', periodo);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[getRelatorioProfessores] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'relatorio-professor.list'); }
+    return data as unknown as RelatorioProfessor[];
+  } catch (error) {
+    console.warn('[getRelatorioProfessores] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getDetalheProfessor(professorId: string, periodo?: string): Promise<DetalheProfessor> {
@@ -58,8 +62,21 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
       const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
       return mockGetDetalheProfessor(professorId, periodo);
     }
-    // API not yet implemented — use mock
-    const { mockGetDetalheProfessor } = await import('@/lib/mocks/relatorio-professor.mock');
-      return mockGetDetalheProfessor(professorId, periodo);
-  } catch (error) { handleServiceError(error, 'relatorio-professor.detail'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('professor_reports')
+      .select('*')
+      .eq('professor_id', professorId);
+    if (periodo) query = query.eq('periodo', periodo);
+    const { data, error } = await query.single();
+    if (error || !data) {
+      console.warn('[getDetalheProfessor] Supabase error:', error?.message);
+      return {} as DetalheProfessor;
+    }
+    return data as unknown as DetalheProfessor;
+  } catch (error) {
+    console.warn('[getDetalheProfessor] Fallback:', error);
+    return {} as DetalheProfessor;
+  }
 }

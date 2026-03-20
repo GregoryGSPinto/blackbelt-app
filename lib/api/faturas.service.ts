@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
 
 export interface InvoiceFilters {
@@ -21,22 +20,22 @@ export async function listInvoices(academyId: string, filters?: InvoiceFilters):
       const { mockListInvoices } = await import('@/lib/mocks/faturas.mock');
       return mockListInvoices(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.from) params.set('from', filters.from);
-      if (filters?.to) params.set('to', filters.to);
-      if (filters?.plan_id) params.set('plan_id', filters.plan_id);
-      const res = await fetch(`/api/invoices?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'faturas.list');
-      return res.json();
-    } catch {
-      console.warn('[faturas.listInvoices] API not available, using mock fallback');
-      const { mockListInvoices } = await import('@/lib/mocks/faturas.mock');
-      return mockListInvoices(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('invoices').select('*, profiles(display_name), plans(name)').eq('academy_id', academyId);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.from) query = query.gte('due_date', filters.from);
+    if (filters?.to) query = query.lte('due_date', filters.to);
+    if (filters?.plan_id) query = query.eq('plan_id', filters.plan_id);
+    const { data, error } = await query.order('due_date', { ascending: false });
+    if (error || !data) {
+      console.warn('[listInvoices] Supabase error:', error?.message);
+      return [];
     }
+    return data as unknown as InvoiceWithDetails[];
   } catch (error) {
-    handleServiceError(error, 'faturas.list');
+    console.warn('[listInvoices] Fallback:', error);
+    return [];
   }
 }
 
@@ -46,11 +45,21 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
       return mockGetInvoiceById(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetInvoiceById } = await import('@/lib/mocks/faturas.mock');
-      return mockGetInvoiceById(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('*, profiles(display_name), plans(name)')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getInvoiceById] Supabase error:', error?.message);
+      return {} as InvoiceWithDetails;
+    }
+    return data as unknown as InvoiceWithDetails;
   } catch (error) {
-    handleServiceError(error, 'faturas.get');
+    console.warn('[getInvoiceById] Fallback:', error);
+    return {} as InvoiceWithDetails;
   }
 }
 
@@ -60,11 +69,22 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
       return mockMarkPaid(id);
     }
-    // API not yet implemented — use mock
-    const { mockMarkPaid } = await import('@/lib/mocks/faturas.mock');
-      return mockMarkPaid(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('invoices')
+      .update({ status: 'paid', paid_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[markInvoicePaid] Supabase error:', error?.message);
+      return {} as Invoice;
+    }
+    return data as unknown as Invoice;
   } catch (error) {
-    handleServiceError(error, 'faturas.markPaid');
+    console.warn('[markInvoicePaid] Fallback:', error);
+    return {} as Invoice;
   }
 }
 
@@ -74,20 +94,16 @@ export async function generateMonthlyInvoices(academyId: string): Promise<Invoic
       const { mockGenerateMonthly } = await import('@/lib/mocks/faturas.mock');
       return mockGenerateMonthly(academyId);
     }
-    try {
-      const res = await fetch('/api/invoices/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academy_id: academyId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'faturas.generate');
-      return res.json();
-    } catch {
-      console.warn('[faturas.generateMonthlyInvoices] API not available, using mock fallback');
-      const { mockGenerateMonthly } = await import('@/lib/mocks/faturas.mock');
-      return mockGenerateMonthly(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('generate_monthly_invoices', { p_academy_id: academyId });
+    if (error || !data) {
+      console.warn('[generateMonthlyInvoices] Supabase error:', error?.message);
+      return [];
     }
+    return data as unknown as Invoice[];
   } catch (error) {
-    handleServiceError(error, 'faturas.generate');
+    console.warn('[generateMonthlyInvoices] Fallback:', error);
+    return [];
   }
 }

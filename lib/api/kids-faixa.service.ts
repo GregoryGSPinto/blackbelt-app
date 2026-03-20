@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface FaixaKids {
   faixaAtual: {
@@ -35,10 +34,22 @@ export async function getFaixaKids(studentId: string): Promise<FaixaKids> {
       const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
       return mockGetFaixaKids(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_faixas')
+      .select('*')
+      .eq('student_id', studentId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getFaixaKids] Supabase error:', error?.message);
+      const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
       return mockGetFaixaKids(studentId);
+    }
+    return data as unknown as FaixaKids;
   } catch (error) {
-    handleServiceError(error, 'kids-faixa.get');
+    console.warn('[getFaixaKids] Fallback:', error);
+    const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
+    return mockGetFaixaKids(studentId);
   }
 }

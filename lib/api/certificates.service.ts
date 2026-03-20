@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type CertificateType = 'course' | 'belt' | 'event';
 
@@ -23,20 +22,18 @@ export async function generateCourseCertificate(userId: string, courseId: string
       const { mockGenerateCourseCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateCourseCertificate(userId, courseId);
     }
-    try {
-      const res = await fetch(`/api/certificates/course`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, courseId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateCourse');
-      return res.json();
-    } catch {
-      console.warn('[certificates.generateCourseCertificate] API not available, using mock fallback');
-      const { mockGenerateCourseCertificate } = await import('@/lib/mocks/certificates.mock');
-      return mockGenerateCourseCertificate(userId, courseId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('generate_course_certificate', { p_user_id: userId, p_course_id: courseId });
+    if (error || !data) {
+      console.warn('[generateCourseCertificate] Supabase error:', error?.message);
+      return {} as Certificate;
     }
-  } catch (error) { handleServiceError(error, 'certificates.generateCourse'); }
+    return data as unknown as Certificate;
+  } catch (error) {
+    console.warn('[generateCourseCertificate] Fallback:', error);
+    return {} as Certificate;
+  }
 }
 
 export async function generateBeltCertificate(userId: string, belt: string, academyId: string): Promise<Certificate> {
@@ -45,20 +42,18 @@ export async function generateBeltCertificate(userId: string, belt: string, acad
       const { mockGenerateBeltCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateBeltCertificate(userId, belt, academyId);
     }
-    try {
-      const res = await fetch(`/api/certificates/belt`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, belt, academyId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateBelt');
-      return res.json();
-    } catch {
-      console.warn('[certificates.generateBeltCertificate] API not available, using mock fallback');
-      const { mockGenerateBeltCertificate } = await import('@/lib/mocks/certificates.mock');
-      return mockGenerateBeltCertificate(userId, belt, academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('generate_belt_certificate', { p_user_id: userId, p_belt: belt, p_academy_id: academyId });
+    if (error || !data) {
+      console.warn('[generateBeltCertificate] Supabase error:', error?.message);
+      return {} as Certificate;
     }
-  } catch (error) { handleServiceError(error, 'certificates.generateBelt'); }
+    return data as unknown as Certificate;
+  } catch (error) {
+    console.warn('[generateBeltCertificate] Fallback:', error);
+    return {} as Certificate;
+  }
 }
 
 export async function generateEventCertificate(userId: string, eventId: string): Promise<Certificate> {
@@ -67,20 +62,18 @@ export async function generateEventCertificate(userId: string, eventId: string):
       const { mockGenerateEventCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockGenerateEventCertificate(userId, eventId);
     }
-    try {
-      const res = await fetch(`/api/certificates/event`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, eventId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'certificates.generateEvent');
-      return res.json();
-    } catch {
-      console.warn('[certificates.generateEventCertificate] API not available, using mock fallback');
-      const { mockGenerateEventCertificate } = await import('@/lib/mocks/certificates.mock');
-      return mockGenerateEventCertificate(userId, eventId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('generate_event_certificate', { p_user_id: userId, p_event_id: eventId });
+    if (error || !data) {
+      console.warn('[generateEventCertificate] Supabase error:', error?.message);
+      return {} as Certificate;
     }
-  } catch (error) { handleServiceError(error, 'certificates.generateEvent'); }
+    return data as unknown as Certificate;
+  } catch (error) {
+    console.warn('[generateEventCertificate] Fallback:', error);
+    return {} as Certificate;
+  }
 }
 
 export async function verifyCertificate(code: string): Promise<Certificate | null> {
@@ -89,16 +82,22 @@ export async function verifyCertificate(code: string): Promise<Certificate | nul
       const { mockVerifyCertificate } = await import('@/lib/mocks/certificates.mock');
       return mockVerifyCertificate(code);
     }
-    try {
-      const res = await fetch(`/api/certificates/verify/${code}`);
-      if (res.status === 404) return null;
-      if (!res.ok) throw new ServiceError(res.status, 'certificates.verify');
-      return res.json();
-    } catch {
-      console.warn('[certificates.verifyCertificate] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('certificates')
+      .select('*')
+      .eq('verification_code', code)
+      .single();
+    if (error || !data) {
+      console.warn('[verifyCertificate] Supabase error:', error?.message);
       return null;
     }
-  } catch (error) { handleServiceError(error, 'certificates.verify'); }
+    return data as unknown as Certificate;
+  } catch (error) {
+    console.warn('[verifyCertificate] Fallback:', error);
+    return null;
+  }
 }
 
 export async function getMyCertificates(userId: string): Promise<Certificate[]> {
@@ -107,8 +106,20 @@ export async function getMyCertificates(userId: string): Promise<Certificate[]> 
       const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
       return mockGetMyCertificates(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyCertificates } = await import('@/lib/mocks/certificates.mock');
-      return mockGetMyCertificates(userId);
-  } catch (error) { handleServiceError(error, 'certificates.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('certificates')
+      .select('*')
+      .eq('user_id', userId)
+      .order('issued_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getMyCertificates] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as Certificate[];
+  } catch (error) {
+    console.warn('[getMyCertificates] Fallback:', error);
+    return [];
+  }
 }

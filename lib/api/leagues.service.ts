@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface LeagueAcademy {
   academy_id: string;
@@ -38,10 +37,22 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
       return mockGetActiveLeague();
     }
-    // API not yet implemented — use mock
-    const { mockGetActiveLeague } = await import('@/lib/mocks/leagues.mock');
-      return mockGetActiveLeague();
-  } catch (error) { handleServiceError(error, 'leagues.active'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('leagues')
+      .select('*')
+      .eq('status', 'active')
+      .single();
+    if (error || !data) {
+      console.warn('[getActiveLeague] Supabase error:', error?.message);
+      return {} as LeagueDTO;
+    }
+    return data as unknown as LeagueDTO;
+  } catch (error) {
+    console.warn('[getActiveLeague] Fallback:', error);
+    return {} as LeagueDTO;
+  }
 }
 
 export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
@@ -50,22 +61,46 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
       return mockGetLeagueStandings();
     }
-    // API not yet implemented — use mock
-    const { mockGetLeagueStandings } = await import('@/lib/mocks/leagues.mock');
-      return mockGetLeagueStandings();
-  } catch (error) { handleServiceError(error, 'leagues.standings'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('league_standings')
+      .select('*')
+      .order('rank', { ascending: true });
+    if (error || !data) {
+      console.warn('[getLeagueStandings] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as LeagueAcademy[];
+  } catch (error) {
+    console.warn('[getLeagueStandings] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getMyAcademyRank(academyId: string): Promise<AcademyLeagueStats> {
+  const fallback: AcademyLeagueStats = { academy_id: '', rank: 0, total_points: 0, per_capita_avg: 0, student_count: 0, top_contributors: [], opted_in: false };
   try {
     if (isMock()) {
       const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
       return mockGetMyAcademyRank(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyAcademyRank } = await import('@/lib/mocks/leagues.mock');
-      return mockGetMyAcademyRank(academyId);
-  } catch (error) { handleServiceError(error, 'leagues.myAcademy'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('league_standings')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+    if (error || !data) {
+      console.warn('[getMyAcademyRank] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as AcademyLeagueStats;
+  } catch (error) {
+    console.warn('[getMyAcademyRank] Fallback:', error);
+    return fallback;
+  }
 }
 
 export async function contributePoints(studentId: string, action: string): Promise<{ points_added: number; total_points: number }> {
@@ -74,20 +109,18 @@ export async function contributePoints(studentId: string, action: string): Promi
       const { mockContributePoints } = await import('@/lib/mocks/leagues.mock');
       return mockContributePoints(studentId, action);
     }
-    try {
-      const res = await fetch('/api/leagues/contribute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, action }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'leagues.contribute');
-      return res.json();
-    } catch {
-      console.warn('[leagues.contributePoints] API not available, using mock fallback');
-      const { mockContributePoints } = await import('@/lib/mocks/leagues.mock');
-      return mockContributePoints(studentId, action);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('contribute_league_points', { p_student_id: studentId, p_action: action });
+    if (error || !data) {
+      console.warn('[contributePoints] Supabase error:', error?.message);
+      return { points_added: 0, total_points: 0 };
     }
-  } catch (error) { handleServiceError(error, 'leagues.contribute'); }
+    return data as unknown as { points_added: number; total_points: number };
+  } catch (error) {
+    console.warn('[contributePoints] Fallback:', error);
+    return { points_added: 0, total_points: 0 };
+  }
 }
 
 export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ success: boolean }> {
@@ -96,18 +129,19 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       const { mockToggleOptIn } = await import('@/lib/mocks/leagues.mock');
       return mockToggleOptIn(academyId, optIn);
     }
-    try {
-      const res = await fetch('/api/leagues/opt-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, optIn }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'leagues.optIn');
-      return res.json();
-    } catch {
-      console.warn('[leagues.toggleOptIn] API not available, using mock fallback');
-      const { mockToggleOptIn } = await import('@/lib/mocks/leagues.mock');
-      return mockToggleOptIn(academyId, optIn);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('league_standings')
+      .update({ opted_in: optIn })
+      .eq('academy_id', academyId);
+    if (error) {
+      console.warn('[toggleOptIn] Supabase error:', error.message);
+      return { success: false };
     }
-  } catch (error) { handleServiceError(error, 'leagues.optIn'); }
+    return { success: true };
+  } catch (error) {
+    console.warn('[toggleOptIn] Fallback:', error);
+    return { success: false };
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type StatusCobranca = 'pendente' | 'contatado' | 'negociando' | 'promessa' | 'perdido';
 export type ContatoTipo = 'ligacao' | 'whatsapp' | 'email' | 'presencial';
@@ -42,10 +41,38 @@ export async function getDevedores(academyId: string): Promise<Devedor[]> {
       const { mockGetDevedores } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetDevedores(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetDevedores } = await import('@/lib/mocks/inadimplencia.mock');
-      return mockGetDevedores(academyId);
-  } catch (error) { handleServiceError(error, 'inadimplencia.devedores'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('devedores')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('dias_atraso', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getDevedores] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      alunoId: String(row.aluno_id ?? ''),
+      alunoNome: String(row.aluno_nome ?? ''),
+      alunoAvatar: row.aluno_avatar ? String(row.aluno_avatar) : undefined,
+      alunoTelefone: String(row.aluno_telefone ?? ''),
+      alunoEmail: String(row.aluno_email ?? ''),
+      valorDevido: Number(row.valor_devido ?? 0),
+      diasAtraso: Number(row.dias_atraso ?? 0),
+      ultimoPagamento: String(row.ultimo_pagamento ?? ''),
+      plano: String(row.plano ?? ''),
+      ultimoContato: row.ultimo_contato ? (row.ultimo_contato as Devedor['ultimoContato']) : undefined,
+      statusCobranca: (row.status_cobranca ?? 'pendente') as StatusCobranca,
+    }));
+  } catch (error) {
+    console.warn('[getDevedores] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getInadimplenciaMetrics(academyId: string): Promise<InadimplenciaMetrics> {
@@ -54,10 +81,29 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
       const { mockGetInadimplenciaMetrics } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetInadimplenciaMetrics(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetInadimplenciaMetrics } = await import('@/lib/mocks/inadimplencia.mock');
-      return mockGetInadimplenciaMetrics(academyId);
-  } catch (error) { handleServiceError(error, 'inadimplencia.metrics'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('devedores')
+      .select('valor_devido, dias_atraso')
+      .eq('academy_id', academyId);
+
+    if (error || !data) {
+      console.warn('[getInadimplenciaMetrics] Supabase error:', error?.message);
+      return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 };
+    }
+
+    const rows = data as Record<string, unknown>[];
+    const total = rows.length;
+    const valorTotal = rows.reduce((acc, r) => acc + Number(r.valor_devido ?? 0), 0);
+    const mediaAtraso = total > 0 ? Math.round(rows.reduce((acc, r) => acc + Number(r.dias_atraso ?? 0), 0) / total) : 0;
+
+    return { totalDevedores: total, valorTotalDevido: valorTotal, mediaAtraso, recuperadoMes: 0 };
+  } catch (error) {
+    console.warn('[getInadimplenciaMetrics] Fallback:', error);
+    return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 };
+  }
 }
 
 export async function registrarContato(devedorId: string, tipo: ContatoTipo, resultado: ContatoResultado, observacao: string): Promise<ContatoRegistro> {
@@ -66,16 +112,32 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       const { mockRegistrarContato } = await import('@/lib/mocks/inadimplencia.mock');
       return mockRegistrarContato(devedorId, tipo, resultado, observacao);
     }
-    try {
-      const res = await fetch(`/api/inadimplencia/${devedorId}/contato`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo, resultado, observacao }) });
-      if (!res.ok) throw new ServiceError(res.status, 'inadimplencia.contato');
-      return res.json();
-    } catch {
-      console.warn('[inadimplencia.registrarContato] API not available, using mock fallback');
-      const { mockRegistrarContato } = await import('@/lib/mocks/inadimplencia.mock');
-      return mockRegistrarContato(devedorId, tipo, resultado, observacao);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('contatos_cobranca')
+      .insert({ devedor_id: devedorId, tipo, resultado, observacao })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[registrarContato] Supabase error:', error?.message);
+      return { id: '', devedorId, tipo, resultado, observacao, data: new Date().toISOString() };
     }
-  } catch (error) { handleServiceError(error, 'inadimplencia.contato'); }
+
+    return {
+      id: String(data.id),
+      devedorId: String(data.devedor_id ?? devedorId),
+      tipo: (data.tipo ?? tipo) as ContatoTipo,
+      resultado: (data.resultado ?? resultado) as ContatoResultado,
+      observacao: String(data.observacao ?? ''),
+      data: String(data.created_at ?? new Date().toISOString()),
+    };
+  } catch (error) {
+    console.warn('[registrarContato] Fallback:', error);
+    return { id: '', devedorId, tipo, resultado, observacao, data: new Date().toISOString() };
+  }
 }
 
 export async function getHistoricoContatos(devedorId: string): Promise<ContatoRegistro[]> {
@@ -84,8 +146,30 @@ export async function getHistoricoContatos(devedorId: string): Promise<ContatoRe
       const { mockGetHistoricoContatos } = await import('@/lib/mocks/inadimplencia.mock');
       return mockGetHistoricoContatos(devedorId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHistoricoContatos } = await import('@/lib/mocks/inadimplencia.mock');
-      return mockGetHistoricoContatos(devedorId);
-  } catch (error) { handleServiceError(error, 'inadimplencia.historico'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('contatos_cobranca')
+      .select('*')
+      .eq('devedor_id', devedorId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getHistoricoContatos] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      devedorId: String(row.devedor_id ?? ''),
+      tipo: (row.tipo ?? 'whatsapp') as ContatoTipo,
+      resultado: (row.resultado ?? 'sem_resposta') as ContatoResultado,
+      observacao: String(row.observacao ?? ''),
+      data: String(row.created_at ?? ''),
+    }));
+  } catch (error) {
+    console.warn('[getHistoricoContatos] Fallback:', error);
+    return [];
+  }
 }

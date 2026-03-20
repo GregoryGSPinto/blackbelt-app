@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface DeveloperProfile {
   id: string;
@@ -50,7 +49,10 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       const { mockGetDeveloperProfile } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperProfile();
     }
-  } catch (error) { handleServiceError(error, 'developer.profile'); }
+  } catch (error) {
+    console.warn('[getDeveloperProfile] Fallback:', error);
+    return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
+  }
 }
 
 export async function createDeveloperAccount(data: {
@@ -76,8 +78,10 @@ export async function createDeveloperAccount(data: {
       const { mockCreateDeveloperAccount } = await import('@/lib/mocks/developer.mock');
       return mockCreateDeveloperAccount(data);
     }
-
-  } catch (error) { handleServiceError(error, 'developer.create'); }
+  } catch (error) {
+    console.warn('[createDeveloperAccount] Fallback:', error);
+    return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
+  }
 }
 
 export async function getSubmittedApps(): Promise<DeveloperApp[]> {
@@ -94,7 +98,10 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
       const { mockGetSubmittedApps } = await import('@/lib/mocks/developer.mock');
       return mockGetSubmittedApps();
     }
-  } catch (error) { handleServiceError(error, 'developer.apps'); }
+  } catch (error) {
+    console.warn('[getSubmittedApps] Fallback:', error);
+    return [];
+  }
 }
 
 export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
@@ -111,7 +118,10 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       const { mockSubmitAppForReview } = await import('@/lib/mocks/developer.mock');
       return mockSubmitAppForReview(appId);
     }
-  } catch (error) { handleServiceError(error, 'developer.submitApp'); }
+  } catch (error) {
+    console.warn('[submitAppForReview] Fallback:', error);
+    return { id: appId, name: '', status: 'draft', version: '', submittedAt: null, category: '' };
+  }
 }
 
 export async function getDeveloperStats(): Promise<DeveloperStats> {
@@ -128,7 +138,10 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       const { mockGetDeveloperStats } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperStats();
     }
-  } catch (error) { handleServiceError(error, 'developer.stats'); }
+  } catch (error) {
+    console.warn('[getDeveloperStats] Fallback:', error);
+    return { totalApps: 0, totalDownloads: 0, totalRevenue: 0, averageRating: 0, activeInstalls: 0 };
+  }
 }
 
 export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
@@ -145,5 +158,8 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
       const { mockGetAPIUsage } = await import('@/lib/mocks/developer.mock');
       return mockGetAPIUsage(days);
     }
-  } catch (error) { handleServiceError(error, 'developer.apiUsage'); }
+  } catch (error) {
+    console.warn('[getAPIUsage] Fallback:', error);
+    return [];
+  }
 }

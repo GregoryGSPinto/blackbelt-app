@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ConsentRecord {
   id: string;
@@ -38,7 +37,10 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
       const { mockGetConsents } = await import('@/lib/mocks/privacy.mock');
       return mockGetConsents(userId);
     }
-  } catch (error) { handleServiceError(error, 'privacy.getConsents'); }
+  } catch (error) {
+    console.warn('[getConsents] Fallback:', error);
+    return [];
+  }
 }
 
 export async function updateConsent(userId: string, type: ConsentRecord['type'], accepted: boolean): Promise<ConsentRecord> {
@@ -55,7 +57,10 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
       const { mockUpdateConsent } = await import('@/lib/mocks/privacy.mock');
       return mockUpdateConsent(userId, type, accepted);
     }
-  } catch (error) { handleServiceError(error, 'privacy.updateConsent'); }
+  } catch (error) {
+    console.warn('[updateConsent] Fallback:', error);
+    return { id: '', type, accepted, acceptedAt: null, version: '' };
+  }
 }
 
 export async function requestDataExport(userId: string): Promise<DataExportRequest> {
@@ -72,7 +77,10 @@ export async function requestDataExport(userId: string): Promise<DataExportReque
       const { mockRequestDataExport } = await import('@/lib/mocks/privacy.mock');
       return mockRequestDataExport(userId);
     }
-  } catch (error) { handleServiceError(error, 'privacy.requestExport'); }
+  } catch (error) {
+    console.warn('[requestDataExport] Fallback:', error);
+    return { id: '', status: 'pending', requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
+  }
 }
 
 export async function getDataExportStatus(requestId: string): Promise<DataExportRequest> {
@@ -89,7 +97,10 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
       const { mockGetDataExportStatus } = await import('@/lib/mocks/privacy.mock');
       return mockGetDataExportStatus(requestId);
     }
-  } catch (error) { handleServiceError(error, 'privacy.exportStatus'); }
+  } catch (error) {
+    console.warn('[getDataExportStatus] Fallback:', error);
+    return { id: requestId, status: 'pending', requestedAt: '', completedAt: null, downloadUrl: null };
+  }
 }
 
 export async function requestAccountDeletion(userId: string): Promise<DeletionRequest> {
@@ -106,5 +117,8 @@ export async function requestAccountDeletion(userId: string): Promise<DeletionRe
       const { mockRequestDeletion } = await import('@/lib/mocks/privacy.mock');
       return mockRequestDeletion(userId);
     }
-  } catch (error) { handleServiceError(error, 'privacy.deleteAccount'); }
+  } catch (error) {
+    console.warn('[requestAccountDeletion] Fallback:', error);
+    return { id: '', status: 'pending', requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 // ────────────────────────────────────────────────────────────
@@ -55,34 +54,48 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
       return mockGetPromotionCandidate(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetPromotionCandidate } = await import('@/lib/mocks/promocao.mock');
-      return mockGetPromotionCandidate(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('promotion_candidates')
+      .select('*')
+      .eq('student_id', studentId)
+      .single();
+    if (error || !data) {
+      console.warn('[getPromotionCandidate] Supabase error:', error?.message);
+      return {} as PromotionCandidateDTO;
+    }
+    return data as unknown as PromotionCandidateDTO;
   } catch (error) {
-    handleServiceError(error, 'promocao.getCandidate');
+    console.warn('[getPromotionCandidate] Fallback:', error);
+    return {} as PromotionCandidateDTO;
   }
 }
 
 export async function executePromotion(data: ExecutePromotionPayload): Promise<PromotionResult> {
+  const fallback: PromotionResult = { success: false, progression_id: '', new_belt: 'branca' as BeltLevel, xp_awarded: 0, actions: [] };
   try {
     if (isMock()) {
       const { mockExecutePromotion } = await import('@/lib/mocks/promocao.mock');
       return mockExecutePromotion(data);
     }
-    try {
-      const res = await fetch('/api/promocao/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'promocao.execute');
-      return res.json();
-    } catch {
-      console.warn('[promocao.executePromotion] API not available, using mock fallback');
-      const { mockExecutePromotion } = await import('@/lib/mocks/promocao.mock');
-      return mockExecutePromotion(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: result, error } = await supabase.rpc('execute_promotion', {
+      p_student_id: data.student_id,
+      p_academy_id: data.academy_id,
+      p_from_belt: data.from_belt,
+      p_to_belt: data.to_belt,
+      p_teacher_message: data.teacher_message,
+      p_promoted_by: data.promoted_by,
+    });
+    if (error || !result) {
+      console.warn('[executePromotion] Supabase error:', error?.message);
+      return fallback;
     }
+    return result as unknown as PromotionResult;
   } catch (error) {
-    handleServiceError(error, 'promocao.execute');
+    console.warn('[executePromotion] Fallback:', error);
+    return fallback;
   }
 }

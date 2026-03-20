@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface AppStoreItem {
   id: string;
@@ -52,7 +51,10 @@ export async function listApps(params?: { category?: string; search?: string }):
       const { mockListApps } = await import('@/lib/mocks/app-store.mock');
       return mockListApps(params);
     }
-  } catch (error) { handleServiceError(error, 'appStore.list'); }
+  } catch (error) {
+    console.warn('[listApps] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getApp(appId: string): Promise<AppStoreItem> {
@@ -69,7 +71,10 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
       const { mockGetApp } = await import('@/lib/mocks/app-store.mock');
       return mockGetApp(appId);
     }
-  } catch (error) { handleServiceError(error, 'appStore.get'); }
+  } catch (error) {
+    console.warn('[getApp] Fallback:', error);
+    return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false };
+  }
 }
 
 export async function getAppReviews(appId: string): Promise<AppReview[]> {
@@ -86,7 +91,10 @@ export async function getAppReviews(appId: string): Promise<AppReview[]> {
       const { mockGetAppReviews } = await import('@/lib/mocks/app-store.mock');
       return mockGetAppReviews(appId);
     }
-  } catch (error) { handleServiceError(error, 'appStore.reviews'); }
+  } catch (error) {
+    console.warn('[getAppReviews] Fallback:', error);
+    return [];
+  }
 }
 
 export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'reviewCount' | 'downloads' | 'featured'>): Promise<AppStoreItem> {
@@ -107,7 +115,10 @@ export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'revi
       const { mockSubmitApp } = await import('@/lib/mocks/app-store.mock');
       return mockSubmitApp(data);
     }
-  } catch (error) { handleServiceError(error, 'appStore.submit'); }
+  } catch (error) {
+    console.warn('[submitApp] Fallback:', error);
+    return { ...data, id: '', rating: 0, reviewCount: 0, downloads: 0, featured: false };
+  }
 }
 
 export async function getCategories(): Promise<AppCategory[]> {
@@ -124,7 +135,10 @@ export async function getCategories(): Promise<AppCategory[]> {
       const { mockGetCategories } = await import('@/lib/mocks/app-store.mock');
       return mockGetCategories();
     }
-  } catch (error) { handleServiceError(error, 'appStore.categories'); }
+  } catch (error) {
+    console.warn('[getCategories] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getFeatured(): Promise<AppStoreItem[]> {
@@ -141,5 +155,8 @@ export async function getFeatured(): Promise<AppStoreItem[]> {
       const { mockGetFeatured } = await import('@/lib/mocks/app-store.mock');
       return mockGetFeatured();
     }
-  } catch (error) { handleServiceError(error, 'appStore.featured'); }
+  } catch (error) {
+    console.warn('[getFeatured] Fallback:', error);
+    return [];
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface RecompensaKids {
   id: string;
@@ -30,11 +29,20 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetRecompensasKids(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRecompensasKids } = await import('@/lib/mocks/kids-recompensas.mock');
-      return mockGetRecompensasKids(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_recompensas')
+      .select('*')
+      .eq('student_id', studentId);
+    if (error || !data) {
+      console.warn('[getRecompensasKids] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as RecompensaKids[];
   } catch (error) {
-    handleServiceError(error, 'kids-recompensas.list');
+    console.warn('[getRecompensasKids] Fallback:', error);
+    return [];
   }
 }
 
@@ -44,11 +52,21 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockGetHistoricoResgates(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHistoricoResgates } = await import('@/lib/mocks/kids-recompensas.mock');
-      return mockGetHistoricoResgates(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_resgates')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('data', { ascending: false });
+    if (error || !data) {
+      console.warn('[getHistoricoResgates] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as HistoricoResgate[];
   } catch (error) {
-    handleServiceError(error, 'kids-recompensas.historico');
+    console.warn('[getHistoricoResgates] Fallback:', error);
+    return [];
   }
 }
 
@@ -58,20 +76,16 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
       const { mockResgatarRecompensa } = await import('@/lib/mocks/kids-recompensas.mock');
       return mockResgatarRecompensa(studentId, recompensaId);
     }
-    try {
-      const res = await fetch('/api/kids/recompensas/resgatar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, recompensaId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'kids-recompensas.resgatar');
-      return res.json();
-    } catch {
-      console.warn('[kids-recompensas.resgatarRecompensa] API not available, using mock fallback');
-      const { mockResgatarRecompensa } = await import('@/lib/mocks/kids-recompensas.mock');
-      return mockResgatarRecompensa(studentId, recompensaId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('resgatar_recompensa_kids', { p_student_id: studentId, p_recompensa_id: recompensaId });
+    if (error || !data) {
+      console.warn('[resgatarRecompensa] Supabase error:', error?.message);
+      return {} as HistoricoResgate;
     }
+    return data as unknown as HistoricoResgate;
   } catch (error) {
-    handleServiceError(error, 'kids-recompensas.resgatar');
+    console.warn('[resgatarRecompensa] Fallback:', error);
+    return {} as HistoricoResgate;
   }
 }

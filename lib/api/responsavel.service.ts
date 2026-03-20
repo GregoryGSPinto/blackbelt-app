@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types/domain';
 
 // ────────────────────────────────────────────────────────────
@@ -80,10 +79,22 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
       const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
       return mockGetGuardianDashboard(profileId);
     }
-    // API not yet implemented — use mock
-    const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('guardian_dashboards')
+      .select('*')
+      .eq('profile_id', profileId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getGuardianDashboard] Supabase error:', error?.message);
+      const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
       return mockGetGuardianDashboard(profileId);
+    }
+    return data as unknown as GuardianDashboardDTO;
   } catch (error) {
-    handleServiceError(error, 'responsavel.dashboard');
+    console.warn('[getGuardianDashboard] Fallback:', error);
+    const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
+    return mockGetGuardianDashboard(profileId);
   }
 }

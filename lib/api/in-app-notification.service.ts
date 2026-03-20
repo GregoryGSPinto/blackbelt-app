@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { InAppNotification } from '@/lib/types/notification';
 
 export async function listNotifications(
@@ -17,17 +16,19 @@ export async function listNotifications(
       const params = new URLSearchParams({ userId });
       if (unreadOnly) params.set('unreadOnly', 'true');
       const res = await fetch(`/api/in-app-notifications?${params.toString()}`);
-      if (!res.ok)
-        throw new ServiceError(res.status, 'inAppNotification.list');
+      if (!res.ok) {
+        console.warn('[listNotifications] error:', `HTTP ${res.status}`);
+        return [];
+      }
       return res.json();
     } catch {
       console.warn('[in-app-notification.listNotifications] API not available, using mock fallback');
       const { mockListNotifications } = await import('@/lib/mocks/in-app-notification.mock');
       return mockListNotifications(userId, unreadOnly);
     }
-
   } catch (error) {
-    handleServiceError(error, 'inAppNotification.list');
+    console.warn('[listNotifications] Fallback:', error);
+    return [];
   }
 }
 
@@ -43,13 +44,14 @@ export async function markAsRead(id: string): Promise<void> {
       const res = await fetch(`/api/in-app-notifications/${id}/read`, {
         method: 'POST',
       });
-      if (!res.ok)
-        throw new ServiceError(res.status, 'inAppNotification.markAsRead');
+      if (!res.ok) {
+        console.warn('[markAsRead] error:', `HTTP ${res.status}`);
+      }
     } catch {
       console.warn('[in-app-notification.markAsRead] API not available, using fallback');
     }
   } catch (error) {
-    handleServiceError(error, 'inAppNotification.markAsRead');
+    console.warn('[markAsRead] Fallback:', error);
   }
 }
 
@@ -67,13 +69,14 @@ export async function markAllRead(userId: string): Promise<void> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
       });
-      if (!res.ok)
-        throw new ServiceError(res.status, 'inAppNotification.markAllRead');
+      if (!res.ok) {
+        console.warn('[markAllRead] error:', `HTTP ${res.status}`);
+      }
     } catch {
       console.warn('[in-app-notification.markAllRead] API not available, using fallback');
     }
   } catch (error) {
-    handleServiceError(error, 'inAppNotification.markAllRead');
+    console.warn('[markAllRead] Fallback:', error);
   }
 }
 
@@ -89,13 +92,14 @@ export async function dismiss(id: string): Promise<void> {
       const res = await fetch(`/api/in-app-notifications/${id}`, {
         method: 'DELETE',
       });
-      if (!res.ok)
-        throw new ServiceError(res.status, 'inAppNotification.dismiss');
+      if (!res.ok) {
+        console.warn('[dismiss] error:', `HTTP ${res.status}`);
+      }
     } catch {
       console.warn('[in-app-notification.dismiss] API not available, using fallback');
     }
   } catch (error) {
-    handleServiceError(error, 'inAppNotification.dismiss');
+    console.warn('[dismiss] Fallback:', error);
   }
 }
 
@@ -111,8 +115,10 @@ export async function getUnreadCount(userId: string): Promise<number> {
       const res = await fetch(
         `/api/in-app-notifications/unread-count?userId=${userId}`,
       );
-      if (!res.ok)
-        throw new ServiceError(res.status, 'inAppNotification.unreadCount');
+      if (!res.ok) {
+        console.warn('[getUnreadCount] error:', `HTTP ${res.status}`);
+        return 0;
+      }
       const data: { count: number } = await res.json();
       return data.count;
     } catch {
@@ -120,6 +126,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
       return 0;
     }
   } catch (error) {
-    handleServiceError(error, 'inAppNotification.unreadCount');
+    console.warn('[getUnreadCount] Fallback:', error);
+    return 0;
   }
 }

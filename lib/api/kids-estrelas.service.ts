@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface KidsProfile {
   id: string;
@@ -48,11 +47,23 @@ export async function getKidsProfile(studentId: string): Promise<KidsProfile> {
       const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetKidsProfile(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_profiles')
+      .select('*')
+      .eq('student_id', studentId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getKidsProfile] Supabase error:', error?.message);
+      const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetKidsProfile(studentId);
+    }
+    return data as unknown as KidsProfile;
   } catch (error) {
-    handleServiceError(error, 'kids-estrelas.profile');
+    console.warn('[getKidsProfile] Fallback:', error);
+    const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
+    return mockGetKidsProfile(studentId);
   }
 }
 
@@ -62,11 +73,21 @@ export async function getEstrelasHistorico(studentId: string): Promise<EstrelaHi
       const { mockGetEstrelasHistorico } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetEstrelasHistorico(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetEstrelasHistorico } = await import('@/lib/mocks/kids-estrelas.mock');
-      return mockGetEstrelasHistorico(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_estrelas_historico')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('data', { ascending: false });
+    if (error) {
+      console.warn('[getEstrelasHistorico] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as EstrelaHistorico[];
   } catch (error) {
-    handleServiceError(error, 'kids-estrelas.historico');
+    console.warn('[getEstrelasHistorico] Fallback:', error);
+    return [];
   }
 }
 
@@ -76,10 +97,19 @@ export async function getRecompensas(studentId: string): Promise<RecompensaEstre
       const { mockGetRecompensas } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetRecompensas(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRecompensas } = await import('@/lib/mocks/kids-estrelas.mock');
-      return mockGetRecompensas(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_recompensas')
+      .select('*')
+      .eq('student_id', studentId);
+    if (error) {
+      console.warn('[getRecompensas] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as RecompensaEstrela[];
   } catch (error) {
-    handleServiceError(error, 'kids-estrelas.recompensas');
+    console.warn('[getRecompensas] Fallback:', error);
+    return [];
   }
 }

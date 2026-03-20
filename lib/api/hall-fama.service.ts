@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface RecordDTO {
   id: string;
@@ -24,8 +23,20 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
       return mockGetHallOfFame(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHallOfFame } = await import('@/lib/mocks/hall-fama.mock');
-      return mockGetHallOfFame(academyId);
-  } catch (error) { handleServiceError(error, 'hallFama.get'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('hall_of_fame')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('achieved_at', { ascending: false });
+    if (error) {
+      console.warn('[getHallOfFame] Supabase error:', error.message);
+      return { records: [], updatedAt: new Date().toISOString() };
+    }
+    return { records: (data ?? []) as unknown as RecordDTO[], updatedAt: new Date().toISOString() };
+  } catch (error) {
+    console.warn('[getHallOfFame] Fallback:', error);
+    return { records: [], updatedAt: new Date().toISOString() };
+  }
 }

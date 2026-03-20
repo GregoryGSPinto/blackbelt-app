@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface MascoteOption {
   id: string;
@@ -44,16 +43,27 @@ export interface PersonalizacaoKids {
 }
 
 export async function getPersonalizacao(studentId: string): Promise<PersonalizacaoKids> {
+  const fallback: PersonalizacaoKids = { mascotesDisponiveis: [], mascoteAtual: '', molduras: [], molduraAtual: '', cores: [], corAtual: '', titulosDisponiveis: [], tituloAtual: '' };
   try {
     if (isMock()) {
       const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockGetPersonalizacao(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetPersonalizacao } = await import('@/lib/mocks/kids-personalizacao.mock');
-      return mockGetPersonalizacao(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('kids_personalizacao')
+      .select('*')
+      .eq('student_id', studentId)
+      .single();
+    if (error || !data) {
+      console.warn('[getPersonalizacao] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as PersonalizacaoKids;
   } catch (error) {
-    handleServiceError(error, 'kids-personalizacao.get');
+    console.warn('[getPersonalizacao] Fallback:', error);
+    return fallback;
   }
 }
 
@@ -63,21 +73,20 @@ export async function setMascoteKids(studentId: string, mascoteId: string): Prom
       const { mockSetMascoteKids } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockSetMascoteKids(studentId, mascoteId);
     }
-    try {
-      const res = await fetch('/api/kids/personalizacao/mascote', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, mascoteId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setMascote');
-      return res.json();
-    } catch {
-      console.warn('[kids-personalizacao.setMascoteKids] API not available, using mock fallback');
-      const { mockSetMascoteKids } = await import('@/lib/mocks/kids-personalizacao.mock');
-      return mockSetMascoteKids(studentId, mascoteId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('kids_personalizacao')
+      .update({ mascote_atual: mascoteId })
+      .eq('student_id', studentId);
+    if (error) {
+      console.warn('[setMascoteKids] Supabase error:', error.message);
+      return { sucesso: false };
     }
+    return { sucesso: true };
   } catch (error) {
-    handleServiceError(error, 'kids-personalizacao.setMascote');
+    console.warn('[setMascoteKids] Fallback:', error);
+    return { sucesso: false };
   }
 }
 
@@ -87,21 +96,20 @@ export async function setCorKids(studentId: string, corId: string): Promise<{ su
       const { mockSetCorKids } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockSetCorKids(studentId, corId);
     }
-    try {
-      const res = await fetch('/api/kids/personalizacao/cor', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, corId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setCor');
-      return res.json();
-    } catch {
-      console.warn('[kids-personalizacao.setCorKids] API not available, using mock fallback');
-      const { mockSetCorKids } = await import('@/lib/mocks/kids-personalizacao.mock');
-      return mockSetCorKids(studentId, corId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('kids_personalizacao')
+      .update({ cor_atual: corId })
+      .eq('student_id', studentId);
+    if (error) {
+      console.warn('[setCorKids] Supabase error:', error.message);
+      return { sucesso: false };
     }
+    return { sucesso: true };
   } catch (error) {
-    handleServiceError(error, 'kids-personalizacao.setCor');
+    console.warn('[setCorKids] Fallback:', error);
+    return { sucesso: false };
   }
 }
 
@@ -111,20 +119,19 @@ export async function setTituloKids(studentId: string, titulo: string): Promise<
       const { mockSetTituloKids } = await import('@/lib/mocks/kids-personalizacao.mock');
       return mockSetTituloKids(studentId, titulo);
     }
-    try {
-      const res = await fetch('/api/kids/personalizacao/titulo', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, titulo }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'kids-personalizacao.setTitulo');
-      return res.json();
-    } catch {
-      console.warn('[kids-personalizacao.setTituloKids] API not available, using mock fallback');
-      const { mockSetTituloKids } = await import('@/lib/mocks/kids-personalizacao.mock');
-      return mockSetTituloKids(studentId, titulo);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('kids_personalizacao')
+      .update({ titulo_atual: titulo })
+      .eq('student_id', studentId);
+    if (error) {
+      console.warn('[setTituloKids] Supabase error:', error.message);
+      return { sucesso: false };
     }
+    return { sucesso: true };
   } catch (error) {
-    handleServiceError(error, 'kids-personalizacao.setTitulo');
+    console.warn('[setTituloKids] Fallback:', error);
+    return { sucesso: false };
   }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type SuggestionPriority = 'high' | 'medium' | 'low';
 
@@ -41,12 +40,23 @@ export async function getSuggestions(
       const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
       return mockGetSuggestions(role, userId, academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSuggestions } = await import('@/lib/mocks/suggestions.mock');
-      return mockGetSuggestions(role, userId, academyId);
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('suggestions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('academy_id', academyId)
+      .eq('role', role)
+      .is('dismissed_until', null);
+    if (error) {
+      console.warn('[getSuggestions] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as Suggestion[];
   } catch (error) {
-    handleServiceError(error, 'suggestions.get');
+    console.warn('[getSuggestions] Fallback:', error);
+    return [];
   }
 }
 
@@ -56,15 +66,16 @@ export async function dismissSuggestion(suggestionId: string): Promise<void> {
       const { mockDismissSuggestion } = await import('@/lib/mocks/suggestions.mock');
       return mockDismissSuggestion(suggestionId);
     }
-    try {
-      const res = await fetch(`/api/suggestions/${suggestionId}/dismiss`, {
-        method: 'POST',
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'suggestions.dismiss');
-    } catch {
-      console.warn('[suggestions.dismissSuggestion] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('suggestions')
+      .update({ dismissed_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
+      .eq('id', suggestionId);
+    if (error) {
+      console.warn('[dismissSuggestion] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'suggestions.dismiss');
+    console.warn('[dismissSuggestion] Fallback:', error);
   }
 }

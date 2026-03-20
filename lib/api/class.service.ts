@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type {
   ClassItem,
   ClassStudent,
@@ -22,24 +21,21 @@ export async function listClasses(
       const { mockListClasses } = await import('@/lib/mocks/class.mock');
       return mockListClasses(academyId, filters);
     }
-    try {
-
-      const params = new URLSearchParams({ academy_id: academyId });
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.professor_id) params.set('professor_id', filters.professor_id);
-
-      const res = await fetch(`/api/classes?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'class.list');
-      return res.json();
-    } catch {
-      console.warn('[class.listClasses] API not available, using mock fallback');
-      const { mockListClasses } = await import('@/lib/mocks/class.mock');
-      return mockListClasses(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('classes').select('*').eq('academy_id', academyId);
+    if (filters?.modality) query = query.eq('modality', filters.modality);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.professor_id) query = query.eq('professor_id', filters.professor_id);
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[listClasses] Supabase error:', error?.message);
+      return [];
     }
-
+    return data as unknown as ClassItem[];
   } catch (error) {
-    handleServiceError(error, 'class.list');
+    console.warn('[listClasses] Fallback:', error);
+    return [];
   }
 }
 
@@ -49,11 +45,21 @@ export async function getClass(id: string): Promise<ClassItem> {
       const { mockGetClass } = await import('@/lib/mocks/class.mock');
       return mockGetClass(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetClass } = await import('@/lib/mocks/class.mock');
-      return mockGetClass(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('classes')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.warn('[getClass] Supabase error:', error?.message);
+      return {} as ClassItem;
+    }
+    return data as unknown as ClassItem;
   } catch (error) {
-    handleServiceError(error, 'class.get');
+    console.warn('[getClass] Fallback:', error);
+    return {} as ClassItem;
   }
 }
 
@@ -63,22 +69,21 @@ export async function createClass(data: CreateClassDTO): Promise<ClassItem> {
       const { mockCreateClass } = await import('@/lib/mocks/class.mock');
       return mockCreateClass(data);
     }
-    try {
-
-      const res = await fetch('/api/classes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'class.create');
-      return res.json();
-    } catch {
-      console.warn('[class.createClass] API not available, using mock fallback');
-      const { mockCreateClass } = await import('@/lib/mocks/class.mock');
-      return mockCreateClass(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('classes')
+      .insert(data)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createClass] Supabase error:', error?.message);
+      return {} as ClassItem;
     }
+    return row as unknown as ClassItem;
   } catch (error) {
-    handleServiceError(error, 'class.create');
+    console.warn('[createClass] Fallback:', error);
+    return {} as ClassItem;
   }
 }
 
@@ -88,22 +93,22 @@ export async function updateClass(id: string, data: UpdateClassDTO): Promise<Cla
       const { mockUpdateClass } = await import('@/lib/mocks/class.mock');
       return mockUpdateClass(id, data);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'class.update');
-      return res.json();
-    } catch {
-      console.warn('[class.updateClass] API not available, using mock fallback');
-      const { mockUpdateClass } = await import('@/lib/mocks/class.mock');
-      return mockUpdateClass(id, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('classes')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updateClass] Supabase error:', error?.message);
+      return {} as ClassItem;
     }
+    return row as unknown as ClassItem;
   } catch (error) {
-    handleServiceError(error, 'class.update');
+    console.warn('[updateClass] Fallback:', error);
+    return {} as ClassItem;
   }
 }
 
@@ -113,15 +118,14 @@ export async function deleteClass(id: string): Promise<void> {
       const { mockDeleteClass } = await import('@/lib/mocks/class.mock');
       return mockDeleteClass(id);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'class.delete');
-    } catch {
-      console.warn('[class.deleteClass] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.from('classes').delete().eq('id', id);
+    if (error) {
+      console.warn('[deleteClass] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'class.delete');
+    console.warn('[deleteClass] Fallback:', error);
   }
 }
 
@@ -131,11 +135,20 @@ export async function getClassStudents(classId: string): Promise<ClassStudent[]>
       const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
       return mockGetClassStudents(classId);
     }
-    // API not yet implemented — use mock
-    const { mockGetClassStudents } = await import('@/lib/mocks/class.mock');
-      return mockGetClassStudents(classId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('class_students')
+      .select('*, profiles(*)')
+      .eq('class_id', classId);
+    if (error || !data) {
+      console.warn('[getClassStudents] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as ClassStudent[];
   } catch (error) {
-    handleServiceError(error, 'class.getStudents');
+    console.warn('[getClassStudents] Fallback:', error);
+    return [];
   }
 }
 
@@ -145,22 +158,21 @@ export async function addStudent(classId: string, studentId: string): Promise<Cl
       const { mockAddStudent } = await import('@/lib/mocks/class.mock');
       return mockAddStudent(classId, studentId);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${classId}/students`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student_id: studentId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'class.addStudent');
-      return res.json();
-    } catch {
-      console.warn('[class.addStudent] API not available, using mock fallback');
-      const { mockAddStudent } = await import('@/lib/mocks/class.mock');
-      return mockAddStudent(classId, studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('class_students')
+      .insert({ class_id: classId, student_id: studentId })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[addStudent] Supabase error:', error?.message);
+      return {} as ClassStudent;
     }
+    return data as unknown as ClassStudent;
   } catch (error) {
-    handleServiceError(error, 'class.addStudent');
+    console.warn('[addStudent] Fallback:', error);
+    return {} as ClassStudent;
   }
 }
 
@@ -170,17 +182,18 @@ export async function removeStudent(classId: string, studentId: string): Promise
       const { mockRemoveStudent } = await import('@/lib/mocks/class.mock');
       return mockRemoveStudent(classId, studentId);
     }
-    try {
-
-      const res = await fetch(`/api/classes/${classId}/students/${studentId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'class.removeStudent');
-    } catch {
-      console.warn('[class.removeStudent] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('class_students')
+      .delete()
+      .eq('class_id', classId)
+      .eq('student_id', studentId);
+    if (error) {
+      console.warn('[removeStudent] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'class.removeStudent');
+    console.warn('[removeStudent] Fallback:', error);
   }
 }
 
@@ -190,10 +203,19 @@ export async function getSchedule(academyId: string): Promise<ScheduleEntry[]> {
       const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
       return mockGetSchedule(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSchedule } = await import('@/lib/mocks/class.mock');
-      return mockGetSchedule(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('class_schedule')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[getSchedule] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as ScheduleEntry[];
   } catch (error) {
-    handleServiceError(error, 'class.getSchedule');
+    console.warn('[getSchedule] Fallback:', error);
+    return [];
   }
 }

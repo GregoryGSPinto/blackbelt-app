@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { NotificationChannel, NotificationTemplate, NotificationResult } from '@/lib/types/notification';
 
 export interface ChannelSender {
@@ -47,7 +46,10 @@ export async function sendNotification(
       results.push(result);
     }
     return results;
-  } catch (error) { handleServiceError(error, 'notificationHub.send'); }
+  } catch (error) {
+    console.warn('[sendNotification] Fallback:', error);
+    return [];
+  }
 }
 
 async function getChannelSender(channel: NotificationChannel): Promise<ChannelSender> {

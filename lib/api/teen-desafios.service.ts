@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -36,11 +35,26 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
       const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
       return mockGetDesafios(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('teen_desafios')
+      .select('*')
+      .eq('student_id', studentId);
+    if (error || !data) {
+      console.warn('[getDesafios] Supabase error:', error?.message);
+      const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
       return mockGetDesafios(studentId);
+    }
+    const all = data as unknown as DesafioTeen[];
+    const active = all.filter(d => !d.completed);
+    const completed = all.filter(d => d.completed);
+    const total_xp_earned = completed.reduce((s, d) => s + d.xp_reward, 0);
+    return { active, completed, total_xp_earned, streak_bonus: 0 };
   } catch (error) {
-    handleServiceError(error, 'teen.desafios');
+    console.warn('[getDesafios] Fallback:', error);
+    const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
+    return mockGetDesafios(studentId);
   }
 }
 
@@ -50,10 +64,21 @@ export async function claimReward(desafioId: string): Promise<{ xp_earned: numbe
       const { mockClaimReward } = await import('@/lib/mocks/teen-desafios.mock');
       return mockClaimReward(desafioId);
     }
-    // API not yet implemented — use mock
-    const { mockClaimReward } = await import('@/lib/mocks/teen-desafios.mock');
-      return mockClaimReward(desafioId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('teen_desafios')
+      .update({ claimed: true })
+      .eq('id', desafioId)
+      .select('xp_reward')
+      .single();
+    if (error || !data) {
+      console.warn('[claimReward] Supabase error:', error?.message);
+      return { xp_earned: 0 };
+    }
+    return { xp_earned: Number(data.xp_reward ?? 0) };
   } catch (error) {
-    handleServiceError(error, 'teen.desafios.claim');
+    console.warn('[claimReward] Fallback:', error);
+    return { xp_earned: 0 };
   }
 }

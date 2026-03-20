@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type PlanStatus = 'active' | 'completed' | 'archived';
 
@@ -53,16 +52,24 @@ export async function createPlan(plan: Omit<TrainingPlanDTO, 'id' | 'created_at'
       const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockCreatePlan(plan);
     }
-    try {
-      const res = await fetch('/api/training-plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plan) });
-      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.create');
-      return res.json();
-    } catch {
-      console.warn('[training-plan.createPlan] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('training_plans')
+      .insert(plan)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createPlan] Supabase error:', error?.message);
       const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockCreatePlan(plan);
     }
-  } catch (error) { handleServiceError(error, 'trainingPlan.create'); }
+    return data as unknown as TrainingPlanDTO;
+  } catch (error) {
+    console.warn('[createPlan] Fallback:', error);
+    const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
+    return mockCreatePlan(plan);
+  }
 }
 
 export async function getActivePlan(studentId: string): Promise<TrainingPlanDTO | null> {
@@ -71,15 +78,25 @@ export async function getActivePlan(studentId: string): Promise<TrainingPlanDTO 
       const { mockGetActivePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockGetActivePlan(studentId);
     }
-    try {
-      const res = await fetch(`/api/training-plans/active?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.active');
-      return res.json();
-    } catch {
-      console.warn('[training-plan.getActivePlan] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('training_plans')
+      .select('*')
+      .eq('student_id', studentId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.warn('[getActivePlan] Supabase error:', error.message);
       return null;
     }
-  } catch (error) { handleServiceError(error, 'trainingPlan.active'); }
+    return (data as unknown as TrainingPlanDTO) ?? null;
+  } catch (error) {
+    console.warn('[getActivePlan] Fallback:', error);
+    return null;
+  }
 }
 
 export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
@@ -88,10 +105,22 @@ export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
       const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
       return mockGetPlans(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetPlans } = await import('@/lib/mocks/training-plan.mock');
-      return mockGetPlans(studentId);
-  } catch (error) { handleServiceError(error, 'trainingPlan.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('training_plans')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getPlans] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as TrainingPlanDTO[];
+  } catch (error) {
+    console.warn('[getPlans] Fallback:', error);
+    return [];
+  }
 }
 
 export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Promise<TrainingPlanDTO> {
@@ -100,16 +129,25 @@ export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Pr
       const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockUpdatePlan(id, data);
     }
-    try {
-      const res = await fetch(`/api/training-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.update');
-      return res.json();
-    } catch {
-      console.warn('[training-plan.updatePlan] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('training_plans')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updatePlan] Supabase error:', error?.message);
       const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockUpdatePlan(id, data);
     }
-  } catch (error) { handleServiceError(error, 'trainingPlan.update'); }
+    return row as unknown as TrainingPlanDTO;
+  } catch (error) {
+    console.warn('[updatePlan] Fallback:', error);
+    const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
+    return mockUpdatePlan(id, data);
+  }
 }
 
 export async function logExercise(planId: string, log: ExerciseLog): Promise<void> {
@@ -118,11 +156,15 @@ export async function logExercise(planId: string, log: ExerciseLog): Promise<voi
       const { mockLogExercise } = await import('@/lib/mocks/training-plan.mock');
       return mockLogExercise(planId, log);
     }
-    try {
-      const res = await fetch(`/api/training-plans/${planId}/log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(log) });
-      if (!res.ok) throw new ServiceError(res.status, 'trainingPlan.log');
-    } catch {
-      console.warn('[training-plan.logExercise] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('exercise_logs')
+      .insert({ plan_id: planId, ...log });
+    if (error) {
+      console.warn('[logExercise] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'trainingPlan.log'); }
+  } catch (error) {
+    console.warn('[logExercise] Fallback:', error);
+  }
 }

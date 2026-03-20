@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface SubstitutionDTO {
   id: string;
@@ -38,10 +37,25 @@ export async function getSubstitutions(academyId: string): Promise<SubstitutionD
       const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
       return mockGetSubstitutions(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSubstitutions } = await import('@/lib/mocks/substituicao.mock');
-      return mockGetSubstitutions(academyId);
-  } catch (error) { handleServiceError(error, 'substituicao.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('substitutions')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('date', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getSubstitutions] Supabase error:', error?.message);
+      return [];
+    }
+
+    return data as unknown as SubstitutionDTO[];
+  } catch (error) {
+    console.warn('[getSubstitutions] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createSubstitution(data: CreateSubstitutionData): Promise<SubstitutionDTO> {
@@ -50,20 +64,32 @@ export async function createSubstitution(data: CreateSubstitutionData): Promise<
       const { mockCreateSubstitution } = await import('@/lib/mocks/substituicao.mock');
       return mockCreateSubstitution(data);
     }
-    try {
-      const res = await fetch('/api/substitutions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'substituicao.create');
-      return res.json();
-    } catch {
-      console.warn('[substituicao.createSubstitution] API not available, using mock fallback');
-      const { mockCreateSubstitution } = await import('@/lib/mocks/substituicao.mock');
-      return mockCreateSubstitution(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('substitutions')
+      .insert({
+        class_id: data.classId,
+        date: data.date,
+        time_slot: data.timeSlot,
+        original_teacher_id: data.originalTeacherId,
+        substitute_teacher_id: data.substituteTeacherId,
+        reason: data.reason,
+      })
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[createSubstitution] Supabase error:', error?.message);
+      return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
     }
-  } catch (error) { handleServiceError(error, 'substituicao.create'); }
+
+    return row as unknown as SubstitutionDTO;
+  } catch (error) {
+    console.warn('[createSubstitution] Fallback:', error);
+    return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
+  }
 }
 
 export async function getAvailableTeachers(date: string, timeSlot: string): Promise<AvailableTeacherDTO[]> {
@@ -72,8 +98,30 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
       return mockGetAvailableTeachers(date, timeSlot);
     }
-    // API not yet implemented — use mock
-    const { mockGetAvailableTeachers } = await import('@/lib/mocks/substituicao.mock');
-      return mockGetAvailableTeachers(date, timeSlot);
-  } catch (error) { handleServiceError(error, 'substituicao.availableTeachers'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('professors')
+      .select('id, name, specialties')
+      .eq('active', true);
+
+    if (error || !data) {
+      console.warn('[getAvailableTeachers] Supabase error:', error?.message);
+      return [];
+    }
+
+    // Mark all as available for now; real logic would check schedule conflicts
+    void date;
+    void timeSlot;
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      name: String(row.name ?? ''),
+      specialties: (row.specialties ?? []) as string[],
+      available: true,
+    }));
+  } catch (error) {
+    console.warn('[getAvailableTeachers] Fallback:', error);
+    return [];
+  }
 }

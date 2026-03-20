@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type BattlePassRewardType =
   | 'xp_bonus'
@@ -43,27 +42,54 @@ export interface BattlePassProgress {
 }
 
 export async function getBattlePass(seasonId: string): Promise<BattlePassDTO> {
+  const fallback: BattlePassDTO = { season_id: '', levels: [], is_premium: false, premium_price: 0 };
   try {
     if (isMock()) {
       const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetBattlePass(seasonId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBattlePass } = await import('@/lib/mocks/battle-pass.mock');
-      return mockGetBattlePass(seasonId);
-  } catch (error) { handleServiceError(error, 'battlePass.get'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('battle_pass_seasons')
+      .select('*, battle_pass_levels(*)')
+      .eq('id', seasonId)
+      .single();
+    if (error || !data) {
+      console.warn('[getBattlePass] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as BattlePassDTO;
+  } catch (error) {
+    console.warn('[getBattlePass] Fallback:', error);
+    return fallback;
+  }
 }
 
 export async function getMyBattlePassProgress(userId: string, seasonId: string): Promise<BattlePassProgress> {
+  const fallback: BattlePassProgress = { user_id: '', season_id: '', current_level: 0, current_xp: 0, xp_to_next_level: 0, is_premium: false, total_rewards_claimed: 0 };
   try {
     if (isMock()) {
       const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
       return mockGetMyProgress(userId, seasonId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyProgress } = await import('@/lib/mocks/battle-pass.mock');
-      return mockGetMyProgress(userId, seasonId);
-  } catch (error) { handleServiceError(error, 'battlePass.myProgress'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('battle_pass_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('season_id', seasonId)
+      .single();
+    if (error || !data) {
+      console.warn('[getMyBattlePassProgress] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as BattlePassProgress;
+  } catch (error) {
+    console.warn('[getMyBattlePassProgress] Fallback:', error);
+    return fallback;
+  }
 }
 
 export async function claimReward(userId: string, levelId: number): Promise<{ success: boolean; message: string }> {
@@ -72,20 +98,18 @@ export async function claimReward(userId: string, levelId: number): Promise<{ su
       const { mockClaimReward } = await import('@/lib/mocks/battle-pass.mock');
       return mockClaimReward(userId, levelId);
     }
-    try {
-      const res = await fetch('/api/battle-pass/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, levelId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'battlePass.claim');
-      return res.json();
-    } catch {
-      console.warn('[battle-pass.claimReward] API not available, using mock fallback');
-      const { mockClaimReward } = await import('@/lib/mocks/battle-pass.mock');
-      return mockClaimReward(userId, levelId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.rpc('claim_battle_pass_reward', { p_user_id: userId, p_level_id: levelId });
+    if (error || !data) {
+      console.warn('[claimReward] Supabase error:', error?.message);
+      return { success: false, message: error?.message ?? 'Unknown error' };
     }
-  } catch (error) { handleServiceError(error, 'battlePass.claim'); }
+    return data as unknown as { success: boolean; message: string };
+  } catch (error) {
+    console.warn('[claimReward] Fallback:', error);
+    return { success: false, message: 'Fallback error' };
+  }
 }
 
 export async function upgradeToPremium(userId: string, seasonId: string): Promise<{ success: boolean; message: string }> {
@@ -94,18 +118,20 @@ export async function upgradeToPremium(userId: string, seasonId: string): Promis
       const { mockUpgradeToPremium } = await import('@/lib/mocks/battle-pass.mock');
       return mockUpgradeToPremium(userId, seasonId);
     }
-    try {
-      const res = await fetch('/api/battle-pass/upgrade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, seasonId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'battlePass.upgrade');
-      return res.json();
-    } catch {
-      console.warn('[battle-pass.upgradeToPremium] API not available, using mock fallback');
-      const { mockUpgradeToPremium } = await import('@/lib/mocks/battle-pass.mock');
-      return mockUpgradeToPremium(userId, seasonId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('battle_pass_progress')
+      .update({ is_premium: true })
+      .eq('user_id', userId)
+      .eq('season_id', seasonId);
+    if (error) {
+      console.warn('[upgradeToPremium] Supabase error:', error.message);
+      return { success: false, message: error.message };
     }
-  } catch (error) { handleServiceError(error, 'battlePass.upgrade'); }
+    return { success: true, message: 'Premium ativado com sucesso!' };
+  } catch (error) {
+    console.warn('[upgradeToPremium] Fallback:', error);
+    return { success: false, message: 'Fallback error' };
+  }
 }

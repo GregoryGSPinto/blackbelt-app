@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type NotificationType = 'nova_mensagem' | 'aula_em_breve' | 'promocao_faixa' | 'conquista' | 'pagamento_vencido' | 'avaliacao_recebida';
 
@@ -25,11 +24,33 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
       return mockListNotifications(userId);
     }
-    // API not yet implemented — use mock
-    const { mockListNotifications } = await import('@/lib/mocks/notificacoes.mock');
-      return mockListNotifications(userId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error || !data) {
+      console.warn('[listNotifications] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      type: (row.type ?? 'nova_mensagem') as NotificationType,
+      title: String(row.title ?? ''),
+      message: String(row.message ?? ''),
+      time: String(row.created_at ?? ''),
+      read: Boolean(row.read),
+      link: row.link ? String(row.link) : undefined,
+    }));
   } catch (error) {
-    handleServiceError(error, 'notificacoes.list');
+    console.warn('[listNotifications] Fallback:', error);
+    return [];
   }
 }
 
@@ -39,17 +60,19 @@ export async function markNotificationsRead(ids: string[]): Promise<void> {
       const { mockMarkRead } = await import('@/lib/mocks/notificacoes.mock');
       return mockMarkRead(ids);
     }
-    try {
-      await fetch('/api/notificacoes/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids }),
-      });
-    } catch {
-      console.warn('[notificacoes.markNotificationsRead] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .in('id', ids);
+
+    if (error) {
+      console.warn('[markNotificationsRead] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'notificacoes.markRead');
+    console.warn('[markNotificationsRead] Fallback:', error);
   }
 }
 
@@ -59,13 +82,23 @@ export async function markAllRead(): Promise<void> {
       const { mockMarkAllRead } = await import('@/lib/mocks/notificacoes.mock');
       return mockMarkAllRead();
     }
-    try {
-      await fetch('/api/notificacoes/read-all', { method: 'POST' });
-    } catch {
-      console.warn('[notificacoes.markAllRead] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('user_id', user.id)
+      .eq('read', false);
+
+    if (error) {
+      console.warn('[markAllRead] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'notificacoes.markAllRead');
+    console.warn('[markAllRead] Fallback:', error);
   }
 }
 
@@ -75,16 +108,24 @@ export async function getPreferences(userId: string): Promise<NotificationPrefs>
       const { mockGetPreferences } = await import('@/lib/mocks/notificacoes.mock');
       return mockGetPreferences(userId);
     }
-    try {
-      const res = await fetch(`/api/notificacoes/prefs?userId=${userId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'notificacoes.prefs');
-      return res.json();
-    } catch {
-      console.warn('[notificacoes.getPreferences] API not available, using fallback');
-      return { push_enabled: false, email_enabled: false, whatsapp_enabled: false, categories: {} } as unknown as NotificationPrefs;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('notification_prefs')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getPreferences] Supabase error:', error?.message);
+      return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
     }
+
+    return data as unknown as NotificationPrefs;
   } catch (error) {
-    handleServiceError(error, 'notificacoes.prefs');
+    console.warn('[getPreferences] Fallback:', error);
+    return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
   }
 }
 
@@ -94,16 +135,17 @@ export async function updatePreferences(userId: string, prefs: NotificationPrefs
       const { mockUpdatePreferences } = await import('@/lib/mocks/notificacoes.mock');
       return mockUpdatePreferences(userId, prefs);
     }
-    try {
-      await fetch('/api/notificacoes/prefs', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, prefs }),
-      });
-    } catch {
-      console.warn('[notificacoes.updatePreferences] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('notification_prefs')
+      .upsert({ user_id: userId, ...prefs });
+
+    if (error) {
+      console.warn('[updatePreferences] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'notificacoes.updatePrefs');
+    console.warn('[updatePreferences] Fallback:', error);
   }
 }

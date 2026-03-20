@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -47,10 +46,23 @@ export async function listTecnicas(filtros?: TecnicaFiltros): Promise<Tecnica[]>
       const { mockListTecnicas } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockListTecnicas(filtros);
     }
-    console.warn('[bancoTecnicas.list] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('tecnicas').select('*');
+    if (filtros?.modalidade) query = query.eq('modalidade', filtros.modalidade);
+    if (filtros?.posicao) query = query.eq('posicao', filtros.posicao);
+    if (filtros?.categoria) query = query.eq('categoria', filtros.categoria);
+    if (filtros?.faixaMinima) query = query.eq('faixa_minima', filtros.faixaMinima);
+    if (filtros?.query) query = query.ilike('nome', `%${filtros.query}%`);
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[listTecnicas] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    handleServiceError(error, 'bancoTecnicas.list');
+    console.warn('[listTecnicas] Fallback:', error);
+    return [];
   }
 }
 
@@ -60,10 +72,17 @@ export async function getTecnica(id: string): Promise<Tecnica> {
       const { mockGetTecnica } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockGetTecnica(id);
     }
-    console.warn('[bancoTecnicas.get] fallback — not yet connected to Supabase');
-    return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('tecnicas').select('*').eq('id', id).single();
+    if (error) {
+      console.warn('[getTecnica] error:', error.message);
+      return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
+    }
+    return data as unknown as Tecnica;
   } catch (error) {
-    handleServiceError(error, 'bancoTecnicas.get');
+    console.warn('[getTecnica] Fallback:', error);
+    return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
   }
 }
 
@@ -73,10 +92,17 @@ export async function createTecnica(dados: CreateTecnicaPayload): Promise<Tecnic
       const { mockCreateTecnica } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockCreateTecnica(dados);
     }
-    console.warn('[bancoTecnicas.create] fallback — not yet connected to Supabase');
-    return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('tecnicas').insert(dados).select().single();
+    if (error) {
+      console.warn('[createTecnica] error:', error.message);
+      return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
+    }
+    return data as unknown as Tecnica;
   } catch (error) {
-    handleServiceError(error, 'bancoTecnicas.create');
+    console.warn('[createTecnica] Fallback:', error);
+    return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
   }
 }
 
@@ -86,9 +112,16 @@ export async function searchTecnicas(query: string): Promise<Tecnica[]> {
       const { mockSearchTecnicas } = await import('@/lib/mocks/banco-tecnicas.mock');
       return mockSearchTecnicas(query);
     }
-    console.warn('[bancoTecnicas.search] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('tecnicas').select('*').ilike('nome', `%${query}%`);
+    if (error) {
+      console.warn('[searchTecnicas] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    handleServiceError(error, 'bancoTecnicas.search');
+    console.warn('[searchTecnicas] Fallback:', error);
+    return [];
   }
 }

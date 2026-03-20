@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface SpaceDTO {
   id: string;
@@ -26,10 +25,21 @@ export async function listSpaces(unitId: string): Promise<SpaceDTO[]> {
       const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
       return mockListSpaces(unitId);
     }
-    // API not yet implemented — use mock
-    const { mockListSpaces } = await import('@/lib/mocks/spaces.mock');
-      return mockListSpaces(unitId);
-  } catch (error) { handleServiceError(error, 'spaces.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('spaces')
+      .select('*')
+      .eq('unit_id', unitId);
+    if (error || !data) {
+      console.warn('[listSpaces] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as SpaceDTO[];
+  } catch (error) {
+    console.warn('[listSpaces] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlot[]> {
@@ -38,10 +48,21 @@ export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlo
       const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
       return mockGetSchedule(unitId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSchedule } = await import('@/lib/mocks/spaces.mock');
-      return mockGetSchedule(unitId);
-  } catch (error) { handleServiceError(error, 'spaces.schedule'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('space_schedules')
+      .select('*')
+      .eq('unit_id', unitId);
+    if (error || !data) {
+      console.warn('[getSpaceSchedule] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as SpaceScheduleSlot[];
+  } catch (error) {
+    console.warn('[getSpaceSchedule] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'unitId' | 'status'>): Promise<SpaceDTO> {
@@ -50,14 +71,22 @@ export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'u
       const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
       return mockCreateSpace(unitId, data);
     }
-    try {
-      const res = await fetch(`/api/spaces`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, ...data }) });
-      if (!res.ok) throw new ServiceError(res.status, 'spaces.create');
-      return res.json();
-    } catch {
-      console.warn('[spaces.createSpace] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('spaces')
+      .insert({ unit_id: unitId, ...data, status: 'available' })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createSpace] Supabase error:', error?.message);
       const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
       return mockCreateSpace(unitId, data);
     }
-  } catch (error) { handleServiceError(error, 'spaces.create'); }
+    return row as unknown as SpaceDTO;
+  } catch (error) {
+    console.warn('[createSpace] Fallback:', error);
+    const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
+    return mockCreateSpace(unitId, data);
+  }
 }

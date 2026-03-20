@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export async function generatePresencaReport(academyId: string, period: string): Promise<Blob> {
   try {
@@ -14,7 +13,10 @@ export async function generatePresencaReport(academyId: string, period: string):
       console.warn('[reports-export.generatePresencaReport] API not available, using fallback');
       return new Blob();
     }
-  } catch (error) { handleServiceError(error, 'reports.presenca'); }
+  } catch (error) {
+    console.warn('[generatePresencaReport] Fallback:', error);
+    return new Blob();
+  }
 }
 
 export async function generateFinanceiroReport(academyId: string, period: string): Promise<Blob> {
@@ -30,7 +32,10 @@ export async function generateFinanceiroReport(academyId: string, period: string
       console.warn('[reports-export.generateFinanceiroReport] API not available, using fallback');
       return new Blob();
     }
-  } catch (error) { handleServiceError(error, 'reports.financeiro'); }
+  } catch (error) {
+    console.warn('[generateFinanceiroReport] Fallback:', error);
+    return new Blob();
+  }
 }
 
 export async function generateAlunoReport(studentId: string): Promise<Blob> {
@@ -46,7 +51,10 @@ export async function generateAlunoReport(studentId: string): Promise<Blob> {
       console.warn('[reports-export.generateAlunoReport] API not available, using fallback');
       return new Blob();
     }
-  } catch (error) { handleServiceError(error, 'reports.aluno'); }
+  } catch (error) {
+    console.warn('[generateAlunoReport] Fallback:', error);
+    return new Blob();
+  }
 }
 
 export async function generateRankingReport(academyId: string): Promise<Blob> {
@@ -62,7 +70,10 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
       console.warn('[reports-export.generateRankingReport] API not available, using fallback');
       return new Blob();
     }
-  } catch (error) { handleServiceError(error, 'reports.ranking'); }
+  } catch (error) {
+    console.warn('[generateRankingReport] Fallback:', error);
+    return new Blob();
+  }
 }
 
 export function downloadBlob(blob: Blob, filename: string) {

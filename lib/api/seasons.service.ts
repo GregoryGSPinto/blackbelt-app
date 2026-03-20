@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type SeasonStatus = 'upcoming' | 'active' | 'ended';
 export type SeasonTier = 'bronze' | 'silver' | 'gold' | 'diamond';
@@ -49,10 +48,36 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
       return mockGetCurrentSeason(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCurrentSeason } = await import('@/lib/mocks/seasons.mock');
-      return mockGetCurrentSeason(academyId);
-  } catch (error) { handleServiceError(error, 'seasons.getCurrent'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('seasons')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('status', 'active')
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getCurrentSeason] Supabase error:', error?.message);
+      return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
+    }
+
+    return {
+      id: String(data.id),
+      academy_id: String(data.academy_id),
+      name: String(data.name ?? ''),
+      start_date: String(data.start_date ?? ''),
+      end_date: String(data.end_date ?? ''),
+      status: (data.status ?? 'active') as SeasonStatus,
+      theme: String(data.theme ?? ''),
+      rewards: (data.rewards ?? []) as SeasonRewardTier[],
+    };
+  } catch (error) {
+    console.warn('[getCurrentSeason] Fallback:', error);
+    return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
+  }
 }
 
 export async function getSeasonLeaderboard(seasonId: string, category?: string): Promise<LeaderboardEntry[]> {
@@ -61,18 +86,37 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
       const { mockGetSeasonLeaderboard } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonLeaderboard(seasonId, category);
     }
-    try {
-      const params = new URLSearchParams({ seasonId });
-      if (category) params.set('category', category);
-      const res = await fetch(`/api/seasons/leaderboard?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'seasons.leaderboard');
-      return res.json();
-    } catch {
-      console.warn('[seasons.getSeasonLeaderboard] API not available, using mock fallback');
-      const { mockGetSeasonLeaderboard } = await import('@/lib/mocks/seasons.mock');
-      return mockGetSeasonLeaderboard(seasonId, category);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('season_leaderboard')
+      .select('*')
+      .eq('season_id', seasonId)
+      .order('points', { ascending: false })
+      .limit(50);
+
+    if (category) query = query.eq('category', category);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[getSeasonLeaderboard] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'seasons.leaderboard'); }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      student_id: String(row.student_id ?? ''),
+      student_name: String(row.student_name ?? ''),
+      avatar_url: String(row.avatar_url ?? ''),
+      points: Number(row.points ?? 0),
+      rank: Number(row.rank ?? 0),
+      tier: (row.tier ?? 'bronze') as SeasonTier,
+    }));
+  } catch (error) {
+    console.warn('[getSeasonLeaderboard] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTier[]> {
@@ -81,10 +125,25 @@ export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTi
       const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
       return mockGetSeasonRewards(seasonId);
     }
-    // API not yet implemented — use mock
-    const { mockGetSeasonRewards } = await import('@/lib/mocks/seasons.mock');
-      return mockGetSeasonRewards(seasonId);
-  } catch (error) { handleServiceError(error, 'seasons.rewards'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('seasons')
+      .select('rewards')
+      .eq('id', seasonId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getSeasonRewards] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data.rewards ?? []) as SeasonRewardTier[];
+  } catch (error) {
+    console.warn('[getSeasonRewards] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getMySeasonProgress(studentId: string, seasonId: string): Promise<SeasonProgress> {
@@ -93,8 +152,33 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
       return mockGetMySeasonProgress(studentId, seasonId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMySeasonProgress } = await import('@/lib/mocks/seasons.mock');
-      return mockGetMySeasonProgress(studentId, seasonId);
-  } catch (error) { handleServiceError(error, 'seasons.myProgress'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('season_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .eq('season_id', seasonId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getMySeasonProgress] Supabase error:', error?.message);
+      return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
+    }
+
+    return {
+      season_id: String(data.season_id),
+      student_id: String(data.student_id),
+      season_points: Number(data.season_points ?? 0),
+      rank: Number(data.rank ?? 0),
+      tier: (data.tier ?? 'bronze') as SeasonTier,
+      achievements_this_season: (data.achievements_this_season ?? []) as string[],
+      streak_this_season: Number(data.streak_this_season ?? 0),
+      classes_attended_this_season: Number(data.classes_attended_this_season ?? 0),
+    };
+  } catch (error) {
+    console.warn('[getMySeasonProgress] Fallback:', error);
+    return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
+  }
 }

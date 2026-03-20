@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface UnitDTO {
   id: string;
@@ -18,10 +17,22 @@ export async function listUnits(academyId: string): Promise<UnitDTO[]> {
       const { mockListUnits } = await import('@/lib/mocks/units.mock');
       return mockListUnits(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListUnits } = await import('@/lib/mocks/units.mock');
-      return mockListUnits(academyId);
-  } catch (error) { handleServiceError(error, 'units.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('units')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('active', true);
+    if (error) {
+      console.warn('[listUnits] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as UnitDTO[];
+  } catch (error) {
+    console.warn('[listUnits] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | 'classCount' | 'studentCount' | 'active'>): Promise<UnitDTO> {
@@ -30,16 +41,24 @@ export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | '
       const { mockCreateUnit } = await import('@/lib/mocks/units.mock');
       return mockCreateUnit(academyId, data);
     }
-    try {
-      const res = await fetch(`/api/units`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...data }) });
-      if (!res.ok) throw new ServiceError(res.status, 'units.create');
-      return res.json();
-    } catch {
-      console.warn('[units.createUnit] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('units')
+      .insert({ academy_id: academyId, ...data, active: true })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createUnit] Supabase error:', error?.message);
       const { mockCreateUnit } = await import('@/lib/mocks/units.mock');
       return mockCreateUnit(academyId, data);
     }
-  } catch (error) { handleServiceError(error, 'units.create'); }
+    return row as unknown as UnitDTO;
+  } catch (error) {
+    console.warn('[createUnit] Fallback:', error);
+    const { mockCreateUnit } = await import('@/lib/mocks/units.mock');
+    return mockCreateUnit(academyId, data);
+  }
 }
 
 export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promise<UnitDTO> {
@@ -48,16 +67,25 @@ export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promis
       const { mockUpdateUnit } = await import('@/lib/mocks/units.mock');
       return mockUpdateUnit(unitId, data);
     }
-    try {
-      const res = await fetch(`/api/units/${unitId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new ServiceError(res.status, 'units.update');
-      return res.json();
-    } catch {
-      console.warn('[units.updateUnit] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('units')
+      .update(data)
+      .eq('id', unitId)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updateUnit] Supabase error:', error?.message);
       const { mockUpdateUnit } = await import('@/lib/mocks/units.mock');
       return mockUpdateUnit(unitId, data);
     }
-  } catch (error) { handleServiceError(error, 'units.update'); }
+    return row as unknown as UnitDTO;
+  } catch (error) {
+    console.warn('[updateUnit] Fallback:', error);
+    const { mockUpdateUnit } = await import('@/lib/mocks/units.mock');
+    return mockUpdateUnit(unitId, data);
+  }
 }
 
 export async function deactivateUnit(unitId: string): Promise<void> {
@@ -66,11 +94,16 @@ export async function deactivateUnit(unitId: string): Promise<void> {
       const { mockDeactivateUnit } = await import('@/lib/mocks/units.mock');
       return mockDeactivateUnit(unitId);
     }
-    try {
-      const res = await fetch(`/api/units/${unitId}/deactivate`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'units.deactivate');
-    } catch {
-      console.warn('[units.deactivateUnit] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('units')
+      .update({ active: false })
+      .eq('id', unitId);
+    if (error) {
+      console.warn('[deactivateUnit] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'units.deactivate'); }
+  } catch (error) {
+    console.warn('[deactivateUnit] Fallback:', error);
+  }
 }

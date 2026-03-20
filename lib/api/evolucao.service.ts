@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 export interface MeuProgressoDTO {
@@ -33,11 +32,23 @@ export async function getMeuProgresso(studentId: string): Promise<MeuProgressoDT
       const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('student_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getMeuProgresso] Supabase error:', error?.message);
+      const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
+    }
+    return data as unknown as MeuProgressoDTO;
   } catch (error) {
-    handleServiceError(error, 'evolucao.progresso');
+    console.warn('[getMeuProgresso] Fallback:', error);
+    const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
+    return mockGetMeuProgresso(studentId);
   }
 }
 
@@ -47,11 +58,21 @@ export async function getHistoricoFaixas(studentId: string): Promise<HistoricoFa
       const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
       return mockGetHistoricoFaixas(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHistoricoFaixas } = await import('@/lib/mocks/evolucao.mock');
-      return mockGetHistoricoFaixas(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('belt_history')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('date', { ascending: true });
+    if (error) {
+      console.warn('[getHistoricoFaixas] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as HistoricoFaixaDTO[];
   } catch (error) {
-    handleServiceError(error, 'evolucao.historico');
+    console.warn('[getHistoricoFaixas] Fallback:', error);
+    return [];
   }
 }
 
@@ -61,10 +82,22 @@ export async function getRequisitoProximaFaixa(studentId: string): Promise<Requi
       const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('belt_requirements')
+      .select('*')
+      .eq('student_id', studentId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getRequisitoProximaFaixa] Supabase error:', error?.message);
+      const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
+    }
+    return data as unknown as RequisitoProximaFaixaDTO;
   } catch (error) {
-    handleServiceError(error, 'evolucao.requisitos');
+    console.warn('[getRequisitoProximaFaixa] Fallback:', error);
+    const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
+    return mockGetRequisitoProximaFaixa(studentId);
   }
 }

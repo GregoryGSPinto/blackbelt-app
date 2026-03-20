@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
 
 export async function listMensalidades(
@@ -11,10 +10,20 @@ export async function listMensalidades(
       const { mockListMensalidades } = await import('@/lib/mocks/financial.mock');
       return mockListMensalidades(academyId, filters);
     }
-    console.warn('[financial.listMensalidades] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase.from('mensalidades').select('*').eq('academy_id', academyId);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.month) query = query.eq('reference_month', filters.month);
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[listMensalidades] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as Mensalidade[];
   } catch (error) {
-    handleServiceError(error, 'financial.listMensalidades');
+    console.warn('[listMensalidades] Fallback:', error);
+    return [];
   }
 }
 
@@ -27,10 +36,17 @@ export async function markAsPaid(
       const { mockMarkAsPaid } = await import('@/lib/mocks/financial.mock');
       return mockMarkAsPaid(mensalidadeId, method);
     }
-    console.warn('[financial.markAsPaid] fallback — not yet connected to Supabase');
-    return { id: mensalidadeId, student_id: '', student_name: '', academy_id: '', amount: 0, due_date: '', status: 'pago', paid_at: new Date().toISOString(), payment_method: method, reference_month: '' } as Mensalidade;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('mensalidades').update({ status: 'pago', paid_at: new Date().toISOString(), payment_method: method }).eq('id', mensalidadeId).select().single();
+    if (error) {
+      console.warn('[markAsPaid] error:', error.message);
+      return { id: mensalidadeId, student_id: '', student_name: '', academy_id: '', amount: 0, due_date: '', status: 'pago', paid_at: new Date().toISOString(), payment_method: method, reference_month: '' } as Mensalidade;
+    }
+    return data as unknown as Mensalidade;
   } catch (error) {
-    handleServiceError(error, 'financial.markAsPaid');
+    console.warn('[markAsPaid] Fallback:', error);
+    return { id: mensalidadeId, student_id: '', student_name: '', academy_id: '', amount: 0, due_date: '', status: 'pago', paid_at: new Date().toISOString(), payment_method: method, reference_month: '' } as Mensalidade;
   }
 }
 
@@ -40,10 +56,17 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       const { mockGetFinancialSummary } = await import('@/lib/mocks/financial.mock');
       return mockGetFinancialSummary(academyId);
     }
-    console.warn('[financial.getSummary] fallback — not yet connected to Supabase');
-    return { revenue_this_month: 0, revenue_last_month: 0, pending_amount: 0, overdue_amount: 0, overdue_count: 0, paid_count: 0, total_count: 0, ticket_medio: 0 } as FinancialSummary;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('mensalidades').select('status, amount').eq('academy_id', academyId);
+    if (error || !data) {
+      console.warn('[getFinancialSummary] error:', error?.message ?? 'no data');
+      return { revenue_this_month: 0, revenue_last_month: 0, pending_amount: 0, overdue_amount: 0, overdue_count: 0, paid_count: 0, total_count: 0, ticket_medio: 0 } as FinancialSummary;
+    }
+    return { revenue_this_month: 0, revenue_last_month: 0, pending_amount: 0, overdue_amount: 0, overdue_count: 0, paid_count: 0, total_count: data.length, ticket_medio: 0 } as FinancialSummary;
   } catch (error) {
-    handleServiceError(error, 'financial.getSummary');
+    console.warn('[getFinancialSummary] Fallback:', error);
+    return { revenue_this_month: 0, revenue_last_month: 0, pending_amount: 0, overdue_amount: 0, overdue_count: 0, paid_count: 0, total_count: 0, ticket_medio: 0 } as FinancialSummary;
   }
 }
 
@@ -53,10 +76,17 @@ export async function getRevenueChart(academyId: string): Promise<FinancialChart
       const { mockGetRevenueChart } = await import('@/lib/mocks/financial.mock');
       return mockGetRevenueChart(academyId);
     }
-    console.warn('[financial.getRevenueChart] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('mensalidades').select('reference_month, amount, status').eq('academy_id', academyId).eq('status', 'pago');
+    if (error) {
+      console.warn('[getRevenueChart] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as FinancialChartPoint[];
   } catch (error) {
-    handleServiceError(error, 'financial.getRevenueChart');
+    console.warn('[getRevenueChart] Fallback:', error);
+    return [];
   }
 }
 
@@ -66,10 +96,17 @@ export async function getOverdueList(academyId: string): Promise<OverdueItem[]> 
       const { mockGetOverdueList } = await import('@/lib/mocks/financial.mock');
       return mockGetOverdueList(academyId);
     }
-    console.warn('[financial.getOverdueList] fallback — not yet connected to Supabase');
-    return [];
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('mensalidades').select('*').eq('academy_id', academyId).eq('status', 'vencido');
+    if (error) {
+      console.warn('[getOverdueList] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as OverdueItem[];
   } catch (error) {
-    handleServiceError(error, 'financial.getOverdueList');
+    console.warn('[getOverdueList] Fallback:', error);
+    return [];
   }
 }
 
@@ -81,6 +118,7 @@ export async function generateMonthlyBills(_academyId: string, _month: string): 
     console.warn('[financial.generateMonthlyBills] fallback — not yet connected to Supabase');
     return { generated: 0 };
   } catch (error) {
-    handleServiceError(error, 'financial.generateMonthlyBills');
+    console.warn('[generateMonthlyBills] Fallback:', error);
+    return { generated: 0 };
   }
 }

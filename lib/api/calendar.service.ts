@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -58,25 +57,45 @@ export async function getCalendarEvents(
       const { mockGetCalendarEvents } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEvents(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({
-        academyId,
-        from: filters.from,
-        to: filters.to,
-      });
-      if (filters.professorId) params.set('professorId', filters.professorId);
-      if (filters.modality) params.set('modality', filters.modality);
-      const res = await fetch(`/api/calendar?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'calendar.events');
-      return res.json();
-    } catch {
-      console.warn('[calendar.getCalendarEvents] API not available, using mock fallback');
-      const { mockGetCalendarEvents } = await import('@/lib/mocks/calendar.mock');
-      return mockGetCalendarEvents(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('calendar_events')
+      .select('*')
+      .eq('academy_id', academyId)
+      .gte('date', filters.from)
+      .lte('date', filters.to);
+
+    if (filters.professorId) query = query.eq('professor_id', filters.professorId);
+    if (filters.modality) query = query.eq('modality', filters.modality);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[getCalendarEvents] Supabase error:', error?.message);
+      return [];
     }
 
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      title: String(row.title ?? ''),
+      type: (row.type ?? 'class') as CalendarEventType,
+      modality: row.modality ? String(row.modality) : null,
+      date: String(row.date ?? ''),
+      startTime: String(row.start_time ?? ''),
+      endTime: String(row.end_time ?? ''),
+      professorName: row.professor_name ? String(row.professor_name) : null,
+      location: row.location ? String(row.location) : null,
+      enrolledCount: Number(row.enrolled_count ?? 0),
+      capacity: Number(row.capacity ?? 0),
+      color: getModalityColor(row.modality ? String(row.modality) : null),
+      recurring: Boolean(row.recurring),
+      description: row.description ? String(row.description) : null,
+    }));
   } catch (error) {
-    handleServiceError(error, 'calendar.events');
+    console.warn('[getCalendarEvents] Fallback:', error);
+    return [];
   }
 }
 
@@ -88,11 +107,38 @@ export async function getCalendarEventById(
       const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
       return mockGetCalendarEventById(eventId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCalendarEventById } = await import('@/lib/mocks/calendar.mock');
-      return mockGetCalendarEventById(eventId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
 
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .select('*')
+      .eq('id', eventId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getCalendarEventById] Supabase error:', error?.message);
+      return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
+    }
+
+    return {
+      id: String(data.id),
+      title: String(data.title ?? ''),
+      type: (data.type ?? 'class') as CalendarEventType,
+      modality: data.modality ? String(data.modality) : null,
+      date: String(data.date ?? ''),
+      startTime: String(data.start_time ?? ''),
+      endTime: String(data.end_time ?? ''),
+      professorName: data.professor_name ? String(data.professor_name) : null,
+      location: data.location ? String(data.location) : null,
+      enrolledCount: Number(data.enrolled_count ?? 0),
+      capacity: Number(data.capacity ?? 0),
+      color: getModalityColor(data.modality ? String(data.modality) : null),
+      recurring: Boolean(data.recurring),
+      description: data.description ? String(data.description) : null,
+    };
   } catch (error) {
-    handleServiceError(error, 'calendar.eventById');
+    console.warn('[getCalendarEventById] Fallback:', error);
+    return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
   }
 }

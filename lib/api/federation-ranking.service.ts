@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface RankedAthleteDTO {
   position: number;
@@ -87,14 +86,20 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       if (filters?.weight) params.set('weight', filters.weight);
       if (filters?.region) params.set('region', filters.region);
       const res = await fetch(`/api/ranking/athletes?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athletes');
+      if (!res.ok) {
+        console.warn('[getAthleteRanking] error:', `HTTP ${res.status}`);
+        return [];
+      }
       return res.json();
     } catch {
       console.warn('[federation-ranking.getAthleteRanking] API not available, using mock fallback');
       const { mockGetAthleteRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAthleteRanking(filters);
     }
-  } catch (error) { handleServiceError(error, 'federation-ranking.athletes'); }
+  } catch (error) {
+    console.warn('[getAthleteRanking] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAcademyRanking(filters?: { modality?: string; region?: string }): Promise<RankedAcademyDTO[]> {
@@ -108,14 +113,20 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       if (filters?.modality) params.set('modality', filters.modality);
       if (filters?.region) params.set('region', filters.region);
       const res = await fetch(`/api/ranking/academies?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.academies');
+      if (!res.ok) {
+        console.warn('[getAcademyRanking] error:', `HTTP ${res.status}`);
+        return [];
+      }
       return res.json();
     } catch {
       console.warn('[federation-ranking.getAcademyRanking] API not available, using mock fallback');
       const { mockGetAcademyRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAcademyRanking(filters);
     }
-  } catch (error) { handleServiceError(error, 'federation-ranking.academies'); }
+  } catch (error) {
+    console.warn('[getAcademyRanking] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAthleteProfile(athleteId: string): Promise<AthleteProfileDTO> {
@@ -126,11 +137,17 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
     }
     try {
       const res = await fetch(`/api/ranking/athletes/${athleteId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'federation-ranking.athleteProfile');
+      if (!res.ok) {
+        console.warn('[getAthleteProfile] error:', `HTTP ${res.status}`);
+        return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
+      }
       return res.json();
     } catch {
       console.warn('[federation-ranking.getAthleteProfile] API not available, using fallback');
-      return { id: "", name: "", academy_name: "", belt: "", weight_class: "", age_group: "", modality: "", ranking_position: 0, total_points: 0, competitions: [], medals: { gold: 0, silver: 0, bronze: 0 } } as unknown as AthleteProfileDTO;
+      return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
     }
-  } catch (error) { handleServiceError(error, 'federation-ranking.athleteProfile'); }
+  } catch (error) {
+    console.warn('[getAthleteProfile] Fallback:', error);
+    return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
+  }
 }

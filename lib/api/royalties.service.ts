@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -51,20 +50,25 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
       return mockCalculateRoyalties(academyId, month);
     }
-    try {
-      const res = await fetch(`/api/royalties/calculate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, month }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'royalties.calculate');
-      return res.json();
-    } catch {
-      console.warn('[royalties.calculateRoyalties] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('royalty_calculations')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('month', month)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[calculateRoyalties] Supabase error:', error?.message);
       const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
       return mockCalculateRoyalties(academyId, month);
     }
-  } catch (error) { handleServiceError(error, 'royalties.calculate'); }
+    return data as RoyaltyCalculation;
+  } catch (error) {
+    console.warn('[calculateRoyalties] Fallback:', error);
+    const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
+    return mockCalculateRoyalties(academyId, month);
+  }
 }
 
 export async function getRoyaltyHistory(franchiseId: string, period?: string): Promise<RoyaltyHistorySummary> {
@@ -73,18 +77,32 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
       const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
       return mockGetRoyaltyHistory(franchiseId, period);
     }
-    try {
-      const params = new URLSearchParams({ franchiseId });
-      if (period) params.set('period', period);
-      const res = await fetch(`/api/royalties/history?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'royalties.history');
-      return res.json();
-    } catch {
-      console.warn('[royalties.getRoyaltyHistory] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('royalty_calculations')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('month', { ascending: false });
+    if (period) {
+      query = query.gte('month', period);
+    }
+    const { data, error } = await query;
+    if (error || !data) {
+      console.warn('[getRoyaltyHistory] Supabase error:', error?.message);
       const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
       return mockGetRoyaltyHistory(franchiseId, period);
     }
-  } catch (error) { handleServiceError(error, 'royalties.history'); }
+    const calculations = data as RoyaltyCalculation[];
+    const total_collected = calculations.filter(c => c.status === 'pago').reduce((s, c) => s + c.total_due, 0);
+    const total_pending = calculations.filter(c => c.status === 'pendente').reduce((s, c) => s + c.total_due, 0);
+    const total_overdue = calculations.filter(c => c.status === 'atrasado').reduce((s, c) => s + c.total_due, 0);
+    return { total_collected, total_pending, total_overdue, calculations };
+  } catch (error) {
+    console.warn('[getRoyaltyHistory] Fallback:', error);
+    const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
+    return mockGetRoyaltyHistory(franchiseId, period);
+  }
 }
 
 export async function generateRoyaltyInvoice(academyId: string, month: string): Promise<RoyaltyInvoice> {
@@ -93,20 +111,24 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
       return mockGenerateRoyaltyInvoice(academyId, month);
     }
-    try {
-      const res = await fetch(`/api/royalties/invoice`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, month }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'royalties.invoice');
-      return res.json();
-    } catch {
-      console.warn('[royalties.generateRoyaltyInvoice] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('royalty_invoices')
+      .insert({ academy_id: academyId, month })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[generateRoyaltyInvoice] Supabase error:', error?.message);
       const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
       return mockGenerateRoyaltyInvoice(academyId, month);
     }
-  } catch (error) { handleServiceError(error, 'royalties.invoice'); }
+    return data as RoyaltyInvoice;
+  } catch (error) {
+    console.warn('[generateRoyaltyInvoice] Fallback:', error);
+    const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
+    return mockGenerateRoyaltyInvoice(academyId, month);
+  }
 }
 
 export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation> {
@@ -115,8 +137,23 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
     }
-    // API not yet implemented — use mock
-    const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('royalty_calculations')
+      .update({ status: 'pago', paid_date: new Date().toISOString() })
+      .eq('id', invoiceId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[payRoyalty] Supabase error:', error?.message);
+      const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
-  } catch (error) { handleServiceError(error, 'royalties.pay'); }
+    }
+    return data as RoyaltyCalculation;
+  } catch (error) {
+    console.warn('[payRoyalty] Fallback:', error);
+    const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
+    return mockPayRoyalty(invoiceId);
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, EvaluationCriteria, Evaluation, Progression } from '@/lib/types';
 
 export interface ProgressoDTO {
@@ -43,11 +42,21 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetProgressoAluno(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetProgressoAluno } = await import('@/lib/mocks/professor-pedagogico.mock');
-      return mockGetProgressoAluno(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('student_progress')
+      .select('*')
+      .eq('student_id', studentId)
+      .single();
+    if (error || !data) {
+      console.warn('[getProgressoAluno] Supabase error:', error?.message);
+      return {} as ProgressoDTO;
+    }
+    return data as unknown as ProgressoDTO;
   } catch (error) {
-    handleServiceError(error, 'pedagogico.progresso');
+    console.warn('[getProgressoAluno] Fallback:', error);
+    return {} as ProgressoDTO;
   }
 }
 
@@ -57,21 +66,21 @@ export async function avaliar(studentId: string, classId: string, criteria: Eval
       const { mockAvaliar } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockAvaliar(studentId, classId, criteria, score);
     }
-    try {
-      const res = await fetch('/api/pedagogico/avaliar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, classId, criteria, score }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.avaliar');
-      return res.json();
-    } catch {
-      console.warn('[professor-pedagogico.avaliar] API not available, using mock fallback');
-      const { mockAvaliar } = await import('@/lib/mocks/professor-pedagogico.mock');
-      return mockAvaliar(studentId, classId, criteria, score);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('evaluations')
+      .insert({ student_id: studentId, class_id: classId, criteria, score })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[avaliar] Supabase error:', error?.message);
+      return {} as Evaluation;
     }
+    return data as unknown as Evaluation;
   } catch (error) {
-    handleServiceError(error, 'pedagogico.avaliar');
+    console.warn('[avaliar] Fallback:', error);
+    return {} as Evaluation;
   }
 }
 
@@ -81,21 +90,21 @@ export async function promoverFaixa(studentId: string, toBelt: BeltLevel): Promi
       const { mockPromoverFaixa } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockPromoverFaixa(studentId, toBelt);
     }
-    try {
-      const res = await fetch('/api/pedagogico/promover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, toBelt }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'pedagogico.promover');
-      return res.json();
-    } catch {
-      console.warn('[professor-pedagogico.promoverFaixa] API not available, using mock fallback');
-      const { mockPromoverFaixa } = await import('@/lib/mocks/professor-pedagogico.mock');
-      return mockPromoverFaixa(studentId, toBelt);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('progressions')
+      .insert({ student_id: studentId, to_belt: toBelt })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[promoverFaixa] Supabase error:', error?.message);
+      return {} as Progression;
     }
+    return data as unknown as Progression;
   } catch (error) {
-    handleServiceError(error, 'pedagogico.promover');
+    console.warn('[promoverFaixa] Fallback:', error);
+    return {} as Progression;
   }
 }
 
@@ -105,10 +114,19 @@ export async function getAlunosDaTurma(classId: string): Promise<StudentWithProg
       const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
       return mockGetAlunosDaTurma(classId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAlunosDaTurma } = await import('@/lib/mocks/professor-pedagogico.mock');
-      return mockGetAlunosDaTurma(classId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('class_students')
+      .select('*, profiles(display_name, avatar, belt)')
+      .eq('class_id', classId);
+    if (error || !data) {
+      console.warn('[getAlunosDaTurma] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as StudentWithProgress[];
   } catch (error) {
-    handleServiceError(error, 'pedagogico.alunosDaTurma');
+    console.warn('[getAlunosDaTurma] Fallback:', error);
+    return [];
   }
 }

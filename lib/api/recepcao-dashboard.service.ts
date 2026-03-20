@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -69,29 +68,47 @@ export interface RecepcaoDashboardDTO {
 // Service
 // ────────────────────────────────────────────────────────────
 
+const EMPTY_DASHBOARD: RecepcaoDashboardDTO = {
+  aulasHoje: [],
+  checkinsHoje: [],
+  totalCheckinsHoje: 0,
+  pendencias: [],
+  experimentaisHoje: [],
+  aniversariantes: [],
+  resumo: { alunosAtivos: 0, aulasHoje: 0, pagamentosVencidosHoje: 0, experimentaisHoje: 0 },
+};
+
 export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
   try {
     if (isMock()) {
       const { mockGetRecepcaoDashboard } = await import('@/lib/mocks/recepcao-dashboard.mock');
       return mockGetRecepcaoDashboard();
     }
-    try {
-      const res = await fetch('/api/recepcao/dashboard');
-      if (!res.ok) throw new ServiceError(res.status, 'recepcao-dashboard.get');
-      return res.json();
-    } catch {
-      console.warn('[recepcao-dashboard.getRecepcaoDashboard] API not available, using fallback');
-      return {
-        aulasHoje: [],
-        checkinsHoje: [],
-        totalCheckinsHoje: 0,
-        pendencias: [],
-        experimentaisHoje: [],
-        aniversariantes: [],
-        resumo: { alunosAtivos: 0, aulasHoje: 0, pagamentosVencidosHoje: 0, experimentaisHoje: 0 },
-      };
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const [classesRes, checkinsRes] = await Promise.all([
+      supabase.from('classes').select('*').eq('date', today),
+      supabase.from('checkins').select('*').eq('date', today),
+    ]);
+
+    if (classesRes.error) console.warn('[getRecepcaoDashboard] classes error:', classesRes.error.message);
+    if (checkinsRes.error) console.warn('[getRecepcaoDashboard] checkins error:', checkinsRes.error.message);
+
+    return {
+      ...EMPTY_DASHBOARD,
+      totalCheckinsHoje: (checkinsRes.data ?? []).length,
+      resumo: {
+        alunosAtivos: 0,
+        aulasHoje: (classesRes.data ?? []).length,
+        pagamentosVencidosHoje: 0,
+        experimentaisHoje: 0,
+      },
+    };
   } catch (error) {
-    handleServiceError(error, 'recepcao-dashboard.get');
+    console.warn('[getRecepcaoDashboard] Fallback:', error);
+    return EMPTY_DASHBOARD;
   }
 }

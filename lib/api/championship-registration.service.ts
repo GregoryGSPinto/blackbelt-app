@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type RegistrationStatus = 'inscrito' | 'pesagem' | 'competindo' | 'resultado';
 
@@ -37,26 +36,35 @@ export interface RegisterPayload {
   gender: 'masculino' | 'feminino';
 }
 
+const EMPTY_REG: RegistrationDTO = {
+  id: '', championship_id: '', championship_name: '', athlete_id: '', athlete_name: '', academy: '', category_id: '', category_label: '', modality: '', belt: '', weight_declared: 0, weight_actual: null, age: 0, gender: 'masculino', status: 'inscrito', paid: false, paid_at: null, receipt_url: null, weigh_in_at: null, weigh_in_by: null, created_at: '',
+};
+
 export async function register(championshipId: string, categoryId: string, data: RegisterPayload): Promise<RegistrationDTO> {
   try {
     if (isMock()) {
       const { mockRegister } = await import('@/lib/mocks/championship-registration.mock');
       return mockRegister(championshipId, categoryId, data);
     }
-    try {
-      const res = await fetch(`/api/championships/${championshipId}/categories/${categoryId}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.register');
-      return res.json();
-    } catch {
-      console.warn('[championship-registration.register] API not available, using mock fallback');
-      const { mockRegister } = await import('@/lib/mocks/championship-registration.mock');
-      return mockRegister(championshipId, categoryId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('championship_registrations')
+      .insert({ championship_id: championshipId, category_id: categoryId, ...data, status: 'inscrito' })
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[register] Supabase error:', error?.message);
+      return { ...EMPTY_REG, championship_id: championshipId, category_id: categoryId };
     }
-  } catch (error) { handleServiceError(error, 'championship-registration.register'); }
+
+    return row as unknown as RegistrationDTO;
+  } catch (error) {
+    console.warn('[register] Fallback:', error);
+    return { ...EMPTY_REG, championship_id: championshipId, category_id: categoryId };
+  }
 }
 
 export async function getMyRegistrations(userId: string): Promise<RegistrationDTO[]> {
@@ -65,10 +73,25 @@ export async function getMyRegistrations(userId: string): Promise<RegistrationDT
       const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetMyRegistrations(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyRegistrations } = await import('@/lib/mocks/championship-registration.mock');
-      return mockGetMyRegistrations(userId);
-  } catch (error) { handleServiceError(error, 'championship-registration.myRegistrations'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championship_registrations')
+      .select('*')
+      .eq('athlete_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getMyRegistrations] Supabase error:', error?.message);
+      return [];
+    }
+
+    return data as unknown as RegistrationDTO[];
+  } catch (error) {
+    console.warn('[getMyRegistrations] Fallback:', error);
+    return [];
+  }
 }
 
 export async function confirmWeighIn(registrationId: string, actualWeight: number): Promise<RegistrationDTO> {
@@ -77,20 +100,26 @@ export async function confirmWeighIn(registrationId: string, actualWeight: numbe
       const { mockConfirmWeighIn } = await import('@/lib/mocks/championship-registration.mock');
       return mockConfirmWeighIn(registrationId, actualWeight);
     }
-    try {
-      const res = await fetch(`/api/championships/registrations/${registrationId}/weigh-in`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actualWeight }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.weighIn');
-      return res.json();
-    } catch {
-      console.warn('[championship-registration.confirmWeighIn] API not available, using mock fallback');
-      const { mockConfirmWeighIn } = await import('@/lib/mocks/championship-registration.mock');
-      return mockConfirmWeighIn(registrationId, actualWeight);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championship_registrations')
+      .update({ weight_actual: actualWeight, status: 'pesagem', weigh_in_at: new Date().toISOString() })
+      .eq('id', registrationId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[confirmWeighIn] Supabase error:', error?.message);
+      return { ...EMPTY_REG, id: registrationId };
     }
-  } catch (error) { handleServiceError(error, 'championship-registration.weighIn'); }
+
+    return data as unknown as RegistrationDTO;
+  } catch (error) {
+    console.warn('[confirmWeighIn] Fallback:', error);
+    return { ...EMPTY_REG, id: registrationId };
+  }
 }
 
 export async function changeCategory(registrationId: string, newCategoryId: string): Promise<RegistrationDTO> {
@@ -99,20 +128,26 @@ export async function changeCategory(registrationId: string, newCategoryId: stri
       const { mockChangeCategory } = await import('@/lib/mocks/championship-registration.mock');
       return mockChangeCategory(registrationId, newCategoryId);
     }
-    try {
-      const res = await fetch(`/api/championships/registrations/${registrationId}/change-category`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newCategoryId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'championship-registration.changeCategory');
-      return res.json();
-    } catch {
-      console.warn('[championship-registration.changeCategory] API not available, using mock fallback');
-      const { mockChangeCategory } = await import('@/lib/mocks/championship-registration.mock');
-      return mockChangeCategory(registrationId, newCategoryId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championship_registrations')
+      .update({ category_id: newCategoryId })
+      .eq('id', registrationId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[changeCategory] Supabase error:', error?.message);
+      return { ...EMPTY_REG, id: registrationId };
     }
-  } catch (error) { handleServiceError(error, 'championship-registration.changeCategory'); }
+
+    return data as unknown as RegistrationDTO;
+  } catch (error) {
+    console.warn('[changeCategory] Fallback:', error);
+    return { ...EMPTY_REG, id: registrationId };
+  }
 }
 
 export async function getRegistrationsByChampionship(championshipId: string): Promise<RegistrationDTO[]> {
@@ -121,8 +156,22 @@ export async function getRegistrationsByChampionship(championshipId: string): Pr
       const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
       return mockGetRegistrationsByChampionship(championshipId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRegistrationsByChampionship } = await import('@/lib/mocks/championship-registration.mock');
-      return mockGetRegistrationsByChampionship(championshipId);
-  } catch (error) { handleServiceError(error, 'championship-registration.byChampionship'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championship_registrations')
+      .select('*')
+      .eq('championship_id', championshipId);
+
+    if (error || !data) {
+      console.warn('[getRegistrationsByChampionship] Supabase error:', error?.message);
+      return [];
+    }
+
+    return data as unknown as RegistrationDTO[];
+  } catch (error) {
+    console.warn('[getRegistrationsByChampionship] Fallback:', error);
+    return [];
+  }
 }

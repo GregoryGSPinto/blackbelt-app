@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types/domain';
 
 // ────────────────────────────────────────────────────────────
@@ -113,7 +112,16 @@ export async function getTeenDashboard(studentId: string): Promise<TeenDashboard
     }
     try {
       const res = await fetch(`/api/teen/dashboard?studentId=${studentId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'teen.dashboard');
+      if (!res.ok) {
+        console.warn('[getTeenDashboard] error:', `HTTP ${res.status}`);
+        return {
+          profile: { student_id: '', display_name: '', avatar: null, belt: 'branca' as BeltLevel, title: '', bio: '' },
+          xp: 0, level: 1, next_level_xp: 100, rank_position: 0, xp_this_week: 0, videos_watched: 0,
+          active_challenge: null, weekly_challenges: [], ranking: [], achievements: [],
+          next_achievement: null, streak: { current_days: 0, best_ever: 0, is_active: false },
+          continue_watching: [], next_class: null,
+        };
+      }
       return res.json();
     } catch {
       console.warn('[teen.getTeenDashboard] API not available, using fallback');
@@ -126,6 +134,13 @@ export async function getTeenDashboard(studentId: string): Promise<TeenDashboard
       };
     }
   } catch (error) {
-    handleServiceError(error, 'teen.dashboard');
+    console.warn('[getTeenDashboard] Fallback:', error);
+    return {
+      profile: { student_id: '', display_name: '', avatar: null, belt: 'branca' as BeltLevel, title: '', bio: '' },
+      xp: 0, level: 1, next_level_xp: 100, rank_position: 0, xp_this_week: 0, videos_watched: 0,
+      active_challenge: null, weekly_challenges: [], ranking: [], achievements: [],
+      next_achievement: null, streak: { current_days: 0, best_ever: 0, is_active: false },
+      continue_watching: [], next_class: null,
+    };
   }
 }

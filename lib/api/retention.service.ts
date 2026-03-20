@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -72,15 +71,18 @@ export async function getRetentionData(
       if (filters?.className) params.set('className', filters.className);
       if (filters?.modality) params.set('modality', filters.modality);
       const res = await fetch(`/api/retention?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'retention.data');
+      if (!res.ok) {
+        console.warn('[getRetentionData] error:', `HTTP ${res.status}`);
+        return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
+      }
       return res.json();
     } catch {
       console.warn('[retention.getRetentionData] API not available, using fallback');
       return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
     }
-
   } catch (error) {
-    handleServiceError(error, 'retention.data');
+    console.warn('[getRetentionData] Fallback:', error);
+    return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
   }
 }
 
@@ -96,12 +98,13 @@ export async function markStudentContacted(
       const res = await fetch(`/api/retention/contact/${studentId}`, {
         method: 'POST',
       });
-      if (!res.ok) throw new ServiceError(res.status, 'retention.contact');
+      if (!res.ok) {
+        console.warn('[markStudentContacted] error:', `HTTP ${res.status}`);
+      }
     } catch {
       console.warn('[retention.markStudentContacted] API not available, using fallback');
     }
-
   } catch (error) {
-    handleServiceError(error, 'retention.contact');
+    console.warn('[markStudentContacted] Fallback:', error);
   }
 }

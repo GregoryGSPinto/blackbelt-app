@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type CategoriaEstoque = 'kimono' | 'rashguard' | 'camiseta' | 'acessorio' | 'faixa' | 'outro';
 export type StatusEstoque = 'ok' | 'baixo' | 'zerado';
@@ -35,10 +34,36 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockGetEstoque(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetEstoque } = await import('@/lib/mocks/estoque.mock');
-      return mockGetEstoque(academyId);
-  } catch (error) { handleServiceError(error, 'estoque.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('estoque')
+      .select('*')
+      .eq('academy_id', academyId);
+
+    if (error || !data) {
+      console.warn('[getEstoque] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      nome: String(row.nome ?? ''),
+      categoria: (row.categoria ?? 'outro') as CategoriaEstoque,
+      tamanho: row.tamanho ? String(row.tamanho) : undefined,
+      cor: row.cor ? String(row.cor) : undefined,
+      quantidadeAtual: Number(row.quantidade_atual ?? 0),
+      estoqueMinimo: Number(row.estoque_minimo ?? 0),
+      precoVenda: Number(row.preco_venda ?? 0),
+      precoCusto: Number(row.preco_custo ?? 0),
+      ultimaMovimentacao: String(row.ultima_movimentacao ?? ''),
+      status: (row.status ?? 'ok') as StatusEstoque,
+    }));
+  } catch (error) {
+    console.warn('[getEstoque] Fallback:', error);
+    return [];
+  }
 }
 
 export async function updateEstoque(produtoId: string, quantidade: number, tipo: TipoMovimentacao, motivo: string): Promise<MovimentacaoEstoque> {
@@ -47,16 +72,33 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       const { mockUpdateEstoque } = await import('@/lib/mocks/estoque.mock');
       return mockUpdateEstoque(produtoId, quantidade, tipo, motivo);
     }
-    try {
-      const res = await fetch(`/api/estoque/${produtoId}/movimentacao`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantidade, tipo, motivo }) });
-      if (!res.ok) throw new ServiceError(res.status, 'estoque.update');
-      return res.json();
-    } catch {
-      console.warn('[estoque.updateEstoque] API not available, using mock fallback');
-      const { mockUpdateEstoque } = await import('@/lib/mocks/estoque.mock');
-      return mockUpdateEstoque(produtoId, quantidade, tipo, motivo);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('movimentacoes_estoque')
+      .insert({ produto_id: produtoId, quantidade, tipo, motivo })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[updateEstoque] Supabase error:', error?.message);
+      return { id: '', produtoId, tipo, quantidade, motivo, responsavel: '', data: new Date().toISOString() };
     }
-  } catch (error) { handleServiceError(error, 'estoque.update'); }
+
+    return {
+      id: String(data.id),
+      produtoId: String(data.produto_id ?? produtoId),
+      tipo: (data.tipo ?? tipo) as TipoMovimentacao,
+      quantidade: Number(data.quantidade ?? 0),
+      motivo: String(data.motivo ?? ''),
+      responsavel: String(data.responsavel ?? ''),
+      data: String(data.created_at ?? new Date().toISOString()),
+    };
+  } catch (error) {
+    console.warn('[updateEstoque] Fallback:', error);
+    return { id: '', produtoId, tipo, quantidade, motivo, responsavel: '', data: new Date().toISOString() };
+  }
 }
 
 export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoEstoque[]> {
@@ -65,10 +107,33 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
       return mockGetMovimentacoes(produtoId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMovimentacoes } = await import('@/lib/mocks/estoque.mock');
-      return mockGetMovimentacoes(produtoId);
-  } catch (error) { handleServiceError(error, 'estoque.movimentacoes'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('movimentacoes_estoque')
+      .select('*')
+      .eq('produto_id', produtoId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getMovimentacoes] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      produtoId: String(row.produto_id ?? ''),
+      tipo: (row.tipo ?? 'ajuste') as TipoMovimentacao,
+      quantidade: Number(row.quantidade ?? 0),
+      motivo: String(row.motivo ?? ''),
+      responsavel: String(row.responsavel ?? ''),
+      data: String(row.created_at ?? ''),
+    }));
+  } catch (error) {
+    console.warn('[getMovimentacoes] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAlertasEstoqueBaixo(academyId: string): Promise<ProdutoEstoque[]> {
@@ -77,8 +142,35 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
       return mockGetAlertasEstoqueBaixo(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAlertasEstoqueBaixo } = await import('@/lib/mocks/estoque.mock');
-      return mockGetAlertasEstoqueBaixo(academyId);
-  } catch (error) { handleServiceError(error, 'estoque.alertas'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('estoque')
+      .select('*')
+      .eq('academy_id', academyId)
+      .in('status', ['baixo', 'zerado']);
+
+    if (error || !data) {
+      console.warn('[getAlertasEstoqueBaixo] Supabase error:', error?.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      nome: String(row.nome ?? ''),
+      categoria: (row.categoria ?? 'outro') as CategoriaEstoque,
+      tamanho: row.tamanho ? String(row.tamanho) : undefined,
+      cor: row.cor ? String(row.cor) : undefined,
+      quantidadeAtual: Number(row.quantidade_atual ?? 0),
+      estoqueMinimo: Number(row.estoque_minimo ?? 0),
+      precoVenda: Number(row.preco_venda ?? 0),
+      precoCusto: Number(row.preco_custo ?? 0),
+      ultimaMovimentacao: String(row.ultima_movimentacao ?? ''),
+      status: (row.status ?? 'baixo') as StatusEstoque,
+    }));
+  } catch (error) {
+    console.warn('[getAlertasEstoqueBaixo] Fallback:', error);
+    return [];
+  }
 }

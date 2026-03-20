@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { AcademyEvent, CreateEventData } from '@/lib/types/event';
 
 // ── Legacy DTO (backward compat) ──────────────────────────────────────
@@ -27,10 +26,22 @@ export async function listEvents(academyId: string): Promise<EventDTO[]> {
       const { mockListEvents } = await import('@/lib/mocks/events.mock');
       return mockListEvents(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListEvents } = await import('@/lib/mocks/events.mock');
-      return mockListEvents(academyId);
-  } catch (error) { handleServiceError(error, 'events.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('date', { ascending: true });
+    if (error || !data) {
+      console.warn('[listEvents] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as EventDTO[];
+  } catch (error) {
+    console.warn('[listEvents] Fallback:', error);
+    return [];
+  }
 }
 
 export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' | 'enrolledCount'>): Promise<EventDTO> {
@@ -39,16 +50,22 @@ export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' 
       const { mockCreateEvent } = await import('@/lib/mocks/events.mock');
       return mockCreateEvent(academyId, event);
     }
-    try {
-      const res = await fetch(`/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, ...event }) });
-      if (!res.ok) throw new ServiceError(res.status, 'events.create');
-      return res.json();
-    } catch {
-      console.warn('[events.createEvent] API not available, using mock fallback');
-      const { mockCreateEvent } = await import('@/lib/mocks/events.mock');
-      return mockCreateEvent(academyId, event);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('events')
+      .insert({ academy_id: academyId, ...event, enrolled_count: 0 })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[createEvent] Supabase error:', error?.message);
+      return {} as EventDTO;
     }
-  } catch (error) { handleServiceError(error, 'events.create'); }
+    return data as unknown as EventDTO;
+  } catch (error) {
+    console.warn('[createEvent] Fallback:', error);
+    return {} as EventDTO;
+  }
 }
 
 export async function enrollInEvent(eventId: string, studentId: string): Promise<void> {
@@ -57,13 +74,17 @@ export async function enrollInEvent(eventId: string, studentId: string): Promise
       const { mockEnrollEvent } = await import('@/lib/mocks/events.mock');
       return mockEnrollEvent(eventId, studentId);
     }
-    try {
-      const res = await fetch(`/api/events/${eventId}/enroll`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-      if (!res.ok) throw new ServiceError(res.status, 'events.enroll');
-    } catch {
-      console.warn('[events.enrollInEvent] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('event_enrollments')
+      .insert({ event_id: eventId, student_id: studentId });
+    if (error) {
+      console.warn('[enrollInEvent] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'events.enroll'); }
+  } catch (error) {
+    console.warn('[enrollInEvent] Fallback:', error);
+  }
 }
 
 // ── AcademyEvent CRUD (P-037) ─────────────────────────────────────────
@@ -74,10 +95,22 @@ export async function listAcademyEvents(academyId: string): Promise<AcademyEvent
       const { mockListAcademyEvents } = await import('@/lib/mocks/events.mock');
       return mockListAcademyEvents(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListAcademyEvents } = await import('@/lib/mocks/events.mock');
-      return mockListAcademyEvents(academyId);
-  } catch (error) { handleServiceError(error, 'events.listAcademy'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academy_events')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('date', { ascending: true });
+    if (error || !data) {
+      console.warn('[listAcademyEvents] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as AcademyEvent[];
+  } catch (error) {
+    console.warn('[listAcademyEvents] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
@@ -86,10 +119,22 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
       const { mockGetAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockGetAcademyEvent(eventId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAcademyEvent } = await import('@/lib/mocks/events.mock');
-      return mockGetAcademyEvent(eventId);
-  } catch (error) { handleServiceError(error, 'events.getAcademy'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academy_events')
+      .select('*')
+      .eq('id', eventId)
+      .single();
+    if (error || !data) {
+      console.warn('[getAcademyEvent] Supabase error:', error?.message);
+      return {} as AcademyEvent;
+    }
+    return data as unknown as AcademyEvent;
+  } catch (error) {
+    console.warn('[getAcademyEvent] Fallback:', error);
+    return {} as AcademyEvent;
+  }
 }
 
 export async function createAcademyEvent(academyId: string, data: CreateEventData): Promise<AcademyEvent> {
@@ -98,20 +143,22 @@ export async function createAcademyEvent(academyId: string, data: CreateEventDat
       const { mockCreateAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockCreateAcademyEvent(academyId, data);
     }
-    try {
-      const res = await fetch('/api/academy-events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...data }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'events.createAcademy');
-      return res.json();
-    } catch {
-      console.warn('[events.createAcademyEvent] API not available, using mock fallback');
-      const { mockCreateAcademyEvent } = await import('@/lib/mocks/events.mock');
-      return mockCreateAcademyEvent(academyId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('academy_events')
+      .insert({ academy_id: academyId, ...data })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createAcademyEvent] Supabase error:', error?.message);
+      return {} as AcademyEvent;
     }
-  } catch (error) { handleServiceError(error, 'events.createAcademy'); }
+    return row as unknown as AcademyEvent;
+  } catch (error) {
+    console.warn('[createAcademyEvent] Fallback:', error);
+    return {} as AcademyEvent;
+  }
 }
 
 export async function updateAcademyEvent(eventId: string, data: Partial<CreateEventData>): Promise<AcademyEvent> {
@@ -120,20 +167,23 @@ export async function updateAcademyEvent(eventId: string, data: Partial<CreateEv
       const { mockUpdateAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockUpdateAcademyEvent(eventId, data);
     }
-    try {
-      const res = await fetch(`/api/academy-events/${eventId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'events.updateAcademy');
-      return res.json();
-    } catch {
-      console.warn('[events.updateAcademyEvent] API not available, using mock fallback');
-      const { mockUpdateAcademyEvent } = await import('@/lib/mocks/events.mock');
-      return mockUpdateAcademyEvent(eventId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('academy_events')
+      .update(data)
+      .eq('id', eventId)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updateAcademyEvent] Supabase error:', error?.message);
+      return {} as AcademyEvent;
     }
-  } catch (error) { handleServiceError(error, 'events.updateAcademy'); }
+    return row as unknown as AcademyEvent;
+  } catch (error) {
+    console.warn('[updateAcademyEvent] Fallback:', error);
+    return {} as AcademyEvent;
+  }
 }
 
 export async function deleteAcademyEvent(eventId: string): Promise<void> {
@@ -142,11 +192,13 @@ export async function deleteAcademyEvent(eventId: string): Promise<void> {
       const { mockDeleteAcademyEvent } = await import('@/lib/mocks/events.mock');
       return mockDeleteAcademyEvent(eventId);
     }
-    try {
-      const res = await fetch(`/api/academy-events/${eventId}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'events.deleteAcademy');
-    } catch {
-      console.warn('[events.deleteAcademyEvent] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase.from('academy_events').delete().eq('id', eventId);
+    if (error) {
+      console.warn('[deleteAcademyEvent] Supabase error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'events.deleteAcademy'); }
+  } catch (error) {
+    console.warn('[deleteAcademyEvent] Fallback:', error);
+  }
 }

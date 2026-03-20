@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type ContractTemplate = 'matricula_adulto' | 'matricula_menor' | 'professor';
 
@@ -20,10 +19,22 @@ export async function listContracts(academyId: string): Promise<ContractDTO[]> {
       const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
       return mockListContracts(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListContracts } = await import('@/lib/mocks/contracts.mock');
-      return mockListContracts(academyId);
-  } catch (error) { handleServiceError(error, 'contracts.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[listContracts] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as ContractDTO[];
+  } catch (error) {
+    console.warn('[listContracts] Fallback:', error);
+    return [];
+  }
 }
 
 export async function generateContract(templateId: ContractTemplate, studentId: string): Promise<ContractDTO> {
@@ -32,16 +43,22 @@ export async function generateContract(templateId: ContractTemplate, studentId: 
       const { mockGenerateContract } = await import('@/lib/mocks/contracts.mock');
       return mockGenerateContract(templateId, studentId);
     }
-    try {
-      const res = await fetch(`/api/contracts/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId, studentId }) });
-      if (!res.ok) throw new ServiceError(res.status, 'contracts.generate');
-      return res.json();
-    } catch {
-      console.warn('[contracts.generateContract] API not available, using mock fallback');
-      const { mockGenerateContract } = await import('@/lib/mocks/contracts.mock');
-      return mockGenerateContract(templateId, studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contracts')
+      .insert({ template_id: templateId, student_id: studentId, status: 'draft' })
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[generateContract] Supabase error:', error?.message);
+      return {} as ContractDTO;
     }
-  } catch (error) { handleServiceError(error, 'contracts.generate'); }
+    return data as unknown as ContractDTO;
+  } catch (error) {
+    console.warn('[generateContract] Fallback:', error);
+    return {} as ContractDTO;
+  }
 }
 
 export async function sendForSignature(contractId: string): Promise<{ signatureUrl: string }> {
@@ -50,8 +67,21 @@ export async function sendForSignature(contractId: string): Promise<{ signatureU
       const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
       return mockSendForSignature(contractId);
     }
-    // API not yet implemented — use mock
-    const { mockSendForSignature } = await import('@/lib/mocks/contracts.mock');
-      return mockSendForSignature(contractId);
-  } catch (error) { handleServiceError(error, 'contracts.send'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('contracts')
+      .update({ status: 'sent' })
+      .eq('id', contractId)
+      .select('signature_url')
+      .single();
+    if (error || !data) {
+      console.warn('[sendForSignature] Supabase error:', error?.message);
+      return { signatureUrl: '' };
+    }
+    return { signatureUrl: data.signature_url ?? '' };
+  } catch (error) {
+    console.warn('[sendForSignature] Fallback:', error);
+    return { signatureUrl: '' };
+  }
 }

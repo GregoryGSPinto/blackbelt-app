@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface BrandingDTO {
   logoUrl: string | null;
@@ -12,35 +11,52 @@ export interface BrandingDTO {
 }
 
 export async function getBranding(academyId: string): Promise<BrandingDTO> {
+  const fallback: BrandingDTO = { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null };
   try {
     if (isMock()) {
       const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
       return mockGetBranding(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBranding } = await import('@/lib/mocks/branding.mock');
-      return mockGetBranding(academyId);
-  } catch (error) { handleServiceError(error, 'branding.get'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academy_branding')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+    if (error || !data) {
+      console.warn('[getBranding] Supabase error:', error?.message);
+      return fallback;
+    }
+    return data as unknown as BrandingDTO;
+  } catch (error) {
+    console.warn('[getBranding] Fallback:', error);
+    return fallback;
+  }
 }
 
 export async function updateBranding(academyId: string, data: Partial<BrandingDTO>): Promise<BrandingDTO> {
+  const fallback: BrandingDTO = { logoUrl: null, primaryColor: '', accentColor: '', academyName: '', customDomain: null, faviconUrl: null, loginBackground: null };
   try {
     if (isMock()) {
       const { mockUpdateBranding } = await import('@/lib/mocks/branding.mock');
       return mockUpdateBranding(academyId, data);
     }
-    try {
-      const res = await fetch(`/api/branding`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...data }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'branding.update');
-      return res.json();
-    } catch {
-      console.warn('[branding.updateBranding] API not available, using mock fallback');
-      const { mockUpdateBranding } = await import('@/lib/mocks/branding.mock');
-      return mockUpdateBranding(academyId, data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('academy_branding')
+      .update(data)
+      .eq('academy_id', academyId)
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[updateBranding] Supabase error:', error?.message);
+      return fallback;
     }
-  } catch (error) { handleServiceError(error, 'branding.update'); }
+    return row as unknown as BrandingDTO;
+  } catch (error) {
+    console.warn('[updateBranding] Fallback:', error);
+    return fallback;
+  }
 }

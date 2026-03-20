@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type TitleRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
@@ -22,10 +21,21 @@ export async function getAvailableTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetAvailableTitles(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAvailableTitles } = await import('@/lib/mocks/titles.mock');
-      return mockGetAvailableTitles(userId);
-  } catch (error) { handleServiceError(error, 'titles.available'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('titles')
+      .select('*')
+      .order('rarity');
+    if (error) {
+      console.warn('[getAvailableTitles] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as TitleDTO[];
+  } catch (error) {
+    console.warn('[getAvailableTitles] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
@@ -34,10 +44,21 @@ export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
       const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
       return mockGetMyTitles(userId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMyTitles } = await import('@/lib/mocks/titles.mock');
-      return mockGetMyTitles(userId);
-  } catch (error) { handleServiceError(error, 'titles.mine'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('user_titles')
+      .select('*, titles(*)')
+      .eq('user_id', userId);
+    if (error) {
+      console.warn('[getMyTitles] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as TitleDTO[];
+  } catch (error) {
+    console.warn('[getMyTitles] Fallback:', error);
+    return [];
+  }
 }
 
 export async function equipTitle(userId: string, titleId: string): Promise<{ success: boolean }> {
@@ -46,20 +67,28 @@ export async function equipTitle(userId: string, titleId: string): Promise<{ suc
       const { mockEquipTitle } = await import('@/lib/mocks/titles.mock');
       return mockEquipTitle(userId, titleId);
     }
-    try {
-      const res = await fetch('/api/titles/equip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, titleId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'titles.equip');
-      return res.json();
-    } catch {
-      console.warn('[titles.equipTitle] API not available, using mock fallback');
-      const { mockEquipTitle } = await import('@/lib/mocks/titles.mock');
-      return mockEquipTitle(userId, titleId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    // Unequip all first
+    await supabase
+      .from('user_titles')
+      .update({ is_equipped: false })
+      .eq('user_id', userId);
+    // Equip selected
+    const { error } = await supabase
+      .from('user_titles')
+      .update({ is_equipped: true })
+      .eq('user_id', userId)
+      .eq('title_id', titleId);
+    if (error) {
+      console.warn('[equipTitle] Supabase error:', error.message);
+      return { success: false };
     }
-  } catch (error) { handleServiceError(error, 'titles.equip'); }
+    return { success: true };
+  } catch (error) {
+    console.warn('[equipTitle] Fallback:', error);
+    return { success: false };
+  }
 }
 
 export async function unequipTitle(userId: string): Promise<{ success: boolean }> {
@@ -68,18 +97,19 @@ export async function unequipTitle(userId: string): Promise<{ success: boolean }
       const { mockUnequipTitle } = await import('@/lib/mocks/titles.mock');
       return mockUnequipTitle(userId);
     }
-    try {
-      const res = await fetch('/api/titles/unequip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'titles.unequip');
-      return res.json();
-    } catch {
-      console.warn('[titles.unequipTitle] API not available, using mock fallback');
-      const { mockUnequipTitle } = await import('@/lib/mocks/titles.mock');
-      return mockUnequipTitle(userId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('user_titles')
+      .update({ is_equipped: false })
+      .eq('user_id', userId);
+    if (error) {
+      console.warn('[unequipTitle] Supabase error:', error.message);
+      return { success: false };
     }
-  } catch (error) { handleServiceError(error, 'titles.unequip'); }
+    return { success: true };
+  } catch (error) {
+    console.warn('[unequipTitle] Fallback:', error);
+    return { success: false };
+  }
 }

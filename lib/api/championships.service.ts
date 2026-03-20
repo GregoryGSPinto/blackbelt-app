@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type ChampionshipStatus = 'draft' | 'registration_open' | 'closed' | 'in_progress' | 'finished';
 
@@ -47,20 +46,25 @@ export async function createChampionship(data: Omit<ChampionshipDTO, 'id' | 'cur
       const { mockCreateChampionship } = await import('@/lib/mocks/championships.mock');
       return mockCreateChampionship(data);
     }
-    try {
-      const res = await fetch('/api/championships', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'championships.create');
-      return res.json();
-    } catch {
-      console.warn('[championships.createChampionship] API not available, using mock fallback');
-      const { mockCreateChampionship } = await import('@/lib/mocks/championships.mock');
-      return mockCreateChampionship(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: row, error } = await supabase
+      .from('championships')
+      .insert(data)
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[createChampionship] Supabase error:', error?.message);
+      return { id: '', ...data, current_participants: 0, categories: [] };
     }
-  } catch (error) { handleServiceError(error, 'championships.create'); }
+
+    return { ...(row as unknown as ChampionshipDTO), categories: [] };
+  } catch (error) {
+    console.warn('[createChampionship] Fallback:', error);
+    return { id: '', ...data, current_participants: 0, categories: [] };
+  }
 }
 
 export async function getChampionships(filters?: ChampionshipFilters): Promise<ChampionshipDTO[]> {
@@ -69,22 +73,30 @@ export async function getChampionships(filters?: ChampionshipFilters): Promise<C
       const { mockGetChampionships } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionships(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.region) params.set('region', filters.region);
-      if (filters?.date_from) params.set('date_from', filters.date_from);
-      if (filters?.date_to) params.set('date_to', filters.date_to);
-      if (filters?.status) params.set('status', filters.status);
-      const res = await fetch(`/api/championships?${params.toString()}`);
-      if (!res.ok) throw new ServiceError(res.status, 'championships.list');
-      return res.json();
-    } catch {
-      console.warn('[championships.getChampionships] API not available, using mock fallback');
-      const { mockGetChampionships } = await import('@/lib/mocks/championships.mock');
-      return mockGetChampionships(filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase.from('championships').select('*');
+    if (filters?.modality) query = query.contains('modalities', [filters.modality]);
+    if (filters?.status) query = query.eq('status', filters.status);
+    if (filters?.date_from) query = query.gte('date', filters.date_from);
+    if (filters?.date_to) query = query.lte('date', filters.date_to);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[getChampionships] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'championships.list'); }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      ...(row as unknown as ChampionshipDTO),
+      categories: [],
+    }));
+  } catch (error) {
+    console.warn('[getChampionships] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getChampionshipById(id: string): Promise<ChampionshipDTO> {
@@ -93,10 +105,25 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
       return mockGetChampionshipById(id);
     }
-    // API not yet implemented — use mock
-    const { mockGetChampionshipById } = await import('@/lib/mocks/championships.mock');
-      return mockGetChampionshipById(id);
-  } catch (error) { handleServiceError(error, 'championships.getById'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championships')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getChampionshipById] Supabase error:', error?.message);
+      return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'draft' };
+    }
+
+    return { ...(data as unknown as ChampionshipDTO), categories: [] };
+  } catch (error) {
+    console.warn('[getChampionshipById] Fallback:', error);
+    return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'draft' };
+  }
 }
 
 export async function openRegistration(id: string): Promise<ChampionshipDTO> {
@@ -105,10 +132,26 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
       return mockOpenRegistration(id);
     }
-    // API not yet implemented — use mock
-    const { mockOpenRegistration } = await import('@/lib/mocks/championships.mock');
-      return mockOpenRegistration(id);
-  } catch (error) { handleServiceError(error, 'championships.openRegistration'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championships')
+      .update({ status: 'registration_open' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[openRegistration] Supabase error:', error?.message);
+      return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'registration_open' };
+    }
+
+    return { ...(data as unknown as ChampionshipDTO), categories: [] };
+  } catch (error) {
+    console.warn('[openRegistration] Fallback:', error);
+    return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'registration_open' };
+  }
 }
 
 export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
@@ -117,8 +160,24 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
       return mockCloseRegistration(id);
     }
-    // API not yet implemented — use mock
-    const { mockCloseRegistration } = await import('@/lib/mocks/championships.mock');
-      return mockCloseRegistration(id);
-  } catch (error) { handleServiceError(error, 'championships.closeRegistration'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('championships')
+      .update({ status: 'closed' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[closeRegistration] Supabase error:', error?.message);
+      return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'closed' };
+    }
+
+    return { ...(data as unknown as ChampionshipDTO), categories: [] };
+  } catch (error) {
+    console.warn('[closeRegistration] Fallback:', error);
+    return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'closed' };
+  }
 }

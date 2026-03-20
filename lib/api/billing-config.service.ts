@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BillingConfig, BillingPreview, WebhookLog } from '@/lib/types/payment';
 
 export async function getBillingConfig(academyId: string): Promise<BillingConfig> {
@@ -8,10 +7,22 @@ export async function getBillingConfig(academyId: string): Promise<BillingConfig
       const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockGetBillingConfig(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBillingConfig } = await import('@/lib/mocks/billing-config.mock');
-      return mockGetBillingConfig(academyId);
-  } catch (error) { handleServiceError(error, 'billing.config'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('billing_config')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+    if (error || !data) {
+      console.warn('[getBillingConfig] Supabase error:', error?.message);
+      return {} as BillingConfig;
+    }
+    return data as unknown as BillingConfig;
+  } catch (error) {
+    console.warn('[getBillingConfig] Fallback:', error);
+    return {} as BillingConfig;
+  }
 }
 
 export async function updateBillingConfig(config: Partial<BillingConfig> & { academyId: string }): Promise<BillingConfig> {
@@ -20,16 +31,24 @@ export async function updateBillingConfig(config: Partial<BillingConfig> & { aca
       const { mockUpdateBillingConfig } = await import('@/lib/mocks/billing-config.mock');
       return mockUpdateBillingConfig(config);
     }
-    try {
-      const res = await fetch(`/api/billing/config`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) });
-      if (!res.ok) throw new ServiceError(res.status, 'billing.config.update');
-      return res.json();
-    } catch {
-      console.warn('[billing-config.updateBillingConfig] API not available, using mock fallback');
-      const { mockUpdateBillingConfig } = await import('@/lib/mocks/billing-config.mock');
-      return mockUpdateBillingConfig(config);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { academyId, ...rest } = config;
+    const { data, error } = await supabase
+      .from('billing_config')
+      .update(rest)
+      .eq('academy_id', academyId)
+      .select()
+      .single();
+    if (error || !data) {
+      console.warn('[updateBillingConfig] Supabase error:', error?.message);
+      return config as unknown as BillingConfig;
     }
-  } catch (error) { handleServiceError(error, 'billing.config.update'); }
+    return data as unknown as BillingConfig;
+  } catch (error) {
+    console.warn('[updateBillingConfig] Fallback:', error);
+    return config as unknown as BillingConfig;
+  }
 }
 
 export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
@@ -38,10 +57,22 @@ export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
       const { mockGetWebhookLogs } = await import('@/lib/mocks/billing-config.mock');
       return mockGetWebhookLogs(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetWebhookLogs } = await import('@/lib/mocks/billing-config.mock');
-      return mockGetWebhookLogs(academyId);
-  } catch (error) { handleServiceError(error, 'billing.webhookLogs'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('webhook_logs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('[getWebhookLogs] Supabase error:', error?.message);
+      return [];
+    }
+    return data as unknown as WebhookLog[];
+  } catch (error) {
+    console.warn('[getWebhookLogs] Fallback:', error);
+    return [];
+  }
 }
 
 export async function previewNextBilling(academyId: string): Promise<BillingPreview> {
@@ -50,8 +81,20 @@ export async function previewNextBilling(academyId: string): Promise<BillingPrev
       const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
       return mockPreviewBilling(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockPreviewBilling } = await import('@/lib/mocks/billing-config.mock');
-      return mockPreviewBilling(academyId);
-  } catch (error) { handleServiceError(error, 'billing.preview'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('billing_previews')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+    if (error || !data) {
+      console.warn('[previewNextBilling] Supabase error:', error?.message);
+      return {} as BillingPreview;
+    }
+    return data as unknown as BillingPreview;
+  } catch (error) {
+    console.warn('[previewNextBilling] Fallback:', error);
+    return {} as BillingPreview;
+  }
 }

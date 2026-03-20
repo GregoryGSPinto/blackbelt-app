@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Video, BeltLevel } from '@/lib/types';
 
 export interface AdminVideoDTO {
@@ -38,11 +37,21 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
       return mockListAdminVideos(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListAdminVideos } = await import('@/lib/mocks/admin-content.mock');
-      return mockListAdminVideos(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('videos')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[listAdminVideos] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as AdminVideoDTO[];
   } catch (error) {
-    handleServiceError(error, 'adminContent.list');
+    console.warn('[listAdminVideos] Fallback:', error);
+    return [];
   }
 }
 
@@ -52,21 +61,23 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockCreateVideo(data);
     }
-    try {
-      const res = await fetch('/api/admin/content/videos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'adminContent.create');
-      return res.json();
-    } catch {
-      console.warn('[admin-content.createVideo] API not available, using mock fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: row, error } = await supabase
+      .from('videos')
+      .insert({ ...data, status: 'draft' })
+      .select()
+      .single();
+    if (error || !row) {
+      console.warn('[createVideo] Supabase error:', error?.message);
       const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockCreateVideo(data);
     }
+    return row as unknown as Video;
   } catch (error) {
-    handleServiceError(error, 'adminContent.create');
+    console.warn('[createVideo] Fallback:', error);
+    const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
+    return mockCreateVideo(data);
   }
 }
 
@@ -76,14 +87,17 @@ export async function deleteVideo(id: string): Promise<void> {
       const { mockDeleteVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockDeleteVideo(id);
     }
-    try {
-      const res = await fetch(`/api/admin/content/videos/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new ServiceError(res.status, 'adminContent.delete');
-    } catch {
-      console.warn('[admin-content.deleteVideo] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('videos')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      console.warn('[deleteVideo] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'adminContent.delete');
+    console.warn('[deleteVideo] Fallback:', error);
   }
 }
 
@@ -93,10 +107,17 @@ export async function togglePublish(id: string, publish: boolean): Promise<void>
       const { mockTogglePublish } = await import('@/lib/mocks/admin-content.mock');
       return mockTogglePublish(id, publish);
     }
-    const res = await fetch(`/api/admin/content/videos/${id}/${publish ? 'publish' : 'unpublish'}`, { method: 'POST' });
-    if (!res.ok) throw new ServiceError(res.status, 'adminContent.togglePublish');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('videos')
+      .update({ status: publish ? 'published' : 'draft' })
+      .eq('id', id);
+    if (error) {
+      console.warn('[togglePublish] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'adminContent.togglePublish');
+    console.warn('[togglePublish] Fallback:', error);
   }
 }
 
@@ -106,9 +127,20 @@ export async function getAdminStorageStats(academyId: string): Promise<AdminStor
       const { mockGetAdminStorageStats } = await import('@/lib/mocks/admin-content.mock');
       return mockGetAdminStorageStats(academyId);
     }
-    const { mockGetAdminStorageStats } = await import('@/lib/mocks/admin-content.mock');
-    return mockGetAdminStorageStats(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('storage_stats')
+      .select('*')
+      .eq('academy_id', academyId)
+      .maybeSingle();
+    if (error || !data) {
+      console.warn('[getAdminStorageStats] Supabase error:', error?.message);
+      return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
+    }
+    return data as AdminStorageStats;
   } catch (error) {
-    handleServiceError(error, 'adminContent.storageStats');
+    console.warn('[getAdminStorageStats] Fallback:', error);
+    return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
   }
 }

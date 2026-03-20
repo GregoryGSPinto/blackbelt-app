@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { NotificationPreferences } from '@/lib/types/notification';
 
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
@@ -8,15 +7,25 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
       const { mockGetPreferences } = await import('@/lib/mocks/notification-preferences.mock');
       return mockGetPreferences(userId);
     }
-    try {
-      const res = await fetch(`/api/users/${userId}/notification-preferences`);
-      if (!res.ok) throw new ServiceError(res.status, 'notificationPreferences.get');
-      return res.json();
-    } catch {
-      console.warn('[notification-preferences.getNotificationPreferences] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getNotificationPreferences] Supabase error:', error?.message);
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
-  } catch (error) { handleServiceError(error, 'notificationPreferences.get'); }
+
+    return data as unknown as NotificationPreferences;
+  } catch (error) {
+    console.warn('[getNotificationPreferences] Fallback:', error);
+    return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
+  }
 }
 
 export async function updateNotificationPreferences(
@@ -28,18 +37,23 @@ export async function updateNotificationPreferences(
       const { mockUpdatePreferences } = await import('@/lib/mocks/notification-preferences.mock');
       return mockUpdatePreferences(userId, prefs);
     }
-    try {
-      const res = await fetch(`/api/users/${userId}/notification-preferences`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(prefs),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'notificationPreferences.update');
-      return res.json();
-    } catch {
-      console.warn('[notification-preferences.updateNotificationPreferences] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('notification_preferences')
+      .upsert({ user_id: userId, ...prefs })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[updateNotificationPreferences] Supabase error:', error?.message);
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
-  } catch (error) { handleServiceError(error, 'notificationPreferences.update'); }
+    return data as unknown as NotificationPreferences;
+  } catch (error) {
+    console.warn('[updateNotificationPreferences] Fallback:', error);
+    return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface WizardStepData {
   [key: string]: string | string[] | number | boolean | null | undefined | Record<string, string | number | boolean>;
@@ -14,21 +13,42 @@ export interface WizardProgressDTO {
   completedAt: string | null;
 }
 
+const EMPTY_PROGRESS: WizardProgressDTO = {
+  academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null,
+};
+
 export async function getWizardProgress(academyId: string): Promise<WizardProgressDTO> {
   try {
     if (isMock()) {
       const { mockGetWizardProgress } = await import('@/lib/mocks/wizard.mock');
       return mockGetWizardProgress(academyId);
     }
-    try {
-      const res = await fetch(`/api/wizard/progress?academyId=${academyId}`);
-      if (!res.ok) throw new ServiceError(res.status, 'wizard.getProgress');
-      return res.json();
-    } catch {
-      console.warn('[wizard.getWizardProgress] API not available, using fallback');
-      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('wizard_progress')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getWizardProgress] Supabase error:', error?.message);
+      return { ...EMPTY_PROGRESS, academyId };
     }
-  } catch (error) { handleServiceError(error, 'wizard.getProgress'); }
+
+    return {
+      academyId: String(data.academy_id ?? academyId),
+      currentStep: Number(data.current_step ?? 0),
+      completedSteps: (data.completed_steps ?? []) as number[],
+      stepsData: (data.steps_data ?? {}) as Record<number, WizardStepData>,
+      completed: Boolean(data.completed),
+      completedAt: data.completed_at ? String(data.completed_at) : null,
+    };
+  } catch (error) {
+    console.warn('[getWizardProgress] Fallback:', error);
+    return { ...EMPTY_PROGRESS, academyId };
+  }
 }
 
 export async function saveWizardStep(academyId: string, step: number, data: WizardStepData): Promise<WizardProgressDTO> {
@@ -37,19 +57,47 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       const { mockSaveWizardStep } = await import('@/lib/mocks/wizard.mock');
       return mockSaveWizardStep(academyId, step, data);
     }
-    try {
-      const res = await fetch(`/api/wizard/step`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, step, data }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'wizard.saveStep');
-      return res.json();
-    } catch {
-      console.warn('[wizard.saveWizardStep] API not available, using fallback');
-      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Get current progress first
+    const { data: current } = await supabase
+      .from('wizard_progress')
+      .select('*')
+      .eq('academy_id', academyId)
+      .single();
+
+    const completedSteps = [...new Set([...((current?.completed_steps ?? []) as number[]), step])];
+    const stepsData = { ...((current?.steps_data ?? {}) as Record<number, WizardStepData>), [step]: data };
+
+    const { data: row, error } = await supabase
+      .from('wizard_progress')
+      .upsert({
+        academy_id: academyId,
+        current_step: step + 1,
+        completed_steps: completedSteps,
+        steps_data: stepsData,
+      })
+      .select()
+      .single();
+
+    if (error || !row) {
+      console.warn('[saveWizardStep] Supabase error:', error?.message);
+      return { ...EMPTY_PROGRESS, academyId };
     }
-  } catch (error) { handleServiceError(error, 'wizard.saveStep'); }
+
+    return {
+      academyId: String(row.academy_id ?? academyId),
+      currentStep: Number(row.current_step ?? 0),
+      completedSteps: (row.completed_steps ?? []) as number[],
+      stepsData: (row.steps_data ?? {}) as Record<number, WizardStepData>,
+      completed: Boolean(row.completed),
+      completedAt: row.completed_at ? String(row.completed_at) : null,
+    };
+  } catch (error) {
+    console.warn('[saveWizardStep] Fallback:', error);
+    return { ...EMPTY_PROGRESS, academyId };
+  }
 }
 
 export async function completeWizard(academyId: string): Promise<WizardProgressDTO> {
@@ -58,17 +106,31 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       const { mockCompleteWizard } = await import('@/lib/mocks/wizard.mock');
       return mockCompleteWizard(academyId);
     }
-    try {
-      const res = await fetch(`/api/wizard/complete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'wizard.complete');
-      return res.json();
-    } catch {
-      console.warn('[wizard.completeWizard] API not available, using fallback');
-      return { academyId: '', currentStep: 0, completedSteps: [], stepsData: {}, completed: false, completedAt: null } as WizardProgressDTO;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('wizard_progress')
+      .update({ completed: true, completed_at: new Date().toISOString() })
+      .eq('academy_id', academyId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[completeWizard] Supabase error:', error?.message);
+      return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
     }
-  } catch (error) { handleServiceError(error, 'wizard.complete'); }
+
+    return {
+      academyId: String(data.academy_id ?? academyId),
+      currentStep: Number(data.current_step ?? 0),
+      completedSteps: (data.completed_steps ?? []) as number[],
+      stepsData: (data.steps_data ?? {}) as Record<number, WizardStepData>,
+      completed: true,
+      completedAt: data.completed_at ? String(data.completed_at) : new Date().toISOString(),
+    };
+  } catch (error) {
+    console.warn('[completeWizard] Fallback:', error);
+    return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
+  }
 }

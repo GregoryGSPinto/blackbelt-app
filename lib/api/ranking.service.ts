@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { RankedStudent } from '@/lib/api/xp.service';
 
 export async function getByAcademia(academyId: string): Promise<RankedStudent[]> {
@@ -8,11 +7,22 @@ export async function getByAcademia(academyId: string): Promise<RankedStudent[]>
       const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
       return mockGetLeaderboard(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
-      return mockGetLeaderboard(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('student_xp')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('total_xp', { ascending: false })
+      .limit(50);
+    if (error) {
+      console.warn('[getByAcademia] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    handleServiceError(error, 'ranking.byAcademia');
+    console.warn('[getByAcademia] Fallback:', error);
+    return [];
   }
 }
 
@@ -22,10 +32,21 @@ export async function getByTurma(classId: string): Promise<RankedStudent[]> {
       const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
       return mockGetLeaderboard(classId);
     }
-    // API not yet implemented — use mock
-    const { mockGetLeaderboard } = await import('@/lib/mocks/xp.mock');
-      return mockGetLeaderboard(classId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('student_xp')
+      .select('*')
+      .eq('class_id', classId)
+      .order('total_xp', { ascending: false })
+      .limit(50);
+    if (error) {
+      console.warn('[getByTurma] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    handleServiceError(error, 'ranking.byTurma');
+    console.warn('[getByTurma] Fallback:', error);
+    return [];
   }
 }
