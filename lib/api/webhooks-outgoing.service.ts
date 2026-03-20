@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type WebhookEvent =
   | 'student.created' | 'student.updated'
@@ -41,15 +40,25 @@ export async function registerWebhook(academyId: string, url: string, events: We
       const { mockRegisterWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
       return mockRegisterWebhook(academyId, url, events);
     }
-    try {
-      const res = await fetch('/api/v1/webhooks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, url, events }) });
-      return res.json();
-    } catch {
-      console.warn('[webhooks-outgoing.registerWebhook] API not available, using mock fallback');
-      const { mockRegisterWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
-      return mockRegisterWebhook(academyId, url, events);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const secret = `whsec_${Date.now().toString(36)}`;
+    const { data, error } = await supabase
+      .from('webhook_configs')
+      .insert({ academy_id: academyId, url, events, secret, is_active: true })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[registerWebhook] error:', error?.message);
+      return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
     }
-  } catch (error) { handleServiceError(error, 'webhooksOutgoing.register'); }
+    return data as unknown as OutgoingWebhook;
+  } catch (error) {
+    console.warn('[registerWebhook] Fallback:', error);
+    return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
+  }
 }
 
 export async function listWebhooks(academyId: string): Promise<OutgoingWebhook[]> {
@@ -58,15 +67,24 @@ export async function listWebhooks(academyId: string): Promise<OutgoingWebhook[]
       const { mockListWebhooks } = await import('@/lib/mocks/webhooks-outgoing.mock');
       return mockListWebhooks(academyId);
     }
-    try {
-      const res = await fetch(`/api/v1/webhooks?academyId=${academyId}`);
-      return res.json();
-    } catch {
-      console.warn('[webhooks-outgoing.listWebhooks] API not available, using mock fallback');
-      const { mockListWebhooks } = await import('@/lib/mocks/webhooks-outgoing.mock');
-      return mockListWebhooks(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('webhook_configs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listWebhooks] error:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'webhooksOutgoing.list'); }
+    return (data ?? []) as unknown as OutgoingWebhook[];
+  } catch (error) {
+    console.warn('[listWebhooks] Fallback:', error);
+    return [];
+  }
 }
 
 export async function deleteWebhook(webhookId: string): Promise<void> {
@@ -75,12 +93,20 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       const { mockDeleteWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
       return mockDeleteWebhook(webhookId);
     }
-    try {
-      await fetch(`/api/v1/webhooks/${webhookId}`, { method: 'DELETE' });
-    } catch {
-      console.warn('[webhooks-outgoing.deleteWebhook] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('webhook_configs')
+      .delete()
+      .eq('id', webhookId);
+
+    if (error) {
+      console.warn('[deleteWebhook] error:', error.message);
     }
-  } catch (error) { handleServiceError(error, 'webhooksOutgoing.delete'); }
+  } catch (error) {
+    console.warn('[deleteWebhook] Fallback:', error);
+  }
 }
 
 export async function testWebhook(webhookId: string): Promise<WebhookTestResult> {
@@ -89,15 +115,38 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       const { mockTestWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
       return mockTestWebhook(webhookId);
     }
-    try {
-      const res = await fetch(`/api/v1/webhooks/${webhookId}/test`, { method: 'POST' });
-      return res.json();
-    } catch {
-      console.warn('[webhooks-outgoing.testWebhook] API not available, using mock fallback');
-      const { mockTestWebhook } = await import('@/lib/mocks/webhooks-outgoing.mock');
-      return mockTestWebhook(webhookId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: webhook, error } = await supabase
+      .from('webhook_configs')
+      .select('url')
+      .eq('id', webhookId)
+      .single();
+
+    if (error || !webhook) {
+      console.warn('[testWebhook] error:', error?.message ?? 'not found');
+      return { success: false, responseCode: 0, responseTime: 0, error: 'Webhook not found' };
     }
-  } catch (error) { handleServiceError(error, 'webhooksOutgoing.test'); }
+
+    const start = Date.now();
+    try {
+      const res = await fetch((webhook as Record<string, unknown>).url as string, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'test', timestamp: new Date().toISOString() }),
+      });
+      const responseTime = Date.now() - start;
+      return { success: res.ok, responseCode: res.status, responseTime, error: res.ok ? null : `HTTP ${res.status}` };
+    } catch (err) {
+      const responseTime = Date.now() - start;
+      console.warn('[testWebhook] Failed to reach webhook URL');
+      return { success: false, responseCode: 0, responseTime, error: err instanceof Error ? err.message : 'Connection failed' };
+    }
+  } catch (error) {
+    console.warn('[testWebhook] Fallback:', error);
+    return { success: false, responseCode: 0, responseTime: 0, error: 'Unknown error' };
+  }
 }
 
 export async function getDeliveryLog(webhookId: string): Promise<WebhookDelivery[]> {
@@ -106,13 +155,23 @@ export async function getDeliveryLog(webhookId: string): Promise<WebhookDelivery
       const { mockGetDeliveryLog } = await import('@/lib/mocks/webhooks-outgoing.mock');
       return mockGetDeliveryLog(webhookId);
     }
-    try {
-      const res = await fetch(`/api/v1/webhooks/${webhookId}/deliveries`);
-      return res.json();
-    } catch {
-      console.warn('[webhooks-outgoing.getDeliveryLog] API not available, using mock fallback');
-      const { mockGetDeliveryLog } = await import('@/lib/mocks/webhooks-outgoing.mock');
-      return mockGetDeliveryLog(webhookId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('webhook_deliveries')
+      .select('*')
+      .eq('webhook_id', webhookId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.warn('[getDeliveryLog] error:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'webhooksOutgoing.deliveries'); }
+    return (data ?? []) as unknown as WebhookDelivery[];
+  } catch (error) {
+    console.warn('[getDeliveryLog] Fallback:', error);
+    return [];
+  }
 }

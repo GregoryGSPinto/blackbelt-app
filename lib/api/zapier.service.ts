@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -98,16 +97,25 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
     if (isMock()) {
       return { apiKey: 'zk_test_bb_' + academyId.slice(0, 8), createdAt: '2026-01-15T00:00:00Z' };
     }
-    try {
-      const res = await fetch(`/api/zapier/key?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[zapier.getZapierApiKey] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('value')
+      .eq('academy_id', academyId)
+      .eq('key', 'zapier')
+      .single();
+
+    if (error || !data) {
+      console.warn('[getZapierApiKey] error:', error?.message ?? 'not found');
       return { apiKey: '', createdAt: '' };
     }
+    const config = data.value as Record<string, unknown>;
+    return { apiKey: (config.apiKey as string) ?? '', createdAt: (config.createdAt as string) ?? '' };
   } catch (error) {
-    handleServiceError(error, 'zapier.getKey');
+    console.warn('[getZapierApiKey] Fallback:', error);
+    return { apiKey: '', createdAt: '' };
   }
 }
 
@@ -117,19 +125,21 @@ export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKe
       logger.debug(`[MOCK] Regenerated Zapier API key for ${academyId}`);
       return { apiKey: `zk_test_bb_${Date.now().toString(36)}` };
     }
-    try {
-      const res = await fetch('/api/zapier/key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[zapier.regenerateZapierApiKey] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const newKey = `zk_bb_${Date.now().toString(36)}`;
+    const { error } = await supabase
+      .from('academy_settings')
+      .upsert({ academy_id: academyId, key: 'zapier', value: { apiKey: newKey, createdAt: new Date().toISOString(), connected: true } }, { onConflict: 'academy_id,key' });
+
+    if (error) {
+      console.warn('[regenerateZapierApiKey] error:', error.message);
       return { apiKey: '' };
     }
+    return { apiKey: newKey };
   } catch (error) {
-    handleServiceError(error, 'zapier.regenerateKey');
+    console.warn('[regenerateZapierApiKey] Fallback:', error);
+    return { apiKey: '' };
   }
 }

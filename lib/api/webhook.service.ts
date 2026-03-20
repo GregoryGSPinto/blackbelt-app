@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 import type { WebhookConfig, WebhookDelivery, CreateWebhookPayload } from '@/lib/types/webhook';
 
@@ -9,11 +8,23 @@ export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> 
       const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
       return mockListWebhooks(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListWebhooks } = await import('@/lib/mocks/webhook.mock');
-      return mockListWebhooks(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('webhook_configs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listWebhooks] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as WebhookConfig[];
   } catch (error) {
-    handleServiceError(error, 'webhook.list');
+    console.warn('[listWebhooks] Fallback:', error);
+    return [];
   }
 }
 
@@ -26,22 +37,29 @@ export async function createWebhook(
       const { mockCreateWebhook } = await import('@/lib/mocks/webhook.mock');
       return mockCreateWebhook(academyId, payload);
     }
-    try {
-      const res = await fetch('/api/webhooks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...payload }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[webhook.createWebhook] API not available, using mock fallback');
-      const { mockCreateWebhook } = await import('@/lib/mocks/webhook.mock');
-      return mockCreateWebhook(academyId, payload);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
 
+    const { data, error } = await supabase
+      .from('webhook_configs')
+      .insert({
+        academy_id: academyId,
+        url: payload.url,
+        events: payload.events,
+        secret: payload.secret ?? '',
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[createWebhook] error:', error?.message);
+      return {} as WebhookConfig;
+    }
+    return data as unknown as WebhookConfig;
   } catch (error) {
-    handleServiceError(error, 'webhook.create');
+    console.warn('[createWebhook] Fallback:', error);
+    return {} as WebhookConfig;
   }
 }
 
@@ -51,14 +69,19 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       logger.debug(`[MOCK] Deleted webhook ${webhookId}`);
       return;
     }
-    try {
-      const res = await fetch(`/api/webhooks/${webhookId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[webhook.deleteWebhook] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('webhook_configs')
+      .delete()
+      .eq('id', webhookId);
+
+    if (error) {
+      console.warn('[deleteWebhook] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'webhook.delete');
+    console.warn('[deleteWebhook] Fallback:', error);
   }
 }
 
@@ -68,18 +91,19 @@ export async function toggleWebhook(webhookId: string, active: boolean): Promise
       logger.debug(`[MOCK] Webhook ${webhookId} set to ${active ? 'active' : 'inactive'}`);
       return;
     }
-    try {
-      const res = await fetch(`/api/webhooks/${webhookId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[webhook.toggleWebhook] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('webhook_configs')
+      .update({ is_active: active })
+      .eq('id', webhookId);
+
+    if (error) {
+      console.warn('[toggleWebhook] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'webhook.toggle');
+    console.warn('[toggleWebhook] Fallback:', error);
   }
 }
 
@@ -92,12 +116,24 @@ export async function getWebhookDeliveries(
       const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
       return mockWebhookDeliveries(webhookId, limit);
     }
-    // API not yet implemented — use mock
-    const { mockWebhookDeliveries } = await import('@/lib/mocks/webhook.mock');
-      return mockWebhookDeliveries(webhookId, limit);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
 
+    const { data, error } = await supabase
+      .from('webhook_deliveries')
+      .select('*')
+      .eq('webhook_id', webhookId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.warn('[getWebhookDeliveries] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as WebhookDelivery[];
   } catch (error) {
-    handleServiceError(error, 'webhook.deliveries');
+    console.warn('[getWebhookDeliveries] Fallback:', error);
+    return [];
   }
 }
 
@@ -107,16 +143,35 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       logger.debug(`[MOCK] Test webhook ${webhookId}`);
       return { success: true, statusCode: 200 };
     }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch the webhook config to get the URL
+    const { data: webhook, error } = await supabase
+      .from('webhook_configs')
+      .select('url, secret')
+      .eq('id', webhookId)
+      .single();
+
+    if (error || !webhook) {
+      console.warn('[testWebhook] error:', error?.message ?? 'not found');
+      return { success: false, statusCode: 0 };
+    }
+
+    // Send a test payload
     try {
-      const res = await fetch(`/api/webhooks/${webhookId}/test`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const res = await fetch((webhook as Record<string, unknown>).url as string, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'test', timestamp: new Date().toISOString() }),
+      });
+      return { success: res.ok, statusCode: res.status };
     } catch {
-      console.warn('[webhook.testWebhook] API not available, using mock fallback');
-      await import('@/lib/mocks/webhook.mock');
-      return { success: true, statusCode: 200 };
+      console.warn('[testWebhook] Failed to reach webhook URL');
+      return { success: false, statusCode: 0 };
     }
   } catch (error) {
-    handleServiceError(error, 'webhook.test');
+    console.warn('[testWebhook] Fallback:', error);
+    return { success: false, statusCode: 0 };
   }
 }

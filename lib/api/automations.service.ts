@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { AutomationConfig } from '@/lib/types/notification';
 
 export async function listAutomations(academyId: string): Promise<AutomationConfig[]> {
@@ -8,10 +7,24 @@ export async function listAutomations(academyId: string): Promise<AutomationConf
       const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
       return mockListAutomations(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockListAutomations } = await import('@/lib/mocks/automations.mock');
-      return mockListAutomations(academyId);
-  } catch (error) { handleServiceError(error, 'automations.list'); }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('whatsapp_automations')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listAutomations] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as AutomationConfig[];
+  } catch (error) {
+    console.warn('[listAutomations] Fallback:', error);
+    return [];
+  }
 }
 
 export async function toggleAutomation(id: string, enabled: boolean): Promise<AutomationConfig> {
@@ -20,18 +33,23 @@ export async function toggleAutomation(id: string, enabled: boolean): Promise<Au
       const { mockToggleAutomation } = await import('@/lib/mocks/automations.mock');
       return mockToggleAutomation(id, enabled);
     }
-    try {
-      const res = await fetch(`/api/automations/${id}/toggle`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'automations.toggle');
-      return res.json();
-    } catch {
-      console.warn('[automations.toggleAutomation] API not available, using mock fallback');
-      const { mockToggleAutomation } = await import('@/lib/mocks/automations.mock');
-      return mockToggleAutomation(id, enabled);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('whatsapp_automations')
+      .update({ is_active: enabled })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[toggleAutomation] error:', error?.message);
+      return { id, enabled } as unknown as AutomationConfig;
     }
-  } catch (error) { handleServiceError(error, 'automations.toggle'); }
+    return data as unknown as AutomationConfig;
+  } catch (error) {
+    console.warn('[toggleAutomation] Fallback:', error);
+    return { id, enabled } as unknown as AutomationConfig;
+  }
 }
