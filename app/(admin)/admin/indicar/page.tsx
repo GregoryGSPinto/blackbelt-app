@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { ReferralStatsDTO } from '@/lib/api/referral-b2b.service';
 import { getReferralStats } from '@/lib/api/referral-b2b.service';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function ReferralPage() {
   const [stats, setStats] = useState<ReferralStatsDTO | null>(null);
@@ -32,6 +33,7 @@ export default function ReferralPage() {
   if (loading || !stats) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
+    <PlanGate module="landing_page">
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <PageHeader title="Programa de Indicação" subtitle="Indique academias e ganhe meses grátis!" />
 
@@ -85,5 +87,6 @@ export default function ReferralPage() {
         </div>
       </div>
     </div>
+    </PlanGate>
   );
 }

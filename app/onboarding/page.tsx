@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import type { OnboardToken } from '@/lib/types';
 import { validateOnboardToken, redeemOnboardToken } from '@/lib/api/superadmin.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Steps ────────────────────────────────────────────────────────
 
@@ -97,8 +98,8 @@ export default function OnboardingPage() {
         'new-profile',
       );
       setStep('done');
-    } catch {
-      toast('Erro ao finalizar cadastro. Tente novamente.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }

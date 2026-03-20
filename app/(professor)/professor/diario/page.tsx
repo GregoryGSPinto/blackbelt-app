@@ -21,6 +21,8 @@ import {
   AlertTriangleIcon,
   CheckCircleIcon,
 } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -101,8 +103,8 @@ export default function DiarioPage() {
       if (periodoFilter !== 'all') filtros.periodo = periodoFilter;
       const result = await listDiarios('prof-1', Object.keys(filtros).length > 0 ? filtros : undefined);
       setDiarios(result);
-    } catch {
-      toast('Erro ao carregar diarios', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -176,8 +178,8 @@ export default function DiarioPage() {
       toast('Diario salvo com sucesso!', 'success');
       setShowCreateModal(false);
       resetForm();
-    } catch {
-      toast('Erro ao salvar diario', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -199,6 +201,7 @@ export default function DiarioPage() {
   }
 
   return (
+    <PlanGate module="pedagogico">
     <div className="min-h-screen pb-24" style={{ background: 'var(--bb-depth-1)' }}>
       {/* ── HEADER ───────────────────────────────────────────────────── */}
       <header className="space-y-3 p-4">
@@ -547,5 +550,6 @@ export default function DiarioPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

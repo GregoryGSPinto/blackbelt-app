@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { listChallenges, type ChallengeDTO } from '@/lib/api/challenges.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TYPE_ICON: Record<string, string> = { presenca: '📍', streak: '🔥', social: '👥', conteudo: '🎬', avaliacao: '📝' };
 
@@ -21,6 +22,14 @@ export default function DesafiosPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold text-bb-black">Desafios</h1>
       <div className="space-y-3">
+        {challenges.filter((c) => c.active).length === 0 && (
+          <EmptyState
+            icon="🎯"
+            title="Nenhum desafio ativo"
+            description="Quando novos desafios forem lançados, eles aparecerão aqui para você participar."
+            variant="first-time"
+          />
+        )}
         {challenges.filter((c) => c.active).map((ch) => {
           const pct = ch.type === 'avaliacao' ? 0 : (ch.progress / ch.target) * 100;
           const daysLeft = Math.max(0, Math.ceil((new Date(ch.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));

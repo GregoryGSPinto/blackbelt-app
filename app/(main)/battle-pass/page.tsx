@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function BattlePassPage() {
   const [battlePass, setBattlePass] = useState<BattlePassDTO | null>(null);
@@ -80,6 +81,7 @@ export default function BattlePassPage() {
     : 100;
 
   return (
+    <PlanGate module="teen_module">
     <div className="space-y-6">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 text-white">
@@ -272,5 +274,6 @@ export default function BattlePassPage() {
         )}
       </Card>
     </div>
+    </PlanGate>
   );
 }

@@ -16,6 +16,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -215,8 +216,8 @@ export default function ComunidadePage() {
     try {
       const feedData = await getFeed('academy-1', 1, filter || undefined);
       setPosts(feedData);
-    } catch {
-      toast('Erro ao carregar o feed', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -268,8 +269,8 @@ export default function ComunidadePage() {
             : p,
         ),
       );
-    } catch {
-      toast('Erro ao adicionar comentario', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

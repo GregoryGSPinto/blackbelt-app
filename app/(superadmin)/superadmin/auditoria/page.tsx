@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/lib/hooks/useToast';
 import { Search, Shield, Download, ChevronLeft, ChevronRight, Eye, Clock } from 'lucide-react';
+import { translateError } from '@/lib/utils/error-translator';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   login: 'Login',
@@ -71,7 +72,7 @@ export default function AuditoriaPage() {
 
     searchAuditLogs('platform', filters)
       .then((result) => setLogs(result.logs))
-      .catch(() => toast('Erro ao carregar logs', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, [filterAction, filterEntity, toast]);
 
@@ -120,8 +121,8 @@ export default function AuditoriaPage() {
       a.click();
       URL.revokeObjectURL(url);
       toast('Logs exportados com sucesso', 'success');
-    } catch {
-      toast('Erro ao exportar logs', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

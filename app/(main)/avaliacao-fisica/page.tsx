@@ -13,6 +13,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const LineChart = dynamic(() => import('recharts').then((m) => m.LineChart), { ssr: false });
 const Line = dynamic(() => import('recharts').then((m) => m.Line), { ssr: false });
@@ -60,7 +61,7 @@ export default function AvaliacaoFisicaPage() {
   useEffect(() => {
     getHistory('student-1')
       .then(setAssessments)
-      .catch(() => toast('Erro ao carregar avaliações', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

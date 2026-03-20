@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import type { OnboardToken } from '@/lib/types';
 import { listOnboardTokens, deactivateOnboardToken } from '@/lib/api/superadmin.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -64,8 +65,8 @@ export default function OnboardingTokensPage() {
       const updated = await deactivateOnboardToken(token.id);
       setTokens((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       toast('Token desativado.', 'success');
-    } catch {
-      toast('Erro ao desativar token.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
     setConfirmDeactivate(null);
   }

@@ -12,6 +12,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
 const STATUS_COLOR: Record<RoyaltyStatus, string> = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', atrasado: 'bg-red-100 text-red-700', parcial: 'bg-orange-100 text-orange-700' };
@@ -52,8 +54,8 @@ export default function RoyaltiesFranqueadorPage() {
       await generateRoyaltyInvoice(genAcademy, genMonth);
       setGenerateModal(false);
       toast('Cobranca gerada com sucesso', 'success');
-    } catch {
-      toast('Erro ao gerar cobranca', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setGenerating(false);
     }
@@ -199,6 +201,16 @@ export default function RoyaltiesFranqueadorPage() {
                   </tr>
                 </thead>
                 <tbody>
+                  {filtered.length === 0 && (
+                    <tr><td colSpan={7}>
+                      <EmptyState
+                        icon="💰"
+                        title="Nenhum royalty encontrado"
+                        description={filterStatus || filterAcademy ? "Nenhum resultado para os filtros selecionados." : "Gere cobranças mensais para visualizar o histórico de royalties."}
+                        variant={filterStatus || filterAcademy ? "search" : "first-time"}
+                      />
+                    </td></tr>
+                  )}
                   {filtered.slice(0, 30).map((calc) => (
                     <tr key={calc.id} className={`border-b border-bb-gray-100 ${calc.status === 'atrasado' ? 'bg-red-50' : ''}`}>
                       <td className="px-4 py-3 font-medium text-bb-black">{calc.academy_name}</td>

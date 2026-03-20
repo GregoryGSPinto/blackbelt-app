@@ -36,6 +36,7 @@ import type {
   ConnectionTestResult,
   StorageStats,
 } from '@/lib/api/video-storage.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -288,8 +289,8 @@ export default function StorageConfigPage() {
       // Reload stats for new provider
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao alterar provider.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
       setSelectedProvider(config.provider);
     } finally {
       setSubmitting(false);
@@ -319,8 +320,8 @@ export default function StorageConfigPage() {
       toast(`${PROVIDER_LABELS[provider]} desconectado.`, 'success');
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao desconectar provider.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -339,8 +340,8 @@ export default function StorageConfigPage() {
       toast('YouTube configurado com sucesso!', 'success');
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao configurar YouTube.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -363,8 +364,8 @@ export default function StorageConfigPage() {
       toast('Vimeo configurado com sucesso!', 'success');
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao configurar Vimeo.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -383,8 +384,8 @@ export default function StorageConfigPage() {
       toast('Google Drive configurado com sucesso!', 'success');
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao configurar Google Drive.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -414,8 +415,8 @@ export default function StorageConfigPage() {
       toast('S3/R2 configurado com sucesso!', 'success');
       const newStats = await getStorageStats();
       setStats(newStats);
-    } catch {
-      toast('Erro ao configurar S3/R2.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }

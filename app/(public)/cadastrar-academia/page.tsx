@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createAcademy } from '@/lib/api/onboarding.service';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -122,8 +123,8 @@ export default function CadastrarAcademiaPage() {
       );
       toast('Academia criada com sucesso!', 'success');
       setTimeout(() => router.push('/admin/setup-wizard'), 2000);
-    } catch {
-      toast('Erro ao criar academia. Tente novamente.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

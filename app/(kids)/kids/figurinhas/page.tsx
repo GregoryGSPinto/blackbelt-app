@@ -5,6 +5,7 @@ import { getAlbum } from '@/lib/api/kids-figurinhas.service';
 import type { AlbumFigurinhas, Figurinha } from '@/lib/api/kids-figurinhas.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Rarity config ────────────────────────────────────────────────────
 const RARITY_BORDER: Record<string, string> = {
@@ -85,7 +86,8 @@ export default function KidsFigurinhasPage() {
     .find((f) => f.nome === 'Diamante');
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="kids_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         {/* ── Header ─── */}
         <div className="text-center">
@@ -314,6 +316,7 @@ export default function KidsFigurinhasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PlanGate>
   );
 }

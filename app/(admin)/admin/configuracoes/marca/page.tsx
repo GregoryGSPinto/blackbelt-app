@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function MarcaPage() {
   const { toast } = useToast();
@@ -23,8 +24,8 @@ export default function MarcaPage() {
     try {
       await updateBranding('academy-1', branding);
       toast('Marca atualizada', 'success');
-    } catch {
-      toast('Erro ao salvar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

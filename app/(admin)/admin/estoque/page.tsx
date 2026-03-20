@@ -8,6 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CATEGORIA_LABEL: Record<CategoriaEstoque, string> = {
   kimono: 'Kimono',
@@ -42,8 +44,8 @@ export default function EstoquePage() {
         ]);
         setProdutos(prods);
         setAlertas(alerts);
-      } catch {
-        toast('Erro ao carregar estoque', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -73,8 +75,8 @@ export default function EstoquePage() {
       setMovForm({ quantidade: '', motivo: '' });
       const alerts = await getAlertasEstoqueBaixo('academy-1');
       setAlertas(alerts);
-    } catch {
-      toast('Erro na movimentação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -82,8 +84,8 @@ export default function EstoquePage() {
     try {
       const movs = await getMovimentacoes(produtoId);
       setHistoricoModal({ produtoId, nome, movs: movs.slice(-10).reverse() });
-    } catch {
-      toast('Erro ao carregar histórico', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -107,6 +109,7 @@ export default function EstoquePage() {
   }
 
   return (
+    <PlanGate module="loja">
     <div className="space-y-6 p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Estoque</h1>
@@ -372,5 +375,6 @@ export default function EstoquePage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

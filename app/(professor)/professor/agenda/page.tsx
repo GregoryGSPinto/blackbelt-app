@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const SLOT_COLORS: Record<string, string> = {
@@ -32,8 +33,8 @@ export default function ProfessorAgendaPage() {
       await approveLesson(id);
       setRequests((prev) => prev.filter((r) => r.id !== id));
       toast('Aula aprovada', 'success');
-    } catch {
-      toast('Erro ao aprovar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -42,8 +43,8 @@ export default function ProfessorAgendaPage() {
       await rejectLesson(id, 'Horário indisponível');
       setRequests((prev) => prev.filter((r) => r.id !== id));
       toast('Aula recusada', 'success');
-    } catch {
-      toast('Erro ao recusar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

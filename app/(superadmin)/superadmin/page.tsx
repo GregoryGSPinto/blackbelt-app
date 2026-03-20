@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +18,8 @@ import {
   acknowledgeAcademy,
 } from '@/lib/api/superadmin.service';
 import type { AcademyFull } from '@/lib/types';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
+import { translateError } from '@/lib/utils/error-translator';
 import {
   DollarIcon,
   TrendingUpIcon,
@@ -92,57 +94,31 @@ const KPI_ICONS = [DollarIcon, TrendingUpIcon, BuildingIcon, UsersIcon, BarChart
 
 export default function MissionControlPage() {
   const { toast } = useToast();
-  const [data, setData] = useState<MissionControlDTO | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error: swrError, loading, refresh: refreshData } = useSWRFetch<MissionControlDTO>(
+    'superadmin-mission-control',
+    () => getMissionControl(),
+  );
+  const { data: fetchedNewAcademies } = useSWRFetch<AcademyFull[]>(
+    'superadmin-new-academies',
+    () => getUnacknowledgedAcademies(),
+  );
+  const error = swrError ? (swrError instanceof Error ? swrError.message : 'Erro desconhecido') : null;
   const [resolvingIds, setResolvingIds] = useState<Set<string>>(new Set());
+  const [resolvedAlertIds, setResolvedAlertIds] = useState<Set<string>>(new Set());
 
-  // Novas Academias (unacknowledged)
-  const [newAcademies, setNewAcademies] = useState<AcademyFull[]>([]);
+  // Novas Academias (unacknowledged) — track acknowledged IDs for optimistic removal
+  const [acknowledgedIds, setAcknowledgedIds] = useState<Set<string>>(new Set());
   const [acknowledgingIds, setAcknowledgingIds] = useState<Set<string>>(new Set());
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await getMissionControl();
-      setData(result);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const loadNewAcademies = useCallback(async () => {
-    try {
-      const result = await getUnacknowledgedAcademies();
-      setNewAcademies(result);
-    } catch {
-      // Non-critical, don't block dashboard
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-    loadNewAcademies();
-  }, [loadData, loadNewAcademies]);
+  const newAcademies = (fetchedNewAcademies ?? []).filter((a) => !acknowledgedIds.has(a.id));
 
   const handleResolverAlerta = useCallback(async (alerta: AlertaUrgente) => {
     setResolvingIds((prev) => new Set(prev).add(alerta.id));
     try {
       await resolverAlerta(alerta.id);
-      setData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          alertas: prev.alertas.filter((a) => a.id !== alerta.id),
-        };
-      });
+      setResolvedAlertIds((prev) => new Set(prev).add(alerta.id));
       toast(`Alerta "${alerta.titulo}" resolvido`, 'success');
-    } catch {
-      toast('Erro ao resolver alerta', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setResolvingIds((prev) => {
         const next = new Set(prev);
@@ -156,10 +132,10 @@ export default function MissionControlPage() {
     setAcknowledgingIds((prev) => new Set(prev).add(academy.id));
     try {
       await acknowledgeAcademy(academy.id);
-      setNewAcademies((prev) => prev.filter((a) => a.id !== academy.id));
+      setAcknowledgedIds((prev) => new Set(prev).add(academy.id));
       toast(`"${academy.name}" marcada como ciente.`, 'success');
-    } catch {
-      toast('Erro ao confirmar.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setAcknowledgingIds((prev) => {
         const next = new Set(prev);
@@ -205,14 +181,15 @@ export default function MissionControlPage() {
         <p style={{ color: 'var(--bb-ink-60)' }}>
           {error ? `Erro ao carregar: ${error}` : 'Nenhum dado disponível.'}
         </p>
-        <Button variant="secondary" onClick={loadData}>
+        <Button variant="secondary" onClick={() => refreshData()}>
           Tentar novamente
         </Button>
       </div>
     );
   }
 
-  const { kpis, mrrHistorico, crescimentoAcademias, alertas, topAcademias, academiasRisco, distribuicaoPlanos } = data;
+  const { kpis, mrrHistorico, crescimentoAcademias, alertas: allAlertas, topAcademias, academiasRisco, distribuicaoPlanos } = data;
+  const alertas = allAlertas.filter((a) => !resolvedAlertIds.has(a.id));
 
   // Dynamic subtitle
   const subtitle = (() => {

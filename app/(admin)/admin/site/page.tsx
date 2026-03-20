@@ -9,6 +9,7 @@ import {
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -235,8 +236,8 @@ export default function AdminSitePage() {
           setTurmasExperimental(data.turmasExperimental);
           setPlanos(data.planos);
         }
-      } catch {
-        toast('Erro ao carregar dados do site', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -268,8 +269,8 @@ export default function AdminSitePage() {
         turmasExperimental,
       });
       toast('Site atualizado com sucesso!', 'success');
-    } catch {
-      toast('Erro ao salvar alteracoes', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

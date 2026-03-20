@@ -24,6 +24,7 @@ import {
   PhoneIcon,
 } from '@/components/shell/icons';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Dynamic Recharts imports (no SSR) ────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -263,8 +264,8 @@ export default function WhatsAppPage() {
           setConfigPhone(cfg.phoneNumber ?? '');
           setConfigConnected(cfg.active);
         }
-      } catch {
-        toast('Erro ao carregar dados do WhatsApp', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -322,8 +323,8 @@ export default function WhatsAppPage() {
       setVariables({});
       setScheduleEnabled(false);
       setScheduleDate('');
-    } catch {
-      toast('Erro ao enviar mensagem', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSending(false);
     }
@@ -368,8 +369,8 @@ export default function WhatsAppPage() {
         active: configConnected ?? false,
       });
       toast('Configuracao salva com sucesso!', 'success');
-    } catch {
-      toast('Erro ao salvar configuracao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setConfigSaving(false);
     }

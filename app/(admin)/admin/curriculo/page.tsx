@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const MODALITIES = [
   { value: 'bjj', label: 'Jiu-Jitsu' },
@@ -63,8 +64,8 @@ export default function CurriculoAdminPage() {
       const data = await getCurriculum('academy-1', modality, belt);
       setCurriculum(data);
       if (data) setNotesVal(data.notes);
-    } catch {
-      toast('Erro ao carregar currículo', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -83,8 +84,8 @@ export default function CurriculoAdminPage() {
       setShowAddReq(false);
       setReqForm({ category: 'tecnicas_obrigatorias', name: '', description: '', video_ref_id: '', required: true });
       toast('Requisito adicionado', 'success');
-    } catch {
-      toast('Erro ao adicionar requisito', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -94,8 +95,8 @@ export default function CurriculoAdminPage() {
       await removeRequirement(curriculum.id, reqId);
       setCurriculum((prev) => prev ? { ...prev, requirements: prev.requirements.filter((r) => r.id !== reqId) } : prev);
       toast('Requisito removido', 'success');
-    } catch {
-      toast('Erro ao remover requisito', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -106,8 +107,8 @@ export default function CurriculoAdminPage() {
       setCurriculum((prev) => prev ? { ...prev, notes: notesVal } : prev);
       setEditingNotes(false);
       toast('Notas salvas', 'success');
-    } catch {
-      toast('Erro ao salvar notas', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { NetworkDashboardDTO, ConsolidatedFinancials } from '@/lib/api/network.service';
 import { getNetworkDashboard, getNetworkFinancials, transferStudent } from '@/lib/api/network.service';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function NetworkPage() {
   const [dashboard, setDashboard] = useState<NetworkDashboardDTO | null>(null);
@@ -88,6 +89,16 @@ export default function NetworkPage() {
                 </tr>
               </thead>
               <tbody>
+                {dashboard.academies.length === 0 && (
+                  <tr><td colSpan={7}>
+                    <EmptyState
+                      icon="🏢"
+                      title="Nenhuma academia na rede"
+                      description="Adicione academias para acompanhar o desempenho consolidado da rede."
+                      variant="first-time"
+                    />
+                  </td></tr>
+                )}
                 {dashboard.academies.sort((a, b) => b.monthlyRevenue - a.monthlyRevenue).map((ac, i) => (
                   <tr key={ac.id} className="border-b border-bb-gray-100">
                     <td className="py-3 pr-4 text-bb-gray-400">{i + 1}</td>
@@ -128,6 +139,16 @@ export default function NetworkPage() {
                 </tr>
               </thead>
               <tbody>
+                {financials.byAcademy.length === 0 && (
+                  <tr><td colSpan={4}>
+                    <EmptyState
+                      icon="💰"
+                      title="Nenhum dado financeiro"
+                      description="Os dados financeiros consolidados da rede aparecerão aqui."
+                      variant="first-time"
+                    />
+                  </td></tr>
+                )}
                 {financials.byAcademy.map((ac) => (
                   <tr key={ac.id} className="border-b border-bb-gray-100">
                     <td className="py-3 pr-4 font-medium">{ac.name}</td>

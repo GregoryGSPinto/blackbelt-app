@@ -10,6 +10,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CATEGORY_COLOR: Record<RequirementCategory, string> = {
   tecnicas_obrigatorias: 'bg-red-100 text-red-700',
@@ -28,7 +29,7 @@ export default function CurriculoPage() {
   useEffect(() => {
     getStudentProgress('student-1', 'bjj', 'azul')
       .then(setProgress)
-      .catch(() => toast('Erro ao carregar currículo', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

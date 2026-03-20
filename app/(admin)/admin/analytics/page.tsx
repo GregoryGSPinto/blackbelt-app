@@ -6,6 +6,7 @@ import { getRetentionCohort, getChurnRisk, getRevenueForecasting, getProfessorPe
 import type { CohortData, ChurnRiskDTO, ForecastDTO, ProfessorMetricsDTO, OccupancyDTO } from '@/lib/api/analytics.service';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const AnalyticsCharts = dynamic(() => import('./AnalyticsCharts'), { ssr: false });
 
@@ -35,6 +36,7 @@ export default function AdminAnalyticsPage() {
   if (loading) return <div className="space-y-4 p-6"><Skeleton variant="text" className="h-8 w-48" /><Skeleton variant="card" className="h-96" /></div>;
 
   return (
+    <PlanGate module="relatorios">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Analytics</h1>
       <div className="flex flex-wrap gap-2">
@@ -95,5 +97,6 @@ export default function AdminAnalyticsPage() {
       {tab === 3 && <AnalyticsCharts type="professors" professors={professors} />}
       {tab === 4 && <AnalyticsCharts type="occupancy" occupancy={occupancy} />}
     </div>
+    </PlanGate>
   );
 }

@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const PIPELINE_STATUSES = ['lead', 'contatado', 'experimental', 'compareceu', 'matriculou'] as const;
 type PipelineStatus = (typeof PIPELINE_STATUSES)[number];
@@ -72,8 +74,8 @@ export default function ComercialPage() {
         prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l)),
       );
       toast(`Status atualizado para ${STATUS_LABEL[newStatus] || newStatus}`, 'success');
-    } catch {
-      toast('Erro ao atualizar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -105,8 +107,8 @@ export default function ComercialPage() {
       setShowNewLead(false);
       setForm({ name: '', email: '', phone: '', modality: '', origin: 'Instagram', status: 'lead', notes: '', experimental_date: '' });
       toast('Lead adicionado com sucesso', 'success');
-    } catch {
-      toast('Erro ao criar lead', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -121,6 +123,7 @@ export default function ComercialPage() {
   }
 
   return (
+    <PlanGate module="landing_page">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-bb-black">Comercial — CRM</h1>
@@ -302,5 +305,6 @@ export default function ComercialPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

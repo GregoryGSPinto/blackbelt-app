@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -105,8 +107,8 @@ export default function InadimplenciaPage() {
       ]);
       setDevedores(devList.sort((a, b) => b.diasAtraso - a.diasAtraso));
       setMetrics(devMetrics);
-    } catch {
-      toast('Erro ao carregar dados de inadimplencia', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -143,8 +145,8 @@ export default function InadimplenciaPage() {
       setContatoForm({ tipo: 'ligacao', resultado: 'sem_resposta', observacao: '' });
       setLoading(true);
       await loadData();
-    } catch {
-      toast('Erro ao registrar contato', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -165,6 +167,7 @@ export default function InadimplenciaPage() {
   }
 
   return (
+    <PlanGate module="churn_prediction">
     <div className="space-y-6 p-6">
       {/* Title */}
       <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
@@ -450,6 +453,7 @@ export default function InadimplenciaPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }
 

@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const MODALITY_LABEL: Record<TechniqueModality, string> = { bjj: 'BJJ', 'muay-thai': 'Muay Thai', judo: 'Judô', wrestling: 'Wrestling', mma: 'MMA' };
 const CATEGORY_LABEL: Record<TechniqueCategory, string> = { finalização: 'Finalização', passagem: 'Passagem', raspagem: 'Raspagem', queda: 'Queda', defesa: 'Defesa', posição: 'Posição', transição: 'Transição', striking: 'Striking' };
@@ -77,8 +78,8 @@ export default function TecnicasAdminPage() {
       setShowCreate(false);
       setForm(EMPTY_FORM);
       toast('Técnica criada com sucesso', 'success');
-    } catch {
-      toast('Erro ao criar técnica', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }

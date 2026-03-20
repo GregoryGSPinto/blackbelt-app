@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const BELT_COLORS: Record<string, string> = {
   Branca: 'bg-white border border-bb-gray-300',
@@ -76,7 +77,7 @@ export default function CarteirinhaPage() {
   const loadCard = useCallback(() => {
     getStudentCard('student-1')
       .then(setCard)
-      .catch(() => toast('Erro ao carregar carteirinha', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, [toast]);
 

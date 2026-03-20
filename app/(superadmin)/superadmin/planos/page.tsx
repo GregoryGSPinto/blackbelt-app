@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { getFaixas, getModulos, getPacotes } from '@/lib/api/pricing.service';
 import type { FaixaBase, Modulo, PacoteSugerido } from '@/lib/api/pricing.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ─── Constants ────────────────────────────────────────────────
 
@@ -206,8 +207,8 @@ export default function PlanosPage() {
       setFaixas(f);
       setModulos(m);
       setPacotes(p);
-    } catch {
-      toast('Erro ao carregar dados de pricing', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

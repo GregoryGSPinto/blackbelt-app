@@ -16,6 +16,7 @@ import {
   getInviteStats,
 } from '@/lib/api/invite-tokens.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -195,8 +196,8 @@ export default function ConvitesPage() {
 
       toast('Link de convite criado!', 'success');
       resetCreateForm();
-    } catch {
-      toast('Erro ao criar convite.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -209,8 +210,8 @@ export default function ConvitesPage() {
       const newStats = await getInviteStats(ACADEMY_ID);
       setStats(newStats);
       toast('Convite desativado.', 'success');
-    } catch {
-      toast('Erro ao desativar.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
     setConfirmAction(null);
   }
@@ -222,8 +223,8 @@ export default function ConvitesPage() {
       const newStats = await getInviteStats(ACADEMY_ID);
       setStats(newStats);
       toast('Convite excluido.', 'success');
-    } catch {
-      toast('Erro ao excluir.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
     setConfirmAction(null);
   }

@@ -20,6 +20,7 @@ import {
   UsersIcon,
   CheckCircleIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -110,8 +111,8 @@ export default function PlanoAulaPage() {
       try {
         const data = await getSemana('prof-1', week);
         setSemana(data);
-      } catch {
-        toast('Erro ao carregar planejamento', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
         setSemana(null);
       } finally {
         setLoading(false);

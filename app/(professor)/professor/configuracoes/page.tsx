@@ -21,6 +21,7 @@ import {
   uploadAvatar,
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -91,8 +92,8 @@ export default function ProfessorConfiguracoesPage() {
       try {
         const p = await getUserPreferences(MOCK_PROFILE_ID);
         setPrefs(p);
-      } catch {
-        toast('Erro ao carregar configuracoes', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -106,8 +107,8 @@ export default function ProfessorConfiguracoesPage() {
         await updateUserPreferences(MOCK_PROFILE_ID, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
-      } catch {
-        toast('Erro ao salvar', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       }
     },
     [toast],
@@ -128,8 +129,8 @@ export default function ProfessorConfiguracoesPage() {
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmarSenha('');
-    } catch {
-      toast('Erro ao alterar senha.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -180,8 +181,8 @@ export default function ProfessorConfiguracoesPage() {
                   try {
                     await uploadAvatar(MOCK_PROFILE_ID, file);
                     toast('Avatar atualizado!', 'success');
-                  } catch {
-                    toast('Erro ao enviar avatar.', 'error');
+                  } catch (err) {
+                    toast(translateError(err), 'error');
                   }
                 }}
                 size="lg"
@@ -437,8 +438,8 @@ export default function ProfessorConfiguracoesPage() {
                   try {
                     await exportUserData(MOCK_PROFILE_ID);
                     toast('Exportacao iniciada!', 'success');
-                  } catch {
-                    toast('Erro ao exportar.', 'error');
+                  } catch (err) {
+                    toast(translateError(err), 'error');
                   }
                 }}
                 className="px-4 py-2 text-sm font-medium"

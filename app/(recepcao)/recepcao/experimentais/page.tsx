@@ -10,6 +10,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { listExperimentais, marcarChegou, marcarNaoVeio, marcarMatriculou } from '@/lib/api/recepcao-experimental.service';
 import type { ExperimentalRecepcao, FunnelExperimental } from '@/lib/api/recepcao-experimental.service';
 import { PlusIcon, PhoneIcon, ChevronRightIcon } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -60,8 +61,8 @@ export default function RecepcaoExperimentaisPage() {
           setHistorico(result.historico);
           setFunnel(result.funnel);
         }
-      } catch {
-        if (!cancelled) toast('Erro ao carregar experimentais', 'error');
+      } catch (err) {
+        if (!cancelled) toast(translateError(err), 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -75,8 +76,8 @@ export default function RecepcaoExperimentaisPage() {
       await marcarChegou(id);
       setHoje((prev) => prev.map((e) => e.id === id ? { ...e, status: 'chegou' as const } : e));
       toast('Marcado como chegou!', 'success');
-    } catch {
-      toast('Erro ao atualizar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -85,8 +86,8 @@ export default function RecepcaoExperimentaisPage() {
       await marcarNaoVeio(id);
       setHoje((prev) => prev.map((e) => e.id === id ? { ...e, status: 'nao_veio' as const } : e));
       toast('Marcado como nao veio', 'success');
-    } catch {
-      toast('Erro ao atualizar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -95,8 +96,8 @@ export default function RecepcaoExperimentaisPage() {
       await marcarMatriculou(id);
       setHoje((prev) => prev.map((e) => e.id === id ? { ...e, status: 'matriculou' as const } : e));
       toast('Matricula registrada! 🎉', 'success');
-    } catch {
-      toast('Erro ao registrar matricula', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

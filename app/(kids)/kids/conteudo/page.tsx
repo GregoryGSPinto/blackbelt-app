@@ -5,6 +5,7 @@ import { getLibrary } from '@/lib/api/streaming.service';
 import type { StreamingLibrary, StreamingSeries, WatchProgress } from '@/lib/types/streaming';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const FUN_NAMES: Record<string, { emoji: string; name: string }> = {
   'Postura base e equilíbrio': { emoji: '🦁', name: 'O Leão Forte' },
@@ -121,7 +122,8 @@ export default function KidsAventurasPage() {
   const movementSeries = allSeries.slice(4, 7);
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <PlanGate module="kids_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Stars Header */}
       <div className="pt-6 pb-2 px-4">
         <div className="flex items-center justify-center">
@@ -385,6 +387,7 @@ export default function KidsAventurasPage() {
           50% { transform: translateY(-8px); }
         }
       `}</style>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

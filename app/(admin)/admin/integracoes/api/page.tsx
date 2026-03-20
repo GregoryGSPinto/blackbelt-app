@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { ApiKey, ApiKeyCreateResult } from '@/lib/api/api-keys.service';
 import { listApiKeys, generateApiKey, revokeApiKey } from '@/lib/api/api-keys.service';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ENDPOINTS = [
   { method: 'GET', path: '/api/v1/students', desc: 'Listar alunos' },
@@ -87,6 +88,16 @@ export default function ApiKeysPage() {
           )}
 
           <div className="space-y-3">
+            {keys.length === 0 && (
+              <EmptyState
+                icon="🔑"
+                title="Nenhuma chave de API"
+                description="Crie chaves de API para integrar sistemas externos com a plataforma BlackBelt."
+                actionLabel="Nova Chave"
+                onAction={() => setShowCreate(true)}
+                variant="first-time"
+              />
+            )}
             {keys.map((k) => (
               <div key={k.id} className={`flex items-center justify-between rounded-xl border p-4 ${k.revokedAt ? 'border-red-200 bg-red-50 opacity-60' : 'border-bb-gray-200'}`}>
                 <div>

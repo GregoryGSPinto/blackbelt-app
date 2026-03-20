@@ -13,6 +13,9 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<PlanStatus, string> = { active: 'Ativo', completed: 'Concluído', archived: 'Arquivado' };
 const STATUS_COLOR: Record<PlanStatus, string> = { active: 'bg-green-100 text-green-700', completed: 'bg-blue-100 text-blue-700', archived: 'bg-gray-100 text-gray-500' };
@@ -54,8 +57,8 @@ export default function PlanoTreinoProfessorPage() {
       setWizardStep('goal');
       setForm({ student_id: 'student-1', name: '', goal: '', duration_weeks: 8 });
       toast('Plano criado com sucesso', 'success');
-    } catch {
-      toast('Erro ao criar plano', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -72,8 +75,8 @@ export default function PlanoTreinoProfessorPage() {
       });
       setPlans((prev) => [duplicated, ...prev]);
       toast('Plano duplicado', 'success');
-    } catch {
-      toast('Erro ao duplicar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -82,14 +85,15 @@ export default function PlanoTreinoProfessorPage() {
       const updated = await updatePlan(planId, { status: 'archived' });
       setPlans((prev) => prev.map((p) => (p.id === planId ? updated : p)));
       toast('Plano arquivado', 'success');
-    } catch {
-      toast('Erro ao arquivar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
+    <PlanGate module="avaliacoes">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-bb-black">Planos de Treino</h1>
@@ -97,6 +101,16 @@ export default function PlanoTreinoProfessorPage() {
       </div>
 
       {/* Plans List */}
+      {plans.length === 0 && (
+        <EmptyState
+          icon="📋"
+          title="Nenhum plano de treino"
+          description="Crie planos de treino personalizados para seus alunos com exercícios, séries e progressão semanal."
+          actionLabel="Novo Plano"
+          onAction={() => setShowWizard(true)}
+          variant="first-time"
+        />
+      )}
       <div className="space-y-4">
         {plans.map((plan) => (
           <Card key={plan.id} className="p-4">
@@ -242,5 +256,6 @@ export default function PlanoTreinoProfessorPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

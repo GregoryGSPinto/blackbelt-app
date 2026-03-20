@@ -6,6 +6,8 @@ import type { AttendanceRecord } from '@/lib/types/attendance';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { CheckSquareIcon } from '@/components/shell/icons';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CLASSES = [
   { id: 'class-1', name: 'BJJ Fundamentos', time: '07:00' },
@@ -41,7 +43,7 @@ export default function ProfessorPresencaPage() {
     setLoading(true);
     listAttendanceRecord(selectedClass, selectedDate)
       .then(setAttendanceRecords)
-      .catch(() => toast('Erro ao carregar presença', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, [selectedClass, selectedDate, toast]);
 
@@ -66,8 +68,8 @@ export default function ProfessorPresencaPage() {
         }
       }
       toast('Presença salva com sucesso!', 'success');
-    } catch {
-      toast('Erro ao salvar presença', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -185,6 +187,14 @@ export default function ProfessorPresencaPage() {
 
       {/* ── Student list ───────────────────────────────────────────── */}
       <section className="animate-reveal space-y-2">
+        {attendances.length === 0 && (
+          <EmptyState
+            icon="📝"
+            title="Nenhum aluno nesta turma"
+            description="Não há registros de presença para a turma e data selecionadas."
+            variant="search"
+          />
+        )}
         {attendances.map((a) => {
           const sc = STATUS_COLORS[a.status];
           return (

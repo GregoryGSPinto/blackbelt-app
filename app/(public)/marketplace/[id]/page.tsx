@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ReviewCard, Stars } from '@/components/marketplace/ReviewCard';
 import { ReviewForm } from '@/components/marketplace/ReviewForm';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const MODALITY_LABEL: Record<string, string> = {
   bjj: 'Jiu-Jitsu', judo: 'Judô', mma: 'MMA', muay_thai: 'Muay Thai', wrestling: 'Wrestling', no_gi: 'No-Gi',
@@ -56,8 +57,8 @@ export default function CourseDetailPage() {
       await purchaseCourse(course.id, 'student-1');
       setPurchased(true);
       toast('Compra realizada com sucesso!', 'success');
-    } catch {
-      toast('Erro ao processar compra', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setPurchasing(false);
     }
@@ -69,8 +70,8 @@ export default function CourseDetailPage() {
       const review = await createReview(id, 'student-1', rating, text);
       setReviews((prev) => [review, ...prev]);
       toast('Avaliação enviada!', 'success');
-    } catch {
-      toast('Erro ao enviar avaliação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setReviewLoading(false);
     }

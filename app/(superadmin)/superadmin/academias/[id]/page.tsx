@@ -10,6 +10,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import type { AcademyFull } from '@/lib/types';
 import { getAcademy, suspendAcademy, reactivateAcademy } from '@/lib/api/superadmin.service';
 import { startImpersonation } from '@/lib/api/superadmin-impersonate.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   active: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'Ativa' },
@@ -54,8 +55,8 @@ export default function AcademyDetailPage() {
         : await suspendAcademy(academy.id);
       setAcademy(updated);
       toast(updated.status === 'suspended' ? 'Academia suspensa.' : 'Academia reativada.', 'success');
-    } catch {
-      toast('Erro ao alterar status.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -134,7 +135,7 @@ export default function AcademyDetailPage() {
                 await startImpersonation(academy.id);
                 toast('Entrando como admin...', 'info');
                 router.push('/admin');
-              } catch { toast('Erro ao impersonar.', 'error'); }
+              } catch (err) { toast(translateError(err), 'error'); }
             }}
             style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}
           >

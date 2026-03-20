@@ -10,6 +10,8 @@ import {
   ClockIcon,
   DollarIcon,
 } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const RISK_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   critical: { label: 'Crítico', color: '#EF4444', bg: '#EF444420' },
@@ -41,6 +43,7 @@ export default function ChurnPredictionPage() {
   };
 
   return (
+    <PlanGate module="churn_prediction">
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
@@ -81,6 +84,22 @@ export default function ChurnPredictionPage() {
         </div>
       ) : (
         <div className="space-y-3">
+          {filtered.length === 0 && predictions.length === 0 && (
+            <EmptyState
+              icon="📉"
+              title="Nenhuma previsão de churn"
+              description="Quando houver dados suficientes de frequência e engajamento, as previsões de evasão aparecerão aqui."
+              variant="first-time"
+            />
+          )}
+          {filtered.length === 0 && predictions.length > 0 && (
+            <EmptyState
+              icon="🔍"
+              title="Nenhum aluno neste filtro"
+              description="Não há alunos com o nível de risco selecionado. Tente outro filtro."
+              variant="search"
+            />
+          )}
           {filtered.map((pred) => {
             const config = RISK_CONFIG[pred.risk];
             return (
@@ -159,6 +178,7 @@ export default function ChurnPredictionPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }
 

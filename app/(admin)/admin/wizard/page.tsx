@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 interface StepConfig {
   title: string;
@@ -119,8 +120,8 @@ export default function WizardPage() {
       const updated = await saveWizardStep('academy-1', currentStep, getStepData());
       setProgress(updated);
       setCurrentStep(currentStep + 1);
-    } catch {
-      toast('Erro ao salvar passo', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -135,8 +136,8 @@ export default function WizardPage() {
     try {
       await completeWizard('academy-1');
       toast('Academia configurada com sucesso!', 'success');
-    } catch {
-      toast('Erro ao finalizar configuração', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

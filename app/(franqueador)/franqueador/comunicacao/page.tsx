@@ -19,6 +19,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const TYPE_LABEL: Record<BroadcastType, string> = {
   comunicado: 'Comunicado',
@@ -123,8 +125,8 @@ export default function ComunicacaoPage() {
       setShowCompose(false);
       setComposeForm({ type: 'comunicado', subject: '', body: '', channels: ['email'] });
       toast('Comunicado enviado para a rede', 'success');
-    } catch {
-      toast('Erro ao enviar comunicado', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSending(false);
     }
@@ -136,8 +138,8 @@ export default function ComunicacaoPage() {
       const r = await getReceipts(broadcast.id);
       setReceipts(r);
       setShowReceipts(true);
-    } catch {
-      toast('Erro ao carregar confirmacoes', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -148,8 +150,8 @@ export default function ComunicacaoPage() {
       setShowTrainingForm(false);
       setTrainingForm({ title: '', description: '', date: '', time: '10:00', duration_minutes: 60, format: 'online', instructor: '', max_participants: 30 });
       toast('Treinamento agendado', 'success');
-    } catch {
-      toast('Erro ao agendar treinamento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -197,6 +199,16 @@ export default function ComunicacaoPage() {
       {/* Tab: Broadcasts */}
       {tab === 'broadcasts' && (
         <div className="space-y-3">
+          {broadcasts.length === 0 && (
+            <EmptyState
+              icon="📢"
+              title="Nenhum comunicado enviado"
+              description="Envie comunicados para todas as academias da rede."
+              actionLabel="Novo Comunicado"
+              onAction={() => setShowCompose(true)}
+              variant="first-time"
+            />
+          )}
           {broadcasts.map((bc) => {
             const readCount = bc.recipients.filter((r) => r.status === 'lido').length;
             const deliveredCount = bc.recipients.filter((r) => r.status === 'entregue' || r.status === 'lido').length;
@@ -248,6 +260,16 @@ export default function ComunicacaoPage() {
       {/* Tab: Trainings */}
       {tab === 'trainings' && (
         <div className="grid gap-4 md:grid-cols-2">
+          {trainings.length === 0 && (
+            <EmptyState
+              icon="🎓"
+              title="Nenhum treinamento agendado"
+              description="Agende treinamentos para capacitar as equipes das academias da rede."
+              actionLabel="Agendar Treinamento"
+              onAction={() => setShowTrainingForm(true)}
+              variant="first-time"
+            />
+          )}
           {trainings.map((tr) => (
             <Card key={tr.id} className="p-4">
               <div className="flex items-start justify-between">

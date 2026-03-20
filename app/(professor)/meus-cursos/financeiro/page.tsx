@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<string, string> = { pending: 'Pendente', processing: 'Processando', completed: 'Concluído', failed: 'Falhou' };
 const STATUS_COLOR: Record<string, string> = { pending: 'bg-yellow-100 text-yellow-700', processing: 'bg-blue-100 text-blue-700', completed: 'bg-green-100 text-green-700', failed: 'bg-red-100 text-red-700' };
@@ -47,8 +48,8 @@ export default function FinanceiroPage() {
       setWithdrawModal(false);
       setWithdrawAmount('');
       toast('Saque solicitado com sucesso!', 'success');
-    } catch {
-      toast('Erro ao solicitar saque', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setWithdrawing(false);
     }

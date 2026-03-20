@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function TorneiosPage() {
   const { toast } = useToast();
@@ -21,8 +23,8 @@ export default function TorneiosPage() {
       await enrollTournament(id, 'student-1');
       setTournaments((prev) => prev.map((t) => t.id === id ? { ...t, enrolledCount: t.enrolledCount + 1 } : t));
       toast('Inscrito com sucesso!', 'success');
-    } catch {
-      toast('Erro na inscrição', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -31,6 +33,14 @@ export default function TorneiosPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold text-bb-black">Torneios</h1>
+      {tournaments.length === 0 && (
+        <EmptyState
+          icon="🏆"
+          title="Nenhum torneio disponível"
+          description="Quando novos torneios forem cadastrados, eles aparecerão aqui para inscrição."
+          variant="first-time"
+        />
+      )}
       {tournaments.map((t) => (
         <Card key={t.id} className="p-4">
           <h3 className="font-bold text-bb-black">{t.name}</h3>

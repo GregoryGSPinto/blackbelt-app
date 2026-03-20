@@ -5,6 +5,7 @@ import { getLibrary } from '@/lib/api/streaming.service';
 import type { StreamingLibrary, StreamingSeries, StreamingTrail, WatchProgress } from '@/lib/types/streaming';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 interface WeeklyChallenge {
   title: string;
@@ -95,7 +96,8 @@ export default function TeenBibliotecaPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] text-[var(--bb-ink-100)] pb-28">
       {/* Hero Banner */}
       <div
         className="relative mx-4 mt-4 rounded-2xl overflow-hidden"
@@ -348,6 +350,7 @@ export default function TeenBibliotecaPage() {
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getModulos, getProgressoGeral } from '@/lib/api/academia-teorica.service';
 import type { ModuloTeorico, ProgressoGeral } from '@/lib/api/academia-teorica.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Star Constants
@@ -125,7 +126,8 @@ export default function KidsAcademiaPage() {
   const totalStarsPossible = modulos.reduce((sum, m) => sum + calcModuloStars(m), 0);
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="kids_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* ─── HEADER ─── */}
       <section className="px-4 pb-4 pt-8 text-center">
         <div className="mx-auto max-w-lg">
@@ -308,6 +310,7 @@ export default function KidsAcademiaPage() {
           </p>
         </section>
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

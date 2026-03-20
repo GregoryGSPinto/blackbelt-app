@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { getHallOfFame, type RecordDTO, type HallOfFameDTO } from '@/lib/api/hall-fama.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string; bgColor: string }> = {
   streak: { icon: '🔥', color: 'text-orange-700', bgColor: 'bg-orange-50' },
@@ -167,6 +168,14 @@ export default function HallDaFamaPage() {
       </div>
 
       {/* All records */}
+      {filtered.length === 0 && (
+        <EmptyState
+          icon="🏆"
+          title="Nenhum recorde registrado"
+          description={filter !== 'all' ? "Nenhum recorde nesta categoria. Tente outro filtro." : "Quando alunos baterem recordes na academia, eles aparecerão aqui."}
+          variant={filter !== 'all' ? "search" : "first-time"}
+        />
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {filtered.map((record, idx) => (
           <RecordCard key={record.id} record={record} rank={idx + 1} />

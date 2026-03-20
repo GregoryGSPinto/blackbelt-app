@@ -22,6 +22,28 @@ const ERROR_MAP: Record<string, string> = {
   'AbortError': 'A requisicao demorou demais. Tente novamente.',
   'TypeError: Failed to fetch': 'Sem conexao. Verifique sua internet.',
 
+  // Supabase PostgREST
+  'PGRST116': 'Nenhum resultado encontrado.',
+
+  // JWT
+  'JWT expired': 'Sessao expirada. Faca login novamente.',
+
+  // Email
+  'Email rate limit exceeded': 'Muitos emails enviados. Aguarde alguns minutos.',
+
+  // Storage
+  'Bucket not found': 'Armazenamento nao configurado.',
+  'Payload too large': 'Arquivo muito grande. Maximo: 50MB.',
+  'storage/object-not-found': 'Arquivo nao encontrado.',
+
+  // Postgres error codes
+  '23505': 'Este registro ja existe.',
+  '23503': 'Nao e possivel excluir — ha dados vinculados.',
+  '42P01': 'Recurso temporariamente indisponivel.',
+
+  // Permission
+  'permission denied': 'Sem permissao para esta acao.',
+
   // Generic
   'Internal Server Error': 'Erro no servidor. Tente novamente em alguns minutos.',
   'Not Found': 'Pagina nao encontrada.',

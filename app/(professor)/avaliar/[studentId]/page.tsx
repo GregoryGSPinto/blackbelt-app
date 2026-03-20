@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Dynamic Recharts imports (no SSR) ────────────────────────────────
 const RadarChart = dynamic(() => import('recharts').then((m) => m.RadarChart), { ssr: false });
@@ -245,8 +246,8 @@ export default function AvaliarStudentPage() {
       });
       toast('Avaliacao salva com sucesso!', 'success');
       await loadData();
-    } catch {
-      toast('Erro ao salvar avaliacao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -260,8 +261,8 @@ export default function AvaliarStudentPage() {
       toast(`Aluno promovido para faixa ${BELT_LABELS[nextBelt] ?? nextBelt}!`, 'success');
       setShowPromoteModal(false);
       await loadData();
-    } catch {
-      toast('Erro ao promover aluno', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setPromoting(false);
     }

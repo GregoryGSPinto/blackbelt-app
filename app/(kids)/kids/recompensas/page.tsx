@@ -7,6 +7,7 @@ import { getKidsProfile } from '@/lib/api/kids-estrelas.service';
 import type { KidsProfile } from '@/lib/api/kids-estrelas.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function KidsRecompensasPage() {
   const [recompensas, setRecompensas] = useState<RecompensaKids[]>([]);
@@ -84,6 +85,7 @@ export default function KidsRecompensasPage() {
   const redeemedNames = new Set(historico.map((h) => h.recompensa));
 
   return (
+    <PlanGate module="kids_module">
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         {/* ── Header ─── */}
@@ -288,5 +290,6 @@ export default function KidsRecompensasPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

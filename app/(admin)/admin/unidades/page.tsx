@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function UnidadesPage() {
   const { toast } = useToast();
@@ -28,8 +30,8 @@ export default function UnidadesPage() {
       setShowCreate(false);
       setForm({ name: '', address: '', phone: '', operatingHours: '' });
       toast('Unidade criada', 'success');
-    } catch {
-      toast('Erro ao criar unidade', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -40,8 +42,8 @@ export default function UnidadesPage() {
       await deactivateUnit(id);
       setUnits((prev) => prev.map((u) => u.id === id ? { ...u, active: false } : u));
       toast('Unidade desativada', 'success');
-    } catch {
-      toast('Erro ao desativar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -54,6 +56,16 @@ export default function UnidadesPage() {
         <Button onClick={() => setShowCreate(true)}>Nova Unidade</Button>
       </div>
 
+      {units.length === 0 && (
+        <EmptyState
+          icon="🏢"
+          title="Nenhuma unidade cadastrada"
+          description="Cadastre as unidades da sua academia para gerenciar alunos e turmas por filial."
+          actionLabel="Nova Unidade"
+          onAction={() => setShowCreate(true)}
+          variant="first-time"
+        />
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {units.map((unit) => (
           <Card key={unit.id} className={`p-4 ${unit.active ? '' : 'opacity-50'}`}>

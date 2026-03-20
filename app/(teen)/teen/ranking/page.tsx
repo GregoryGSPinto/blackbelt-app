@@ -5,6 +5,7 @@ import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO, TeenRankingEntryDTO } from '@/lib/api/teen.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Extended ranking data for full leaderboard
@@ -83,13 +84,15 @@ export default function TeenRankingPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">🏆</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Ranking indisponivel</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-          O ranking sera exibido quando houver participantes suficientes.
-        </p>
-      </div>
+      <PlanGate module="teen_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">🏆</span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Ranking indisponivel</h2>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+            O ranking sera exibido quando houver participantes suficientes.
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -103,7 +106,8 @@ export default function TeenRankingPage() {
   const myEntry = EXTENDED_RANKING.find((e) => e.is_current_user);
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -274,6 +278,7 @@ export default function TeenRankingPage() {
           </section>
         )}
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

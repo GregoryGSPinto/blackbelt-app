@@ -5,6 +5,7 @@ import { getTeenSeasonPass, claimSeasonReward } from '@/lib/api/teen-season.serv
 import type { TeenSeasonPass, SeasonReward } from '@/lib/api/teen-season.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -104,13 +105,15 @@ export default function TeenSeasonPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">🏟️</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma season ativa</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-          A proxima season sera anunciada em breve!
-        </p>
-      </div>
+      <PlanGate module="teen_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">🏟️</span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma season ativa</h2>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+            A proxima season sera anunciada em breve!
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -127,7 +130,8 @@ export default function TeenSeasonPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Season banner */}
         <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600/30 via-indigo-600/20 to-blue-600/10 p-5 ring-1 ring-purple-500/30">
@@ -343,6 +347,7 @@ export default function TeenSeasonPage() {
           </div>
         </section>
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

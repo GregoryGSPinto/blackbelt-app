@@ -22,6 +22,7 @@ import {
   XIcon,
   DollarIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -109,8 +110,8 @@ export default function AdminEventosPage() {
       try {
         const data = await listAcademyEvents('academy-1');
         setEvents(data);
-      } catch {
-        toast('Erro ao carregar eventos', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -185,8 +186,8 @@ export default function AdminEventosPage() {
       }
       setShowForm(false);
       resetForm();
-    } catch {
-      toast('Erro ao salvar evento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -197,8 +198,8 @@ export default function AdminEventosPage() {
       await deleteAcademyEvent(eventId);
       setEvents((prev) => prev.filter((e) => e.id !== eventId));
       toast('Evento removido', 'success');
-    } catch {
-      toast('Erro ao remover evento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

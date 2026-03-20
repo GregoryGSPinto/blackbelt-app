@@ -23,6 +23,8 @@ import {
   ClockIcon,
   EyeIcon,
 } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<StatusContrato, string> = {
   rascunho: 'Rascunho',
@@ -84,8 +86,8 @@ export default function ContratosPage() {
       setShowGenerate(false);
       setGenForm((prev) => ({ ...prev, alunoNome: '' }));
       toast('Contrato gerado', 'success');
-    } catch {
-      toast('Erro ao gerar contrato', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -97,8 +99,8 @@ export default function ContratosPage() {
       );
       setShowSend(null);
       toast(`Contrato enviado via ${metodo}`, 'success');
-    } catch {
-      toast('Erro ao enviar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -118,6 +120,7 @@ export default function ContratosPage() {
   const filtered = filterStatus === 'all' ? contratos : contratos.filter((c) => c.status === filterStatus);
 
   return (
+    <PlanGate module="financeiro">
     <div className="space-y-6 p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Contratos</h1>
@@ -367,5 +370,6 @@ export default function ContratosPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

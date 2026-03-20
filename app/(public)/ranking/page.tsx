@@ -12,6 +12,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const BELTS = ['Branca', 'Azul', 'Roxa', 'Marrom', 'Preta'];
 const WEIGHTS = ['Galo (até 57kg)', 'Pluma (até 64kg)', 'Pena (até 70kg)', 'Leve (até 76kg)', 'Médio (até 82kg)', 'Meio-Pesado (até 88kg)', 'Pesado (até 94kg)', 'Super-Pesado (até 100kg)'];
@@ -152,6 +153,16 @@ export default function RankingPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-bb-gray-100">
+                  {athletes.length === 0 && (
+                    <tr><td colSpan={8}>
+                      <EmptyState
+                        icon="🥋"
+                        title="Nenhum atleta encontrado"
+                        description="Ajuste os filtros de modalidade, faixa, peso ou região para encontrar atletas."
+                        variant="search"
+                      />
+                    </td></tr>
+                  )}
                   {athletes.map((a) => {
                     const isMe = a.athlete_id === currentUserId;
                     return (
@@ -208,6 +219,16 @@ export default function RankingPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-bb-gray-100">
+                  {academies.length === 0 && (
+                    <tr><td colSpan={8}>
+                      <EmptyState
+                        icon="🏆"
+                        title="Nenhuma academia encontrada"
+                        description="Ajuste os filtros de modalidade ou região para encontrar academias."
+                        variant="search"
+                      />
+                    </td></tr>
+                  )}
                   {academies.map((a) => (
                     <tr key={a.academy_id} className={`transition-colors hover:bg-bb-gray-50 ${a.position <= 3 ? 'bg-yellow-50/30' : ''}`}>
                       <td className="px-4 py-3 font-bold text-bb-gray-500">{a.position}</td>

@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { sendNetworkMessage } from '@/lib/api/franchise.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<AcademyStatus, string> = { ativa: 'Ativa', inadimplente: 'Inadimplente', suspensa: 'Suspensa', em_setup: 'Em Setup' };
 const STATUS_COLOR: Record<AcademyStatus, string> = { ativa: 'bg-green-100 text-green-700', inadimplente: 'bg-red-100 text-red-700', suspensa: 'bg-yellow-100 text-yellow-700', em_setup: 'bg-blue-100 text-blue-700' };
@@ -40,8 +41,8 @@ export default function FranqueadorDashboardPage() {
       setMsgModal(false);
       setMsgForm({ subject: '', body: '', channel: 'email' });
       toast('Mensagem enviada para a rede', 'success');
-    } catch {
-      toast('Erro ao enviar mensagem', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSending(false);
     }

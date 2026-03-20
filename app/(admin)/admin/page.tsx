@@ -10,6 +10,7 @@ import type { DailyBriefingDTO } from '@/lib/api/painel-dia.service';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FirstStepsChecklist } from '@/components/onboarding/FirstStepsChecklist';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import {
   UsersIcon,
   DollarIcon,
@@ -379,15 +380,30 @@ function DashboardSkeleton() {
 // ════════════════════════════════════════════════════════════════════
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [briefing, setBriefing] = useState<DailyBriefingDTO | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading: dataLoading } = useSWRFetch<DashboardData>(
+    'admin-dashboard-data',
+    () => getDashboardData(getActiveAcademyId()),
+  );
+  const { data: briefing } = useSWRFetch<DailyBriefingDTO>(
+    'admin-daily-briefing',
+    () => getDailyBriefing(getActiveAcademyId()),
+  );
+  const { data: churnAlunos } = useSWRFetch<AlunoRisco[]>(
+    'admin-churn-alunos',
+    () => getAlunosEmRisco('academy-1'),
+  );
+  const { data: churnMetrics } = useSWRFetch<ChurnMetrics>(
+    'admin-churn-metrics',
+    () => getChurnMetrics('academy-1'),
+  );
+  const { data: pedagogicoData } = useSWRFetch<PedagogicoDashboardDTO>(
+    'admin-pedagogico-dashboard',
+    () => getPedagogicoDashboard(getActiveAcademyId()),
+  );
+
   const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
-  const [churnAlunos, setChurnAlunos] = useState<AlunoRisco[]>([]);
-  const [churnMetrics, setChurnMetrics] = useState<ChurnMetrics | null>(null);
-  const [pedagogicoData, setPedagogicoData] = useState<PedagogicoDashboardDTO | null>(null);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();
@@ -397,26 +413,7 @@ export default function AdminDashboardPage() {
   const achievementsObs = useInView();
   const usageObs = useInView();
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const d = await getDashboardData(getActiveAcademyId());
-        setData(d);
-        const b = await getDailyBriefing(getActiveAcademyId());
-        setBriefing(b);
-      } catch {
-        // handled by service
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-    getAlunosEmRisco('academy-1').then(setChurnAlunos).catch(() => {});
-    getChurnMetrics('academy-1').then(setChurnMetrics).catch(() => {});
-    getPedagogicoDashboard(getActiveAcademyId()).then(setPedagogicoData).catch(() => {});
-  }, []);
-
-  if (loading || !data) return <DashboardSkeleton />;
+  if (dataLoading || !data) return <DashboardSkeleton />;
 
   const { greeting, headlines, growth_chart, retention, today_schedule, activity_feed, pending_promotions, financial_summary, plan_usage, streaming_summary, quick_actions, academy_achievements } = data;
 
@@ -1153,7 +1150,7 @@ export default function AdminDashboardPage() {
       </section>
 
       {/* ═══ CHURN RISK CARD ═══════════════════════════════════════════ */}
-      {churnMetrics && churnAlunos.length > 0 && (
+      {churnMetrics && (churnAlunos ?? []).length > 0 && (
         <div
           className="rounded-xl p-5"
           style={{
@@ -1187,7 +1184,7 @@ export default function AdminDashboardPage() {
             </span>
           </div>
           <div className="space-y-3">
-            {churnAlunos.filter(a => a.risco === 'alto').slice(0, 3).map((aluno) => (
+            {(churnAlunos ?? []).filter(a => a.risco === 'alto').slice(0, 3).map((aluno) => (
               <div
                 key={aluno.id}
                 className="flex items-center justify-between rounded-lg p-3"

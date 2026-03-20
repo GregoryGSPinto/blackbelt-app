@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   pending: 'Pendente', paid: 'Pago', shipped: 'Enviado', delivered: 'Entregue', cancelled: 'Cancelado',
@@ -70,8 +71,8 @@ export default function PedidoDetailPage() {
       const updated = await cancelOrder(order.id);
       setOrder(updated);
       toast('Pedido cancelado', 'success');
-    } catch {
-      toast('Erro ao cancelar pedido', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCancelling(false);
     }

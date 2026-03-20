@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-blue-100 text-blue-700',
@@ -114,6 +115,7 @@ export default function PesagemPage() {
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
+    <PlanGate module="compete">
     <div className="space-y-6 p-6">
       <PageHeader title="Pesagem" subtitle={`Campeonato ${tournamentId}`} />
 
@@ -256,5 +258,6 @@ export default function PesagemPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

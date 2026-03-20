@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Video Card                                                    */
@@ -267,7 +268,7 @@ export default function BibliotecaStreamingPage() {
   useEffect(() => {
     getLibrary(studentId ?? 'stu-1', 'aluno_adulto', 'white')
       .then(setLibrary)
-      .catch(() => toast('Erro ao carregar biblioteca', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

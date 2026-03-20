@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
 const STATUS_COLOR: Record<RoyaltyStatus, string> = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', atrasado: 'bg-red-100 text-red-700', parcial: 'bg-orange-100 text-orange-700' };
@@ -52,8 +54,8 @@ export default function AdminRoyaltiesPage() {
         };
       });
       toast('Pagamento registrado com sucesso', 'success');
-    } catch {
-      toast('Erro ao registrar pagamento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setPaying(null);
     }
@@ -130,6 +132,16 @@ export default function AdminRoyaltiesPage() {
               </tr>
             </thead>
             <tbody>
+              {history.calculations.length === 0 && (
+                <tr><td colSpan={8}>
+                  <EmptyState
+                    icon="💰"
+                    title="Nenhum royalty registrado"
+                    description="O histórico de royalties da sua franquia aparecerá aqui quando houver cálculos disponíveis."
+                    variant="first-time"
+                  />
+                </td></tr>
+              )}
               {history.calculations.map((calc) => (
                 <tr key={calc.id} className={`border-b border-bb-gray-100 ${calc.status === 'atrasado' ? 'bg-red-50' : ''}`}>
                   <td className="px-4 py-3 font-medium text-bb-black">{calc.month}</td>

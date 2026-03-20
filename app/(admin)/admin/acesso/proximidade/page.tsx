@@ -13,6 +13,8 @@ import {
   type BeaconConfig,
 } from '@/lib/api/beacon.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function ProximidadeAdminPage() {
   const { toast } = useToast();
@@ -29,7 +31,7 @@ export default function ProximidadeAdminPage() {
   useEffect(() => {
     getProximityConfig('unit-1')
       .then(setConfig)
-      .catch(() => toast('Erro ao carregar configuração', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -40,8 +42,8 @@ export default function ProximidadeAdminPage() {
       const { enabled } = await toggleAutoCheckin('unit-1', !config.auto_checkin_enabled);
       setConfig({ ...config, auto_checkin_enabled: enabled });
       toast(enabled ? 'Check-in automático ativado' : 'Check-in automático desativado', 'success');
-    } catch {
-      toast('Erro ao alterar configuração', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   };
 
@@ -60,8 +62,8 @@ export default function ProximidadeAdminPage() {
       setNewBeaconName('');
       setNewBeaconLocation('');
       toast('Beacon configurado', 'success');
-    } catch {
-      toast('Erro ao configurar beacon', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   };
 
@@ -79,8 +81,8 @@ export default function ProximidadeAdminPage() {
         setConfig({ ...config, geofences: [geo] });
       }
       toast('Geofence salvo', 'success');
-    } catch {
-      toast('Erro ao salvar geofence', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   };
 
@@ -94,8 +96,8 @@ export default function ProximidadeAdminPage() {
         });
       }
       toast(updated.active ? 'Beacon ativado' : 'Beacon desativado', 'success');
-    } catch {
-      toast('Erro ao alterar beacon', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   };
 
@@ -178,6 +180,15 @@ export default function ProximidadeAdminPage() {
         )}
 
         <div className="divide-y divide-bb-gray-100">
+          {config.beacons.length === 0 && (
+            <EmptyState
+              icon="📡"
+              title="Nenhum beacon configurado"
+              description="Adicione beacons BLE para habilitar check-in por proximidade."
+              actionLabel="Adicionar Beacon"
+              onAction={() => setShowBeaconForm(true)}
+            />
+          )}
           {config.beacons.map((beacon) => (
             <div key={beacon.id} className="flex items-center justify-between p-4">
               <div>

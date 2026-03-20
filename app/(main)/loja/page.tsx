@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useCart } from '@/lib/hooks/useCart';
 import { useToast } from '@/lib/hooks/useToast';
 import { SearchIcon, ShoppingCartIcon, FilterIcon, XIcon } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export default function LojaPage() {
   useEffect(() => {
     listProducts('academy-1')
       .then(setProducts)
-      .catch(() => toast('Erro ao carregar produtos', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, [toast]);
 

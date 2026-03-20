@@ -21,6 +21,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // -- Constants ----------------------------------------------------------------
 
@@ -86,8 +87,8 @@ export default function IndicarPage() {
       setCode(codeData);
       setStats(statsData);
       setReferrals(referralsList);
-    } catch {
-      toast('Erro ao carregar dados de indicacao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -107,8 +108,8 @@ export default function IndicarPage() {
       setCopied(true);
       toast('Link copiado!', 'success');
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast('Erro ao copiar link', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }, [code, toast]);
 

@@ -8,6 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrador',
@@ -37,8 +39,8 @@ export default function EquipePage() {
       setShowInvite(false);
       setInviteForm({ email: '', role: Role.Professor });
       toast('Convite enviado', 'success');
-    } catch {
-      toast('Erro ao enviar convite', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSending(false);
     }
@@ -49,8 +51,8 @@ export default function EquipePage() {
       await cancelInvite(id);
       setInvites((prev) => prev.filter((i) => i.id !== id));
       toast('Convite cancelado', 'success');
-    } catch {
-      toast('Erro ao cancelar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -58,8 +60,8 @@ export default function EquipePage() {
     try {
       await resendInvite(id);
       toast('Convite reenviado', 'success');
-    } catch {
-      toast('Erro ao reenviar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -84,6 +86,18 @@ export default function EquipePage() {
               <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Último Acesso</th>
             </tr></thead>
             <tbody>
+              {staff.length === 0 && (
+                <tr><td colSpan={5}>
+                  <EmptyState
+                    icon="👥"
+                    title="Nenhum membro na equipe"
+                    description="Convide professores e administradores para gerenciar sua academia."
+                    actionLabel="Convidar Membro"
+                    onAction={() => setShowInvite(true)}
+                    variant="first-time"
+                  />
+                </td></tr>
+              )}
               {staff.map((member) => (
                 <tr key={member.id} className="border-b border-bb-gray-100">
                   <td className="px-4 py-3">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getFeed, likePost, type FeedPost, type PostType } from '@/lib/api/feed.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TYPE_ICON: Record<PostType, string> = { achievement: '🏆', class_photo: '📸', event: '📅', milestone: '🎯', coach_tip: '💡', promotion: '🥋' };
 const FILTERS: { id: PostType | ''; label: string }[] = [
@@ -35,6 +36,14 @@ export default function FeedPage() {
           <button key={f.id} onClick={() => setFilter(f.id)} className={`rounded-full px-3 py-1 text-xs font-medium ${filter === f.id ? 'bg-bb-primary text-white' : 'bg-bb-gray-100 text-bb-gray-500'}`}>{f.label}</button>
         ))}
       </div>
+      {posts.length === 0 && (
+        <EmptyState
+          icon="📰"
+          title="Nenhuma publicação no feed"
+          description={filter ? "Nenhum post encontrado com este filtro. Tente outro tipo." : "Quando houver novidades na academia, elas aparecerão aqui."}
+          variant={filter ? "search" : "first-time"}
+        />
+      )}
       {posts.map((post) => (
         <Card key={post.id} className="p-4">
           <div className="flex items-start gap-3">

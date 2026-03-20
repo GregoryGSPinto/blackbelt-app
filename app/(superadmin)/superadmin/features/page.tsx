@@ -14,6 +14,7 @@ import {
   type FeatureFlag,
   type CategoriaFeature,
 } from '@/lib/api/superadmin-features.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -141,8 +142,8 @@ export default function FeaturesPage() {
           : `Feature "${feat.nome}" desativada.`,
         'success',
       );
-    } catch {
-      toast('Erro ao alterar feature.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setTogglingId(null);
     }
@@ -170,8 +171,8 @@ export default function FeaturesPage() {
       );
       toast('Feature atualizada!', 'success');
       closeConfig();
-    } catch {
-      toast('Erro ao salvar configuracao.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -215,8 +216,8 @@ export default function FeaturesPage() {
       setFeatures((prev) => [withStats, ...prev]);
       toast('Feature criada!', 'success');
       resetNewForm();
-    } catch {
-      toast('Erro ao criar feature.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }

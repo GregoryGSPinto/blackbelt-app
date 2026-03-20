@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { getAlunoDashboard } from '@/lib/api/aluno.service';
 import { useStudentId } from '@/lib/hooks/useStudentId';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import type {
   AlunoDashboardDTO,
   DiaSemanaDTO,
@@ -164,30 +165,19 @@ function DashboardSkeleton() {
 
 export default function StudentDashboardPage() {
   const { studentId, loading: studentLoading } = useStudentId();
-  const [data, setData] = useState<AlunoDashboardDTO | null>(null);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
-    if (!studentId) return;
-    try {
-      const d = await getAlunoDashboard(studentId);
-      setData(d);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [studentId]);
+  const { data, loading: swrLoading, refresh } = useSWRFetch<AlunoDashboardDTO>(
+    !studentLoading && studentId ? `student-dashboard-${studentId}` : null,
+    () => getAlunoDashboard(studentId!),
+  );
 
-  useEffect(() => {
-    if (!studentLoading && studentId) loadData();
-    else if (!studentLoading && !studentId) setLoading(false);
-  }, [loadData, studentLoading, studentId]);
+  const loading = studentLoading || swrLoading;
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = () => {
     setRefreshing(true);
-    loadData();
-  }, [loadData]);
+    refresh().finally(() => setRefreshing(false));
+  };
 
   if (loading) return <DashboardSkeleton />;
   if (!data) return null;

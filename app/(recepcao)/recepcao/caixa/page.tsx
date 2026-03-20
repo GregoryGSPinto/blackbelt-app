@@ -11,6 +11,8 @@ import { getCaixa, registrarRecebimento } from '@/lib/api/recepcao-caixa.service
 import type { CaixaDia } from '@/lib/api/recepcao-caixa.service';
 import { PlusIcon } from '@/components/shell/icons';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -68,8 +70,8 @@ export default function RecepcaoCaixaPage() {
       try {
         const result = await getCaixa();
         if (!cancelled) setData(result);
-      } catch {
-        if (!cancelled) toast('Erro ao carregar caixa', 'error');
+      } catch (err) {
+        if (!cancelled) toast(translateError(err), 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -91,8 +93,8 @@ export default function RecepcaoCaixaPage() {
       // Reload
       const result = await getCaixa();
       setData(result);
-    } catch {
-      toast('Erro ao registrar recebimento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setNovoLoading(false);
     }
@@ -196,6 +198,16 @@ export default function RecepcaoCaixaPage() {
 
           {/* Rows */}
           <div className="space-y-1 mt-1">
+            {data.recebimentos.length === 0 && (
+              <EmptyState
+                icon="💵"
+                title="Nenhum recebimento hoje"
+                description="Registre pagamentos recebidos no caixa do dia."
+                actionLabel="Novo Recebimento"
+                onAction={() => setNovoOpen(true)}
+                variant="first-time"
+              />
+            )}
             {data.recebimentos.map((r) => (
               <div
                 key={r.id}

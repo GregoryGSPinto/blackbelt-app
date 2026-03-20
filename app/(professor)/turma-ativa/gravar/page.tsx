@@ -5,6 +5,7 @@ import { uploadTrainingVideo, type TrainingVideoDTO } from '@/lib/api/training-v
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STUDENTS = [
   { id: 'student-1', name: 'João Pedro Mendes' },
@@ -86,9 +87,9 @@ export default function GravarTecnicaPage() {
       setProgress(100);
       setUploaded(result);
       toast('Vídeo enviado com sucesso!', 'success');
-    } catch {
+    } catch (err) {
       clearInterval(progressInterval);
-      toast('Erro ao enviar vídeo', 'error');
+      toast(translateError(err), 'error');
     } finally {
       setUploading(false);
     }

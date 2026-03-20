@@ -6,6 +6,9 @@ import type { AutomationConfig } from '@/lib/types/notification';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CHANNEL_ICONS: Record<string, string> = {
   push: '📱',
@@ -29,8 +32,8 @@ export default function AutomacoesPage() {
       const updated = await toggleAutomation(id, enabled);
       setAutomations((prev) => prev.map((a) => (a.id === id ? updated : a)));
       toast(enabled ? 'Automação ativada' : 'Automação desativada', 'success');
-    } catch {
-      toast('Erro ao alterar automação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -39,6 +42,7 @@ export default function AutomacoesPage() {
   const activeCount = automations.filter((a) => a.enabled).length;
 
   return (
+    <PlanGate module="whatsapp">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
@@ -46,6 +50,15 @@ export default function AutomacoesPage() {
           <p className="text-sm text-bb-gray-500">{activeCount} de {automations.length} ativas</p>
         </div>
       </div>
+
+      {automations.length === 0 && (
+        <EmptyState
+          icon="⚡"
+          title="Nenhuma automação configurada"
+          description="Crie automações para enviar lembretes, alertas de inatividade e mensagens automáticas."
+          variant="first-time"
+        />
+      )}
 
       <div className="space-y-3">
         {automations.map((auto) => (
@@ -86,5 +99,6 @@ export default function AutomacoesPage() {
         ))}
       </div>
     </div>
+    </PlanGate>
   );
 }

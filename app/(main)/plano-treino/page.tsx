@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function PlanoTreinoPage() {
   const { toast } = useToast();
@@ -24,7 +25,7 @@ export default function PlanoTreinoPage() {
   useEffect(() => {
     getActivePlan('student-1')
       .then(setPlan)
-      .catch(() => toast('Erro ao carregar plano', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -49,8 +50,8 @@ export default function PlanoTreinoPage() {
         return next;
       });
       if (isCompleting) toast('Exercício registrado!', 'success');
-    } catch {
-      toast('Erro ao registrar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { getRecepcaoDashboard } from '@/lib/api/recepcao-dashboard.service';
 import type { RecepcaoDashboardDTO } from '@/lib/api/recepcao-dashboard.service';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import {
   UsersIcon,
   CalendarIcon,
@@ -36,8 +37,10 @@ function getUrgenciaColor(u: string): string {
 // ── Component ──────────────────────────────────────────────────────
 
 export default function RecepcaoDashboardPage() {
-  const [data, setData] = useState<RecepcaoDashboardDTO | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useSWRFetch<RecepcaoDashboardDTO>(
+    'recepcao-dashboard',
+    () => getRecepcaoDashboard(),
+  );
   const [clock, setClock] = useState('');
   const { toast } = useToast();
 
@@ -50,22 +53,6 @@ export default function RecepcaoDashboardPage() {
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const result = await getRecepcaoDashboard();
-        if (!cancelled) setData(result);
-      } catch {
-        if (!cancelled) toast('Erro ao carregar dashboard', 'error');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [toast]);
 
   // ── Loading ───────────────────────────────────────────────────────
 

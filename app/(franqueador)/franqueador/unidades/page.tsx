@@ -13,6 +13,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 type UnitStatus = UnidadeFranquia['status'];
 
@@ -71,8 +72,8 @@ export default function UnidadesFranqueadorPage() {
       );
       setStatusModal(null);
       toast(`Status de ${updated.name} alterado para ${STATUS_LABEL[newStatus]}`, 'success');
-    } catch {
-      toast('Erro ao alterar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setUpdating(false);
     }

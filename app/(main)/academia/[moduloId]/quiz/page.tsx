@@ -15,6 +15,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 /* ── Skeleton ────────────────────────────────────────────────────── */
 
@@ -149,6 +150,7 @@ export default function QuizPage() {
 
   if (showReview && resultado && quiz) {
     return (
+      <PlanGate module="academia_teorica">
       <div className="max-w-2xl mx-auto space-y-4 p-4 md:p-6 pb-24">
         <button
           onClick={() => setShowReview(false)}
@@ -238,6 +240,7 @@ export default function QuizPage() {
           Voltar ao resultado
         </Button>
       </div>
+      </PlanGate>
     );
   }
 
@@ -248,6 +251,7 @@ export default function QuizPage() {
     const scorePct = resultado.nota;
 
     return (
+      <PlanGate module="academia_teorica">
       <div className="max-w-2xl mx-auto flex flex-col items-center justify-center p-4 md:p-6 pb-24">
         {/* Score circle */}
         <div
@@ -346,6 +350,7 @@ export default function QuizPage() {
           </Link>
         </div>
       </div>
+      </PlanGate>
     );
   }
 
@@ -358,6 +363,7 @@ export default function QuizPage() {
   const progressPct = ((currentIndex + 1) / quiz.perguntas.length) * 100;
 
   return (
+    <PlanGate module="academia_teorica">
     <div className="max-w-2xl mx-auto space-y-5 p-4 md:p-6 pb-24">
       {/* Back link */}
       <Link
@@ -533,5 +539,6 @@ export default function QuizPage() {
         </Button>
       )}
     </div>
+    </PlanGate>
   );
 }

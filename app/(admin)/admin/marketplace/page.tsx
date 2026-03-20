@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function AdminMarketplacePage() {
   const { toast } = useToast();
@@ -51,6 +52,7 @@ export default function AdminMarketplacePage() {
   ];
 
   return (
+    <PlanGate module="marketplace">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Marketplace - Admin</h1>
 
@@ -216,5 +218,6 @@ export default function AdminMarketplacePage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

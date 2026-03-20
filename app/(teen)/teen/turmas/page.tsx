@@ -5,6 +5,7 @@ import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Mock class data (derived from dashboard context)
@@ -100,13 +101,15 @@ export default function TeenTurmasPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data || classes.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">📋</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Sem turmas</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-          Você ainda não está matriculado em nenhuma turma.
-        </p>
-      </div>
+      <PlanGate module="teen_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">📋</span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Sem turmas</h2>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+            Você ainda não está matriculado em nenhuma turma.
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -118,7 +121,8 @@ export default function TeenTurmasPage() {
     .sort((a, b) => (DAY_ORDER[a.day] ?? 8) - (DAY_ORDER[b.day] ?? 8));
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         {/* Header */}
         <div>
@@ -200,6 +204,7 @@ export default function TeenTurmasPage() {
           </section>
         ))}
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

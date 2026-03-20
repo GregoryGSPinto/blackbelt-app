@@ -13,6 +13,7 @@ import {
   BookMarkedIcon,
   CheckIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Position/Category maps per modalidade ───────────────────────────
 const BJJ_POSITIONS = ['Guarda Fechada', 'Meia Guarda', 'Guarda Aberta', 'Em Pe', 'Montada', 'Costas', 'Side Control', 'Tartaruga'];
@@ -110,8 +111,8 @@ export default function BancoTecnicasPage() {
     try {
       const data = await listTecnicas(filtros);
       setTecnicas(data);
-    } catch {
-      toast('Erro ao carregar tecnicas', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -163,8 +164,8 @@ export default function BancoTecnicasPage() {
       setShowCreateModal(false);
       resetForm();
       await loadTecnicas();
-    } catch {
-      toast('Erro ao criar tecnica', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

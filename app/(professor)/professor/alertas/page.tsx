@@ -23,6 +23,7 @@ import {
   ChevronRightIcon,
   CheckIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -97,8 +98,8 @@ export default function AlertasProfessorPage() {
     try {
       const data = await getAlertas('prof-1');
       setAlertas(data);
-    } catch {
-      toast('Erro ao carregar alertas', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -114,8 +115,8 @@ export default function AlertasProfessorPage() {
       setAlertas((prev) =>
         prev.map((a) => (a.id === alertaId ? { ...a, lido: true } : a)),
       );
-    } catch {
-      toast('Erro ao marcar como lido', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -124,8 +125,8 @@ export default function AlertasProfessorPage() {
       await marcarTodosLidos('prof-1');
       setAlertas((prev) => prev.map((a) => ({ ...a, lido: true })));
       toast('Todos os alertas marcados como lidos', 'success');
-    } catch {
-      toast('Erro ao marcar todos como lidos', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

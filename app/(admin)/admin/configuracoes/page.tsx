@@ -27,6 +27,7 @@ import {
   uploadAcademyLogo,
 } from '@/lib/api/preferences.service';
 import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -108,8 +109,8 @@ export default function AdminConfiguracoesPage() {
         ]);
         setPrefs(p);
         setAcademy(a);
-      } catch {
-        toast('Erro ao carregar configuracoes', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -125,8 +126,8 @@ export default function AdminConfiguracoesPage() {
         await updateUserPreferences(MOCK_PROFILE_ID, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
-      } catch {
-        toast('Erro ao salvar', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       }
     },
     [toast],
@@ -138,8 +139,8 @@ export default function AdminConfiguracoesPage() {
         await updateAcademySettings(MOCK_ACADEMY_ID, partial);
         setAcademy((a) => (a ? { ...a, ...partial } : a));
         toast('Salvo!', 'success');
-      } catch {
-        toast('Erro ao salvar', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       }
     },
     [toast],
@@ -166,8 +167,8 @@ export default function AdminConfiguracoesPage() {
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmarSenha('');
-    } catch {
-      toast('Erro ao alterar senha.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -175,8 +176,8 @@ export default function AdminConfiguracoesPage() {
     try {
       await uploadAvatar(MOCK_PROFILE_ID, file);
       toast('Avatar atualizado!', 'success');
-    } catch {
-      toast('Erro ao enviar avatar.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -184,8 +185,8 @@ export default function AdminConfiguracoesPage() {
     try {
       await uploadAcademyLogo(MOCK_ACADEMY_ID, file);
       toast('Logo atualizada!', 'success');
-    } catch {
-      toast('Erro ao enviar logo.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -672,8 +673,8 @@ export default function AdminConfiguracoesPage() {
                   try {
                     await exportUserData(MOCK_PROFILE_ID);
                     toast('Exportacao iniciada! Voce recebera o arquivo por email.', 'success');
-                  } catch {
-                    toast('Erro ao exportar dados.', 'error');
+                  } catch (err) {
+                    toast(translateError(err), 'error');
                   }
                 }}
                 className="px-4 py-2 text-sm font-medium"

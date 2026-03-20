@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ export default function EventosPage() {
   useEffect(() => {
     getEvents('academy-1')
       .then(setEvents)
-      .catch(() => toast('Erro ao carregar eventos', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -84,8 +85,8 @@ export default function EventosPage() {
       } else {
         toast('Inscricao confirmada!', 'success');
       }
-    } catch {
-      toast('Erro na inscricao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setRegistering(null);
     }

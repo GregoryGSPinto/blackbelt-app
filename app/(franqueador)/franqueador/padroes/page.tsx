@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CATEGORY_LABEL: Record<StandardCategory, string> = {
   visual: 'Visual',
@@ -98,8 +99,8 @@ export default function PadroesPage() {
       setShowCreate(false);
       setForm({ category: 'visual', name: '', description: '', required: true, checklist_items: [''], deadline: '' });
       toast('Padrao criado com sucesso', 'success');
-    } catch {
-      toast('Erro ao criar padrao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -108,8 +109,8 @@ export default function PadroesPage() {
     try {
       const report = await checkCompliance(selectedAcademy);
       setComplianceReport(report);
-    } catch {
-      toast('Erro ao verificar conformidade', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setChecking(false);
     }

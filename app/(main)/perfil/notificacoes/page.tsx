@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const TEMPLATE_LABELS: Record<NotificationTemplate, string> = {
   aula_em_breve: 'Lembrete de Aula',
@@ -58,8 +59,8 @@ export default function NotificacoesPage() {
     try {
       await updateNotificationPreferences('user-1', prefs);
       toast('Preferências salvas', 'success');
-    } catch {
-      toast('Erro ao salvar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

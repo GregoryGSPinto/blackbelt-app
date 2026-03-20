@@ -9,6 +9,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { cadastrarRapido, getPlanos, getTurmasDisponiveis } from '@/lib/api/recepcao-cadastro.service';
 import type { CadastroRapido, CadastroResult, PlanoResumo, TurmaResumo } from '@/lib/api/recepcao-cadastro.service';
 import { CheckIcon } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -93,8 +94,8 @@ export default function RecepcaoCadastroPage() {
       try {
         const [p, t] = await Promise.all([getPlanos(), getTurmasDisponiveis()]);
         if (!cancelled) { setPlanos(p); setTurmas(t); }
-      } catch {
-        if (!cancelled) toast('Erro ao carregar dados', 'error');
+      } catch (err) {
+        if (!cancelled) toast(translateError(err), 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -128,8 +129,8 @@ export default function RecepcaoCadastroPage() {
       const res = await cadastrarRapido(data);
       setResult(res);
       toast('Aluno cadastrado com sucesso!', 'success');
-    } catch {
-      toast('Erro ao cadastrar aluno', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -146,8 +147,8 @@ export default function RecepcaoCadastroPage() {
       });
       toast('Experimental agendada com sucesso!', 'success');
       setExpNome(''); setExpTelefone(''); setExpEmail(''); setExpModalidade(''); setExpTurma(''); setExpData('');
-    } catch {
-      toast('Erro ao agendar experimental', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -164,8 +165,8 @@ export default function RecepcaoCadastroPage() {
       });
       toast('Lead salvo com sucesso!', 'success');
       setLeadNome(''); setLeadTelefone(''); setLeadModalidade(''); setLeadObs('');
-    } catch {
-      toast('Erro ao salvar lead', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSubmitting(false);
     }

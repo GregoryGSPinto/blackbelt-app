@@ -8,6 +8,7 @@ import type {
   TeenNextAchievementDTO,
 } from '@/lib/api/teen.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Extended mock achievements for the full page
@@ -100,13 +101,15 @@ export default function TeenConquistasPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">🎖️</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma conquista ainda</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-          Continue treinando para desbloquear suas primeiras conquistas!
-        </p>
-      </div>
+      <PlanGate module="teen_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">🎖️</span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma conquista ainda</h2>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+            Continue treinando para desbloquear suas primeiras conquistas!
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -122,7 +125,8 @@ export default function TeenConquistasPage() {
   const categories: FilterCategory[] = ['all', 'treino', 'faixa', 'social', 'streak', 'competicao'];
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div>
@@ -288,6 +292,7 @@ export default function TeenConquistasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PlanGate>
   );
 }

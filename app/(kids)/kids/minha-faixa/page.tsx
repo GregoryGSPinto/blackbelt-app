@@ -5,6 +5,7 @@ import { getFaixaKids } from '@/lib/api/kids-faixa.service';
 import type { FaixaKids } from '@/lib/api/kids-faixa.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function KidsFaixaPage() {
   const [faixa, setFaixa] = useState<FaixaKids | null>(null);
@@ -44,6 +45,7 @@ export default function KidsFaixaPage() {
   const totalTasks = faixa.coisasBoas.length;
 
   return (
+    <PlanGate module="kids_module">
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         {/* ── Header ─── */}
@@ -244,5 +246,6 @@ export default function KidsFaixaPage() {
         </section>
       </div>
     </div>
+    </PlanGate>
   );
 }

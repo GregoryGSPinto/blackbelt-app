@@ -6,6 +6,7 @@ import type { InvoiceWithDetails } from '@/lib/api/faturas.service';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Filho {
   id: string;
@@ -92,6 +93,16 @@ export default function ParentPagamentosPage() {
                 <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Ação</th>
               </tr></thead>
               <tbody>
+                {filhoInvoices.length === 0 && (
+                  <tr><td colSpan={4}>
+                    <EmptyState
+                      icon="📄"
+                      title="Nenhuma fatura encontrada"
+                      description="As faturas do seu filho aparecerão aqui quando forem geradas."
+                      variant="first-time"
+                    />
+                  </td></tr>
+                )}
                 {filhoInvoices.map((inv) => (
                   <tr key={inv.id} className={`border-b border-bb-gray-100 ${inv.status === 'uncollectible' ? 'bg-red-50' : ''}`}>
                     <td className="px-4 py-3 text-bb-black">{new Date(inv.due_date).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</td>

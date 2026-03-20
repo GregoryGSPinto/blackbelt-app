@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CLASSES = [
   { id: 'class-1', name: 'BJJ Iniciante', time: '19:00-20:30' },
@@ -92,8 +93,8 @@ export default function SubstituicaoPage() {
     try {
       const teachers = await getAvailableTeachers(date, '19:00-20:30');
       setAvailableTeachers(teachers);
-    } catch {
-      toast('Erro ao buscar professores disponíveis', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoadingTeachers(false);
     }
@@ -119,8 +120,8 @@ export default function SubstituicaoPage() {
       setShowCreate(false);
       resetForm();
       toast('Substituição criada. Alunos notificados!', 'success');
-    } catch {
-      toast('Erro ao criar substituição', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }

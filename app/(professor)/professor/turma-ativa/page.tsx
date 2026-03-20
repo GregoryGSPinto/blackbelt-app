@@ -20,6 +20,7 @@ import {
   BookOpenIcon,
   ClipboardCheckIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Belt color map ────────────────────────────────────────────────────
 
@@ -113,8 +114,8 @@ export default function TurmaAtivaPage() {
         setData(result);
         setAlunos(result.alunos);
         setAlertas(result.alertas);
-      } catch {
-        toast('Erro ao carregar dados da aula', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -176,11 +177,11 @@ export default function TurmaAtivaPage() {
 
     try {
       await registrarPresenca('turma-bjj-noite', alunoId, novoEstado);
-    } catch {
+    } catch (err) {
       setAlunos((prev) =>
         prev.map((a) => (a.id === alunoId ? { ...a, presente: !novoEstado } : a)),
       );
-      toast('Erro ao registrar presenca', 'error');
+      toast(translateError(err), 'error');
     }
   }
 
@@ -191,8 +192,8 @@ export default function TurmaAtivaPage() {
       const result = await encerrarAula('turma-bjj-noite');
       setSummaryData(result);
       setShowSummary(true);
-    } catch {
-      toast('Erro ao encerrar aula', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

@@ -10,6 +10,8 @@ import {
   BarChartIcon,
   StarIcon,
 } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type SortKey = 'retention_rate' | 'avg_attendance' | 'avg_evaluation' | 'total_students';
 
@@ -42,6 +44,7 @@ export default function ProfessorAnalyticsPage() {
   ];
 
   return (
+    <PlanGate module="relatorios">
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
@@ -77,6 +80,14 @@ export default function ProfessorAnalyticsPage() {
         </div>
       ) : (
         <div className="space-y-4">
+          {sorted.length === 0 && (
+            <EmptyState
+              icon="👨‍🏫"
+              title="Nenhum professor encontrado"
+              description="Cadastre professores na sua academia para visualizar métricas de desempenho."
+              variant="first-time"
+            />
+          )}
           {sorted.map((prof, idx) => (
             <div
               key={prof.professor_id}
@@ -146,6 +157,7 @@ export default function ProfessorAnalyticsPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }
 

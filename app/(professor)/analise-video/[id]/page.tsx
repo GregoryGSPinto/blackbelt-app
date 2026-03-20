@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 type Tab = 'manual' | 'ai' | 'comparison';
 
@@ -47,8 +48,8 @@ export default function AnaliseVideoPage() {
       });
       setVideo((prev) => prev ? { ...prev, annotations: [...prev.annotations, newAnn] } : prev);
       toast('Anotação adicionada', 'success');
-    } catch {
-      toast('Erro ao adicionar anotação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }, [video, toast]);
 
@@ -60,8 +61,8 @@ export default function AnaliseVideoPage() {
       setAiAnalysis(result);
       setActiveTab('ai');
       toast('Análise IA concluída', 'success');
-    } catch {
-      toast('Erro na análise IA', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setAnalyzing(false);
     }
@@ -75,8 +76,8 @@ export default function AnaliseVideoPage() {
       setComparison(result);
       setActiveTab('comparison');
       toast('Comparação concluída', 'success');
-    } catch {
-      toast('Erro na comparação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setComparing(false);
     }

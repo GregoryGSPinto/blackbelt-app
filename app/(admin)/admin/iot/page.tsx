@@ -16,6 +16,8 @@ import {
   type DeviceAlert,
 } from '@/lib/api/iot.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -76,7 +78,7 @@ export default function IoTPage() {
         setOccupancy(o);
         setAlerts(al);
       })
-      .catch(() => toast('Erro ao carregar dados IoT', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -147,6 +149,14 @@ export default function IoTPage() {
       {/* Devices Tab */}
       {tab === 'devices' && (
         <div className="space-y-3">
+          {devices.length === 0 && (
+            <EmptyState
+              icon="📡"
+              title="Nenhum dispositivo cadastrado"
+              description="Adicione catracas, beacons, displays ou sensores para monitorar sua academia."
+              variant="first-time"
+            />
+          )}
           {devices.map((device) => {
             const status = STATUS_COLORS[device.status];
             return (
@@ -187,6 +197,16 @@ export default function IoTPage() {
             </div>
           </div>
           <div className="divide-y divide-bb-gray-100">
+            {liveAccess.length === 0 && (
+              <div className="p-4">
+                <EmptyState
+                  icon="🚶"
+                  title="Nenhum acesso registrado"
+                  description="Os acessos aparecerão aqui em tempo real conforme alunos entram e saem."
+                  variant="first-time"
+                />
+              </div>
+            )}
             {liveAccess.map((ev) => (
               <div key={ev.id} className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">

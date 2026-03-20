@@ -5,6 +5,9 @@ import { listLeads, updateLeadStatus, type LeadDTO, type LeadStatus } from '@/li
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_PIPELINE: LeadStatus[] = ['novo', 'contatado', 'agendado', 'compareceu', 'matriculou', 'desistiu'];
 const STATUS_LABEL: Record<LeadStatus, string> = { novo: 'Novo', contatado: 'Contatado', agendado: 'Agendado', compareceu: 'Compareceu', matriculou: 'Matriculou', desistiu: 'Desistiu' };
@@ -24,8 +27,8 @@ export default function LeadsPage() {
       await updateLeadStatus(id, status);
       setLeads((prev) => prev.map((l) => l.id === id ? { ...l, status } : l));
       toast(`Status atualizado para ${STATUS_LABEL[status]}`, 'success');
-    } catch {
-      toast('Erro ao atualizar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -35,10 +38,19 @@ export default function LeadsPage() {
   const activeStatuses: LeadStatus[] = ['novo', 'contatado', 'agendado', 'compareceu'];
 
   return (
+    <PlanGate module="landing_page">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Leads — Aulas Experimentais</h1>
 
       {/* Pipeline Kanban */}
+      {leads.length === 0 && (
+        <EmptyState
+          icon="🎯"
+          title="Nenhum lead cadastrado"
+          description="Quando novos interessados agendarem aulas experimentais, eles aparecerão aqui no pipeline."
+          variant="first-time"
+        />
+      )}
       <div className="grid grid-cols-4 gap-4">
         {activeStatuses.map((status) => {
           const statusLeads = leads.filter((l) => l.status === status);
@@ -70,5 +82,6 @@ export default function LeadsPage() {
         })}
       </div>
     </div>
+    </PlanGate>
   );
 }

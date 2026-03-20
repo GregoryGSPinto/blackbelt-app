@@ -22,6 +22,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 const DEFAULT_CLASS_ID = 'class-bjj-noite';
@@ -214,8 +215,8 @@ export default function PlanoAulaPage() {
       resetForm();
       setActiveTab('plans');
       toast('Plano de aula criado com sucesso!', 'success');
-    } catch {
-      toast('Erro ao criar plano de aula', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -243,8 +244,8 @@ export default function PlanoAulaPage() {
       setNoteHighlights([]);
       setNoteAttendance(0);
       toast('Observacao salva com sucesso!', 'success');
-    } catch {
-      toast('Erro ao salvar observacao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

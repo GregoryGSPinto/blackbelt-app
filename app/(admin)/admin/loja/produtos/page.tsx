@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimono', faixa: 'Faixa', equipamento: 'Equipamento',
@@ -99,8 +101,8 @@ export default function AdminProdutosPage() {
         toast('Produto criado', 'success');
       }
       setShowForm(false);
-    } catch {
-      toast('Erro ao salvar produto', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
@@ -111,14 +113,15 @@ export default function AdminProdutosPage() {
       await deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast('Produto removido', 'success');
-    } catch {
-      toast('Erro ao remover produto', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
 
   return (
+    <PlanGate module="loja">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-bb-black">Produtos</h1>
@@ -399,5 +402,6 @@ export default function AdminProdutosPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

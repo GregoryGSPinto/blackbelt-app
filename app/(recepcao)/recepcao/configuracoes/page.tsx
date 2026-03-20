@@ -20,6 +20,7 @@ import {
   uploadAvatar,
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -79,8 +80,8 @@ export default function RecepcaoConfiguracoesPage() {
       try {
         const p = await getUserPreferences(MOCK_PROFILE_ID);
         setPrefs(p);
-      } catch {
-        toast('Erro ao carregar configuracoes', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -94,8 +95,8 @@ export default function RecepcaoConfiguracoesPage() {
         await updateUserPreferences(MOCK_PROFILE_ID, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
-      } catch {
-        toast('Erro ao salvar', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       }
     },
     [toast],
@@ -116,8 +117,8 @@ export default function RecepcaoConfiguracoesPage() {
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmarSenha('');
-    } catch {
-      toast('Erro ao alterar senha.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -165,8 +166,8 @@ export default function RecepcaoConfiguracoesPage() {
                   try {
                     await uploadAvatar(MOCK_PROFILE_ID, file);
                     toast('Avatar atualizado!', 'success');
-                  } catch {
-                    toast('Erro ao enviar avatar.', 'error');
+                  } catch (err) {
+                    toast(translateError(err), 'error');
                   }
                 }}
                 size="lg"

@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STAGES: PipelineStage[] = ['lead', 'analise', 'aprovado', 'setup', 'operando'];
 const STAGE_LABEL: Record<PipelineStage, string> = { lead: 'Lead', analise: 'Analise', aprovado: 'Aprovado', setup: 'Setup', operando: 'Operando' };
@@ -86,8 +87,8 @@ export default function ExpansaoPage() {
       setShowCreate(false);
       setForm({ name: '', email: '', phone: '', city: '', state: '', investment_capacity: 0, experience: '', notes: '' });
       toast('Lead adicionado ao pipeline', 'success');
-    } catch {
-      toast('Erro ao criar lead', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -96,8 +97,8 @@ export default function ExpansaoPage() {
       await updateLeadStatus(leadId, newStage);
       setLeads((prev) => prev.map((l) => l.id === leadId ? { ...l, stage: newStage, updated_at: new Date().toISOString() } : l));
       toast(`Lead movido para ${STAGE_LABEL[newStage]}`, 'success');
-    } catch {
-      toast('Erro ao atualizar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -106,8 +107,8 @@ export default function ExpansaoPage() {
     try {
       const result = await analyzeViability(location);
       setViabilityResult(result);
-    } catch {
-      toast('Erro na analise de viabilidade', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setAnalyzingViability(false);
     }

@@ -15,6 +15,8 @@ import type {
 } from '@/lib/types/announcement';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const STATUS_LABEL: Record<AnnouncementStatus, string> = {
   draft: 'Rascunho',
@@ -62,8 +64,8 @@ export default function ComunicadosPage() {
         ]);
         setAnnouncements(anns);
         setStats(s);
-      } catch {
-        toast('Erro ao carregar comunicados', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -102,8 +104,8 @@ export default function ComunicadosPage() {
       setAnnouncements((prev) => [ann, ...prev]);
       toast('Comunicado criado com sucesso!', 'success');
       handleCloseCreate();
-    } catch {
-      toast('Erro ao criar comunicado', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -114,8 +116,8 @@ export default function ComunicadosPage() {
         prev.map((a) => (a.id === id ? updated : a)),
       );
       toast('Comunicado publicado!', 'success');
-    } catch {
-      toast('Erro ao publicar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -164,6 +166,7 @@ export default function ComunicadosPage() {
   }
 
   return (
+    <PlanGate module="mensagens">
     <div className="min-h-screen space-y-6 p-4 sm:p-6" data-stagger>
       {/* ── Header ──────────────────────────────────────────────── */}
       <section className="animate-reveal flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -609,5 +612,6 @@ export default function ComunicadosPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

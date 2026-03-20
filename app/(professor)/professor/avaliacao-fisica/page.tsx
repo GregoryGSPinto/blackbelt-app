@@ -15,6 +15,9 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const MEASUREMENT_LABELS: Record<keyof Measurements, string> = {
   weight_kg: 'Peso (kg)',
@@ -69,8 +72,8 @@ export default function AvaliacaoFisicaProfessorPage() {
       setAssessments((prev) => [...prev, assessment]);
       setShowForm(false);
       toast('Avaliação registrada', 'success');
-    } catch {
-      toast('Erro ao registrar avaliação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -78,8 +81,8 @@ export default function AvaliacaoFisicaProfessorPage() {
     try {
       const result = await compareAssessments('student-1', id1, id2);
       setComparison(result);
-    } catch {
-      toast('Erro ao comparar avaliações', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -94,6 +97,7 @@ export default function AvaliacaoFisicaProfessorPage() {
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
+    <PlanGate module="avaliacoes">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-bb-black">Avaliação Física</h1>
@@ -108,6 +112,16 @@ export default function AvaliacaoFisicaProfessorPage() {
       </select>
 
       {/* Assessment History */}
+      {assessments.length === 0 && (
+        <EmptyState
+          icon="📊"
+          title="Nenhuma avaliação física registrada"
+          description="Registre avaliações físicas dos alunos para acompanhar a evolução corporal e de desempenho."
+          actionLabel="Nova Avaliação"
+          onAction={() => setShowForm(true)}
+          variant="first-time"
+        />
+      )}
       <div className="space-y-3">
         {assessments.map((a, idx) => (
           <Card key={a.id} className="p-4">
@@ -250,5 +264,6 @@ export default function AvaliacaoFisicaProfessorPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

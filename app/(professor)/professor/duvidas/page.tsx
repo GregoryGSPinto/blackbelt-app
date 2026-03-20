@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { SearchIcon, MessageIcon } from '@/components/shell/icons';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -136,6 +137,7 @@ export default function ProfessorDuvidasPage() {
   // ── Render ───────────────────────────────────────────────────────
 
   return (
+    <PlanGate module="conteudo">
     <div className="min-h-screen pb-20" style={{ background: 'var(--bb-depth-1)' }}>
       {/* Header */}
       <div className="px-4 pt-6 pb-2" style={{ background: 'var(--bb-depth-2)' }}>
@@ -398,6 +400,7 @@ export default function ProfessorDuvidasPage() {
         ))}
       </div>
     </div>
+    </PlanGate>
   );
 }
 

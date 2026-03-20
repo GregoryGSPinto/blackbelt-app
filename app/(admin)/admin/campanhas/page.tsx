@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_COLOR: Record<CampaignStatus, string> = {
   draft: 'bg-bb-gray-100 text-bb-gray-700',
@@ -90,8 +92,8 @@ export default function CampanhasPage() {
       setFormName('');
       setFormSchedule('');
       toast('Campanha criada com sucesso!', 'success');
-    } catch {
-      toast('Erro ao criar campanha', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -152,6 +154,18 @@ export default function CampanhasPage() {
               </tr>
             </thead>
             <tbody>
+              {campaigns.length === 0 && (
+                <tr><td colSpan={8}>
+                  <EmptyState
+                    icon="📣"
+                    title="Nenhuma campanha criada"
+                    description="Crie campanhas de marketing para engajar alunos inativos e promover upgrades."
+                    actionLabel="Nova Campanha"
+                    onAction={() => setShowCreate(true)}
+                    variant="first-time"
+                  />
+                </td></tr>
+              )}
               {campaigns.map((camp) => {
                 const metrics = metricsMap[camp.id];
                 return (

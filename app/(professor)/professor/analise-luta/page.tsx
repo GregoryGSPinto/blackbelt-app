@@ -14,6 +14,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const MOCK_STUDENTS = [
   { id: 'student-1', name: 'Lucas Silva', belt: 'Azul' },
@@ -63,8 +65,8 @@ export default function ProfessorAnaliseLutaPage() {
       ]);
       setAnalysis(result);
       setAnnotations(anns);
-    } catch {
-      toast('Erro ao analisar luta', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -81,8 +83,8 @@ export default function ProfessorAnaliseLutaPage() {
       setAnnotationText('');
       setAnnotationTime('');
       toast('Anotação adicionada', 'success');
-    } catch {
-      toast('Erro ao adicionar anotação', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setAddingAnnotation(false);
     }
@@ -93,12 +95,13 @@ export default function ProfessorAnaliseLutaPage() {
     try {
       await shareAnalysis(selectedVideo, selectedStudent);
       toast('Análise compartilhada com o aluno!', 'success');
-    } catch {
-      toast('Erro ao compartilhar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }, [selectedVideo, selectedStudent, toast]);
 
   return (
+    <PlanGate module="compete">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Análise de Lutas — Professor</h1>
 
@@ -265,5 +268,6 @@ export default function ProfessorAnaliseLutaPage() {
         </>
       )}
     </div>
+    </PlanGate>
   );
 }

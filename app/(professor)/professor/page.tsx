@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 
 import {
   UsersIcon,
@@ -311,20 +312,12 @@ function StatCard({ label, value, icon, accent, inView }: StatCardProps) {
 
 export default function ProfessorDashboardPage() {
   const { profile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [duvidasPendentes, setDuvidasPendentes] = useState<(Duvida & { videoTitulo: string; videoId: string })[]>([]);
+  const { data: duvidasPendentes, loading } = useSWRFetch<(Duvida & { videoTitulo: string; videoId: string })[]>(
+    'professor-duvidas-pendentes',
+    () => getDuvidasPendentes(),
+  );
 
   const statsSection = useInView(0.1);
-
-  // Simulate data load
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    getDuvidasPendentes().then(setDuvidasPendentes).catch(() => {});
-  }, []);
 
   const greeting = useMemo(() => getGreeting(), []);
   const firstName = profile?.display_name ? getFirstName(profile.display_name) : 'Professor';
@@ -851,7 +844,7 @@ export default function ProfessorDashboardPage() {
       </section>
 
       {/* ── DUVIDAS PENDENTES ─────────────────────────────────────── */}
-      {duvidasPendentes.length > 0 && (
+      {(duvidasPendentes ?? []).length > 0 && (
         <section className="animate-reveal" style={{ animationDelay: '0.37s' }}>
           <div className="mb-3 flex items-center justify-between">
             <h2
@@ -863,7 +856,7 @@ export default function ProfessorDashboardPage() {
                 className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1 text-[11px] font-bold text-white"
                 style={{ background: 'var(--bb-warning)' }}
               >
-                {duvidasPendentes.length}
+                {(duvidasPendentes ?? []).length}
               </span>
             </h2>
             <Link
@@ -876,7 +869,7 @@ export default function ProfessorDashboardPage() {
           </div>
 
           <div className="space-y-2" data-stagger>
-            {duvidasPendentes.slice(0, 3).map((duvida) => (
+            {(duvidasPendentes ?? []).slice(0, 3).map((duvida) => (
               <Link
                 key={duvida.id}
                 href={`/professor/duvidas`}

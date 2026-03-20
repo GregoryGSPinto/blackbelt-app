@@ -13,6 +13,7 @@ import type {
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { BeltLevel } from '@/lib/types/domain';
+import { translateError } from '@/lib/utils/error-translator';
 
 const BELT_LABEL: Record<string, string> = {
   white: 'Branca',
@@ -98,8 +99,8 @@ export default function AdminAlunosPage() {
         ]);
         setStudents(s);
         setStats(st);
-      } catch {
-        toast('Erro ao carregar alunos', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }

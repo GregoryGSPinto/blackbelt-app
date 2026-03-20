@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getKidsDashboard } from '@/lib/api/kids.service';
 import type { KidsDashboardDTO } from '@/lib/api/kids.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Kid-friendly achievement data
@@ -74,13 +75,15 @@ export default function KidsConquistasPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">🎖️</span>
-        <h2 className="mt-4 text-xl font-extrabold text-[var(--bb-ink-100)]">Nenhuma conquista ainda!</h2>
-        <p className="mt-2 text-center text-sm text-[var(--bb-ink-40)]">
-          Continue treinando para ganhar suas primeiras conquistas e estrelas!
-        </p>
-      </div>
+      <PlanGate module="kids_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">🎖️</span>
+          <h2 className="mt-4 text-xl font-extrabold text-[var(--bb-ink-100)]">Nenhuma conquista ainda!</h2>
+          <p className="mt-2 text-center text-sm text-[var(--bb-ink-40)]">
+            Continue treinando para ganhar suas primeiras conquistas e estrelas!
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -95,7 +98,8 @@ export default function KidsConquistasPage() {
         : KIDS_ACHIEVEMENTS.filter((a) => !a.earned);
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="kids_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div className="text-center">
@@ -263,6 +267,7 @@ export default function KidsConquistasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PlanGate>
   );
 }

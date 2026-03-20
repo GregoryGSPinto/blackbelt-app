@@ -6,6 +6,7 @@ import { listProducts } from '@/lib/api/store.service';
 import type { Product } from '@/lib/api/store.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ShoppingBag, Package, AlertTriangle, TrendingUp } from 'lucide-react';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function LojaAdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -46,6 +47,7 @@ export default function LojaAdminPage() {
   ];
 
   return (
+    <PlanGate module="loja">
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Loja</h1>
@@ -126,5 +128,6 @@ export default function LojaAdminPage() {
         </Link>
       </div>
     </div>
+    </PlanGate>
   );
 }

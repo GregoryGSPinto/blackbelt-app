@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 /* ── Constants ───────────────────────────────────────────────────── */
 
@@ -113,6 +114,7 @@ export default function GlossarioPage() {
   };
 
   return (
+    <PlanGate module="academia_teorica">
     <div className="space-y-5 p-4 md:p-6 pb-24">
       {/* Back link */}
       <Link
@@ -256,5 +258,6 @@ export default function GlossarioPage() {
         </>
       )}
     </div>
+    </PlanGate>
   );
 }

@@ -16,6 +16,8 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const PHASE_NAMES: PhaseName[] = ['base', 'build', 'peak', 'taper', 'recovery'];
 
@@ -49,8 +51,8 @@ export default function PeriodizacaoProfessorPage() {
       setMacro(created);
       setShowCreate(false);
       toast('Macrociclo criado', 'success');
-    } catch {
-      toast('Erro ao criar macrociclo', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -68,8 +70,8 @@ export default function PeriodizacaoProfessorPage() {
       });
       setEditingPhase(null);
       toast('Fase atualizada', 'success');
-    } catch {
-      toast('Erro ao atualizar fase', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -82,6 +84,7 @@ export default function PeriodizacaoProfessorPage() {
 
   if (!macro) {
     return (
+      <PlanGate module="avaliacoes">
       <div className="space-y-6 p-6">
         <h1 className="text-xl font-bold text-bb-black">Periodização</h1>
         <Card className="p-6 text-center">
@@ -96,6 +99,7 @@ export default function PeriodizacaoProfessorPage() {
           </div>
         </Modal>
       </div>
+      </PlanGate>
     );
   }
 
@@ -106,6 +110,7 @@ export default function PeriodizacaoProfessorPage() {
   const daysUntil = Math.max(0, Math.ceil((competitionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
 
   return (
+    <PlanGate module="avaliacoes">
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-bb-black">Periodização</h1>
@@ -257,5 +262,6 @@ export default function PeriodizacaoProfessorPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }

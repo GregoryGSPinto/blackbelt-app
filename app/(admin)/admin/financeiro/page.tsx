@@ -18,6 +18,7 @@ import { ReportViewer } from '@/components/reports/ReportViewer';
 import { generateFinancialReport } from '@/lib/reports/financial-report';
 import type { FinancialReportData } from '@/lib/types/report';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -84,8 +85,8 @@ export default function AdminFinanceiroPage() {
         setChart(c);
         setMensalidades(m);
         setOverdue(o);
-      } catch {
-        toast('Erro ao carregar dados financeiros', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -98,8 +99,8 @@ export default function AdminFinanceiroPage() {
       const updated = await markAsPaid(id, 'PIX');
       setMensalidades((prev) => prev.map((m) => (m.id === id ? updated : m)));
       toast('Pagamento registrado!', 'success');
-    } catch {
-      toast('Erro ao registrar pagamento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -411,8 +412,8 @@ export default function AdminFinanceiroPage() {
                     try {
                       const data = await generateFinancialReport('academy-1', 'Marco 2026');
                       setReportData(data);
-                    } catch {
-                      toast('Erro ao gerar relatorio', 'error');
+                    } catch (err) {
+                      toast(translateError(err), 'error');
                     } finally {
                       setReportLoading(false);
                     }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getDesafios, claimReward } from '@/lib/api/teen-desafios.service';
 import type { DesafiosOverview, DesafioTeen } from '@/lib/api/teen-desafios.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -100,13 +101,15 @@ export default function TeenDesafiosPage() {
   // ── Empty state ───────────────────────────────────────────
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">🎯</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhum desafio disponivel</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-          Novos desafios serao liberados em breve. Continue treinando!
-        </p>
-      </div>
+      <PlanGate module="teen_module">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
+          <span className="text-6xl">🎯</span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhum desafio disponivel</h2>
+          <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+            Novos desafios serao liberados em breve. Continue treinando!
+          </p>
+        </div>
+      </PlanGate>
     );
   }
 
@@ -117,7 +120,8 @@ export default function TeenDesafiosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
+    <PlanGate module="teen_module">
+      <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
         {/* Header */}
         <div>
@@ -277,6 +281,7 @@ export default function TeenDesafiosPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

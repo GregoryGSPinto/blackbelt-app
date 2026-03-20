@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false });
@@ -60,7 +61,7 @@ export default function SaudePage() {
         setMetrics(m);
         setHasWearable(m.device_connected);
       })
-      .catch(() => toast('Erro ao carregar dados de saúde', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -24,6 +24,7 @@ import {
   type AcademiaHealthScore,
 } from '@/lib/api/superadmin-health.service';
 import { startImpersonation } from '@/lib/api/superadmin-impersonate.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -276,8 +277,8 @@ export default function AcademiasPage() {
       setCreatedToken(result.onboardToken);
       toast('Academia criada! Link de onboarding gerado.', 'success');
       resetForm();
-    } catch {
-      toast('Erro ao criar academia.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -288,7 +289,7 @@ export default function AcademiasPage() {
       const updated = await suspendAcademy(academy.id);
       setAcademies((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
       toast('Academia suspensa.', 'success');
-    } catch { toast('Erro ao suspender.', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
     setConfirmAction(null);
   }
 
@@ -297,7 +298,7 @@ export default function AcademiasPage() {
       const updated = await reactivateAcademy(academy.id);
       setAcademies((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
       toast('Academia reativada.', 'success');
-    } catch { toast('Erro ao reativar.', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
     setConfirmAction(null);
   }
 
@@ -318,8 +319,8 @@ export default function AcademiasPage() {
       setSignupNotes('');
       setSignupExpiry(7);
       toast('Link de cadastro gerado!', 'success');
-    } catch {
-      toast('Erro ao gerar link.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setGeneratingLink(false);
     }
@@ -341,8 +342,8 @@ export default function AcademiasPage() {
       }
       toast(`Entrando como admin de "${academyName}"...`, 'success');
       router.push('/admin');
-    } catch {
-      toast('Erro ao iniciar impersonacao.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setImpersonatingId(null);
     }

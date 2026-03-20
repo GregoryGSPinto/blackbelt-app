@@ -58,6 +58,7 @@ import {
   generateStandardCategories,
 } from '@/lib/api/compete.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ export default function CampeonatosAdminPage() {
       const data = await getTournaments();
       setTournaments(data);
       if (data.length > 0 && !selectedTournament) setSelectedTournament(data[0]);
-    } catch { toast('Erro ao carregar campeonatos', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
     finally { setLoading(false); }
   }, [toast, selectedTournament]);
 
@@ -154,7 +155,7 @@ export default function CampeonatosAdminPage() {
         const [m, r] = await Promise.all([getMedalTable(tid), getTournamentStats(tid)]);
         setMedalTableData(m); setStats(r);
       }
-    } catch { toast('Erro ao carregar dados', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }, [selectedTournament, activeTab, toast, selectedBracketCat]);
 
   useEffect(() => { loadTabData(); }, [selectedTournament?.id, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -190,7 +191,7 @@ export default function CampeonatosAdminPage() {
       setTournaments((prev) => [t, ...prev]); setShowCreateModal(false);
       setNewName(''); setNewDate(''); setNewLocation(''); setNewCity('');
       toast('Campeonato criado', 'success');
-    } catch { toast('Erro ao criar', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleStatusChange(id: string, action: (id: string) => Promise<void>, msg: string) {
@@ -198,7 +199,7 @@ export default function CampeonatosAdminPage() {
       await action(id);
       await loadTournaments();
       toast(msg, 'success');
-    } catch { toast('Erro na operacao', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleCheckIn(regId: string) {
@@ -210,7 +211,7 @@ export default function CampeonatosAdminPage() {
         setRegistrations(regs);
       }
       toast('Check-in realizado', 'success');
-    } catch { toast('Erro no check-in', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleWeighIn(regId: string) {
@@ -228,7 +229,7 @@ export default function CampeonatosAdminPage() {
         const regs = await getRegistrations(selectedTournament.id);
         setRegistrations(regs);
       }
-    } catch { toast('Erro na pesagem', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleGenBracket(catId: string) {
@@ -236,7 +237,7 @@ export default function CampeonatosAdminPage() {
       const b = await generateBracket(catId);
       setBrackets((prev) => [...prev.filter((x) => x.category_id !== catId), b]);
       toast('Chaveamento gerado', 'success');
-    } catch { toast('Erro ao gerar', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleGenCategories() {
@@ -248,15 +249,15 @@ export default function CampeonatosAdminPage() {
         { gender: ['male', 'female'], includeAbsolute: true },
       );
       setCategories(cats); toast('Categorias geradas', 'success');
-    } catch { toast('Erro ao gerar categorias', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleCallMatch(mId: string) {
-    try { await callMatch(mId, selectedArea); toast('Atletas chamados', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
+    try { await callMatch(mId, selectedArea); toast('Atletas chamados', 'success'); loadTabData(); } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleStartMatch(mId: string) {
-    try { await startMatch(mId); toast('Luta iniciada', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
+    try { await startMatch(mId); toast('Luta iniciada', 'success'); loadTabData(); } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleResult(match: TournamentMatch) {
@@ -272,7 +273,7 @@ export default function CampeonatosAdminPage() {
       advantages_athlete2: match.advantages_athlete2,
       duration_seconds: match.duration_seconds ?? 0,
     };
-    try { await recordResult(match.id, p); toast('Resultado registrado', 'success'); loadTabData(); } catch { toast('Erro', 'error'); }
+    try { await recordResult(match.id, p); toast('Resultado registrado', 'success'); loadTabData(); } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function handleAnnouncement() {
@@ -281,7 +282,7 @@ export default function CampeonatosAdminPage() {
       const item = await postAnnouncement(selectedTournament.id, announcementText);
       setFeed((prev) => [item, ...prev]); setAnnouncementText('');
       toast('Comunicado publicado', 'success');
-    } catch { toast('Erro', 'error'); }
+    } catch (err) { toast(translateError(err), 'error'); }
   }
 
   async function loadBracketMatches(catId: string) {

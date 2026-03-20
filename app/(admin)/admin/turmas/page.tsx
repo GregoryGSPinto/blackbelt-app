@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { CalendarIcon } from '@/components/shell/icons';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -185,8 +186,8 @@ export default function AdminTurmasPage() {
     try {
       const data = await listClasses('academy-1');
       setClasses(data);
-    } catch {
-      toast('Erro ao carregar turmas', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -309,8 +310,8 @@ export default function AdminTurmasPage() {
       setClasses((prev) => prev.filter((c) => c.id !== deleteId));
       setDeleteId(null);
       toast('Turma excluida com sucesso', 'success');
-    } catch {
-      toast('Erro ao excluir turma', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setDeleting(false);
     }

@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 /* ── Belt color map ─────────────────────────────────────────────── */
 
@@ -356,6 +357,7 @@ export default function ModuloDetailPage() {
   const allDone = modulo.licoes.length > 0 && modulo.licoes.every((l) => l.concluida);
 
   return (
+    <PlanGate module="academia_teorica">
     <div className="max-w-2xl mx-auto space-y-5 p-4 md:p-6 pb-24">
       {/* Back link */}
       <Link
@@ -438,5 +440,6 @@ export default function ModuloDetailPage() {
         </p>
       )}
     </div>
+    </PlanGate>
   );
 }

@@ -10,6 +10,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { getAcesso, registrarEntradaManual, registrarSaida } from '@/lib/api/recepcao-acesso.service';
 import type { AcessoAcademia } from '@/lib/api/recepcao-acesso.service';
 import { UserPlusIcon, ClockIcon } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -68,8 +69,8 @@ export default function RecepcaoAcessoPage() {
       try {
         const result = await getAcesso();
         if (!cancelled) setData(result);
-      } catch {
-        if (!cancelled) toast('Erro ao carregar acesso', 'error');
+      } catch (err) {
+        if (!cancelled) toast(translateError(err), 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -87,8 +88,8 @@ export default function RecepcaoAcessoPage() {
         pessoasDentro: prev.pessoasDentro.filter((p) => p.id !== pessoaId),
       } : prev);
       toast(`Saida de ${nome} registrada`, 'success');
-    } catch {
-      toast('Erro ao registrar saida', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -102,8 +103,8 @@ export default function RecepcaoAcessoPage() {
       // Reload
       const result = await getAcesso();
       setData(result);
-    } catch {
-      toast('Erro ao registrar entrada', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setEntradaLoading(false);
     }

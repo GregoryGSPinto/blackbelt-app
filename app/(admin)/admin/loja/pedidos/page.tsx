@@ -8,6 +8,9 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: 'Pendente', paid: 'Pago', shipped: 'Enviado', delivered: 'Entregue', cancelled: 'Cancelado',
@@ -91,8 +94,8 @@ export default function AdminPedidosPage() {
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => o.id === updated.id ? updated : o));
       toast(`Pedido atualizado para: ${STATUS_LABEL[status]}`, 'success');
-    } catch {
-      toast('Erro ao atualizar pedido', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -103,6 +106,7 @@ export default function AdminPedidosPage() {
   }
 
   return (
+    <PlanGate module="loja">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Pedidos da Loja</h1>
 
@@ -193,7 +197,14 @@ export default function AdminPedidosPage() {
                 </tr>
               ))}
               {orders.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-bb-gray-500">Nenhum pedido encontrado.</td></tr>
+                <tr><td colSpan={7}>
+                  <EmptyState
+                    icon="📦"
+                    title="Nenhum pedido encontrado"
+                    description={filterStatus || filterPeriod !== 'all' ? "Nenhum pedido para os filtros selecionados." : "Quando clientes fizerem pedidos na loja, eles aparecerão aqui."}
+                    variant={filterStatus || filterPeriod !== 'all' ? "search" : "first-time"}
+                  />
+                </td></tr>
               )}
             </tbody>
           </table>
@@ -329,5 +340,6 @@ export default function AdminPedidosPage() {
         )}
       </Modal>
     </div>
+    </PlanGate>
   );
 }

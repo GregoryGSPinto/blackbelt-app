@@ -7,6 +7,7 @@ import type { CourseModality, BeltLevel } from '@/lib/api/marketplace.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -92,8 +93,8 @@ export default function NovoCursoPage() {
 
       setStep(3);
       toast('Curso criado com sucesso!', 'success');
-    } catch {
-      toast('Erro ao criar curso', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -107,8 +108,8 @@ export default function NovoCursoPage() {
       setStep(4);
       toast('Curso publicado!', 'success');
       setTimeout(() => router.push('/meus-cursos'), 2000);
-    } catch {
-      toast('Erro ao publicar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

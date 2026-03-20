@@ -18,6 +18,7 @@ import {
   CreditCardIcon,
   DollarIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -147,8 +148,8 @@ export default function AdminPagamentoConfigPage() {
           setEnvironment(config.environment);
         }
         setStatus(gatewayStatus);
-      } catch {
-        toast('Erro ao carregar configuracoes de pagamento', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -168,8 +169,8 @@ export default function AdminPagamentoConfigPage() {
       } else {
         toast('Falha na conexao. Verifique sua API Key.', 'error');
       }
-    } catch {
-      toast('Erro ao testar conexao. Verifique suas credenciais.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setTesting(false);
     }
@@ -182,8 +183,8 @@ export default function AdminPagamentoConfigPage() {
       setLastSyncCount(result.synced);
       setStatus((prev) => prev ? { ...prev, lastSync: new Date().toISOString() } : prev);
       toast(`${result.synced} clientes sincronizados com sucesso!`, 'success');
-    } catch {
-      toast('Erro ao sincronizar clientes', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSyncing(false);
     }
@@ -200,8 +201,8 @@ export default function AdminPagamentoConfigPage() {
         connected: status?.connected ?? false,
       });
       toast('Configuracoes de pagamento salvas!', 'success');
-    } catch {
-      toast('Erro ao salvar configuracoes', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }

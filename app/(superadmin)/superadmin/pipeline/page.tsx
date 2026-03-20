@@ -31,6 +31,7 @@ import {
   MapPinIcon,
   SendIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // -- Constants ----------------------------------------------------------------
 
@@ -166,8 +167,8 @@ export default function PipelinePage() {
       const [m, l] = await Promise.all([getPipelineMetrics(), listLeads()]);
       setMetrics(m);
       setLeads(l);
-    } catch {
-      toast('Erro ao carregar pipeline', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -186,8 +187,8 @@ export default function PipelinePage() {
       setLeads((prev) => prev.map((l) => (l.id === lead.id ? updated : l)));
       if (detailLead?.id === lead.id) setDetailLead(updated);
       toast(`${lead.nomeAcademia} avançou para ${STAGE_CONFIG[updated.status]?.label ?? updated.status}`, 'success');
-    } catch {
-      toast('Erro ao avançar lead', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActioningIds((prev) => {
         const next = new Set(prev);
@@ -204,8 +205,8 @@ export default function PipelinePage() {
       setLeads((prev) => prev.map((l) => (l.id === lead.id ? updated : l)));
       if (detailLead?.id === lead.id) setDetailLead(updated);
       toast(`${lead.nomeAcademia} marcado como perdido`, 'warning');
-    } catch {
-      toast('Erro ao marcar lead como perdido', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActioningIds((prev) => {
         const next = new Set(prev);
@@ -231,8 +232,8 @@ export default function PipelinePage() {
       setLeads((prev) => prev.map((l) => (l.id === detailLead.id ? updatedLead : l)));
       setNotaText('');
       toast('Nota adicionada', 'success');
-    } catch {
-      toast('Erro ao adicionar nota', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setAddingNota(false);
     }
@@ -264,8 +265,8 @@ export default function PipelinePage() {
         observacoes: '',
       });
       toast(`Lead ${created.nomeAcademia} criado`, 'success');
-    } catch {
-      toast('Erro ao criar lead', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }

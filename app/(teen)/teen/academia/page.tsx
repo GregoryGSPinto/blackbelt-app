@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getModulos, getProgressoGeral } from '@/lib/api/academia-teorica.service';
 import type { ModuloTeorico, ProgressoGeral } from '@/lib/api/academia-teorica.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ────────────────────────────────────────────────────────────
 // XP Constants
@@ -75,6 +76,7 @@ export default function TeenAcademiaPage() {
   const totalXpPossible = modulos.reduce((sum, m) => sum + calcModuloXpTotal(m), 0);
 
   return (
+    <PlanGate module="teen_module">
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* ─── HEADER ─── */}
       <section className="relative overflow-hidden px-4 pb-6 pt-8">
@@ -267,5 +269,6 @@ export default function TeenAcademiaPage() {
         </section>
       </div>
     </div>
+    </PlanGate>
   );
 }

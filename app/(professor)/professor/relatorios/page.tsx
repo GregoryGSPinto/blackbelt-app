@@ -25,6 +25,7 @@ import {
   AlertTriangleIcon,
   ClockIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 function formatDate(iso: string): string {
@@ -113,8 +114,8 @@ export default function ProfessorRelatoriosPage() {
       ]);
       setRelatorios(relData);
       setMetricas(metData);
-    } catch {
-      toast('Erro ao carregar relatorios', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

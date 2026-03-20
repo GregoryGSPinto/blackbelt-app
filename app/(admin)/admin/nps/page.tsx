@@ -9,6 +9,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 function npsColor(score: number): string {
   if (score >= 50) return '#22c55e';
@@ -95,6 +96,7 @@ export default function NPSPage() {
       : data.feedback.filter((f) => f.category === feedbackFilter);
 
   return (
+    <PlanGate module="relatorios">
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">NPS da Academia</h1>
 
@@ -293,5 +295,6 @@ export default function NPSPage() {
         </div>
       </Card>
     </div>
+    </PlanGate>
   );
 }

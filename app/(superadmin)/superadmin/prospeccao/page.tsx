@@ -23,6 +23,7 @@ import {
   type ResultadoBusca,
 } from '@/lib/api/prospeccao.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 /* ---------- Recharts dynamic imports ---------- */
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
@@ -421,7 +422,7 @@ export default function ProspeccaoPage() {
     } catch (err) {
       console.error('Search error:', err);
       setSearchPhase('');
-      toast('Erro ao buscar academias', 'error');
+      toast(translateError(err), 'error');
     } finally {
       setSearchLoading(false);
       setTimeout(() => setSearchPhase(''), 3000);
@@ -468,7 +469,7 @@ export default function ProspeccaoPage() {
       toast('Mensagem gerada com sucesso', 'success');
     } catch (err) {
       console.error('Regen error:', err);
-      toast('Erro ao gerar mensagem', 'error');
+      toast(translateError(err), 'error');
     } finally {
       setRegenLoading(false);
     }

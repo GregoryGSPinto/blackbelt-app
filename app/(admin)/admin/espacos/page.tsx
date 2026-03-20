@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { listSpaces, getSpaceSchedule, type SpaceDTO, type SpaceScheduleSlot } from '@/lib/api/spaces.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const STATUS_COLOR: Record<string, string> = { available: 'bg-green-100 text-green-700', occupied: 'bg-red-100 text-red-700', maintenance: 'bg-yellow-100 text-yellow-700' };
@@ -26,6 +27,14 @@ export default function EspacosPage() {
       <h1 className="text-xl font-bold text-bb-black">Espaços e Salas</h1>
 
       {/* Space Grid */}
+      {spaces.length === 0 && (
+        <EmptyState
+          icon="🏢"
+          title="Nenhum espaço cadastrado"
+          description="Cadastre salas e espaços da sua academia para gerenciar a ocupação e agenda."
+          variant="first-time"
+        />
+      )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {spaces.map((space) => (
           <Card key={space.id} className="p-4">

@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // ────────────────────────────────────────────────────────────
 // Category colors
@@ -165,6 +166,14 @@ export default function ConquistasPage() {
         </div>
 
         {/* Achievement grid */}
+        {filtered.length === 0 && (
+          <EmptyState
+            icon="🏅"
+            title="Nenhuma conquista encontrada"
+            description={selectedCategory !== 'ALL' ? "Nenhuma conquista nesta categoria. Tente outra categoria." : "Continue treinando para desbloquear conquistas!"}
+            variant={selectedCategory !== 'ALL' ? "search" : "first-time"}
+          />
+        )}
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {filtered.map((ach) => (
             <button

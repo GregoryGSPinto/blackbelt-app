@@ -10,6 +10,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { buscarAlunoAtendimento, checkinManual, registrarPagamento } from '@/lib/api/recepcao-atendimento.service';
 import type { AlunoAtendimento } from '@/lib/api/recepcao-atendimento.service';
 import { SearchIcon, PhoneIcon, MailIcon, AlertTriangleIcon } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -69,8 +70,8 @@ export default function RecepcaoAtendimentoPage() {
       const res = await buscarAlunoAtendimento(q);
       setResults(res);
       setSearched(true);
-    } catch {
-      toast('Erro ao buscar aluno', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSearching(false);
     }
@@ -90,8 +91,8 @@ export default function RecepcaoAtendimentoPage() {
       toast(`Check-in de ${checkinAluno.nome} realizado!`, 'success');
       setCheckinAluno(null);
       setCheckinTurma('');
-    } catch {
-      toast('Erro ao realizar check-in', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCheckinLoading(false);
     }
@@ -111,8 +112,8 @@ export default function RecepcaoAtendimentoPage() {
       setPagAluno(null);
       setPagValor('');
       setPagRef('');
-    } catch {
-      toast('Erro ao registrar pagamento', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setPagLoading(false);
     }

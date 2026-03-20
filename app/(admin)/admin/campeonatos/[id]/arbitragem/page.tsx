@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const METHOD_LABELS: Record<MatchMethod, string> = {
   pontos: 'Pontos',
@@ -172,6 +173,7 @@ export default function ArbitragemPage() {
   if (!tournament) return null;
 
   return (
+    <PlanGate module="compete">
     <div className="space-y-6 p-6">
       <PageHeader title="Arbitragem" subtitle={tournament.name} />
 
@@ -416,5 +418,6 @@ export default function ArbitragemPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

@@ -29,6 +29,8 @@ export type ModuleId =
   | 'relatorios'
   | 'landing_page'
   | 'convites'
+  | 'loja'
+  | 'marketplace'
 
   // BLACK BELT (a partir do Black Belt)
   | 'churn_prediction'
@@ -71,6 +73,7 @@ const PRO_MODULES: ModuleId[] = [
   ...ESSENCIAL_MODULES,
   'whatsapp', 'conteudo', 'video_upload', 'academia_teorica',
   'conquistas', 'ranking', 'relatorios', 'landing_page', 'convites',
+  'loja', 'marketplace',
 ];
 
 const BLACKBELT_MODULES: ModuleId[] = [
@@ -154,8 +157,8 @@ export const PAGE_MODULE_MAP: Record<string, ModuleId> = {
   '/admin/mensagens': 'mensagens',
   '/admin/eventos': 'conteudo',
   '/admin/comunicados': 'mensagens',
-  '/admin/loja': 'dashboard',
-  '/admin/estoque': 'dashboard',
+  '/admin/loja': 'loja',
+  '/admin/estoque': 'loja',
   '/admin/calendario': 'dashboard',
   '/admin/aula-experimental': 'alunos',
   '/admin/auditoria': 'dashboard',
@@ -246,6 +249,8 @@ export const MODULE_NAMES: Record<ModuleId, string> = {
   teen_module: 'Modulo Teen',
   pagamento_gateway: 'Gateway de Pagamento',
   compete: 'Campeonatos',
+  loja: 'Loja',
+  marketplace: 'Marketplace',
   api_publica: 'API Publica',
   franqueador: 'Franqueador',
   multi_unidade: 'Multi-Unidade',

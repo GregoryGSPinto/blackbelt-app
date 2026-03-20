@@ -14,6 +14,7 @@ import { generateAttendanceReport } from '@/lib/reports/attendance-report';
 import { generateFinancialReport } from '@/lib/reports/financial-report';
 import type { ReportData, ReportType as ReportViewType } from '@/lib/types/report';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 const ReportChart = dynamic(() => import('./ReportChart'), { ssr: false });
 
@@ -68,8 +69,8 @@ export default function AdminRelatoriosPage() {
 
       setReportViewData(data);
       setReportViewType(viewType);
-    } catch {
-      toast('Erro ao gerar relatorio', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setExporting(false);
     }

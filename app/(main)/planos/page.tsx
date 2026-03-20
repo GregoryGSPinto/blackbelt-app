@@ -7,6 +7,7 @@ import type { Plan } from '@/lib/types';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function PlanosPage() {
   const router = useRouter();
@@ -24,6 +25,14 @@ export default function PlanosPage() {
     <div className="space-y-6">
       <PageHeader title="Planos" subtitle="Escolha o plano ideal para você" />
 
+      {plans.length === 0 && (
+        <EmptyState
+          icon="💳"
+          title="Nenhum plano disponível"
+          description="Os planos da academia ainda não foram configurados. Entre em contato com a recepção."
+          variant="first-time"
+        />
+      )}
       <div className="grid gap-6 md:grid-cols-3">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlanId;

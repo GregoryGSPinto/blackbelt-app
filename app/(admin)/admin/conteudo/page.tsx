@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { Search, Film, Eye, Heart, Upload, HardDrive, MoreVertical, Globe, EyeOff, Trash2, Video } from 'lucide-react';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function AdminConteudoPage() {
   const { toast } = useToast();
@@ -73,8 +74,8 @@ export default function AdminConteudoPage() {
       setVideos((prev) => prev.filter((v) => v.id !== deleteId));
       setDeleteId(null);
       toast('Vídeo excluído com sucesso', 'success');
-    } catch {
-      toast('Erro ao excluir vídeo', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setDeleting(false);
     }
@@ -88,8 +89,8 @@ export default function AdminConteudoPage() {
       );
       setMenuOpen(null);
       toast(publish ? 'Vídeo publicado' : 'Vídeo despublicado', 'success');
-    } catch {
-      toast('Erro ao alterar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

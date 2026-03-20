@@ -21,6 +21,7 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // -- Constants ----------------------------------------------------------------
 
@@ -98,8 +99,8 @@ export default function SuperAdminHealthPage() {
       ]);
       setOverview(ov);
       setAcademias(scores);
-    } catch {
-      toast('Erro ao carregar health scores', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

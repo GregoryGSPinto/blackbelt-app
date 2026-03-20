@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -94,8 +96,8 @@ export default function AulaExperimentalPage() {
         ]);
         setTrials(trialList);
         setMetrics(trialMetrics);
-      } catch {
-        toast('Erro ao carregar dados', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -110,8 +112,8 @@ export default function AulaExperimentalPage() {
       const updated = await updateTrialStatus(id, newStatus);
       setTrials((prev) => prev.map((t) => (t.id === id ? updated : t)));
       toast(`Status atualizado para ${STATUS_LABEL[newStatus]}`, 'success');
-    } catch {
-      toast('Erro ao atualizar status', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -126,8 +128,8 @@ export default function AulaExperimentalPage() {
       setShowCreateModal(false);
       setForm({ leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'site', turmaId: 'turma-1', dataAgendada: '' });
       toast('Aula experimental agendada com sucesso', 'success');
-    } catch {
-      toast('Erro ao criar aula experimental', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -172,6 +174,7 @@ export default function AulaExperimentalPage() {
   }
 
   return (
+    <PlanGate module="landing_page">
     <div className="space-y-6 p-6">
       {/* Funnel Section */}
       {metrics && (
@@ -567,6 +570,7 @@ export default function AulaExperimentalPage() {
         </div>
       </Modal>
     </div>
+    </PlanGate>
   );
 }
 

@@ -5,6 +5,7 @@ import { listTournaments, getBracket, type TournamentDTO, type BracketMatch } fr
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function TorneiosAdminPage() {
   const [tournaments, setTournaments] = useState<TournamentDTO[]>([]);
@@ -30,6 +31,14 @@ export default function TorneiosAdminPage() {
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Torneios</h1>
 
+      {tournaments.length === 0 && (
+        <EmptyState
+          icon="🏆"
+          title="Nenhum torneio cadastrado"
+          description="Crie torneios internos ou externos para organizar competições e chaveamentos."
+          variant="first-time"
+        />
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {tournaments.map((t) => (
           <Card key={t.id} className="p-4">

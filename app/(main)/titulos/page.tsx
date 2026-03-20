@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const RARITY_CONFIG: Record<TitleRarity, { label: string; color: string; bg: string; border: string; glow: string }> = {
   common: { label: 'Comum', color: 'text-gray-500', bg: 'bg-gray-100', border: 'border-gray-300', glow: '' },
@@ -118,6 +119,14 @@ export default function TitulosPage() {
       </div>
 
       {/* Title Collection */}
+      {filteredTitles.length === 0 && (
+        <EmptyState
+          icon="🎖️"
+          title="Nenhum título encontrado"
+          description={filter !== 'all' ? "Nenhum título com este filtro. Tente outra opção." : "Continue treinando para desbloquear títulos e emblemas exclusivos!"}
+          variant={filter !== 'all' ? "search" : "first-time"}
+        />
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         {filteredTitles.map((title) => {
           const cfg = RARITY_CONFIG[title.rarity];

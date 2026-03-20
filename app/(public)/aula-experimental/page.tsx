@@ -5,6 +5,7 @@ import { createLead } from '@/lib/api/leads.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function AulaExperimentalPage() {
   const { toast } = useToast();
@@ -19,8 +20,8 @@ export default function AulaExperimentalPage() {
       await createLead(form);
       setSubmitted(true);
       toast('Solicitação enviada!', 'success');
-    } catch {
-      toast('Erro ao enviar', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }

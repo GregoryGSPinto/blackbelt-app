@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 
 // ────────────────────────────────────────────────────────────
 // Belt border color map
@@ -24,20 +24,10 @@ const BELT_RING_COLORS: Record<string, string> = {
 };
 
 export default function TeenDashboardPage() {
-  const [data, setData] = useState<TeenDashboardDTO | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const d = await getTeenDashboard('stu-teen-lucas');
-        setData(d);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+  const { data, loading } = useSWRFetch<TeenDashboardDTO>(
+    'teen-dashboard',
+    () => getTeenDashboard('stu-teen-lucas'),
+  );
 
   if (loading) {
     return (

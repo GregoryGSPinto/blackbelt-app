@@ -41,6 +41,7 @@ import type {
   RankingProfessor,
 } from '@/lib/api/pedagogico.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -247,8 +248,8 @@ export default function AdminPedagogicoPage() {
       try {
         const data = await getPedagogicoDashboard(ACADEMY_ID);
         setDashboard(data);
-      } catch {
-        toast('Erro ao carregar dashboard pedagogico', 'error');
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
@@ -264,8 +265,8 @@ export default function AdminPedagogicoPage() {
         try {
           const data = await getCurriculos(ACADEMY_ID);
           setCurriculos(data);
-        } catch {
-          toast('Erro ao carregar curriculos', 'error');
+        } catch (err) {
+          toast(translateError(err), 'error');
         } finally {
           setTabLoading((prev) => ({ ...prev, curriculo: false }));
         }
@@ -275,8 +276,8 @@ export default function AdminPedagogicoPage() {
         try {
           const data = await getReunioes(ACADEMY_ID);
           setReunioes(data);
-        } catch {
-          toast('Erro ao carregar reunioes', 'error');
+        } catch (err) {
+          toast(translateError(err), 'error');
         } finally {
           setTabLoading((prev) => ({ ...prev, reunioes: false }));
         }
@@ -286,8 +287,8 @@ export default function AdminPedagogicoPage() {
         try {
           const data = await getOcorrencias(ACADEMY_ID);
           setOcorrencias(data);
-        } catch {
-          toast('Erro ao carregar ocorrencias', 'error');
+        } catch (err) {
+          toast(translateError(err), 'error');
         } finally {
           setTabLoading((prev) => ({ ...prev, ocorrencias: false }));
         }
@@ -302,8 +303,8 @@ export default function AdminPedagogicoPage() {
     try {
       const analise = await getAnaliseProfessor(professorId);
       setProfessoresAnalise((prev) => ({ ...prev, [professorId]: analise }));
-    } catch {
-      toast('Erro ao carregar analise do professor', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -314,8 +315,8 @@ export default function AdminPedagogicoPage() {
       const data = await gerarRelatorioPedagogico(ACADEMY_ID, new Date().toISOString().slice(0, 7));
       setRelatorio(data);
       toast('Relatorio gerado com sucesso', 'success');
-    } catch {
-      toast('Erro ao gerar relatorio', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setGerandoRelatorio(false);
     }
@@ -343,8 +344,8 @@ export default function AdminPedagogicoPage() {
       setReuniaoModalOpen(false);
       setNovaReuniao({ titulo: '', data: '', hora: '', participantes: '', pauta: '' });
       toast('Reuniao agendada com sucesso', 'success');
-    } catch {
-      toast('Erro ao agendar reuniao', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -369,8 +370,8 @@ export default function AdminPedagogicoPage() {
       setOcorrenciaModalOpen(false);
       setNovaOcorrencia({ alunoNome: '', tipo: 'observacao', gravidade: 'leve', descricao: '', acaoTomada: '', responsavelNotificado: false });
       toast('Ocorrencia registrada com sucesso', 'success');
-    } catch {
-      toast('Erro ao registrar ocorrencia', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

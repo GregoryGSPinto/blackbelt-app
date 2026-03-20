@@ -23,6 +23,7 @@ import {
   UsersIcon,
   ShieldIcon,
 } from '@/components/shell/icons';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -300,8 +301,8 @@ export default function ProfessorAluno360Page() {
       try {
         const data = await getAluno360(id as string);
         if (!cancelled) setAluno(data);
-      } catch {
-        if (!cancelled) toast('Erro ao carregar dados do aluno', 'error');
+      } catch (err) {
+        if (!cancelled) toast(translateError(err), 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -338,8 +339,8 @@ export default function ProfessorAluno360Page() {
       });
       setNotaTexto('');
       toast('Nota adicionada com sucesso', 'success');
-    } catch {
-      toast('Erro ao adicionar nota', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSavingNota(false);
     }

@@ -16,6 +16,7 @@ import {
   type CreateComunicadoPayload,
   type CanalComunicado,
 } from '@/lib/api/superadmin-comunicacao.service';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -198,8 +199,8 @@ export default function ComunicacaoPage() {
         toast('Rascunho salvo com sucesso!', 'success');
       }
       resetForm();
-    } catch {
-      toast('Erro ao criar comunicado.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setCreating(false);
     }
@@ -212,8 +213,8 @@ export default function ComunicacaoPage() {
       setRascunhos((prev) => prev.filter((c) => c.id !== id));
       setEnviados((prev) => [sent, ...prev]);
       toast('Comunicado enviado!', 'success');
-    } catch {
-      toast('Erro ao enviar comunicado.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActionLoadingId(null);
     }
@@ -225,8 +226,8 @@ export default function ComunicacaoPage() {
       await deleteComunicado(id);
       setRascunhos((prev) => prev.filter((c) => c.id !== id));
       toast('Comunicado excluido.', 'success');
-    } catch {
-      toast('Erro ao excluir comunicado.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActionLoadingId(null);
     }

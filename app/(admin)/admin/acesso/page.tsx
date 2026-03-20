@@ -12,6 +12,8 @@ import {
   type AccessRule,
 } from '@/lib/api/access-control.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function AcessoAdminPage() {
   const { toast } = useToast();
@@ -26,7 +28,7 @@ export default function AcessoAdminPage() {
       getAccessRules('unit-1'),
     ])
       .then(([e, r]) => { setEvents(e); setRules(r); })
-      .catch(() => toast('Erro ao carregar dados de acesso', 'error'))
+      .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -39,8 +41,8 @@ export default function AcessoAdminPage() {
     try {
       await configureAccessRules('unit-1', updated);
       toast('Regra atualizada', 'success');
-    } catch {
-      toast('Erro ao atualizar regra', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   };
 
@@ -103,6 +105,13 @@ export default function AcessoAdminPage() {
             </div>
           </div>
           <div className="divide-y divide-bb-gray-100">
+            {events.length === 0 && (
+              <EmptyState
+                icon="🚪"
+                title="Nenhum acesso registrado"
+                description="Quando alunos passarem pela catraca, os registros aparecerão aqui em tempo real."
+              />
+            )}
             {events.map((ev) => (
               <div key={ev.id} className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
@@ -134,6 +143,13 @@ export default function AcessoAdminPage() {
 
       {tab === 'rules' && (
         <div className="space-y-4">
+          {rules.length === 0 && (
+            <EmptyState
+              icon="📋"
+              title="Nenhuma regra de acesso"
+              description="Configure regras para controlar horários permitidos, limite de acessos e bloqueio por inadimplência."
+            />
+          )}
           {rules.map((rule) => (
             <div key={rule.id} className="rounded-xl border border-bb-gray-200 p-4">
               <div className="flex items-center justify-between">

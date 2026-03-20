@@ -15,6 +15,7 @@ import {
   listGraduationHistory,
 } from '@/lib/api/graduation.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -270,8 +271,8 @@ export default function GraduacoesPage() {
       const newHistory = await listGraduationHistory(ACADEMY_ID);
       setHistory(newHistory);
       toast('Graduacao aprovada com sucesso!', 'success');
-    } catch {
-      toast('Erro ao aprovar graduacao.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActionLoading(null);
       setConfirmAction(null);
@@ -284,8 +285,8 @@ export default function GraduacoesPage() {
       await rejectPromotion(promo.id);
       setPending((prev) => prev.filter((p) => p.id !== promo.id));
       toast('Graduacao rejeitada.', 'info');
-    } catch {
-      toast('Erro ao rejeitar graduacao.', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setActionLoading(null);
       setConfirmAction(null);

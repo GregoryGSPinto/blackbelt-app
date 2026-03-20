@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 type Phase = 'upload' | 'mapping' | 'preview' | 'importing' | 'report';
 
@@ -59,8 +60,8 @@ export default function ImportarPage() {
       });
       setColumnMapping(autoMap);
       setPhase('mapping');
-    } catch {
-      toast('Erro ao processar arquivo CSV', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setParsing(false);
     }
@@ -85,8 +86,8 @@ export default function ImportarPage() {
       const dupeResult = await detectDuplicates(parsedData.rows, 'academy-1');
       setDuplicates(dupeResult);
       setPhase('preview');
-    } catch {
-      toast('Erro ao verificar duplicatas', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setParsing(false);
     }
@@ -117,9 +118,9 @@ export default function ImportarPage() {
       setImportProgress(100);
       setImportResult(result);
       setPhase('report');
-    } catch {
+    } catch (err) {
       clearInterval(interval);
-      toast('Erro ao importar alunos', 'error');
+      toast(translateError(err), 'error');
       setPhase('preview');
     }
   }

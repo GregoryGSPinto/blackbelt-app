@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const STATUS_LABEL: Record<string, string> = { draft: 'Rascunho', published: 'Publicado', suspended: 'Suspenso' };
 const STATUS_VARIANT: Record<string, 'pending' | 'active' | 'inactive'> = { draft: 'pending', published: 'active', suspended: 'inactive' };
@@ -52,6 +53,16 @@ export default function MeusCursosPage() {
       </div>
 
       {/* Course List */}
+      {analytics.length === 0 && (
+        <EmptyState
+          icon="🎓"
+          title="Nenhum curso criado"
+          description="Crie cursos online para vender técnicas, drills e conteúdos exclusivos."
+          actionLabel="Criar novo curso"
+          actionHref="/meus-cursos/novo"
+          variant="first-time"
+        />
+      )}
       <div className="space-y-3">
         {analytics.map((course) => {
           const isDraft = course.sales === 0 && course.views === 0;

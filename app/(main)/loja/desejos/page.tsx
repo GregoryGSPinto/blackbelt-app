@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { useCart } from '@/lib/hooks/useCart';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 function formatBRL(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -36,8 +37,8 @@ export default function DesejosPage() {
       await removeFromWishlist('user-1', productId);
       setItems((prev) => prev.filter((i) => i.product_id !== productId));
       toast('Removido dos desejos', 'success');
-    } catch {
-      toast('Erro ao remover', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 

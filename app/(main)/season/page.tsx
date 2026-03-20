@@ -12,6 +12,8 @@ import {
 import { SEASONS } from '@/lib/mocks/seasons.mock';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PlanGate } from '@/components/plans/PlanGate';
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   diamond: { label: 'Diamante', color: 'text-cyan-400', bg: 'bg-cyan-50' },
@@ -54,6 +56,7 @@ export default function SeasonPage() {
   const tierCfg = TIER_CONFIG[progress.tier] ?? TIER_CONFIG.bronze;
 
   return (
+    <PlanGate module="teen_module">
     <div className="space-y-6">
       {/* Season Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-bb-primary to-indigo-700 p-6 text-white">
@@ -127,6 +130,14 @@ export default function SeasonPage() {
           <Card className="p-5">
             <h2 className="mb-4 text-lg font-bold text-bb-black">Leaderboard - Top 20</h2>
             <div className="space-y-2">
+              {leaderboard.length === 0 && (
+                <EmptyState
+                  icon="🏅"
+                  title="Leaderboard vazio"
+                  description="Ainda não há participantes nesta temporada. Faça check-in para entrar no ranking!"
+                  variant="first-time"
+                />
+              )}
               {leaderboard.map((entry) => {
                 const entryTier = TIER_CONFIG[entry.tier] ?? TIER_CONFIG.bronze;
                 const isMe = entry.student_id === 'student-1';
@@ -208,5 +219,6 @@ export default function SeasonPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }
