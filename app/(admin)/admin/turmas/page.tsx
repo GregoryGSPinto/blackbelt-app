@@ -22,6 +22,8 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { CalendarIcon } from '@/components/shell/icons';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { exportToCSV } from '@/lib/utils/export-csv';
+import { Download } from 'lucide-react';
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -402,7 +404,35 @@ export default function AdminTurmasPage() {
             {filtered.length} turma{filtered.length !== 1 ? 's' : ''} encontrada{filtered.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={() => { setEditingId(null); setForm(INITIAL_FORM); setShowFormModal(true); }}>Nova Turma</Button>
+        <div className="flex gap-2">
+          <button
+            onClick={() =>
+              exportToCSV(
+                filtered.map((c) => ({
+                  Nome: c.name,
+                  Modalidade: c.modality,
+                  Professor: c.professor_name,
+                  Horario: formatSchedule(c.schedule),
+                  Matriculados: c.enrolled_count,
+                  Capacidade: c.capacity,
+                  Sala: c.room || '',
+                  Status: STATUS_LABELS[c.status],
+                })),
+                'turmas',
+              )
+            }
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+            style={{
+              background: 'var(--bb-depth-3)',
+              color: 'var(--bb-ink-80)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            <Download className="h-3.5 w-3.5" />
+            Exportar
+          </button>
+          <Button onClick={() => { setEditingId(null); setForm(INITIAL_FORM); setShowFormModal(true); }}>Nova Turma</Button>
+        </div>
       </div>
 
       {/* ── Modality filters ───────────────────────────────── */}

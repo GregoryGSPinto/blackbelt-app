@@ -14,6 +14,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { BeltLevel } from '@/lib/types/domain';
 import { translateError } from '@/lib/utils/error-translator';
+import { exportToCSV } from '@/lib/utils/export-csv';
+import { Download } from 'lucide-react';
 
 const BELT_LABEL: Record<string, string> = {
   white: 'Branca',
@@ -125,20 +127,18 @@ export default function AdminAlunosPage() {
   }, [students, search, filterBelt, filterStatus, filterTurma]);
 
   function handleExportCSV() {
-    const header = 'Nome,Email,Faixa,Turmas,Frequência,Mensalidade,Status\n';
-    const rows = filtered
-      .map(
-        (s) =>
-          `"${s.display_name}","${s.email}","${BELT_LABEL[s.belt] ?? s.belt}","${s.turmas.join('; ')}",${s.attendance_rate}%,"${MENSALIDADE_STYLES[s.mensalidade_status]?.label ?? s.mensalidade_status}","${STATUS_STYLES[s.status]?.label ?? s.status}"`,
-      )
-      .join('\n');
-    const blob = new Blob([header + rows], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'alunos.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(
+      filtered.map((s) => ({
+        Nome: s.display_name,
+        Email: s.email,
+        Faixa: BELT_LABEL[s.belt] ?? s.belt,
+        Turmas: s.turmas.join('; '),
+        Frequencia: `${s.attendance_rate}%`,
+        Mensalidade: MENSALIDADE_STYLES[s.mensalidade_status]?.label ?? s.mensalidade_status,
+        Status: STATUS_STYLES[s.status]?.label ?? s.status,
+      })),
+      'alunos',
+    );
     toast('CSV exportado!', 'success');
   }
 
@@ -173,14 +173,15 @@ export default function AdminAlunosPage() {
         <div className="flex gap-2">
           <button
             onClick={handleExportCSV}
-            className="rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium transition-all hover:opacity-80"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
             style={{
-              background: 'var(--bb-depth-2)',
+              background: 'var(--bb-depth-3)',
               color: 'var(--bb-ink-80)',
               border: '1px solid var(--bb-glass-border)',
             }}
           >
-            Exportar CSV
+            <Download className="h-3.5 w-3.5" />
+            Exportar
           </button>
           <Link
             href="/admin/convites"

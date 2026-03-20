@@ -19,6 +19,8 @@ import { generateFinancialReport } from '@/lib/reports/financial-report';
 import type { FinancialReportData } from '@/lib/types/report';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { exportToCSV } from '@/lib/utils/export-csv';
+import { Download } from 'lucide-react';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -126,7 +128,32 @@ export default function AdminFinanceiroPage() {
       <div className="min-h-screen space-y-6 p-4 sm:p-6 overflow-x-hidden" data-stagger>
         {/* ── Stats ─────────────────────────────────────────────────── */}
         <section className="animate-reveal">
-          <h1 className="mb-4 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Financeiro</h1>
+          <div className="mb-4 flex items-center justify-between">
+            <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Financeiro</h1>
+            <button
+              onClick={() =>
+                exportToCSV(
+                  mensalidades.map((m) => ({
+                    Aluno: m.student_name,
+                    Valor: m.amount,
+                    Vencimento: new Date(m.due_date).toLocaleDateString('pt-BR'),
+                    Pagamento: m.payment_method || '',
+                    Status: STATUS_LABELS[m.status] ?? m.status,
+                  })),
+                  'financeiro',
+                )
+              }
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+              style={{
+                background: 'var(--bb-depth-3)',
+                color: 'var(--bb-ink-80)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Exportar
+            </button>
+          </div>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[
               { label: 'Receita Mês', value: `R$ ${fmt(summary.revenue_this_month)}`, icon: <DollarIcon className="h-4 w-4" />, trend: `${trendPct >= 0 ? '+' : ''}${trendPct}% vs anterior`, trendUp: trendPct >= 0 },
