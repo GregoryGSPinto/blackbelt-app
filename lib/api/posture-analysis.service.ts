@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type IssueSeverity = 'low' | 'medium' | 'high';
 export type IssueType = 'base' | 'guard' | 'posture' | 'position';
@@ -34,6 +33,8 @@ export interface CaptureAnalysisResult {
   captured_at: string;
 }
 
+const emptyPostureResult: PostureResult = { landmarks: [], issues: [], overall_score: 0, analyzed_at: '' };
+
 export async function analyzePosture(imageBase64: string): Promise<PostureResult> {
   try {
     if (isMock()) {
@@ -46,14 +47,18 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64 }),
       });
+      if (!res.ok) {
+        console.warn('[analyzePosture] API error:', res.status);
+        return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
+      }
       return res.json();
     } catch {
-      console.warn('[posture-analysis.analyzePosture] API not available, using mock fallback');
-      const { mockAnalyzePosture } = await import('@/lib/mocks/posture-analysis.mock');
-      return mockAnalyzePosture(imageBase64);
+      console.warn('[posture-analysis.analyzePosture] API not available — feature em desenvolvimento');
+      return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
     }
   } catch (error) {
-    handleServiceError(error, 'postureAnalysis.analyze');
+    console.warn('[analyzePosture] Fallback:', error);
+    return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
   }
 }
 
@@ -67,7 +72,10 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
     canvas.width = videoRef.videoWidth;
     canvas.height = videoRef.videoHeight;
     const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Cannot get canvas context');
+    if (!ctx) {
+      console.warn('[captureAndAnalyze] Cannot get canvas context');
+      return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
+    }
     ctx.drawImage(videoRef, 0, 0);
     const base64 = canvas.toDataURL('image/jpeg', 0.8);
     const result = await analyzePosture(base64);
@@ -77,6 +85,7 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
       captured_at: new Date().toISOString(),
     };
   } catch (error) {
-    handleServiceError(error, 'postureAnalysis.captureAndAnalyze');
+    console.warn('[captureAndAnalyze] Fallback:', error);
+    return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
   }
 }

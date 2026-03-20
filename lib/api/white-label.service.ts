@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -38,15 +37,39 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
       };
     }
     try {
-      const res = await fetch(`/api/white-label/config?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('academy_settings')
+        .select('value')
+        .eq('academy_id', academyId)
+        .eq('key', 'white_label')
+        .single();
+      if (error || !data) {
+        console.warn('[getWhiteLabelConfig] Query failed:', error?.message);
+        return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
+      }
+      const value = (data.value as Record<string, unknown>) || {};
+      return {
+        academyId,
+        brandName: (value.brandName as string) || '',
+        primaryColor: (value.primaryColor as string) || '#EF4444',
+        primaryColorDeep: (value.primaryColorDeep as string) || '#B91C1C',
+        primaryColorLight: (value.primaryColorLight as string) || '#FCA5A5',
+        logoUrl: (value.logoUrl as string) || null,
+        faviconUrl: (value.faviconUrl as string) || null,
+        customDomain: (value.customDomain as string) || null,
+        emailFromName: (value.emailFromName as string) || '',
+        emailFromAddress: (value.emailFromAddress as string) || '',
+        hidePoweredBy: (value.hidePoweredBy as boolean) || false,
+      };
     } catch {
       console.warn('[white-label.getWhiteLabelConfig] API not available, using fallback');
-      return { academy_id: "", custom_domain: null, logo_url: null, primary_color: "", accent_color: "", favicon_url: null, app_name: "", enabled: false } as unknown as WhiteLabelConfig;
+      return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
     }
   } catch (error) {
-    handleServiceError(error, 'whiteLabel.getConfig');
+    console.warn('[getWhiteLabelConfig] Fallback:', error);
+    return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
   }
 }
 
@@ -59,18 +82,24 @@ export async function updateWhiteLabelConfig(
       return;
     }
     try {
-      const res = await fetch('/api/white-label/config', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('academy_settings')
+        .upsert({
+          academy_id: config.academyId,
+          key: 'white_label',
+          value: config,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'academy_id,key' });
+      if (error) {
+        console.warn('[updateWhiteLabelConfig] Upsert failed:', error.message);
+      }
     } catch {
       console.warn('[white-label.updateWhiteLabelConfig] API not available, using fallback');
     }
-
   } catch (error) {
-    handleServiceError(error, 'whiteLabel.updateConfig');
+    console.warn('[updateWhiteLabelConfig] Fallback:', error);
   }
 }
 

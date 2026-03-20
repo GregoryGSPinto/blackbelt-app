@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface PerformanceAnalysis {
   summary: string;
@@ -67,13 +66,20 @@ export async function getTrainingSuggestion(studentId: string): Promise<string> 
     }
     try {
       const res = await fetch('/api/ai/training-suggestion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      if (!res.ok) {
+        console.warn('[getTrainingSuggestion] API error:', res.status);
+        return 'IA Coach em desenvolvimento. Configure a API key em Configurações.';
+      }
       return res.json().then((r: { suggestion: string }) => r.suggestion);
     } catch {
       console.warn('[ai-coach.getTrainingSuggestion] API not available, using mock fallback');
       const { mockGetTrainingSuggestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockGetTrainingSuggestion(studentId);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.suggestion'); }
+  } catch (error) {
+    console.warn('[getTrainingSuggestion] Fallback:', error);
+    return '';
+  }
 }
 
 export async function analyzePerformance(studentId: string): Promise<PerformanceAnalysis> {
@@ -84,13 +90,20 @@ export async function analyzePerformance(studentId: string): Promise<Performance
     }
     try {
       const res = await fetch('/api/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
+      if (!res.ok) {
+        console.warn('[analyzePerformance] API error:', res.status);
+        return { summary: '', strengths: [], improvements: [], recommendation: '' };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.analyzePerformance] API not available, using mock fallback');
       const { mockAnalyzePerformance } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnalyzePerformance(studentId);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.analyze'); }
+  } catch (error) {
+    console.warn('[analyzePerformance] Fallback:', error);
+    return { summary: '', strengths: [], improvements: [], recommendation: '' };
+  }
 }
 
 export async function generateClassPlan(professorId: string, classId: string): Promise<ClassPlan> {
@@ -101,13 +114,20 @@ export async function generateClassPlan(professorId: string, classId: string): P
     }
     try {
       const res = await fetch('/api/ai/class-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ professorId, classId }) });
+      if (!res.ok) {
+        console.warn('[generateClassPlan] API error:', res.status);
+        return { warmup: '', technique: '', drills: [], sparring: '', cooldown: '' };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.generateClassPlan] API not available, using mock fallback');
       const { mockGenerateClassPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateClassPlan(professorId, classId);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.classPlan'); }
+  } catch (error) {
+    console.warn('[generateClassPlan] Fallback:', error);
+    return { warmup: '', technique: '', drills: [], sparring: '', cooldown: '' };
+  }
 }
 
 export async function answerQuestion(studentId: string, question: string): Promise<string> {
@@ -118,13 +138,20 @@ export async function answerQuestion(studentId: string, question: string): Promi
     }
     try {
       const res = await fetch('/api/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, question }) });
+      if (!res.ok) {
+        console.warn('[answerQuestion] API error:', res.status);
+        return '';
+      }
       return res.json().then((r: { answer: string }) => r.answer);
     } catch {
       console.warn('[ai-coach.answerQuestion] API not available, using mock fallback');
       const { mockAnswerQuestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnswerQuestion(studentId, question);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.answer'); }
+  } catch (error) {
+    console.warn('[answerQuestion] Fallback:', error);
+    return '';
+  }
 }
 
 export async function generateTrainingPlan(studentId: string, goal: string, weeks: number): Promise<GeneratedTrainingPlan> {
@@ -135,13 +162,20 @@ export async function generateTrainingPlan(studentId: string, goal: string, week
     }
     try {
       const res = await fetch('/api/ai/generate-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, goal, weeks }) });
+      if (!res.ok) {
+        console.warn('[generateTrainingPlan] API error:', res.status);
+        return { name: '', goal, duration_weeks: weeks, weeks: [], reasoning: '' };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.generateTrainingPlan] API not available, using mock fallback');
       const { mockGenerateTrainingPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateTrainingPlan(studentId, goal, weeks);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.generatePlan'); }
+  } catch (error) {
+    console.warn('[generateTrainingPlan] Fallback:', error);
+    return { name: '', goal, duration_weeks: weeks, weeks: [], reasoning: '' };
+  }
 }
 
 export async function adjustPlan(planId: string, feedback: string): Promise<PlanAdjustment> {
@@ -152,13 +186,20 @@ export async function adjustPlan(planId: string, feedback: string): Promise<Plan
     }
     try {
       const res = await fetch('/api/ai/adjust-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId, feedback }) });
+      if (!res.ok) {
+        console.warn('[adjustPlan] API error:', res.status);
+        return { changes: [], reasoning: '', updated_plan_id: planId };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.adjustPlan] API not available, using mock fallback');
       const { mockAdjustPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockAdjustPlan(planId, feedback);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.adjustPlan'); }
+  } catch (error) {
+    console.warn('[adjustPlan] Fallback:', error);
+    return { changes: [], reasoning: '', updated_plan_id: planId };
+  }
 }
 
 export async function generatePeriodization(studentId: string, competitionDate: string): Promise<GeneratedPeriodization> {
@@ -169,13 +210,20 @@ export async function generatePeriodization(studentId: string, competitionDate: 
     }
     try {
       const res = await fetch('/api/ai/generate-periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, competitionDate }) });
+      if (!res.ok) {
+        console.warn('[generatePeriodization] API error:', res.status);
+        return { competition_name: '', competition_date: competitionDate, phases: [], reasoning: '' };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.generatePeriodization] API not available, using mock fallback');
       const { mockGeneratePeriodization } = await import('@/lib/mocks/ai-coach.mock');
       return mockGeneratePeriodization(studentId, competitionDate);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.generatePeriodization'); }
+  } catch (error) {
+    console.warn('[generatePeriodization] Fallback:', error);
+    return { competition_name: '', competition_date: competitionDate, phases: [], reasoning: '' };
+  }
 }
 
 export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult> {
@@ -186,11 +234,18 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
     }
     try {
       const res = await fetch('/api/ai/weekly-checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId }) });
+      if (!res.ok) {
+        console.warn('[weeklyCheckIn] API error:', res.status);
+        return { summary: '', adherence_pct: 0, highlights: [], adjustments: [], motivation: '' };
+      }
       return res.json();
     } catch {
       console.warn('[ai-coach.weeklyCheckIn] API not available, using mock fallback');
       const { mockWeeklyCheckIn } = await import('@/lib/mocks/ai-coach.mock');
       return mockWeeklyCheckIn(planId);
     }
-  } catch (error) { handleServiceError(error, 'aiCoach.weeklyCheckIn'); }
+  } catch (error) {
+    console.warn('[weeklyCheckIn] Fallback:', error);
+    return { summary: '', adherence_pct: 0, highlights: [], adjustments: [], motivation: '' };
+  }
 }

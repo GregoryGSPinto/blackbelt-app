@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type DeviceType = 'turnstile' | 'beacon' | 'display' | 'sensor';
 export type DeviceStatus = 'online' | 'offline' | 'error';
@@ -51,13 +50,19 @@ export async function getDevices(unitId: string): Promise<IoTDevice[]> {
     }
     try {
       const res = await fetch(`/api/iot/devices?unitId=${unitId}`);
+      if (!res.ok) {
+        console.warn('[getDevices] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[iot.getDevices] API not available, using mock fallback');
-      const { mockGetDevices } = await import('@/lib/mocks/iot.mock');
-      return mockGetDevices(unitId);
+      console.warn('[iot.getDevices] API not available — integração IoT em desenvolvimento');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'iot.devices'); }
+  } catch (error) {
+    console.warn('[getDevices] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
@@ -68,13 +73,19 @@ export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
     }
     try {
       const res = await fetch(`/api/iot/devices/${deviceId}`);
+      if (!res.ok) {
+        console.warn('[getDeviceStatus] API error:', res.status);
+        return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
+      }
       return res.json();
     } catch {
-      console.warn('[iot.getDeviceStatus] API not available, using mock fallback');
-      const { mockGetDeviceStatus } = await import('@/lib/mocks/iot.mock');
-      return mockGetDeviceStatus(deviceId);
+      console.warn('[iot.getDeviceStatus] API not available — integração IoT em desenvolvimento');
+      return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
     }
-  } catch (error) { handleServiceError(error, 'iot.deviceStatus'); }
+  } catch (error) {
+    console.warn('[getDeviceStatus] Fallback:', error);
+    return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
+  }
 }
 
 export async function getLiveAccess(unitId: string): Promise<LiveAccessEvent[]> {
@@ -85,13 +96,19 @@ export async function getLiveAccess(unitId: string): Promise<LiveAccessEvent[]> 
     }
     try {
       const res = await fetch(`/api/iot/live-access?unitId=${unitId}`);
+      if (!res.ok) {
+        console.warn('[getLiveAccess] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[iot.getLiveAccess] API not available, using mock fallback');
-      const { mockGetLiveAccess } = await import('@/lib/mocks/iot.mock');
-      return mockGetLiveAccess(unitId);
+      console.warn('[iot.getLiveAccess] API not available — integração IoT em desenvolvimento');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'iot.liveAccess'); }
+  } catch (error) {
+    console.warn('[getLiveAccess] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getOccupancy(unitId: string): Promise<OccupancyData> {
@@ -102,13 +119,19 @@ export async function getOccupancy(unitId: string): Promise<OccupancyData> {
     }
     try {
       const res = await fetch(`/api/iot/occupancy?unitId=${unitId}`);
+      if (!res.ok) {
+        console.warn('[getOccupancy] API error:', res.status);
+        return { current: 0, max: 0, percentage: 0, hourly: [] };
+      }
       return res.json();
     } catch {
-      console.warn('[iot.getOccupancy] API not available, using mock fallback');
-      const { mockGetOccupancy } = await import('@/lib/mocks/iot.mock');
-      return mockGetOccupancy(unitId);
+      console.warn('[iot.getOccupancy] API not available — integração IoT em desenvolvimento');
+      return { current: 0, max: 0, percentage: 0, hourly: [] };
     }
-  } catch (error) { handleServiceError(error, 'iot.occupancy'); }
+  } catch (error) {
+    console.warn('[getOccupancy] Fallback:', error);
+    return { current: 0, max: 0, percentage: 0, hourly: [] };
+  }
 }
 
 export async function getDeviceAlerts(unitId: string): Promise<DeviceAlert[]> {
@@ -119,11 +142,17 @@ export async function getDeviceAlerts(unitId: string): Promise<DeviceAlert[]> {
     }
     try {
       const res = await fetch(`/api/iot/alerts?unitId=${unitId}`);
+      if (!res.ok) {
+        console.warn('[getDeviceAlerts] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[iot.getDeviceAlerts] API not available, using mock fallback');
-      const { mockGetDeviceAlerts } = await import('@/lib/mocks/iot.mock');
-      return mockGetDeviceAlerts(unitId);
+      console.warn('[iot.getDeviceAlerts] API not available — integração IoT em desenvolvimento');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'iot.alerts'); }
+  } catch (error) {
+    console.warn('[getDeviceAlerts] Fallback:', error);
+    return [];
+  }
 }

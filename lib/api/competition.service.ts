@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -78,15 +77,33 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
       ];
     }
     try {
-      const res = await fetch(`/api/competitions?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('competitions')
+        .select('*')
+        .eq('academy_id', academyId)
+        .order('date', { ascending: false });
+      if (error || !data) {
+        console.warn('[listCompetitions] Query failed:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>) => ({
+        id: (row.id as string) || '',
+        name: (row.name as string) || '',
+        date: (row.date as string) || '',
+        location: (row.location as string) || '',
+        status: (row.status as Competition['status']) || 'draft',
+        categories: [],
+        totalParticipants: (row.total_participants as number) || 0,
+      }));
     } catch {
-      console.warn('[competition.listCompetitions] API not available, using fallback');
+      console.warn('[competition.listCompetitions] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    handleServiceError(error, 'competition.list');
+    console.warn('[listCompetitions] Fallback:', error);
+    return [];
   }
 }
 
@@ -106,20 +123,33 @@ export async function createCompetition(
       };
     }
     try {
-      const res = await fetch('/api/competitions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, ...data }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: row, error } = await supabase
+        .from('competitions')
+        .insert({ academy_id: academyId, name: data.name, date: data.date, location: data.location, status: 'draft' })
+        .select()
+        .single();
+      if (error || !row) {
+        console.warn('[createCompetition] Insert failed:', error?.message);
+        return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
+      }
+      return {
+        id: (row.id as string) || '',
+        name: data.name,
+        date: data.date,
+        location: data.location,
+        status: 'draft',
+        categories: [],
+        totalParticipants: 0,
+      };
     } catch {
-      console.warn('[competition.createCompetition] API not available, using fallback');
-      return { id: "", name: "", date: "", location: "", modality: "", categories: [], status: "upcoming", academy_id: "", created_at: "" } as unknown as Competition;
+      console.warn('[competition.createCompetition] API not available, returning fallback');
+      return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
     }
-
   } catch (error) {
-    handleServiceError(error, 'competition.create');
+    console.warn('[createCompetition] Fallback:', error);
+    return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
   }
 }
 
@@ -142,15 +172,18 @@ export async function generateBracket(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ categoryId, eliminationType }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.warn('[generateBracket] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[competition.generateBracket] API not available, using fallback');
+      console.warn('[competition.generateBracket] API not available, returning empty');
       return [];
     }
-
   } catch (error) {
-    handleServiceError(error, 'competition.generateBracket');
+    console.warn('[generateBracket] Fallback:', error);
+    return [];
   }
 }
 
@@ -172,12 +205,13 @@ export async function recordMatchResult(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ winnerId, score1, score2, method }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        console.warn('[recordMatchResult] API error:', res.status);
+      }
     } catch {
       console.warn('[competition.recordMatchResult] API not available, using fallback');
     }
-
   } catch (error) {
-    handleServiceError(error, 'competition.recordResult');
+    console.warn('[recordMatchResult] Fallback:', error);
   }
 }

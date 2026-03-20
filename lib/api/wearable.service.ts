@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface HeartRateZones {
   rest_minutes: number;
@@ -40,6 +39,8 @@ export interface RealtimeMetrics {
   battery_pct: number;
 }
 
+const emptyRealtime: RealtimeMetrics = { heart_rate_bpm: 0, calories_today: 0, steps_today: 0, active_minutes_today: 0, last_sync: '', device_connected: false, device_name: '', battery_pct: 0 };
+
 export async function syncHealthData(userId: string, data: Partial<HealthDataPoint>[]): Promise<{ synced: number }> {
   try {
     if (isMock()) {
@@ -48,13 +49,19 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
     }
     try {
       const res = await fetch('/api/wearable/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, data }) });
+      if (!res.ok) {
+        console.warn('[syncHealthData] API error:', res.status);
+        return { synced: 0 };
+      }
       return res.json();
     } catch {
-      console.warn('[wearable.syncHealthData] API not available, using mock fallback');
-      const { mockSyncHealthData } = await import('@/lib/mocks/wearable.mock');
-      return mockSyncHealthData(userId, data);
+      console.warn('[wearable.syncHealthData] API not available — integração Wearable em desenvolvimento');
+      return { synced: 0 };
     }
-  } catch (error) { handleServiceError(error, 'wearable.sync'); }
+  } catch (error) {
+    console.warn('[syncHealthData] Fallback:', error);
+    return { synced: 0 };
+  }
 }
 
 export async function getHealthHistory(userId: string, period: '7d' | '30d' | '90d'): Promise<HealthDataPoint[]> {
@@ -65,13 +72,19 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
     }
     try {
       const res = await fetch(`/api/wearable/history?userId=${userId}&period=${period}`);
+      if (!res.ok) {
+        console.warn('[getHealthHistory] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[wearable.getHealthHistory] API not available, using mock fallback');
-      const { mockGetHealthHistory } = await import('@/lib/mocks/wearable.mock');
-      return mockGetHealthHistory(userId, period);
+      console.warn('[wearable.getHealthHistory] API not available — integração Wearable em desenvolvimento');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'wearable.history'); }
+  } catch (error) {
+    console.warn('[getHealthHistory] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetrics> {
@@ -82,12 +95,19 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
     }
     try {
       const res = await fetch(`/api/wearable/realtime?userId=${userId}`);
+      if (!res.ok) {
+        console.warn('[getRealtimeMetrics] API error:', res.status);
+        return emptyRealtime;
+      }
       return res.json();
     } catch {
-      console.warn('[wearable.getRealtimeMetrics] API not available, using fallback');
-      return { heart_rate: 0, calories: 0, steps: 0, active_minutes: 0, zones: { rest: 0, fat_burn: 0, cardio: 0, peak: 0 } } as unknown as RealtimeMetrics;
+      console.warn('[wearable.getRealtimeMetrics] API not available — integração Wearable em desenvolvimento');
+      return emptyRealtime;
     }
-  } catch (error) { handleServiceError(error, 'wearable.realtime'); }
+  } catch (error) {
+    console.warn('[getRealtimeMetrics] Fallback:', error);
+    return emptyRealtime;
+  }
 }
 
 export async function getTrainingSession(userId: string): Promise<WearableSession[]> {
@@ -98,11 +118,17 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
     }
     try {
       const res = await fetch(`/api/wearable/sessions?userId=${userId}`);
+      if (!res.ok) {
+        console.warn('[getTrainingSession] API error:', res.status);
+        return [];
+      }
       return res.json();
     } catch {
-      console.warn('[wearable.getTrainingSession] API not available, using mock fallback');
-      const { mockGetTrainingSession } = await import('@/lib/mocks/wearable.mock');
-      return mockGetTrainingSession(userId);
+      console.warn('[wearable.getTrainingSession] API not available — integração Wearable em desenvolvimento');
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'wearable.sessions'); }
+  } catch (error) {
+    console.warn('[getTrainingSession] Fallback:', error);
+    return [];
+  }
 }

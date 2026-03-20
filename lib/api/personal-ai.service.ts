@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type ToneType = 'motivational' | 'technical' | 'casual';
 
@@ -71,6 +70,14 @@ export interface WeeklyPlan {
   recovery_tip: string;
 }
 
+const emptyContext = (studentId: string): PersonalContext => ({
+  student_id: studentId, name: '', belt: '', stripes: 0, academy: '', frequency_weekly: 0, last_class_date: '', next_class_date: '', next_class_name: '', current_weight_kg: 0, target_weight_kg: null, upcoming_competition: null, strengths: [], weaknesses: [], goals: [], xp_total: 0, xp_rank: 0, streak_days: 0,
+});
+
+const emptyBriefing: DailyBriefing = { greeting: '', todays_class: null, focus_suggestion: '', competition_countdown: null, weight_check: null, motivational_quote: '', streak_info: '' };
+
+const emptyWeeklyPlan: WeeklyPlan = { week_start: '', week_end: '', summary: '', days: [], weekly_goal: '', nutrition_tip: '', recovery_tip: '' };
+
 export async function getPersonalContext(studentId: string): Promise<PersonalContext> {
   try {
     if (isMock()) {
@@ -79,6 +86,10 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
     }
     try {
       const res = await fetch(`/api/ai/personal-context/${studentId}`);
+      if (!res.ok) {
+        console.warn('[getPersonalContext] API error:', res.status);
+        return emptyContext(studentId);
+      }
       return res.json();
     } catch {
       console.warn('[personal-ai.getPersonalContext] API not available, using mock fallback');
@@ -86,7 +97,8 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       return mockGetPersonalContext(studentId);
     }
   } catch (error) {
-    handleServiceError(error, 'personalAI.getContext');
+    console.warn('[getPersonalContext] Fallback:', error);
+    return emptyContext(studentId);
   }
 }
 
@@ -102,6 +114,10 @@ export async function chat(studentId: string, message: string, history: ChatMess
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, message, history }),
       });
+      if (!res.ok) {
+        console.warn('[chat] API error:', res.status);
+        return { message: 'IA Coach em desenvolvimento.', context_used: [], suggested_actions: [] };
+      }
       return res.json();
     } catch {
       console.warn('[personal-ai.chat] API not available, using mock fallback');
@@ -109,7 +125,8 @@ export async function chat(studentId: string, message: string, history: ChatMess
       return mockChat(studentId, message, history);
     }
   } catch (error) {
-    handleServiceError(error, 'personalAI.chat');
+    console.warn('[chat] Fallback:', error);
+    return { message: '', context_used: [], suggested_actions: [] };
   }
 }
 
@@ -121,6 +138,10 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
     }
     try {
       const res = await fetch(`/api/ai/daily-briefing/${studentId}`);
+      if (!res.ok) {
+        console.warn('[getDailyBriefing] API error:', res.status);
+        return emptyBriefing;
+      }
       return res.json();
     } catch {
       console.warn('[personal-ai.getDailyBriefing] API not available, using mock fallback');
@@ -128,7 +149,8 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       return mockGetDailyBriefing(studentId);
     }
   } catch (error) {
-    handleServiceError(error, 'personalAI.dailyBriefing');
+    console.warn('[getDailyBriefing] Fallback:', error);
+    return emptyBriefing;
   }
 }
 
@@ -140,6 +162,10 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
     }
     try {
       const res = await fetch(`/api/ai/weekly-plan/${studentId}`);
+      if (!res.ok) {
+        console.warn('[getWeeklyPlan] API error:', res.status);
+        return emptyWeeklyPlan;
+      }
       return res.json();
     } catch {
       console.warn('[personal-ai.getWeeklyPlan] API not available, using mock fallback');
@@ -147,6 +173,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       return mockGetWeeklyPlan(studentId);
     }
   } catch (error) {
-    handleServiceError(error, 'personalAI.weeklyPlan');
+    console.warn('[getWeeklyPlan] Fallback:', error);
+    return emptyWeeklyPlan;
   }
 }

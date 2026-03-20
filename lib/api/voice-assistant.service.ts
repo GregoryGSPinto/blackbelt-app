@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type VoiceCommandType =
   | 'start_timer'
@@ -52,7 +51,8 @@ export async function startListening(): Promise<ListeningState> {
     // Web Speech API would be initialized here
     return { is_listening: true, transcript: '', confidence: 0 };
   } catch (error) {
-    handleServiceError(error, 'voiceAssistant.startListening');
+    console.warn('[startListening] Fallback:', error);
+    return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
 
@@ -64,7 +64,8 @@ export async function stopListening(): Promise<ListeningState> {
     }
     return { is_listening: false, transcript: '', confidence: 0 };
   } catch (error) {
-    handleServiceError(error, 'voiceAssistant.stopListening');
+    console.warn('[stopListening] Fallback:', error);
+    return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
 
@@ -80,13 +81,20 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transcript: audioTranscript }),
       });
+      if (!res.ok) {
+        console.warn('[processCommand] API error:', res.status);
+        // Fallback to local command parsing
+        const cmdType = parseCommand(audioTranscript);
+        return { command_type: cmdType, text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
+      }
       return res.json();
     } catch {
-      console.warn('[voice-assistant.processCommand] API not available, using mock fallback');
-      const { mockProcessCommand } = await import('@/lib/mocks/voice-assistant.mock');
-      return mockProcessCommand(audioTranscript);
+      console.warn('[voice-assistant.processCommand] API not available — feature em desenvolvimento');
+      const cmdType = parseCommand(audioTranscript);
+      return { command_type: cmdType, text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
     }
   } catch (error) {
-    handleServiceError(error, 'voiceAssistant.processCommand');
+    console.warn('[processCommand] Fallback:', error);
+    return { command_type: 'unknown', text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
   }
 }

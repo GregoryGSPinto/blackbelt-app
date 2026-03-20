@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface SimilarAthlete {
   id: string;
@@ -57,6 +56,18 @@ export interface CategoryRecommendation {
   feasibility: 'easy' | 'moderate' | 'difficult' | 'not_recommended';
 }
 
+const emptyPrediction = (studentId: string, championshipId: string): Prediction => ({
+  student_id: studentId, championship_id: championshipId, podium_probability: 0, gold_probability: 0, silver_probability: 0, bronze_probability: 0, strengths: [], risks: [], preparation_suggestions: [], similar_athletes: [], confidence_level: 0, generated_at: '',
+});
+
+const emptyMatchup = (studentId: string, opponentId: string): MatchupAnalysis => ({
+  student_id: studentId, opponent_id: opponentId, opponent_name: '', head_to_head: { wins: 0, losses: 0, draws: 0 }, win_probability: 0, style_comparison: [], recommendation: '', key_advantages: [], key_vulnerabilities: [],
+});
+
+const emptyCategory = (studentId: string, championshipId: string): CategoryRecommendation => ({
+  student_id: studentId, championship_id: championshipId, current_weight: 0, recommended_category: '', recommended_weight_range: '', alternative_category: '', alternative_weight_range: '', reasoning: '', weight_adjustment_needed: 0, days_until_competition: 0, feasibility: 'easy',
+});
+
 export async function predictPerformance(studentId: string, championshipId: string): Promise<Prediction> {
   try {
     if (isMock()) {
@@ -69,14 +80,18 @@ export async function predictPerformance(studentId: string, championshipId: stri
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, championshipId }),
       });
+      if (!res.ok) {
+        console.warn('[predictPerformance] API error:', res.status);
+        return emptyPrediction(studentId, championshipId);
+      }
       return res.json();
     } catch {
-      console.warn('[competition-predictor.predictPerformance] API not available, using mock fallback');
-      const { mockPredictPerformance } = await import('@/lib/mocks/competition-predictor.mock');
-      return mockPredictPerformance(studentId, championshipId);
+      console.warn('[competition-predictor.predictPerformance] API not available — feature em desenvolvimento');
+      return emptyPrediction(studentId, championshipId);
     }
   } catch (error) {
-    handleServiceError(error, 'competitionPredictor.predict');
+    console.warn('[predictPerformance] Fallback:', error);
+    return emptyPrediction(studentId, championshipId);
   }
 }
 
@@ -92,13 +107,18 @@ export async function getMatchup(studentId: string, opponentId: string): Promise
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, opponentId }),
       });
+      if (!res.ok) {
+        console.warn('[getMatchup] API error:', res.status);
+        return emptyMatchup(studentId, opponentId);
+      }
       return res.json();
     } catch {
-      console.warn('[competition-predictor.getMatchup] API not available, using fallback');
-      return { style_comparison: { area: "", student: 0, opponent: 0 }, strengths: [], vulnerabilities: [], game_plan: "" } as unknown as MatchupAnalysis;
+      console.warn('[competition-predictor.getMatchup] API not available — feature em desenvolvimento');
+      return emptyMatchup(studentId, opponentId);
     }
   } catch (error) {
-    handleServiceError(error, 'competitionPredictor.matchup');
+    console.warn('[getMatchup] Fallback:', error);
+    return emptyMatchup(studentId, opponentId);
   }
 }
 
@@ -114,13 +134,17 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, championshipId }),
       });
+      if (!res.ok) {
+        console.warn('[getOptimalCategory] API error:', res.status);
+        return emptyCategory(studentId, championshipId);
+      }
       return res.json();
     } catch {
-      console.warn('[competition-predictor.getOptimalCategory] API not available, using mock fallback');
-      const { mockGetOptimalCategory } = await import('@/lib/mocks/competition-predictor.mock');
-      return mockGetOptimalCategory(studentId, championshipId);
+      console.warn('[competition-predictor.getOptimalCategory] API not available — feature em desenvolvimento');
+      return emptyCategory(studentId, championshipId);
     }
   } catch (error) {
-    handleServiceError(error, 'competitionPredictor.optimalCategory');
+    console.warn('[getOptimalCategory] Fallback:', error);
+    return emptyCategory(studentId, championshipId);
   }
 }
