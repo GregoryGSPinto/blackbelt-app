@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 import type { ChatConversation, ChatMessage, SendMessagePayload } from '@/lib/types/chat';
 
@@ -9,11 +8,23 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       const { mockListConversations } = await import('@/lib/mocks/chat.mock');
       return mockListConversations(userId);
     }
-    // API not yet implemented — use mock
-    const { mockListConversations } = await import('@/lib/mocks/chat.mock');
-      return mockListConversations(userId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('*')
+      .or(`participant_a.eq.${userId},participant_b.eq.${userId}`)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listConversations] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as ChatConversation[];
   } catch (error) {
-    handleServiceError(error, 'chat.listConversations');
+    console.warn('[listConversations] Fallback:', error);
+    return [];
   }
 }
 
@@ -27,20 +38,30 @@ export async function getMessages(
       const { mockGetMessages } = await import('@/lib/mocks/chat.mock');
       return mockGetMessages(conversationId, limit);
     }
-    try {
-      const params = new URLSearchParams({ limit: String(limit) });
-      if (cursor) params.set('cursor', cursor);
-      const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[chat.getMessages] API not available, using mock fallback');
-      const { mockGetMessages } = await import('@/lib/mocks/chat.mock');
-      return mockGetMessages(conversationId, limit);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('sent_at', { ascending: false })
+      .limit(limit);
+
+    if (cursor) {
+      query = query.lt('sent_at', cursor);
     }
 
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('[getMessages] error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as ChatMessage[];
   } catch (error) {
-    handleServiceError(error, 'chat.getMessages');
+    console.warn('[getMessages] Fallback:', error);
+    return [];
   }
 }
 
@@ -50,21 +71,31 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       const { mockSendMessage } = await import('@/lib/mocks/chat.mock');
       return mockSendMessage(payload);
     }
-    try {
-      const res = await fetch(`/api/chat/conversations/${payload.conversationId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[chat.sendMessage] API not available, using mock fallback');
-      const { mockSendMessage } = await import('@/lib/mocks/chat.mock');
-      return mockSendMessage(payload);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: userData } = await supabase.auth.getUser();
+    const currentUserId = userData?.user?.id ?? '';
+
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: payload.conversationId,
+        sender_id: currentUserId,
+        content: payload.content,
+        type: payload.type ?? 'text',
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[sendMessage] error:', error?.message);
+      return { id: '', conversationId: payload.conversationId, senderId: currentUserId, senderName: '', content: payload.content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
     }
+    return data as unknown as ChatMessage;
   } catch (error) {
-    handleServiceError(error, 'chat.sendMessage');
+    console.warn('[sendMessage] Fallback:', error);
+    return { id: '', conversationId: '', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }
 
@@ -74,16 +105,20 @@ export async function markAsRead(conversationId: string): Promise<void> {
       logger.debug(`[MOCK] Marked conversation ${conversationId} as read`);
       return;
     }
-    try {
-      const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
-        method: 'POST',
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[chat.markAsRead] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('conversation_id', conversationId)
+      .is('read_at', null);
+
+    if (error) {
+      console.warn('[markAsRead] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'chat.markAsRead');
+    console.warn('[markAsRead] Fallback:', error);
   }
 }
 
@@ -106,20 +141,28 @@ export async function createBroadcast(
         type: 'text',
       };
     }
-    try {
-      const res = await fetch('/api/chat/broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ senderId, content, recipientRole }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[chat.createBroadcast] API not available, using fallback');
-      return { id: "", conversation_id: "", sender_id: "", sender_name: "", content: "", sent_at: "", read: false } as unknown as ChatMessage;
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
 
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: 'broadcast',
+        sender_id: senderId,
+        content,
+        type: 'broadcast',
+        metadata: recipientRole ? { recipientRole } : {},
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[createBroadcast] error:', error?.message);
+      return { id: '', conversationId: 'broadcast', senderId, senderName: '', content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
+    }
+    return data as unknown as ChatMessage;
   } catch (error) {
-    handleServiceError(error, 'chat.broadcast');
+    console.warn('[createBroadcast] Fallback:', error);
+    return { id: '', conversationId: 'broadcast', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }
