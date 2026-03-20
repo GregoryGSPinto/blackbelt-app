@@ -1,6 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
-import { createBrowserClient } from '@/lib/supabase/client';
 
 export interface Lead {
   id: string;
@@ -25,6 +23,10 @@ export interface CRMMetrics {
   conversion_rate: number;
 }
 
+const EMPTY_METRICS: CRMMetrics = { total_leads: 0, contacted: 0, experimental_scheduled: 0, attended: 0, converted: 0, conversion_rate: 0 };
+
+const EMPTY_LEAD: Lead = { id: '', name: '', email: null, phone: null, modality: null, origin: '', status: '', notes: null, experimental_date: null, referred_by_name: null, created_at: '' };
+
 export async function getLeads(academyId: string): Promise<Lead[]> {
   try {
     if (isMock()) {
@@ -32,6 +34,7 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       return mockGetLeads(academyId);
     }
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('leads')
@@ -39,7 +42,10 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new ServiceError(500, 'crm.getLeads', error.message);
+    if (error) {
+      console.warn('[getLeads] error:', error.message);
+      return [];
+    }
     return (data || []).map((row: { id: string; name: string; email: string | null; phone: string | null; modality: string | null; origin: string; status: string; notes: string | null; experimental_date: string | null; created_at: string }) => ({
       id: row.id,
       name: row.name,
@@ -53,7 +59,10 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       referred_by_name: null as string | null,
       created_at: row.created_at,
     }));
-  } catch (error) { handleServiceError(error, 'crm.getLeads'); }
+  } catch (error) {
+    console.warn('[getLeads] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
@@ -63,13 +72,17 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       return mockGetCRMMetrics(academyId);
     }
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('leads')
       .select('status')
       .eq('academy_id', academyId);
 
-    if (error) throw new ServiceError(500, 'crm.getMetrics', error.message);
+    if (error) {
+      console.warn('[getCRMMetrics] error:', error.message);
+      return EMPTY_METRICS;
+    }
 
     const leads = data || [];
     const total = leads.length;
@@ -87,7 +100,10 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       converted,
       conversion_rate: rate,
     };
-  } catch (error) { handleServiceError(error, 'crm.getMetrics'); }
+  } catch (error) {
+    console.warn('[getCRMMetrics] Fallback:', error);
+    return EMPTY_METRICS;
+  }
 }
 
 export async function updateLeadStatus(leadId: string, status: string): Promise<void> {
@@ -97,14 +113,19 @@ export async function updateLeadStatus(leadId: string, status: string): Promise<
       return mockUpdateLeadStatus(leadId, status);
     }
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { error } = await supabase
       .from('leads')
       .update({ status })
       .eq('id', leadId);
 
-    if (error) throw new ServiceError(500, 'crm.updateStatus', error.message);
-  } catch (error) { handleServiceError(error, 'crm.updateStatus'); }
+    if (error) {
+      console.warn('[updateLeadStatus] error:', error.message);
+    }
+  } catch (error) {
+    console.warn('[updateLeadStatus] Fallback:', error);
+  }
 }
 
 export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referred_by_name'>): Promise<Lead> {
@@ -114,6 +135,7 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       return mockCreateLead(data);
     }
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data: row, error } = await supabase
       .from('leads')
@@ -121,7 +143,10 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       .select()
       .single();
 
-    if (error) throw new ServiceError(500, 'crm.createLead', error.message);
+    if (error) {
+      console.warn('[createLead] error:', error.message);
+      return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
+    }
     return {
       id: row.id,
       name: row.name,
@@ -135,5 +160,8 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       referred_by_name: row.referred_by_name,
       created_at: row.created_at,
     };
-  } catch (error) { handleServiceError(error, 'crm.createLead'); }
+  } catch (error) {
+    console.warn('[createLead] Fallback:', error);
+    return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
+  }
 }

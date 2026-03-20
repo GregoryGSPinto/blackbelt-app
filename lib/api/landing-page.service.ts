@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -108,10 +107,14 @@ export async function getLandingPage(slug: string): Promise<LandingPageData | nu
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('landing_page_configs').select('*').eq('slug', slug).eq('published', true).single();
-    if (error) return null;
+    if (error) {
+      console.warn('[getLandingPage] error:', error.message);
+      return null;
+    }
     return data as unknown as LandingPageData;
   } catch (error) {
-    handleServiceError(error, 'landingPage.get');
+    console.warn('[getLandingPage] Fallback:', error);
+    return null;
   }
 }
 
@@ -124,10 +127,14 @@ export async function getLandingPageByAcademy(academyId: string): Promise<Landin
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('landing_page_configs').select('*').eq('academy_id', academyId).single();
-    if (error) return null;
+    if (error) {
+      console.warn('[getLandingPageByAcademy] error:', error.message);
+      return null;
+    }
     return data as unknown as LandingPageData;
   } catch (error) {
-    handleServiceError(error, 'landingPage.getByAcademy');
+    console.warn('[getLandingPageByAcademy] Fallback:', error);
+    return null;
   }
 }
 
@@ -140,9 +147,11 @@ export async function updateLandingPage(academyId: string, pageData: Partial<Lan
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { error } = await supabase.from('landing_page_configs').upsert({ academy_id: academyId, ...pageData, updated_at: new Date().toISOString() }, { onConflict: 'academy_id' });
-    if (error) throw error;
+    if (error) {
+      console.warn('[updateLandingPage] error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'landingPage.update');
+    console.warn('[updateLandingPage] Fallback:', error);
   }
 }
 
@@ -155,11 +164,18 @@ export async function agendarExperimental(slug: string, lead: LeadFormData): Pro
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const { data: config } = await supabase.from('landing_page_configs').select('academy_id').eq('slug', slug).single();
-    if (!config) return { success: false, mensagem: 'Academia não encontrada' };
+    if (!config) {
+      console.warn('[agendarExperimental] Academia não encontrada para slug:', slug);
+      return { success: false, mensagem: 'Academia não encontrada' };
+    }
     const { error } = await supabase.from('landing_page_leads').insert({ academy_id: config.academy_id, nome: lead.nome, telefone: lead.telefone, email: lead.email, modalidade: lead.modalidade, turma: lead.turma });
-    if (error) throw error;
+    if (error) {
+      console.warn('[agendarExperimental] error:', error.message);
+      return { success: false, mensagem: 'Erro ao agendar. Tente novamente.' };
+    }
     return { success: true, mensagem: 'Aula experimental agendada! Entraremos em contato pelo WhatsApp.' };
   } catch (error) {
-    handleServiceError(error, 'landingPage.agendarExperimental');
+    console.warn('[agendarExperimental] Fallback:', error);
+    return { success: false, mensagem: 'Erro ao agendar. Tente novamente.' };
   }
 }
