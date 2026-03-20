@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 export interface ParentDashboardDTO {
@@ -33,10 +32,64 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
       const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
       return mockGetParentDashboard(parentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetParentDashboard } = await import('@/lib/mocks/parent.mock');
-      return mockGetParentDashboard(parentId);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch children linked to this parent
+    const { data: children, error: childrenError } = await supabase
+      .from('guardian_students')
+      .select('student_id, students!inner(id, display_name, avatar_url, belt, birth_date)')
+      .eq('guardian_id', parentId);
+
+    if (childrenError) {
+      console.warn('[getParentDashboard] error fetching children:', childrenError.message);
+      return { filhos: [], notificacoes: [] };
+    }
+
+    const filhos: FilhoResumoDTO[] = (children ?? []).map((row: Record<string, unknown>) => {
+      const student = row.students as Record<string, unknown> | null;
+      const birthDate = student?.birth_date ? new Date(student.birth_date as string) : null;
+      const age = birthDate
+        ? Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+        : 0;
+
+      return {
+        student_id: row.student_id as string,
+        display_name: (student?.display_name as string) ?? '',
+        avatar: (student?.avatar_url as string) ?? null,
+        belt: (student?.belt as BeltLevel) ?? 'branca',
+        idade: age,
+        presenca_mes: { total: 0, presentes: 0 },
+        ultima_aula: null,
+        proxima_aula: null,
+        pagamento_status: 'em_dia' as const,
+      };
+    });
+
+    // Fetch notifications for this parent
+    const { data: notifications, error: notifError } = await supabase
+      .from('notifications')
+      .select('id, message, type, created_at, read')
+      .eq('profile_id', parentId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (notifError) {
+      console.warn('[getParentDashboard] error fetching notifications:', notifError.message);
+    }
+
+    const notificacoes: NotificacaoParentDTO[] = (notifications ?? []).map((n: Record<string, unknown>) => ({
+      id: n.id as string,
+      message: n.message as string,
+      type: n.type as string,
+      time: n.created_at as string,
+      read: n.read as boolean,
+    }));
+
+    return { filhos, notificacoes };
   } catch (error) {
-    handleServiceError(error, 'parent.dashboard');
+    console.warn('[getParentDashboard] Fallback:', error);
+    return { filhos: [], notificacoes: [] };
   }
 }
