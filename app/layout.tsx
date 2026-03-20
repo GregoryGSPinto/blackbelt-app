@@ -3,6 +3,7 @@ import { Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+import { BetaWidgets } from '@/components/beta/BetaWidgets';
 import { getThemeInitScript } from '@/lib/utils/theme';
 import '@/styles/globals.css';
 
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers><main id="main-content">{children}</main></Providers>
         <ServiceWorkerRegistrar />
         <InstallPrompt />
+        <BetaWidgets />
       </body>
     </html>
   );

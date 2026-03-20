@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -70,6 +71,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       console.warn('[cadastrarRapido] Supabase error:', error?.message);
       return { alunoId: '', tipo: data.tipo };
     }
+    trackFeatureUsage('students', 'create');
     return row as unknown as CadastroResult;
   } catch (error) {
     console.warn('[cadastrarRapido] Fallback:', error);

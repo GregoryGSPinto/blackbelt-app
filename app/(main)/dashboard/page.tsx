@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { getAlunoDashboard } from '@/lib/api/aluno.service';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import type {
@@ -171,6 +172,8 @@ export default function StudentDashboardPage() {
     !studentLoading && studentId ? `student-dashboard-${studentId}` : null,
     () => getAlunoDashboard(studentId!),
   );
+
+  useEffect(() => { trackFeatureUsage('dashboard', 'view', { role: 'student' }); }, []);
 
   const loading = studentLoading || swrLoading;
 

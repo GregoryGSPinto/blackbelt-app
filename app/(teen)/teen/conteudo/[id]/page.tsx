@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import {
   getVideoExperience,
   curtirVideo,
@@ -93,6 +94,7 @@ export default function TeenVideoExperiencePage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    trackFeatureUsage('content', 'view');
     getVideoExperience(videoId).then((d) => {
       if (!cancelled) { setData(d); setProgress(d.progresso.progressoSegundos); setLoading(false); }
     });

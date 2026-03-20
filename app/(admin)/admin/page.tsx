@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getDashboardData } from '@/lib/api/admin-dashboard.service';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { DashboardData } from '@/lib/types/admin-dashboard';
 import { getDailyBriefing } from '@/lib/api/painel-dia.service';
 import type { DailyBriefingDTO } from '@/lib/api/painel-dia.service';
@@ -407,6 +408,8 @@ export default function AdminDashboardPage() {
   const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
+
+  useEffect(() => { trackFeatureUsage('dashboard', 'view', { role: 'admin' }); }, []);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();

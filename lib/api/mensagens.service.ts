@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import { Role } from '@/lib/types/domain';
 import type {
   Contact,
@@ -347,6 +348,8 @@ export async function sendMessage(
       console.warn('[sendMessage] Supabase error:', error?.message);
       return fallback;
     }
+
+    trackFeatureUsage('messages', 'create');
 
     // Update conversation's last message
     await supabase

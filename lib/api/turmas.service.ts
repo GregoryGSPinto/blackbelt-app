@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Class, ScheduleSlot, BeltLevel, EnrollmentStatus } from '@/lib/types';
 
 export interface ClassFilters {
@@ -194,6 +195,7 @@ export async function createClass(data: CreateClassRequest): Promise<Class> {
       console.warn('[createClass] Supabase error:', error.message);
       return {} as Class;
     }
+    trackFeatureUsage('schedule', 'create');
     return classData as Class;
   } catch (error) {
     console.warn('[createClass] Fallback:', error);

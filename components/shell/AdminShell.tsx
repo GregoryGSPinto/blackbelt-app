@@ -46,6 +46,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { BetaBadge } from '@/components/beta/BetaBadge';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -459,6 +460,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               </button>
             </div>
             <div className="flex items-center gap-3">
+              <BetaBadge />
               <ThemeToggle />
 
               {/* Notifications */}

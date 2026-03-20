@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
+import { BetaBadge } from '@/components/beta/BetaBadge';
 import {
   LayoutDashboardIcon,
   BuildingIcon,
@@ -27,6 +28,7 @@ import {
   BellIcon,
   XIcon,
   TrophyIcon,
+  FlaskConicalIcon,
 } from './icons';
 
 interface SuperAdminShellProps {
@@ -80,6 +82,12 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'COMPETE',
     items: [
       { href: '/superadmin/compete', label: 'Compete', icon: TrophyIcon, id: 'sidebar-link-compete' },
+    ],
+  },
+  {
+    label: 'BETA',
+    items: [
+      { href: '/superadmin/beta', label: 'Beta Program', icon: FlaskConicalIcon, id: 'sidebar-link-beta' },
     ],
   },
   {
@@ -298,7 +306,9 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                 </svg>
               </button>
 
-              <div className="hidden lg:block" />
+              <div className="hidden lg:flex lg:items-center lg:gap-2">
+                <BetaBadge />
+              </div>
 
               <div className="flex items-center gap-3">
                 {/* Notifications */}

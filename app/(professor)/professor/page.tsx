@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
@@ -318,6 +319,8 @@ export default function ProfessorDashboardPage() {
   );
 
   const statsSection = useInView(0.1);
+
+  useEffect(() => { trackFeatureUsage('dashboard', 'view', { role: 'professor' }); }, []);
 
   const greeting = useMemo(() => getGreeting(), []);
   const firstName = profile?.display_name ? getFirstName(profile.display_name) : 'Professor';

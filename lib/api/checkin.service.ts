@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Attendance, AttendanceMethod } from '@/lib/types';
 
 export interface AttendanceStats {
@@ -38,6 +39,7 @@ export async function doCheckin(studentId: string, classId: string, method: Atte
       console.warn('[doCheckin] Supabase error:', error.message);
       return {} as Attendance;
     }
+    trackFeatureUsage('checkin', 'create', { method });
     return data as Attendance;
   } catch (error) {
     console.warn('[doCheckin] Fallback:', error);

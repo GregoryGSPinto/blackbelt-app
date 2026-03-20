@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 
 export type LeadStatus = 'novo' | 'contatado' | 'agendado' | 'compareceu' | 'matriculou' | 'desistiu';
 
@@ -77,6 +78,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       return { id: '', name: data.name, email: data.email, phone: data.phone, interest: data.interest, source: data.source, referralCode: data.referralCode, status: 'novo', createdAt: new Date().toISOString() };
     }
 
+    trackFeatureUsage('crm', 'create');
     return {
       id: row.id ?? '',
       name: row.name ?? '',

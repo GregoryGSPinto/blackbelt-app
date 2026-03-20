@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
 
 export async function listMensalidades(
@@ -43,6 +44,7 @@ export async function markAsPaid(
       console.warn('[markAsPaid] error:', error.message);
       return { id: mensalidadeId, student_id: '', student_name: '', academy_id: '', amount: 0, due_date: '', status: 'pago', paid_at: new Date().toISOString(), payment_method: method, reference_month: '' } as Mensalidade;
     }
+    trackFeatureUsage('financial', 'create', { method });
     return data as unknown as Mensalidade;
   } catch (error) {
     console.warn('[markAsPaid] Fallback:', error);

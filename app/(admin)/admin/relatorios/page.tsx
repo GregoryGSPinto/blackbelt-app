@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { getReport } from '@/lib/api/relatorios.service';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { ReportType, ReportResult } from '@/lib/api/relatorios.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -39,6 +40,7 @@ export default function AdminRelatoriosPage() {
 
   useEffect(() => {
     setLoading(true);
+    trackFeatureUsage('reports', 'view', { type: selectedType });
     getReport('academy-1', { type: selectedType, from, to })
       .then(setReport)
       .catch(() => {})

@@ -7,6 +7,7 @@ import {
   updateClass,
   deleteClass,
 } from '@/lib/api/class.service';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type {
   ClassItem,
   ClassStatus,
@@ -196,6 +197,7 @@ export default function AdminTurmasPage() {
   }, [toast]);
 
   useEffect(() => {
+    trackFeatureUsage('schedule', 'view');
     loadClasses();
   }, [loadClasses]);
 

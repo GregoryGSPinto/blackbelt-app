@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getTeenDashboard } from '@/lib/api/teen.service';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type {
   TeenDashboardDTO,
   TeenAchievementDTO,
@@ -65,6 +66,7 @@ export default function TeenConquistasPage() {
   const [selectedAch, setSelectedAch] = useState<TeenFullAchievementDTO | null>(null);
 
   useEffect(() => {
+    trackFeatureUsage('gamification', 'view');
     async function load() {
       try {
         const d = await getTeenDashboard('stu-teen-lucas');

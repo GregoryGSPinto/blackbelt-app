@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { BeltLevel } from '@/lib/types';
 
 // ── DTOs ─────────────────────────────────────────────────────────────
@@ -264,6 +265,8 @@ export async function saveEvaluation(data: SaveEvaluationPayload): Promise<SaveE
       console.warn('[saveEvaluation] Supabase error:', insertError.message);
       return { id: '', student_id: data.student_id, date: now, tecnica: data.tecnica, disciplina: data.disciplina, evolucao: data.evolucao, consistencia: data.consistencia, observations: data.observations, notification_sent: false };
     }
+
+    trackFeatureUsage('grades', 'create');
 
     // Send notification to student
     await supabase.from('notifications').insert({
