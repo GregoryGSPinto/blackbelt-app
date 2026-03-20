@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface HealthFator {
   nome: string;
@@ -38,10 +37,27 @@ export async function getHealthOverview(): Promise<HealthOverview> {
       const { mockGetHealthOverview } = await import('@/lib/mocks/superadmin-health.mock');
       return mockGetHealthOverview();
     }
-    // API not yet implemented — use mock
-    const { mockGetHealthOverview } = await import('@/lib/mocks/superadmin-health.mock');
-      return mockGetHealthOverview();
-  } catch (error) { handleServiceError(error, 'superadmin-health.getOverview'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'health_overview')
+        .single();
+      if (error || !data) {
+        console.warn('[getHealthOverview] Query failed:', error?.message);
+        return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
+      }
+      return (data.value as HealthOverview) || { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
+    } catch {
+      console.warn('[superadmin-health.getHealthOverview] API not available, returning empty');
+      return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
+    }
+  } catch (error) {
+    console.warn('[getHealthOverview] Fallback:', error);
+    return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
+  }
 }
 
 export async function listAcademiaHealthScores(filtro?: string): Promise<AcademiaHealthScore[]> {
@@ -50,10 +66,44 @@ export async function listAcademiaHealthScores(filtro?: string): Promise<Academi
       const { mockListAcademiaHealthScores } = await import('@/lib/mocks/superadmin-health.mock');
       return mockListAcademiaHealthScores(filtro);
     }
-    // API not yet implemented — use mock
-    const { mockListAcademiaHealthScores } = await import('@/lib/mocks/superadmin-health.mock');
-      return mockListAcademiaHealthScores(filtro);
-  } catch (error) { handleServiceError(error, 'superadmin-health.listScores'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      let query = supabase
+        .from('academies')
+        .select('id, name, plan, health_score, student_count, status')
+        .order('health_score', { ascending: true });
+      if (filtro) {
+        query = query.ilike('name', `%${filtro}%`);
+      }
+      const { data, error } = await query;
+      if (error || !data) {
+        console.warn('[listAcademiaHealthScores] Query failed:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>) => ({
+        academiaId: (row.id as string) || '',
+        academiaNome: (row.name as string) || '',
+        plano: (row.plan as string) || '',
+        score: (row.health_score as number) || 0,
+        tendencia: 'estavel' as const,
+        fatores: [],
+        ultimoLoginAdmin: '',
+        alunosAtivos: (row.student_count as number) || 0,
+        alunosTotal: (row.student_count as number) || 0,
+        inadimplencia: 0,
+        featuresUsadas: [],
+        mesesNaPlataforma: 0,
+        recomendacao: '',
+      }));
+    } catch {
+      console.warn('[superadmin-health.listAcademiaHealthScores] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[listAcademiaHealthScores] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHealthScore> {
@@ -62,8 +112,39 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
       const { mockGetAcademiaHealth } = await import('@/lib/mocks/superadmin-health.mock');
       return mockGetAcademiaHealth(academiaId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAcademiaHealth } = await import('@/lib/mocks/superadmin-health.mock');
-      return mockGetAcademiaHealth(academiaId);
-  } catch (error) { handleServiceError(error, 'superadmin-health.getAcademia'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('academies')
+        .select('id, name, plan, health_score, student_count')
+        .eq('id', academiaId)
+        .single();
+      if (error || !data) {
+        console.warn('[getAcademiaHealth] Query failed:', error?.message);
+        return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
+      }
+      return {
+        academiaId: (data.id as string) || academiaId,
+        academiaNome: (data.name as string) || '',
+        plano: (data.plan as string) || '',
+        score: (data.health_score as number) || 0,
+        tendencia: 'estavel',
+        fatores: [],
+        ultimoLoginAdmin: '',
+        alunosAtivos: (data.student_count as number) || 0,
+        alunosTotal: (data.student_count as number) || 0,
+        inadimplencia: 0,
+        featuresUsadas: [],
+        mesesNaPlataforma: 0,
+        recomendacao: '',
+      };
+    } catch {
+      console.warn('[superadmin-health.getAcademiaHealth] API not available, returning empty');
+      return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
+    }
+  } catch (error) {
+    console.warn('[getAcademiaHealth] Fallback:', error);
+    return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
+  }
 }

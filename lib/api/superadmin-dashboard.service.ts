@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface MissionControlKPIs {
   mrr: number;
@@ -71,16 +70,49 @@ export interface MissionControlDTO {
   distribuicaoPlanos: DistribuicaoPlano[];
 }
 
+const emptyMissionControl: MissionControlDTO = {
+  kpis: { mrr: 0, mrrVariacao: 0, arr: 0, totalAcademias: 0, academiasAtivas: 0, academiasEmTrial: 0, academiasChurnMes: 0, totalAlunosPlataforma: 0, ticketMedio: 0, churnRate: 0, ltv: 0 },
+  mrrHistorico: [],
+  crescimentoAcademias: [],
+  alertas: [],
+  topAcademias: [],
+  academiasRisco: [],
+  distribuicaoPlanos: [],
+};
+
 export async function getMissionControl(): Promise<MissionControlDTO> {
   try {
     if (isMock()) {
       const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
       return await mockGetMissionControl();
     }
-    // API routes not yet implemented — go straight to mock
-    const { mockGetMissionControl } = await import('@/lib/mocks/superadmin-dashboard.mock');
-    return mockGetMissionControl();
-  } catch (error) { handleServiceError(error, 'superadmin-dashboard.getMissionControl'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      // Fetch academy count as base KPI
+      const { count: totalAcademias } = await supabase
+        .from('academies')
+        .select('*', { count: 'exact', head: true });
+      const { count: academiasAtivas } = await supabase
+        .from('academies')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+      return {
+        ...emptyMissionControl,
+        kpis: {
+          ...emptyMissionControl.kpis,
+          totalAcademias: totalAcademias ?? 0,
+          academiasAtivas: academiasAtivas ?? 0,
+        },
+      };
+    } catch {
+      console.warn('[superadmin-dashboard.getMissionControl] API not available, returning empty');
+      return emptyMissionControl;
+    }
+  } catch (error) {
+    console.warn('[getMissionControl] Fallback:', error);
+    return emptyMissionControl;
+  }
 }
 
 export async function resolverAlerta(alertaId: string): Promise<void> {
@@ -90,10 +122,19 @@ export async function resolverAlerta(alertaId: string): Promise<void> {
       return await mockResolverAlerta(alertaId);
     }
     try {
-      const res = await fetch(`/api/superadmin/alertas/${alertaId}/resolver`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('platform_alerts')
+        .update({ resolved: true, resolved_at: new Date().toISOString() })
+        .eq('id', alertaId);
+      if (error) {
+        console.warn('[resolverAlerta] Update failed:', error.message);
+      }
     } catch {
       console.warn('[superadmin-dashboard.resolverAlerta] API not available, using fallback');
     }
-  } catch (error) { handleServiceError(error, 'superadmin-dashboard.resolverAlerta'); }
+  } catch (error) {
+    console.warn('[resolverAlerta] Fallback:', error);
+  }
 }

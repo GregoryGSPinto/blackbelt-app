@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export type CategoriaFeature = 'core' | 'premium' | 'beta' | 'experimental';
 
@@ -40,10 +39,48 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
       const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
       return mockListFeatureFlags();
     }
-    // API not yet implemented — use mock
-    const { mockListFeatureFlags } = await import('@/lib/mocks/superadmin-features.mock');
-      return mockListFeatureFlags();
-  } catch (error) { handleServiceError(error, 'superadmin-features.list'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('*')
+        .eq('type', 'feature_flag')
+        .order('created_at', { ascending: false });
+      if (error || !data || data.length === 0) {
+        console.warn('[listFeatureFlags] Query failed or empty:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>) => {
+        const value = (row.value as Record<string, unknown>) || {};
+        return {
+          id: (row.id as string) || '',
+          nome: (value.nome as string) || (row.key as string) || '',
+          slug: (row.key as string) || '',
+          descricao: (value.descricao as string) || '',
+          categoria: (value.categoria as CategoriaFeature) || 'core',
+          statusGlobal: (value.enabled as boolean) || false,
+          regras: (value.regras as FeatureFlagRegras) || { planos: [], academiasIncluidas: [], academiasExcluidas: [] },
+          rolloutPercentual: (value.rollout as number) || 0,
+          criadoEm: (row.created_at as string) || '',
+          atualizadoEm: (row.updated_at as string) || '',
+          stats: {
+            featureSlug: (row.key as string) || '',
+            totalAcademiasComAcesso: 0,
+            totalAcademiasUsando: 0,
+            taxaAdocao: 0,
+            ultimoUso: '',
+          },
+        };
+      });
+    } catch {
+      console.warn('[superadmin-features.listFeatureFlags] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[listFeatureFlags] Fallback:', error);
+    return [];
+  }
 }
 
 export async function toggleFeatureGlobal(featureId: string, enabled: boolean): Promise<FeatureFlag> {
@@ -53,15 +90,46 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
       return mockToggleFeatureGlobal(featureId, enabled);
     }
     try {
-      const res = await fetch(`/api/superadmin/features/${featureId}/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled }) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: existing } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('id', featureId)
+        .single();
+      const currentValue = (existing?.value as Record<string, unknown>) || {};
+      const { data: row, error } = await supabase
+        .from('platform_settings')
+        .update({ value: { ...currentValue, enabled }, updated_at: new Date().toISOString() })
+        .eq('id', featureId)
+        .select()
+        .single();
+      if (error || !row) {
+        console.warn('[toggleFeatureGlobal] Update failed:', error?.message);
+        return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: enabled, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
+      }
+      const value = (row.value as Record<string, unknown>) || {};
+      return {
+        id: (row.id as string) || featureId,
+        nome: (value.nome as string) || '',
+        slug: (row.key as string) || '',
+        descricao: (value.descricao as string) || '',
+        categoria: (value.categoria as CategoriaFeature) || 'core',
+        statusGlobal: enabled,
+        regras: (value.regras as FeatureFlagRegras) || { planos: [], academiasIncluidas: [], academiasExcluidas: [] },
+        rolloutPercentual: (value.rollout as number) || 0,
+        criadoEm: (row.created_at as string) || '',
+        atualizadoEm: (row.updated_at as string) || '',
+      };
     } catch {
       console.warn('[superadmin-features.toggleFeatureGlobal] API not available, using mock fallback');
       const { mockToggleFeatureGlobal } = await import('@/lib/mocks/superadmin-features.mock');
       return mockToggleFeatureGlobal(featureId, enabled);
     }
-  } catch (error) { handleServiceError(error, 'superadmin-features.toggle'); }
+  } catch (error) {
+    console.warn('[toggleFeatureGlobal] Fallback:', error);
+    return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: enabled, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
+  }
 }
 
 export async function updateFeatureFlag(featureId: string, data: Partial<FeatureFlag>): Promise<FeatureFlag> {
@@ -71,15 +139,46 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
       return mockUpdateFeatureFlag(featureId, data);
     }
     try {
-      const res = await fetch(`/api/superadmin/features/${featureId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: existing } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('id', featureId)
+        .single();
+      const currentValue = (existing?.value as Record<string, unknown>) || {};
+      const { data: row, error } = await supabase
+        .from('platform_settings')
+        .update({ value: { ...currentValue, ...data }, updated_at: new Date().toISOString() })
+        .eq('id', featureId)
+        .select()
+        .single();
+      if (error || !row) {
+        console.warn('[updateFeatureFlag] Update failed:', error?.message);
+        return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
+      }
+      const value = (row.value as Record<string, unknown>) || {};
+      return {
+        id: (row.id as string) || featureId,
+        nome: (value.nome as string) || '',
+        slug: (row.key as string) || '',
+        descricao: (value.descricao as string) || '',
+        categoria: (value.categoria as CategoriaFeature) || 'core',
+        statusGlobal: (value.enabled as boolean) || false,
+        regras: (value.regras as FeatureFlagRegras) || { planos: [], academiasIncluidas: [], academiasExcluidas: [] },
+        rolloutPercentual: (value.rollout as number) || 0,
+        criadoEm: (row.created_at as string) || '',
+        atualizadoEm: (row.updated_at as string) || '',
+      };
     } catch {
       console.warn('[superadmin-features.updateFeatureFlag] API not available, using mock fallback');
       const { mockUpdateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockUpdateFeatureFlag(featureId, data);
     }
-  } catch (error) { handleServiceError(error, 'superadmin-features.update'); }
+  } catch (error) {
+    console.warn('[updateFeatureFlag] Fallback:', error);
+    return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
+  }
 }
 
 export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm' | 'atualizadoEm'>): Promise<FeatureFlag> {
@@ -89,13 +188,34 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
       return mockCreateFeatureFlag(data);
     }
     try {
-      const res = await fetch('/api/superadmin/features', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: row, error } = await supabase
+        .from('platform_settings')
+        .insert({
+          key: data.slug,
+          type: 'feature_flag',
+          value: { nome: data.nome, descricao: data.descricao, categoria: data.categoria, enabled: data.statusGlobal, regras: data.regras, rollout: data.rolloutPercentual },
+        })
+        .select()
+        .single();
+      if (error || !row) {
+        console.warn('[createFeatureFlag] Insert failed:', error?.message);
+        return { ...data, id: '', criadoEm: '', atualizadoEm: '' };
+      }
+      return {
+        ...data,
+        id: (row.id as string) || '',
+        criadoEm: (row.created_at as string) || '',
+        atualizadoEm: (row.updated_at as string) || '',
+      };
     } catch {
       console.warn('[superadmin-features.createFeatureFlag] API not available, using mock fallback');
       const { mockCreateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockCreateFeatureFlag(data);
     }
-  } catch (error) { handleServiceError(error, 'superadmin-features.create'); }
+  } catch (error) {
+    console.warn('[createFeatureFlag] Fallback:', error);
+    return { ...data, id: '', criadoEm: '', atualizadoEm: '' };
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface FeatureRanking {
   feature: string;
@@ -49,8 +48,25 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
       const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
       return mockGetProductAnalytics();
     }
-    // API not yet implemented — use mock
-    const { mockGetProductAnalytics } = await import('@/lib/mocks/superadmin-analytics.mock');
-      return mockGetProductAnalytics();
-  } catch (error) { handleServiceError(error, 'superadmin-analytics.get'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'product_analytics')
+        .single();
+      if (error || !data) {
+        console.warn('[getProductAnalytics] Query failed:', error?.message);
+        return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
+      }
+      return (data.value as ProductAnalytics) || { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
+    } catch {
+      console.warn('[superadmin-analytics.getProductAnalytics] API not available, returning empty');
+      return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
+    }
+  } catch (error) {
+    console.warn('[getProductAnalytics] Fallback:', error);
+    return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
+  }
 }

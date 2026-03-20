@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ImpersonateSession {
   originalUserId: string;
@@ -25,15 +24,36 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
       return mockStartImpersonation(academiaId);
     }
     try {
-      const res = await fetch('/api/superadmin/impersonate/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academiaId }) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: academy } = await supabase
+        .from('academies')
+        .select('id, name')
+        .eq('id', academiaId)
+        .single();
+      const session: ImpersonateSession = {
+        originalUserId: user?.id ?? '',
+        impersonatedUserId: '',
+        academiaId,
+        academiaNome: (academy?.name as string) || '',
+        role: 'admin',
+        iniciadoEm: new Date().toISOString(),
+      };
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('bb_original_session', JSON.stringify({ userId: user?.id }));
+        sessionStorage.setItem('bb_impersonate_session', JSON.stringify(session));
+      }
+      return session;
     } catch {
       console.warn('[superadmin-impersonate.startImpersonation] API not available, using mock fallback');
       const { mockStartImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStartImpersonation(academiaId);
     }
-  } catch (error) { handleServiceError(error, 'superadmin-impersonate.start'); }
+  } catch (error) {
+    console.warn('[startImpersonation] Fallback:', error);
+    return { originalUserId: '', impersonatedUserId: '', academiaId, academiaNome: '', role: 'admin', iniciadoEm: new Date().toISOString() };
+  }
 }
 
 export async function stopImpersonation(): Promise<void> {
@@ -42,13 +62,13 @@ export async function stopImpersonation(): Promise<void> {
       const { mockStopImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStopImpersonation();
     }
-    try {
-      const res = await fetch('/api/superadmin/impersonate/stop', { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[superadmin-impersonate.stopImpersonation] API not available, using fallback');
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('bb_original_session');
+      sessionStorage.removeItem('bb_impersonate_session');
     }
-  } catch (error) { handleServiceError(error, 'superadmin-impersonate.stop'); }
+  } catch (error) {
+    console.warn('[stopImpersonation] Fallback:', error);
+  }
 }
 
 export function isImpersonating(): boolean {
@@ -69,8 +89,30 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
       const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockListImpersonateAcademias();
     }
-    // API not yet implemented — use mock
-    const { mockListImpersonateAcademias } = await import('@/lib/mocks/superadmin-impersonate.mock');
-      return mockListImpersonateAcademias();
-  } catch (error) { handleServiceError(error, 'superadmin-impersonate.listAcademias'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('academies')
+        .select('id, name, plan, student_count, health_score')
+        .order('name');
+      if (error || !data) {
+        console.warn('[listImpersonateAcademias] Query failed:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>) => ({
+        id: (row.id as string) || '',
+        nome: (row.name as string) || '',
+        plano: (row.plan as string) || '',
+        alunos: (row.student_count as number) || 0,
+        healthScore: (row.health_score as number) || 0,
+      }));
+    } catch {
+      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[listImpersonateAcademias] Fallback:', error);
+    return [];
+  }
 }

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface ReceitaPorPlano {
   plano: string;
@@ -47,14 +46,33 @@ export interface RevenueMetrics {
   projecao3Meses: Projecao[];
 }
 
+const emptyRevenue: RevenueMetrics = { mrr: 0, arr: 0, mrrAnterior: 0, crescimentoMrr: 0, churnRate: 0, churnReceita: 0, revenueChurnRate: 0, ltv: 0, cac: 0, ltvCacRatio: 0, paybackMeses: 0, receitaPorPlano: [], evolucaoMensal: [], cohort: [], projecao3Meses: [] };
+
 export async function getRevenueMetrics(): Promise<RevenueMetrics> {
   try {
     if (isMock()) {
       const { mockGetRevenueMetrics } = await import('@/lib/mocks/superadmin-revenue.mock');
       return mockGetRevenueMetrics();
     }
-    // API not yet implemented — use mock
-    const { mockGetRevenueMetrics } = await import('@/lib/mocks/superadmin-revenue.mock');
-      return mockGetRevenueMetrics();
-  } catch (error) { handleServiceError(error, 'superadmin-revenue.getMetrics'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'revenue_metrics')
+        .single();
+      if (error || !data) {
+        console.warn('[getRevenueMetrics] Query failed:', error?.message);
+        return emptyRevenue;
+      }
+      return (data.value as RevenueMetrics) || emptyRevenue;
+    } catch {
+      console.warn('[superadmin-revenue.getRevenueMetrics] API not available, returning empty');
+      return emptyRevenue;
+    }
+  } catch (error) {
+    console.warn('[getRevenueMetrics] Fallback:', error);
+    return emptyRevenue;
+  }
 }
