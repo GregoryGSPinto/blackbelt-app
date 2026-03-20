@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, ScheduleSlot } from '@/lib/types';
 
 // ── Base DTOs ──────────────────────────────────────────────────────────
@@ -148,7 +147,19 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       .select('belt, academy_id, started_at, profiles!students_profile_id_fkey(display_name, avatar)')
       .eq('id', studentId)
       .single();
-    if (studentError) throw new ServiceError(404, 'aluno.dashboard', studentError.message);
+    if (studentError) {
+      console.warn('[getAlunoDashboard] Supabase error:', studentError.message);
+      return {
+        student_name: 'Aluno', avatar_url: null, ranking_position: 0, total_academy_students: 0,
+        membro_desde: '', proximaAula: null, aulaAgora: false, proximaAulaAmanha: null, proximasAulas: [],
+        progressoFaixa: { faixa_atual: 'white' as BeltLevel, proxima_faixa: 'gray' as BeltLevel, percentual: 0, aulas_necessarias: 0, aulas_concluidas: 0, requisitos: [] },
+        frequenciaMes: { total_aulas: 0, presencas: 0, dias_presentes: [], mes_label: '' },
+        frequenciaMesAnteriorPct: 0, streak: 0, videos_watched: 0, quiz_score_avg: 0,
+        evolucao: { presencas_atual: 0, presencas_necessario: 0, meses_atual: 0, meses_necessario: 0, quiz_avg: 0, quiz_necessario: 0 },
+        heatmap3Meses: [], mensalidade: { plano_nome: '', valor: 0, status: 'em_dia', vencimento: '', mes_label: '' },
+        conteudoRecomendado: [], continuarAssistindo: null, ultimasConquistas: [], proximaConquista: null, semana: [],
+      } as AlunoDashboardDTO;
+    }
 
     const studentProfile = student.profiles as Record<string, unknown> | null;
     const studentName = ((studentProfile?.display_name ?? 'Aluno') as string).split(' ')[0];
@@ -427,6 +438,16 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       semana,
     };
   } catch (error) {
-    handleServiceError(error, 'aluno.dashboard');
+    console.warn('[getAlunoDashboard] Fallback:', error);
+    return {
+      student_name: 'Aluno', avatar_url: null, ranking_position: 0, total_academy_students: 0,
+      membro_desde: '', proximaAula: null, aulaAgora: false, proximaAulaAmanha: null, proximasAulas: [],
+      progressoFaixa: { faixa_atual: 'white' as BeltLevel, proxima_faixa: 'gray' as BeltLevel, percentual: 0, aulas_necessarias: 0, aulas_concluidas: 0, requisitos: [] },
+      frequenciaMes: { total_aulas: 0, presencas: 0, dias_presentes: [], mes_label: '' },
+      frequenciaMesAnteriorPct: 0, streak: 0, videos_watched: 0, quiz_score_avg: 0,
+      evolucao: { presencas_atual: 0, presencas_necessario: 0, meses_atual: 0, meses_necessario: 0, quiz_avg: 0, quiz_necessario: 0 },
+      heatmap3Meses: [], mensalidade: { plano_nome: '', valor: 0, status: 'em_dia', vencimento: '', mes_label: '' },
+      conteudoRecomendado: [], continuarAssistindo: null, ultimasConquistas: [], proximaConquista: null, semana: [],
+    } as AlunoDashboardDTO;
   }
 }

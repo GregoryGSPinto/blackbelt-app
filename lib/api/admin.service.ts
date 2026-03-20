@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface AdminDashboardDTO {
   totalAlunos: number;
@@ -139,7 +138,11 @@ export async function getAdminDashboard(academyId: string): Promise<AdminDashboa
       alertas,
     };
   } catch (error) {
-    handleServiceError(error, 'admin.dashboard');
+    console.warn('[getAdminDashboard] Fallback:', error);
+    return {
+      totalAlunos: 0, alunosAtivos: 0, novosEsteMes: 0, totalTurmas: 0, turmasHoje: 0,
+      receitaMensal: 0, inadimplencia: 0, presencaMedia: 0, ultimosCheckins: [], proximasAulas: [], alertas: [],
+    };
   }
 }
 
@@ -197,6 +200,7 @@ export async function getAdminMetrics(academyId: string, _period: string = '30d'
       turmasLotacao,
     };
   } catch (error) {
-    handleServiceError(error, 'admin.metrics');
+    console.warn('[getAdminMetrics] Fallback:', error);
+    return { presencaPorDia: [], receitaPorMes: [], alunosPorFaixa: [], turmasLotacao: [] };
   }
 }

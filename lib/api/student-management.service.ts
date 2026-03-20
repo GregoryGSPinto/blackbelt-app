@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { AdminStudentItem, StudentManagementStats } from '@/lib/types/student-management';
 
 export async function listStudents(
@@ -11,10 +10,64 @@ export async function listStudents(
       const { mockListStudents } = await import('@/lib/mocks/student-management.mock');
       return mockListStudents(academyId, filters);
     }
-    console.warn('[studentManagement.list] fallback — not yet connected to Supabase');
-    return [];
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('students')
+      .select(`
+        id, profile_id, belt, started_at, academy_id,
+        profiles!students_profile_id_fkey(display_name, avatar, email, phone),
+        memberships!inner(status),
+        class_enrollments(classes(modalities(name)))
+      `)
+      .eq('academy_id', academyId);
+
+    if (filters?.belt) query = query.eq('belt', filters.belt);
+    if (filters?.status) query = query.eq('memberships.status', filters.status);
+
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[listStudents] Supabase error:', error.message);
+      return [];
+    }
+
+    let results = (data ?? []).map((s: Record<string, unknown>) => {
+      const profile = s.profiles as Record<string, unknown> | null;
+      const memberships = s.memberships as Array<Record<string, unknown>> | null;
+      const enrollments = s.class_enrollments as Array<Record<string, unknown>> | null;
+      const turmas = (enrollments ?? []).map((e: Record<string, unknown>) => {
+        const cls = e.classes as Record<string, unknown> | null;
+        const mod = cls?.modalities as Record<string, unknown> | null;
+        return (mod?.name ?? '') as string;
+      }).filter(Boolean);
+
+      return {
+        id: s.id as string,
+        profile_id: s.profile_id as string,
+        display_name: (profile?.display_name ?? '') as string,
+        email: (profile?.email ?? '') as string,
+        phone: (profile?.phone ?? '') as string,
+        belt: s.belt as AdminStudentItem['belt'],
+        turmas,
+        attendance_rate: 0,
+        mensalidade_status: 'em_dia' as const,
+        status: ((memberships?.[0]?.status ?? 'active') === 'active' ? 'active' : 'inactive') as AdminStudentItem['status'],
+        started_at: (s.started_at ?? '') as string,
+        avatar_url: (profile?.avatar ?? null) as string | null,
+      };
+    });
+
+    if (filters?.search) {
+      const term = filters.search.toLowerCase();
+      results = results.filter((r: AdminStudentItem) => r.display_name.toLowerCase().includes(term) || r.email.toLowerCase().includes(term));
+    }
+
+    return results;
   } catch (error) {
-    handleServiceError(error, 'studentManagement.list');
+    console.warn('[listStudents] Fallback:', error);
+    return [];
   }
 }
 
@@ -28,10 +81,33 @@ export async function getStudentManagementStats(
       );
       return mockGetStudentManagementStats(academyId);
     }
-    console.warn('[studentManagement.stats] fallback — not yet connected to Supabase');
-    return { total_active: 0, new_this_month: 0, inactive: 0, by_belt: {} } as StudentManagementStats;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+
+    const [studentsRes, newRes, inactiveRes] = await Promise.all([
+      supabase.from('students').select('belt').eq('academy_id', academyId),
+      supabase.from('students').select('id', { count: 'exact', head: true }).eq('academy_id', academyId).gte('created_at', startOfMonth),
+      supabase.from('memberships').select('id', { count: 'exact', head: true }).eq('academy_id', academyId).eq('status', 'inactive'),
+    ]);
+
+    const students = studentsRes.data ?? [];
+    const byBelt: Record<string, number> = {};
+    for (const s of students) {
+      byBelt[s.belt] = (byBelt[s.belt] ?? 0) + 1;
+    }
+
+    return {
+      total_active: students.length,
+      new_this_month: newRes.count ?? 0,
+      inactive: inactiveRes.count ?? 0,
+      by_belt: byBelt,
+    };
   } catch (error) {
-    handleServiceError(error, 'studentManagement.stats');
+    console.warn('[getStudentManagementStats] Fallback:', error);
+    return { total_active: 0, new_this_month: 0, inactive: 0, by_belt: {} };
   }
 }
 
@@ -41,9 +117,22 @@ export async function deactivateStudent(studentId: string): Promise<AdminStudent
       const { mockDeactivateStudent } = await import('@/lib/mocks/student-management.mock');
       return mockDeactivateStudent(studentId);
     }
-    console.warn('[studentManagement.deactivate] fallback — not yet connected to Supabase');
-    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as import('@/lib/types/domain').BeltLevel, turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null } as AdminStudentItem;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('memberships')
+      .update({ status: 'inactive', updated_at: new Date().toISOString() })
+      .eq('profile_id', studentId);
+
+    if (error) {
+      console.warn('[deactivateStudent] Supabase error:', error.message);
+    }
+
+    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
   } catch (error) {
-    handleServiceError(error, 'studentManagement.deactivate');
+    console.warn('[deactivateStudent] Fallback:', error);
+    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
   }
 }

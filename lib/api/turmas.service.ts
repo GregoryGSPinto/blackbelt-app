@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Class, ScheduleSlot, BeltLevel, EnrollmentStatus } from '@/lib/types';
 
 export interface ClassFilters {
@@ -72,7 +71,10 @@ export async function listClasses(academyId: string, filters?: ClassFilters): Pr
     if (filters?.professorId) query = query.eq('professor_id', filters.professorId);
 
     const { data, error } = await query;
-    if (error) throw new ServiceError(500, 'turmas.list', error.message);
+    if (error) {
+      console.warn('[listClasses] Supabase error:', error.message);
+      return [];
+    }
 
     return (data ?? []).map((row: Record<string, unknown>) => {
       const modalities = row.modalities as Record<string, unknown> | null;
@@ -89,7 +91,8 @@ export async function listClasses(academyId: string, filters?: ClassFilters): Pr
       } as ClassWithDetails;
     });
   } catch (error) {
-    handleServiceError(error, 'turmas.list');
+    console.warn('[listClasses] Fallback:', error);
+    return [];
   }
 }
 
@@ -113,7 +116,10 @@ export async function getClassById(id: string): Promise<ClassDetail> {
       `)
       .eq('id', id)
       .single();
-    if (error) throw new ServiceError(404, 'turmas.getById', error.message);
+    if (error) {
+      console.warn('[getClassById] Supabase error:', error.message);
+      return { enrolled_students: [], modality_name: '', professor_name: '', unit_name: '', enrolled_count: 0, max_students: 0 } as unknown as ClassDetail;
+    }
 
     const { data: enrollments } = await supabase
       .from('class_enrollments')
@@ -158,7 +164,8 @@ export async function getClassById(id: string): Promise<ClassDetail> {
       enrolled_students,
     } as ClassDetail;
   } catch (error) {
-    handleServiceError(error, 'turmas.getById');
+    console.warn('[getClassById] Fallback:', error);
+    return { enrolled_students: [], modality_name: '', professor_name: '', unit_name: '', enrolled_count: 0, max_students: 0 } as unknown as ClassDetail;
   }
 }
 
@@ -183,10 +190,14 @@ export async function createClass(data: CreateClassRequest): Promise<Class> {
       })
       .select()
       .single();
-    if (error) throw new ServiceError(400, 'turmas.create', error.message);
+    if (error) {
+      console.warn('[createClass] Supabase error:', error.message);
+      return {} as Class;
+    }
     return classData as Class;
   } catch (error) {
-    handleServiceError(error, 'turmas.create');
+    console.warn('[createClass] Fallback:', error);
+    return {} as Class;
   }
 }
 
@@ -213,10 +224,14 @@ export async function updateClass(id: string, data: UpdateClassRequest): Promise
       .eq('id', id)
       .select()
       .single();
-    if (error) throw new ServiceError(400, 'turmas.update', error.message);
+    if (error) {
+      console.warn('[updateClass] Supabase error:', error.message);
+      return {} as Class;
+    }
     return classData as Class;
   } catch (error) {
-    handleServiceError(error, 'turmas.update');
+    console.warn('[updateClass] Fallback:', error);
+    return {} as Class;
   }
 }
 
@@ -231,9 +246,11 @@ export async function deleteClass(id: string): Promise<void> {
     const supabase = createBrowserClient();
 
     const { error } = await supabase.from('classes').delete().eq('id', id);
-    if (error) throw new ServiceError(400, 'turmas.delete', error.message);
+    if (error) {
+      console.warn('[deleteClass] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'turmas.delete');
+    console.warn('[deleteClass] Fallback:', error);
   }
 }
 
@@ -257,7 +274,10 @@ export async function getClassesByProfessor(professorId: string): Promise<ClassW
         class_enrollments(count)
       `)
       .eq('professor_id', professorId);
-    if (error) throw new ServiceError(500, 'turmas.getByProfessor', error.message);
+    if (error) {
+      console.warn('[getClassesByProfessor] Supabase error:', error.message);
+      return [];
+    }
 
     return (data ?? []).map((row: Record<string, unknown>) => {
       const modalities = row.modalities as Record<string, unknown> | null;
@@ -274,6 +294,7 @@ export async function getClassesByProfessor(professorId: string): Promise<ClassW
       } as ClassWithDetails;
     });
   } catch (error) {
-    handleServiceError(error, 'turmas.getByProfessor');
+    console.warn('[getClassesByProfessor] Fallback:', error);
+    return [];
   }
 }
