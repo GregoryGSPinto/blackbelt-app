@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, ScheduleSlot } from '@/lib/types';
 
 export interface ProfessorDashboardDTO {
@@ -72,7 +71,10 @@ export async function getProfessorDashboard(professorId: string): Promise<Profes
         class_enrollments(count)
       `)
       .eq('professor_id', professorId);
-    if (error) throw new ServiceError(500, 'professor.dashboard', error.message);
+    if (error) {
+      console.warn('[getProfessorDashboard] error:', error.message);
+      return { proximaAula: null, aulaAtiva: null, minhasTurmas: [], meusAlunos: [], mensagensRecentes: [] };
+    }
 
     const now = new Date();
     const currentDay = now.getDay();
@@ -207,6 +209,7 @@ export async function getProfessorDashboard(professorId: string): Promise<Profes
       mensagensRecentes,
     };
   } catch (error) {
-    handleServiceError(error, 'professor.dashboard');
+    console.warn('[getProfessorDashboard] Fallback:', error);
+    return { proximaAula: null, aulaAtiva: null, minhasTurmas: [], meusAlunos: [], mensagensRecentes: [] };
   }
 }

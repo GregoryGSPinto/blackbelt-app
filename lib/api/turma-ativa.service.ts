@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Attendance, BeltLevel, ScheduleSlot } from '@/lib/types';
 
 export interface ActiveClassStudent {
@@ -45,7 +44,10 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
         units(name)
       `)
       .eq('professor_id', professorId);
-    if (error) throw new ServiceError(500, 'turmaAtiva.get', error.message);
+    if (error) {
+      console.warn('[getActiveClass] error:', error.message);
+      return null;
+    }
 
     // Find class that's active now (matching current day/time)
     const now = new Date();
@@ -124,7 +126,8 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
       students,
     };
   } catch (error) {
-    handleServiceError(error, 'turmaAtiva.get');
+    console.warn('[getActiveClass] Fallback:', error);
+    return null;
   }
 }
 
@@ -151,10 +154,14 @@ export async function saveAttendance(data: SaveAttendanceRequest): Promise<Atten
       .from('attendance')
       .upsert(records, { onConflict: 'student_id,class_id', ignoreDuplicates: true })
       .select();
-    if (error) throw new ServiceError(400, 'turmaAtiva.save', error.message);
+    if (error) {
+      console.warn('[saveAttendance] error:', error.message);
+      return [];
+    }
 
     return (result ?? []) as Attendance[];
   } catch (error) {
-    handleServiceError(error, 'turmaAtiva.save');
+    console.warn('[saveAttendance] Fallback:', error);
+    return [];
   }
 }
