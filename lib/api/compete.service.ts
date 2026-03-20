@@ -5,7 +5,6 @@
 // ============================================================
 
 import { isMock } from '@/lib/env';
-// handleServiceError removed — graceful console.warn fallback pattern
 import type { BeltLevel } from '@/lib/types/domain';
 import type {
   Tournament,

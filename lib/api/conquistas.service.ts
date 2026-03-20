@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-// handleServiceError removed — graceful console.warn fallback pattern
 import type { Achievement, AchievementType } from '@/lib/types';
 
 export interface ConquistaDTO {

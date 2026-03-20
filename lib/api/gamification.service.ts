@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-// handleServiceError removed — graceful console.warn fallback pattern
 import { logger } from '@/lib/monitoring/logger';
 import type { PlayerProfile, LeaderboardEntry, Badge } from '@/lib/types/gamification';
 

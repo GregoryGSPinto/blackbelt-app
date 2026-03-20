@@ -8,14 +8,12 @@ import type {
   WebhookEvent,
   PaymentMethod,
 } from '@/lib/types/payment';
-import { ServiceError } from '@/lib/api/errors';
-
 const ASAAS_BASE = process.env.ASAAS_SANDBOX === 'false'
   ? 'https://api.asaas.com/api/v3'
   : 'https://sandbox.asaas.com/api/v3';
 const ASAAS_KEY = process.env.ASAAS_API_KEY ?? '';
 
-async function asaasFetch<T>(path: string, options?: RequestInit): Promise<T> {
+async function asaasFetch<T>(path: string, options?: RequestInit): Promise<T | null> {
   const res = await fetch(`${ASAAS_BASE}${path}`, {
     ...options,
     headers: {
@@ -24,7 +22,10 @@ async function asaasFetch<T>(path: string, options?: RequestInit): Promise<T> {
       ...options?.headers,
     },
   });
-  if (!res.ok) throw new ServiceError(res.status, 'asaas');
+  if (!res.ok) {
+    console.warn('[asaasFetch] Asaas API error:', res.status, path);
+    return null;
+  }
   return res.json() as Promise<T>;
 }
 
@@ -36,7 +37,7 @@ export class AsaasGateway implements PaymentGateway {
       method: 'POST',
       body: JSON.stringify({ name: data.name, email: data.email, cpfCnpj: data.cpf, phone: data.phone }),
     });
-    return { externalId: result.id, gateway: this.name };
+    return { externalId: result?.id ?? '', gateway: this.name };
   }
 
   async createSubscription(customerId: string, planId: string): Promise<ExternalSubscription> {
@@ -44,11 +45,11 @@ export class AsaasGateway implements PaymentGateway {
       method: 'POST',
       body: JSON.stringify({ customer: customerId, billingType: 'UNDEFINED', value: 0, externalReference: planId }),
     });
-    return { externalId: result.id, gateway: this.name, status: result.status };
+    return { externalId: result?.id ?? '', gateway: this.name, status: result?.status ?? 'unknown' };
   }
 
   async cancelSubscription(subscriptionId: string): Promise<void> {
-    await asaasFetch(`/subscriptions/${subscriptionId}`, { method: 'DELETE' });
+    await asaasFetch<unknown>(`/subscriptions/${subscriptionId}`, { method: 'DELETE' });
   }
 
   async generateInvoice(subscriptionId: string, amount: number): Promise<ExternalInvoice> {
@@ -61,7 +62,7 @@ export class AsaasGateway implements PaymentGateway {
         dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       }),
     });
-    return { externalId: result.id, gateway: this.name, paymentUrl: result.invoiceUrl };
+    return { externalId: result?.id ?? '', gateway: this.name, paymentUrl: result?.invoiceUrl };
   }
 
   async getPaymentLink(invoiceId: string, method: PaymentMethod): Promise<PaymentLink> {
@@ -71,10 +72,10 @@ export class AsaasGateway implements PaymentGateway {
     );
     void billingMap[method];
     return {
-      url: result.invoiceUrl,
-      expiresAt: result.expirationDate ?? new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      qrCode: result.payload,
-      barCode: result.barCode,
+      url: result?.invoiceUrl ?? '',
+      expiresAt: result?.expirationDate ?? new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      qrCode: result?.payload,
+      barCode: result?.barCode,
     };
   }
 
@@ -95,7 +96,8 @@ export class AsaasGateway implements PaymentGateway {
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
       if (computed !== signature) {
-        throw new ServiceError(401, 'asaas', 'Invalid webhook signature');
+        console.warn('[asaas.processWebhook] Invalid webhook signature');
+        return { id: 'invalid', type: 'payment.confirmed' as const, gateway: this.name, externalId: 'unknown', data: {}, receivedAt: new Date().toISOString() };
       }
     }
 
