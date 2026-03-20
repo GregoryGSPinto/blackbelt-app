@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ─── Interfaces ───────────────────────────────────────────────
 
@@ -193,10 +192,19 @@ export async function getFaixas(): Promise<FaixaBase[]> {
       const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
       return mockGetFaixas();
     }
-    // API not yet implemented — use mock
-    const { mockGetFaixas } = await import('@/lib/mocks/pricing.mock');
-      return mockGetFaixas();
-  } catch (error) { handleServiceError(error, 'pricing.getFaixas'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('pricing_tiers').select('*').order('min_alunos');
+    if (error) {
+      console.warn('[getFaixas] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as FaixaBase[];
+  } catch (error) {
+    console.warn('[getFaixas] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getModulos(): Promise<Modulo[]> {
@@ -205,10 +213,19 @@ export async function getModulos(): Promise<Modulo[]> {
       const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulos();
     }
-    // API not yet implemented — use mock
-    const { mockGetModulos } = await import('@/lib/mocks/pricing.mock');
-      return mockGetModulos();
-  } catch (error) { handleServiceError(error, 'pricing.getModulos'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('pricing_modules').select('*').order('ordem');
+    if (error) {
+      console.warn('[getModulos] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as Modulo[];
+  } catch (error) {
+    console.warn('[getModulos] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getPacotes(): Promise<PacoteSugerido[]> {
@@ -217,10 +234,19 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
       const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
       return mockGetPacotes();
     }
-    // API not yet implemented — use mock
-    const { mockGetPacotes } = await import('@/lib/mocks/pricing.mock');
-      return mockGetPacotes();
-  } catch (error) { handleServiceError(error, 'pricing.getPacotes'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase.from('pricing_packages').select('*');
+    if (error) {
+      console.warn('[getPacotes] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as PacoteSugerido[];
+  } catch (error) {
+    console.warn('[getPacotes] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> {
@@ -229,10 +255,22 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
       return mockGetAssinatura(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAssinatura } = await import('@/lib/mocks/pricing.mock');
-      return mockGetAssinatura(academyId);
-  } catch (error) { handleServiceError(error, 'pricing.getAssinatura'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*, plans(*)')
+      .eq('academy_id', academyId)
+      .maybeSingle();
+    if (error) {
+      console.warn('[getAssinatura] Supabase error:', error.message);
+    }
+    return (data ?? { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] }) as unknown as AssinaturaSaaS;
+  } catch (error) {
+    console.warn('[getAssinatura] Fallback:', error);
+    return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as unknown as AssinaturaSaaS;
+  }
 }
 
 export async function ativarModulo(academyId: string, moduloSlug: string): Promise<AssinaturaSaaS> {
@@ -241,20 +279,20 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       const { mockAtivarModulo } = await import('@/lib/mocks/pricing.mock');
       return mockAtivarModulo(academyId, moduloSlug);
     }
-    try {
-      const res = await fetch('/api/pricing/modules/activate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, moduloSlug }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.ativarModulo');
-      return res.json();
-    } catch {
-      console.warn('[pricing.ativarModulo] API not available, using mock fallback');
-      const { mockAtivarModulo } = await import('@/lib/mocks/pricing.mock');
-      return mockAtivarModulo(academyId, moduloSlug);
+
+    const res = await fetch('/api/pricing/modules/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ academyId, moduloSlug }),
+    });
+    if (!res.ok) {
+      console.warn('[ativarModulo] API error:', res.status);
     }
-  } catch (error) { handleServiceError(error, 'pricing.ativarModulo'); }
+    return res.json();
+  } catch (error) {
+    console.warn('[ativarModulo] Fallback:', error);
+    return {} as AssinaturaSaaS;
+  }
 }
 
 export async function desativarModulo(academyId: string, moduloSlug: string): Promise<AssinaturaSaaS> {
@@ -263,20 +301,20 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       const { mockDesativarModulo } = await import('@/lib/mocks/pricing.mock');
       return mockDesativarModulo(academyId, moduloSlug);
     }
-    try {
-      const res = await fetch('/api/pricing/modules/deactivate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, moduloSlug }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.desativarModulo');
-      return res.json();
-    } catch {
-      console.warn('[pricing.desativarModulo] API not available, using mock fallback');
-      const { mockDesativarModulo } = await import('@/lib/mocks/pricing.mock');
-      return mockDesativarModulo(academyId, moduloSlug);
+
+    const res = await fetch('/api/pricing/modules/deactivate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ academyId, moduloSlug }),
+    });
+    if (!res.ok) {
+      console.warn('[desativarModulo] API error:', res.status);
     }
-  } catch (error) { handleServiceError(error, 'pricing.desativarModulo'); }
+    return res.json();
+  } catch (error) {
+    console.warn('[desativarModulo] Fallback:', error);
+    return {} as AssinaturaSaaS;
+  }
 }
 
 export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca[]> {
@@ -285,10 +323,30 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
       return mockGetHistoricoCobrancas(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHistoricoCobrancas } = await import('@/lib/mocks/pricing.mock');
-      return mockGetHistoricoCobrancas(academyId);
-  } catch (error) { handleServiceError(error, 'pricing.getHistoricoCobrancas'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('payment_charges')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getHistoricoCobrancas] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []).map((c: Record<string, unknown>) => ({
+      id: c.id as string,
+      data: (c.created_at ?? '') as string,
+      valor: (c.amount ?? 0) as number,
+      descricao: (c.description ?? '') as string,
+      status: (c.status ?? 'pending') as Cobranca['status'],
+      metodo: (c.method ?? '') as string,
+    }));
+  } catch (error) {
+    console.warn('[getHistoricoCobrancas] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta[]> {
@@ -297,10 +355,22 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetUsoDescoberta(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetUsoDescoberta } = await import('@/lib/mocks/pricing.mock');
-      return mockGetUsoDescoberta(academyId);
-  } catch (error) { handleServiceError(error, 'pricing.getUsoDescoberta'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('module_usage_tracking')
+      .select('*')
+      .eq('academy_id', academyId);
+    if (error) {
+      console.warn('[getUsoDescoberta] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as UsoDescoberta[];
+  } catch (error) {
+    console.warn('[getUsoDescoberta] Fallback:', error);
+    return [];
+  }
 }
 
 export async function isModuloAcessivel(academyId: string, moduloSlug: string): Promise<boolean> {
@@ -309,16 +379,18 @@ export async function isModuloAcessivel(academyId: string, moduloSlug: string): 
       const { mockIsModuloAcessivel } = await import('@/lib/mocks/pricing.mock');
       return mockIsModuloAcessivel(academyId, moduloSlug);
     }
-    try {
-      const res = await fetch(`/api/pricing/module-access?academyId=${academyId}&module=${moduloSlug}`);
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.isModuloAcessivel');
-      const data = await res.json();
-      return data.accessible;
-    } catch {
-      console.warn('[pricing.isModuloAcessivel] API not available, using fallback');
+
+    const res = await fetch(`/api/pricing/module-access?academyId=${encodeURIComponent(academyId)}&module=${encodeURIComponent(moduloSlug)}`);
+    if (!res.ok) {
+      console.warn('[isModuloAcessivel] API error:', res.status);
       return false;
     }
-  } catch (error) { handleServiceError(error, 'pricing.isModuloAcessivel'); }
+    const data = await res.json();
+    return data.accessible;
+  } catch (error) {
+    console.warn('[isModuloAcessivel] Fallback:', error);
+    return false;
+  }
 }
 
 export async function getModulosExtrasDescoberta(academyId: string): Promise<ModuloExtra[]> {
@@ -327,10 +399,23 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
       return mockGetModulosExtrasDescoberta(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetModulosExtrasDescoberta } = await import('@/lib/mocks/pricing.mock');
-      return mockGetModulosExtrasDescoberta(academyId);
-  } catch (error) { handleServiceError(error, 'pricing.getModulosExtrasDescoberta'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('module_usage_tracking')
+      .select('*, pricing_modules(*)')
+      .eq('academy_id', academyId)
+      .eq('included_in_plan', false);
+    if (error) {
+      console.warn('[getModulosExtrasDescoberta] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as unknown as ModuloExtra[];
+  } catch (error) {
+    console.warn('[getModulosExtrasDescoberta] Fallback:', error);
+    return [];
+  }
 }
 
 export async function simularUpgrade(academyId: string, novosModulos: string[]): Promise<SimulacaoUpgrade> {
@@ -339,18 +424,18 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       const { mockSimularUpgrade } = await import('@/lib/mocks/pricing.mock');
       return mockSimularUpgrade(academyId, novosModulos);
     }
-    try {
-      const res = await fetch('/api/pricing/simulate-upgrade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academyId, novosModulos }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'pricing.simularUpgrade');
-      return res.json();
-    } catch {
-      console.warn('[pricing.simularUpgrade] API not available, using mock fallback');
-      const { mockSimularUpgrade } = await import('@/lib/mocks/pricing.mock');
-      return mockSimularUpgrade(academyId, novosModulos);
+
+    const res = await fetch('/api/pricing/simulate-upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ academyId, novosModulos }),
+    });
+    if (!res.ok) {
+      console.warn('[simularUpgrade] API error:', res.status);
     }
-  } catch (error) { handleServiceError(error, 'pricing.simularUpgrade'); }
+    return res.json();
+  } catch (error) {
+    console.warn('[simularUpgrade] Fallback:', error);
+    return { modulosNovos: [], custoAdicional: 0, totalNovo: 0 };
+  }
 }

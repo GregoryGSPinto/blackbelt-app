@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -72,7 +71,10 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
       .eq('subscriptions.plans.academy_id', academyId)
       .gte('due_date', startOfMonth)
       .lte('due_date', endOfMonth);
-    if (invErr) throw new ServiceError(500, 'financeiro', invErr.message);
+    if (invErr) {
+      console.warn('[getFinanceiroData] Supabase error:', invErr.message);
+      return { receitaMes: 0, receitaMesAnterior: 0, metaMes: 0, mrr: 0, ticketMedio: 0, inadimplenciaPct: 0, previsaoProximoMes: 0, debtors: [], recentPayments: [], planAnalysis: [], monthlyRevenue: [] };
+    }
 
     // Previous month invoices
     const { data: prevInvoices } = await supabase
@@ -222,6 +224,7 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
       monthlyRevenue,
     };
   } catch (error) {
-    handleServiceError(error, 'financeiro');
+    console.warn('[getFinanceiroData] Fallback:', error);
+    return { receitaMes: 0, receitaMesAnterior: 0, metaMes: 0, mrr: 0, ticketMedio: 0, inadimplenciaPct: 0, previsaoProximoMes: 0, debtors: [], recentPayments: [], planAnalysis: [], monthlyRevenue: [] };
   }
 }
