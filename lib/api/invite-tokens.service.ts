@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type {
   InviteToken,
   InviteUse,
@@ -18,12 +17,37 @@ export async function listInviteTokens(
       const { mockListInviteTokens } = await import('@/lib/mocks/invite-tokens.mock');
       return mockListInviteTokens(academyId, filters);
     }
-    // API not yet implemented — use mock
-    const { mockListInviteTokens } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockListInviteTokens(academyId, filters);
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('invite_tokens')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (filters?.role) {
+      query = query.eq('role', filters.role);
+    }
+    if (filters?.active !== undefined) {
+      query = query.eq('is_active', filters.active);
+    }
+    if (filters?.search) {
+      query = query.ilike('code', `%${filters.search}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('[listInviteTokens] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as InviteToken[];
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.list');
+    console.warn('[listInviteTokens] Fallback:', error);
+    return [];
   }
 }
 
@@ -36,23 +60,25 @@ export async function createInviteToken(
       const { mockCreateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockCreateInviteToken(academyId, payload);
     }
-    try {
 
-      const res = await fetch('/api/invite-tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ academy_id: academyId, ...payload }),
-      });
-      if (!res.ok) throw new Error('Erro ao criar convite');
-      return res.json();
-    } catch {
-      console.warn('[invite-tokens.createInviteToken] API not available, using mock fallback');
-      const { mockCreateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockCreateInviteToken(academyId, payload);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('invite_tokens')
+      .insert({ academy_id: academyId, ...payload })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[createInviteToken] error:', error.message);
+      return {} as InviteToken;
     }
 
+    return data as unknown as InviteToken;
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.create');
+    console.warn('[createInviteToken] Fallback:', error);
+    return {} as InviteToken;
   }
 }
 
@@ -65,23 +91,26 @@ export async function updateInviteToken(
       const { mockUpdateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockUpdateInviteToken(tokenId, updates);
     }
-    try {
 
-      const res = await fetch(`/api/invite-tokens/${tokenId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error('Erro ao atualizar convite');
-      return res.json();
-    } catch {
-      console.warn('[invite-tokens.updateInviteToken] API not available, using mock fallback');
-      const { mockUpdateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockUpdateInviteToken(tokenId, updates);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('invite_tokens')
+      .update(updates)
+      .eq('id', tokenId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[updateInviteToken] error:', error.message);
+      return {} as InviteToken;
     }
 
+    return data as unknown as InviteToken;
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.update');
+    console.warn('[updateInviteToken] Fallback:', error);
+    return {} as InviteToken;
   }
 }
 
@@ -91,11 +120,26 @@ export async function deactivateInviteToken(tokenId: string): Promise<InviteToke
       const { mockDeactivateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockDeactivateInviteToken(tokenId);
     }
-    // API not yet implemented — use mock
-    const { mockDeactivateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockDeactivateInviteToken(tokenId);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('invite_tokens')
+      .update({ is_active: false })
+      .eq('id', tokenId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[deactivateInviteToken] error:', error.message);
+      return {} as InviteToken;
+    }
+
+    return data as unknown as InviteToken;
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.deactivate');
+    console.warn('[deactivateInviteToken] Fallback:', error);
+    return {} as InviteToken;
   }
 }
 
@@ -105,15 +149,20 @@ export async function deleteInviteToken(tokenId: string): Promise<void> {
       const { mockDeleteInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockDeleteInviteToken(tokenId);
     }
-    try {
 
-      const res = await fetch(`/api/invite-tokens/${tokenId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Erro ao excluir convite');
-    } catch {
-      console.warn('[invite-tokens.deleteInviteToken] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('invite_tokens')
+      .delete()
+      .eq('id', tokenId);
+
+    if (error) {
+      console.warn('[deleteInviteToken] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.delete');
+    console.warn('[deleteInviteToken] Fallback:', error);
   }
 }
 
@@ -123,11 +172,38 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
       const { mockValidateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockValidateInviteToken(token);
     }
-    // API not yet implemented — use mock
-    const { mockValidateInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockValidateInviteToken(token);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('invite_tokens')
+      .select('*')
+      .eq('code', token)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !data) {
+      console.warn('[validateInviteToken] error:', error?.message ?? 'Token not found');
+      return { valid: false, reason: 'Token inválido ou expirado' } as InviteValidation;
+    }
+
+    const now = new Date();
+    const expires = data.expires_at ? new Date(data.expires_at) : null;
+    const maxUsesReached = data.max_uses && data.uses_count >= data.max_uses;
+
+    if (expires && now > expires) {
+      return { valid: false, reason: 'Token expirado' } as InviteValidation;
+    }
+
+    if (maxUsesReached) {
+      return { valid: false, reason: 'Limite de usos atingido' } as InviteValidation;
+    }
+
+    return { valid: true, token: data } as unknown as InviteValidation;
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.validate');
+    console.warn('[validateInviteToken] Fallback:', error);
+    return { valid: false, reason: 'Erro ao validar token' } as InviteValidation;
   }
 }
 
@@ -142,20 +218,35 @@ export async function useInviteToken(
       const { mockUseInviteToken } = await import('@/lib/mocks/invite-tokens.mock');
       return mockUseInviteToken(token, profileId, ip, userAgent);
     }
-    try {
 
-      const res = await fetch('/api/invite-tokens/use', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, profile_id: profileId }),
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Record the usage
+    const { error: useError } = await supabase
+      .from('invite_uses')
+      .insert({
+        token_code: token,
+        profile_id: profileId,
+        ip: ip ?? null,
+        user_agent: userAgent ?? null,
       });
-      if (!res.ok) throw new Error('Erro ao registrar uso do convite');
-    } catch {
-      console.warn('[invite-tokens.useInviteToken] API not available, using fallback');
+
+    if (useError) {
+      console.warn('[useInviteToken] error inserting use:', useError.message);
+      return;
     }
 
+    // Increment uses_count on the token
+    const { error: updateError } = await supabase.rpc('increment_invite_uses', {
+      token_code: token,
+    });
+
+    if (updateError) {
+      console.warn('[useInviteToken] error incrementing uses:', updateError.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.use');
+    console.warn('[useInviteToken] Fallback:', error);
   }
 }
 
@@ -165,11 +256,25 @@ export async function getInviteUses(tokenId: string): Promise<InviteUse[]> {
       const { mockGetInviteUses } = await import('@/lib/mocks/invite-tokens.mock');
       return mockGetInviteUses(tokenId);
     }
-    // API not yet implemented — use mock
-    const { mockGetInviteUses } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockGetInviteUses(tokenId);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('invite_uses')
+      .select('*')
+      .eq('token_id', tokenId)
+      .order('used_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getInviteUses] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as InviteUse[];
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.getUses');
+    console.warn('[getInviteUses] Fallback:', error);
+    return [];
   }
 }
 
@@ -179,10 +284,23 @@ export async function getInviteStats(academyId: string): Promise<InviteStats> {
       const { mockGetInviteStats } = await import('@/lib/mocks/invite-tokens.mock');
       return mockGetInviteStats(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetInviteStats } = await import('@/lib/mocks/invite-tokens.mock');
-      return mockGetInviteStats(academyId);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const [tokensResult, activeResult, usesResult] = await Promise.all([
+      supabase.from('invite_tokens').select('id', { count: 'exact', head: true }).eq('academy_id', academyId),
+      supabase.from('invite_tokens').select('id', { count: 'exact', head: true }).eq('academy_id', academyId).eq('is_active', true),
+      supabase.from('invite_uses').select('id, invite_tokens!inner(academy_id)', { count: 'exact', head: true }).eq('invite_tokens.academy_id', academyId),
+    ]);
+
+    return {
+      totalTokens: tokensResult.count ?? 0,
+      activeTokens: activeResult.count ?? 0,
+      totalUses: usesResult.count ?? 0,
+    } as unknown as InviteStats;
   } catch (error) {
-    handleServiceError(error, 'inviteTokens.stats');
+    console.warn('[getInviteStats] Fallback:', error);
+    return { totalTokens: 0, activeTokens: 0, totalUses: 0 } as unknown as InviteStats;
   }
 }

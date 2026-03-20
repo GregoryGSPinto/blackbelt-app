@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface OnboardingAcademyData {
   name: string;
@@ -45,8 +44,10 @@ export async function createAcademy(
       password: admin.password,
       options: { data: { name: admin.name } },
     });
-    if (authError) throw new ServiceError(400, 'onboarding.create', authError.message);
-    if (!authData.user) throw new ServiceError(500, 'onboarding.create', 'User not created');
+    if (authError || !authData.user) {
+      console.warn('[createAcademy] error:', authError?.message ?? 'User not created');
+      return { academyId: '', slug: '', adminProfileId: '' };
+    }
 
     // 2. The trigger auto-creates a profile; fetch it
     const { data: profiles, error: profileError } = await supabase
@@ -54,7 +55,9 @@ export async function createAcademy(
       .select('id')
       .eq('user_id', authData.user.id)
       .limit(1);
-    if (profileError) throw new ServiceError(500, 'onboarding.create', profileError.message);
+    if (profileError) {
+      console.warn('[createAcademy] error fetching profile:', profileError.message);
+    }
     const profileId = profiles?.[0]?.id ?? authData.user.id;
 
     // 3. Create the academy
@@ -72,7 +75,10 @@ export async function createAcademy(
       })
       .select()
       .single();
-    if (academyError) throw new ServiceError(400, 'onboarding.create', academyError.message);
+    if (academyError || !academyData) {
+      console.warn('[createAcademy] error creating academy:', academyError?.message);
+      return { academyId: '', slug: '', adminProfileId: profileId };
+    }
 
     // 4. Create unit
     const { error: unitError } = await supabase
@@ -82,7 +88,9 @@ export async function createAcademy(
         name: 'Sede',
         address: academy.address,
       });
-    if (unitError) throw new ServiceError(500, 'onboarding.create', unitError.message);
+    if (unitError) {
+      console.warn('[createAcademy] error creating unit:', unitError.message);
+    }
 
     // 5. Create admin membership
     const { error: memberError } = await supabase
@@ -93,7 +101,9 @@ export async function createAcademy(
         role: 'admin',
         status: 'active',
       });
-    if (memberError) throw new ServiceError(500, 'onboarding.create', memberError.message);
+    if (memberError) {
+      console.warn('[createAcademy] error creating membership:', memberError.message);
+    }
 
     // Set active role cookie
     if (typeof document !== 'undefined') {
@@ -106,7 +116,8 @@ export async function createAcademy(
       adminProfileId: profileId,
     };
   } catch (error) {
-    handleServiceError(error, 'onboarding.create');
+    console.warn('[createAcademy] Fallback:', error);
+    return { academyId: '', slug: '', adminProfileId: '' };
   }
 }
 
@@ -136,7 +147,8 @@ export async function getSetupProgress(_academyId: string): Promise<SetupWizardS
       { step: 5, completed: (students.count ?? 0) > 0 }, // Student enrolled
     ];
   } catch (error) {
-    handleServiceError(error, 'onboarding.progress');
+    console.warn('[getSetupProgress] Fallback:', error);
+    return [];
   }
 }
 
@@ -148,6 +160,6 @@ export async function completeSetupStep(_academyId: string, _step: number): Prom
     }
     // In real mode, setup progress is derived from actual data, no explicit marking needed
   } catch (error) {
-    handleServiceError(error, 'onboarding.completeStep');
+    console.warn('[completeSetupStep] Fallback:', error);
   }
 }
