@@ -1,6 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
-import { createBrowserClient } from '@/lib/supabase/client';
 
 export interface StudentHealthScore {
   student_id: string;
@@ -51,7 +49,10 @@ export async function getAcademyHealth(academyId: string): Promise<AcademyHealth
     const healthy = scores.filter((s) => s.risk === 'low').length;
 
     return { average_score: average, total_students: total, at_risk: atRisk, critical, healthy };
-  } catch (error) { handleServiceError(error, 'healthScore.academyHealth'); }
+  } catch (error) {
+    console.warn('[getAcademyHealth] Fallback:', error);
+    return { average_score: 0, total_students: 0, at_risk: 0, critical: 0, healthy: 0 };
+  }
 }
 
 export async function getStudentHealthScores(academyId: string): Promise<StudentHealthScore[]> {
@@ -61,6 +62,7 @@ export async function getStudentHealthScores(academyId: string): Promise<Student
       return mockGetStudentHealthScores(academyId);
     }
 
+    const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
 
@@ -70,7 +72,10 @@ export async function getStudentHealthScores(academyId: string): Promise<Student
       .select('id, profile_id, belt, profiles(display_name, avatar)')
       .eq('academy_id', academyId);
 
-    if (studentsErr) throw new ServiceError(500, 'healthScore.students', studentsErr.message);
+    if (studentsErr) {
+      console.warn('[getStudentHealthScores] students error:', studentsErr.message);
+      return [];
+    }
     type StudentRow = { id: string; profile_id: string; belt: string; profiles: { display_name: string | null; avatar: string | null } | null };
     const typedStudents = (students ?? []) as StudentRow[];
     if (typedStudents.length === 0) return [];
@@ -145,5 +150,8 @@ export async function getStudentHealthScores(academyId: string): Promise<Student
         subscription_status: subStatus,
       };
     });
-  } catch (error) { handleServiceError(error, 'healthScore.studentScores'); }
+  } catch (error) {
+    console.warn('[getStudentHealthScores] Fallback:', error);
+    return [];
+  }
 }
