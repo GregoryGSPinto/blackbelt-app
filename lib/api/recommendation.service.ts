@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -42,17 +41,33 @@ export async function getRecommendations(
       return recs.slice(0, limit);
     }
     try {
-
-      const res = await fetch(`/api/recommendations?studentId=${studentId}&limit=${limit}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('content_videos')
+        .select('id, title, thumbnail_url, duration_seconds')
+        .order('views_count', { ascending: false })
+        .limit(limit);
+      if (error || !data) {
+        console.warn('[getRecommendations] Query failed:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
+        id: (row.id as string) || '',
+        title: (row.title as string) || '',
+        type: 'video' as const,
+        thumbnailUrl: (row.thumbnail_url as string) || '',
+        reason: 'Conteúdo popular',
+        relevanceScore: 100 - idx * 5,
+        duration: row.duration_seconds ? `${Math.floor((row.duration_seconds as number) / 60)}:${String((row.duration_seconds as number) % 60).padStart(2, '0')}` : undefined,
+      }));
     } catch {
       console.warn('[recommendation.getRecommendations] API not available, using fallback');
       return [];
     }
-
   } catch (error) {
-    handleServiceError(error, 'recommendation.get');
+    console.warn('[getRecommendations] Fallback:', error);
+    return [];
   }
 }
 
@@ -66,17 +81,18 @@ export async function markRecommendationSeen(
       return;
     }
     try {
-      const res = await fetch('/api/recommendations/seen', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, contentId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('recommendation_views')
+        .insert({ student_id: studentId, content_id: contentId });
+      if (error) {
+        console.warn('[markRecommendationSeen] Insert failed:', error.message);
+      }
     } catch {
       console.warn('[recommendation.markRecommendationSeen] API not available, using fallback');
     }
-
   } catch (error) {
-    handleServiceError(error, 'recommendation.markSeen');
+    console.warn('[markRecommendationSeen] Fallback:', error);
   }
 }

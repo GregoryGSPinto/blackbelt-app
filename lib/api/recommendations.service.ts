@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface RecommendedVideo {
   id: string;
@@ -22,10 +21,33 @@ export async function getRecommendations(studentId: string): Promise<Recommended
       const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
       return mockGetRecommendations(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetRecommendations } = await import('@/lib/mocks/recommendations.mock');
-      return mockGetRecommendations(studentId);
-  } catch (error) { handleServiceError(error, 'recommendations.get'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('content_videos')
+        .select('id, title, duration_seconds')
+        .order('views_count', { ascending: false })
+        .limit(10);
+      if (error || !data) {
+        console.warn('[getRecommendations] Query failed:', error?.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
+        id: (row.id as string) || '',
+        title: (row.title as string) || '',
+        duration: (row.duration_seconds as number) || 0,
+        reason: 'Conteúdo popular',
+        score: 100 - idx * 5,
+      }));
+    } catch {
+      console.warn('[recommendations.getRecommendations] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[getRecommendations] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getPersonalizedFeed(studentId: string): Promise<ContentFeed> {
@@ -34,8 +56,37 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
       const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
       return mockGetPersonalizedFeed(studentId);
     }
-    // API not yet implemented — use mock
-    const { mockGetPersonalizedFeed } = await import('@/lib/mocks/recommendations.mock');
-      return mockGetPersonalizedFeed(studentId);
-  } catch (error) { handleServiceError(error, 'recommendations.feed'); }
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('content_videos')
+        .select('id, title, duration_seconds, created_at')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error || !data) {
+        console.warn('[getPersonalizedFeed] Query failed:', error?.message);
+        return { recommended: [], newContent: [], trending: [], completeSeries: [] };
+      }
+      const vids = (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
+        id: (row.id as string) || '',
+        title: (row.title as string) || '',
+        duration: (row.duration_seconds as number) || 0,
+        reason: 'Novo conteúdo',
+        score: 100 - idx * 3,
+      }));
+      return {
+        recommended: vids.slice(0, 5),
+        newContent: vids.slice(5, 10),
+        trending: vids.slice(10, 15),
+        completeSeries: vids.slice(15, 20),
+      };
+    } catch {
+      console.warn('[recommendations.getPersonalizedFeed] API not available, returning empty');
+      return { recommended: [], newContent: [], trending: [], completeSeries: [] };
+    }
+  } catch (error) {
+    console.warn('[getPersonalizedFeed] Fallback:', error);
+    return { recommended: [], newContent: [], trending: [], completeSeries: [] };
+  }
 }

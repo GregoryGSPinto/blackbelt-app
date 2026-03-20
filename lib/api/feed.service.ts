@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type PostType =
   | 'promotion'
@@ -65,19 +64,47 @@ export async function getFeed(
       return mockGetFeed(academyId, page, filter);
     }
     try {
-      const params = new URLSearchParams({ academyId, page: String(page) });
-      if (filter) params.set('filter', filter);
-      const res = await fetch(`/api/feed?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'feed.get');
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const limit = 20;
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      let query = supabase
+        .from('feed_posts')
+        .select('*')
+        .eq('academy_id', academyId)
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      if (filter) {
+        query = query.eq('type', filter);
+      }
+      const { data, error } = await query;
+      if (error) {
+        console.warn('[getFeed] Query failed:', error.message);
+        return [];
+      }
+      return (data ?? []).map((row: Record<string, unknown>) => ({
+        id: (row.id as string) || '',
+        type: (row.type as PostType) || 'event',
+        authorId: (row.author_id as string) || '',
+        authorName: (row.author_name as string) || '',
+        authorAvatar: (row.author_avatar as string) || null,
+        authorRole: (row.author_role as 'system' | 'admin' | 'teacher') || 'system',
+        content: (row.content as string) || '',
+        imageUrl: (row.image_url as string) || undefined,
+        likes: (row.likes as number) || 0,
+        commentCount: (row.comment_count as number) || 0,
+        liked: false,
+        comments: [],
+        createdAt: (row.created_at as string) || '',
+      }));
     } catch {
-      console.warn('[feed.getFeed] API not available, using mock fallback');
-      const { mockGetFeed } = await import('@/lib/mocks/feed.mock');
-      return mockGetFeed(academyId, page, filter);
+      console.warn('[feed.getFeed] API not available, returning empty');
+      return [];
     }
-
   } catch (error) {
-    handleServiceError(error, 'feed.get');
+    console.warn('[getFeed] Fallback:', error);
+    return [];
   }
 }
 
@@ -88,13 +115,24 @@ export async function likePost(postId: string): Promise<void> {
       return mockLikePost(postId);
     }
     try {
-      const res = await fetch(`/api/feed/${postId}/like`, { method: 'POST' });
-      if (!res.ok) throw new ServiceError(res.status, 'feed.like');
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn('[likePost] No authenticated user');
+        return;
+      }
+      const { error } = await supabase
+        .from('feed_likes')
+        .upsert({ post_id: postId, user_id: user.id }, { onConflict: 'post_id,user_id' });
+      if (error) {
+        console.warn('[likePost] Upsert failed:', error.message);
+      }
     } catch {
       console.warn('[feed.likePost] API not available, using fallback');
     }
   } catch (error) {
-    handleServiceError(error, 'feed.like');
+    console.warn('[likePost] Fallback:', error);
   }
 }
 
@@ -108,21 +146,35 @@ export async function addComment(
       return mockAddComment(postId, content);
     }
     try {
-      const res = await fetch(`/api/feed/${postId}/comment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'feed.comment');
-      return res.json();
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn('[addComment] No authenticated user');
+        return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
+      }
+      const { data: row, error } = await supabase
+        .from('feed_comments')
+        .insert({ post_id: postId, user_id: user.id, content })
+        .select()
+        .single();
+      if (error || !row) {
+        console.warn('[addComment] Insert failed:', error?.message);
+        return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
+      }
+      return {
+        id: (row.id as string) || '',
+        authorName: (row.author_name as string) || '',
+        content: (row.content as string) || content,
+        createdAt: (row.created_at as string) || new Date().toISOString(),
+      };
     } catch {
-      console.warn('[feed.addComment] API not available, using mock fallback');
-      const { mockAddComment } = await import('@/lib/mocks/feed.mock');
-      return mockAddComment(postId, content);
+      console.warn('[feed.addComment] API not available, using fallback');
+      return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
     }
-
   } catch (error) {
-    handleServiceError(error, 'feed.comment');
+    console.warn('[addComment] Fallback:', error);
+    return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
   }
 }
 
@@ -134,11 +186,26 @@ export async function getHighlights(
       const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
       return mockGetHighlights(academyId);
     }
-    // API not yet implemented — use mock
-    const { mockGetHighlights } = await import('@/lib/mocks/feed.mock');
-      return mockGetHighlights(academyId);
-
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { data, error } = await supabase
+        .from('academy_settings')
+        .select('value')
+        .eq('academy_id', academyId)
+        .eq('key', 'feed_highlights')
+        .single();
+      if (error || !data) {
+        console.warn('[getHighlights] Query failed:', error?.message);
+        return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
+      }
+      return (data.value as FeedHighlights) || { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
+    } catch {
+      console.warn('[feed.getHighlights] API not available, returning empty');
+      return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
+    }
   } catch (error) {
-    handleServiceError(error, 'feed.highlights');
+    console.warn('[getHighlights] Fallback:', error);
+    return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
   }
 }
