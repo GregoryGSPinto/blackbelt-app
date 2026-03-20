@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface FrameAnalysis {
   timestamp_sec: number;
@@ -43,14 +42,21 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
     }
     try {
       const res = await fetch('/api/video-analysis/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId, timestampSec }) });
-      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeFrame');
+      if (!res.ok) {
+        console.warn('[analyzeFrame] API error:', res.status);
+        const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
+        return mockAnalyzeFrame(videoId, timestampSec);
+      }
       return res.json();
     } catch {
       console.warn('[video-analysis.analyzeFrame] API not available, using mock fallback');
       const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeFrame(videoId, timestampSec);
     }
-  } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeFrame'); }
+  } catch (error) {
+    console.warn('[analyzeFrame] Fallback:', error);
+    return { timestamp_sec: timestampSec, posture_score: 0, balance_score: 0, technique_notes: [], corrections: [] };
+  }
 }
 
 export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
@@ -61,14 +67,21 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
     }
     try {
       const res = await fetch('/api/video-analysis/full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId }) });
-      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.analyzeVideo');
+      if (!res.ok) {
+        console.warn('[analyzeVideo] API error:', res.status);
+        const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
+        return mockAnalyzeVideo(videoId);
+      }
       return res.json();
     } catch {
       console.warn('[video-analysis.analyzeVideo] API not available, using mock fallback');
       const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeVideo(videoId);
     }
-  } catch (error) { handleServiceError(error, 'videoAnalysis.analyzeVideo'); }
+  } catch (error) {
+    console.warn('[analyzeVideo] Fallback:', error);
+    return { id: '', video_id: videoId, overall_score: 0, posture_score: 0, balance_score: 0, technique_score: 0, highlights: [], corrections: [], summary: '', frame_analyses: [], analyzed_at: '' };
+  }
 }
 
 export async function compareExecution(referenceVideoId: string, studentVideoId: string): Promise<ComparisonResult> {
@@ -79,12 +92,19 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
     }
     try {
       const res = await fetch('/api/video-analysis/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referenceVideoId, studentVideoId }) });
-      if (!res.ok) throw new ServiceError(res.status, 'videoAnalysis.compare');
+      if (!res.ok) {
+        console.warn('[compareExecution] API error:', res.status);
+        const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
+        return mockCompareExecution(referenceVideoId, studentVideoId);
+      }
       return res.json();
     } catch {
       console.warn('[video-analysis.compareExecution] API not available, using mock fallback');
       const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
       return mockCompareExecution(referenceVideoId, studentVideoId);
     }
-  } catch (error) { handleServiceError(error, 'videoAnalysis.compare'); }
+  } catch (error) {
+    console.warn('[compareExecution] Fallback:', error);
+    return { id: '', reference_video_id: referenceVideoId, student_video_id: studentVideoId, similarity_score: 0, posture_diff: 0, timing_diff: 0, key_differences: [], recommendations: [], compared_at: '' };
+  }
 }

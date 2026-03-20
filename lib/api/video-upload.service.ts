@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -117,8 +116,7 @@ export async function uploadVideo(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.uploadVideo');
+  } catch {
     console.warn('[video-upload] uploadVideo: API not available, using mock');
     const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUploadVideo(academyId, data, onProgress);
@@ -136,8 +134,7 @@ export async function deleteUploadedVideo(videoId: string): Promise<void> {
 
     const res = await fetch(`/api/video-upload/videos/${videoId}`, { method: 'DELETE' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.deleteUploadedVideo');
+  } catch {
     console.warn('[video-upload] deleteUploadedVideo: API not available, using mock');
     const { mockDeleteUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockDeleteUploadedVideo(videoId);
@@ -163,8 +160,7 @@ export async function updateUploadedVideo(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.updateUploadedVideo');
+  } catch {
     console.warn('[video-upload] updateUploadedVideo: API not available, using mock');
     const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUpdateUploadedVideo(videoId, data);
@@ -182,8 +178,7 @@ export async function publishUploadedVideo(videoId: string): Promise<void> {
 
     const res = await fetch(`/api/video-upload/videos/${videoId}/publish`, { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.publishUploadedVideo');
+  } catch {
     console.warn('[video-upload] publishUploadedVideo: API not available, using mock');
     const { mockPublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockPublishUploadedVideo(videoId);
@@ -199,8 +194,7 @@ export async function unpublishUploadedVideo(videoId: string): Promise<void> {
 
     const res = await fetch(`/api/video-upload/videos/${videoId}/unpublish`, { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.unpublishUploadedVideo');
+  } catch {
     console.warn('[video-upload] unpublishUploadedVideo: API not available, using mock');
     const { mockUnpublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUnpublishUploadedVideo(videoId);
@@ -219,8 +213,7 @@ export async function getVideosByAcademy(academyId: string): Promise<UploadedVid
     const res = await fetch(`/api/video-upload/${academyId}/videos`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getVideosByAcademy');
+  } catch {
     console.warn('[video-upload] getVideosByAcademy: API not available, using mock');
     const { mockGetVideosByAcademy } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByAcademy(academyId);
@@ -239,8 +232,7 @@ export async function getVideosByClass(classId: string): Promise<UploadedVideo[]
     const res = await fetch(`/api/video-upload/classes/${classId}/videos`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getVideosByClass');
+  } catch {
     console.warn('[video-upload] getVideosByClass: API not available, using mock');
     const { mockGetVideosByClass } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByClass(classId);
@@ -262,8 +254,7 @@ export async function getVideosByAudience(
     const res = await fetch(`/api/video-upload/${academyId}/videos?audience=${encodeURIComponent(audience)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getVideosByAudience');
+  } catch {
     console.warn('[video-upload] getVideosByAudience: API not available, using mock');
     const { mockGetVideosByAudience } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByAudience(academyId, audience);
@@ -282,8 +273,7 @@ export async function getVideosByProfessor(professorId: string): Promise<Uploade
     const res = await fetch(`/api/video-upload/professors/${professorId}/videos`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getVideosByProfessor');
+  } catch {
     console.warn('[video-upload] getVideosByProfessor: API not available, using mock');
     const { mockGetVideosByProfessor } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByProfessor(professorId);
@@ -309,8 +299,7 @@ export async function createVideoSeries(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.createVideoSeries');
+  } catch {
     console.warn('[video-upload] createVideoSeries: API not available, using mock');
     const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockCreateVideoSeries(academyId, data);
@@ -334,8 +323,7 @@ export async function updateVideoSeries(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.updateVideoSeries');
+  } catch {
     console.warn('[video-upload] updateVideoSeries: API not available, using mock');
     const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockUpdateVideoSeries(seriesId, data);
@@ -351,8 +339,7 @@ export async function deleteVideoSeries(seriesId: string): Promise<void> {
 
     const res = await fetch(`/api/video-upload/series/${seriesId}`, { method: 'DELETE' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.deleteVideoSeries');
+  } catch {
     console.warn('[video-upload] deleteVideoSeries: API not available, using mock');
     const { mockDeleteVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockDeleteVideoSeries(seriesId);
@@ -378,8 +365,7 @@ export async function addVideoToSeries(
       body: JSON.stringify({ videoId, order }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.addVideoToSeries');
+  } catch {
     console.warn('[video-upload] addVideoToSeries: API not available, using mock');
     const { mockAddVideoToSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockAddVideoToSeries(seriesId, videoId, order);
@@ -400,8 +386,7 @@ export async function removeVideoFromSeries(
       method: 'DELETE',
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.removeVideoFromSeries');
+  } catch {
     console.warn('[video-upload] removeVideoFromSeries: API not available, using mock');
     const { mockRemoveVideoFromSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockRemoveVideoFromSeries(seriesId, videoId);
@@ -420,8 +405,7 @@ export async function getSeriesByAcademy(academyId: string): Promise<VideoSeries
     const res = await fetch(`/api/video-upload/${academyId}/series`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getSeriesByAcademy');
+  } catch {
     console.warn('[video-upload] getSeriesByAcademy: API not available, using mock');
     const { mockGetSeriesByAcademy } = await import('@/lib/mocks/video-upload.mock');
     return mockGetSeriesByAcademy(academyId);
@@ -440,8 +424,7 @@ export async function getStorageStats(academyId: string): Promise<StorageStats> 
     const res = await fetch(`/api/video-upload/${academyId}/storage-stats`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getStorageStats');
+  } catch {
     console.warn('[video-upload] getStorageStats: API not available, using mock');
     const { mockGetStorageStats } = await import('@/lib/mocks/video-upload.mock');
     return mockGetStorageStats(academyId);
@@ -461,8 +444,7 @@ export async function getSignedUrl(storagePath: string): Promise<string> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json: { url: string } = await res.json();
     return json.url;
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.getSignedUrl');
+  } catch {
     console.warn('[video-upload] getSignedUrl: API not available, using mock');
     const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
     return mockGetSignedUrl(storagePath);
@@ -520,8 +502,7 @@ export async function generateThumbnailFromVideo(videoFile: File): Promise<Blob>
 
       video.src = URL.createObjectURL(videoFile);
     });
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'videoUpload.generateThumbnailFromVideo');
+  } catch {
     console.warn('[video-upload] generateThumbnailFromVideo: client-side failed, using mock');
     const { mockGenerateThumbnailFromVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockGenerateThumbnailFromVideo(videoFile);

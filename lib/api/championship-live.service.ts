@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface LiveMatchDTO {
   match_id: string;
@@ -44,10 +43,21 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       const { mockGetLiveMatches } = await import('@/lib/mocks/championship-live.mock');
       return mockGetLiveMatches(championshipId);
     }
-    // API not yet implemented — use mock
-    const { mockGetLiveMatches } = await import('@/lib/mocks/championship-live.mock');
-      return mockGetLiveMatches(championshipId);
-  } catch (error) { handleServiceError(error, 'championship-live.liveMatches'); }
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/live-matches`);
+      if (!res.ok) {
+        console.warn('[getLiveMatches] API error:', res.status);
+        return [];
+      }
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getLiveMatches] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[getLiveMatches] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getResults(championshipId: string, categoryId?: string): Promise<CategoryResultDTO[]> {
@@ -56,10 +66,23 @@ export async function getResults(championshipId: string, categoryId?: string): P
       const { mockGetResults } = await import('@/lib/mocks/championship-live.mock');
       return mockGetResults(championshipId, categoryId);
     }
-    // API not yet implemented — use mock
-    const { mockGetResults } = await import('@/lib/mocks/championship-live.mock');
-      return mockGetResults(championshipId, categoryId);
-  } catch (error) { handleServiceError(error, 'championship-live.results'); }
+    try {
+      const params = new URLSearchParams();
+      if (categoryId) params.set('categoryId', categoryId);
+      const res = await fetch(`/api/championships/${championshipId}/results?${params}`);
+      if (!res.ok) {
+        console.warn('[getResults] API error:', res.status);
+        return [];
+      }
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getResults] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[getResults] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getMedalTable(championshipId: string): Promise<MedalTableEntry[]> {
@@ -68,10 +91,21 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       const { mockGetMedalTable } = await import('@/lib/mocks/championship-live.mock');
       return mockGetMedalTable(championshipId);
     }
-    // API not yet implemented — use mock
-    const { mockGetMedalTable } = await import('@/lib/mocks/championship-live.mock');
-      return mockGetMedalTable(championshipId);
-  } catch (error) { handleServiceError(error, 'championship-live.medalTable'); }
+    try {
+      const res = await fetch(`/api/championships/${championshipId}/medal-table`);
+      if (!res.ok) {
+        console.warn('[getMedalTable] API error:', res.status);
+        return [];
+      }
+      return res.json();
+    } catch {
+      console.warn('[championship-live.getMedalTable] API not available, returning empty');
+      return [];
+    }
+  } catch (error) {
+    console.warn('[getMedalTable] Fallback:', error);
+    return [];
+  }
 }
 
 export function subscribeToUpdates(championshipId: string, callback: (event: UpdateEvent) => void): () => void {

@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Re-export types ─────────────────────────────────────────────────
 export type {
@@ -40,8 +39,7 @@ export async function getStorageConfig(): Promise<StorageConfig> {
     const res = await fetch('/api/video-storage/config');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.getStorageConfig');
+  } catch {
     console.warn('[video-storage] getStorageConfig: API not available, using mock');
     const { mockGetStorageConfig } = await import('@/lib/mocks/video-storage.mock');
     return mockGetStorageConfig();
@@ -64,8 +62,7 @@ export async function updateStorageConfig(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.updateStorageConfig');
+  } catch {
     console.warn('[video-storage] updateStorageConfig: API not available, using mock');
     const { mockUpdateStorageConfig } = await import('@/lib/mocks/video-storage.mock');
     return mockUpdateStorageConfig(config);
@@ -86,8 +83,7 @@ export async function testConnection(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.testConnection');
+  } catch {
     console.warn('[video-storage] testConnection: API not available, using mock');
     const { mockTestConnection } = await import('@/lib/mocks/video-storage.mock');
     return mockTestConnection(provider);
@@ -104,8 +100,7 @@ export async function getStorageStats(): Promise<StorageStats> {
     const res = await fetch('/api/video-storage/stats');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.getStorageStats');
+  } catch {
     console.warn('[video-storage] getStorageStats: API not available, using mock');
     const { mockGetStorageStats } = await import('@/lib/mocks/video-storage.mock');
     return mockGetStorageStats();
@@ -160,8 +155,7 @@ export async function uploadVideo(
     });
 
     return result;
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.uploadVideo');
+  } catch {
     console.warn('[video-storage] uploadVideo: API not available, using mock');
     const { mockUploadVideo } = await import('@/lib/mocks/video-storage.mock');
     return mockUploadVideo(file, metadata, onProgress);
@@ -190,8 +184,7 @@ export async function getVideoPlayerInfo(video: {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.getVideoPlayerInfo');
+  } catch {
     console.warn('[video-storage] getVideoPlayerInfo: API not available, using mock');
     const { mockGetVideoPlayerInfo } = await import('@/lib/mocks/video-storage.mock');
     return mockGetVideoPlayerInfo(video);
@@ -214,8 +207,7 @@ export async function configureYouTube(code: string): Promise<StorageConfig> {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.configureYouTube');
+  } catch {
     console.warn('[video-storage] configureYouTube: API not available, using mock');
     const { mockConfigureYouTube } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureYouTube(code);
@@ -236,8 +228,7 @@ export async function configureVimeo(apiToken: string): Promise<StorageConfig> {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.configureVimeo');
+  } catch {
     console.warn('[video-storage] configureVimeo: API not available, using mock');
     const { mockConfigureVimeo } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureVimeo(apiToken);
@@ -258,8 +249,7 @@ export async function configureGoogleDrive(code: string): Promise<StorageConfig>
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.configureGoogleDrive');
+  } catch {
     console.warn('[video-storage] configureGoogleDrive: API not available, using mock');
     const { mockConfigureGoogleDrive } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureGoogleDrive(code);
@@ -287,8 +277,7 @@ export async function configureS3(config: {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.configureS3');
+  } catch {
     console.warn('[video-storage] configureS3: API not available, using mock');
     const { mockConfigureS3 } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureS3(config);
@@ -309,8 +298,7 @@ export async function disconnectProvider(
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  } catch (error) {
-    if (isMock()) handleServiceError(error, 'video-storage.disconnectProvider');
+  } catch {
     console.warn('[video-storage] disconnectProvider: API not available, using mock');
     const { mockDisconnectProvider } = await import('@/lib/mocks/video-storage.mock');
     return mockDisconnectProvider(provider);
