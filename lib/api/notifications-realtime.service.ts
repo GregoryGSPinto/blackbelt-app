@@ -12,35 +12,81 @@ export interface AppNotification {
 }
 
 export async function getUnreadNotifications(profileId: string): Promise<AppNotification[]> {
-  if (isMock()) {
-    const { mockGetUnreadNotifications } = await import('@/lib/mocks/notifications-realtime.mock');
-    return mockGetUnreadNotifications(profileId);
-  }
   try {
-    const res = await fetch(`/api/notifications?profile_id=${profileId}&unread=true`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  } catch (e) {
-    console.warn('[notifications.getUnread]', e);
-    const { mockGetUnreadNotifications } = await import('@/lib/mocks/notifications-realtime.mock');
-    return mockGetUnreadNotifications(profileId);
+    if (isMock()) {
+      const { mockGetUnreadNotifications } = await import('@/lib/mocks/notifications-realtime.mock');
+      return mockGetUnreadNotifications(profileId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('recipient_id', profileId)
+      .is('read_at', null)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getUnreadNotifications] Supabase error:', error.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      recipient_id: String(row.recipient_id ?? ''),
+      title: String(row.title ?? ''),
+      body: String(row.body ?? ''),
+      type: (row.type as AppNotification['type']) ?? 'system',
+      read_at: row.read_at ? String(row.read_at) : null,
+      created_at: String(row.created_at ?? ''),
+      link: row.link ? String(row.link) : undefined,
+    }));
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn('[getUnreadNotifications] Fallback:', msg);
+    return [];
   }
 }
 
 export async function markNotificationRead(id: string): Promise<void> {
   if (isMock()) return;
   try {
-    await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
-  } catch (e) {
-    console.warn('[notifications.markRead]', e);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) {
+      console.warn('[markNotificationRead] Supabase error:', error.message);
+    }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn('[markNotificationRead] Fallback:', msg);
   }
 }
 
 export async function markAllRead(profileId: string): Promise<void> {
   if (isMock()) return;
   try {
-    await fetch(`/api/notifications/mark-all-read`, { method: 'PATCH', body: JSON.stringify({ profile_id: profileId }) });
-  } catch (e) {
-    console.warn('[notifications.markAllRead]', e);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('recipient_id', profileId)
+      .is('read_at', null);
+
+    if (error) {
+      console.warn('[markAllRead] Supabase error:', error.message);
+    }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn('[markAllRead] Fallback:', msg);
   }
 }
