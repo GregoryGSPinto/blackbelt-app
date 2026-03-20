@@ -40,6 +40,8 @@ export interface StudentCard {
   belt: string;
   academy: string;
   unit: string;
+  modalities: string[];
+  member_since: string;
   membership_active: boolean;
   membership_expires: string;
   qr_code_token: string;

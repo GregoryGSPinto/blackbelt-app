@@ -26,6 +26,9 @@ import {
   DownloadIcon,
   AlertTriangleIcon,
   GraduationCapIcon,
+  ClockIcon,
+  CakeIcon,
+  CreditCardIcon,
 } from '@/components/shell/icons';
 import { getAlunosEmRisco, getChurnMetrics, type AlunoRisco, type ChurnMetrics } from '@/lib/api/churn-prediction.service';
 import { getPedagogicoDashboard } from '@/lib/api/pedagogico.service';
@@ -1509,6 +1512,192 @@ export default function AdminDashboardPage() {
           />
         </section>
       )}
+
+      {/* ═══ SECTION: HOJE NA ACADEMIA ═══════════════════════════════ */}
+      <section className="animate-reveal">
+        <div
+          className="p-5"
+          style={{
+            backgroundColor: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+              Hoje na Academia
+            </h2>
+          </div>
+
+          {/* Today's classes */}
+          <div className="mb-5">
+            <div className="mb-2 flex items-center gap-1.5">
+              <ClockIcon className="h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />
+              <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--bb-ink-60)' }}>
+                Aulas de Hoje
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {[
+                { time: '06:00', name: 'BJJ Iniciante', professor: 'Prof. Carlos', room: 'Tatame 1', expected: 18 },
+                { time: '07:30', name: 'Muay Thai', professor: 'Prof. Ana', room: 'Ring', expected: 12 },
+                { time: '09:00', name: 'Kids BJJ', professor: 'Prof. Rafael', room: 'Tatame 2', expected: 15 },
+                { time: '18:00', name: 'BJJ Avancado', professor: 'Prof. Carlos', room: 'Tatame 1', expected: 22 },
+                { time: '19:30', name: 'No-Gi', professor: 'Prof. Marcos', room: 'Tatame 1', expected: 14 },
+              ].map((cls) => (
+                <div
+                  key={`${cls.time}-${cls.name}`}
+                  className="flex items-center justify-between rounded-lg px-3 py-2"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold" style={{ color: 'var(--bb-brand)' }}>
+                      {cls.time}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{cls.name}</p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                        {cls.professor} &middot; {cls.room}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>
+                    {cls.expected} esperados
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Today's birthdays */}
+          <div className="mb-5">
+            <div className="mb-2 flex items-center gap-1.5">
+              <CakeIcon className="h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />
+              <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--bb-ink-60)' }}>
+                Aniversariantes
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {[
+                { name: 'Joao Carlos', age: 28 },
+                { name: 'Ana Paula', age: 32 },
+              ].map((b) => (
+                <div
+                  key={b.name}
+                  className="flex items-center justify-between rounded-lg px-3 py-2"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{'\uD83C\uDF82'}</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{b.name}</span>
+                  </div>
+                  <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    {b.age} anos
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Today's due invoices */}
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <CreditCardIcon className="h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />
+              <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--bb-ink-60)' }}>
+                Faturas Vencendo Hoje
+              </h3>
+            </div>
+            <div
+              className="flex items-center justify-between rounded-lg px-3 py-2"
+              style={{ background: 'var(--bb-depth-3)' }}
+            >
+              <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                5 faturas vencem hoje
+              </span>
+              <Link
+                href="/admin/financeiro"
+                className="text-xs font-medium transition-opacity hover:opacity-80"
+                style={{ color: 'var(--bb-brand)' }}
+              >
+                Ver faturas →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION: AGORA NA ACADEMIA ══════════════════════════════ */}
+      <section className="animate-reveal">
+        <div
+          className="p-5"
+          style={{
+            backgroundColor: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <div className="mb-4 flex items-center gap-2">
+            <div className="relative flex items-center justify-center">
+              <span
+                className="absolute inline-block h-2.5 w-2.5 rounded-full"
+                style={{
+                  background: '#22C55E',
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                }}
+              />
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ background: '#22C55E' }}
+              />
+            </div>
+            <UsersIcon className="h-4 w-4" style={{ color: '#22C55E' }} />
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+              Agora na Academia
+            </h2>
+            <span
+              className="ml-auto rounded-full px-2 py-0.5 text-xs font-bold"
+              style={{ background: '#22C55E20', color: '#22C55E' }}
+            >
+              4 presentes
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {[
+              { name: 'Joao Carlos', class: 'BJJ Iniciante', checkedAt: '14:32' },
+              { name: 'Rafael Santos', class: 'BJJ Avancado', checkedAt: '14:28' },
+              { name: 'Ana Carolina', class: 'Muay Thai', checkedAt: '14:15' },
+              { name: 'Marcos Silva', class: 'BJJ Iniciante', checkedAt: '14:10' },
+            ].map((person) => (
+              <div
+                key={person.name}
+                className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                style={{ background: 'var(--bb-depth-3)' }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold"
+                    style={{ background: 'var(--bb-brand)', color: '#fff' }}
+                  >
+                    {person.name.split(' ').map(n => n[0]).join('')}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{person.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{person.class}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <ClockIcon className="h-3 w-3" style={{ color: 'var(--bb-ink-40)' }} />
+                  <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    {person.checkedAt}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

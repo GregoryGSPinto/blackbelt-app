@@ -21,10 +21,8 @@ import {
   BarChartIcon,
   SettingsIcon,
   SearchIcon,
-  BellIcon,
   LogOutIcon,
   UserIcon,
-  CheckSquareIcon,
   LinkIcon,
   StarIcon,
   AwardIcon,
@@ -47,6 +45,7 @@ import {
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
+import { NotificationBell } from '@/components/shared/NotificationBell';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -136,23 +135,6 @@ const sidebarGroups: SidebarGroup[] = [
   },
 ];
 
-// ── Mock notifications ──────────────────────────────────────────────────
-
-interface Notification {
-  id: string;
-  icon: typeof UsersIcon;
-  text: string;
-  time: string;
-  read: boolean;
-}
-
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  { id: '1', icon: UsersIcon, text: 'Novo aluno cadastrado: Lucas Ferreira', time: 'Há 5 min', read: false },
-  { id: '2', icon: DollarIcon, text: 'Pagamento confirmado — Maria Santos', time: 'Há 20 min', read: false },
-  { id: '3', icon: CalendarIcon, text: 'Turma "Jiu-Jitsu Avançado" com lotação máxima', time: 'Há 1h', read: false },
-  { id: '4', icon: CheckSquareIcon, text: 'Presença registrada em massa: 28 alunos', time: 'Há 2h', read: true },
-  { id: '5', icon: BarChartIcon, text: 'Relatório mensal disponível para download', time: 'Há 3h', read: true },
-];
 
 const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
   function AdminShell({ children }, ref) {
@@ -162,19 +144,13 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
     const [billingAlertCount, setBillingAlertCount] = useState(0);
     const [impersonating, setImpersonating] = useState(false);
     const [impersonateAcademia, setImpersonateAcademia] = useState('');
 
-    const notifRef = useRef<HTMLDivElement>(null);
-    const notifButtonRef = useRef<HTMLButtonElement>(null);
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
-
-    const unreadCount = notifications.filter((n) => !n.read).length;
 
     // ── Load billing alert count ─────────────────────────────────────
     useEffect(() => {
@@ -197,14 +173,6 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
 
     const handleClickOutside = useCallback((e: MouseEvent) => {
       if (
-        notifRef.current &&
-        !notifRef.current.contains(e.target as Node) &&
-        notifButtonRef.current &&
-        !notifButtonRef.current.contains(e.target as Node)
-      ) {
-        setNotificationsOpen(false);
-      }
-      if (
         userMenuRef.current &&
         !userMenuRef.current.contains(e.target as Node) &&
         userMenuButtonRef.current &&
@@ -218,12 +186,6 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [handleClickOutside]);
-
-    // ── Notification actions ───────────────────────────────────────────
-
-    function markAllRead() {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    }
 
     // ── User menu actions ──────────────────────────────────────────────
 
@@ -500,105 +462,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               <ThemeToggle />
 
               {/* Notifications */}
-              <div className="relative">
-                <button
-                  ref={notifButtonRef}
-                  className="relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
-                  aria-label="Notificações"
-                  onClick={() => {
-                    setNotificationsOpen((prev) => !prev);
-                    setUserMenuOpen(false);
-                  }}
-                  style={{ color: 'var(--bb-ink-60)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bb-ink-100)'; e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bb-ink-60)'; e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <BellIcon className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span
-                      className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white"
-                      style={{ background: 'var(--bb-brand)' }}
-                    >
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {notificationsOpen && (
-                  <div
-                    ref={notifRef}
-                    className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden"
-                    style={{
-                      background: 'var(--bb-depth-3)',
-                      border: '1px solid var(--bb-glass-border)',
-                      boxShadow: 'var(--bb-shadow-lg)',
-                      borderRadius: 'var(--bb-radius-lg)',
-                      animation: 'scaleIn 0.15s ease-out',
-                      transformOrigin: 'top right',
-                    }}
-                  >
-                    <div
-                      className="flex items-center justify-between px-4 py-3"
-                      style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                    >
-                      <span className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                        Notificações
-                      </span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllRead}
-                          className="text-xs transition-colors"
-                          style={{ color: 'var(--bb-brand)' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-                        >
-                          Marcar todas como lidas
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-72 overflow-y-auto">
-                      {notifications.map((notif) => {
-                        const Icon = notif.icon;
-                        return (
-                          <div
-                            key={notif.id}
-                            className="flex items-start gap-3 px-4 py-3 transition-colors"
-                            style={{
-                              borderBottom: '1px solid var(--bb-glass-border)',
-                              background: notif.read ? 'transparent' : 'var(--bb-brand-surface)',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = notif.read ? 'transparent' : 'var(--bb-brand-surface)';
-                            }}
-                          >
-                            <div
-                              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-                              style={{ background: 'var(--bb-depth-4)' }}
-                            >
-                              <Icon className="h-4 w-4" style={{ color: 'var(--bb-brand)' }} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm leading-snug" style={{ color: 'var(--bb-ink-100)' }}>
-                                {notif.text}
-                              </p>
-                              <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                                {notif.time}
-                              </p>
-                            </div>
-                            {!notif.read && (
-                              <div
-                                className="mt-2 h-2 w-2 shrink-0 rounded-full"
-                                style={{ background: 'var(--bb-brand)' }}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <NotificationBell />
 
               {/* User Menu */}
               <div className="relative">
@@ -606,7 +470,6 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                   ref={userMenuButtonRef}
                   onClick={() => {
                     setUserMenuOpen((prev) => !prev);
-                    setNotificationsOpen(false);
                   }}
                   aria-label="Menu do usuário"
                   className="flex h-9 w-9 items-center justify-center cursor-pointer"

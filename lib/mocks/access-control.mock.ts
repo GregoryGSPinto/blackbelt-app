@@ -102,6 +102,8 @@ export async function mockGetStudentCard(_studentId: string): Promise<StudentCar
     belt: 'Azul',
     academy: 'Academia BlackBelt Centro',
     unit: 'Unidade Centro',
+    modalities: ['BJJ', 'Muay Thai'],
+    member_since: '2023-03-15T00:00:00.000Z',
     membership_active: true,
     membership_expires: expires.toISOString(),
     qr_code_token: `bb-qr-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,

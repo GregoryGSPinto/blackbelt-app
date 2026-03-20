@@ -8,9 +8,10 @@ import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
-import { getAlertasCount } from '@/lib/api/professor-alertas.service';
+
 import { SidebarHelpSection } from './HelpSection';
 import { CommandPalette } from '@/components/shared/CommandPalette';
+import { NotificationBell } from '@/components/shared/NotificationBell';
 import { usePlan } from '@/lib/hooks/usePlan';
 import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
 import { TrialBanner } from '@/components/plans/TrialBanner';
@@ -33,7 +34,6 @@ import {
   GraduationCapIcon,
   HelpCircleIcon,
   XIcon,
-  BellIcon,
   LogOutIcon,
   LockIcon,
 } from '@/components/shell/icons';
@@ -150,16 +150,11 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
     const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [alertCount, setAlertCount] = useState(0);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
     const userName = profile?.display_name ?? 'Professor';
-
-    useEffect(() => {
-      getAlertasCount('prof-1').then(setAlertCount).catch(() => {});
-    }, []);
 
     // Close drawer on route change
     useEffect(() => {
@@ -241,23 +236,8 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                 </div>
               </div>
 
-              {/* Alert bell */}
-              <Link
-                href="/professor/alertas"
-                className="relative"
-                style={{ color: 'var(--bb-ink-60)' }}
-                aria-label="Alertas"
-              >
-                <BellIcon className="h-5 w-5" />
-                {alertCount > 0 && (
-                  <span
-                    className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                    style={{ background: 'var(--bb-brand)' }}
-                  >
-                    {alertCount}
-                  </span>
-                )}
-              </Link>
+              {/* Notifications */}
+              <NotificationBell />
             </div>
 
             {/* Nav Groups */}
@@ -472,7 +452,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
 
         {/* ── MOBILE LAYOUT (< lg) ─────────────────────────────────────── */}
         <div className="lg:hidden pb-16">
-          <ShellHeader title="BlackBelt" subtitle="Professor" rightContent={<ThemeToggle />} />
+          <ShellHeader title="BlackBelt" subtitle="Professor" rightContent={<div className="flex items-center gap-2"><NotificationBell /><ThemeToggle /></div>} />
           {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
           {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
           <main>{children}</main>
