@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 export type ReportType = 'presenca' | 'evolucao' | 'financeiro' | 'retencao' | 'performance';
 
@@ -24,29 +23,34 @@ export interface ReportResult {
 }
 
 export async function getReport(academyId: string, filters: ReportFilters): Promise<ReportResult> {
+  const empty: ReportResult = { type: filters.type, title: '', data: [], summary: {} };
+
   try {
     if (isMock()) {
       const { mockGetReport } = await import('@/lib/mocks/relatorios.mock');
       return mockGetReport(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({
-        academyId,
-        type: filters.type,
-        from: filters.from,
-        to: filters.to,
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .rpc('get_report', {
+        p_academy_id: academyId,
+        p_type: filters.type,
+        p_from: filters.from,
+        p_to: filters.to,
+        p_turma_id: filters.turma_id ?? null,
       });
-      if (filters.turma_id) params.set('turma_id', filters.turma_id);
-      const res = await fetch(`/api/reports?${params}`);
-      if (!res.ok) throw new ServiceError(res.status, 'relatorios.get');
-      return res.json();
-    } catch {
-      console.warn('[relatorios.getReport] API not available, using mock fallback');
-      const { mockGetReport } = await import('@/lib/mocks/relatorios.mock');
-      return mockGetReport(academyId, filters);
+
+    if (error || !data) {
+      console.warn('[getReport] Supabase error:', error?.message);
+      return empty;
     }
+
+    const row = Array.isArray(data) ? data[0] : data;
+    return (row as ReportResult) ?? empty;
   } catch (error) {
-    handleServiceError(error, 'relatorios.get');
+    console.warn('[getReport] Fallback:', error);
+    return empty;
   }
 }
 
