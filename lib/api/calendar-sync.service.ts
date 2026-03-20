@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -33,16 +32,30 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
         syncedClasses: 0,
       };
     }
-    try {
-      const res = await fetch(`/api/calendar/status?userId=${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[calendar-sync.getCalendarSyncStatus] API not available, using fallback');
-      return { connected: false, provider: null, last_synced: null, events_synced: 0 } as unknown as CalendarSyncStatus;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('calendar_integrations')
+      .select('connected, email, last_sync, synced_classes')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getCalendarSyncStatus] No integration found or error:', error?.message);
+      return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
     }
+
+    return {
+      connected: data.connected ?? false,
+      email: data.email ?? null,
+      lastSync: data.last_sync ?? null,
+      syncedClasses: data.synced_classes ?? 0,
+    };
   } catch (error) {
-    handleServiceError(error, 'calendarSync.status');
+    console.warn('[getCalendarSyncStatus] Fallback:', error);
+    return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
   }
 }
 
@@ -52,16 +65,14 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
       logger.debug('[MOCK] Google Calendar OAuth initiated');
       return { authUrl: '#mock-google-oauth' };
     }
-    try {
-      const res = await fetch('/api/calendar/connect', { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[calendar-sync.connectGoogleCalendar] API not available, using fallback');
-      return { authUrl: "" };
-    }
+
+    // Google Calendar API integration requires server-side OAuth flow
+    // Return empty until Google API credentials are configured
+    console.warn('[connectGoogleCalendar] Google Calendar API not configured yet');
+    return { authUrl: '' };
   } catch (error) {
-    handleServiceError(error, 'calendarSync.connect');
+    console.warn('[connectGoogleCalendar] Fallback:', error);
+    return { authUrl: '' };
   }
 }
 
@@ -71,36 +82,36 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
       logger.debug('[MOCK] Google Calendar disconnected');
       return;
     }
-    try {
-      const res = await fetch(`/api/calendar/disconnect?userId=${userId}`, { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[calendar-sync.disconnectGoogleCalendar] API not available, using fallback');
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('calendar_integrations')
+      .update({ connected: false, email: null })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('[disconnectGoogleCalendar] error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'calendarSync.disconnect');
+    console.warn('[disconnectGoogleCalendar] Fallback:', error);
   }
 }
 
-export async function syncClassesToCalendar(userId: string): Promise<{ synced: number }> {
+export async function syncClassesToCalendar(_userId: string): Promise<{ synced: number }> {
   try {
     if (isMock()) {
       logger.debug('[MOCK] Syncing classes to Google Calendar');
       return { synced: 6 };
     }
-    try {
-      const res = await fetch('/api/calendar/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[calendar-sync.syncClassesToCalendar] API not available, using fallback');
-      return { synced: 0 };
-    }
+
+    // Google Calendar sync requires server-side API integration
+    // Return fallback until Google API credentials are configured
+    console.warn('[syncClassesToCalendar] Google Calendar API not configured, returning fallback');
+    return { synced: 0 };
   } catch (error) {
-    handleServiceError(error, 'calendarSync.sync');
+    console.warn('[syncClassesToCalendar] Fallback:', error);
+    return { synced: 0 };
   }
 }
