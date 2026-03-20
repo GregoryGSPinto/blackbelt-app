@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 export interface AccessResult {
   allowed: boolean;
@@ -54,15 +53,49 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       const { mockValidateAccess } = await import('@/lib/mocks/access-control.mock');
       return mockValidateAccess(studentId, unitId);
     }
-    try {
-      const res = await fetch('/api/access/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, unitId }) });
-      return res.json();
-    } catch {
-      console.warn('[access-control.validateAccess] API not available, using mock fallback');
-      const { mockValidateAccess } = await import('@/lib/mocks/access-control.mock');
-      return mockValidateAccess(studentId, unitId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Check student membership
+    const { data: student, error } = await supabase
+      .from('students')
+      .select('id, display_name, photo_url, belt, academy_id, academies(name), memberships(status)')
+      .eq('id', studentId)
+      .single();
+
+    if (error || !student) {
+      console.warn('[validateAccess] error:', error?.message ?? 'not found');
+      return { allowed: false, reason: 'Aluno não encontrado', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
     }
-  } catch (error) { handleServiceError(error, 'accessControl.validate'); }
+
+    const s = student as Record<string, unknown>;
+    const academy = s.academies as Record<string, unknown> | null;
+    const memberships = s.memberships as Array<Record<string, unknown>> | null;
+    const active = memberships?.some(m => m.status === 'active') ?? false;
+
+    // Log access event
+    await supabase.from('access_events').insert({
+      student_id: studentId,
+      unit_id: unitId,
+      direction: 'entry',
+      method: 'qr_code',
+      allowed: active,
+      reason: active ? undefined : 'Matrícula inativa',
+    });
+
+    return {
+      allowed: active,
+      reason: active ? undefined : 'Matrícula inativa',
+      student_name: (s.display_name as string) ?? '',
+      photo_url: (s.photo_url as string) ?? '',
+      belt: (s.belt as string) ?? '',
+      academy: (academy?.name as string) ?? '',
+      membership_active: active,
+    };
+  } catch (error) {
+    console.warn('[validateAccess] Fallback:', error);
+    return { allowed: false, reason: 'Erro ao validar acesso', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
+  }
 }
 
 export async function getAccessLog(unitId: string, date?: string): Promise<AccessEvent[]> {
@@ -71,17 +104,46 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
       const { mockGetAccessLog } = await import('@/lib/mocks/access-control.mock');
       return mockGetAccessLog(unitId, date);
     }
-    try {
-      const params = new URLSearchParams({ unitId });
-      if (date) params.set('date', date);
-      const res = await fetch(`/api/access/log?${params}`);
-      return res.json();
-    } catch {
-      console.warn('[access-control.getAccessLog] API not available, using mock fallback');
-      const { mockGetAccessLog } = await import('@/lib/mocks/access-control.mock');
-      return mockGetAccessLog(unitId, date);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('access_events')
+      .select('*, students(display_name, photo_url)')
+      .eq('unit_id', unitId)
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (date) {
+      query = query.gte('created_at', `${date}T00:00:00`).lte('created_at', `${date}T23:59:59`);
     }
-  } catch (error) { handleServiceError(error, 'accessControl.log'); }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('[getAccessLog] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const student = row.students as Record<string, unknown> | null;
+      return {
+        id: row.id as string,
+        student_id: row.student_id as string,
+        student_name: (student?.display_name as string) ?? '',
+        photo_url: (student?.photo_url as string) ?? '',
+        unit_id: row.unit_id as string,
+        timestamp: row.created_at as string,
+        direction: (row.direction as 'entry' | 'exit') ?? 'entry',
+        method: (row.method as 'qr_code' | 'proximity' | 'manual') ?? 'manual',
+        allowed: (row.allowed as boolean) ?? true,
+        reason: row.reason as string | undefined,
+      };
+    });
+  } catch (error) {
+    console.warn('[getAccessLog] Fallback:', error);
+    return [];
+  }
 }
 
 export async function configureAccessRules(unitId: string, rules: Partial<AccessRule>[]): Promise<AccessRule[]> {
@@ -90,15 +152,24 @@ export async function configureAccessRules(unitId: string, rules: Partial<Access
       const { mockConfigureAccessRules } = await import('@/lib/mocks/access-control.mock');
       return mockConfigureAccessRules(unitId, rules);
     }
-    try {
-      const res = await fetch('/api/access/rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, rules }) });
-      return res.json();
-    } catch {
-      console.warn('[access-control.configureAccessRules] API not available, using mock fallback');
-      const { mockConfigureAccessRules } = await import('@/lib/mocks/access-control.mock');
-      return mockConfigureAccessRules(unitId, rules);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const inserts = rules.map(r => ({ unit_id: unitId, name: r.name ?? '', type: r.type ?? 'allowed_hours', enabled: r.enabled ?? true, config: r.config ?? {} }));
+    const { data, error } = await supabase
+      .from('access_rules')
+      .upsert(inserts, { onConflict: 'id' })
+      .select();
+
+    if (error) {
+      console.warn('[configureAccessRules] error:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'accessControl.rules'); }
+    return (data ?? []) as unknown as AccessRule[];
+  } catch (error) {
+    console.warn('[configureAccessRules] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getAccessRules(unitId: string): Promise<AccessRule[]> {
@@ -107,15 +178,23 @@ export async function getAccessRules(unitId: string): Promise<AccessRule[]> {
       const { mockGetAccessRules } = await import('@/lib/mocks/access-control.mock');
       return mockGetAccessRules(unitId);
     }
-    try {
-      const res = await fetch(`/api/access/rules?unitId=${unitId}`);
-      return res.json();
-    } catch {
-      console.warn('[access-control.getAccessRules] API not available, using mock fallback');
-      const { mockGetAccessRules } = await import('@/lib/mocks/access-control.mock');
-      return mockGetAccessRules(unitId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('access_rules')
+      .select('*')
+      .eq('unit_id', unitId);
+
+    if (error) {
+      console.warn('[getAccessRules] error:', error.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'accessControl.getRules'); }
+    return (data ?? []) as unknown as AccessRule[];
+  } catch (error) {
+    console.warn('[getAccessRules] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getStudentCard(studentId: string): Promise<StudentCard> {
@@ -124,13 +203,42 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       const { mockGetStudentCard } = await import('@/lib/mocks/access-control.mock');
       return mockGetStudentCard(studentId);
     }
-    try {
-      const res = await fetch(`/api/access/card?studentId=${studentId}`);
-      return res.json();
-    } catch {
-      console.warn('[access-control.getStudentCard] API not available, using mock fallback');
-      const { mockGetStudentCard } = await import('@/lib/mocks/access-control.mock');
-      return mockGetStudentCard(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, display_name, photo_url, belt, academy_id, created_at, academies(name), memberships(status, expires_at), modalities:student_modalities(modality_name)')
+      .eq('id', studentId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getStudentCard] error:', error?.message ?? 'not found');
+      return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
     }
-  } catch (error) { handleServiceError(error, 'accessControl.card'); }
+
+    const s = data as Record<string, unknown>;
+    const academy = s.academies as Record<string, unknown> | null;
+    const memberships = s.memberships as Array<Record<string, unknown>> | null;
+    const activeMembership = memberships?.find(m => m.status === 'active');
+    const mods = s.modalities as Array<Record<string, unknown>> | null;
+
+    return {
+      student_id: s.id as string,
+      student_name: (s.display_name as string) ?? '',
+      photo_url: (s.photo_url as string) ?? '',
+      belt: (s.belt as string) ?? '',
+      academy: (academy?.name as string) ?? '',
+      unit: '',
+      modalities: mods?.map(m => m.modality_name as string) ?? [],
+      member_since: (s.created_at as string) ?? '',
+      membership_active: !!activeMembership,
+      membership_expires: (activeMembership?.expires_at as string) ?? '',
+      qr_code_token: studentId,
+      qr_code_expires: new Date(Date.now() + 3600000).toISOString(),
+    };
+  } catch (error) {
+    console.warn('[getStudentCard] Fallback:', error);
+    return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
+  }
 }

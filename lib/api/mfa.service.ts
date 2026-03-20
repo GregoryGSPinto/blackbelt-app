@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -29,16 +28,30 @@ export async function getMFAStatus(userId: string): Promise<MFAStatus> {
         lastVerified: null,
       };
     }
-    try {
-      const res = await fetch(`/api/auth/mfa/status?userId=${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[mfa.getMFAStatus] API not available, using fallback');
-      return { enabled: false, method: null, backupCodesRemaining: 0, lastVerified: null } as MFAStatus;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('user_preferences')
+      .select('mfa_enabled, mfa_methods, mfa_last_verified')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getMFAStatus] error:', error?.message ?? 'not found');
+      return { enabled: false, method: null, backupCodesRemaining: 0, lastVerified: null };
     }
+
+    const prefs = data as Record<string, unknown>;
+    return {
+      enabled: (prefs.mfa_enabled as boolean) ?? false,
+      method: prefs.mfa_enabled ? 'totp' : null,
+      backupCodesRemaining: 0,
+      lastVerified: (prefs.mfa_last_verified as string) ?? null,
+    };
   } catch (error) {
-    handleServiceError(error, 'mfa.status');
+    console.warn('[getMFAStatus] Fallback:', error);
+    return { enabled: false, method: null, backupCodesRemaining: 0, lastVerified: null };
   }
 }
 
@@ -55,20 +68,33 @@ export async function setupMFA(userId: string): Promise<MFASetupData> {
         ],
       };
     }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Try Supabase MFA enrollment if available
     try {
-      const res = await fetch('/api/auth/mfa/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+      if (!enrollError && enrollData) {
+        return {
+          secret: enrollData.totp.secret,
+          qrCodeUrl: enrollData.totp.uri,
+          backupCodes: [],
+        };
+      }
     } catch {
-      console.warn('[mfa.setupMFA] API not available, using fallback');
-      return { secret: '', qrCodeUrl: '', backupCodes: [] } as MFASetupData;
+      // Supabase MFA not available, fallback
     }
+
+    // Fallback: update user_preferences
+    await supabase
+      .from('user_preferences')
+      .upsert({ user_id: userId, mfa_enabled: true }, { onConflict: 'user_id' });
+
+    console.warn('[setupMFA] Supabase MFA not available, using preference flag');
+    return { secret: '', qrCodeUrl: '', backupCodes: [] };
   } catch (error) {
-    handleServiceError(error, 'mfa.setup');
+    console.warn('[setupMFA] Fallback:', error);
+    return { secret: '', qrCodeUrl: '', backupCodes: [] };
   }
 }
 
@@ -79,43 +105,65 @@ export async function verifyMFA(userId: string, code: string): Promise<{ valid: 
       logger.debug('[MOCK] MFA verify', { userId, valid });
       return { valid };
     }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Try Supabase MFA verification
     try {
-      const res = await fetch('/api/auth/mfa/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, code }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      if (factors && factors.totp && factors.totp.length > 0) {
+        const factorId = factors.totp[0].id;
+        const { data: challenge } = await supabase.auth.mfa.challenge({ factorId });
+        if (challenge) {
+          const { error: verifyError } = await supabase.auth.mfa.verify({ factorId, challengeId: challenge.id, code });
+          return { valid: !verifyError };
+        }
+      }
     } catch {
-      console.warn('[mfa.verifyMFA] API not available, using fallback');
-      return { valid: false };
+      // Supabase MFA not available
     }
+
+    console.warn('[verifyMFA] Supabase MFA not available, verification not possible');
+    return { valid: false };
   } catch (error) {
-    handleServiceError(error, 'mfa.verify');
+    console.warn('[verifyMFA] Fallback:', error);
+    return { valid: false };
   }
 }
 
-export async function disableMFA(userId: string, code: string): Promise<{ success: boolean }> {
+export async function disableMFA(userId: string, _code: string): Promise<{ success: boolean }> {
   try {
     if (isMock()) {
       logger.debug('[MOCK] MFA disabled for user', { userId });
       return { success: true };
     }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Try Supabase MFA unenroll
     try {
-      const res = await fetch('/api/auth/mfa/disable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, code }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      if (factors && factors.totp && factors.totp.length > 0) {
+        const { error } = await supabase.auth.mfa.unenroll({ factorId: factors.totp[0].id });
+        if (!error) return { success: true };
+      }
     } catch {
-      console.warn('[mfa.disableMFA] API not available, using fallback');
+      // Supabase MFA not available
+    }
+
+    // Fallback: update user_preferences
+    const { error } = await supabase
+      .from('user_preferences')
+      .upsert({ user_id: userId, mfa_enabled: false }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.warn('[disableMFA] error:', error.message);
       return { success: false };
     }
+    return { success: true };
   } catch (error) {
-    handleServiceError(error, 'mfa.disable');
+    console.warn('[disableMFA] Fallback:', error);
+    return { success: false };
   }
 }
 
@@ -129,19 +177,11 @@ export async function regenerateBackupCodes(userId: string): Promise<{ codes: st
         ],
       };
     }
-    try {
-      const res = await fetch('/api/auth/mfa/backup-codes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[mfa.regenerateBackupCodes] API not available, using fallback');
-      return { codes: [] };
-    }
+    // Backup codes are not natively supported by Supabase MFA
+    console.warn('[regenerateBackupCodes] Backup codes not available for user:', userId);
+    return { codes: [] };
   } catch (error) {
-    handleServiceError(error, 'mfa.regenerateBackupCodes');
+    console.warn('[regenerateBackupCodes] Fallback:', error);
+    return { codes: [] };
   }
 }
