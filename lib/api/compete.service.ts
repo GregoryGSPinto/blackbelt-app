@@ -1,11 +1,11 @@
 // ============================================================
 // BlackBelt v2 — Compete Service
 // Torneios, chaves, inscrições, resultados, rankings, predições
-// 40+ funções · isMock() pattern · handleServiceError
+// 40+ funções · isMock() pattern · console.warn fallback
 // ============================================================
 
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+// handleServiceError removed — graceful console.warn fallback pattern
 import type { BeltLevel } from '@/lib/types/domain';
 import type {
   Tournament,
@@ -77,11 +77,15 @@ export async function getTournaments(filters?: TournamentFilters): Promise<Tourn
     if (filters?.limit) query = query.limit(filters.limit);
 
     const { data, error } = await query.order('start_date', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getTournaments] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as Tournament[];
   } catch (error) {
-    handleServiceError(error, 'compete.getTournaments');
+    console.warn('[getTournaments] Fallback:', error);
+    return [];
   }
 }
 
@@ -100,11 +104,15 @@ export async function getTournament(slug: string): Promise<Tournament> {
       .select('*')
       .eq('slug', slug)
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[getTournament] error:', error.message);
+      return {} as Tournament;
+    }
 
     return data as Tournament;
   } catch (error) {
-    handleServiceError(error, 'compete.getTournament');
+    console.warn('[getTournament] Fallback:', error);
+    return {} as Tournament;
   }
 }
 
@@ -125,11 +133,15 @@ export async function createTournament(
       .insert({ ...data, status: 'aguardando_aprovacao' })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[createTournament] error:', error.message);
+      return {} as Tournament;
+    }
 
     return created as Tournament;
   } catch (error) {
-    handleServiceError(error, 'compete.createTournament');
+    console.warn('[createTournament] Fallback:', error);
+    return {} as Tournament;
   }
 }
 
@@ -152,11 +164,15 @@ export async function updateTournament(
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[updateTournament] error:', error.message);
+      return {} as Tournament;
+    }
 
     return updated as Tournament;
   } catch (error) {
-    handleServiceError(error, 'compete.updateTournament');
+    console.warn('[updateTournament] Fallback:', error);
+    return {} as Tournament;
   }
 }
 
@@ -182,11 +198,15 @@ export async function approveTournament(id: string): Promise<Tournament> {
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[approveTournament] error:', error.message);
+      return {} as Tournament;
+    }
 
     return updated as Tournament;
   } catch (error) {
-    handleServiceError(error, 'compete.approveTournament');
+    console.warn('[approveTournament] Fallback:', error);
+    return {} as Tournament;
   }
 }
 
@@ -209,11 +229,15 @@ export async function rejectTournament(id: string, reason: string): Promise<Tour
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[rejectTournament] error:', error.message);
+      return {} as Tournament;
+    }
 
     return updated as Tournament;
   } catch (error) {
-    handleServiceError(error, 'compete.rejectTournament');
+    console.warn('[rejectTournament] Fallback:', error);
+    return {} as Tournament;
   }
 }
 
@@ -232,11 +256,15 @@ export async function getPendingTournaments(): Promise<Tournament[]> {
       .select('*')
       .eq('status', 'aguardando_aprovacao')
       .order('created_at', { ascending: true });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getPendingTournaments] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as Tournament[];
   } catch (error) {
-    handleServiceError(error, 'compete.getPendingTournaments');
+    console.warn('[getPendingTournaments] Fallback:', error);
+    return [];
   }
 }
 
@@ -254,9 +282,12 @@ export async function publishTournament(id: string): Promise<void> {
       .from('tournaments')
       .update({ status: 'published' })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.warn('[publishTournament] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.publishTournament');
+    console.warn('[publishTournament] Fallback:', error);
   }
 }
 
@@ -274,9 +305,12 @@ export async function openRegistration(id: string): Promise<void> {
       .from('tournaments')
       .update({ status: 'registration_open' })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.warn('[openRegistration] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.openRegistration');
+    console.warn('[openRegistration] Fallback:', error);
   }
 }
 
@@ -294,9 +328,12 @@ export async function closeRegistration(id: string): Promise<void> {
       .from('tournaments')
       .update({ status: 'registration_closed' })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.warn('[closeRegistration] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.closeRegistration');
+    console.warn('[closeRegistration] Fallback:', error);
   }
 }
 
@@ -314,9 +351,12 @@ export async function startTournament(id: string): Promise<void> {
       .from('tournaments')
       .update({ status: 'live' })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.warn('[startTournament] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.startTournament');
+    console.warn('[startTournament] Fallback:', error);
   }
 }
 
@@ -334,9 +374,12 @@ export async function completeTournament(id: string): Promise<void> {
       .from('tournaments')
       .update({ status: 'completed' })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.warn('[completeTournament] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.completeTournament');
+    console.warn('[completeTournament] Fallback:', error);
   }
 }
 
@@ -352,11 +395,15 @@ export async function getTournamentStats(id: string): Promise<TournamentStats> {
 
     const { data, error } = await supabase
       .rpc('get_tournament_stats', { p_tournament_id: id });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getTournamentStats] error:', error.message);
+      return {} as TournamentStats;
+    }
 
     return data as TournamentStats;
   } catch (error) {
-    handleServiceError(error, 'compete.getTournamentStats');
+    console.warn('[getTournamentStats] Fallback:', error);
+    return {} as TournamentStats;
   }
 }
 
@@ -378,11 +425,15 @@ export async function getCircuits(): Promise<TournamentCircuit[]> {
       .from('tournament_circuits')
       .select('*')
       .order('season', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getCircuits] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentCircuit[];
   } catch (error) {
-    handleServiceError(error, 'compete.getCircuits');
+    console.warn('[getCircuits] Fallback:', error);
+    return [];
   }
 }
 
@@ -401,11 +452,15 @@ export async function getCircuit(slug: string): Promise<TournamentCircuit> {
       .select('*')
       .eq('slug', slug)
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[getCircuit] error:', error.message);
+      return {} as TournamentCircuit;
+    }
 
     return data as TournamentCircuit;
   } catch (error) {
-    handleServiceError(error, 'compete.getCircuit');
+    console.warn('[getCircuit] Fallback:', error);
+    return {} as TournamentCircuit;
   }
 }
 
@@ -424,11 +479,15 @@ export async function getCircuitRanking(circuitId: string): Promise<AcademyTourn
       .select('*')
       .eq('circuit_id', circuitId)
       .order('total_points', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getCircuitRanking] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as AcademyTournamentStats[];
   } catch (error) {
-    handleServiceError(error, 'compete.getCircuitRanking');
+    console.warn('[getCircuitRanking] Fallback:', error);
+    return [];
   }
 }
 
@@ -459,11 +518,15 @@ export async function getCategories(
     if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
 
     const { data, error } = await query.order('name');
-    if (error) throw error;
+    if (error) {
+      console.warn('[getCategories] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentCategory[];
   } catch (error) {
-    handleServiceError(error, 'compete.getCategories');
+    console.warn('[getCategories] Fallback:', error);
+    return [];
   }
 }
 
@@ -485,11 +548,15 @@ export async function createCategory(
       .insert({ ...data, tournament_id: tournamentId, registered_count: 0 })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[createCategory] error:', error.message);
+      return {} as TournamentCategory;
+    }
 
     return created as TournamentCategory;
   } catch (error) {
-    handleServiceError(error, 'compete.createCategory');
+    console.warn('[createCategory] Fallback:', error);
+    return {} as TournamentCategory;
   }
 }
 
@@ -513,11 +580,15 @@ export async function generateStandardCategories(
         p_modality: modality,
         p_config: config,
       });
-    if (error) throw error;
+    if (error) {
+      console.warn('[generateStandardCategories] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentCategory[];
   } catch (error) {
-    handleServiceError(error, 'compete.generateStandardCategories');
+    console.warn('[generateStandardCategories] Fallback:', error);
+    return [];
   }
 }
 
@@ -543,11 +614,15 @@ export async function suggestCategory(
         p_gender: gender,
         p_belt: belt,
       });
-    if (error) throw error;
+    if (error) {
+      console.warn('[suggestCategory] error:', error.message);
+      return {} as TournamentCategory;
+    }
 
     return data as TournamentCategory;
   } catch (error) {
-    handleServiceError(error, 'compete.suggestCategory');
+    console.warn('[suggestCategory] Fallback:', error);
+    return {} as TournamentCategory;
   }
 }
 
@@ -586,11 +661,15 @@ export async function registerAthlete(
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[registerAthlete] error:', error.message);
+      return {} as TournamentRegistration;
+    }
 
     return created as TournamentRegistration;
   } catch (error) {
-    handleServiceError(error, 'compete.registerAthlete');
+    console.warn('[registerAthlete] Fallback:', error);
+    return {} as TournamentRegistration;
   }
 }
 
@@ -628,11 +707,15 @@ export async function registerBatch(
       .from('tournament_registrations')
       .insert(rows)
       .select();
-    if (error) throw error;
+    if (error) {
+      console.warn('[registerBatch] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentRegistration[];
   } catch (error) {
-    handleServiceError(error, 'compete.registerBatch');
+    console.warn('[registerBatch] Fallback:', error);
+    return [];
   }
 }
 
@@ -661,11 +744,15 @@ export async function getRegistrations(
     if (filters?.search) query = query.ilike('athlete_name', `%${filters.search}%`);
 
     const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getRegistrations] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentRegistration[];
   } catch (error) {
-    handleServiceError(error, 'compete.getRegistrations');
+    console.warn('[getRegistrations] Fallback:', error);
+    return [];
   }
 }
 
@@ -688,11 +775,15 @@ export async function getRegistrationsByAcademy(
       .eq('tournament_id', tournamentId)
       .eq('academy_id', academyId)
       .order('athlete_name');
-    if (error) throw error;
+    if (error) {
+      console.warn('[getRegistrationsByAcademy] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentRegistration[];
   } catch (error) {
-    handleServiceError(error, 'compete.getRegistrationsByAcademy');
+    console.warn('[getRegistrationsByAcademy] Fallback:', error);
+    return [];
   }
 }
 
@@ -720,11 +811,15 @@ export async function getMyRegistrations(userId: string): Promise<TournamentRegi
       .select('*')
       .eq('athlete_profile_id', profile.id)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getMyRegistrations] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentRegistration[];
   } catch (error) {
-    handleServiceError(error, 'compete.getMyRegistrations');
+    console.warn('[getMyRegistrations] Fallback:', error);
+    return [];
   }
 }
 
@@ -751,9 +846,12 @@ export async function confirmPayment(
         status: 'confirmed',
       })
       .eq('id', registrationId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[confirmPayment] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.confirmPayment');
+    console.warn('[confirmPayment] Fallback:', error);
   }
 }
 
@@ -771,9 +869,12 @@ export async function cancelRegistration(registrationId: string): Promise<void> 
       .from('tournament_registrations')
       .update({ status: 'cancelled' })
       .eq('id', registrationId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[cancelRegistration] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.cancelRegistration');
+    console.warn('[cancelRegistration] Fallback:', error);
   }
 }
 
@@ -794,9 +895,12 @@ export async function checkInAthlete(registrationId: string): Promise<void> {
         checked_in_at: new Date().toISOString(),
       })
       .eq('id', registrationId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[checkInAthlete] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.checkInAthlete');
+    console.warn('[checkInAthlete] Fallback:', error);
   }
 }
 
@@ -818,11 +922,15 @@ export async function weighInAthlete(
         p_registration_id: registrationId,
         p_weight: weight,
       });
-    if (error) throw error;
+    if (error) {
+      console.warn('[weighInAthlete] error:', error.message);
+      return { passed: false, category: {} as TournamentCategory };
+    }
 
     return data as { passed: boolean; category: TournamentCategory };
   } catch (error) {
-    handleServiceError(error, 'compete.weighInAthlete');
+    console.warn('[weighInAthlete] Fallback:', error);
+    return { passed: false, category: {} as TournamentCategory };
   }
 }
 
@@ -842,11 +950,15 @@ export async function generateBracket(categoryId: string): Promise<TournamentBra
 
     const { data, error } = await supabase
       .rpc('generate_bracket', { p_category_id: categoryId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[generateBracket] error:', error.message);
+      return {} as TournamentBracket;
+    }
 
     return data as TournamentBracket;
   } catch (error) {
-    handleServiceError(error, 'compete.generateBracket');
+    console.warn('[generateBracket] Fallback:', error);
+    return {} as TournamentBracket;
   }
 }
 
@@ -867,7 +979,10 @@ export async function getBracket(
       .select('*')
       .eq('category_id', categoryId)
       .single();
-    if (bracketError) throw bracketError;
+    if (bracketError) {
+      console.warn('[getBracket] error:', bracketError.message);
+      return { bracket: {} as TournamentBracket, matches: [] };
+    }
 
     const { data: matches, error: matchesError } = await supabase
       .from('tournament_matches')
@@ -875,14 +990,18 @@ export async function getBracket(
       .eq('bracket_id', bracket.id)
       .order('round')
       .order('match_number');
-    if (matchesError) throw matchesError;
+    if (matchesError) {
+      console.warn('[getBracket] matches error:', matchesError.message);
+      return { bracket: bracket as TournamentBracket, matches: [] };
+    }
 
     return {
       bracket: bracket as TournamentBracket,
       matches: (matches ?? []) as TournamentMatch[],
     };
   } catch (error) {
-    handleServiceError(error, 'compete.getBracket');
+    console.warn('[getBracket] Fallback:', error);
+    return { bracket: {} as TournamentBracket, matches: [] };
   }
 }
 
@@ -900,11 +1019,15 @@ export async function getAllBrackets(tournamentId: string): Promise<TournamentBr
       .from('tournament_brackets')
       .select('*')
       .eq('tournament_id', tournamentId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAllBrackets] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentBracket[];
   } catch (error) {
-    handleServiceError(error, 'compete.getAllBrackets');
+    console.warn('[getAllBrackets] Fallback:', error);
+    return [];
   }
 }
 
@@ -931,11 +1054,15 @@ export async function getMatchesByArea(
       .eq('tournament_id', tournamentId)
       .eq('area', area)
       .order('scheduled_time');
-    if (error) throw error;
+    if (error) {
+      console.warn('[getMatchesByArea] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentMatch[];
   } catch (error) {
-    handleServiceError(error, 'compete.getMatchesByArea');
+    console.warn('[getMatchesByArea] Fallback:', error);
+    return [];
   }
 }
 
@@ -956,11 +1083,15 @@ export async function getNextMatches(tournamentId: string): Promise<TournamentMa
       .in('status', ['pending', 'called'])
       .order('scheduled_time')
       .limit(20);
-    if (error) throw error;
+    if (error) {
+      console.warn('[getNextMatches] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentMatch[];
   } catch (error) {
-    handleServiceError(error, 'compete.getNextMatches');
+    console.warn('[getNextMatches] Fallback:', error);
+    return [];
   }
 }
 
@@ -978,9 +1109,12 @@ export async function callMatch(matchId: string, area: number): Promise<void> {
       .from('tournament_matches')
       .update({ status: 'called', area })
       .eq('id', matchId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[callMatch] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.callMatch');
+    console.warn('[callMatch] Fallback:', error);
   }
 }
 
@@ -1001,9 +1135,12 @@ export async function startMatch(matchId: string): Promise<void> {
         started_at: new Date().toISOString(),
       })
       .eq('id', matchId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[startMatch] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.startMatch');
+    console.warn('[startMatch] Fallback:', error);
   }
 }
 
@@ -1033,9 +1170,12 @@ export async function recordResult(matchId: string, result: MatchResult): Promis
         completed_at: new Date().toISOString(),
       })
       .eq('id', matchId);
-    if (error) throw error;
+    if (error) {
+      console.warn('[recordResult] error:', error.message);
+      return;
+    }
   } catch (error) {
-    handleServiceError(error, 'compete.recordResult');
+    console.warn('[recordResult] Fallback:', error);
   }
 }
 
@@ -1055,11 +1195,15 @@ export async function getLiveMatches(tournamentId: string): Promise<TournamentMa
       .eq('tournament_id', tournamentId)
       .eq('status', 'in_progress')
       .order('area');
-    if (error) throw error;
+    if (error) {
+      console.warn('[getLiveMatches] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentMatch[];
   } catch (error) {
-    handleServiceError(error, 'compete.getLiveMatches');
+    console.warn('[getLiveMatches] Fallback:', error);
+    return [];
   }
 }
 
@@ -1079,11 +1223,15 @@ export async function getCompletedMatches(tournamentId: string): Promise<Tournam
       .eq('tournament_id', tournamentId)
       .eq('status', 'completed')
       .order('completed_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getCompletedMatches] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentMatch[];
   } catch (error) {
-    handleServiceError(error, 'compete.getCompletedMatches');
+    console.warn('[getCompletedMatches] Fallback:', error);
+    return [];
   }
 }
 
@@ -1113,11 +1261,15 @@ export async function getFeed(
     if (limit) query = query.limit(limit);
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.warn('[getFeed] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentFeedItem[];
   } catch (error) {
-    handleServiceError(error, 'compete.getFeed');
+    console.warn('[getFeed] Fallback:', error);
+    return [];
   }
 }
 
@@ -1144,11 +1296,15 @@ export async function postAnnouncement(
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[postAnnouncement] error:', error.message);
+      return {} as TournamentFeedItem;
+    }
 
     return data as TournamentFeedItem;
   } catch (error) {
-    handleServiceError(error, 'compete.postAnnouncement');
+    console.warn('[postAnnouncement] Fallback:', error);
+    return {} as TournamentFeedItem;
   }
 }
 
@@ -1177,11 +1333,15 @@ export async function postPhoto(
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[postPhoto] error:', error.message);
+      return {} as TournamentFeedItem;
+    }
 
     return data as TournamentFeedItem;
   } catch (error) {
-    handleServiceError(error, 'compete.postPhoto');
+    console.warn('[postPhoto] Fallback:', error);
+    return {} as TournamentFeedItem;
   }
 }
 
@@ -1203,11 +1363,15 @@ export async function getResults(
 
     const { data, error } = await supabase
       .rpc('get_tournament_results', { p_tournament_id: tournamentId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getResults] error:', error.message);
+      return { categories: [] };
+    }
 
     return data as { categories: { category: TournamentCategory; podium: TournamentRegistration[] }[] };
   } catch (error) {
-    handleServiceError(error, 'compete.getResults');
+    console.warn('[getResults] Fallback:', error);
+    return { categories: [] };
   }
 }
 
@@ -1225,11 +1389,15 @@ export async function getResultsByAcademy(
 
     const { data, error } = await supabase
       .rpc('get_tournament_results_by_academy', { p_tournament_id: tournamentId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getResultsByAcademy] error:', error.message);
+      return { academies: [] };
+    }
 
     return data as { academies: { academy_id: string; academy_name: string; athletes: TournamentRegistration[] }[] };
   } catch (error) {
-    handleServiceError(error, 'compete.getResultsByAcademy');
+    console.warn('[getResultsByAcademy] Fallback:', error);
+    return { academies: [] };
   }
 }
 
@@ -1245,11 +1413,15 @@ export async function getMedalTable(tournamentId: string): Promise<MedalTable[]>
 
     const { data, error } = await supabase
       .rpc('get_medal_table', { p_tournament_id: tournamentId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getMedalTable] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as MedalTable[];
   } catch (error) {
-    handleServiceError(error, 'compete.getMedalTable');
+    console.warn('[getMedalTable] Fallback:', error);
+    return [];
   }
 }
 
@@ -1267,11 +1439,15 @@ export async function generateCertificate(
 
     const { data, error } = await supabase
       .rpc('generate_certificate', { p_registration_id: registrationId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[generateCertificate] error:', error.message);
+      return { url: '' };
+    }
 
     return data as { url: string };
   } catch (error) {
-    handleServiceError(error, 'compete.generateCertificate');
+    console.warn('[generateCertificate] Fallback:', error);
+    return { url: '' };
   }
 }
 
@@ -1293,11 +1469,15 @@ export async function getAthleteResults(
       .or(`athlete1_id.eq.${athleteProfileId},athlete2_id.eq.${athleteProfileId}`)
       .eq('status', 'completed')
       .order('completed_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAthleteResults] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentMatch[];
   } catch (error) {
-    handleServiceError(error, 'compete.getAthleteResults');
+    console.warn('[getAthleteResults] Fallback:', error);
+    return [];
   }
 }
 
@@ -1320,11 +1500,15 @@ export async function getAthleteProfile(id: string): Promise<AthleteProfile> {
       .select('*')
       .eq('id', id)
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAthleteProfile] error:', error.message);
+      return {} as AthleteProfile;
+    }
 
     return data as AthleteProfile;
   } catch (error) {
-    handleServiceError(error, 'compete.getAthleteProfile');
+    console.warn('[getAthleteProfile] Fallback:', error);
+    return {} as AthleteProfile;
   }
 }
 
@@ -1343,11 +1527,15 @@ export async function getAthleteByUser(userId: string): Promise<AthleteProfile> 
       .select('*')
       .eq('user_id', userId)
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAthleteByUser] error:', error.message);
+      return {} as AthleteProfile;
+    }
 
     return data as AthleteProfile;
   } catch (error) {
-    handleServiceError(error, 'compete.getAthleteByUser');
+    console.warn('[getAthleteByUser] Fallback:', error);
+    return {} as AthleteProfile;
   }
 }
 
@@ -1370,11 +1558,15 @@ export async function updateAthleteProfile(
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[updateAthleteProfile] error:', error.message);
+      return {} as AthleteProfile;
+    }
 
     return updated as AthleteProfile;
   } catch (error) {
-    handleServiceError(error, 'compete.updateAthleteProfile');
+    console.warn('[updateAthleteProfile] Fallback:', error);
+    return {} as AthleteProfile;
   }
 }
 
@@ -1402,11 +1594,15 @@ export async function getAcademyRanking(
     if (circuitId) query = query.eq('circuit_id', circuitId);
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAcademyRanking] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as AcademyTournamentStats[];
   } catch (error) {
-    handleServiceError(error, 'compete.getAcademyRanking');
+    console.warn('[getAcademyRanking] Fallback:', error);
+    return [];
   }
 }
 
@@ -1432,11 +1628,15 @@ export async function getAthleteRanking(
     if (belt) query = query.eq('belt', belt);
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.warn('[getAthleteRanking] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as AthleteProfile[];
   } catch (error) {
-    handleServiceError(error, 'compete.getAthleteRanking');
+    console.warn('[getAthleteRanking] Fallback:', error);
+    return [];
   }
 }
 
@@ -1469,11 +1669,15 @@ export async function submitPrediction(
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.warn('[submitPrediction] error:', error.message);
+      return {} as TournamentPrediction;
+    }
 
     return data as TournamentPrediction;
   } catch (error) {
-    handleServiceError(error, 'compete.submitPrediction');
+    console.warn('[submitPrediction] Fallback:', error);
+    return {} as TournamentPrediction;
   }
 }
 
@@ -1496,11 +1700,15 @@ export async function getMyPredictions(
       .eq('tournament_id', tournamentId)
       .eq('user_id', user.user?.id ?? '')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getMyPredictions] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as TournamentPrediction[];
   } catch (error) {
-    handleServiceError(error, 'compete.getMyPredictions');
+    console.warn('[getMyPredictions] Fallback:', error);
+    return [];
   }
 }
 
@@ -1518,11 +1726,15 @@ export async function getPredictionLeaderboard(
 
     const { data, error } = await supabase
       .rpc('get_prediction_leaderboard', { p_tournament_id: tournamentId });
-    if (error) throw error;
+    if (error) {
+      console.warn('[getPredictionLeaderboard] error:', error.message);
+      return [];
+    }
 
     return (data ?? []) as { userId: string; name: string; correct: number; points: number }[];
   } catch (error) {
-    handleServiceError(error, 'compete.getPredictionLeaderboard');
+    console.warn('[getPredictionLeaderboard] Fallback:', error);
+    return [];
   }
 }
 
@@ -1548,10 +1760,14 @@ export async function generateSocialCard(
         p_type: type,
         p_data: data,
       });
-    if (error) throw error;
+    if (error) {
+      console.warn('[generateSocialCard] error:', error.message);
+      return { imageUrl: '' };
+    }
 
     return result as { imageUrl: string };
   } catch (error) {
-    handleServiceError(error, 'compete.generateSocialCard');
+    console.warn('[generateSocialCard] Fallback:', error);
+    return { imageUrl: '' };
   }
 }
