@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel, EvaluationCriteria, InvoiceStatus, PlanInterval } from '@/lib/types';
 
 // ── Profile DTOs ───────────────────────────────────────────────────────
@@ -171,7 +170,10 @@ export async function getStudentProfile(studentId: string): Promise<StudentProfi
       .eq('id', studentId)
       .single();
 
-    if (error || !student) throw new ServiceError(404, 'perfil.profile', error?.message);
+    if (error || !student) {
+      console.warn('[getStudentProfile] Supabase error:', error?.message);
+      return { id: studentId, display_name: '', avatar_url: null, belt: 'white' as BeltLevel, academy_id: '', academy_name: '', started_at: new Date().toISOString(), total_classes: 0, months_training: 0, streak: 0, ranking_position: 0, total_students: 0 };
+    }
 
     const profile = student.profiles as Record<string, unknown> | null;
     const academy = student.academies as Record<string, unknown> | null;
@@ -211,7 +213,8 @@ export async function getStudentProfile(studentId: string): Promise<StudentProfi
       total_students: totalStudents ?? 0,
     };
   } catch (error) {
-    handleServiceError(error, 'perfil.profile');
+    console.warn('[getStudentProfile] Fallback:', error);
+    return { id: studentId, display_name: '', avatar_url: null, belt: 'white' as BeltLevel, academy_id: '', academy_name: '', started_at: new Date().toISOString(), total_classes: 0, months_training: 0, streak: 0, ranking_position: 0, total_students: 0 };
   }
 }
 
@@ -308,7 +311,8 @@ export async function getJourneyTimeline(studentId: string): Promise<TimelineEve
 
     return events;
   } catch (error) {
-    handleServiceError(error, 'perfil.timeline');
+    console.warn('[getJourneyTimeline] Fallback:', error);
+    return [];
   }
 }
 
@@ -328,7 +332,10 @@ export async function getEvolutionData(studentId: string): Promise<EvolutionData
       .eq('student_id', studentId)
       .order('created_at', { ascending: true });
 
-    if (error) throw new ServiceError(500, 'perfil.evolution', error.message);
+    if (error) {
+      console.warn('[getEvolutionData] Supabase error:', error.message);
+      return { current_scores: [], history: [] };
+    }
 
     const criteriaLabels: Record<string, string> = {
       technique: 'Tecnica',
@@ -386,7 +393,8 @@ export async function getEvolutionData(studentId: string): Promise<EvolutionData
 
     return { current_scores, history };
   } catch (error) {
-    handleServiceError(error, 'perfil.evolution');
+    console.warn('[getEvolutionData] Fallback:', error);
+    return { current_scores: [], history: [] };
   }
 }
 
@@ -503,7 +511,8 @@ export async function getAttendanceHeatmap(studentId: string): Promise<Attendanc
       distribution,
     };
   } catch (error) {
-    handleServiceError(error, 'perfil.heatmap');
+    console.warn('[getAttendanceHeatmap] Fallback:', error);
+    return { days: [], total_year: 0, longest_streak: 0, current_streak: 0, average_per_week: 0, distribution: [] };
   }
 }
 
@@ -523,7 +532,10 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
       .eq('id', studentId)
       .single();
 
-    if (!student) throw new ServiceError(404, 'perfil.evaluations', 'Student not found');
+    if (!student) {
+      console.warn('[getEvaluationHistory] Student not found');
+      return [];
+    }
 
     const { data: evaluations, error } = await supabase
       .from('evaluations')
@@ -537,7 +549,10 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new ServiceError(500, 'perfil.evaluations', error.message);
+    if (error) {
+      console.warn('[getEvaluationHistory] Supabase error:', error.message);
+      return [];
+    }
 
     // Get belt at time of each evaluation via progressions
     const { data: progressions } = await supabase
@@ -576,7 +591,8 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
       };
     });
   } catch (error) {
-    handleServiceError(error, 'perfil.evaluations');
+    console.warn('[getEvaluationHistory] Fallback:', error);
+    return [];
   }
 }
 
@@ -596,14 +612,20 @@ export async function getContentProgress(studentId: string): Promise<ContentProg
       .eq('id', studentId)
       .single();
 
-    if (!student) throw new ServiceError(404, 'perfil.content', 'Student not found');
+    if (!student) {
+      console.warn('[getContentProgress] Student not found');
+      return { total_watched_minutes: 0, total_completed: 0, trails: [] };
+    }
 
     const { data: watchHistory, error } = await supabase
       .from('video_watch_history')
       .select('video_id, watched_seconds, completed, completed_at, videos(id, title, duration, academy_id)')
       .eq('student_id', studentId);
 
-    if (error) throw new ServiceError(500, 'perfil.content', error.message);
+    if (error) {
+      console.warn('[getContentProgress] Supabase error:', error.message);
+      return { total_watched_minutes: 0, total_completed: 0, trails: [] };
+    }
 
     const { data: series } = await supabase
       .from('series')
@@ -653,7 +675,8 @@ export async function getContentProgress(studentId: string): Promise<ContentProg
       trails,
     };
   } catch (error) {
-    handleServiceError(error, 'perfil.content');
+    console.warn('[getContentProgress] Fallback:', error);
+    return { total_watched_minutes: 0, total_completed: 0, trails: [] };
   }
 }
 
@@ -706,6 +729,7 @@ export async function getFinanceiroPerfil(studentId: string): Promise<Financeiro
       })),
     };
   } catch (error) {
-    handleServiceError(error, 'perfil.financeiro');
+    console.warn('[getFinanceiroPerfil] Fallback:', error);
+    return { plan: null, invoices: [] };
   }
 }

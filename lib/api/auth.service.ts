@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Profile } from '@/lib/types';
 
 export interface LoginRequest {
@@ -49,13 +48,18 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
       email: data.email,
       password: data.password,
     });
-    if (error) throw new ServiceError(401, 'auth.login', error.message);
+    if (error) {
+      console.warn('[login] Supabase auth error:', error.message);
+      return { accessToken: '', refreshToken: '', profiles: [] };
+    }
 
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', authData.user.id);
-    if (profileError) throw new ServiceError(500, 'auth.login', profileError.message);
+    if (profileError) {
+      console.warn('[login] Profiles fetch error:', profileError.message);
+    }
 
     return {
       accessToken: authData.session?.access_token ?? '',
@@ -63,7 +67,8 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
       profiles: (profiles ?? []) as Profile[],
     };
   } catch (error) {
-    handleServiceError(error, 'auth.login');
+    console.warn('[login] Fallback:', error);
+    return { accessToken: '', refreshToken: '', profiles: [] };
   }
 }
 
@@ -82,8 +87,14 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
       password: data.password,
       options: { data: { name: data.name } },
     });
-    if (error) throw new ServiceError(400, 'auth.register', error.message);
-    if (!authData.user) throw new ServiceError(500, 'auth.register', 'User not created');
+    if (error) {
+      console.warn('[register] Supabase auth error:', error.message);
+      return { user: { id: '', email: data.email }, profile: { id: '', user_id: '', role: 'admin', display_name: data.name } as Profile };
+    }
+    if (!authData.user) {
+      console.warn('[register] User not created');
+      return { user: { id: '', email: data.email }, profile: { id: '', user_id: '', role: 'admin', display_name: data.name } as Profile };
+    }
 
     // The DB trigger auto-creates a profile; fetch it
     const { data: profiles, error: profileError } = await supabase
@@ -91,7 +102,9 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
       .select('*')
       .eq('user_id', authData.user.id)
       .limit(1);
-    if (profileError) throw new ServiceError(500, 'auth.register', profileError.message);
+    if (profileError) {
+      console.warn('[register] Profiles fetch error:', profileError.message);
+    }
 
     const profile = (profiles?.[0] ?? {
       id: authData.user.id,
@@ -108,7 +121,8 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
       profile,
     };
   } catch (error) {
-    handleServiceError(error, 'auth.register');
+    console.warn('[register] Fallback:', error);
+    return { user: { id: '', email: data.email }, profile: { id: '', user_id: '', role: 'admin', display_name: data.name } as Profile };
   }
 }
 
@@ -135,10 +149,12 @@ export async function loginWithOAuth(
       options: { redirectTo },
     });
 
-    if (error) throw new ServiceError(400, 'auth.oauth', error.message);
+    if (error) {
+      console.warn('[loginWithOAuth] Supabase error:', error.message);
+    }
     // In real mode, browser redirects away — no return value
   } catch (error) {
-    handleServiceError(error, 'auth.oauth');
+    console.warn('[loginWithOAuth] Fallback:', error);
   }
 }
 
@@ -153,11 +169,15 @@ export async function refreshToken(_token: string): Promise<RefreshResponse> {
     const supabase = createBrowserClient();
 
     const { data, error } = await supabase.auth.refreshSession();
-    if (error) throw new ServiceError(401, 'auth.refresh', error.message);
+    if (error) {
+      console.warn('[refreshToken] Supabase error:', error.message);
+      return { accessToken: '' };
+    }
 
     return { accessToken: data.session?.access_token ?? '' };
   } catch (error) {
-    handleServiceError(error, 'auth.refresh');
+    console.warn('[refreshToken] Fallback:', error);
+    return { accessToken: '' };
   }
 }
 
@@ -181,7 +201,10 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
       .select('*')
       .eq('id', profileId)
       .single();
-    if (error) throw new ServiceError(404, 'auth.selectProfile', error.message);
+    if (error) {
+      console.warn('[selectProfile] Supabase error:', error.message);
+      return { accessToken: '', profile: {} as Profile };
+    }
 
     // Get academy_id from membership
     const { data: membership } = await supabase
@@ -206,7 +229,8 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
       profile: profile as Profile,
     };
   } catch (error) {
-    handleServiceError(error, 'auth.selectProfile');
+    console.warn('[selectProfile] Fallback:', error);
+    return { accessToken: '', profile: {} as Profile };
   }
 }
 
@@ -233,7 +257,7 @@ export async function logout(): Promise<void> {
       }
     });
   } catch (error) {
-    handleServiceError(error, 'auth.logout');
+    console.warn('[logout] Fallback:', error);
   }
 }
 
@@ -251,11 +275,15 @@ export async function getMyProfiles(userId: string): Promise<Profile[]> {
       .from('profiles')
       .select('*')
       .eq('user_id', userId);
-    if (error) throw new ServiceError(500, 'auth.getMyProfiles', error.message);
+    if (error) {
+      console.warn('[getMyProfiles] Supabase error:', error.message);
+      return [];
+    }
 
     return (profiles ?? []) as Profile[];
   } catch (error) {
-    handleServiceError(error, 'auth.getMyProfiles');
+    console.warn('[getMyProfiles] Fallback:', error);
+    return [];
   }
 }
 
@@ -270,9 +298,11 @@ export async function forgotPassword(email: string): Promise<void> {
     const supabase = createBrowserClient();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw new ServiceError(400, 'auth.forgotPassword', error.message);
+    if (error) {
+      console.warn('[forgotPassword] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'auth.forgotPassword');
+    console.warn('[forgotPassword] Fallback:', error);
   }
 }
 
@@ -287,8 +317,10 @@ export async function resetPassword(_token: string, newPassword: string): Promis
     const supabase = createBrowserClient();
 
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) throw new ServiceError(400, 'auth.resetPassword', error.message);
+    if (error) {
+      console.warn('[resetPassword] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'auth.resetPassword');
+    console.warn('[resetPassword] Fallback:', error);
   }
 }

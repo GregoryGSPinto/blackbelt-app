@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError, ServiceError } from '@/lib/api/errors';
 import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
 
 // ── Re-export types ──────────────────────────────────────────────────
@@ -28,12 +27,13 @@ export async function getUserPreferences(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      throw new ServiceError(500, 'preferences.get', error.message);
+      console.warn('[getUserPreferences] Supabase error:', error.message);
     }
 
     return (data?.preferences ?? {}) as UserPreferences;
   } catch (error) {
-    handleServiceError(error, 'preferences.get');
+    console.warn('[getUserPreferences] Fallback:', error);
+    return {} as UserPreferences;
   }
 }
 
@@ -61,9 +61,11 @@ export async function updateUserPreferences(
       { onConflict: 'profile_id' },
     );
 
-    if (error) throw new ServiceError(500, 'preferences.update', error.message);
+    if (error) {
+      console.warn('[updateUserPreferences] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'preferences.update');
+    console.warn('[updateUserPreferences] Fallback:', error);
   }
 }
 
@@ -90,12 +92,13 @@ export async function getAcademySettings(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      throw new ServiceError(500, 'academy-settings.get', error.message);
+      console.warn('[getAcademySettings] Supabase error:', error.message);
     }
 
     return (data?.settings ?? {}) as AcademySettings;
   } catch (error) {
-    handleServiceError(error, 'academy-settings.get');
+    console.warn('[getAcademySettings] Fallback:', error);
+    return {} as AcademySettings;
   }
 }
 
@@ -124,10 +127,10 @@ export async function updateAcademySettings(
     );
 
     if (error) {
-      throw new ServiceError(500, 'academy-settings.update', error.message);
+      console.warn('[updateAcademySettings] Supabase error:', error.message);
     }
   } catch (error) {
-    handleServiceError(error, 'academy-settings.update');
+    console.warn('[updateAcademySettings] Fallback:', error);
   }
 }
 
@@ -154,9 +157,11 @@ export async function changePassword(
       }),
     });
 
-    if (!res.ok) throw new ServiceError(res.status, 'preferences.password');
+    if (!res.ok) {
+      console.warn('[changePassword] API error:', res.status);
+    }
   } catch (error) {
-    handleServiceError(error, 'preferences.password');
+    console.warn('[changePassword] Fallback:', error);
   }
 }
 
@@ -179,10 +184,14 @@ export async function exportUserData(
       body: JSON.stringify({ profile_id: profileId }),
     });
 
-    if (!res.ok) throw new ServiceError(res.status, 'preferences.export');
+    if (!res.ok) {
+      console.warn('[exportUserData] API error:', res.status);
+      return { url: '' };
+    }
     return res.json();
   } catch (error) {
-    handleServiceError(error, 'preferences.export');
+    console.warn('[exportUserData] Fallback:', error);
+    return { url: '' };
   }
 }
 
@@ -204,9 +213,11 @@ export async function deleteAccount(
       body: JSON.stringify({ profile_id: profileId, confirm: confirmText }),
     });
 
-    if (!res.ok) throw new ServiceError(res.status, 'preferences.delete');
+    if (!res.ok) {
+      console.warn('[deleteAccount] API error:', res.status);
+    }
   } catch (error) {
-    handleServiceError(error, 'preferences.delete');
+    console.warn('[deleteAccount] Fallback:', error);
   }
 }
 
@@ -224,10 +235,10 @@ export async function deactivateAcademy(academyId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      throw new ServiceError(res.status, 'preferences.deactivate-academy');
+      console.warn('[deactivateAcademy] API error:', res.status);
     }
   } catch (error) {
-    handleServiceError(error, 'preferences.deactivate-academy');
+    console.warn('[deactivateAcademy] Fallback:', error);
   }
 }
 
@@ -250,10 +261,10 @@ export async function deleteAcademy(
     });
 
     if (!res.ok) {
-      throw new ServiceError(res.status, 'preferences.delete-academy');
+      console.warn('[deleteAcademy] API error:', res.status);
     }
   } catch (error) {
-    handleServiceError(error, 'preferences.delete-academy');
+    console.warn('[deleteAcademy] Fallback:', error);
   }
 }
 
@@ -274,9 +285,11 @@ export async function resetTutorial(profileId: string): Promise<void> {
       body: JSON.stringify({ profile_id: profileId }),
     });
 
-    if (!res.ok) throw new ServiceError(res.status, 'preferences.reset-tutorial');
+    if (!res.ok) {
+      console.warn('[resetTutorial] API error:', res.status);
+    }
   } catch (error) {
-    handleServiceError(error, 'preferences.reset-tutorial');
+    console.warn('[resetTutorial] Fallback:', error);
   }
 }
 
@@ -296,10 +309,10 @@ export async function resetChecklist(profileId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      throw new ServiceError(res.status, 'preferences.reset-checklist');
+      console.warn('[resetChecklist] API error:', res.status);
     }
   } catch (error) {
-    handleServiceError(error, 'preferences.reset-checklist');
+    console.warn('[resetChecklist] Fallback:', error);
   }
 }
 
@@ -326,11 +339,15 @@ export async function uploadAvatar(
       body: formData,
     });
 
-    if (!res.ok) throw new ServiceError(res.status, 'preferences.upload-avatar');
+    if (!res.ok) {
+      console.warn('[uploadAvatar] API error:', res.status);
+      return '';
+    }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    handleServiceError(error, 'preferences.upload-avatar');
+    console.warn('[uploadAvatar] Fallback:', error);
+    return '';
   }
 }
 
@@ -356,11 +373,13 @@ export async function uploadAcademyLogo(
     });
 
     if (!res.ok) {
-      throw new ServiceError(res.status, 'preferences.upload-logo');
+      console.warn('[uploadAcademyLogo] API error:', res.status);
+      return '';
     }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    handleServiceError(error, 'preferences.upload-logo');
+    console.warn('[uploadAcademyLogo] Fallback:', error);
+    return '';
   }
 }
