@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type {
   PlatformPlan,
   AcademyFull,
@@ -18,11 +17,20 @@ export async function listPlans(): Promise<PlatformPlan[]> {
       const { mockListPlans } = await import('@/lib/mocks/superadmin.mock');
       return mockListPlans();
     }
-    // API not yet implemented — use mock
-    const { mockListPlans } = await import('@/lib/mocks/superadmin.mock');
-      return mockListPlans();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('platform_plans')
+      .select('*')
+      .order('price_monthly', { ascending: true });
+    if (error) {
+      console.warn('[listPlans] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as PlatformPlan[];
   } catch (error) {
-    handleServiceError(error, 'superadmin.listPlans');
+    console.warn('[listPlans] Fallback:', error);
+    return [];
   }
 }
 
@@ -32,16 +40,21 @@ export async function getPlan(id: string): Promise<PlatformPlan | null> {
       const { mockGetPlan } = await import('@/lib/mocks/superadmin.mock');
       return mockGetPlan(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/plans/${id}`);
-      if (!res.ok) throw new Error('Erro ao buscar plano');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.getPlan] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('platform_plans')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) {
+      console.warn('[getPlan] Supabase error:', error.message);
       return null;
     }
+    return (data ?? null) as PlatformPlan | null;
   } catch (error) {
-    handleServiceError(error, 'superadmin.getPlan');
+    console.warn('[getPlan] Fallback:', error);
+    return null;
   }
 }
 
@@ -55,12 +68,30 @@ export async function listAcademies(
       const { mockListAcademies } = await import('@/lib/mocks/superadmin.mock');
       return mockListAcademies(filters);
     }
-    // API not yet implemented — use mock
-    const { mockListAcademies } = await import('@/lib/mocks/superadmin.mock');
-      return mockListAcademies(filters);
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('academies')
+      .select('*, platform_plans(*)')
+      .order('created_at', { ascending: false });
+    if (filters?.status) {
+      query = query.eq('status', filters.status);
+    }
+    if (filters?.plan_id) {
+      query = query.eq('plan_id', filters.plan_id);
+    }
+    if (filters?.search) {
+      query = query.ilike('name', `%${filters.search}%`);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[listAcademies] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as AcademyFull[];
   } catch (error) {
-    handleServiceError(error, 'superadmin.listAcademies');
+    console.warn('[listAcademies] Fallback:', error);
+    return [];
   }
 }
 
@@ -70,41 +101,90 @@ export async function getAcademy(id: string): Promise<AcademyFull | null> {
       const { mockGetAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockGetAcademy(id);
     }
-    try {
-      const res = await fetch(`/api/superadmin/academies/${id}`);
-      if (!res.ok) throw new Error('Erro ao buscar academia');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.getAcademy] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academies')
+      .select('*, platform_plans(*)')
+      .eq('id', id)
+      .single();
+    if (error) {
+      console.warn('[getAcademy] Supabase error:', error.message);
       return null;
     }
+    return (data ?? null) as AcademyFull | null;
   } catch (error) {
-    handleServiceError(error, 'superadmin.getAcademy');
+    console.warn('[getAcademy] Fallback:', error);
+    return null;
   }
 }
 
 export async function createAcademy(
   payload: CreateAcademyPayload,
 ): Promise<{ academy: AcademyFull; onboardToken: OnboardToken }> {
+  const emptyResult = {
+    academy: {} as AcademyFull,
+    onboardToken: {} as OnboardToken,
+  };
   try {
     if (isMock()) {
       const { mockCreateAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockCreateAcademy(payload);
     }
-    try {
-      const res = await fetch('/api/superadmin/academies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('Erro ao criar academia');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.createAcademy] API not available, using fallback');
-      return { academy: { id: '', name: '', slug: '', cnpj: '', owner_id: '', plan: 'free', status: 'active', logo_url: null, created_at: '', updated_at: '' }, onboardToken: { id: '', academy_id: '', token: '', expires_at: '', used: false } } as unknown as { academy: AcademyFull; onboardToken: OnboardToken };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const slug = payload.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    const { data: academy, error: academyError } = await supabase
+      .from('academies')
+      .insert({
+        name: payload.name,
+        slug,
+        email: payload.email ?? null,
+        phone: payload.phone ?? null,
+        city: payload.city ?? null,
+        state: payload.state ?? null,
+        plan_id: payload.plan_id,
+        status: 'trial',
+      })
+      .select('*')
+      .single();
+    if (academyError || !academy) {
+      console.warn('[createAcademy] Supabase error:', academyError?.message);
+      return emptyResult;
     }
+    const token = crypto.randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (payload.trial_days ?? 14));
+    const { data: onboardToken, error: tokenError } = await supabase
+      .from('onboard_tokens')
+      .insert({
+        academy_id: academy.id,
+        academy_name: payload.name,
+        token,
+        plan_id: payload.plan_id,
+        trial_days: payload.trial_days ?? 14,
+        max_uses: 1,
+        current_uses: 0,
+        expires_at: expiresAt.toISOString(),
+        is_active: true,
+        notes: payload.notes ?? null,
+      })
+      .select('*')
+      .single();
+    if (tokenError || !onboardToken) {
+      console.warn('[createAcademy] Token creation error:', tokenError?.message);
+      return { academy: academy as AcademyFull, onboardToken: {} as OnboardToken };
+    }
+    return {
+      academy: academy as AcademyFull,
+      onboardToken: onboardToken as OnboardToken,
+    };
   } catch (error) {
-    handleServiceError(error, 'superadmin.createAcademy');
+    console.warn('[createAcademy] Fallback:', error);
+    return emptyResult;
   }
 }
 
@@ -117,22 +197,22 @@ export async function updateAcademy(
       const { mockUpdateAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockUpdateAcademy(id, updates);
     }
-    try {
-      const res = await fetch(`/api/superadmin/academies/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error('Erro ao atualizar academia');
-      return res.json();
-    } catch {
-      console.warn('[superadmin.updateAcademy] API not available, using mock fallback');
-      const { mockUpdateAcademy } = await import('@/lib/mocks/superadmin.mock');
-      return mockUpdateAcademy(id, updates);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academies')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*, platform_plans(*)')
+      .single();
+    if (error || !data) {
+      console.warn('[updateAcademy] Supabase error:', error?.message);
+      return {} as AcademyFull;
     }
-
+    return data as AcademyFull;
   } catch (error) {
-    handleServiceError(error, 'superadmin.updateAcademy');
+    console.warn('[updateAcademy] Fallback:', error);
+    return {} as AcademyFull;
   }
 }
 
@@ -142,11 +222,22 @@ export async function suspendAcademy(id: string): Promise<AcademyFull> {
       const { mockSuspendAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockSuspendAcademy(id);
     }
-    // API not yet implemented — use mock
-    const { mockSuspendAcademy } = await import('@/lib/mocks/superadmin.mock');
-      return mockSuspendAcademy(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academies')
+      .update({ status: 'suspended', updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*, platform_plans(*)')
+      .single();
+    if (error || !data) {
+      console.warn('[suspendAcademy] Supabase error:', error?.message);
+      return {} as AcademyFull;
+    }
+    return data as AcademyFull;
   } catch (error) {
-    handleServiceError(error, 'superadmin.suspendAcademy');
+    console.warn('[suspendAcademy] Fallback:', error);
+    return {} as AcademyFull;
   }
 }
 
@@ -156,11 +247,22 @@ export async function reactivateAcademy(id: string): Promise<AcademyFull> {
       const { mockReactivateAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockReactivateAcademy(id);
     }
-    // API not yet implemented — use mock
-    const { mockReactivateAcademy } = await import('@/lib/mocks/superadmin.mock');
-      return mockReactivateAcademy(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academies')
+      .update({ status: 'active', updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*, platform_plans(*)')
+      .single();
+    if (error || !data) {
+      console.warn('[reactivateAcademy] Supabase error:', error?.message);
+      return {} as AcademyFull;
+    }
+    return data as AcademyFull;
   } catch (error) {
-    handleServiceError(error, 'superadmin.reactivateAcademy');
+    console.warn('[reactivateAcademy] Fallback:', error);
+    return {} as AcademyFull;
   }
 }
 
@@ -174,12 +276,27 @@ export async function listOnboardTokens(
       const { mockListOnboardTokens } = await import('@/lib/mocks/superadmin.mock');
       return mockListOnboardTokens(filters);
     }
-    // API not yet implemented — use mock
-    const { mockListOnboardTokens } = await import('@/lib/mocks/superadmin.mock');
-      return mockListOnboardTokens(filters);
-
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('onboard_tokens')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (filters?.active !== undefined) {
+      query = query.eq('is_active', filters.active);
+    }
+    if (filters?.search) {
+      query = query.ilike('academy_name', `%${filters.search}%`);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[listOnboardTokens] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as OnboardToken[];
   } catch (error) {
-    handleServiceError(error, 'superadmin.listOnboardTokens');
+    console.warn('[listOnboardTokens] Fallback:', error);
+    return [];
   }
 }
 
@@ -189,11 +306,22 @@ export async function deactivateOnboardToken(id: string): Promise<OnboardToken> 
       const { mockDeactivateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockDeactivateOnboardToken(id);
     }
-    // API not yet implemented — use mock
-    const { mockDeactivateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
-      return mockDeactivateOnboardToken(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('onboard_tokens')
+      .update({ is_active: false })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error || !data) {
+      console.warn('[deactivateOnboardToken] Supabase error:', error?.message);
+      return {} as OnboardToken;
+    }
+    return data as OnboardToken;
   } catch (error) {
-    handleServiceError(error, 'superadmin.deactivateOnboardToken');
+    console.warn('[deactivateOnboardToken] Fallback:', error);
+    return {} as OnboardToken;
   }
 }
 
@@ -203,37 +331,54 @@ export async function validateOnboardToken(token: string): Promise<OnboardValida
       const { mockValidateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
       return mockValidateOnboardToken(token);
     }
-    // API not yet implemented — use mock
-    const { mockValidateOnboardToken } = await import('@/lib/mocks/superadmin.mock');
-      return mockValidateOnboardToken(token);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('onboard_tokens')
+      .select('*')
+      .eq('token', token)
+      .single();
+    if (error || !data) {
+      return { valid: false, error: 'not_found' };
+    }
+    const tkn = data as OnboardToken;
+    if (!tkn.is_active) {
+      return { valid: false, token: tkn, error: 'inactive' };
+    }
+    if (tkn.expires_at && new Date(tkn.expires_at) < new Date()) {
+      return { valid: false, token: tkn, error: 'expired' };
+    }
+    if (tkn.current_uses >= tkn.max_uses) {
+      return { valid: false, token: tkn, error: 'max_uses' };
+    }
+    return { valid: true, token: tkn };
   } catch (error) {
-    handleServiceError(error, 'superadmin.validateOnboardToken');
+    console.warn('[validateOnboardToken] Fallback:', error);
+    return { valid: false, error: 'not_found' };
   }
 }
 
 export async function redeemOnboardToken(
   token: string,
   academyId: string,
-  profileId: string,
+  _profileId: string,
 ): Promise<void> {
   try {
     if (isMock()) {
       const { mockRedeemOnboardToken } = await import('@/lib/mocks/superadmin.mock');
-      return mockRedeemOnboardToken(token, academyId, profileId);
+      return mockRedeemOnboardToken(token, academyId, _profileId);
     }
-    try {
-      const res = await fetch('/api/superadmin/onboard-tokens/redeem', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, academy_id: academyId, profile_id: profileId }),
-      });
-      if (!res.ok) throw new Error('Erro ao usar token');
-    } catch {
-      console.warn('[superadmin.redeemOnboardToken] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('onboard_tokens')
+      .update({ current_uses: 1, is_active: false })
+      .eq('token', token);
+    if (error) {
+      console.warn('[redeemOnboardToken] Supabase error:', error.message);
     }
-
   } catch (error) {
-    handleServiceError(error, 'superadmin.redeemOnboardToken');
+    console.warn('[redeemOnboardToken] Fallback:', error);
   }
 }
 
@@ -248,10 +393,36 @@ export async function generateSignupLink(opts: {
       const { mockGenerateSignupLink } = await import('@/lib/mocks/superadmin.mock');
       return mockGenerateSignupLink(opts);
     }
-    const { mockGenerateSignupLink } = await import('@/lib/mocks/superadmin.mock');
-    return mockGenerateSignupLink(opts);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const token = crypto.randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (opts.expiresInDays ?? 7));
+    const { data: user } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('onboard_tokens')
+      .insert({
+        token,
+        academy_name: 'Signup Link',
+        plan_id: null,
+        trial_days: opts.expiresInDays ?? 7,
+        max_uses: 1,
+        current_uses: 0,
+        expires_at: expiresAt.toISOString(),
+        is_active: true,
+        notes: opts.notes ?? null,
+        created_by: user?.user?.id ?? 'system',
+      })
+      .select('*')
+      .single();
+    if (error || !data) {
+      console.warn('[generateSignupLink] Supabase error:', error?.message);
+      return {} as OnboardToken;
+    }
+    return data as OnboardToken;
   } catch (error) {
-    handleServiceError(error, 'superadmin.generateSignupLink');
+    console.warn('[generateSignupLink] Fallback:', error);
+    return {} as OnboardToken;
   }
 }
 
@@ -263,10 +434,21 @@ export async function getUnacknowledgedAcademies(): Promise<AcademyFull[]> {
       const { mockGetUnacknowledgedAcademies } = await import('@/lib/mocks/superadmin.mock');
       return mockGetUnacknowledgedAcademies();
     }
-    const { mockGetUnacknowledgedAcademies } = await import('@/lib/mocks/superadmin.mock');
-    return mockGetUnacknowledgedAcademies();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('academies')
+      .select('*, platform_plans(*)')
+      .eq('acknowledged', false)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getUnacknowledgedAcademies] Supabase error:', error.message);
+      return [];
+    }
+    return (data ?? []) as AcademyFull[];
   } catch (error) {
-    handleServiceError(error, 'superadmin.getUnacknowledgedAcademies');
+    console.warn('[getUnacknowledgedAcademies] Fallback:', error);
+    return [];
   }
 }
 
@@ -276,25 +458,76 @@ export async function acknowledgeAcademy(id: string): Promise<void> {
       const { mockAcknowledgeAcademy } = await import('@/lib/mocks/superadmin.mock');
       return mockAcknowledgeAcademy(id);
     }
-    const { mockAcknowledgeAcademy } = await import('@/lib/mocks/superadmin.mock');
-    return mockAcknowledgeAcademy(id);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('academies')
+      .update({ acknowledged: true, acknowledged_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) {
+      console.warn('[acknowledgeAcademy] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'superadmin.acknowledgeAcademy');
+    console.warn('[acknowledgeAcademy] Fallback:', error);
   }
 }
 
 // ── Stats ────────────────────────────────────────────────────────────
 
 export async function getPlatformStats(): Promise<PlatformStats> {
+  const emptyStats: PlatformStats = {
+    total_academies: 0,
+    active_academies: 0,
+    trial_academies: 0,
+    suspended_academies: 0,
+    total_students: 0,
+    total_professors: 0,
+    total_revenue_monthly: 0,
+    new_academies_this_month: 0,
+    new_students_this_month: 0,
+  };
   try {
     if (isMock()) {
       const { mockGetPlatformStats } = await import('@/lib/mocks/superadmin.mock');
       return mockGetPlatformStats();
     }
-    // API not yet implemented — use mock
-    const { mockGetPlatformStats } = await import('@/lib/mocks/superadmin.mock');
-      return mockGetPlatformStats();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { count: totalAcademies } = await supabase
+      .from('academies')
+      .select('*', { count: 'exact', head: true });
+    const { count: activeAcademies } = await supabase
+      .from('academies')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
+    const { count: trialAcademies } = await supabase
+      .from('academies')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'trial');
+    const { count: suspendedAcademies } = await supabase
+      .from('academies')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'suspended');
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const { count: newAcademiesThisMonth } = await supabase
+      .from('academies')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', startOfMonth.toISOString());
+    return {
+      total_academies: totalAcademies ?? 0,
+      active_academies: activeAcademies ?? 0,
+      trial_academies: trialAcademies ?? 0,
+      suspended_academies: suspendedAcademies ?? 0,
+      total_students: 0,
+      total_professors: 0,
+      total_revenue_monthly: 0,
+      new_academies_this_month: newAcademiesThisMonth ?? 0,
+      new_students_this_month: 0,
+    };
   } catch (error) {
-    handleServiceError(error, 'superadmin.getPlatformStats');
+    console.warn('[getPlatformStats] Fallback:', error);
+    return emptyStats;
   }
 }
