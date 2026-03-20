@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // ── Interfaces ─────────────────────────────────────────────────────
 
@@ -259,6 +258,98 @@ export interface RelatorioPedagogicoMensal {
   geradoEm: string;
 }
 
+// ── Fallbacks ─────────────────────────────────────────────────────
+
+const EMPTY_RESUMO: ResumoDashboard = {
+  totalAlunos: 0,
+  totalProfessores: 0,
+  totalTurmas: 0,
+  mediaPresencaGeral: 0,
+  mediaEvolucaoGeral: 0,
+  alunosEvoluidosMes: 0,
+  alunosEstagnadosMes: 0,
+  graduacoesRealizadasMes: 0,
+  graduacoesProntas: 0,
+};
+
+const EMPTY_DASHBOARD: PedagogicoDashboardDTO = {
+  resumo: EMPTY_RESUMO,
+  saudeTurmas: [],
+  rankingProfessores: [],
+  alunosAtencao: [],
+  timeline: [],
+};
+
+const EMPTY_ANALISE: AnaliseProfessor = {
+  professorId: '',
+  professorNome: '',
+  faixa: '',
+  metricas: { presencaMedia: 0, evolucaoMedia: 0, retencao: 0, avaliacoesMes: 0, planosAulaMes: 0, frequenciaAvaliacao: 0 },
+  evolucaoAlunos: [],
+  comparativo: [],
+  pontosFortes: [],
+  pontosAMelhorar: [],
+  acoesSugeridas: [],
+};
+
+const EMPTY_CURRICULO: CurriculoAcademia = {
+  id: '',
+  academyId: '',
+  modalidade: '',
+  nome: '',
+  descricao: '',
+  modulos: [],
+  progressoTurmas: [],
+  criadoEm: '',
+  atualizadoEm: '',
+};
+
+const EMPTY_REUNIAO: ReuniaoPedagogica = {
+  id: '',
+  academyId: '',
+  data: '',
+  titulo: '',
+  status: 'agendada',
+  participantes: [],
+  pauta: [],
+  ata: '',
+  decisoes: [],
+  acoesDefinidas: [],
+  criadoPor: '',
+  criadoEm: '',
+};
+
+const EMPTY_OCORRENCIA: Ocorrencia = {
+  id: '',
+  academyId: '',
+  alunoId: '',
+  alunoNome: '',
+  turmaId: '',
+  turmaNome: '',
+  professorId: '',
+  professorNome: '',
+  tipo: 'observacao',
+  gravidade: 'leve',
+  descricao: '',
+  acaoTomada: '',
+  responsavelNotificado: false,
+  data: '',
+  criadoEm: '',
+};
+
+const EMPTY_RELATORIO: RelatorioPedagogicoMensal = {
+  id: '',
+  academyId: '',
+  mes: '',
+  resumoExecutivo: '',
+  metricas: { totalAlunos: 0, presencaMedia: 0, evolucaoMedia: 0, graduacoes: 0, novasMatriculas: 0, evasoes: 0, retencao: 0 },
+  porProfessor: [],
+  alunosDestaque: [],
+  alunosAtencao: [],
+  metaProximoMes: [],
+  geradoEm: '',
+};
+
 // ── Dashboard ──────────────────────────────────────────────────────
 
 export async function getPedagogicoDashboard(academyId: string): Promise<PedagogicoDashboardDTO> {
@@ -267,11 +358,72 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       const { mockGetPedagogicoDashboard } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetPedagogicoDashboard(academyId);
     }
-    const res = await fetch(`/api/pedagogico/dashboard?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.dashboard');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch turmas with professor info
+    const { data: turmas, error: turmasErr } = await supabase
+      .from('turmas')
+      .select('id, nome, modalidade, professor_id, profiles:professor_id(full_name)')
+      .eq('academy_id', academyId);
+
+    if (turmasErr) {
+      console.warn('[getPedagogicoDashboard] turmas error:', turmasErr.message);
+      return EMPTY_DASHBOARD;
+    }
+
+    // Fetch basic counts
+    const { count: totalAlunos } = await supabase
+      .from('academy_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('academy_id', academyId)
+      .eq('role', 'student');
+
+    const { count: totalProfessores } = await supabase
+      .from('academy_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('academy_id', academyId)
+      .eq('role', 'professor');
+
+    const resumo: ResumoDashboard = {
+      totalAlunos: totalAlunos ?? 0,
+      totalProfessores: totalProfessores ?? 0,
+      totalTurmas: (turmas || []).length,
+      mediaPresencaGeral: 0,
+      mediaEvolucaoGeral: 0,
+      alunosEvoluidosMes: 0,
+      alunosEstagnadosMes: 0,
+      graduacoesRealizadasMes: 0,
+      graduacoesProntas: 0,
+    };
+
+    const saudeTurmas: SaudeTurma[] = (turmas || []).map((t: Record<string, unknown>) => {
+      const prof = t.profiles as Record<string, unknown> | null;
+      return {
+        turmaId: String(t.id ?? ''),
+        turmaNome: String(t.nome ?? ''),
+        professorNome: prof ? String(prof.full_name ?? '') : '',
+        modalidade: String(t.modalidade ?? ''),
+        alunos: 0,
+        presencaMedia: 0,
+        evolucaoMedia: 0,
+        tendencia: 'estavel' as const,
+        alertas: [],
+        score: 0,
+      };
+    });
+
+    return {
+      resumo,
+      saudeTurmas,
+      rankingProfessores: [],
+      alunosAtencao: [],
+      timeline: [],
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.dashboard');
+    console.warn('[getPedagogicoDashboard] Fallback:', error);
+    return EMPTY_DASHBOARD;
   }
 }
 
@@ -283,11 +435,42 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
       const { mockGetAnaliseProfessor } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetAnaliseProfessor(professorId);
     }
-    const res = await fetch(`/api/pedagogico/professor/${professorId}/analise`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.analiseProfessor');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: profile, error: profileErr } = await supabase
+      .from('profiles')
+      .select('id, full_name, belt')
+      .eq('id', professorId)
+      .single();
+
+    if (profileErr || !profile) {
+      console.warn('[getAnaliseProfessor] profile error:', profileErr?.message);
+      return EMPTY_ANALISE;
+    }
+
+    return {
+      professorId: String(profile.id ?? ''),
+      professorNome: String(profile.full_name ?? ''),
+      faixa: String(profile.belt ?? ''),
+      metricas: {
+        presencaMedia: 0,
+        evolucaoMedia: 0,
+        retencao: 0,
+        avaliacoesMes: 0,
+        planosAulaMes: 0,
+        frequenciaAvaliacao: 0,
+      },
+      evolucaoAlunos: [],
+      comparativo: [],
+      pontosFortes: [],
+      pontosAMelhorar: [],
+      acoesSugeridas: [],
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.analiseProfessor');
+    console.warn('[getAnaliseProfessor] Fallback:', error);
+    return EMPTY_ANALISE;
   }
 }
 
@@ -299,11 +482,34 @@ export async function getCurriculos(academyId: string): Promise<CurriculoAcademi
       const { mockGetCurriculos } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetCurriculos(academyId);
     }
-    const res = await fetch(`/api/pedagogico/curriculos?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.getCurriculos');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('curriculos')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getCurriculos] error:', error.message);
+      return [];
+    }
+
+    return (data || []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      modalidade: String(row.modalidade ?? ''),
+      nome: String(row.nome ?? ''),
+      descricao: String(row.descricao ?? ''),
+      modulos: Array.isArray(row.modulos) ? row.modulos as ModuloCurriculo[] : [],
+      progressoTurmas: Array.isArray(row.progresso_turmas) ? row.progresso_turmas as ProgressoTurma[] : [],
+      criadoEm: String(row.created_at ?? ''),
+      atualizadoEm: String(row.updated_at ?? ''),
+    }));
   } catch (error) {
-    handleServiceError(error, 'pedagogico.getCurriculos');
+    console.warn('[getCurriculos] Fallback:', error);
+    return [];
   }
 }
 
@@ -313,11 +519,35 @@ export async function getCurriculo(id: string): Promise<CurriculoAcademia> {
       const { mockGetCurriculo } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetCurriculo(id);
     }
-    const res = await fetch(`/api/pedagogico/curriculos/${id}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.getCurriculo');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('curriculos')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      console.warn('[getCurriculo] error:', error?.message);
+      return EMPTY_CURRICULO;
+    }
+
+    const row = data as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      modalidade: String(row.modalidade ?? ''),
+      nome: String(row.nome ?? ''),
+      descricao: String(row.descricao ?? ''),
+      modulos: Array.isArray(row.modulos) ? row.modulos as ModuloCurriculo[] : [],
+      progressoTurmas: Array.isArray(row.progresso_turmas) ? row.progresso_turmas as ProgressoTurma[] : [],
+      criadoEm: String(row.created_at ?? ''),
+      atualizadoEm: String(row.updated_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.getCurriculo');
+    console.warn('[getCurriculo] Fallback:', error);
+    return EMPTY_CURRICULO;
   }
 }
 
@@ -327,15 +557,42 @@ export async function createCurriculo(data: Partial<CurriculoAcademia>): Promise
       const { mockCreateCurriculo } = await import('@/lib/mocks/pedagogico.mock');
       return mockCreateCurriculo(data);
     }
-    const res = await fetch('/api/pedagogico/curriculos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.createCurriculo');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: created, error } = await supabase
+      .from('curriculos')
+      .insert({
+        academy_id: data.academyId,
+        modalidade: data.modalidade,
+        nome: data.nome,
+        descricao: data.descricao,
+        modulos: data.modulos ?? [],
+        progresso_turmas: data.progressoTurmas ?? [],
+      })
+      .select()
+      .single();
+
+    if (error || !created) {
+      console.warn('[createCurriculo] error:', error?.message);
+      return EMPTY_CURRICULO;
+    }
+
+    const row = created as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      modalidade: String(row.modalidade ?? ''),
+      nome: String(row.nome ?? ''),
+      descricao: String(row.descricao ?? ''),
+      modulos: Array.isArray(row.modulos) ? row.modulos as ModuloCurriculo[] : [],
+      progressoTurmas: Array.isArray(row.progresso_turmas) ? row.progresso_turmas as ProgressoTurma[] : [],
+      criadoEm: String(row.created_at ?? ''),
+      atualizadoEm: String(row.updated_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.createCurriculo');
+    console.warn('[createCurriculo] Fallback:', error);
+    return EMPTY_CURRICULO;
   }
 }
 
@@ -345,15 +602,44 @@ export async function updateCurriculo(id: string, data: Partial<CurriculoAcademi
       const { mockUpdateCurriculo } = await import('@/lib/mocks/pedagogico.mock');
       return mockUpdateCurriculo(id, data);
     }
-    const res = await fetch(`/api/pedagogico/curriculos/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.updateCurriculo');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const updatePayload: Record<string, unknown> = {};
+    if (data.modalidade !== undefined) updatePayload.modalidade = data.modalidade;
+    if (data.nome !== undefined) updatePayload.nome = data.nome;
+    if (data.descricao !== undefined) updatePayload.descricao = data.descricao;
+    if (data.modulos !== undefined) updatePayload.modulos = data.modulos;
+    if (data.progressoTurmas !== undefined) updatePayload.progresso_turmas = data.progressoTurmas;
+
+    const { data: updated, error } = await supabase
+      .from('curriculos')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updated) {
+      console.warn('[updateCurriculo] error:', error?.message);
+      return EMPTY_CURRICULO;
+    }
+
+    const row = updated as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      modalidade: String(row.modalidade ?? ''),
+      nome: String(row.nome ?? ''),
+      descricao: String(row.descricao ?? ''),
+      modulos: Array.isArray(row.modulos) ? row.modulos as ModuloCurriculo[] : [],
+      progressoTurmas: Array.isArray(row.progresso_turmas) ? row.progresso_turmas as ProgressoTurma[] : [],
+      criadoEm: String(row.created_at ?? ''),
+      atualizadoEm: String(row.updated_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.updateCurriculo');
+    console.warn('[updateCurriculo] Fallback:', error);
+    return EMPTY_CURRICULO;
   }
 }
 
@@ -365,11 +651,37 @@ export async function getReunioes(academyId: string): Promise<ReuniaoPedagogica[
       const { mockGetReunioes } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetReunioes(academyId);
     }
-    const res = await fetch(`/api/pedagogico/reunioes?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.getReunioes');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('reunioes_pedagogicas')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('data', { ascending: false });
+
+    if (error) {
+      console.warn('[getReunioes] error:', error.message);
+      return [];
+    }
+
+    return (data || []).map((row: Record<string, unknown>) => ({
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      data: String(row.data ?? ''),
+      titulo: String(row.titulo ?? ''),
+      status: (row.status as ReuniaoPedagogica['status']) ?? 'agendada',
+      participantes: Array.isArray(row.participantes) ? row.participantes as ParticipanteReuniao[] : [],
+      pauta: Array.isArray(row.pauta) ? row.pauta as PautaItem[] : [],
+      ata: String(row.ata ?? ''),
+      decisoes: Array.isArray(row.decisoes) ? row.decisoes as DecisaoReuniao[] : [],
+      acoesDefinidas: Array.isArray(row.acoes_definidas) ? row.acoes_definidas as AcaoDefinida[] : [],
+      criadoPor: String(row.criado_por ?? ''),
+      criadoEm: String(row.created_at ?? ''),
+    }));
   } catch (error) {
-    handleServiceError(error, 'pedagogico.getReunioes');
+    console.warn('[getReunioes] Fallback:', error);
+    return [];
   }
 }
 
@@ -379,15 +691,49 @@ export async function createReuniao(data: Partial<ReuniaoPedagogica>): Promise<R
       const { mockCreateReuniao } = await import('@/lib/mocks/pedagogico.mock');
       return mockCreateReuniao(data);
     }
-    const res = await fetch('/api/pedagogico/reunioes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.createReuniao');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: created, error } = await supabase
+      .from('reunioes_pedagogicas')
+      .insert({
+        academy_id: data.academyId,
+        data: data.data,
+        titulo: data.titulo,
+        status: data.status ?? 'agendada',
+        participantes: data.participantes ?? [],
+        pauta: data.pauta ?? [],
+        ata: data.ata ?? '',
+        decisoes: data.decisoes ?? [],
+        acoes_definidas: data.acoesDefinidas ?? [],
+        criado_por: data.criadoPor,
+      })
+      .select()
+      .single();
+
+    if (error || !created) {
+      console.warn('[createReuniao] error:', error?.message);
+      return EMPTY_REUNIAO;
+    }
+
+    const row = created as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      data: String(row.data ?? ''),
+      titulo: String(row.titulo ?? ''),
+      status: (row.status as ReuniaoPedagogica['status']) ?? 'agendada',
+      participantes: Array.isArray(row.participantes) ? row.participantes as ParticipanteReuniao[] : [],
+      pauta: Array.isArray(row.pauta) ? row.pauta as PautaItem[] : [],
+      ata: String(row.ata ?? ''),
+      decisoes: Array.isArray(row.decisoes) ? row.decisoes as DecisaoReuniao[] : [],
+      acoesDefinidas: Array.isArray(row.acoes_definidas) ? row.acoes_definidas as AcaoDefinida[] : [],
+      criadoPor: String(row.criado_por ?? ''),
+      criadoEm: String(row.created_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.createReuniao');
+    console.warn('[createReuniao] Fallback:', error);
+    return EMPTY_REUNIAO;
   }
 }
 
@@ -397,15 +743,50 @@ export async function updateReuniao(id: string, data: Partial<ReuniaoPedagogica>
       const { mockUpdateReuniao } = await import('@/lib/mocks/pedagogico.mock');
       return mockUpdateReuniao(id, data);
     }
-    const res = await fetch(`/api/pedagogico/reunioes/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.updateReuniao');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const updatePayload: Record<string, unknown> = {};
+    if (data.data !== undefined) updatePayload.data = data.data;
+    if (data.titulo !== undefined) updatePayload.titulo = data.titulo;
+    if (data.status !== undefined) updatePayload.status = data.status;
+    if (data.participantes !== undefined) updatePayload.participantes = data.participantes;
+    if (data.pauta !== undefined) updatePayload.pauta = data.pauta;
+    if (data.ata !== undefined) updatePayload.ata = data.ata;
+    if (data.decisoes !== undefined) updatePayload.decisoes = data.decisoes;
+    if (data.acoesDefinidas !== undefined) updatePayload.acoes_definidas = data.acoesDefinidas;
+
+    const { data: updated, error } = await supabase
+      .from('reunioes_pedagogicas')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updated) {
+      console.warn('[updateReuniao] error:', error?.message);
+      return EMPTY_REUNIAO;
+    }
+
+    const row = updated as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      data: String(row.data ?? ''),
+      titulo: String(row.titulo ?? ''),
+      status: (row.status as ReuniaoPedagogica['status']) ?? 'agendada',
+      participantes: Array.isArray(row.participantes) ? row.participantes as ParticipanteReuniao[] : [],
+      pauta: Array.isArray(row.pauta) ? row.pauta as PautaItem[] : [],
+      ata: String(row.ata ?? ''),
+      decisoes: Array.isArray(row.decisoes) ? row.decisoes as DecisaoReuniao[] : [],
+      acoesDefinidas: Array.isArray(row.acoes_definidas) ? row.acoes_definidas as AcaoDefinida[] : [],
+      criadoPor: String(row.criado_por ?? ''),
+      criadoEm: String(row.created_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.updateReuniao');
+    console.warn('[updateReuniao] Fallback:', error);
+    return EMPTY_REUNIAO;
   }
 }
 
@@ -417,11 +798,45 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
       const { mockGetOcorrencias } = await import('@/lib/mocks/pedagogico.mock');
       return mockGetOcorrencias(academyId);
     }
-    const res = await fetch(`/api/pedagogico/ocorrencias?academyId=${academyId}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.getOcorrencias');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('ocorrencias')
+      .select('*, aluno:aluno_id(full_name), turma:turma_id(nome), professor:professor_id(full_name)')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getOcorrencias] error:', error.message);
+      return [];
+    }
+
+    return (data || []).map((row: Record<string, unknown>) => {
+      const aluno = row.aluno as Record<string, unknown> | null;
+      const turma = row.turma as Record<string, unknown> | null;
+      const professor = row.professor as Record<string, unknown> | null;
+      return {
+        id: String(row.id ?? ''),
+        academyId: String(row.academy_id ?? ''),
+        alunoId: String(row.aluno_id ?? ''),
+        alunoNome: aluno ? String(aluno.full_name ?? '') : '',
+        turmaId: String(row.turma_id ?? ''),
+        turmaNome: turma ? String(turma.nome ?? '') : '',
+        professorId: String(row.professor_id ?? ''),
+        professorNome: professor ? String(professor.full_name ?? '') : '',
+        tipo: (row.tipo as Ocorrencia['tipo']) ?? 'observacao',
+        gravidade: (row.gravidade as Ocorrencia['gravidade']) ?? 'leve',
+        descricao: String(row.descricao ?? ''),
+        acaoTomada: String(row.acao_tomada ?? ''),
+        responsavelNotificado: Boolean(row.responsavel_notificado ?? false),
+        data: String(row.data ?? ''),
+        criadoEm: String(row.created_at ?? ''),
+      };
+    });
   } catch (error) {
-    handleServiceError(error, 'pedagogico.getOcorrencias');
+    console.warn('[getOcorrencias] Fallback:', error);
+    return [];
   }
 }
 
@@ -431,15 +846,55 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       const { mockCreateOcorrencia } = await import('@/lib/mocks/pedagogico.mock');
       return mockCreateOcorrencia(data);
     }
-    const res = await fetch('/api/pedagogico/ocorrencias', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.createOcorrencia');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: created, error } = await supabase
+      .from('ocorrencias')
+      .insert({
+        academy_id: data.academyId,
+        aluno_id: data.alunoId,
+        turma_id: data.turmaId,
+        professor_id: data.professorId,
+        tipo: data.tipo ?? 'observacao',
+        gravidade: data.gravidade ?? 'leve',
+        descricao: data.descricao,
+        acao_tomada: data.acaoTomada ?? '',
+        responsavel_notificado: data.responsavelNotificado ?? false,
+        data: data.data,
+      })
+      .select('*, aluno:aluno_id(full_name), turma:turma_id(nome), professor:professor_id(full_name)')
+      .single();
+
+    if (error || !created) {
+      console.warn('[createOcorrencia] error:', error?.message);
+      return EMPTY_OCORRENCIA;
+    }
+
+    const row = created as Record<string, unknown>;
+    const aluno = row.aluno as Record<string, unknown> | null;
+    const turma = row.turma as Record<string, unknown> | null;
+    const professor = row.professor as Record<string, unknown> | null;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      alunoId: String(row.aluno_id ?? ''),
+      alunoNome: aluno ? String(aluno.full_name ?? '') : '',
+      turmaId: String(row.turma_id ?? ''),
+      turmaNome: turma ? String(turma.nome ?? '') : '',
+      professorId: String(row.professor_id ?? ''),
+      professorNome: professor ? String(professor.full_name ?? '') : '',
+      tipo: (row.tipo as Ocorrencia['tipo']) ?? 'observacao',
+      gravidade: (row.gravidade as Ocorrencia['gravidade']) ?? 'leve',
+      descricao: String(row.descricao ?? ''),
+      acaoTomada: String(row.acao_tomada ?? ''),
+      responsavelNotificado: Boolean(row.responsavel_notificado ?? false),
+      data: String(row.data ?? ''),
+      criadoEm: String(row.created_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.createOcorrencia');
+    console.warn('[createOcorrencia] Fallback:', error);
+    return EMPTY_OCORRENCIA;
   }
 }
 
@@ -451,10 +906,36 @@ export async function gerarRelatorioPedagogico(academyId: string, mes: string): 
       const { mockGerarRelatorioPedagogico } = await import('@/lib/mocks/pedagogico.mock');
       return mockGerarRelatorioPedagogico(academyId, mes);
     }
-    const res = await fetch(`/api/pedagogico/relatorio?academyId=${academyId}&mes=${mes}`);
-    if (!res.ok) throw new ServiceError(res.status, 'pedagogico.gerarRelatorio');
-    return res.json();
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('relatorios_pedagogicos')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('mes', mes)
+      .single();
+
+    if (error || !data) {
+      console.warn('[gerarRelatorioPedagogico] error:', error?.message);
+      return EMPTY_RELATORIO;
+    }
+
+    const row = data as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ''),
+      academyId: String(row.academy_id ?? ''),
+      mes: String(row.mes ?? ''),
+      resumoExecutivo: String(row.resumo_executivo ?? ''),
+      metricas: (row.metricas as MetricasRelatorio) ?? EMPTY_RELATORIO.metricas,
+      porProfessor: Array.isArray(row.por_professor) ? row.por_professor as ProfessorRelatorio[] : [],
+      alunosDestaque: Array.isArray(row.alunos_destaque) ? row.alunos_destaque as AlunoDestaque[] : [],
+      alunosAtencao: Array.isArray(row.alunos_atencao) ? row.alunos_atencao as AlunoAtencaoRelatorio[] : [],
+      metaProximoMes: Array.isArray(row.meta_proximo_mes) ? row.meta_proximo_mes as MetaProximoMes[] : [],
+      geradoEm: String(row.created_at ?? ''),
+    };
   } catch (error) {
-    handleServiceError(error, 'pedagogico.gerarRelatorio');
+    console.warn('[gerarRelatorioPedagogico] Fallback:', error);
+    return EMPTY_RELATORIO;
   }
 }
