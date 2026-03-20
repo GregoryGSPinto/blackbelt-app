@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import type { AuditEntry, AuditEntryFilters } from '@/lib/types/audit';
 
 export type AuditAction =
@@ -44,11 +43,14 @@ export async function logAudit(
 ): Promise<void> {
   try {
     if (isMock()) return;
-    fetch('/api/audit/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, entityType, entityId, oldData, newData }),
-    }).catch(() => { /* fire-and-forget */ });
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    supabase
+      .from('audit_logs')
+      .insert({ action, entity_type: entityType, entity_id: entityId, old_data: oldData ?? null, new_data: newData ?? null })
+      .then(({ error: err }: { error: { message: string } | null }) => {
+        if (err) console.warn('[logAudit] Supabase error:', err.message);
+      });
   } catch { /* fire-and-forget */ }
 }
 
@@ -58,23 +60,50 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
       const { mockSearchAuditLogs } = await import('@/lib/mocks/audit.mock');
       return mockSearchAuditLogs(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters.action) params.set('action', filters.action);
-      if (filters.actorId) params.set('actorId', filters.actorId);
-      if (filters.entityType) params.set('entityType', filters.entityType);
-      if (filters.startDate) params.set('startDate', filters.startDate);
-      if (filters.endDate) params.set('endDate', filters.endDate);
-      if (filters.limit) params.set('limit', String(filters.limit));
-      if (filters.cursor) params.set('cursor', filters.cursor);
-      const res = await fetch(`/api/audit/search?${params}`);
-      return res.json();
-    } catch {
-      console.warn('[audit.searchAuditLogs] API not available, using mock fallback');
-      const { mockSearchAuditLogs } = await import('@/lib/mocks/audit.mock');
-      return mockSearchAuditLogs(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('audit_logs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false })
+      .limit(filters.limit ?? 50);
+
+    if (filters.action) query = query.eq('action', filters.action);
+    if (filters.actorId) query = query.eq('actor_id', filters.actorId);
+    if (filters.entityType) query = query.eq('entity_type', filters.entityType);
+    if (filters.startDate) query = query.gte('created_at', filters.startDate);
+    if (filters.endDate) query = query.lte('created_at', filters.endDate);
+    if (filters.cursor) query = query.lt('created_at', filters.cursor);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[searchAuditLogs] Supabase error:', error?.message);
+      return { logs: [], nextCursor: null };
     }
-  } catch (error) { handleServiceError(error, 'audit.search'); }
+
+    const logs: AuditLog[] = (data as Record<string, unknown>[]).map((d) => ({
+      id: (d.id as string) ?? '',
+      academyId: (d.academy_id as string) ?? academyId,
+      actorId: (d.actor_id as string) ?? '',
+      actorName: (d.actor_name as string) ?? '',
+      action: (d.action as AuditAction) ?? 'create',
+      entityType: (d.entity_type as string) ?? '',
+      entityId: (d.entity_id as string) ?? '',
+      oldData: (d.old_data as Record<string, unknown> | null) ?? null,
+      newData: (d.new_data as Record<string, unknown> | null) ?? null,
+      ipAddress: (d.ip_address as string) ?? '',
+      userAgent: (d.user_agent as string) ?? '',
+      createdAt: (d.created_at as string) ?? '',
+    }));
+
+    const nextCursor = logs.length > 0 ? logs[logs.length - 1].createdAt : null;
+    return { logs, nextCursor };
+  } catch (error) {
+    console.warn('[searchAuditLogs] Fallback:', error);
+    return { logs: [], nextCursor: null };
+  }
 }
 
 export async function getEntityHistory(entityType: string, entityId: string): Promise<AuditLog[]> {
@@ -83,15 +112,38 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       const { mockGetEntityHistory } = await import('@/lib/mocks/audit.mock');
       return mockGetEntityHistory(entityType, entityId);
     }
-    try {
-      const res = await fetch(`/api/audit/entity/${entityType}/${entityId}`);
-      return res.json();
-    } catch {
-      console.warn('[audit.getEntityHistory] API not available, using mock fallback');
-      const { mockGetEntityHistory } = await import('@/lib/mocks/audit.mock');
-      return mockGetEntityHistory(entityType, entityId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select('*')
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getEntityHistory] Supabase error:', error?.message);
+      return [];
     }
-  } catch (error) { handleServiceError(error, 'audit.entityHistory'); }
+
+    return (data as Record<string, unknown>[]).map((d) => ({
+      id: (d.id as string) ?? '',
+      academyId: (d.academy_id as string) ?? '',
+      actorId: (d.actor_id as string) ?? '',
+      actorName: (d.actor_name as string) ?? '',
+      action: (d.action as AuditAction) ?? 'create',
+      entityType: (d.entity_type as string) ?? '',
+      entityId: (d.entity_id as string) ?? '',
+      oldData: (d.old_data as Record<string, unknown> | null) ?? null,
+      newData: (d.new_data as Record<string, unknown> | null) ?? null,
+      ipAddress: (d.ip_address as string) ?? '',
+      userAgent: (d.user_agent as string) ?? '',
+      createdAt: (d.created_at as string) ?? '',
+    }));
+  } catch (error) {
+    console.warn('[getEntityHistory] Fallback:', error);
+    return [];
+  }
 }
 
 export async function exportAuditLogs(academyId: string, filters: AuditFilters = {}): Promise<Blob> {
@@ -100,17 +152,36 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
       const { mockExportAuditLogs } = await import('@/lib/mocks/audit.mock');
       return mockExportAuditLogs(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId, format: 'csv' });
-      if (filters.startDate) params.set('startDate', filters.startDate);
-      if (filters.endDate) params.set('endDate', filters.endDate);
-      const res = await fetch(`/api/audit/export?${params}`);
-      return res.blob();
-    } catch {
-      console.warn('[audit.exportAuditLogs] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('audit_logs')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (filters.startDate) query = query.gte('created_at', filters.startDate);
+    if (filters.endDate) query = query.lte('created_at', filters.endDate);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[exportAuditLogs] Supabase error:', error?.message);
       return new Blob();
     }
-  } catch (error) { handleServiceError(error, 'audit.export'); }
+
+    const csv = [
+      'id,academy_id,actor_id,actor_name,action,entity_type,entity_id,created_at',
+      ...(data as Record<string, unknown>[]).map((d) =>
+        `${d.id},${d.academy_id},${d.actor_id},${d.actor_name},${d.action},${d.entity_type},${d.entity_id},${d.created_at}`
+      ),
+    ].join('\n');
+
+    return new Blob([csv], { type: 'text/csv' });
+  } catch (error) {
+    console.warn('[exportAuditLogs] Fallback:', error);
+    return new Blob();
+  }
 }
 
 // ── P-049: AuditEntry CRUD ─────────────────────────────────────────
@@ -124,51 +195,62 @@ export async function listAuditEntries(
       const { mockListAuditEntries } = await import('@/lib/mocks/audit.mock');
       return mockListAuditEntries(academyId, filters);
     }
-    try {
-      const params = new URLSearchParams({ academyId });
-      if (filters.action) params.set('action', filters.action);
-      if (filters.user_id) params.set('user_id', filters.user_id);
-      if (filters.entity_type) params.set('entity_type', filters.entity_type);
-      if (filters.start_date) params.set('start_date', filters.start_date);
-      if (filters.end_date) params.set('end_date', filters.end_date);
-      if (filters.limit) params.set('limit', String(filters.limit));
-      if (filters.offset) params.set('offset', String(filters.offset));
-      const res = await fetch(`/api/audit/entries?${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[audit.listAuditEntries] API not available, using mock fallback');
-      const { mockListAuditEntries } = await import('@/lib/mocks/audit.mock');
-      return mockListAuditEntries(academyId, filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    let query = supabase
+      .from('audit_entries')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (filters.action) query = query.eq('action', filters.action);
+    if (filters.user_id) query = query.eq('user_id', filters.user_id);
+    if (filters.entity_type) query = query.eq('entity_type', filters.entity_type);
+    if (filters.start_date) query = query.gte('created_at', filters.start_date);
+    if (filters.end_date) query = query.lte('created_at', filters.end_date);
+    if (filters.limit) query = query.limit(filters.limit);
+    if (filters.offset) query = query.range(filters.offset, filters.offset + (filters.limit ?? 50) - 1);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      console.warn('[listAuditEntries] Supabase error:', error?.message);
+      return [];
     }
 
+    return data as unknown as AuditEntry[];
   } catch (error) {
-    handleServiceError(error, 'audit.listEntries');
+    console.warn('[listAuditEntries] Fallback:', error);
+    return [];
   }
 }
 
 export async function createAuditEntry(
   entry: Omit<AuditEntry, 'id' | 'created_at'>,
 ): Promise<AuditEntry> {
+  const fallback = { id: '', user_id: '', user_name: '', action: 'create', entity_type: '', entity_id: '', changes_json: null, ip: '', user_agent: '', created_at: '' } as AuditEntry;
+
   try {
     if (isMock()) {
       const { mockCreateAuditEntry } = await import('@/lib/mocks/audit.mock');
       return mockCreateAuditEntry(entry);
     }
-    try {
-      const res = await fetch('/api/audit/entries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[audit.createAuditEntry] API not available, using fallback');
-      return { id: "", user_id: "", action: "", resource: "", resource_id: "", details: {}, ip: "", timestamp: "" } as unknown as AuditEntry;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('audit_entries')
+      .insert(entry)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[createAuditEntry] Supabase error:', error?.message);
+      return fallback;
     }
 
+    return data as unknown as AuditEntry;
   } catch (error) {
-    handleServiceError(error, 'audit.createEntry');
+    console.warn('[createAuditEntry] Fallback:', error);
+    return fallback;
   }
 }

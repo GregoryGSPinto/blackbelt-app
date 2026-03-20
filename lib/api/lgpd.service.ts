@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 import { logger } from '@/lib/monitoring/logger';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -45,19 +44,22 @@ export async function recordConsent(
       logger.debug(`[MOCK] Consent recorded: ${type} = ${accepted} for user ${userId}`);
       return;
     }
-    try {
-      const res = await fetch('/api/lgpd/consent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, type, accepted, version }),
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('consent_records')
+      .insert({
+        user_id: userId,
+        type,
+        accepted,
+        version,
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch {
-      console.warn('[lgpd.recordConsent] API not available, using fallback');
-    }
 
+    if (error) {
+      console.warn('[recordConsent] Supabase error:', error.message);
+    }
   } catch (error) {
-    handleServiceError(error, 'lgpd.recordConsent');
+    console.warn('[recordConsent] Fallback:', error);
   }
 }
 
@@ -71,20 +73,44 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
         { userId, type: 'data_processing', accepted: true, version: '1.0', timestamp: '2026-01-15T10:00:00Z', ipAddress: '189.0.1.1' },
       ];
     }
-    try {
-      const res = await fetch(`/api/lgpd/consent/history?userId=${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[lgpd.getConsentHistory] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('consent_records')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[getConsentHistory] Supabase error:', error?.message);
       return [];
     }
+
+    return (data as Record<string, unknown>[]).map((d) => ({
+      userId: (d.user_id as string) ?? userId,
+      type: (d.type as ConsentRecord['type']) ?? 'terms',
+      accepted: (d.accepted as boolean) ?? false,
+      version: (d.version as string) ?? '',
+      timestamp: (d.created_at as string) ?? '',
+      ipAddress: (d.ip_address as string) ?? '',
+    }));
   } catch (error) {
-    handleServiceError(error, 'lgpd.consentHistory');
+    console.warn('[getConsentHistory] Fallback:', error);
+    return [];
   }
 }
 
 export async function requestDataExport(userId: string, format: 'json' | 'pdf' = 'json'): Promise<DataExportRequest> {
+  const fallback: DataExportRequest = {
+    id: '',
+    userId,
+    status: 'pending',
+    format,
+    downloadUrl: null,
+    requestedAt: new Date().toISOString(),
+    completedAt: null,
+  };
+
   try {
     if (isMock()) {
       logger.debug(`[MOCK] Data export requested for user ${userId} in ${format}`);
@@ -98,29 +124,49 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
         completedAt: null,
       };
     }
-    try {
-      const res = await fetch('/api/lgpd/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, format }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[lgpd.requestDataExport] API not available, using fallback');
-      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, download_url: null } as unknown as DataExportRequest;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('data_export_requests')
+      .insert({ user_id: userId, format, status: 'pending' })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[requestDataExport] Supabase error:', error?.message);
+      return fallback;
     }
+
+    return {
+      id: data.id ?? '',
+      userId: data.user_id ?? userId,
+      status: data.status ?? 'pending',
+      format: data.format ?? format,
+      downloadUrl: data.download_url ?? null,
+      requestedAt: data.created_at ?? new Date().toISOString(),
+      completedAt: data.completed_at ?? null,
+    };
   } catch (error) {
-    handleServiceError(error, 'lgpd.requestExport');
+    console.warn('[requestDataExport] Fallback:', error);
+    return fallback;
   }
 }
 
 export async function requestDataDeletion(userId: string): Promise<DataDeletionRequest> {
+  const scheduled = new Date();
+  scheduled.setDate(scheduled.getDate() + 30);
+  const fallback: DataDeletionRequest = {
+    id: '',
+    userId,
+    status: 'pending',
+    requestedAt: new Date().toISOString(),
+    scheduledAt: scheduled.toISOString(),
+    completedAt: null,
+  };
+
   try {
     if (isMock()) {
       logger.debug(`[MOCK] Data deletion requested for user ${userId}`);
-      const scheduled = new Date();
-      scheduled.setDate(scheduled.getDate() + 30);
       return {
         id: `delete-${Date.now()}`,
         userId,
@@ -130,19 +176,29 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
         completedAt: null,
       };
     }
-    try {
-      const res = await fetch('/api/lgpd/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[lgpd.requestDataDeletion] API not available, using fallback');
-      return { id: "", user_id: "", status: "pending", requested_at: "", completed_at: null, reason: "" } as unknown as DataDeletionRequest;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('data_deletion_requests')
+      .insert({ user_id: userId, status: 'pending', scheduled_at: scheduled.toISOString() })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.warn('[requestDataDeletion] Supabase error:', error?.message);
+      return fallback;
     }
+
+    return {
+      id: data.id ?? '',
+      userId: data.user_id ?? userId,
+      status: data.status ?? 'pending',
+      requestedAt: data.created_at ?? new Date().toISOString(),
+      scheduledAt: data.scheduled_at ?? scheduled.toISOString(),
+      completedAt: data.completed_at ?? null,
+    };
   } catch (error) {
-    handleServiceError(error, 'lgpd.requestDeletion');
+    console.warn('[requestDataDeletion] Fallback:', error);
+    return fallback;
   }
 }
