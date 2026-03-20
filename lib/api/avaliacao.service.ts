@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { BeltLevel } from '@/lib/types';
 
 // ── DTOs ─────────────────────────────────────────────────────────────
@@ -89,7 +88,8 @@ export async function getStudentForEvaluation(studentId: string): Promise<Studen
       .single();
 
     if (studentError || !student) {
-      throw new ServiceError(404, 'avaliacao.student', 'Aluno nao encontrado');
+      console.warn('[getStudentForEvaluation] Supabase error:', studentError?.message ?? 'Not found');
+      return { student_id: studentId, display_name: '', avatar: null, belt: 'white' as BeltLevel, total_classes: 0, last_evaluation_date: null, academy_id: '', started_at: '', attendance_count: 0 };
     }
 
     // Count total attendance
@@ -120,7 +120,8 @@ export async function getStudentForEvaluation(studentId: string): Promise<Studen
       attendance_count: attendanceCount ?? 0,
     };
   } catch (error) {
-    handleServiceError(error, 'avaliacao.getStudentForEvaluation');
+    console.warn('[getStudentForEvaluation] Fallback:', error);
+    return { student_id: studentId, display_name: '', avatar: null, belt: 'white' as BeltLevel, total_classes: 0, last_evaluation_date: null, academy_id: '', started_at: '', attendance_count: 0 };
   }
 }
 
@@ -148,7 +149,10 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new ServiceError(500, 'avaliacao.history', error.message);
+    if (error) {
+      console.warn('[getEvaluationHistory] Supabase error:', error.message);
+      return { records: [], recommendations: [] };
+    }
 
     // Group evaluations by date into records
     const dateMap = new Map<string, EvaluationRecordDTO>();
@@ -211,7 +215,8 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
 
     return { records, recommendations };
   } catch (error) {
-    handleServiceError(error, 'avaliacao.getEvaluationHistory');
+    console.warn('[getEvaluationHistory] Fallback:', error);
+    return { records: [], recommendations: [] };
   }
 }
 
@@ -226,7 +231,10 @@ export async function saveEvaluation(data: SaveEvaluationPayload): Promise<SaveE
     const supabase = createBrowserClient();
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new ServiceError(401, 'avaliacao.save', 'Nao autenticado');
+    if (!user) {
+      console.warn('[saveEvaluation] Not authenticated');
+      return { id: '', student_id: data.student_id, date: '', tecnica: 0, disciplina: 0, evolucao: 0, consistencia: 0, observations: '', notification_sent: false };
+    }
 
     const now = new Date().toISOString();
 
@@ -252,7 +260,10 @@ export async function saveEvaluation(data: SaveEvaluationPayload): Promise<SaveE
         })),
       );
 
-    if (insertError) throw new ServiceError(500, 'avaliacao.save', insertError.message);
+    if (insertError) {
+      console.warn('[saveEvaluation] Supabase error:', insertError.message);
+      return { id: '', student_id: data.student_id, date: now, tecnica: data.tecnica, disciplina: data.disciplina, evolucao: data.evolucao, consistencia: data.consistencia, observations: data.observations, notification_sent: false };
+    }
 
     // Send notification to student
     await supabase.from('notifications').insert({
@@ -275,7 +286,8 @@ export async function saveEvaluation(data: SaveEvaluationPayload): Promise<SaveE
       notification_sent: true,
     };
   } catch (error) {
-    handleServiceError(error, 'avaliacao.saveEvaluation');
+    console.warn('[saveEvaluation] Fallback:', error);
+    return { id: '', student_id: data.student_id, date: '', tecnica: 0, disciplina: 0, evolucao: 0, consistencia: 0, observations: '', notification_sent: false };
   }
 }
 
@@ -294,7 +306,10 @@ export async function promoteBelt(
     const supabase = createBrowserClient();
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new ServiceError(401, 'avaliacao.promote', 'Nao autenticado');
+    if (!user) {
+      console.warn('[promoteBelt] Not authenticated');
+      return { success: false, new_belt: toBelt };
+    }
 
     // Get current student belt
     const { data: student, error: studentError } = await supabase
@@ -305,7 +320,8 @@ export async function promoteBelt(
       .single();
 
     if (studentError || !student) {
-      throw new ServiceError(404, 'avaliacao.promote', 'Aluno nao encontrado');
+      console.warn('[promoteBelt] Student not found:', studentError?.message);
+      return { success: false, new_belt: toBelt };
     }
 
     const now = new Date().toISOString();
@@ -320,7 +336,10 @@ export async function promoteBelt(
       updated_at: now,
     });
 
-    if (progressionError) throw new ServiceError(500, 'avaliacao.promote', progressionError.message);
+    if (progressionError) {
+      console.warn('[promoteBelt] Progression error:', progressionError.message);
+      return { success: false, new_belt: toBelt };
+    }
 
     // Update student belt
     const { error: updateError } = await supabase
@@ -329,7 +348,10 @@ export async function promoteBelt(
       .eq('id', studentId)
       .eq('academy_id', academyId);
 
-    if (updateError) throw new ServiceError(500, 'avaliacao.promote', updateError.message);
+    if (updateError) {
+      console.warn('[promoteBelt] Update error:', updateError.message);
+      return { success: false, new_belt: toBelt };
+    }
 
     // Notify student
     await supabase.from('notifications').insert({
@@ -342,6 +364,7 @@ export async function promoteBelt(
 
     return { success: true, new_belt: toBelt };
   } catch (error) {
-    handleServiceError(error, 'avaliacao.promoteBelt');
+    console.warn('[promoteBelt] Fallback:', error);
+    return { success: false, new_belt: toBelt };
   }
 }

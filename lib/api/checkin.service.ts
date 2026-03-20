@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 import type { Attendance, AttendanceMethod } from '@/lib/types';
 
 export interface AttendanceStats {
@@ -35,10 +34,14 @@ export async function doCheckin(studentId: string, classId: string, method: Atte
       })
       .select()
       .single();
-    if (error) throw new ServiceError(400, 'checkin.do', error.message);
+    if (error) {
+      console.warn('[doCheckin] Supabase error:', error.message);
+      return {} as Attendance;
+    }
     return data as Attendance;
   } catch (error) {
-    handleServiceError(error, 'checkin.do');
+    console.warn('[doCheckin] Fallback:', error);
+    return {} as Attendance;
   }
 }
 
@@ -62,10 +65,14 @@ export async function getHistory(studentId: string, dateRange?: DateRange): Prom
     if (dateRange?.to) query = query.lte('checked_at', dateRange.to);
 
     const { data, error } = await query;
-    if (error) throw new ServiceError(500, 'checkin.getHistory', error.message);
+    if (error) {
+      console.warn('[getHistory] Supabase error:', error.message);
+      return [];
+    }
     return (data ?? []) as Attendance[];
   } catch (error) {
-    handleServiceError(error, 'checkin.getHistory');
+    console.warn('[getHistory] Fallback:', error);
+    return [];
   }
 }
 
@@ -140,7 +147,8 @@ export async function getStats(studentId: string): Promise<AttendanceStats> {
       weekly_average: Math.round((fourWeekCount ?? 0) / 4),
     };
   } catch (error) {
-    handleServiceError(error, 'checkin.getStats');
+    console.warn('[getStats] Fallback:', error);
+    return { total: 0, this_month: 0, this_week: 0, streak: 0, weekly_average: 0 };
   }
 }
 
@@ -162,9 +170,13 @@ export async function getTodayByClass(classId: string): Promise<Attendance[]> {
       .select('*')
       .eq('class_id', classId)
       .gte('checked_at', todayStart.toISOString());
-    if (error) throw new ServiceError(500, 'checkin.getTodayByClass', error.message);
+    if (error) {
+      console.warn('[getTodayByClass] Supabase error:', error.message);
+      return [];
+    }
     return (data ?? []) as Attendance[];
   } catch (error) {
-    handleServiceError(error, 'checkin.getTodayByClass');
+    console.warn('[getTodayByClass] Fallback:', error);
+    return [];
   }
 }

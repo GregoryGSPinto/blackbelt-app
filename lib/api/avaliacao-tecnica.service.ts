@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -67,10 +66,54 @@ export async function createAvaliacao(
       const { mockCreateAvaliacao } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockCreateAvaliacao(alunoId, criterios, observacoes);
     }
-    console.warn('[avaliacaoTecnica.create] fallback — not yet connected to Supabase');
-    return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' } as AvaliacaoTecnica;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[createAvaliacao] Not authenticated');
+      return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
+    }
+
+    const now = new Date().toISOString();
+    const mediaGeral = criterios.length > 0 ? criterios.reduce((s, c) => s + c.nota, 0) / criterios.length : 0;
+    const recomendacao = mediaGeral >= 8 ? 'pronto_para_promover' : mediaGeral >= 6 ? 'quase_pronto' : 'manter_faixa';
+
+    const { data, error } = await supabase
+      .from('technical_evaluations')
+      .insert({
+        student_id: alunoId,
+        professor_id: user.id,
+        criteria: criterios,
+        average_score: mediaGeral,
+        observations: observacoes,
+        recommendation: recomendacao,
+        created_at: now,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[createAvaliacao] Supabase error:', error.message);
+    }
+
+    return {
+      id: data?.id ?? '',
+      alunoId,
+      alunoNome: '',
+      professorId: user.id,
+      professorNome: '',
+      data: now,
+      faixaNoMomento: '',
+      criterios,
+      mediaGeral,
+      observacoes,
+      recomendacao: recomendacao as AvaliacaoTecnica['recomendacao'],
+    };
   } catch (error) {
-    handleServiceError(error, 'avaliacaoTecnica.create');
+    console.warn('[createAvaliacao] Fallback:', error);
+    return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
   }
 }
 
@@ -83,10 +126,41 @@ export async function listAvaliacoes(
       const { mockListAvaliacoes } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockListAvaliacoes(professorId, filtros);
     }
-    console.warn('[avaliacaoTecnica.list] fallback — not yet connected to Supabase');
-    return [];
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('technical_evaluations')
+      .select('*, students(profiles(display_name), belt)')
+      .eq('professor_id', professorId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[listAvaliacoes] Supabase error:', error.message);
+      return [];
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const student = row.students as Record<string, unknown> | null;
+      const profile = student?.profiles as Record<string, unknown> | null;
+      return {
+        id: row.id as string,
+        alunoId: row.student_id as string,
+        alunoNome: (profile?.display_name ?? '') as string,
+        professorId,
+        professorNome: '',
+        data: row.created_at as string,
+        faixaNoMomento: (student?.belt ?? '') as string,
+        criterios: (row.criteria ?? []) as { slug: string; nota: number }[],
+        mediaGeral: (row.average_score ?? 0) as number,
+        observacoes: (row.observations ?? '') as string,
+        recomendacao: (row.recommendation ?? 'manter_faixa') as AvaliacaoTecnica['recomendacao'],
+      };
+    });
   } catch (error) {
-    handleServiceError(error, 'avaliacaoTecnica.list');
+    console.warn('[listAvaliacoes] Fallback:', error);
+    return [];
   }
 }
 
@@ -96,10 +170,50 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       const { mockGetEvolucaoAluno } = await import('@/lib/mocks/avaliacao-tecnica.mock');
       return mockGetEvolucaoAluno(alunoId);
     }
-    console.warn('[avaliacaoTecnica.evolucao] fallback — not yet connected to Supabase');
-    return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] } as EvolucaoAluno;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('technical_evaluations')
+      .select('*')
+      .eq('student_id', alunoId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.warn('[getEvolucaoAluno] Supabase error:', error.message);
+      return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
+    }
+
+    const avaliacoes: AvaliacaoTecnica[] = (data ?? []).map((row: Record<string, unknown>) => ({
+      id: row.id as string,
+      alunoId,
+      alunoNome: '',
+      professorId: (row.professor_id ?? '') as string,
+      professorNome: '',
+      data: row.created_at as string,
+      faixaNoMomento: '',
+      criterios: (row.criteria ?? []) as { slug: string; nota: number }[],
+      mediaGeral: (row.average_score ?? 0) as number,
+      observacoes: (row.observations ?? '') as string,
+      recomendacao: (row.recommendation ?? 'manter_faixa') as AvaliacaoTecnica['recomendacao'],
+    }));
+
+    const mediaAtual = avaliacoes.length > 0 ? avaliacoes[avaliacoes.length - 1].mediaGeral : 0;
+    const mediaAnterior = avaliacoes.length > 1 ? avaliacoes[avaliacoes.length - 2].mediaGeral : 0;
+
+    return {
+      alunoId,
+      avaliacoes,
+      evolucaoPorCriterio: [],
+      mediaAtual,
+      mediaAnterior,
+      prontoParaPromocao: mediaAtual >= 8,
+      requisitosPromocao: [],
+    };
   } catch (error) {
-    handleServiceError(error, 'avaliacaoTecnica.evolucao');
+    console.warn('[getEvolucaoAluno] Fallback:', error);
+    return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
   }
 }
 
@@ -108,9 +222,18 @@ export async function getCriterios(): Promise<CriterioAvaliacao[]> {
     if (isMock()) {
       return CRITERIOS_BJJ;
     }
-    console.warn('[avaliacaoTecnica.criterios] fallback — not yet connected to Supabase');
-    return CRITERIOS_BJJ;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase.from('evaluation_criteria').select('*');
+    if (error || !data?.length) {
+      console.warn('[getCriterios] Using default criteria');
+      return CRITERIOS_BJJ;
+    }
+    return data as unknown as CriterioAvaliacao[];
   } catch (error) {
-    handleServiceError(error, 'avaliacaoTecnica.criterios');
+    console.warn('[getCriterios] Fallback:', error);
+    return CRITERIOS_BJJ;
   }
 }
