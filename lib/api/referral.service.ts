@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -50,16 +49,35 @@ export async function getReferralCode(academyId: string): Promise<ReferralCode> 
         createdAt: '2026-01-15T00:00:00Z',
       };
     }
-    try {
-      const res = await fetch(`/api/referral/code?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[referral.getReferralCode] API not available, using fallback');
-      return { id: "", code: "", user_id: "", academy_id: "", discount_pct: 0, max_uses: 0, current_uses: 0, active: false, created_at: "" } as unknown as ReferralCode;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('referral_codes')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('active', true)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.warn('[getReferralCode] Supabase error or no data:', error?.message);
+      return { code: '', referrerId: '', referrerName: '', academyId, discount: 0, rewardMonths: 0, usageCount: 0, maxUses: null, active: false, createdAt: '' };
     }
+
+    return {
+      code: data.code ?? '',
+      referrerId: data.referrer_id ?? '',
+      referrerName: data.referrer_name ?? '',
+      academyId: data.academy_id ?? academyId,
+      discount: data.discount_pct ?? 0,
+      rewardMonths: data.reward_months ?? 0,
+      usageCount: data.usage_count ?? 0,
+      maxUses: data.max_uses ?? null,
+      active: data.active ?? false,
+      createdAt: data.created_at ?? '',
+    };
   } catch (error) {
-    handleServiceError(error, 'referral.getCode');
+    console.warn('[getReferralCode] Fallback:', error);
+    return { code: '', referrerId: '', referrerName: '', academyId, discount: 0, rewardMonths: 0, usageCount: 0, maxUses: null, active: false, createdAt: '' };
   }
 }
 
@@ -73,16 +91,31 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
         pendingRewards: 1,
       };
     }
-    try {
-      const res = await fetch(`/api/referral/stats?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[referral.getReferralStats] API not available, using fallback');
-      return { total_referrals: 0, successful: 0, pending: 0, total_discount_given: 0 } as unknown as ReferralStats;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('referrals')
+      .select('id, status')
+      .eq('academy_id', academyId);
+
+    if (error || !data) {
+      console.warn('[getReferralStats] Supabase error:', error?.message);
+      return { totalReferrals: 0, convertedReferrals: 0, rewardMonthsEarned: 0, pendingRewards: 0 };
     }
+
+    const total = data.length;
+    const converted = data.filter((r: { status: string }) => r.status === 'converted').length;
+    const pending = data.filter((r: { status: string }) => r.status === 'pending').length;
+
+    return {
+      totalReferrals: total,
+      convertedReferrals: converted,
+      rewardMonthsEarned: converted, // 1 month per conversion
+      pendingRewards: pending,
+    };
   } catch (error) {
-    handleServiceError(error, 'referral.stats');
+    console.warn('[getReferralStats] Fallback:', error);
+    return { totalReferrals: 0, convertedReferrals: 0, rewardMonthsEarned: 0, pendingRewards: 0 };
   }
 }
 
@@ -97,15 +130,29 @@ export async function listReferrals(academyId: string): Promise<Referral[]> {
         { id: 'ref-5', referralCode: 'REF-ABC123', referredAcademyName: 'Wolf Pack BJJ', status: 'pending', createdAt: '2026-03-16T00:00:00Z', convertedAt: null },
       ];
     }
-    try {
-      const res = await fetch(`/api/referral/list?academyId=${academyId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    } catch {
-      console.warn('[referral.listReferrals] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('referrals')
+      .select('*')
+      .eq('academy_id', academyId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      console.warn('[listReferrals] Supabase error:', error?.message);
       return [];
     }
+
+    return data.map((r: Record<string, unknown>) => ({
+      id: (r.id as string) ?? '',
+      referralCode: (r.referral_code as string) ?? '',
+      referredAcademyName: (r.referred_academy_name as string) ?? '',
+      status: (r.status as Referral['status']) ?? 'pending',
+      createdAt: (r.created_at as string) ?? '',
+      convertedAt: (r.converted_at as string | null) ?? null,
+    }));
   } catch (error) {
-    handleServiceError(error, 'referral.list');
+    console.warn('[listReferrals] Fallback:', error);
+    return [];
   }
 }
