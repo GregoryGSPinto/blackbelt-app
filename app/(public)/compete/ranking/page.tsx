@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   getAthleteRanking,
   getAcademyRanking,
@@ -181,14 +182,14 @@ export default function CompeteRankingPage() {
                       className="group flex w-28 flex-col items-center sm:w-36"
                     >
                       <div
-                        className="mb-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-lg font-bold text-white sm:h-16 sm:w-16"
+                        className="relative mb-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-lg font-bold text-white sm:h-16 sm:w-16"
                         style={{
                           backgroundColor: place === 1 ? 'var(--bb-brand)' : 'var(--bb-depth-3)',
                           color: place === 1 ? 'white' : 'var(--bb-ink-60)',
                         }}
                       >
                         {a.avatar_url ? (
-                          <img src={a.avatar_url} alt={a.display_name} className="h-full w-full object-cover" />
+                          <Image src={a.avatar_url} alt={a.display_name} fill className="object-cover" />
                         ) : (
                           a.display_name.charAt(0)
                         )}

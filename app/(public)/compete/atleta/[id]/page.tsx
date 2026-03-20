@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   getAthleteProfile,
   getAthleteResults,
@@ -79,14 +80,14 @@ export default function AtletaPage() {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:gap-6">
             {/* Photo */}
             <div
-              className="flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border-4 border-white/20 text-3xl font-bold text-white sm:h-32 sm:w-32"
+              className="relative flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border-4 border-white/20 text-3xl font-bold text-white sm:h-32 sm:w-32"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 borderRadius: 'var(--bb-radius-lg)',
               }}
             >
               {athlete.avatar_url ? (
-                <img src={athlete.avatar_url} alt={athlete.display_name} className="h-full w-full object-cover" />
+                <Image src={athlete.avatar_url} alt={athlete.display_name} fill className="object-cover" />
               ) : (
                 athlete.display_name.charAt(0)
               )}
