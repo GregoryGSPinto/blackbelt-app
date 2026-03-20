@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -68,20 +67,33 @@ export async function sendBroadcast(franchiseId: string, data: SendBroadcastData
       const { mockSendBroadcast } = await import('@/lib/mocks/franchise-communication.mock');
       return mockSendBroadcast(franchiseId, data);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/broadcasts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.send');
-      return res.json();
-    } catch {
-      console.warn('[franchise-communication.sendBroadcast] API not available, using mock fallback');
-      const { mockSendBroadcast } = await import('@/lib/mocks/franchise-communication.mock');
-      return mockSendBroadcast(franchiseId, data);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: inserted, error } = await supabase
+      .from('franchise_broadcasts')
+      .insert({
+        franchise_id: franchiseId,
+        type: data.type,
+        subject: data.subject,
+        body: data.body,
+        channels: data.channels,
+        recipient_ids: data.recipient_ids ?? [],
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[sendBroadcast] error:', error.message);
+      return {} as Broadcast;
     }
-  } catch (error) { handleServiceError(error, 'franchise.communication.send'); }
+
+    return inserted as unknown as Broadcast;
+  } catch (error) {
+    console.warn('[sendBroadcast] Fallback:', error);
+    return {} as Broadcast;
+  }
 }
 
 export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
@@ -90,10 +102,26 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetBroadcasts(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetBroadcasts } = await import('@/lib/mocks/franchise-communication.mock');
-      return mockGetBroadcasts(franchiseId);
-  } catch (error) { handleServiceError(error, 'franchise.communication.list'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_broadcasts')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('sent_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getBroadcasts] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as Broadcast[];
+  } catch (error) {
+    console.warn('[getBroadcasts] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getReceipts(broadcastId: string): Promise<BroadcastRecipient[]> {
@@ -102,10 +130,25 @@ export async function getReceipts(broadcastId: string): Promise<BroadcastRecipie
       const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetReceipts(broadcastId);
     }
-    // API not yet implemented — use mock
-    const { mockGetReceipts } = await import('@/lib/mocks/franchise-communication.mock');
-      return mockGetReceipts(broadcastId);
-  } catch (error) { handleServiceError(error, 'franchise.communication.receipts'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_broadcast_receipts')
+      .select('academy_id, academy_name, status, read_at')
+      .eq('broadcast_id', broadcastId);
+
+    if (error) {
+      console.warn('[getReceipts] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as BroadcastRecipient[];
+  } catch (error) {
+    console.warn('[getReceipts] Fallback:', error);
+    return [];
+  }
 }
 
 export async function scheduleTraining(franchiseId: string, data: ScheduleTrainingData): Promise<NetworkTraining> {
@@ -114,20 +157,31 @@ export async function scheduleTraining(franchiseId: string, data: ScheduleTraini
       const { mockScheduleTraining } = await import('@/lib/mocks/franchise-communication.mock');
       return mockScheduleTraining(franchiseId, data);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/trainings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.communication.training');
-      return res.json();
-    } catch {
-      console.warn('[franchise-communication.scheduleTraining] API not available, using mock fallback');
-      const { mockScheduleTraining } = await import('@/lib/mocks/franchise-communication.mock');
-      return mockScheduleTraining(franchiseId, data);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: inserted, error } = await supabase
+      .from('franchise_trainings')
+      .insert({
+        franchise_id: franchiseId,
+        ...data,
+        enrolled: 0,
+        status: 'agendado',
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[scheduleTraining] error:', error.message);
+      return {} as NetworkTraining;
     }
-  } catch (error) { handleServiceError(error, 'franchise.communication.training'); }
+
+    return inserted as unknown as NetworkTraining;
+  } catch (error) {
+    console.warn('[scheduleTraining] Fallback:', error);
+    return {} as NetworkTraining;
+  }
 }
 
 export async function getTrainings(franchiseId: string): Promise<NetworkTraining[]> {
@@ -136,8 +190,24 @@ export async function getTrainings(franchiseId: string): Promise<NetworkTraining
       const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
       return mockGetTrainings(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetTrainings } = await import('@/lib/mocks/franchise-communication.mock');
-      return mockGetTrainings(franchiseId);
-  } catch (error) { handleServiceError(error, 'franchise.communication.trainings'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_trainings')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.warn('[getTrainings] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as NetworkTraining[];
+  } catch (error) {
+    console.warn('[getTrainings] Fallback:', error);
+    return [];
+  }
 }

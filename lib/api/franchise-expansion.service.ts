@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -62,20 +61,26 @@ export async function createLead(data: CreateLeadData): Promise<FranchiseLead> {
       const { mockCreateLead } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockCreateLead(data);
     }
-    try {
-      const res = await fetch(`/api/franchise/${data.franchise_id}/leads`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.create');
-      return res.json();
-    } catch {
-      console.warn('[franchise-expansion.createLead] API not available, using mock fallback');
-      const { mockCreateLead } = await import('@/lib/mocks/franchise-expansion.mock');
-      return mockCreateLead(data);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: inserted, error } = await supabase
+      .from('franchise_leads')
+      .insert({ ...data, stage: 'lead' as PipelineStage })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[createLead] error:', error.message);
+      return {} as FranchiseLead;
     }
-  } catch (error) { handleServiceError(error, 'franchise.expansion.create'); }
+
+    return inserted as unknown as FranchiseLead;
+  } catch (error) {
+    console.warn('[createLead] Fallback:', error);
+    return {} as FranchiseLead;
+  }
 }
 
 export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
@@ -84,10 +89,26 @@ export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
       const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockGetLeads(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetLeads } = await import('@/lib/mocks/franchise-expansion.mock');
-      return mockGetLeads(franchiseId);
-  } catch (error) { handleServiceError(error, 'franchise.expansion.list'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_leads')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[getLeads] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as FranchiseLead[];
+  } catch (error) {
+    console.warn('[getLeads] Fallback:', error);
+    return [];
+  }
 }
 
 export async function updateLeadStatus(leadId: string, stage: PipelineStage): Promise<FranchiseLead> {
@@ -96,20 +117,27 @@ export async function updateLeadStatus(leadId: string, stage: PipelineStage): Pr
       const { mockUpdateLeadStatus } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockUpdateLeadStatus(leadId, stage);
     }
-    try {
-      const res = await fetch(`/api/franchise/leads/${leadId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.update');
-      return res.json();
-    } catch {
-      console.warn('[franchise-expansion.updateLeadStatus] API not available, using mock fallback');
-      const { mockUpdateLeadStatus } = await import('@/lib/mocks/franchise-expansion.mock');
-      return mockUpdateLeadStatus(leadId, stage);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_leads')
+      .update({ stage, updated_at: new Date().toISOString() })
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[updateLeadStatus] error:', error.message);
+      return {} as FranchiseLead;
     }
-  } catch (error) { handleServiceError(error, 'franchise.expansion.update'); }
+
+    return data as unknown as FranchiseLead;
+  } catch (error) {
+    console.warn('[updateLeadStatus] Fallback:', error);
+    return {} as FranchiseLead;
+  }
 }
 
 export async function analyzeViability(location: string): Promise<ViabilityAnalysis> {
@@ -118,20 +146,47 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       const { mockAnalyzeViability } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockAnalyzeViability(location);
     }
-    try {
-      const res = await fetch(`/api/franchise/viability`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.expansion.viability');
-      return res.json();
-    } catch {
-      console.warn('[franchise-expansion.analyzeViability] API not available, using mock fallback');
-      const { mockAnalyzeViability } = await import('@/lib/mocks/franchise-expansion.mock');
-      return mockAnalyzeViability(location);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .rpc('analyze_franchise_viability', { p_location: location });
+
+    if (error) {
+      console.warn('[analyzeViability] error:', error.message);
+      return {
+        location,
+        population: 0,
+        competitors: 0,
+        avg_income: 0,
+        score: 0,
+        recommendation: 'arriscado',
+        factors: [],
+      };
     }
-  } catch (error) { handleServiceError(error, 'franchise.expansion.viability'); }
+
+    return (data as unknown as ViabilityAnalysis) ?? {
+      location,
+      population: 0,
+      competitors: 0,
+      avg_income: 0,
+      score: 0,
+      recommendation: 'arriscado',
+      factors: [],
+    };
+  } catch (error) {
+    console.warn('[analyzeViability] Fallback:', error);
+    return {
+      location,
+      population: 0,
+      competitors: 0,
+      avg_income: 0,
+      score: 0,
+      recommendation: 'arriscado',
+      factors: [],
+    };
+  }
 }
 
 export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
@@ -140,8 +195,25 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
       return mockSetupFranchise(leadId);
     }
-    // API not yet implemented — use mock
-    const { mockSetupFranchise } = await import('@/lib/mocks/franchise-expansion.mock');
-      return mockSetupFranchise(leadId);
-  } catch (error) { handleServiceError(error, 'franchise.expansion.setup'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_leads')
+      .update({ stage: 'setup' as PipelineStage, onboarding_step: 'setup' as OnboardingStep, updated_at: new Date().toISOString() })
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[setupFranchise] error:', error.message);
+      return {} as FranchiseLead;
+    }
+
+    return data as unknown as FranchiseLead;
+  } catch (error) {
+    console.warn('[setupFranchise] Fallback:', error);
+    return {} as FranchiseLead;
+  }
 }

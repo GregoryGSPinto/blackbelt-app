@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -70,15 +69,83 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/franchise.mock');
       return mockGetNetworkDashboard(franchiseId);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/dashboard`);
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.dashboard');
-      return res.json();
-    } catch {
-      console.warn('[franchise.getNetworkDashboard] API not available, using fallback');
-      return { kpis: { total_academies: 0, total_students: 0, total_revenue: 0, total_royalties: 0, avg_nps: 0, avg_attendance: 0 }, academies: [], alerts: [], financials: { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 } } as NetworkDashboard;
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch academies for this franchise
+    const { data: academies, error: acadError } = await supabase
+      .from('franchise_academies')
+      .select('*')
+      .eq('franchise_id', franchiseId);
+
+    if (acadError) {
+      console.warn('[getNetworkDashboard] error fetching academies:', acadError.message);
     }
-  } catch (error) { handleServiceError(error, 'franchise.dashboard'); }
+
+    const academyList: FranchiseAcademy[] = (academies ?? []).map((a: Record<string, unknown>) => ({
+      id: a.id as string,
+      name: (a.name as string) ?? '',
+      city: (a.city as string) ?? '',
+      students: (a.students_count as number) ?? 0,
+      revenue: (a.revenue as number) ?? 0,
+      attendance_rate: (a.attendance_rate as number) ?? 0,
+      nps: (a.nps as number) ?? 0,
+      status: (a.status as AcademyStatus) ?? 'ativa',
+    }));
+
+    // Fetch alerts
+    const { data: alerts, error: alertError } = await supabase
+      .from('franchise_alerts')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (alertError) {
+      console.warn('[getNetworkDashboard] error fetching alerts:', alertError.message);
+    }
+
+    const alertList: NetworkAlert[] = (alerts ?? []).map((a: Record<string, unknown>) => ({
+      id: a.id as string,
+      type: a.type as NetworkAlert['type'],
+      academy_id: a.academy_id as string,
+      academy_name: (a.academy_name as string) ?? '',
+      message: (a.message as string) ?? '',
+      severity: (a.severity as 'warning' | 'critical') ?? 'warning',
+      created_at: a.created_at as string,
+    }));
+
+    // Compute KPIs from academies
+    const totalStudents = academyList.reduce((s, a) => s + a.students, 0);
+    const totalRevenue = academyList.reduce((s, a) => s + a.revenue, 0);
+    const avgNps = academyList.length ? academyList.reduce((s, a) => s + a.nps, 0) / academyList.length : 0;
+    const avgAttendance = academyList.length ? academyList.reduce((s, a) => s + a.attendance_rate, 0) / academyList.length : 0;
+
+    const kpis: NetworkKPIs = {
+      total_academies: academyList.length,
+      total_students: totalStudents,
+      total_revenue: totalRevenue,
+      total_royalties: totalRevenue * 0.1,
+      avg_nps: Math.round(avgNps * 10) / 10,
+      avg_attendance: Math.round(avgAttendance * 10) / 10,
+    };
+
+    return {
+      kpis,
+      academies: academyList,
+      alerts: alertList,
+      financials: { monthly_data: [], total_revenue: totalRevenue, total_royalties: totalRevenue * 0.1, growth_pct: 0 },
+    };
+  } catch (error) {
+    console.warn('[getNetworkDashboard] Fallback:', error);
+    return {
+      kpis: { total_academies: 0, total_students: 0, total_revenue: 0, total_royalties: 0, avg_nps: 0, avg_attendance: 0 },
+      academies: [],
+      alerts: [],
+      financials: { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 },
+    };
+  }
 }
 
 export async function getAcademies(franchiseId: string): Promise<FranchiseAcademy[]> {
@@ -87,10 +154,35 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
       return mockGetAcademies(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetAcademies } = await import('@/lib/mocks/franchise.mock');
-      return mockGetAcademies(franchiseId);
-  } catch (error) { handleServiceError(error, 'franchise.academies'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_academies')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.warn('[getAcademies] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []).map((a: Record<string, unknown>) => ({
+      id: a.id as string,
+      name: (a.name as string) ?? '',
+      city: (a.city as string) ?? '',
+      students: (a.students_count as number) ?? 0,
+      revenue: (a.revenue as number) ?? 0,
+      attendance_rate: (a.attendance_rate as number) ?? 0,
+      nps: (a.nps as number) ?? 0,
+      status: (a.status as AcademyStatus) ?? 'ativa',
+    }));
+  } catch (error) {
+    console.warn('[getAcademies] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getFinancials(franchiseId: string): Promise<NetworkFinancials> {
@@ -99,10 +191,34 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
       return mockGetFinancials(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetFinancials } = await import('@/lib/mocks/franchise.mock');
-      return mockGetFinancials(franchiseId);
-  } catch (error) { handleServiceError(error, 'franchise.financials'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_financials')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('month', { ascending: false })
+      .limit(12);
+
+    if (error) {
+      console.warn('[getFinancials] error:', error.message);
+      return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 };
+    }
+
+    const totalRevenue = (data ?? []).reduce((s: number, d: Record<string, unknown>) => s + ((d.revenue as number) ?? 0), 0);
+
+    return {
+      monthly_data: [],
+      total_revenue: totalRevenue,
+      total_royalties: totalRevenue * 0.1,
+      growth_pct: 0,
+    };
+  } catch (error) {
+    console.warn('[getFinancials] Fallback:', error);
+    return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 };
+  }
 }
 
 export async function sendNetworkMessage(franchiseId: string, message: NetworkMessage): Promise<{ sent: number }> {
@@ -111,18 +227,28 @@ export async function sendNetworkMessage(franchiseId: string, message: NetworkMe
       const { mockSendNetworkMessage } = await import('@/lib/mocks/franchise.mock');
       return mockSendNetworkMessage(franchiseId, message);
     }
-    try {
-      const res = await fetch(`/api/franchise/${franchiseId}/message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(message),
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { error } = await supabase
+      .from('franchise_messages')
+      .insert({
+        franchise_id: franchiseId,
+        subject: message.subject,
+        body: message.body,
+        recipients: message.recipients,
+        channel: message.channel,
       });
-      if (!res.ok) throw new ServiceError(res.status, 'franchise.message');
-      return res.json();
-    } catch {
-      console.warn('[franchise.sendNetworkMessage] API not available, using mock fallback');
-      const { mockSendNetworkMessage } = await import('@/lib/mocks/franchise.mock');
-      return mockSendNetworkMessage(franchiseId, message);
+
+    if (error) {
+      console.warn('[sendNetworkMessage] error:', error.message);
+      return { sent: 0 };
     }
-  } catch (error) { handleServiceError(error, 'franchise.message'); }
+
+    return { sent: message.recipients.length };
+  } catch (error) {
+    console.warn('[sendNetworkMessage] Fallback:', error);
+    return { sent: 0 };
+  }
 }

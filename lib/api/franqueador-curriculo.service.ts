@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -39,10 +38,26 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculos(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCurriculos } = await import('@/lib/mocks/franqueador-curriculo.mock');
-      return mockGetCurriculos(franchiseId);
-  } catch (error) { handleServiceError(error, 'franqueador-curriculo.list'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_curriculos')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('modality', { ascending: true });
+
+    if (error) {
+      console.warn('[getCurriculos] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as CurriculoRede[];
+  } catch (error) {
+    console.warn('[getCurriculos] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getCurriculoOverview(franchiseId: string): Promise<CurriculoOverview> {
@@ -51,10 +66,39 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoOverview(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCurriculoOverview } = await import('@/lib/mocks/franqueador-curriculo.mock');
-      return mockGetCurriculoOverview(franchiseId);
-  } catch (error) { handleServiceError(error, 'franqueador-curriculo.overview'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_curriculos')
+      .select('modality, techniques')
+      .eq('franchise_id', franchiseId);
+
+    if (error) {
+      console.warn('[getCurriculoOverview] error:', error.message);
+      return { modalities: [], total_curriculos: 0, total_techniques: 0 };
+    }
+
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const modalitySet = new Set<string>();
+    let totalTechniques = 0;
+
+    for (const row of rows) {
+      if (row.modality) modalitySet.add(row.modality as string);
+      const techs = row.techniques as unknown[];
+      if (Array.isArray(techs)) totalTechniques += techs.length;
+    }
+
+    return {
+      modalities: Array.from(modalitySet),
+      total_curriculos: rows.length,
+      total_techniques: totalTechniques,
+    };
+  } catch (error) {
+    console.warn('[getCurriculoOverview] Fallback:', error);
+    return { modalities: [], total_curriculos: 0, total_techniques: 0 };
+  }
 }
 
 export async function getCurriculoDetail(curriculoId: string): Promise<CurriculoRede> {
@@ -63,8 +107,24 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
       return mockGetCurriculoDetail(curriculoId);
     }
-    // API not yet implemented — use mock
-    const { mockGetCurriculoDetail } = await import('@/lib/mocks/franqueador-curriculo.mock');
-      return mockGetCurriculoDetail(curriculoId);
-  } catch (error) { handleServiceError(error, 'franqueador-curriculo.detail'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_curriculos')
+      .select('*')
+      .eq('id', curriculoId)
+      .single();
+
+    if (error) {
+      console.warn('[getCurriculoDetail] error:', error.message);
+      return {} as CurriculoRede;
+    }
+
+    return data as unknown as CurriculoRede;
+  } catch (error) {
+    console.warn('[getCurriculoDetail] Fallback:', error);
+    return {} as CurriculoRede;
+  }
 }

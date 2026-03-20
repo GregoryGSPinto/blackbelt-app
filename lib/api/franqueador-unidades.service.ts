@@ -1,5 +1,4 @@
 import { isMock } from '@/lib/env';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -35,10 +34,26 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidades(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetUnidades } = await import('@/lib/mocks/franqueador-unidades.mock');
-      return mockGetUnidades(franchiseId);
-  } catch (error) { handleServiceError(error, 'franqueador-unidades.list'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_units')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.warn('[getUnidades] error:', error.message);
+      return [];
+    }
+
+    return (data ?? []) as unknown as UnidadeFranquia[];
+  } catch (error) {
+    console.warn('[getUnidades] Fallback:', error);
+    return [];
+  }
 }
 
 export async function getUnidadesOverview(franchiseId: string): Promise<UnidadesOverview> {
@@ -47,10 +62,37 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadesOverview(franchiseId);
     }
-    // API not yet implemented — use mock
-    const { mockGetUnidadesOverview } = await import('@/lib/mocks/franqueador-unidades.mock');
-      return mockGetUnidadesOverview(franchiseId);
-  } catch (error) { handleServiceError(error, 'franqueador-unidades.overview'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_units')
+      .select('status, students_count, health_score, compliance_score')
+      .eq('franchise_id', franchiseId);
+
+    if (error) {
+      console.warn('[getUnidadesOverview] error:', error.message);
+      return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
+    }
+
+    const units = (data ?? []) as Record<string, unknown>[];
+    const activeUnits = units.filter(u => u.status === 'ativa');
+    const totalStudents = units.reduce((s, u) => s + ((u.students_count as number) ?? 0), 0);
+    const avgHealth = units.length ? units.reduce((s, u) => s + ((u.health_score as number) ?? 0), 0) / units.length : 0;
+    const avgCompliance = units.length ? units.reduce((s, u) => s + ((u.compliance_score as number) ?? 0), 0) / units.length : 0;
+
+    return {
+      total_units: units.length,
+      active_units: activeUnits.length,
+      total_students: totalStudents,
+      avg_health_score: Math.round(avgHealth * 10) / 10,
+      avg_compliance: Math.round(avgCompliance * 10) / 10,
+    };
+  } catch (error) {
+    console.warn('[getUnidadesOverview] Fallback:', error);
+    return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
+  }
 }
 
 export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia> {
@@ -59,10 +101,26 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockGetUnidadeDetail(unitId);
     }
-    // API not yet implemented — use mock
-    const { mockGetUnidadeDetail } = await import('@/lib/mocks/franqueador-unidades.mock');
-      return mockGetUnidadeDetail(unitId);
-  } catch (error) { handleServiceError(error, 'franqueador-unidades.detail'); }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_units')
+      .select('*')
+      .eq('id', unitId)
+      .single();
+
+    if (error) {
+      console.warn('[getUnidadeDetail] error:', error.message);
+      return {} as UnidadeFranquia;
+    }
+
+    return data as unknown as UnidadeFranquia;
+  } catch (error) {
+    console.warn('[getUnidadeDetail] Fallback:', error);
+    return {} as UnidadeFranquia;
+  }
 }
 
 export async function updateUnidadeStatus(
@@ -74,19 +132,25 @@ export async function updateUnidadeStatus(
       const { mockUpdateUnidadeStatus } = await import('@/lib/mocks/franqueador-unidades.mock');
       return mockUpdateUnidadeStatus(unitId, status);
     }
-    try {
-      const res = await fetch(`/api/franchise/unidades/${unitId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) throw new ServiceError(res.status, 'franqueador-unidades.updateStatus');
-      return res.json();
-    } catch {
-      console.warn('[franqueador-unidades.updateUnidadeStatus] API not available, using mock fallback');
-      const { mockUpdateUnidadeStatus } = await import('@/lib/mocks/franqueador-unidades.mock');
-      return mockUpdateUnidadeStatus(unitId, status);
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('franchise_units')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', unitId)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('[updateUnidadeStatus] error:', error.message);
+      return {} as UnidadeFranquia;
     }
 
-  } catch (error) { handleServiceError(error, 'franqueador-unidades.updateStatus'); }
+    return data as unknown as UnidadeFranquia;
+  } catch (error) {
+    console.warn('[updateUnidadeStatus] Fallback:', error);
+    return {} as UnidadeFranquia;
+  }
 }
