@@ -3,6 +3,7 @@
 // Generates a new personalized outreach message for a specific channel.
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest } from '@/app/api/v1/auth-guard';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { regenerarMensagem } from '@/lib/integrations/claude-analysis';
 import type { AcademiaParaAnalise } from '@/lib/integrations/claude-analysis';
@@ -34,6 +35,9 @@ interface ProspectRow {
 
 export async function POST(request: NextRequest) {
   try {
+    const result = await authenticateRequest(request);
+    if ('error' in result) return result.error;
+
     const body = (await request.json()) as MensagemBody;
 
     if (!body.prospectId || typeof body.prospectId !== 'string') {

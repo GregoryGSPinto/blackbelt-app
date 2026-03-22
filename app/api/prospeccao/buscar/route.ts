@@ -3,6 +3,7 @@
 // Searches Google Places, enriches with Claude AI, caches in Supabase.
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest } from '@/app/api/v1/auth-guard';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { searchPlaces, getPlaceDetails } from '@/lib/integrations/google-places';
 import { analisarAcademias } from '@/lib/integrations/claude-analysis';
@@ -229,6 +230,9 @@ function formatCacheAge(buscadoEm: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateRequest(request);
+    if ('error' in authResult) return authResult.error;
+
     const body = (await request.json()) as BuscarBody;
 
     if (!body.query || typeof body.query !== 'string') {

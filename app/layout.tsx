@@ -4,6 +4,7 @@ import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { BetaWidgets } from '@/components/beta/BetaWidgets';
+import { OfflineNotice } from '@/components/shared/OfflineNotice';
 import { getThemeInitScript } from '@/lib/utils/theme';
 import '@/styles/globals.css';
 
@@ -55,7 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-bb-red focus:px-4 focus:py-2 focus:text-white">
           Pular para conteúdo principal
         </a>
-        <Providers><main id="main-content">{children}</main></Providers>
+        <Providers>
+          <OfflineNotice />
+          <main id="main-content">{children}</main>
+        </Providers>
         <ServiceWorkerRegistrar />
         <InstallPrompt />
         <BetaWidgets />

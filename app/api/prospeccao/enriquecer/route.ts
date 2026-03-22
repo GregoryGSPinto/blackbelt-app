@@ -3,6 +3,7 @@
 // Re-fetches Google Places details and runs fresh Claude analysis for a single prospect.
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest } from '@/app/api/v1/auth-guard';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { getPlaceDetails } from '@/lib/integrations/google-places';
 import { analisarAcademiaIndividual } from '@/lib/integrations/claude-analysis';
@@ -131,6 +132,9 @@ function rowToAcademiaProspectada(row: ProspectRow): AcademiaProspectada {
 
 export async function POST(request: NextRequest) {
   try {
+    const result = await authenticateRequest(request);
+    if ('error' in result) return result.error;
+
     const body = (await request.json()) as EnriquecerBody;
 
     if (!body.prospectId || typeof body.prospectId !== 'string') {
