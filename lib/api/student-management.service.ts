@@ -18,7 +18,7 @@ export async function listStudents(
       .from('students')
       .select(`
         id, profile_id, belt, started_at, academy_id,
-        profiles!students_profile_id_fkey(display_name, avatar, email, phone),
+        profiles!students_profile_id_fkey(display_name, avatar, user_id),
         memberships!inner(status),
         class_enrollments(classes(modalities(name)))
       `)
@@ -47,8 +47,8 @@ export async function listStudents(
         id: s.id as string,
         profile_id: s.profile_id as string,
         display_name: (profile?.display_name ?? '') as string,
-        email: (profile?.email ?? '') as string,
-        phone: (profile?.phone ?? '') as string,
+        email: '',
+        phone: '',
         belt: s.belt as AdminStudentItem['belt'],
         turmas,
         attendance_rate: 0,

@@ -60,19 +60,41 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       const { mockCadastrarRapido } = await import('@/lib/mocks/recepcao-cadastro.mock');
       return mockCadastrarRapido(data);
     }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data: row, error } = await supabase
-      .from('cadastros')
-      .insert(data)
-      .select()
-      .single();
-    if (error || !row) {
-      console.warn('[cadastrarRapido] Supabase error:', error?.message);
+
+    // Calls server-side API route that uses service_role to create auth user + profile + student
+    const res = await fetch('/api/students/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: data.nome,
+        email: data.email,
+        telefone: data.telefone,
+        dataNascimento: data.dataNascimento,
+        cpf: data.cpf,
+        tipoAluno: data.tipoAluno,
+        turmaId: data.turmaId,
+        planoId: data.planoId,
+        academyId: 'academy-1', // resolved server-side in production via session
+        origem: data.origem,
+        tipo: data.tipo,
+        responsavel: data.responsavel,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      console.warn('[cadastrarRapido] API error:', result.error);
       return { alunoId: '', tipo: data.tipo };
     }
+
     trackFeatureUsage('students', 'create');
-    return row as unknown as CadastroResult;
+
+    return {
+      alunoId: result.alunoId as string,
+      tipo: result.tipo as string,
+      loginTemporario: result.loginTemporario as CadastroResult['loginTemporario'],
+    };
   } catch (error) {
     console.warn('[cadastrarRapido] Fallback:', error);
     return { alunoId: '', tipo: data.tipo };
@@ -112,13 +134,22 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('classes')
-      .select('id, name, schedule, professor_name, capacity, enrolled_count')
-      .eq('status', 'active');
+      .select('id, schedule, modalities(name), profiles!classes_professor_id_fkey(display_name)');
     if (error || !data) {
       console.warn('[getTurmasDisponiveis] Supabase error:', error?.message);
       return [];
     }
-    return data.map((c: { id: string; name: string; schedule: string | null; professor_name: string | null; capacity: number | null; enrolled_count: number | null }) => ({ id: c.id, nome: c.name, horario: c.schedule ?? '', professor: c.professor_name ?? '', vagas: (c.capacity ?? 0) - (c.enrolled_count ?? 0) })) as TurmaResumo[];
+    return data.map((c: Record<string, unknown>) => {
+      const mod = c.modalities as Record<string, unknown> | null;
+      const prof = c.profiles as Record<string, unknown> | null;
+      return {
+        id: c.id as string,
+        nome: (mod?.name ?? 'Turma') as string,
+        horario: '',
+        professor: (prof?.display_name ?? '') as string,
+        vagas: 0,
+      };
+    });
   } catch (error) {
     console.warn('[getTurmasDisponiveis] Fallback:', error);
     return [];
