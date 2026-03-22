@@ -14,6 +14,7 @@ dist/
 # env files
 .env
 .env.local
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
@@ -51,6 +52,7 @@ ios/
 
 # prompt / spec files
 BLACKBELT_*.md
+blackbelt-v2-roadmap-*.pdf
 
 # claude
 .claude/

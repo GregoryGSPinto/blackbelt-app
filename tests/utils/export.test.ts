@@ -1,15 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock DOM APIs
+// Mock URL.createObjectURL/revokeObjectURL (not available in jsdom)
 const mockCreateObjectURL = vi.fn(() => 'blob:test');
 const mockRevokeObjectURL = vi.fn();
+URL.createObjectURL = mockCreateObjectURL;
+URL.revokeObjectURL = mockRevokeObjectURL;
+
+// Mock anchor click
 const mockClick = vi.fn();
-
-Object.defineProperty(global, 'URL', {
-  value: { createObjectURL: mockCreateObjectURL, revokeObjectURL: mockRevokeObjectURL },
-  writable: true,
-});
-
 vi.spyOn(document, 'createElement').mockReturnValue({
   click: mockClick,
   href: '',
@@ -17,6 +18,10 @@ vi.spyOn(document, 'createElement').mockReturnValue({
 } as unknown as HTMLAnchorElement);
 
 describe('Export Utils', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('deve exportar CSV com cabeçalhos e dados', async () => {
     const { exportToCSV } = await import('@/lib/utils/export');
 

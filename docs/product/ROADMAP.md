@@ -3,7 +3,7 @@
 > **Single Source of Truth** for product scope, module status, and architecture decisions.
 > All other roadmap files (BLACKBELT_V2_ROADMAP*.md, ARCHITECTURE_V3.md) are historical reference only.
 >
-> Last updated: 2026-03-17
+> Last updated: 2026-03-20
 > Author: Gregory Goncalves Silveira Pinto
 > Project score: **8.5/10** (up from 5.2 at Phase 0 audit)
 
@@ -24,9 +24,9 @@ Full stack and architecture details live in `CLAUDE.md` (project root).
 
 The project completed a comprehensive enterprise audit (Phase 0) that scored it at 5.2/10. Since then, every identified module gap has been addressed through "nuclear" implementation sprints. The project now has:
 
-- **130+ typed service contracts** with isMock() bifurcation
-- **17 SQL migrations** covering 39 tables with RLS on 100% of tables
-- **60+ pages** across 9 route groups
+- **220+ typed service contracts** with isMock() bifurcation — all converted to real Supabase
+- **40 SQL migrations** with RLS on 100% of tables
+- **273 pages** across 12 route groups
 - **CI/CD pipeline**: lint, typecheck, test, build, deploy (GitHub Actions + Vercel)
 - **Auth flow** working with real Supabase (login, register, profile switching, middleware)
 - **Go-live infrastructure**: Supabase connected, migrations applied, seed data, auth flow functional
@@ -43,6 +43,7 @@ The project completed a comprehensive enterprise audit (Phase 0) that scored it 
 | Multi-tenancy (RLS) | 5/10 | 7/10 | Beta (RLS fixes applied) |
 | RBAC enforcement | 2/10 | 5/10 | Beta (API auth guard added) |
 | Module completeness | 4/10 | 9.5/10 | All 11 modules COMPLETO |
+| Supabase real coverage | 0/10 | 9/10 | 220+ services converted (batch GRUPOs 1-32) |
 | Test coverage | 3/10 | 3/10 | Insufficient (TODO) |
 | Observability | 4/10 | 4/10 | Aspirational (TODO) |
 | Security posture | 4/10 | 6/10 | Beta (RLS + auth guard fixed) |
@@ -77,7 +78,7 @@ All UI modules have been built to completion (pages + services + mocks). The pri
 | Middleware (route protection) | DONE | Role-based redirects |
 | API auth guard | DONE | JWT validation on API routes |
 | RLS fixes (6 vulnerable tables) | DONE | `is_member_of()` enforced on class_notes, feed_likes, feed_comments, student_xp, challenge_progress, event_registrations |
-| Database migrations (17) | DONE | 39 tables, all with RLS |
+| Database migrations (40) | DONE | Full schema, all with RLS |
 | Seed data | DONE | Demo data matching mocks |
 | Supabase connection | DONE | Real auth flow functional |
 | SuperAdmin policies | DONE | Explicit bypass via migration 017 |
@@ -158,7 +159,7 @@ The Phase 0 enterprise audit identified 15 gaps. Here is current status:
 
 | Gap | Description | Resolution |
 |-----|-------------|------------|
-| GAP-01 | Production runs in mock mode | Supabase connected, `isMock=false` supported, auth flow real |
+| GAP-01 | Production runs in mock mode | **RESOLVED.** All 220+ services converted to real Supabase. `isMock=false` active in production. |
 | GAP-02 | 6 tables with data leakage cross-tenant | RLS policies fixed with `is_member_of()` enforcement |
 | GAP-03 | API routes without auth | API auth guard implemented (JWT validation) |
 
@@ -195,10 +196,10 @@ The Phase 0 enterprise audit identified 15 gaps. Here is current status:
 
 ### Priority 1 -- Required for Real Production Use
 
-1. **Real Supabase integration for all services** -- Most of the 130+ services still return mock data in production. The `isMock()` bifurcation is in place; each service's `else` branch needs actual Supabase queries.
-2. **Billing implementation** -- `billing.service.ts` has 11 functions that throw "Not implemented". Gateway factory (Stripe/Asaas) is scaffolded. Webhook handlers are stubs. This blocks all revenue.
-3. **E2E tests** -- Playwright is configured but only covers login flow (4 tests). Core flows need coverage: auth, check-in, class management, billing, tenant isolation.
-4. **Production monitoring** -- Sentry is configured but `captureException()` is never called. Web vitals reporting is a TODO. No alerts, no correlation IDs.
+1. ~~**Real Supabase integration for all services**~~ -- **DONE.** All 220+ services batch-converted to real Supabase (GRUPOs 1-32). The `isMock()` bifurcation remains for development.
+2. **Billing gateway activation** -- Gateway factory (Stripe/Asaas) is scaffolded and service layer converted. Webhook handlers need end-to-end testing with real payment providers. This blocks revenue.
+3. **E2E tests** -- Playwright is configured but `@playwright/test` is not installed. Only 1 spec file exists. Core flows need coverage: auth, check-in, class management, billing, tenant isolation.
+4. **Production monitoring** -- Sentry is configured but `captureException()` is rarely called. Web vitals reporting is a TODO. No alerts, no correlation IDs.
 
 ### Priority 2 -- Required for Competitive Launch
 
@@ -298,7 +299,7 @@ These decisions are final and enforced. See `CLAUDE.md` for full rules.
 
 ## 10. Database Schema
 
-17 migrations covering 39 tables. All with UUID PKs, timestamps, and RLS policies.
+40 migrations covering the full schema. All with UUID PKs, timestamps, and RLS policies.
 
 | Migration | Tables | Purpose |
 |-----------|--------|---------|
@@ -344,31 +345,30 @@ Key security function: `is_member_of(academy_id)` -- SECURITY DEFINER function u
 
 ## 12. Service Layer Overview
 
-130+ services following the `isMock()` bifurcation pattern. Services are in `lib/api/`, mocks in `lib/mocks/`.
+220+ services following the `isMock()` bifurcation pattern. Services are in `lib/api/`, mocks in `lib/mocks/`.
 
-### Services with Real Supabase Backend
+All services were batch-converted to real Supabase implementations through GRUPOs 1-32 (see git log). Each service now has both a mock path (for development) and a real Supabase path (for production).
 
-| Service | Real Operations |
-|---------|----------------|
-| `auth.service.ts` | Login, register, refresh, logout |
-| `admin.service.ts` | Dashboard metrics, basic queries |
-| `turmas.service.ts` | CRUD classes |
+### Service Coverage by Domain
 
-### Services with Mock-Only Backend (Representative List)
-
-| Domain | Services | Mock Status |
-|--------|----------|-------------|
-| Admin Dashboard | admin-daily, trial-classes, collections, inventory, contracts, professor-reports | Complete mocks |
-| SuperAdmin | mission-control, pipeline, health-score, revenue, impersonation, comms, feature-flags, analytics | Complete mocks |
-| Professor | modo-aula, diario, avaliacao, plano-aula, aluno-360, alertas, relatorios, tecnicas | Complete mocks |
-| Adult Student | dashboard, turmas, treinos, progresso, financeiro, indicar, torneios, comunidade | Complete mocks |
-| Parent | dashboard, jornada, autorizacoes, notificacoes, relatorios | Complete mocks |
-| Teen | dashboard, ranking, desafios, season-pass | Complete mocks |
-| Kids | dashboard, figurinhas, recompensas, minha-faixa, perfil, conteudo, conquistas | Complete mocks |
-| Receptionist | dashboard, cadastro, atendimento, caixa, experimentais, mensagens, acesso | Complete mocks |
-| Franchisor | dashboard, unidades, curriculo, royalties, padroes, expansao, comunicacao | Complete mocks |
-| Billing | billing, subscriptions, invoices, plan-enforcement | Mocks exist, real = "Not implemented" |
-| Financial | faturas, planos | Complete mocks |
+| Domain | Services | Supabase Status |
+|--------|----------|-----------------|
+| Auth | auth, session, profile-switching | Real (login, register, refresh, logout) |
+| Admin Dashboard | admin, admin-daily, trial-classes, collections, inventory, contracts, professor-reports | Real (batch converted) |
+| SuperAdmin | mission-control, pipeline, health-score, revenue, impersonation, comms, feature-flags, analytics | Real (batch converted) |
+| Professor | modo-aula, diario, avaliacao, plano-aula, aluno-360, alertas, relatorios, tecnicas | Real (batch converted) |
+| Adult Student | dashboard, turmas, treinos, progresso, financeiro, indicar, torneios, comunidade | Real (batch converted) |
+| Parent | dashboard, jornada, autorizacoes, notificacoes, relatorios | Real (batch converted) |
+| Teen | dashboard, ranking, desafios, season-pass | Real (batch converted) |
+| Kids | dashboard, figurinhas, recompensas, minha-faixa, perfil, conteudo, conquistas | Real (batch converted) |
+| Receptionist | dashboard, cadastro, atendimento, caixa, experimentais, mensagens, acesso | Real (batch converted) |
+| Franchisor | dashboard, unidades, curriculo, royalties, padroes, expansao, comunicacao | Real (batch converted) |
+| Billing | billing, subscriptions, invoices, plan-enforcement | Real (scaffolded — gateway integration TODO) |
+| Financial | faturas, planos | Real (batch converted) |
+| Social | chat, group-chat, feed, recommendations | Real (batch converted) |
+| Video | video, training-video, video-upload, championship-live | Real (batch converted) |
+| Integrations | webhooks, zapier, automations, WhatsApp | Real (batch converted) |
+| Security | MFA, access-control, SSO, audit, LGPD | Real (batch converted) |
 
 ---
 
@@ -407,7 +407,7 @@ Plan enforcement service exists with limit definitions. Not yet connected to rea
 ### DONE
 
 - [x] Supabase project created and linked
-- [x] All 17 migrations applied
+- [x] All 40 migrations applied
 - [x] Seed data loaded
 - [x] Auth flow working with real Supabase
 - [x] `NEXT_PUBLIC_USE_MOCK=false` supported
@@ -420,7 +420,7 @@ Plan enforcement service exists with limit definitions. Not yet connected to rea
 
 ### TODO
 
-- [ ] Replace mock backends with real Supabase queries (130+ services)
+- [x] Replace mock backends with real Supabase queries (220+ services — batch GRUPOs 1-32)
 - [ ] Billing service implementation (11 functions)
 - [ ] Payment gateway activation (Asaas sandbox then production)
 - [ ] Email service activation (Resend)
@@ -444,12 +444,10 @@ Plan enforcement service exists with limit definitions. Not yet connected to rea
 | `docs/architecture/current-state-assessment.md` | Enterprise audit results (Phase 0 snapshot) |
 | `docs/architecture/enterprise-gap-analysis.md` | Gap analysis with severity/priority (Phase 0 snapshot) |
 | `docs/ARCHITECTURE.md` | Architecture overview (stable) |
-| `BLACKBELT_V2_ROADMAP.md` | Historical: original 10-phase roadmap (P01-P52) |
-| `BLACKBELT_V2_ROADMAP_PART2.md` | Historical: phases 11-20 (P53-P102) |
-| `BLACKBELT_V2_ROADMAP_PART3.md` | Historical: phases 21-30 (P103-P152) |
-| `BLACKBELT_V2_ROADMAP_PART4.md` | Historical: phases 31-33 (P153-P172) |
+| `blackbelt-v2-roadmap-part*.pdf` | Historical: original phased roadmap documents (gitignored for cleanup) |
 
 ---
 
 > **172 prompts planned. 52 executed as foundation. Nuclear sprints completed all module UIs.**
-> The architecture is solid. The UI is complete. The next frontier is real data, real payments, real users.
+> **220+ services converted to real Supabase (GRUPOs 1-32). 40 migrations. 273 pages. 12 route groups.**
+> The architecture is solid. The UI and backend are connected. The next frontier is billing activation, E2E tests, and real users.

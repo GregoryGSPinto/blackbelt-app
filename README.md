@@ -68,7 +68,7 @@ blackbelt-v2/
 │   ├── shared/           # Cross-cutting shared components
 │   └── video/            # Video player, class recordings
 ├── lib/
-│   ├── api/               # Service contracts (130+ services)
+│   ├── api/               # Service contracts (220+ services)
 │   ├── mocks/             # Mock implementations
 │   ├── types/             # domain.ts, enums.ts, constants.ts
 │   ├── domain/            # Pure business rules
@@ -113,8 +113,8 @@ Copy `.env.example` to `.env.local` to get started. In mock mode only `NEXT_PUBL
 ## Architecture Highlights
 
 - **Service layer decoupled from routes.** `lib/api/` never imports from `app/`. Route groups are a UI concern.
-- **Domain is the source of truth.** `lib/types/domain.ts`, `enums.ts`, `constants.ts`, and `lib/domain/rules.ts` define the system. Mocks implement these contracts.
-- **Single mock toggle.** `isMock()` (controlled by `NEXT_PUBLIC_USE_MOCK`) is the only branching point between real and mock services.
+- **Domain is the source of truth.** `lib/types/domain.ts`, `enums.ts`, `constants.ts`, and `lib/domain/rules.ts` define the system.
+- **Mock/Real bifurcation.** `isMock()` (controlled by `NEXT_PUBLIC_USE_MOCK`) is the only branching point. All 220+ services have real Supabase implementations alongside mock fallbacks.
 - **Strict TypeScript.** Zero `any`. All DTOs are fully typed.
 - **Tokens in memory.** Auth tokens are never persisted to localStorage or sessionStorage.
 
