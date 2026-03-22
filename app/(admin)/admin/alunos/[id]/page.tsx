@@ -289,6 +289,17 @@ export default function AdminStudentProfilePage() {
   const [data, setData] = useState<StudentProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // ── Action modals state ─────────────────────────────────────────
+  const [showGraduar, setShowGraduar] = useState(false);
+  const [showTrancar, setShowTrancar] = useState(false);
+  const [showCancelar, setShowCancelar] = useState(false);
+  const [showTransferir, setShowTransferir] = useState(false);
+  const [actionMsg, setActionMsg] = useState('');
+  const [novaFaixa, setNovaFaixa] = useState('');
+  const [motivoTrancar, setMotivoTrancar] = useState('');
+  const [motivoCancelar, setMotivoCancelar] = useState('');
+  const [novaTurma, setNovaTurma] = useState('');
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setData(buildMockData(studentId));
@@ -368,6 +379,22 @@ export default function AdminStudentProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* ── Action Buttons ──────────────────────────────────── */}
+      <div className="flex flex-wrap gap-2">
+        <button onClick={() => { setNovaFaixa(getNextBelt(student.belt)); setShowGraduar(true); }} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: '#22c55e20', color: '#22c55e' }}>
+          🎖️ Graduar
+        </button>
+        <button onClick={() => setShowTrancar(true)} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: '#f59e0b20', color: '#f59e0b' }}>
+          🔒 Trancar Matrícula
+        </button>
+        <button onClick={() => setShowCancelar(true)} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: '#ef444420', color: '#ef4444' }}>
+          ❌ Cancelar Matrícula
+        </button>
+        <button onClick={() => setShowTransferir(true)} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: '#3b82f620', color: '#3b82f6' }}>
+          🔄 Transferir Turma
+        </button>
+      </div>
 
       {/* ── Belt Section ─────────────────────────────────────── */}
       <Card className="p-6">
@@ -699,6 +726,111 @@ export default function AdminStudentProfilePage() {
           })}
         </div>
       </Card>
+
+      {/* ── Action Modals ──────────────────────────────────────── */}
+
+      {/* Graduar */}
+      {showGraduar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowGraduar(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: 'var(--bb-depth-3)' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Graduar Aluno</h3>
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Graduando: {student.display_name}</p>
+            <div className="mt-3">
+              <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Nova faixa</label>
+              <select value={novaFaixa} onChange={(e) => setNovaFaixa(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}>
+                {['branca', 'azul', 'roxa', 'marrom', 'preta'].map((f) => <option key={f} value={f}>Faixa {f}</option>)}
+              </select>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setShowGraduar(false)} className="flex-1 rounded-lg px-4 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>Cancelar</button>
+              <button onClick={() => { setActionMsg(`${student.display_name} graduado para faixa ${novaFaixa}!`); setShowGraduar(false); setTimeout(() => setActionMsg(''), 3000); }} className="flex-1 rounded-lg px-4 py-2 text-sm font-bold text-white" style={{ background: '#22c55e' }}>Confirmar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Trancar */}
+      {showTrancar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowTrancar(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: 'var(--bb-depth-3)' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Trancar Matrícula</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Motivo</label>
+                <select value={motivoTrancar} onChange={(e) => setMotivoTrancar(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}>
+                  <option value="">Selecionar...</option>
+                  <option value="viagem">Viagem</option>
+                  <option value="saude">Saúde / Lesão</option>
+                  <option value="financeiro">Financeiro</option>
+                  <option value="pessoal">Motivo pessoal</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setShowTrancar(false)} className="flex-1 rounded-lg px-4 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>Cancelar</button>
+              <button onClick={() => { setActionMsg('Matrícula trancada!'); setShowTrancar(false); setTimeout(() => setActionMsg(''), 3000); }} className="flex-1 rounded-lg px-4 py-2 text-sm font-bold text-white" style={{ background: '#f59e0b' }}>Trancar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancelar */}
+      {showCancelar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowCancelar(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: 'var(--bb-depth-3)' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-bold" style={{ color: '#ef4444' }}>Cancelar Matrícula</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Motivo do cancelamento</label>
+                <select value={motivoCancelar} onChange={(e) => setMotivoCancelar(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}>
+                  <option value="">Selecionar...</option>
+                  <option value="mudanca">Mudança de cidade</option>
+                  <option value="financeiro">Financeiro</option>
+                  <option value="desinteresse">Desinteresse</option>
+                  <option value="saude">Problema de saúde</option>
+                  <option value="insatisfacao">Insatisfação</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setShowCancelar(false)} className="flex-1 rounded-lg px-4 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>Voltar</button>
+              <button onClick={() => { setActionMsg('Matrícula cancelada.'); setShowCancelar(false); setTimeout(() => setActionMsg(''), 3000); }} className="flex-1 rounded-lg px-4 py-2 text-sm font-bold text-white" style={{ background: '#ef4444' }}>Confirmar Cancelamento</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transferir */}
+      {showTransferir && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowTransferir(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: 'var(--bb-depth-3)' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Transferir Turma</h3>
+            <div>
+              <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Nova turma</label>
+              <select value={novaTurma} onChange={(e) => setNovaTurma(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}>
+                <option value="">Selecionar...</option>
+                <option value="bjj-adulto">BJJ Adulto (Seg/Qua/Sex 18h)</option>
+                <option value="bjj-iniciante">BJJ Iniciante (Seg/Qua 06:30)</option>
+                <option value="bjj-feminino">BJJ Feminino (Ter/Qui 10h)</option>
+                <option value="muay-thai">Muay Thai (Seg/Qua/Sex 19:30)</option>
+              </select>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setShowTransferir(false)} className="flex-1 rounded-lg px-4 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>Cancelar</button>
+              <button onClick={() => { setActionMsg('Aluno transferido de turma!'); setShowTransferir(false); setTimeout(() => setActionMsg(''), 3000); }} disabled={!novaTurma} className="flex-1 rounded-lg px-4 py-2 text-sm font-bold text-white disabled:opacity-50" style={{ background: '#3b82f6' }}>Transferir</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast-like action message */}
+      {actionMsg && (
+        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg" style={{ background: 'var(--bb-brand)' }}>
+          {actionMsg}
+        </div>
+      )}
     </div>
   );
 }
