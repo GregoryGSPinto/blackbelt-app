@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { NotificationBell } from '@/components/shared/NotificationBell';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
 const sidebarItems: { href: string; label: string; id?: string }[] = [
   { href: '/franqueador', label: 'Dashboard', id: 'sidebar-link-dashboard-fr' },
@@ -15,14 +18,59 @@ const sidebarItems: { href: string; label: string; id?: string }[] = [
 
 export default function FranqueadorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="flex min-h-screen bg-bb-gray-100">
-      {/* Sidebar - desktop */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-bb-gray-300 lg:bg-white">
-        <div className="flex h-14 items-center border-b border-bb-gray-300 px-6">
-          <span className="text-lg font-bold text-bb-red">BlackBelt</span>
-          <span className="ml-1 text-xs text-bb-gray-500">Franqueador</span>
+    <div className="flex min-h-screen" style={{ background: 'var(--bb-depth-1)' }}>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - desktop always visible, mobile slide-in */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{
+          background: 'var(--bb-depth-2)',
+          borderRight: '1px solid var(--bb-glass-border)',
+        }}
+      >
+        <div
+          className="flex h-14 items-center px-6"
+          style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+        >
+          <span
+            className="text-lg font-bold"
+            style={{ color: 'var(--bb-brand)' }}
+          >
+            BlackBelt
+          </span>
+          <span className="ml-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+            Franqueador
+          </span>
+
+          {/* Close button on mobile */}
+          <button
+            className="ml-auto lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Fechar menu"
+            style={{ color: 'var(--bb-ink-60)' }}
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {sidebarItems.map((item) => {
@@ -32,11 +80,24 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
                 key={item.href}
                 href={item.href}
                 id={item.id}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-bb-red/10 text-bb-red'
-                    : 'text-bb-gray-500 hover:bg-bb-gray-100 hover:text-bb-black'
-                }`}
+                onClick={() => setSidebarOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+                style={{
+                  background: isActive ? 'var(--bb-brand-surface)' : 'transparent',
+                  color: isActive ? 'var(--bb-brand)' : 'var(--bb-ink-60)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'var(--bb-depth-3)';
+                    e.currentTarget.style.color = 'var(--bb-ink-80)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--bb-ink-60)';
+                  }
+                }}
               >
                 {item.label}
               </Link>
@@ -45,27 +106,40 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
         </nav>
       </aside>
 
-      {/* Mobile nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-bb-gray-300 bg-white lg:hidden">
-        {sidebarItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              id={item.id}
-              className={`flex flex-1 flex-col items-center py-2 text-[10px] font-medium ${
-                isActive ? 'text-bb-red' : 'text-bb-gray-500'
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
+      {/* Main content */}
+      <div className="flex flex-1 flex-col">
+        {/* Topbar */}
+        <header
+          className="sticky top-0 z-20 flex h-14 items-center justify-between px-4"
+          style={{
+            background: 'var(--bb-depth-2)',
+            borderBottom: '1px solid var(--bb-glass-border)',
+          }}
+        >
+          {/* Hamburger (mobile) */}
+          <button
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menu"
+            style={{ color: 'var(--bb-ink-60)' }}
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
 
-      {/* Content */}
-      <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">{children}</main>
+          <div className="hidden lg:block" />
+
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <ThemeToggle />
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bb-depth-1)' }}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { getProfessorDashboard } from '@/lib/api/professor.service';
 import type { AlunoResumoDTO } from '@/lib/api/professor.service';
 import { Card } from '@/components/ui/Card';
@@ -8,6 +9,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useToast } from '@/lib/hooks/useToast';
 
 const BELT_COLORS: Record<string, string> = {
   white: '#FAFAFA',
@@ -47,6 +49,8 @@ function attendanceLabel(days: number | null): { text: string; color: string } {
 }
 
 export default function ProfessorAlunosPage() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [alunos, setAlunos] = useState<AlunoResumoDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -156,10 +160,15 @@ export default function ProfessorAlunosPage() {
             const days = daysSinceDate(aluno.ultima_presenca);
             const attendance = attendanceLabel(days);
             return (
-              <Card key={aluno.student_id} variant="outlined" className="flex items-center gap-3 p-3">
+              <Card
+                key={aluno.student_id}
+                variant="outlined"
+                className="flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-[var(--bb-depth-2)]"
+                onClick={() => router.push(`/professor/alunos/${aluno.student_id}`)}
+              >
                 <Avatar name={aluno.display_name} src={aluno.avatar} size="md" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-bb-gray-900">{aluno.display_name}</p>
+                  <p className="truncate font-medium" style={{ color: 'var(--bb-ink-100)' }}>{aluno.display_name}</p>
                   <div className="mt-0.5 flex items-center gap-2">
                     <Badge
                       variant="belt"
@@ -172,6 +181,22 @@ export default function ProfessorAlunosPage() {
                       {attendance.text}
                     </span>
                   </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); router.push(`/professor/avaliacoes?alunoId=${aluno.student_id}`); }}
+                    className="rounded-lg px-2.5 py-1 text-xs font-medium transition-colors"
+                    style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}
+                  >
+                    Avaliar
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toast('Recomendacao enviada ao admin!', 'success'); }}
+                    className="rounded-lg px-2.5 py-1 text-xs font-medium transition-colors"
+                    style={{ background: 'color-mix(in srgb, var(--bb-success) 12%, transparent)', color: 'var(--bb-success)' }}
+                  >
+                    Graduar
+                  </button>
                 </div>
               </Card>
             );

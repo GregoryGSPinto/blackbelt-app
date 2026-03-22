@@ -55,16 +55,19 @@ interface RadarChartProps {
   posture: number;
   evolution: number;
   behavior: number;
+  conditioning: number;
+  theory: number;
+  discipline: number;
   size?: number;
 }
 
-function RadarChart({ technique, posture, evolution, behavior, size = 200 }: RadarChartProps) {
+function RadarChart({ technique, posture, evolution, behavior, conditioning, theory, discipline, size = 200 }: RadarChartProps) {
   const cx = size / 2;
   const cy = size / 2;
   const maxRadius = size * 0.38;
-  const labels = ['Tecnica', 'Postura', 'Evolucao', 'Comportamento'];
-  const values = [technique, posture, evolution, behavior];
-  const angles = values.map((_, i) => (Math.PI * 2 * i) / 4 - Math.PI / 2);
+  const labels = ['Tecnica', 'Postura', 'Evolucao', 'Comportamento', 'Condic.', 'Teoria', 'Disciplina'];
+  const values = [technique, posture, evolution, behavior, conditioning, theory, discipline];
+  const angles = values.map((_, i) => (Math.PI * 2 * i) / 7 - Math.PI / 2);
 
   // Grid levels
   const gridLevels = [2, 4, 6, 8, 10];
@@ -253,11 +256,14 @@ export default function ProfessorAvaliacoesPage() {
   const [view, setView] = useState<ViewMode>('list');
   const [selectedStudent, setSelectedStudent] = useState<EvaluableStudent | null>(null);
 
-  // Evaluation form
+  // Evaluation form — 7 criteria
   const [technique, setTechnique] = useState(5);
   const [posture, setPosture] = useState(5);
   const [evolution, setEvolution] = useState(5);
   const [behavior, setBehavior] = useState(5);
+  const [conditioning, setConditioning] = useState(5);
+  const [theory, setTheory] = useState(5);
+  const [discipline, setDiscipline] = useState(5);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
   const [prontoGraduar, setProntoGraduar] = useState(false);
@@ -299,7 +305,11 @@ export default function ProfessorAvaliacoesPage() {
     setPosture(5);
     setEvolution(5);
     setBehavior(5);
+    setConditioning(5);
+    setTheory(5);
+    setDiscipline(5);
     setComment('');
+    setProntoGraduar(false);
     setView('evaluate');
   }, []);
 
@@ -328,6 +338,9 @@ export default function ProfessorAvaliacoesPage() {
         posture,
         evolution,
         behavior,
+        conditioning,
+        theory,
+        discipline,
         comment,
       };
       await createEvaluation(payload);
@@ -339,7 +352,7 @@ export default function ProfessorAvaliacoesPage() {
     } finally {
       setSaving(false);
     }
-  }, [selectedStudent, technique, posture, evolution, behavior, comment]);
+  }, [selectedStudent, technique, posture, evolution, behavior, conditioning, theory, discipline, comment]);
 
   // ── Loading ─────────────────────────────────────────────────────────
 
@@ -363,7 +376,7 @@ export default function ProfessorAvaliacoesPage() {
   // ── Evaluation Form View ──────────────────────────────────────────
 
   if (view === 'evaluate' && selectedStudent) {
-    const avg = ((technique + posture + evolution + behavior) / 4).toFixed(1);
+    const avg = ((technique + posture + evolution + behavior + conditioning + theory + discipline) / 7).toFixed(1);
 
     return (
       <PlanGate module="avaliacoes">
@@ -409,20 +422,26 @@ export default function ProfessorAvaliacoesPage() {
             posture={posture}
             evolution={evolution}
             behavior={behavior}
-            size={220}
+            conditioning={conditioning}
+            theory={theory}
+            discipline={discipline}
+            size={240}
           />
           <p className="mt-2 text-center text-xs text-[var(--bb-ink-40)]">
             Media: <span className="font-bold text-[var(--bb-brand)]">{avg}</span>/10
           </p>
         </Card>
 
-        {/* Score Sliders */}
+        {/* Score Sliders — 7 criteria */}
         <Card className="space-y-5 p-4">
-          <h2 className="text-sm font-semibold text-[var(--bb-ink-80)]">Pontuacoes</h2>
-          <ScoreSlider label="Tecnica" value={technique} onChange={setTechnique} />
-          <ScoreSlider label="Postura" value={posture} onChange={setPosture} />
-          <ScoreSlider label="Evolucao" value={evolution} onChange={setEvolution} />
+          <h2 className="text-sm font-semibold text-[var(--bb-ink-80)]">Pontuacoes (7 Criterios)</h2>
+          <ScoreSlider label="Tecnica (pe e chao)" value={technique} onChange={setTechnique} />
+          <ScoreSlider label="Postura / Guarda" value={posture} onChange={setPosture} />
+          <ScoreSlider label="Evolucao desde ultima avaliacao" value={evolution} onChange={setEvolution} />
           <ScoreSlider label="Comportamento" value={behavior} onChange={setBehavior} />
+          <ScoreSlider label="Condicionamento fisico" value={conditioning} onChange={setConditioning} />
+          <ScoreSlider label="Conhecimento teorico" value={theory} onChange={setTheory} />
+          <ScoreSlider label="Disciplina e dedicacao" value={discipline} onChange={setDiscipline} />
         </Card>
 
         {/* Comment */}
@@ -531,7 +550,10 @@ export default function ProfessorAvaliacoesPage() {
                 posture={timeline.evaluations[0].posture}
                 evolution={timeline.evaluations[0].evolution}
                 behavior={timeline.evaluations[0].behavior}
-                size={220}
+                conditioning={timeline.evaluations[0].conditioning ?? 5}
+                theory={timeline.evaluations[0].theory ?? 5}
+                discipline={timeline.evaluations[0].discipline ?? 5}
+                size={240}
               />
             </Card>
 
@@ -565,7 +587,7 @@ export default function ProfessorAvaliacoesPage() {
         <div>
           <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Avaliacoes</h1>
           <p className="text-sm text-[var(--bb-ink-60)]">
-            Avalie seus alunos em 4 eixos de desempenho
+            Avalie seus alunos em 7 eixos de desempenho
           </p>
         </div>
 
@@ -669,7 +691,7 @@ export default function ProfessorAvaliacoesPage() {
 // ── Timeline Card Component ─────────────────────────────────────────
 
 function TimelineCard({ evaluation, isFirst }: { evaluation: StudentEvaluation; isFirst: boolean }) {
-  const avg = ((evaluation.technique + evaluation.posture + evaluation.evolution + evaluation.behavior) / 4).toFixed(1);
+  const avg = ((evaluation.technique + evaluation.posture + evaluation.evolution + evaluation.behavior + (evaluation.conditioning ?? 5) + (evaluation.theory ?? 5) + (evaluation.discipline ?? 5)) / 7).toFixed(1);
   const date = new Date(evaluation.created_at).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -702,12 +724,15 @@ function TimelineCard({ evaluation, isFirst }: { evaluation: StudentEvaluation; 
         </div>
 
         {/* Mini scores */}
-        <div className="mt-3 grid grid-cols-4 gap-2">
+        <div className="mt-3 grid grid-cols-4 sm:grid-cols-7 gap-2">
           {[
             { label: 'Tec', value: evaluation.technique },
             { label: 'Pos', value: evaluation.posture },
             { label: 'Evo', value: evaluation.evolution },
             { label: 'Comp', value: evaluation.behavior },
+            { label: 'Cond', value: evaluation.conditioning ?? 5 },
+            { label: 'Teor', value: evaluation.theory ?? 5 },
+            { label: 'Disc', value: evaluation.discipline ?? 5 },
           ].map((item) => (
             <div key={item.label} className="text-center">
               <p className="text-[10px] uppercase tracking-wide text-[var(--bb-ink-40)]">

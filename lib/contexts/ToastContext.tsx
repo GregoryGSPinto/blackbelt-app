@@ -31,8 +31,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const NOOP_TOAST: ToastContextValue = { toast: () => {} };
+
 export function useToastContext(): ToastContextValue {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within ToastProvider');
-  return ctx;
+  // Return no-op during SSR prerendering when provider is not available
+  return ctx ?? NOOP_TOAST;
 }

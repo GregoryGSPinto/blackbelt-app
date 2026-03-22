@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/lib/hooks/useToast';
 import type { OutgoingWebhook, WebhookDelivery, WebhookEvent } from '@/lib/api/webhooks-outgoing.service';
 import { listWebhooks, registerWebhook, deleteWebhook, testWebhook, getDeliveryLog } from '@/lib/api/webhooks-outgoing.service';
 
@@ -14,6 +15,7 @@ const ALL_EVENTS: WebhookEvent[] = [
 ];
 
 export default function WebhooksPage() {
+  const { toast } = useToast();
   const [webhooks, setWebhooks] = useState<OutgoingWebhook[]>([]);
   const [deliveries, setDeliveries] = useState<Record<string, WebhookDelivery[]>>({});
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ export default function WebhooksPage() {
     setTesting(whId);
     const result = await testWebhook(whId);
     setTesting(null);
-    alert(result.success ? `Sucesso! ${result.responseCode} em ${result.responseTime}ms` : `Falha: ${result.error}`);
+    toast(result.success ? `Sucesso! ${result.responseCode} em ${result.responseTime}ms` : `Falha: ${result.error}`, result.success ? 'success' : 'error');
   }
 
   async function handleExpand(whId: string) {

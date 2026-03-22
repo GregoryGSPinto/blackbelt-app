@@ -5,12 +5,15 @@
 
 import type { BeltLevel } from './domain';
 
-/** Scores de avaliacao em 4 eixos, escala 1-10. */
+/** Scores de avaliacao em 7 eixos, escala 1-10. */
 export interface EvaluationScores {
   technique: number;    // 1-10
   posture: number;      // 1-10
   evolution: number;    // 1-10
   behavior: number;     // 1-10
+  conditioning: number; // 1-10
+  theory: number;       // 1-10
+  discipline: number;   // 1-10
 }
 
 /** Avaliacao individual de um aluno pelo professor. */
@@ -24,6 +27,9 @@ export interface StudentEvaluation {
   posture: number;       // 1-10
   evolution: number;     // 1-10
   behavior: number;      // 1-10
+  conditioning: number;  // 1-10
+  theory: number;        // 1-10
+  discipline: number;    // 1-10
   comment: string;
   readonly created_at: string;
 }
@@ -48,6 +54,9 @@ export interface CreateEvaluationPayload {
   posture: number;
   evolution: number;
   behavior: number;
+  conditioning: number;
+  theory: number;
+  discipline: number;
   comment: string;
 }
 

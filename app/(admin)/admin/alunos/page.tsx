@@ -172,6 +172,29 @@ export default function AdminAlunosPage() {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => {
+              const header = 'Nome,Email,Telefone,CPF,Data Nascimento,Faixa,Turma,Plano\n';
+              const example = 'João Silva,joao@email.com,(11)99999-9999,123.456.789-00,1990-01-15,white,BJJ Fundamentos,Mensal\n';
+              const blob = new Blob([header + example], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'modelo_importacao_alunos.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              toast('Planilha modelo baixada!', 'success');
+            }}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+            style={{
+              background: 'var(--bb-depth-3)',
+              color: 'var(--bb-ink-80)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            <Download className="h-3.5 w-3.5" />
+            Planilha Modelo
+          </button>
+          <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
             style={{

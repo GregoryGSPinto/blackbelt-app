@@ -9,6 +9,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { NotificationBell } from '@/components/shared/NotificationBell';
 import {
   LayoutDashboardIcon,
   BuildingIcon,
@@ -25,7 +26,6 @@ import {
   LifeBuoyIcon,
   LogOutIcon,
   UsersIcon,
-  BellIcon,
   XIcon,
   TrophyIcon,
   FlaskConicalIcon,
@@ -312,15 +312,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
 
               <div className="flex items-center gap-3">
                 {/* Notifications */}
-                <button
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
-                  style={{ color: 'var(--bb-ink-60)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                  aria-label="Notificações"
-                >
-                  <BellIcon className="h-5 w-5" />
-                </button>
+                <NotificationBell />
 
                 {/* User Menu */}
                 <div className="relative">

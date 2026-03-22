@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useRef } from 'react';
 import { submitFeedback, uploadScreenshot, type CreateFeedbackDTO } from '@/lib/api/beta-feedback.service';
+import { useToast } from '@/lib/hooks/useToast';
 
 const isBetaMode = process.env.NEXT_PUBLIC_BETA_MODE === 'true';
 
@@ -16,6 +17,7 @@ const FEEDBACK_TYPES: { value: FeedbackType; label: string; icon: string; desc: 
 ];
 
 const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, ref) {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null);
@@ -56,7 +58,7 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert('Arquivo muito grande. Maximo 5MB.');
+      toast('Arquivo muito grande. Maximo 5MB.', 'error');
       return;
     }
     setScreenshotPreview(URL.createObjectURL(file));
