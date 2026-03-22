@@ -783,7 +783,7 @@ export default function AcademiasPage() {
                       </button>
                     ) : null}
                     <button
-                      onClick={() => { /* TODO: open plan change modal */ alert(`Mudar plano de ${academy.name}: funcionalidade em implementação`); }}
+                      onClick={() => { /* TODO: open plan change modal */ toast(`Mudar plano de ${academy.name}: funcionalidade em implementação`, 'info'); }}
                       className="rounded-lg px-3 py-1.5 text-xs font-medium"
                       style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)' }}
                     >
@@ -791,7 +791,7 @@ export default function AcademiasPage() {
                     </button>
                     {(academy.status === 'trial') && (
                       <button
-                        onClick={() => { alert(`Trial de ${academy.name} estendido em 14 dias!`); }}
+                        onClick={() => { toast(`Trial de ${academy.name} estendido em 14 dias!`, 'success'); }}
                         className="rounded-lg px-3 py-1.5 text-xs font-medium"
                         style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)' }}
                       >

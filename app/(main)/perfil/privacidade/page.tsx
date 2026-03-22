@@ -6,12 +6,14 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { ConsentRecord } from '@/lib/api/privacy.service';
 import { getConsents, updateConsent, requestDataExport, requestAccountDeletion } from '@/lib/api/privacy.service';
+import { useToast } from '@/lib/hooks/useToast';
 
 export default function PrivacyPage() {
   const [consents, setConsents] = useState<ConsentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     getConsents('current-user').then((c) => { setConsents(c); setLoading(false); });
@@ -26,13 +28,13 @@ export default function PrivacyPage() {
     setExporting(true);
     await requestDataExport('current-user');
     setExporting(false);
-    alert('Solicitação enviada! Você receberá um email quando seus dados estiverem prontos.');
+    toast('Solicitação enviada! Você receberá um email quando seus dados estiverem prontos.', 'success');
   }
 
   async function handleDeleteRequest() {
     await requestAccountDeletion('current-user');
     setShowDeleteConfirm(false);
-    alert('Solicitação registrada. Sua conta será excluída em 30 dias. Você pode cancelar entrando em contato com o suporte.');
+    toast('Solicitação registrada. Sua conta será excluída em 30 dias. Você pode cancelar entrando em contato com o suporte.', 'success');
   }
 
   const consentLabels: Record<string, { title: string; desc: string }> = {

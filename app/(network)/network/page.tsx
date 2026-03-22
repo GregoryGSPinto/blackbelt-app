@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { NetworkDashboardDTO, ConsolidatedFinancials } from '@/lib/api/network.service';
 import { getNetworkDashboard, getNetworkFinancials, transferStudent } from '@/lib/api/network.service';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useToast } from '@/lib/hooks/useToast';
 
 export default function NetworkPage() {
   const [dashboard, setDashboard] = useState<NetworkDashboardDTO | null>(null);
@@ -14,6 +15,7 @@ export default function NetworkPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'overview' | 'financials' | 'transfer'>('overview');
   const [transferForm, setTransferForm] = useState({ studentId: '', fromAcademy: '', toAcademy: '' });
+  const { toast } = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -29,7 +31,7 @@ export default function NetworkPage() {
   async function handleTransfer() {
     if (!transferForm.studentId || !transferForm.fromAcademy || !transferForm.toAcademy) return;
     await transferStudent(transferForm.studentId, transferForm.fromAcademy, transferForm.toAcademy);
-    alert('Transferência realizada com sucesso!');
+    toast('Transferência realizada com sucesso!', 'success');
     setTransferForm({ studentId: '', fromAcademy: '', toAcademy: '' });
   }
 

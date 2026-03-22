@@ -22,6 +22,7 @@ import type { StreamingSeries, StreamingTrail } from '@/lib/types/streaming';
 import { GRADIENT_PRESETS } from '@/lib/mocks/content-management.mock';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -824,6 +825,7 @@ function NewVideoModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -945,7 +947,7 @@ function NewVideoModal({
       await createVideo('academy-1', 'prof-andre', data);
       setStep(4);
     } catch {
-      alert('Erro ao enviar video.');
+      toast('Erro ao enviar video.', 'error');
     } finally {
       setSaving(false);
       setUploading(false);
@@ -1232,6 +1234,7 @@ function NewVideoModal({
 // ══════════════════════════════════════════════════════════════════════
 
 function NewSeriesModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [modality, setModality] = useState('BJJ');
@@ -1252,7 +1255,7 @@ function NewSeriesModal({ onClose, onCreated }: { onClose: () => void; onCreated
       });
       onCreated();
     } catch {
-      alert('Erro ao criar playlist.');
+      toast('Erro ao criar playlist.', 'error');
     } finally { setSaving(false); }
   }
 
@@ -1336,6 +1339,7 @@ function NewSeriesModal({ onClose, onCreated }: { onClose: () => void; onCreated
 // ══════════════════════════════════════════════════════════════════════
 
 function NewTrailModal({ series, onClose, onCreated }: { series: StreamingSeries[]; onClose: () => void; onCreated: () => void }) {
+  const { toast } = useToast();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [minBelt, setMinBelt] = useState('white');
@@ -1354,7 +1358,7 @@ function NewTrailModal({ series, onClose, onCreated }: { series: StreamingSeries
       await createTrail('academy-1', { name, description, min_belt: minBelt, series_ids: selectedSeries, certificate_available: certificate });
       onCreated();
     } catch {
-      alert('Erro ao criar trilha.');
+      toast('Erro ao criar trilha.', 'error');
     } finally { setSaving(false); }
   }
 
@@ -1420,6 +1424,7 @@ function NewTrailModal({ series, onClose, onCreated }: { series: StreamingSeries
 // ══════════════════════════════════════════════════════════════════════
 
 function NewMaterialModal({ series, onClose, onCreated }: { series: StreamingSeries[]; onClose: () => void; onCreated: () => void }) {
+  const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<AcademicMaterialInput['type']>('pdf');
@@ -1439,7 +1444,7 @@ function NewMaterialModal({ series, onClose, onCreated }: { series: StreamingSer
       });
       onCreated();
     } catch {
-      alert('Erro ao criar material.');
+      toast('Erro ao criar material.', 'error');
     } finally { setSaving(false); }
   }
 
@@ -1515,6 +1520,7 @@ function QuizEditor({
 }: {
   videoId: string; videoTitle: string; onClose: () => void; onSaved: () => void;
 }) {
+  const { toast } = useToast();
   const [questions, setQuestions] = useState<QuizQuestionInput[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1547,7 +1553,7 @@ function QuizEditor({
       await setQuizForVideo(videoId, questions);
       onSaved();
     } catch {
-      alert('Erro ao salvar quiz.');
+      toast('Erro ao salvar quiz.', 'error');
     } finally { setSaving(false); }
   }
 
