@@ -260,6 +260,7 @@ export default function ProfessorAvaliacoesPage() {
   const [behavior, setBehavior] = useState(5);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
+  const [prontoGraduar, setProntoGraduar] = useState(false);
 
   // History
   const [timeline, setTimeline] = useState<EvaluationTimeline | null>(null);
@@ -436,6 +437,27 @@ export default function ProfessorAvaliacoesPage() {
           />
         </Card>
 
+        {/* Pronto para graduar */}
+        <Card className="p-4">
+          <label className="flex cursor-pointer items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Pronto para graduar?</p>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Recomendar este aluno para graduação de faixa</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setProntoGraduar(!prontoGraduar)}
+              className="relative h-6 w-11 rounded-full transition-colors"
+              style={{ background: prontoGraduar ? '#22c55e' : 'var(--bb-depth-4)' }}
+            >
+              <span
+                className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
+                style={{ left: prontoGraduar ? '22px' : '2px' }}
+              />
+            </button>
+          </label>
+        </Card>
+
         {/* Submit */}
         <div className="fixed bottom-0 left-0 right-0 border-t border-[var(--bb-glass-border)] bg-[var(--bb-depth-2)] p-4">
           <Button
@@ -444,7 +466,7 @@ export default function ProfessorAvaliacoesPage() {
             onClick={handleSubmit}
             className="w-full"
           >
-            Salvar Avaliacao
+            {prontoGraduar ? 'Salvar e Recomendar Graduacao' : 'Salvar Avaliacao'}
           </Button>
         </div>
       </div>

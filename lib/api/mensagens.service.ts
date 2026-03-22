@@ -44,12 +44,32 @@ export async function getMyContacts(
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
 
-    // Get all profiles in the same academy except current user
-    const { data, error } = await supabase
+    // Role-based contact filtering:
+    // admin → all | professor → admin + alunos | aluno → professor + admin
+    // responsavel → professor + admin | kids → nobody (no messaging)
+    const allowedRoles = role === Role.Admin || role === Role.Superadmin
+      ? [] // no filter — see all
+      : role === Role.Professor
+        ? [Role.Admin, Role.AlunoAdulto, Role.AlunoTeen, Role.Responsavel]
+        : role === Role.AlunoAdulto || role === Role.AlunoTeen
+          ? [Role.Admin, Role.Professor]
+          : role === Role.Responsavel
+            ? [Role.Admin, Role.Professor]
+            : role === Role.Recepcao
+              ? [Role.Admin, Role.Professor, Role.AlunoAdulto]
+              : [Role.Admin];
+
+    let query = supabase
       .from('profiles')
       .select('id, display_name, avatar_url, role')
       .eq('academy_id', academyId)
       .neq('id', profileId);
+
+    if (allowedRoles.length > 0) {
+      query = query.in('role', allowedRoles);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.warn('[getMyContacts] Supabase error:', error.message);

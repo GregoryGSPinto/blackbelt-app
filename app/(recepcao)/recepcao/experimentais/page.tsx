@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -31,6 +32,7 @@ function getStatusBadge(status: ExperimentalRecepcao['status']): { label: string
 
 export default function RecepcaoExperimentaisPage() {
   const { toast } = useToast();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [hoje, setHoje] = useState<ExperimentalRecepcao[]>([]);
@@ -255,7 +257,12 @@ export default function RecepcaoExperimentaisPage() {
                       <Button size="sm" variant="ghost" onClick={() => toast('Ligacao iniciada', 'success')}>
                         &#x1F4F1;
                       </Button>
-                      <Button size="sm" style={{ background: '#10b981' }} onClick={() => toast('Redirecionando para cadastro...', 'success')}>
+                      <Button size="sm" style={{ background: '#10b981' }} onClick={async () => {
+                        await marcarMatriculou(exp.id);
+                        toast('Redirecionando para cadastro...', 'success');
+                        const params = new URLSearchParams({ nome: exp.nome, telefone: exp.telefone, email: exp.email || '', modalidade: exp.modalidade, from: 'experimental' });
+                        router.push(`/recepcao/cadastro?${params.toString()}`);
+                      }}>
                         Matricular
                       </Button>
                     </div>
