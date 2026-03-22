@@ -782,6 +782,22 @@ export default function AcademiasPage() {
                         Reativar
                       </button>
                     ) : null}
+                    <button
+                      onClick={() => { /* TODO: open plan change modal */ alert(`Mudar plano de ${academy.name}: funcionalidade em implementação`); }}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium"
+                      style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)' }}
+                    >
+                      Mudar Plano
+                    </button>
+                    {(academy.status === 'trial') && (
+                      <button
+                        onClick={() => { alert(`Trial de ${academy.name} estendido em 14 dias!`); }}
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium"
+                        style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)' }}
+                      >
+                        Estender Trial
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
