@@ -61,11 +61,11 @@ export default function TurmasPage() {
     <div className="p-4">
       <h1 className="mb-4 text-xl font-bold text-bb-black">Grade Horária</h1>
       <div className="mb-4 flex flex-wrap gap-2">
-        <select value={filterModality} onChange={(e) => setFilterModality(e.target.value)} className="rounded-lg border border-bb-gray-300 bg-white px-3 py-2 text-sm">
+        <select value={filterModality} onChange={(e) => setFilterModality(e.target.value)} className="rounded-lg border border-bb-gray-300 bg-bb-white px-3 py-2 text-sm">
           <option value="">Todas modalidades</option>
           {modalities.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
-        <select value={filterUnit} onChange={(e) => setFilterUnit(e.target.value)} className="rounded-lg border border-bb-gray-300 bg-white px-3 py-2 text-sm">
+        <select value={filterUnit} onChange={(e) => setFilterUnit(e.target.value)} className="rounded-lg border border-bb-gray-300 bg-bb-white px-3 py-2 text-sm">
           <option value="">Todas unidades</option>
           {units.map((u) => <option key={u} value={u}>{u}</option>)}
         </select>

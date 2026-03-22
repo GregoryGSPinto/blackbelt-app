@@ -186,7 +186,7 @@ export default function RecepcaoCaixaPage() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Recebimentos</h2>
-            <Button size="sm" style={{ background: '#10b981' }} onClick={() => setNovoOpen(true)}>
+            <Button size="sm" style={{ background: 'var(--bb-success)' }} onClick={() => setNovoOpen(true)}>
               <PlusIcon className="mr-1 h-4 w-4" /> Novo Recebimento
             </Button>
           </div>
@@ -241,7 +241,7 @@ export default function RecepcaoCaixaPage() {
                     </div>
                     <Button
                       size="sm"
-                      style={{ background: '#10b981' }}
+                      style={{ background: 'var(--bb-success)' }}
                       onClick={() => { setNovoAluno(v.alunoNome); setNovoValor(v.valor.toString()); setNovoDesc(`Mensalidade ${v.plano}`); setNovoOpen(true); }}
                     >
                       Registrar pagamento
@@ -281,7 +281,7 @@ export default function RecepcaoCaixaPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setNovoOpen(false)}>Cancelar</Button>
-              <Button style={{ background: '#10b981' }} onClick={handleNovoRecebimento} loading={novoLoading} disabled={!novoAluno || !novoValor || novoLoading}>
+              <Button style={{ background: 'var(--bb-success)' }} onClick={handleNovoRecebimento} loading={novoLoading} disabled={!novoAluno || !novoValor || novoLoading}>
                 Registrar
               </Button>
             </div>
@@ -310,7 +310,7 @@ export default function RecepcaoCaixaPage() {
             )}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setFecharOpen(false)}>Cancelar</Button>
-              <Button style={{ background: '#10b981' }} onClick={handleFecharCaixa}>
+              <Button style={{ background: 'var(--bb-success)' }} onClick={handleFecharCaixa}>
                 Fechar e Gerar Relatorio
               </Button>
             </div>

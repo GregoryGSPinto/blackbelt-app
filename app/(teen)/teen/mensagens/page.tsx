@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/lib/hooks/useToast';
 import { Role } from '@/lib/types/domain';
 import {
   ConversationList,
@@ -13,6 +14,7 @@ import type { Conversation, Contact } from '@/lib/types/messaging';
 
 export default function TeenMensagensPage() {
   const { profile } = useAuth();
+  const { toast } = useToast();
   const profileId = profile?.id ?? 'prof-lucas-001';
   const academyId = 'acad-001';
 
@@ -42,7 +44,7 @@ export default function TeenMensagensPage() {
         setSelectedConversation(conv);
         setMobileView('chat');
       } catch {
-        // Error handled by service
+        toast('Erro ao carregar mensagens', 'error');
       }
     },
     [profileId, academyId],

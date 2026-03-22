@@ -46,6 +46,11 @@ const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
 
 const MOCK_PROFILE_ID = 'parent-1';
 
+// TODO: replace with real profile data from auth/service when available
+const PLACEHOLDER_PARENT_NAME = 'Maria Silva';
+const PLACEHOLDER_PARENT_EMAIL = 'maria@email.com';
+const PLACEHOLDER_PARENT_PHONE = '(11) 96666-0000';
+
 const MOCK_CHILDREN = [
   { id: 'child-1', name: 'Pedro Silva', age: 8, belt: 'Branca', avatar: null as string | null },
   { id: 'child-2', name: 'Ana Silva', age: 12, belt: 'Amarela', avatar: null as string | null },
@@ -184,18 +189,18 @@ export default function ParentConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Maria Silva"
+                value={PLACEHOLDER_PARENT_NAME}
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput
                 label="Email"
-                value="maria@email.com"
+                value={PLACEHOLDER_PARENT_EMAIL}
                 type="email"
                 onSave={() => toast('Email atualizado!', 'success')}
               />
               <SettingsInput
                 label="Telefone"
-                value="(11) 96666-0000"
+                value={PLACEHOLDER_PARENT_PHONE}
                 type="tel"
                 onSave={() => toast('Telefone atualizado!', 'success')}
               />

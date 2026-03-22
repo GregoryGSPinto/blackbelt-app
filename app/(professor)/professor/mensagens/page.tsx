@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/lib/hooks/useToast';
 import { Role } from '@/lib/types/domain';
 import {
   ConversationList,
@@ -15,6 +16,7 @@ import { PlanGate } from '@/components/plans/PlanGate';
 
 export default function ProfessorMensagensPage() {
   const { profile } = useAuth();
+  const { toast } = useToast();
   const profileId = profile?.id ?? 'prof-andre-001';
   const academyId = 'acad-001';
 
@@ -50,7 +52,7 @@ export default function ProfessorMensagensPage() {
         setSelectedConversation(conv);
         setMobileView('chat');
       } catch {
-        // Error handled by service
+        toast('Erro ao carregar mensagens', 'error');
       }
     },
     [profileId, academyId],

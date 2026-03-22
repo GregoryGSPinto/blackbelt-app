@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import {
   getCurriculum,
+  createCurriculum,
   updateCurriculum,
   addRequirement,
   removeRequirement,
@@ -50,6 +51,7 @@ export default function CurriculoAdminPage() {
   const [showAddReq, setShowAddReq] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesVal, setNotesVal] = useState('');
+  const [creatingCurriculum, setCreatingCurriculum] = useState(false);
   const [reqForm, setReqForm] = useState<Omit<CurriculumRequirement, 'id'>>({
     category: 'tecnicas_obrigatorias',
     name: '',
@@ -68,6 +70,29 @@ export default function CurriculoAdminPage() {
       toast(translateError(err), 'error');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCreateCurriculum() {
+    setCreatingCurriculum(true);
+    try {
+      const created = await createCurriculum({
+        academy_id: 'academy-1',
+        modality,
+        target_belt: belt,
+        requirements: [],
+        min_time_months: 6,
+        min_attendance: 75,
+        min_evaluation_score: 70,
+        notes: '',
+      });
+      setCurriculum(created);
+      setNotesVal(created.notes ?? '');
+      toast('Currículo criado com sucesso', 'success');
+    } catch (err) {
+      toast(translateError(err), 'error');
+    } finally {
+      setCreatingCurriculum(false);
     }
   }
 
@@ -139,7 +164,9 @@ export default function CurriculoAdminPage() {
       {!curriculum ? (
         <Card className="p-6 text-center">
           <p className="text-sm text-bb-gray-500">Nenhum currículo encontrado para esta combinação.</p>
-          <Button className="mt-3" onClick={() => toast('Criar currículo em breve', 'info')}>Criar Currículo</Button>
+          <Button className="mt-3" onClick={handleCreateCurriculum} disabled={creatingCurriculum}>
+            {creatingCurriculum ? 'Criando...' : 'Criar Currículo'}
+          </Button>
         </Card>
       ) : (
         <>

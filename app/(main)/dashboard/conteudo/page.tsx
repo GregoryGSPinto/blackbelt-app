@@ -59,7 +59,7 @@ function VideoCard({
 
           {/* Play overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-all">
-            <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-red-600/50">
+            <div className="h-12 w-12 rounded-full bg-bb-red flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-bb-red/50">
               <svg
                 className="h-5 w-5 text-white ml-0.5"
                 fill="currentColor"
@@ -90,7 +90,7 @@ function VideoCard({
         {progressPct > 0 && (
           <div className="h-1 bg-[var(--bb-depth-4)]">
             <div
-              className="h-full bg-red-600 transition-all"
+              className="h-full bg-bb-red transition-all"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -144,7 +144,7 @@ function TrailCard({
         >
           {/* Certificate badge */}
           {isCompleted && (
-            <span className="absolute top-3 right-3 bg-yellow-500/90 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="absolute top-3 right-3 bg-belt-yellow/90 text-bb-black text-[10px] font-bold px-2 py-0.5 rounded-full">
               Certificado ✓
             </span>
           )}
@@ -160,7 +160,7 @@ function TrailCard({
         {/* Progress bar */}
         <div className="h-1 bg-[var(--bb-depth-4)]">
           <div
-            className="h-full bg-red-600 transition-all"
+            className="h-full bg-bb-red transition-all"
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -358,7 +358,7 @@ export default function BibliotecaStreamingPage() {
         </p>
         <Link
           href="/dashboard"
-          className="bg-red-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-red-600/30"
+          className="bg-bb-red text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-bb-red/30"
         >
           Voltar ao Dashboard
         </Link>
@@ -397,7 +397,7 @@ export default function BibliotecaStreamingPage() {
       >
         <div className="flex items-center justify-between px-4 pt-3 pb-2">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-red-600">BB</span>
+            <span className="text-xl font-black text-bb-red">BB</span>
             <span className="text-base font-semibold text-[var(--bb-ink-100)]">
               Biblioteca
             </span>
@@ -438,7 +438,7 @@ export default function BibliotecaStreamingPage() {
               onClick={() => setModalityFilter(f)}
               className={`flex-shrink-0 text-xs font-semibold px-4 py-1.5 rounded-full transition-colors ${
                 modalityFilter === f
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-bb-red text-white'
                   : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-60)] hover:bg-[var(--bb-depth-4)]'
               }`}
             >
@@ -466,7 +466,7 @@ export default function BibliotecaStreamingPage() {
 
           <div className="relative flex items-end justify-between p-5 min-h-[220px]">
             <div className="flex-1 pr-4">
-              <p className="text-[11px] text-red-400 font-semibold uppercase tracking-wider mb-1">
+              <p className="text-[11px] text-bb-red font-semibold uppercase tracking-wider mb-1">
                 {heroSeries.modality}
               </p>
               <h1 className="text-3xl font-extrabold text-white leading-tight mb-1">
@@ -496,7 +496,7 @@ export default function BibliotecaStreamingPage() {
               {heroProgress && (
                 <div className="w-full max-w-[200px] h-1.5 bg-white/20 rounded-full mb-3">
                   <div
-                    className="h-full bg-red-600 rounded-full"
+                    className="h-full bg-bb-red rounded-full"
                     style={{
                       width: `${Math.round(
                         (heroProgress.progress_seconds /
@@ -510,7 +510,7 @@ export default function BibliotecaStreamingPage() {
 
               <Link
                 href={`/dashboard/conteudo/${heroSeries.id}`}
-                className="inline-flex items-center gap-2 bg-red-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-red-600/40 hover:bg-red-700 transition-colors"
+                className="inline-flex items-center gap-2 bg-bb-red text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-bb-red/40 hover:bg-bb-red-dark transition-colors"
               >
                 <svg
                   className="h-4 w-4"
@@ -598,7 +598,7 @@ export default function BibliotecaStreamingPage() {
               onClick={() => setActiveTab(tab)}
               className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors ${
                 activeTab === tab
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-bb-red text-white'
                   : 'bg-[var(--bb-depth-3)] text-[var(--bb-ink-60)] hover:bg-[var(--bb-depth-4)]'
               }`}
             >

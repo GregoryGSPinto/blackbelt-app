@@ -317,7 +317,41 @@ export default function ExpansaoPage() {
                   <p className="font-medium text-bb-black">Contrato de Franquia</p>
                   <p className="mt-1 text-sm text-bb-gray-500">Documento do contrato de franquia para revisao e assinatura.</p>
                   <div className="mt-3 flex gap-2">
-                    <Button variant="secondary" onClick={() => toast('Download do contrato iniciado', 'info')}>Baixar Modelo</Button>
+                    <Button variant="secondary" onClick={() => {
+                      const content = [
+                        'CONTRATO DE FRANQUIA - BLACK BELT',
+                        '='.repeat(50),
+                        '',
+                        'MODELO DE CONTRATO DE FRANQUIA EMPRESARIAL',
+                        '',
+                        `Franqueado: ${selectedLead?.name ?? '_______________'}`,
+                        `Cidade/UF: ${selectedLead ? `${selectedLead.city} - ${selectedLead.state}` : '_______________'}`,
+                        `Data: ${new Date().toLocaleDateString('pt-BR')}`,
+                        '',
+                        'CLAUSULA 1 - DO OBJETO',
+                        'O presente contrato tem por objeto a concessao de franquia empresarial',
+                        'para operacao de uma unidade da rede Black Belt.',
+                        '',
+                        'CLAUSULA 2 - DO PRAZO',
+                        'O prazo de vigencia do presente contrato e de 60 (sessenta) meses.',
+                        '',
+                        'CLAUSULA 3 - DO INVESTIMENTO',
+                        'O valor total estimado de investimento inicial e de R$ 150.000,00.',
+                        '',
+                        'CLAUSULA 4 - DOS ROYALTIES',
+                        'O franqueado pagara royalties mensais de 8% sobre o faturamento bruto.',
+                        '',
+                        '[Este e um modelo de contrato para fins de demonstracao]',
+                      ].join('\n');
+                      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'contrato-franquia-blackbelt.txt';
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast('Download do modelo de contrato iniciado', 'success');
+                    }}>Baixar Modelo</Button>
                     <Button variant="ghost" onClick={() => toast('Link de assinatura enviado', 'success')}>Enviar para Assinatura</Button>
                   </div>
                 </div>

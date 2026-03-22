@@ -691,7 +691,7 @@ export function SeriesPlayer({ backHref, accentColor = 'red' }: SeriesPlayerProp
                 Baixar Certificado
               </Button>
               <Button
-                onClick={() => toast('Link copiado!', 'success')}
+                onClick={() => { navigator.clipboard.writeText(window.location.href); toast('Link copiado!', 'success'); }}
                 className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition-all border border-white/10"
               >
                 Compartilhar

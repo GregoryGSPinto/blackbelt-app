@@ -8,6 +8,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 
+// TODO: replace with real profile data from auth/service when available
+const PLACEHOLDER_PARENT_EMAIL = 'responsavel@email.com';
+const PLACEHOLDER_PARENT_PHONE = '(11) 98765-4321';
+
 // ────────────────────────────────────────────────────────────
 // Section Components
 // ────────────────────────────────────────────────────────────
@@ -89,7 +93,7 @@ function LinkedChildrenSection({ data }: { data: GuardianDashboardDTO }) {
   );
 }
 
-function ContactInfoSection() {
+function ContactInfoSection({ email, phone }: { email: string; phone: string }) {
   return (
     <div>
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
@@ -105,7 +109,7 @@ function ContactInfoSection() {
             </div>
             <div>
               <p className="text-xs text-[var(--bb-ink-40)]">Email</p>
-              <p className="text-sm font-medium text-[var(--bb-ink-100)]">responsavel@email.com</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{email}</p>
             </div>
           </div>
         </div>
@@ -118,7 +122,7 @@ function ContactInfoSection() {
             </div>
             <div>
               <p className="text-xs text-[var(--bb-ink-40)]">Telefone</p>
-              <p className="text-sm font-medium text-[var(--bb-ink-100)]">(11) 98765-4321</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{phone}</p>
             </div>
           </div>
         </div>
@@ -231,10 +235,10 @@ export default function ParentPerfilPage() {
       <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
         <ProfileHeader
           name={data.guardian_name}
-          email="responsavel@email.com"
+          email={PLACEHOLDER_PARENT_EMAIL}
         />
         <LinkedChildrenSection data={data} />
-        <ContactInfoSection />
+        <ContactInfoSection email={PLACEHOLDER_PARENT_EMAIL} phone={PLACEHOLDER_PARENT_PHONE} />
         <SettingsSection />
 
         {/* Logout */}

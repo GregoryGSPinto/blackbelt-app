@@ -25,10 +25,10 @@ const CATEGORY_LABELS: Record<RewardCategory, string> = {
 
 const CATEGORY_OPTIONS: RewardCategory[] = ['desconto', 'experiencia', 'produto', 'digital', 'prioridade'];
 
-const STATUS_BADGE: Record<string, { label: string; color: string }> = {
-  pending: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-700' },
-  delivered: { label: 'Entregue', color: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Cancelado', color: 'bg-red-100 text-red-700' },
+const STATUS_BADGE: Record<string, { label: string; style: React.CSSProperties }> = {
+  pending: { label: 'Pendente', style: { background: 'rgba(234,179,8,0.12)', color: '#ca8a04' } },
+  delivered: { label: 'Entregue', style: { background: 'rgba(34,197,94,0.12)', color: '#16a34a' } },
+  cancelled: { label: 'Cancelado', style: { background: 'rgba(239,68,68,0.12)', color: '#ef4444' } },
 };
 
 interface RewardForm {
@@ -132,13 +132,15 @@ export default function AdminRecompensasPage() {
       <div className="flex gap-2">
         <button
           onClick={() => setTab('rewards')}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${tab === 'rewards' ? 'bg-bb-primary text-white' : 'bg-bb-gray-100 text-bb-gray-500'}`}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${tab === 'rewards' ? 'bg-bb-primary text-white' : 'bg-bb-gray-100'}`}
+          style={tab !== 'rewards' ? { color: 'var(--bb-ink-60)' } : undefined}
         >
           Recompensas ({rewards.length})
         </button>
         <button
           onClick={() => setTab('redemptions')}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${tab === 'redemptions' ? 'bg-bb-primary text-white' : 'bg-bb-gray-100 text-bb-gray-500'}`}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${tab === 'redemptions' ? 'bg-bb-primary text-white' : 'bg-bb-gray-100'}`}
+          style={tab !== 'redemptions' ? { color: 'var(--bb-ink-60)' } : undefined}
         >
           Resgates ({redemptions.length})
         </button>
@@ -152,7 +154,7 @@ export default function AdminRecompensasPage() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-bb-gray-500">Nome</label>
+              <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>Nome</label>
               <input
                 type="text"
                 value={form.name}
@@ -162,7 +164,7 @@ export default function AdminRecompensasPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-bb-gray-500">Descrição</label>
+              <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>Descrição</label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -173,7 +175,7 @@ export default function AdminRecompensasPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-bb-gray-500">Categoria</label>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>Categoria</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as RewardCategory }))}
@@ -185,7 +187,7 @@ export default function AdminRecompensasPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-bb-gray-500">URL da Imagem</label>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>URL da Imagem</label>
                 <input
                   type="text"
                   value={form.image_url}
@@ -197,7 +199,7 @@ export default function AdminRecompensasPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-bb-gray-500">Custo (pontos)</label>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>Custo (pontos)</label>
                 <input
                   type="number"
                   value={form.cost_points}
@@ -207,7 +209,7 @@ export default function AdminRecompensasPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-bb-gray-500">Estoque</label>
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>Estoque</label>
                 <input
                   type="number"
                   value={form.stock}
@@ -233,14 +235,14 @@ export default function AdminRecompensasPage() {
         <div className="space-y-3">
           {rewards.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="text-bb-gray-500">Nenhuma recompensa cadastrada</p>
+              <p style={{ color: 'var(--bb-ink-60)' }}>Nenhuma recompensa cadastrada</p>
               <Button variant="primary" className="mt-3" onClick={handleNew}>Criar Primeira Recompensa</Button>
             </Card>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-bb-gray-200 text-left text-xs text-bb-gray-500">
+                  <tr className="border-b border-bb-gray-200 text-left text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                     <th className="pb-2 pr-3">Recompensa</th>
                     <th className="pb-2 pr-3">Categoria</th>
                     <th className="pb-2 pr-3 text-right">Custo</th>
@@ -254,27 +256,32 @@ export default function AdminRecompensasPage() {
                     <tr key={reward.id} className="border-b border-bb-gray-100">
                       <td className="py-3 pr-3">
                         <p className="font-medium text-bb-black">{reward.name}</p>
-                        <p className="text-xs text-bb-gray-500">{reward.description}</p>
+                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{reward.description}</p>
                       </td>
                       <td className="py-3 pr-3">
-                        <span className="rounded-full bg-bb-gray-100 px-2 py-0.5 text-xs text-bb-gray-500">
+                        <span className="rounded-full bg-bb-gray-100 px-2 py-0.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                           {CATEGORY_LABELS[reward.category]}
                         </span>
                       </td>
-                      <td className="py-3 pr-3 text-right font-bold text-amber-600">
+                      <td className="py-3 pr-3 text-right font-bold" style={{ color: '#d97706' }}>
                         {reward.cost_points.toLocaleString('pt-BR')}
                       </td>
-                      <td className={`py-3 pr-3 text-right ${reward.stock <= 5 ? 'font-bold text-red-500' : 'text-bb-black'}`}>
+                      <td className={`py-3 pr-3 text-right ${reward.stock <= 5 ? 'font-bold' : 'text-bb-black'}`} style={reward.stock <= 5 ? { color: '#ef4444' } : undefined}>
                         {reward.stock}
                       </td>
                       <td className="py-3 pr-3">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          reward.status === 'available'
-                            ? 'bg-green-100 text-green-700'
-                            : reward.status === 'out_of_stock'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-bb-gray-100 text-bb-gray-500'
-                        }`}>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            reward.status !== 'available' && reward.status !== 'out_of_stock' ? 'bg-bb-gray-100' : ''
+                          }`}
+                          style={
+                            reward.status === 'available'
+                              ? { background: 'rgba(34,197,94,0.12)', color: '#16a34a' }
+                              : reward.status === 'out_of_stock'
+                                ? { background: 'rgba(239,68,68,0.12)', color: '#ef4444' }
+                                : { color: 'var(--bb-ink-60)' }
+                          }
+                        >
                           {reward.status === 'available' ? 'Ativo' : reward.status === 'out_of_stock' ? 'Esgotado' : 'Expirado'}
                         </span>
                       </td>
@@ -306,12 +313,12 @@ export default function AdminRecompensasPage() {
         <Card className="p-5">
           <h2 className="mb-4 text-lg font-bold text-bb-black">Histórico de Resgates</h2>
           {redemptions.length === 0 ? (
-            <p className="text-center text-bb-gray-500">Nenhum resgate realizado</p>
+            <p className="text-center" style={{ color: 'var(--bb-ink-60)' }}>Nenhum resgate realizado</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-bb-gray-200 text-left text-xs text-bb-gray-500">
+                  <tr className="border-b border-bb-gray-200 text-left text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                     <th className="pb-2 pr-3">Aluno</th>
                     <th className="pb-2 pr-3">Recompensa</th>
                     <th className="pb-2 pr-3 text-right">Pontos</th>
@@ -325,15 +332,15 @@ export default function AdminRecompensasPage() {
                     return (
                       <tr key={red.id} className="border-b border-bb-gray-100">
                         <td className="py-3 pr-3 font-medium text-bb-black">{red.user_name ?? red.user_id}</td>
-                        <td className="py-3 pr-3 text-bb-gray-500">{red.reward_name}</td>
-                        <td className="py-3 pr-3 text-right font-bold text-amber-600">
+                        <td className="py-3 pr-3" style={{ color: 'var(--bb-ink-60)' }}>{red.reward_name}</td>
+                        <td className="py-3 pr-3 text-right font-bold" style={{ color: '#d97706' }}>
                           {red.cost_points.toLocaleString('pt-BR')}
                         </td>
-                        <td className="py-3 pr-3 text-xs text-bb-gray-500">
+                        <td className="py-3 pr-3 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                           {new Date(red.redeemed_at).toLocaleDateString('pt-BR')}
                         </td>
                         <td className="py-3">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${sCfg.color}`}>
+                          <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={sCfg.style}>
                             {sCfg.label}
                           </span>
                         </td>

@@ -23,12 +23,12 @@ const CATEGORY_COLORS: Record<AchievementCategory, string> = {
 };
 
 const CATEGORY_BG: Record<AchievementCategory, string> = {
-  JORNADA: 'bg-blue-50',
-  CONSTANCIA: 'bg-orange-50',
-  FAIXA: 'bg-gray-50',
-  SOCIAL: 'bg-green-50',
-  COMPETICAO: 'bg-yellow-50',
-  CONTEUDO: 'bg-purple-50',
+  JORNADA: 'rgba(59,130,246,0.06)',
+  CONSTANCIA: 'rgba(249,115,22,0.06)',
+  FAIXA: 'rgba(107,114,128,0.06)',
+  SOCIAL: 'rgba(34,197,94,0.06)',
+  COMPETICAO: 'rgba(234,179,8,0.06)',
+  CONTEUDO: 'rgba(168,85,247,0.06)',
 };
 
 const RARITY_LABELS: Record<AchievementRarity, string> = {
@@ -39,17 +39,17 @@ const RARITY_LABELS: Record<AchievementRarity, string> = {
 };
 
 const RARITY_TEXT_COLORS: Record<AchievementRarity, string> = {
-  common: 'text-bb-gray-500',
-  rare: 'text-blue-600',
-  epic: 'text-purple-600',
-  legendary: 'text-yellow-600',
+  common: '#6b7280',   // bb-gray-500
+  rare: '#2563eb',     // blue-600
+  epic: '#9333ea',     // purple-600
+  legendary: '#ca8a04', // yellow-600
 };
 
 const RARITY_BORDER: Record<AchievementRarity, string> = {
-  common: 'border-bb-gray-200',
-  rare: 'border-blue-300',
-  epic: 'border-purple-400',
-  legendary: 'border-yellow-400',
+  common: '#e5e7eb',   // bb-gray-200
+  rare: '#93c5fd',     // blue-300
+  epic: '#c084fc',     // purple-400
+  legendary: '#facc15', // yellow-400
 };
 
 const ALL_CATEGORIES: AchievementCategory[] = ['JORNADA', 'CONSTANCIA', 'FAIXA', 'SOCIAL', 'COMPETICAO', 'CONTEUDO'];
@@ -124,7 +124,10 @@ export default function ConquistasPage() {
                 <Card variant="elevated" className="flex-1 text-center">
                   <p className="text-2xl">{progress.most_rare_earned.icon}</p>
                   <p className="text-xs text-bb-gray-500">Mais rara</p>
-                  <p className={`text-xs font-semibold ${RARITY_TEXT_COLORS[progress.most_rare_earned.rarity]}`}>
+                  <p
+                    className="text-xs font-semibold"
+                    style={{ color: RARITY_TEXT_COLORS[progress.most_rare_earned.rarity] }}
+                  >
                     {RARITY_LABELS[progress.most_rare_earned.rarity]}
                   </p>
                 </Card>
@@ -181,14 +184,20 @@ export default function ConquistasPage() {
               onClick={() => setSelected(ach)}
               className={`relative flex flex-col items-center rounded-xl border-2 p-3 text-center transition-all ${
                 ach.is_earned
-                  ? `${CATEGORY_BG[ach.category]} ${RARITY_BORDER[ach.rarity]} shadow-sm`
+                  ? 'shadow-sm'
                   : 'border-bb-gray-200 bg-bb-gray-50'
               }`}
               style={
-                ach.is_earned && ach.rarity === 'legendary'
+                ach.is_earned
                   ? {
-                      boxShadow: '0 0 12px rgba(234,179,8,0.4)',
-                      animation: 'legendaryPulse 3s ease-in-out infinite',
+                      background: CATEGORY_BG[ach.category],
+                      borderColor: RARITY_BORDER[ach.rarity],
+                      ...(ach.rarity === 'legendary'
+                        ? {
+                            boxShadow: '0 0 12px rgba(234,179,8,0.4)',
+                            animation: 'legendaryPulse 3s ease-in-out infinite',
+                          }
+                        : {}),
                     }
                   : undefined
               }
@@ -283,7 +292,10 @@ export default function ConquistasPage() {
                 >
                   {CATEGORY_META[selected.category].label}
                 </span>
-                <span className={`ml-2 text-xs font-semibold ${RARITY_TEXT_COLORS[selected.rarity]}`}>
+                <span
+                  className="ml-2 text-xs font-semibold"
+                  style={{ color: RARITY_TEXT_COLORS[selected.rarity] }}
+                >
                   {RARITY_LABELS[selected.rarity]}
                 </span>
               </div>

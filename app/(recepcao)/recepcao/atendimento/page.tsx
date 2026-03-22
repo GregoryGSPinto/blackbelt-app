@@ -239,7 +239,7 @@ export default function RecepcaoAtendimentoPage() {
             <Button size="sm" variant="secondary" onClick={() => { setPagAluno(aluno); setPagValor(aluno.valorDevido?.toString() || ''); }}>
               &#x1F4B3; Pagamento
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => toast('Funcao de mensagem em breve', 'success')}>
+            <Button size="sm" variant="ghost" onClick={() => toast('Funcionalidade de mensagem em desenvolvimento', 'success')}>
               &#x1F4AC; Mensagem
             </Button>
           </div>

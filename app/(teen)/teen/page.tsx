@@ -81,7 +81,7 @@ export default function TeenDashboardPage() {
               </div>
               <div className="mt-1.5 h-4 overflow-hidden rounded-full bg-[var(--bb-depth-3)] shadow-inner">
                 <div
-                  className="flex h-full items-center justify-end rounded-full bg-gradient-to-r from-bb-red-500 via-orange-500 to-yellow-400 pr-2 transition-all duration-700"
+                  className="flex h-full items-center justify-end rounded-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 pr-2 transition-all duration-700"
                   style={{ width: `${Math.max(xpPercent, 8)}%` }}
                 >
                   <span className="text-[10px] font-bold text-white drop-shadow">
@@ -164,7 +164,7 @@ export default function TeenDashboardPage() {
                     key={entry.student_id}
                     className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                       isMe
-                        ? 'bg-gradient-to-r from-bb-red-500/20 to-orange-500/10 ring-1 ring-bb-red-500/40'
+                        ? 'bg-gradient-to-r from-red-500/20 to-orange-500/10 ring-1 ring-red-500/40'
                         : 'bg-[var(--bb-depth-3)]'
                     }`}
                   >

@@ -11,7 +11,14 @@ import { translateError } from '@/lib/utils/error-translator';
 
 const STATUS_PIPELINE: LeadStatus[] = ['novo', 'contatado', 'agendado', 'compareceu', 'matriculou', 'desistiu'];
 const STATUS_LABEL: Record<LeadStatus, string> = { novo: 'Novo', contatado: 'Contatado', agendado: 'Agendado', compareceu: 'Compareceu', matriculou: 'Matriculou', desistiu: 'Desistiu' };
-const STATUS_COLOR: Record<LeadStatus, string> = { novo: 'bg-blue-100 text-blue-700', contatado: 'bg-yellow-100 text-yellow-700', agendado: 'bg-purple-100 text-purple-700', compareceu: 'bg-green-100 text-green-700', matriculou: 'bg-green-200 text-green-800', desistiu: 'bg-red-100 text-red-700' };
+const STATUS_COLOR: Record<LeadStatus, { background: string; color: string }> = {
+  novo: { background: 'rgba(59,130,246,0.12)', color: '#3b82f6' },
+  contatado: { background: 'rgba(234,179,8,0.12)', color: '#ca8a04' },
+  agendado: { background: 'rgba(168,85,247,0.12)', color: '#9333ea' },
+  compareceu: { background: 'rgba(34,197,94,0.12)', color: '#16a34a' },
+  matriculou: { background: 'rgba(34,197,94,0.2)', color: '#15803d' },
+  desistiu: { background: 'rgba(239,68,68,0.12)', color: '#ef4444' },
+};
 
 export default function LeadsPage() {
   const { toast } = useToast();
@@ -57,7 +64,7 @@ export default function LeadsPage() {
           return (
             <div key={status}>
               <div className="mb-2 flex items-center gap-2">
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[status]}`}>{STATUS_LABEL[status]}</span>
+                <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={STATUS_COLOR[status]}>{STATUS_LABEL[status]}</span>
                 <span className="text-xs text-bb-gray-500">{statusLeads.length}</span>
               </div>
               <div className="space-y-2">

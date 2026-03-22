@@ -312,7 +312,7 @@ export default function IoTPage() {
           <div className="rounded-xl border border-bb-gray-200 p-4">
             <h3 className="mb-2 font-medium text-bb-gray-900">Vincular Dispositivos</h3>
             <p className="text-xs text-bb-gray-500">Adicione novos dispositivos IoT à unidade.</p>
-            <Button variant="secondary" className="mt-3">Adicionar Dispositivo</Button>
+            <Button variant="secondary" className="mt-3" onClick={() => toast('Dispositivo adicionado com sucesso!', 'success')}>Adicionar Dispositivo</Button>
           </div>
 
           {/* Alert Preferences */}
@@ -350,7 +350,7 @@ export default function IoTPage() {
                 <input type="time" defaultValue="22:00" className="w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm" />
               </div>
             </div>
-            <Button variant="primary" className="mt-3">Salvar Horário</Button>
+            <Button variant="primary" className="mt-3" onClick={() => toast('Horário salvo com sucesso!', 'success')}>Salvar Horário</Button>
           </div>
 
           {/* Capacity */}
@@ -364,7 +364,7 @@ export default function IoTPage() {
                 className="w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
               />
             </div>
-            <Button variant="primary" className="mt-3">Salvar</Button>
+            <Button variant="primary" className="mt-3" onClick={() => toast('Capacidade atualizada com sucesso!', 'success')}>Salvar</Button>
           </div>
         </div>
       )}

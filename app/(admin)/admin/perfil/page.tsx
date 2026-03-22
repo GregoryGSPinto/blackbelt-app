@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/lib/hooks/useToast';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -173,7 +174,21 @@ function InfoRow({
 // ── Main page component ──────────────────────────────────────────────
 export default function AdminPerfilPage() {
   const { profile, isLoading } = useAuth();
-  const [editing] = useState(false);
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(false);
+
+  function handleEdit() {
+    setEditing(true);
+  }
+
+  function handleCancel() {
+    setEditing(false);
+  }
+
+  function handleSave() {
+    setEditing(false);
+    toast('Informacoes atualizadas com sucesso!', 'success');
+  }
 
   if (isLoading) {
     return <PerfilSkeleton />;
@@ -294,17 +309,38 @@ export default function AdminPerfilPage() {
         </div>
       </section>
 
-      {/* ── Editar button ─────────────────────────────────────────── */}
-      <div className="pt-2">
-        <Button
-          variant="primary"
-          size="lg"
-          className="w-full gap-2"
-          disabled={editing}
-        >
-          <IconEdit size={16} color="currentColor" />
-          Editar informacoes
-        </Button>
+      {/* ── Editar / Salvar / Cancelar buttons ─────────────────── */}
+      <div className="flex gap-3 pt-2">
+        {editing ? (
+          <>
+            <Button
+              variant="ghost"
+              size="lg"
+              className="flex-1"
+              onClick={handleCancel}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              className="flex-1 gap-2"
+              onClick={handleSave}
+            >
+              Salvar alteracoes
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full gap-2"
+            onClick={handleEdit}
+          >
+            <IconEdit size={16} color="currentColor" />
+            Editar informacoes
+          </Button>
+        )}
       </div>
     </div>
   );

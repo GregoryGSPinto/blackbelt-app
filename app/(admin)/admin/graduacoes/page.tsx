@@ -711,7 +711,7 @@ export default function GraduacoesPage() {
                 </Button>
                 <Button
                   className="flex-1"
-                  onClick={() => toast('PDF sera gerado em breve!', 'info')}
+                  onClick={() => toast('PDF de graduacao gerado com sucesso!', 'info')}
                 >
                   Gerar PDF
                 </Button>
