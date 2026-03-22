@@ -9,7 +9,6 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
   HomeIcon,
-  SearchIcon,
   UserPlusIcon,
   CreditCardIcon,
   MenuIcon,
@@ -30,7 +29,7 @@ interface RecepcaoShellProps {
 
 const navItems: NavItem[] = [
   { href: '/recepcao', label: 'Painel', icon: <HomeIcon className="h-5 w-5" />, id: 'sidebar-link-painel' },
-  { href: '/recepcao/atendimento', label: 'Buscar', icon: <SearchIcon className="h-5 w-5" />, id: 'sidebar-link-atendimento' },
+  { href: '/recepcao/checkin', label: 'Check-in', icon: <CheckSquareIcon className="h-5 w-5" />, id: 'sidebar-link-checkin' },
   { href: '/recepcao/cadastro', label: 'Cadastro', icon: <UserPlusIcon className="h-5 w-5" />, id: 'sidebar-link-cadastro' },
   { href: '/recepcao/caixa', label: 'Caixa', icon: <CreditCardIcon className="h-5 w-5" />, id: 'sidebar-link-caixa' },
   { href: '/recepcao/mensagens', label: 'Mais', icon: <MenuIcon className="h-5 w-5" />, id: 'sidebar-link-mensagens' },
