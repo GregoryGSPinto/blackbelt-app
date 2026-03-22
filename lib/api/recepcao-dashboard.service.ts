@@ -87,19 +87,31 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
 
-    const today = new Date().toISOString().split('T')[0];
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayISO = todayStart.toISOString();
 
     const [classesRes, checkinsRes] = await Promise.all([
-      supabase.from('classes').select('*').eq('date', today),
-      supabase.from('checkins').select('*').eq('date', today),
+      supabase.from('classes').select('id, schedule, modalities(name), profiles!classes_professor_id_fkey(display_name)'),
+      supabase.from('checkins').select('id, profile_name, belt, check_in_at, person_type, class_name').gte('check_in_at', todayISO),
     ]);
 
     if (classesRes.error) console.warn('[getRecepcaoDashboard] classes error:', classesRes.error.message);
     if (checkinsRes.error) console.warn('[getRecepcaoDashboard] checkins error:', checkinsRes.error.message);
 
+    const checkins = checkinsRes.data ?? [];
+    const checkinsHoje: CheckinResumo[] = checkins.map((c: Record<string, unknown>) => ({
+      alunoNome: (c.profile_name ?? '') as string,
+      faixa: (c.belt ?? 'white') as string,
+      turma: (c.class_name ?? '') as string,
+      horario: c.check_in_at ? new Date(c.check_in_at as string).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+      metodo: 'manual' as const,
+    }));
+
     return {
       ...EMPTY_DASHBOARD,
-      totalCheckinsHoje: (checkinsRes.data ?? []).length,
+      checkinsHoje,
+      totalCheckinsHoje: checkins.length,
       resumo: {
         alunosAtivos: 0,
         aulasHoje: (classesRes.data ?? []).length,
