@@ -142,6 +142,17 @@ export async function saveAttendance(data: SaveAttendanceRequest): Promise<Atten
     const supabase = createBrowserClient();
 
     const now = new Date().toISOString();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Delete today's attendance for this class first to avoid unique constraint violations
+    await supabase
+      .from('attendance')
+      .delete()
+      .eq('class_id', data.class_id)
+      .gte('checked_at', todayStart.toISOString());
+
+    // Insert fresh attendance for all present students
     const records = data.present_student_ids.map((studentId) => ({
       student_id: studentId,
       class_id: data.class_id,
@@ -149,10 +160,9 @@ export async function saveAttendance(data: SaveAttendanceRequest): Promise<Atten
       checked_at: now,
     }));
 
-    // Use upsert to avoid duplicate key errors for students already checked in
     const { data: result, error } = await supabase
       .from('attendance')
-      .upsert(records, { onConflict: 'student_id,class_id', ignoreDuplicates: true })
+      .insert(records)
       .select();
     if (error) {
       console.warn('[saveAttendance] error:', error.message);

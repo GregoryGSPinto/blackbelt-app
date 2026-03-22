@@ -98,7 +98,17 @@ CREATE POLICY IF NOT EXISTS attendance_insert_admin ON public.attendance
     )
   );
 
--- ── 4. INSERT policies for students/enrollments (admin use) ───
+-- ── 4. DELETE policy for attendance (professor re-save) ───────
+CREATE POLICY IF NOT EXISTS attendance_delete ON public.attendance
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.classes c
+      WHERE c.id = attendance.class_id
+      AND c.professor_id IN (SELECT id FROM public.profiles WHERE user_id = auth.uid())
+    )
+  );
+
+-- ── 5. INSERT policies for students/enrollments (admin use) ───
 CREATE POLICY IF NOT EXISTS students_insert ON public.students
   FOR INSERT WITH CHECK (
     EXISTS (

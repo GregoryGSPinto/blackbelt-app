@@ -45,16 +45,24 @@ export async function markAbsent(studentId: string, classId: string, date: strin
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
 
-    const { data, error } = await supabase
+    // Absent = delete attendance record for that day (no record = absent)
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const { error } = await supabase
       .from('attendance')
-      .insert({ student_id: studentId, class_id: classId, method: 'manual', checked_at: date, status: 'absent' })
-      .select()
-      .single();
+      .delete()
+      .eq('student_id', studentId)
+      .eq('class_id', classId)
+      .gte('checked_at', dayStart.toISOString())
+      .lte('checked_at', dayEnd.toISOString());
 
     if (error) {
       console.warn('[markAbsent] Supabase error:', error.message);
     }
-    return (data ?? { id: '', student_id: studentId, student_name: '', class_id: classId, date, status: 'absent', checked_in_at: null, method: 'manual' }) as AttendanceRecord;
+    return { id: '', student_id: studentId, student_name: '', class_id: classId, date, status: 'absent', checked_in_at: null, method: 'manual' } as AttendanceRecord;
   } catch (error) {
     console.warn('[markAbsent] Fallback:', error);
     return { id: '', student_id: studentId, student_name: '', class_id: classId, date, status: 'absent', checked_in_at: null, method: 'manual' } as AttendanceRecord;
