@@ -88,7 +88,7 @@ export default function TeenTurmasPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="text" className="h-8 w-40 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-40 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-40 bg-[var(--bb-depth-3)]" />
@@ -123,7 +123,7 @@ export default function TeenTurmasPage() {
   return (
     <PlanGate module="teen_module">
       <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-extrabold text-[var(--bb-ink-100)]">Minhas Turmas</h1>

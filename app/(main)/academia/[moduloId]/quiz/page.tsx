@@ -151,7 +151,7 @@ export default function QuizPage() {
   if (showReview && resultado && quiz) {
     return (
       <PlanGate module="academia_teorica">
-      <div className="max-w-2xl mx-auto space-y-4 p-4 md:p-6 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 py-4 md:py-6 pb-24">
         <button
           onClick={() => setShowReview(false)}
           className="inline-flex items-center gap-1 text-sm font-medium"
@@ -252,7 +252,7 @@ export default function QuizPage() {
 
     return (
       <PlanGate module="academia_teorica">
-      <div className="max-w-2xl mx-auto flex flex-col items-center justify-center p-4 md:p-6 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center py-4 md:py-6 pb-24">
         {/* Score circle */}
         <div
           className="flex h-32 w-32 flex-col items-center justify-center rounded-full border-4"
@@ -364,7 +364,7 @@ export default function QuizPage() {
 
   return (
     <PlanGate module="academia_teorica">
-    <div className="max-w-2xl mx-auto space-y-5 p-4 md:p-6 pb-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 py-4 md:py-6 pb-24">
       {/* Back link */}
       <Link
         href={`/academia/${moduloId}`}

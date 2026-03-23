@@ -87,7 +87,7 @@ export default function RecepcaoCobrancasPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-6">
       <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Cobranças</h1>
 
       {/* Summary */}

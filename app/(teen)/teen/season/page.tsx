@@ -84,7 +84,7 @@ export default function TeenSeasonPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="card" className="h-32 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-24 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="text" className="h-6 w-36 bg-[var(--bb-depth-3)]" />
@@ -132,7 +132,7 @@ export default function TeenSeasonPage() {
   return (
     <PlanGate module="teen_module">
       <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 pt-6">
         {/* Season banner */}
         <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600/30 via-indigo-600/20 to-blue-600/10 p-5 ring-1 ring-purple-500/30">
           <div className="absolute -right-6 -top-6 text-8xl opacity-10">🏟️</div>

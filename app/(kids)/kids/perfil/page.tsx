@@ -103,7 +103,7 @@ export default function KidsPerfilPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="circle" className="mx-auto h-24 w-24" />
           <Skeleton variant="text" className="mx-auto h-8 w-48" />
           <Skeleton variant="text" className="mx-auto h-5 w-32" />
@@ -125,7 +125,7 @@ export default function KidsPerfilPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6">
         {/* ── Profile Card ─── */}
         <section
           className="rounded-3xl p-6 text-center shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]"

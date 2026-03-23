@@ -61,7 +61,7 @@ export default function TeenAcademiaPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="card" className="h-16 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-32 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-28 bg-[var(--bb-depth-3)]" />
@@ -81,7 +81,7 @@ export default function TeenAcademiaPage() {
       {/* ─── HEADER ─── */}
       <section className="relative overflow-hidden px-4 pb-6 pt-8">
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--bb-brand-primary)]/20 via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-lg text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-2xl font-extrabold text-[var(--bb-ink-100)]">
             Academia Teorica
           </h1>
@@ -91,7 +91,7 @@ export default function TeenAcademiaPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-lg space-y-5 px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
         {/* ─── XP REWARDS INFO ─── */}
         <section className="rounded-2xl bg-gradient-to-r from-indigo-900/60 to-purple-900/40 p-4 ring-1 ring-indigo-500/20">
           <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">

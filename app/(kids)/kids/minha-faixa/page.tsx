@@ -28,7 +28,7 @@ export default function KidsFaixaPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="text" className="mx-auto h-10 w-52" />
           <Skeleton variant="card" className="h-16 rounded-3xl" />
           {[1, 2, 3].map((i) => (
@@ -47,7 +47,7 @@ export default function KidsFaixaPage() {
   return (
     <PlanGate module="kids_module">
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6">
         {/* ── Header ─── */}
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-[var(--bb-ink-100)]">

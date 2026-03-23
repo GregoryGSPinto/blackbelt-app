@@ -42,7 +42,7 @@ export default function KidsDashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="card" className="h-44 bg-sky-100" />
           <Skeleton variant="card" className="h-28 bg-sky-100" />
           <Skeleton variant="card" className="h-36 bg-sky-100" />
@@ -62,7 +62,7 @@ export default function KidsDashboardPage() {
       <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
         {/* ─── HERO: Mascot + Name + Belt Ribbon ─── */}
         <section className="px-4 pb-2 pt-8 text-center">
-          <div className="mx-auto max-w-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mascot circle */}
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 shadow-lg shadow-orange-200/50">
               <span className="text-5xl">🥋</span>
@@ -94,7 +94,7 @@ export default function KidsDashboardPage() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-lg space-y-5 px-4 pt-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 pt-4">
           {/* ─── STARS THIS WEEK ─── */}
           <section className="rounded-3xl bg-[var(--bb-depth-3)] p-5 shadow-[var(--bb-shadow-md)] ring-1 ring-[var(--bb-glass-border)]">
             <div className="flex items-center gap-4">
@@ -190,7 +190,7 @@ export default function KidsDashboardPage() {
             </div>
 
             {/* Sticker grid */}
-            <div className="mt-4 grid grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
               {visibleStickers.map((st) => (
                 <div
                   key={st.id}

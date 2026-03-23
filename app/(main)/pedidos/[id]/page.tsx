@@ -102,7 +102,7 @@ export default function PedidoDetailPage() {
     : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-4 md:py-6">
       <div className="flex items-center gap-2 text-sm text-bb-gray-400">
         <Link href="/loja" className="hover:text-bb-primary">Loja</Link>
         <span>/</span>

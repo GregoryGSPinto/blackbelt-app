@@ -97,7 +97,7 @@ export default function RecepcaoCheckinPage() {
   const capColor = capacidade.percentual > 90 ? '#ef4444' : capacidade.percentual > 70 ? '#eab308' : '#22c55e';
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Check-in</h1>

@@ -47,7 +47,7 @@ export default function PrivacyPage() {
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 py-6">
       <PageHeader title="Privacidade e Dados" subtitle="Gerencie seus consentimentos e dados pessoais (LGPD)" />
 
       <section className="space-y-4">

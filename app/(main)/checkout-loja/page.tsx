@@ -94,7 +94,7 @@ export default function CheckoutLojaPage() {
   if (items.length === 0 && step !== 'success') return null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-4 md:py-6">
       <PageHeader title="Checkout" subtitle="Finalize sua compra" />
 
       {/* Step indicators */}

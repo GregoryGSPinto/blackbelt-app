@@ -32,7 +32,7 @@ export default function TeenDashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="card" className="h-52 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-28 bg-[var(--bb-depth-3)]" />
           <Skeleton variant="card" className="h-36 bg-[var(--bb-depth-3)]" />
@@ -55,7 +55,7 @@ export default function TeenDashboardPage() {
           {/* Background glow */}
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--bb-brand-primary)]/20 via-transparent to-transparent" />
 
-          <div className="relative mx-auto max-w-lg text-center">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             {/* Avatar with belt-colored ring */}
             <div className={`mx-auto inline-block rounded-full p-1 ring-4 ${ringColor}`}>
               <Avatar name={data.profile.display_name} size="xl" />
@@ -97,7 +97,7 @@ export default function TeenDashboardPage() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-lg space-y-5 px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
           {/* ─── STREAK ─── */}
           {data.streak.is_active && data.streak.current_days > 3 && (
             <section className="rounded-2xl bg-gradient-to-r from-orange-600/30 to-red-600/30 p-4 ring-1 ring-orange-500/30">

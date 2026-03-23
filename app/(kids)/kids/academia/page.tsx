@@ -112,7 +112,7 @@ export default function KidsAcademiaPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="card" className="h-32 rounded-[20px] bg-sky-100" />
           <Skeleton variant="card" className="h-24 rounded-[20px] bg-pink-100" />
           <Skeleton variant="card" className="h-36 rounded-[20px] bg-amber-100" />
@@ -130,7 +130,7 @@ export default function KidsAcademiaPage() {
       <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
       {/* ─── HEADER ─── */}
       <section className="px-4 pb-4 pt-8 text-center">
-        <div className="mx-auto max-w-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <span className="text-5xl" style={{ animation: 'float 3s ease-in-out infinite' }}>
             📖
           </span>
@@ -143,7 +143,7 @@ export default function KidsAcademiaPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-lg space-y-5 px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
         {/* ─── STAR REWARDS ─── */}
         <section className="rounded-[20px] bg-gradient-to-r from-amber-100 to-yellow-100 p-5 text-center shadow-lg ring-1 ring-amber-200/50">
           <div className="flex items-center justify-center gap-3">

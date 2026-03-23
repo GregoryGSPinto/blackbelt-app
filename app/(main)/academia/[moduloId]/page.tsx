@@ -358,7 +358,7 @@ export default function ModuloDetailPage() {
 
   return (
     <PlanGate module="academia_teorica">
-    <div className="max-w-2xl mx-auto space-y-5 p-4 md:p-6 pb-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 py-4 md:py-6 pb-24">
       {/* Back link */}
       <Link
         href="/academia"

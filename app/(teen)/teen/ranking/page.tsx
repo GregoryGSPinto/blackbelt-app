@@ -66,7 +66,7 @@ export default function TeenRankingPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="text" className="h-8 w-36 bg-[var(--bb-depth-3)]" />
           <div className="flex gap-3">
             {[1, 2, 3].map((i) => (
@@ -108,7 +108,7 @@ export default function TeenRankingPage() {
   return (
     <PlanGate module="teen_module">
       <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-5 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 pt-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

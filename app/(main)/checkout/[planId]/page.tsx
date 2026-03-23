@@ -57,7 +57,7 @@ export default function CheckoutPage() {
   if (!plan) return <div className="py-20 text-center text-bb-gray-500">Plano não encontrado.</div>;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <PageHeader title="Checkout" subtitle={plan.name} />
 
       {/* Plan Summary */}

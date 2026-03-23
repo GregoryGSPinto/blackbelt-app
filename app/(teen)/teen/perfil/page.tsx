@@ -86,7 +86,7 @@ export default function TeenPerfilPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="flex flex-col items-center gap-3">
             <Skeleton variant="circle" className="h-24 w-24 bg-[var(--bb-depth-3)]" />
             <Skeleton variant="text" className="h-6 w-40 bg-[var(--bb-depth-3)]" />
@@ -128,7 +128,7 @@ export default function TeenPerfilPage() {
       {/* Hero section */}
       <section className="relative overflow-hidden px-4 pb-6 pt-8">
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--bb-brand-primary)]/15 via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-lg text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Avatar with belt ring */}
           <div className={`mx-auto inline-block rounded-full p-1 ring-4 ${ringColor}`}>
             <Avatar name={profile.display_name} size="xl" />
@@ -148,7 +148,7 @@ export default function TeenPerfilPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-lg space-y-5 px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
         {/* XP Progress */}
         <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center justify-between">

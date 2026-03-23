@@ -67,10 +67,10 @@ export default function KidsRecompensasPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Skeleton variant="text" className="mx-auto h-10 w-64" />
           <Skeleton variant="text" className="mx-auto h-6 w-44" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Skeleton key={i} variant="card" className="h-44 rounded-3xl" />
             ))}
@@ -87,7 +87,7 @@ export default function KidsRecompensasPage() {
   return (
     <PlanGate module="kids_module">
     <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6">
         {/* ── Header ─── */}
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-[var(--bb-ink-100)]">
@@ -103,7 +103,7 @@ export default function KidsRecompensasPage() {
         </div>
 
         {/* ── Rewards Grid ─── */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {recompensas.map((item) => {
             const redeemed = item.jaResgatada || redeemedNames.has(item.nome);
             const affordable = canAfford(item);

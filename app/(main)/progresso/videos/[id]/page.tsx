@@ -57,7 +57,7 @@ export default function StudentVideoDetailPage() {
       />
 
       {/* Video Player (read-only) */}
-      <div className="mx-auto max-w-3xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnnotatedPlayer
           videoUrl={video.file_url}
           annotations={video.annotations}
@@ -68,7 +68,7 @@ export default function StudentVideoDetailPage() {
 
       {/* Professor Annotations */}
       {video.annotations.length > 0 && (
-        <div className="mx-auto max-w-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="mb-3 text-base font-bold text-bb-black">Observações do Professor</h2>
           <div className="space-y-2">
             {video.annotations.map((ann) => (
@@ -89,7 +89,7 @@ export default function StudentVideoDetailPage() {
 
       {/* AI Analysis */}
       {video.ai_analysis && (
-        <div className="mx-auto max-w-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="mb-3 text-base font-bold text-bb-black">Análise por IA</h2>
 
           {/* Scores */}
