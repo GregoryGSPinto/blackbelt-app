@@ -205,11 +205,13 @@ export default function ParentPerfilPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+      <div className="p-4 lg:p-6">
+        <div className="space-y-4">
           <Skeleton variant="card" className="h-48" />
-          <Skeleton variant="card" className="h-32" />
-          <Skeleton variant="card" className="h-32" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Skeleton variant="card" className="h-32" />
+            <Skeleton variant="card" className="h-32" />
+          </div>
           <Skeleton variant="card" className="h-24" />
         </div>
       </div>
@@ -218,7 +220,7 @@ export default function ParentPerfilPage() {
 
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] p-4">
+      <div className="flex flex-col items-center justify-center p-8">
         <div className="text-center">
           <p className="text-4xl">👤</p>
           <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
@@ -231,18 +233,26 @@ export default function ParentPerfilPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg space-y-6 px-4 pt-6">
-        <ProfileHeader
-          name={data.guardian_name}
-          email={PLACEHOLDER_PARENT_EMAIL}
-        />
-        <LinkedChildrenSection data={data} />
-        <ContactInfoSection email={PLACEHOLDER_PARENT_EMAIL} phone={PLACEHOLDER_PARENT_PHONE} />
-        <SettingsSection />
+    <div className="p-4 lg:p-6">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <ProfileHeader
+              name={data.guardian_name}
+              email={PLACEHOLDER_PARENT_EMAIL}
+            />
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <LinkedChildrenSection data={data} />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ContactInfoSection email={PLACEHOLDER_PARENT_EMAIL} phone={PLACEHOLDER_PARENT_PHONE} />
+          <SettingsSection />
+        </div>
 
         {/* Logout */}
-        <button className="w-full rounded-[var(--bb-radius-lg)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] py-3 text-sm font-semibold text-[var(--bb-brand-primary)] transition-colors hover:bg-[var(--bb-depth-1)]">
+        <button className="w-full lg:w-auto rounded-[var(--bb-radius-lg)] border border-[var(--bb-glass-border)] bg-[var(--bb-depth-3)] px-8 py-3 text-sm font-semibold text-[var(--bb-brand-primary)] transition-colors hover:bg-[var(--bb-depth-1)]">
           Sair da conta
         </button>
       </div>

@@ -160,11 +160,13 @@ export default function ParentPresencasPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bb-gray-50 p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+      <div className="p-4 lg:p-6">
+        <div className="space-y-4">
           <Skeleton variant="text" className="h-8 w-48" />
-          <Skeleton variant="card" className="h-24" />
-          <Skeleton variant="card" className="h-64" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Skeleton variant="card" className="h-24" />
+            <Skeleton variant="card" className="h-64" />
+          </div>
         </div>
       </div>
     );
@@ -172,7 +174,7 @@ export default function ParentPresencasPage() {
 
   if (!data || data.children.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-bb-gray-50 p-4">
+      <div className="flex flex-col items-center justify-center p-8">
         <div className="text-center">
           <p className="text-4xl">📋</p>
           <h2 className="mt-4 text-lg font-bold text-bb-gray-900">Nenhum filho encontrado</h2>
@@ -188,40 +190,41 @@ export default function ParentPresencasPage() {
   const selectedChild = data.children.find((c) => c.student_id === selectedChildId) ?? data.children[0];
 
   return (
-    <div className="min-h-screen bg-bb-gray-50 pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-6">
-        {/* Header */}
-        <h1 className="text-xl font-bold text-bb-gray-900">Presencas</h1>
-        <p className="text-sm text-bb-gray-500">Acompanhe a frequencia dos seus filhos</p>
+    <div className="p-4 lg:p-6">
+      {/* Header */}
+      <h1 className="text-xl font-bold text-bb-gray-900">Presencas</h1>
+      <p className="text-sm text-bb-gray-500">Acompanhe a frequencia dos seus filhos</p>
 
-        {/* Child Selector */}
-        {hasMultipleChildren && (
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-            {data.children.map((child) => (
-              <button
-                key={child.student_id}
-                onClick={() => setSelectedChildId(child.student_id)}
-                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
-                  selectedChildId === child.student_id
-                    ? 'bg-bb-red-500 text-white shadow-md shadow-bb-red-500/20'
-                    : 'bg-white text-bb-gray-700 ring-1 ring-bb-gray-200'
-                }`}
-              >
-                <Avatar name={child.display_name} size="sm" />
-                {child.display_name}
-              </button>
-            ))}
-          </div>
-        )}
+      {/* Child Selector */}
+      {hasMultipleChildren && (
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+          {data.children.map((child) => (
+            <button
+              key={child.student_id}
+              onClick={() => setSelectedChildId(child.student_id)}
+              className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                selectedChildId === child.student_id
+                  ? 'bg-bb-red-500 text-white shadow-md shadow-bb-red-500/20'
+                  : 'bg-white text-bb-gray-700 ring-1 ring-bb-gray-200'
+              }`}
+            >
+              <Avatar name={child.display_name} size="sm" />
+              {child.display_name}
+            </button>
+          ))}
+        </div>
+      )}
 
+      {/* Desktop: side-by-side layout */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Attendance Card for Selected Child */}
-        <div className="mt-4">
+        <div>
           {selectedChild && <ChildAttendanceCard child={selectedChild} />}
         </div>
 
         {/* Consolidated Overview (multiple children) */}
         {hasMultipleChildren && (
-          <div className="mt-6">
+          <div>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-bb-gray-500">
               Visao Geral
             </h2>

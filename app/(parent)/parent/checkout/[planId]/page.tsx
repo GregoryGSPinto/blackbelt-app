@@ -62,7 +62,7 @@ export default function ParentCheckoutPage() {
   if (!plan) return <div className="py-20 text-center text-bb-gray-500">Plano não encontrado.</div>;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-4 lg:p-6">
       <PageHeader title="Checkout" subtitle={`Plano ${plan.name} para seu filho(a)`} />
 
       {/* Plan Summary */}

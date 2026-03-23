@@ -1,21 +1,81 @@
 'use client';
 
-import { forwardRef } from 'react';
+import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { BottomNav } from './BottomNav';
-import { ShellHeader } from './ShellHeader';
+import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { NotificationBell } from '@/components/shared/NotificationBell';
-import { HeaderHelpButton } from './HelpSection';
-import { UsersIcon, CalendarIcon, CheckSquareIcon, MessageIcon, DollarIcon, UserIcon } from './icons';
+import { HeaderHelpButton, SidebarHelpSection } from './HelpSection';
+import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
+import { useAuth } from '@/lib/hooks/useAuth';
+import {
+  HomeIcon,
+  UsersIcon,
+  CalendarIcon,
+  CheckSquareIcon,
+  MessageIcon,
+  DollarIcon,
+  UserIcon,
+  SettingsIcon,
+  LogOutIcon,
+  ShieldIcon,
+  BellIcon,
+  BarChartIcon,
+} from './icons';
 import type { NavItem } from './BottomNav';
 
 interface ParentShellProps {
   children: React.ReactNode;
 }
 
-const navItems: NavItem[] = [
-  { href: '/parent', label: 'Filhos', icon: <UsersIcon className="h-5 w-5" />, id: 'nav-filhos' },
-  { href: '/parent/agenda', label: 'Agenda', icon: <CalendarIcon className="h-5 w-5" />, id: 'nav-agenda' },
+interface SidebarGroup {
+  label: string;
+  items: { href: string; label: string; icon: typeof HomeIcon; id?: string }[];
+}
+
+const sidebarGroups: SidebarGroup[] = [
+  {
+    label: 'PRINCIPAL',
+    items: [
+      { href: '/parent', label: 'Dashboard', icon: HomeIcon, id: 'sidebar-link-dashboard' },
+      { href: '/parent/presencas', label: 'Presenças', icon: CheckSquareIcon, id: 'sidebar-link-presencas' },
+      { href: '/parent/checkin', label: 'Check-in', icon: CalendarIcon, id: 'sidebar-link-checkin' },
+      { href: '/parent/agenda', label: 'Agenda', icon: CalendarIcon, id: 'sidebar-link-agenda' },
+    ],
+  },
+  {
+    label: 'FINANCEIRO',
+    items: [
+      { href: '/parent/pagamentos', label: 'Pagamentos', icon: DollarIcon, id: 'sidebar-link-pagamentos' },
+    ],
+  },
+  {
+    label: 'COMUNICACAO',
+    items: [
+      { href: '/parent/mensagens', label: 'Mensagens', icon: MessageIcon, id: 'sidebar-link-mensagens' },
+      { href: '/parent/notificacoes', label: 'Notificações', icon: BellIcon, id: 'sidebar-link-notificacoes' },
+    ],
+  },
+  {
+    label: 'ACOMPANHAMENTO',
+    items: [
+      { href: '/parent/relatorios', label: 'Relatórios', icon: BarChartIcon, id: 'sidebar-link-relatorios' },
+      { href: '/parent/autorizacoes', label: 'Autorizações', icon: ShieldIcon, id: 'sidebar-link-autorizacoes' },
+    ],
+  },
+  {
+    label: 'CONTA',
+    items: [
+      { href: '/parent/perfil', label: 'Perfil', icon: UserIcon, id: 'sidebar-link-perfil' },
+      { href: '/parent/configuracoes', label: 'Configurações', icon: SettingsIcon, id: 'sidebar-link-configuracoes' },
+    ],
+  },
+];
+
+const mobileNavItems: NavItem[] = [
+  { href: '/parent', label: 'Início', icon: <HomeIcon className="h-5 w-5" />, id: 'nav-home' },
   { href: '/parent/presencas', label: 'Presenças', icon: <CheckSquareIcon className="h-5 w-5" />, id: 'nav-presencas' },
   { href: '/parent/mensagens', label: 'Mensagens', icon: <MessageIcon className="h-5 w-5" />, id: 'nav-mensagens' },
   { href: '/parent/pagamentos', label: 'Pagamentos', icon: <DollarIcon className="h-5 w-5" />, id: 'nav-pagamentos' },
@@ -24,11 +84,291 @@ const navItems: NavItem[] = [
 
 const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
   function ParentShell({ children }, ref) {
+    const pathname = usePathname();
+    const { profile, logout } = useAuth();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const userMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+    const handleClickOutside = useCallback((e: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node) &&
+        userMenuButtonRef.current &&
+        !userMenuButtonRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }, []);
+
+    useEffect(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [handleClickOutside]);
+
+    async function handleLogout() {
+      setUserMenuOpen(false);
+      await logout();
+    }
+
+    const userName = profile?.display_name ?? 'Responsável';
+
+    function renderSidebarNav(onItemClick?: () => void) {
+      return (
+        <>
+          {sidebarGroups.map((group, gi) => (
+            <div key={group.label}>
+              <p
+                className="uppercase tracking-widest font-semibold"
+                style={{
+                  fontSize: '10px',
+                  color: 'var(--bb-ink-30)',
+                  marginBottom: '4px',
+                  marginTop: gi === 0 ? '0' : '16px',
+                  paddingLeft: '16px',
+                }}
+              >
+                {group.label}
+              </p>
+              <div className="flex flex-col gap-[2px]">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href || (item.href !== '/parent' && pathname.startsWith(item.href + '/'));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      id={item.id}
+                      onClick={onItemClick}
+                      className="flex items-center gap-3 text-sm transition-colors"
+                      style={{
+                        padding: '10px 16px',
+                        borderRadius: 'var(--bb-radius-sm)',
+                        ...(isActive
+                          ? {
+                              background: 'var(--bb-brand-surface)',
+                              color: 'var(--bb-brand)',
+                              fontWeight: 600,
+                            }
+                          : {
+                              color: 'var(--bb-ink-60)',
+                            }),
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'var(--bb-depth-4)';
+                          e.currentTarget.style.color = 'var(--bb-ink-80)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--bb-ink-60)';
+                        }
+                      }}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </>
+      );
+    }
+
     return (
-      <div ref={ref} className="min-h-screen pb-16" style={{ background: 'var(--bb-depth-1)' }}>
-        <ShellHeader title="BlackBelt" subtitle="Responsável" rightContent={<><HeaderHelpButton /><NotificationBell /><ThemeToggle /></>} />
-        <main>{children}</main>
-        <BottomNav items={navItems} />
+      <div ref={ref} className="flex min-h-screen flex-col" style={{ background: 'var(--bb-depth-1)' }}>
+        <div className="flex flex-1">
+          {/* Sidebar - desktop */}
+          <aside
+            className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0"
+            style={{
+              background: 'var(--bb-depth-2)',
+              borderRight: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            <div
+              className="flex h-14 flex-col justify-center px-6"
+              style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+            >
+              <span
+                className="font-display text-xl font-extrabold"
+                style={{
+                  color: 'var(--bb-brand)',
+                  filter: 'drop-shadow(0 0 6px var(--bb-brand))',
+                }}
+              >
+                BLACKBELT
+              </span>
+              <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                Responsável
+              </span>
+            </div>
+            <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
+              {renderSidebarNav()}
+              <SidebarHelpSection />
+            </nav>
+          </aside>
+
+          {/* Mobile sidebar overlay */}
+          {sidebarOpen && (
+            <div className="fixed inset-0 z-40 lg:hidden">
+              <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+              <aside
+                className="fixed left-0 top-0 bottom-0 w-64 shadow-xl"
+                style={{ background: 'var(--bb-depth-2)' }}
+              >
+                <div
+                  className="flex h-14 flex-col justify-center px-6"
+                  style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                >
+                  <span
+                    className="font-display text-xl font-extrabold"
+                    style={{
+                      color: 'var(--bb-brand)',
+                      filter: 'drop-shadow(0 0 6px var(--bb-brand))',
+                    }}
+                  >
+                    BLACKBELT
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    Responsável
+                  </span>
+                </div>
+                <nav aria-label="Menu principal" className="overflow-y-auto p-3">
+                  {renderSidebarNav(() => setSidebarOpen(false))}
+                  <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                </nav>
+              </aside>
+            </div>
+          )}
+
+          {/* Main content */}
+          <div className="flex flex-1 flex-col min-w-0">
+            <header
+              className="sticky top-0 z-20 flex h-14 items-center justify-between px-4"
+              style={{
+                background: 'var(--bb-depth-2)',
+                borderBottom: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <button
+                  className="lg:hidden"
+                  onClick={() => setSidebarOpen(true)}
+                  aria-label="Abrir menu"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: 'var(--bb-ink-60)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <span className="text-lg font-bold lg:hidden" style={{ color: 'var(--bb-ink-100)' }}>
+                  BlackBelt
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <HeaderHelpButton />
+                <ThemeToggle />
+                <NotificationBell />
+
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    ref={userMenuButtonRef}
+                    onClick={() => setUserMenuOpen((prev) => !prev)}
+                    aria-label="Menu do usuário"
+                    className="flex h-9 w-9 items-center justify-center cursor-pointer"
+                  >
+                    <Avatar name={userName} size="sm" />
+                  </button>
+
+                  {userMenuOpen && (
+                    <div
+                      ref={userMenuRef}
+                      className="absolute right-0 top-full mt-2 w-64 z-50 overflow-hidden"
+                      style={{
+                        background: 'var(--bb-depth-3)',
+                        border: '1px solid var(--bb-glass-border)',
+                        boxShadow: 'var(--bb-shadow-lg)',
+                        borderRadius: 'var(--bb-radius-lg)',
+                        animation: 'scaleIn 0.15s ease-out',
+                        transformOrigin: 'top right',
+                      }}
+                    >
+                      <div
+                        className="px-4 py-3"
+                        style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+                      >
+                        <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                          {userName}
+                        </p>
+                        <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                          Responsável
+                        </p>
+                      </div>
+                      <div className="py-1">
+                        <Link
+                          href="/parent/perfil"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                        >
+                          <UserIcon className="h-4 w-4" />
+                          Meu perfil
+                        </Link>
+                        <Link
+                          href="/parent/configuracoes"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                        >
+                          <SettingsIcon className="h-4 w-4" />
+                          Configurações
+                        </Link>
+                      </div>
+                      <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
+                      <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+                        <button
+                          onClick={() => { setUserMenuOpen(false); sessionStorage.setItem('bb_profile_switch', '1'); window.location.href = '/selecionar-perfil'; }}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <UsersIcon className="h-4 w-4" />
+                          Trocar Perfil
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                          style={{ color: 'var(--bb-danger, var(--bb-brand))' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <LogOutIcon className="h-4 w-4" />
+                          Sair
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </header>
+            <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
+              <main className="pb-20 lg:pb-0">{children}</main>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Nav - mobile only */}
+        <div className="lg:hidden">
+          <BottomNav items={mobileNavItems} />
+        </div>
       </div>
     );
   },

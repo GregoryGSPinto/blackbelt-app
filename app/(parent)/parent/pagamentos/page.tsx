@@ -44,11 +44,11 @@ export default function ParentPagamentosPage() {
   const filhoInvoices = invoices.filter((i) => i.student_id === filho.studentId);
   const totalMensal = MOCK_FILHOS.reduce((s, f) => s + f.planPrice, 0);
 
-  if (loading) return <div className="space-y-4 p-4"><Skeleton variant="text" className="h-8 w-48" /><Skeleton variant="card" className="h-40" /></div>;
+  if (loading) return <div className="space-y-4 p-4 lg:p-6"><Skeleton variant="text" className="h-8 w-48" /><Skeleton variant="card" className="h-40" /></div>;
 
   return (
     <PlanGate module="financeiro">
-      <div className="space-y-6 p-4">
+      <div className="space-y-6 p-4 lg:p-6">
         <h1 className="text-xl font-bold text-bb-black">Pagamentos</h1>
 
         {/* Total consolidado */}

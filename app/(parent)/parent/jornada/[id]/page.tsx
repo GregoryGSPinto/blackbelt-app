@@ -52,14 +52,16 @@ function daysSince(dateStr: string): number {
 
 function JornadaSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-      <div className="mx-auto max-w-lg space-y-4">
+    <div className="p-4 lg:p-6">
+      <div className="space-y-4">
         <Skeleton variant="text" className="h-8 w-32" />
         <Skeleton variant="card" className="h-36" />
-        <Skeleton variant="card" className="h-24" />
-        <Skeleton variant="card" className="h-24" />
-        <Skeleton variant="card" className="h-24" />
-        <Skeleton variant="card" className="h-24" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton variant="card" className="h-24" />
+          <Skeleton variant="card" className="h-24" />
+          <Skeleton variant="card" className="h-24" />
+          <Skeleton variant="card" className="h-24" />
+        </div>
       </div>
     </div>
   );
@@ -137,7 +139,7 @@ export default function JornadaDependentePage() {
 
   if (!data || data.milestones.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] p-4">
+      <div className="flex flex-col items-center justify-center p-8">
         <div className="text-center">
           <p className="text-4xl">🗺️</p>
           <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">
@@ -159,8 +161,8 @@ export default function JornadaDependentePage() {
   const totalDays = daysSince(data.started_at);
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-6">
+    <div className="p-4 lg:p-6">
+      <div className="max-w-3xl">
         {/* Header */}
         <button
           onClick={() => window.history.back()}

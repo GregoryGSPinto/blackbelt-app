@@ -83,12 +83,14 @@ function getHealthColor(score: number): string {
 
 function RelatoriosSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-      <div className="mx-auto max-w-lg space-y-4">
+    <div className="p-4 lg:p-6">
+      <div className="space-y-4">
         <Skeleton variant="text" className="h-8 w-48" />
         <Skeleton variant="text" className="h-10 w-64" />
-        <Skeleton variant="card" className="h-64" />
-        <Skeleton variant="card" className="h-64" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton variant="card" className="h-64" />
+          <Skeleton variant="card" className="h-64" />
+        </div>
       </div>
     </div>
   );
@@ -382,7 +384,7 @@ export default function RelatoriosMensaisPage() {
 
   if (!data || data.children.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] p-4">
+      <div className="flex flex-col items-center justify-center p-8">
         <div className="text-center">
           <p className="text-4xl">📊</p>
           <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">
@@ -397,8 +399,8 @@ export default function RelatoriosMensaisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-6">
+    <div className="p-4 lg:p-6">
+      <div>
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bb-brand-surface)]">

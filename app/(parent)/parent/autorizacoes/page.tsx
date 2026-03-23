@@ -82,16 +82,18 @@ function timeAgo(dateStr: string): string {
 
 function AutorizacoesSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-      <div className="mx-auto max-w-lg space-y-4">
+    <div className="p-4 lg:p-6">
+      <div className="space-y-4">
         <Skeleton variant="text" className="h-8 w-48" />
         <div className="flex gap-2">
           <Skeleton variant="text" className="h-10 w-40" />
           <Skeleton variant="text" className="h-10 w-40" />
         </div>
-        <Skeleton variant="card" className="h-40" />
-        <Skeleton variant="card" className="h-40" />
-        <Skeleton variant="card" className="h-40" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton variant="card" className="h-40" />
+          <Skeleton variant="card" className="h-40" />
+          <Skeleton variant="card" className="h-40" />
+        </div>
       </div>
     </div>
   );
@@ -308,8 +310,8 @@ export default function AutorizacoesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-6">
+    <div className="p-4 lg:p-6">
+      <div>
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bb-brand-surface)]">

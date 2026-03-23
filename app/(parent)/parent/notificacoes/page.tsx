@@ -101,8 +101,8 @@ function timeAgo(dateStr: string): string {
 
 function NotificacoesSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
-      <div className="mx-auto max-w-lg space-y-4">
+    <div className="p-4 lg:p-6">
+      <div className="space-y-4">
         <Skeleton variant="text" className="h-8 w-48" />
         <div className="flex gap-2 overflow-x-auto">
           <Skeleton variant="text" className="h-8 w-20" />
@@ -252,8 +252,8 @@ export default function NotificacoesPage() {
   if (loading) return <NotificacoesSkeleton />;
 
   return (
-    <div className="min-h-screen bg-[var(--bb-depth-1)] pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-6">
+    <div className="p-4 lg:p-6">
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

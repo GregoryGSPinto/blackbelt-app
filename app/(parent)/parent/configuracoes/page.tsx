@@ -137,7 +137,7 @@ export default function ParentConfiguracoesPage() {
   if (loading || !prefs) return <SettingsSkeleton />;
 
   return (
-    <div className="min-h-screen p-4 sm:p-6">
+    <div className="p-4 lg:p-6">
       <div className="mb-6">
         <h1 className="font-display text-xl font-bold sm:text-2xl" style={{ color: 'var(--bb-ink-100)' }}>
           Configuracoes

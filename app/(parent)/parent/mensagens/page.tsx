@@ -77,7 +77,7 @@ export default function ParentMensagensPage() {
     <PlanGate module="mensagens">
       <>
         {/* Mobile list */}
-        <div className="min-h-screen pb-24 md:hidden">
+        <div className="md:hidden">
           <ConversationList
             profileId={profileId}
             role={Role.Responsavel}
