@@ -105,7 +105,7 @@ export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionP
           </button>
 
           <a
-            href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
+            href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 text-sm transition-colors"
@@ -225,7 +225,7 @@ export function HeaderHelpButton() {
             </button>
 
             <a
-              href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
+              href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"

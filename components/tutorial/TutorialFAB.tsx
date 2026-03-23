@@ -96,7 +96,7 @@ export function TutorialFAB() {
             </div>
             <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
               <a
-                href="https://wa.me/5511999999999"
+                href="https://wa.me/5531996793625"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center gap-3 px-4 py-3 text-sm transition-colors text-left"

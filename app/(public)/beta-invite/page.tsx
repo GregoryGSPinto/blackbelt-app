@@ -76,7 +76,7 @@ export default function BetaInvitePage() {
         <p className="mt-8 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
           Duvidas? Fale direto comigo no{' '}
           <a
-            href="https://wa.me/5521999999999"
+            href="https://wa.me/5531996793625"
             target="_blank"
             rel="noopener noreferrer"
             className="underline"

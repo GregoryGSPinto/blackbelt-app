@@ -602,7 +602,7 @@ const SupportWidget = forwardRef<HTMLDivElement>(function SupportWidget(_, ref) 
 
                   {/* WhatsApp */}
                   <a
-                    href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
+                    href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
