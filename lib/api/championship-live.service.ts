@@ -43,17 +43,47 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       const { mockGetLiveMatches } = await import('@/lib/mocks/championship-live.mock');
       return mockGetLiveMatches(championshipId);
     }
-    try {
-      const res = await fetch(`/api/championships/${championshipId}/live-matches`);
-      if (!res.ok) {
-        console.warn('[getLiveMatches] API error:', res.status);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[championship-live.getLiveMatches] API not available, returning empty');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('tournament_matches')
+      .select(`
+        id,
+        mat_number,
+        category_id,
+        fighter_a_name,
+        fighter_b_name,
+        score_a,
+        score_b,
+        duration_seconds,
+        status,
+        winner_name,
+        method,
+        tournament_categories!inner(name)
+      `)
+      .eq('tournament_id', championshipId)
+      .eq('status', 'in_progress');
+
+    if (error) {
+      console.warn('[getLiveMatches] Supabase error:', error.message);
       return [];
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data ?? []).map((m: any) => ({
+      match_id: m.id,
+      mat_number: m.mat_number ?? 0,
+      category_label: (m.tournament_categories as unknown as { name: string })?.name ?? '',
+      fighter_a_name: m.fighter_a_name ?? '',
+      fighter_b_name: m.fighter_b_name ?? '',
+      score_a: m.score_a ?? 0,
+      score_b: m.score_b ?? 0,
+      elapsed_seconds: m.duration_seconds ?? 0,
+      status: 'in_progress' as const,
+      winner_name: m.winner_name ?? null,
+      method: m.method ?? null,
+    }));
   } catch (error) {
     console.warn('[getLiveMatches] Fallback:', error);
     return [];
@@ -66,19 +96,83 @@ export async function getResults(championshipId: string, categoryId?: string): P
       const { mockGetResults } = await import('@/lib/mocks/championship-live.mock');
       return mockGetResults(championshipId, categoryId);
     }
-    try {
-      const params = new URLSearchParams();
-      if (categoryId) params.set('categoryId', categoryId);
-      const res = await fetch(`/api/championships/${championshipId}/results?${params}`);
-      if (!res.ok) {
-        console.warn('[getResults] API error:', res.status);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[championship-live.getResults] API not available, returning empty');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Get completed matches, optionally filtered by category
+    let query = supabase
+      .from('tournament_matches')
+      .select(`
+        id,
+        category_id,
+        fighter_a_id,
+        fighter_a_name,
+        fighter_a_academy,
+        fighter_b_id,
+        fighter_b_name,
+        fighter_b_academy,
+        winner_id,
+        winner_name,
+        score_a,
+        score_b,
+        method,
+        round,
+        tournament_categories!inner(id, name, modality)
+      `)
+      .eq('tournament_id', championshipId)
+      .eq('status', 'completed');
+
+    if (categoryId) {
+      query = query.eq('category_id', categoryId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('[getResults] Supabase error:', error.message);
       return [];
     }
+
+    // Group by category and determine medalists (final round = gold/silver, semifinal losers = bronze)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categoryMap = new Map<string, { cat: { id: string; name: string; modality: string }; matches: any[] }>();
+    for (const m of data ?? []) {
+      const cat = m.tournament_categories as unknown as { id: string; name: string; modality: string };
+      if (!categoryMap.has(cat.id)) {
+        categoryMap.set(cat.id, { cat, matches: [] });
+      }
+      categoryMap.get(cat.id)!.matches.push(m);
+    }
+
+    const results: CategoryResultDTO[] = [];
+    for (const [, { cat, matches }] of categoryMap) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const maxRound = Math.max(...matches.map((m: any) => m.round ?? 0));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const finalMatch = matches.find((m: any) => m.round === maxRound);
+      const emptyAthlete = { athlete_id: '', athlete_name: '', academy: '' };
+
+      const gold = finalMatch?.winner_id
+        ? { athlete_id: finalMatch.winner_id, athlete_name: finalMatch.winner_name ?? '', academy: finalMatch.fighter_a_id === finalMatch.winner_id ? (finalMatch.fighter_a_academy ?? '') : (finalMatch.fighter_b_academy ?? '') }
+        : emptyAthlete;
+
+      const silver = finalMatch
+        ? (finalMatch.fighter_a_id === finalMatch.winner_id
+          ? { athlete_id: finalMatch.fighter_b_id ?? '', athlete_name: finalMatch.fighter_b_name ?? '', academy: finalMatch.fighter_b_academy ?? '' }
+          : { athlete_id: finalMatch.fighter_a_id ?? '', athlete_name: finalMatch.fighter_a_name ?? '', academy: finalMatch.fighter_a_academy ?? '' })
+        : emptyAthlete;
+
+      results.push({
+        category_id: cat.id,
+        category_label: cat.name,
+        modality: cat.modality,
+        gold,
+        silver,
+        bronze: [], // bronze determination requires bracket analysis
+      });
+    }
+
+    return results;
   } catch (error) {
     console.warn('[getResults] Fallback:', error);
     return [];
@@ -91,17 +185,29 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       const { mockGetMedalTable } = await import('@/lib/mocks/championship-live.mock');
       return mockGetMedalTable(championshipId);
     }
-    try {
-      const res = await fetch(`/api/championships/${championshipId}/medal-table`);
-      if (!res.ok) {
-        console.warn('[getMedalTable] API error:', res.status);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[championship-live.getMedalTable] API not available, returning empty');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_tournament_stats')
+      .select('academy_id, academy_name, gold, silver, bronze')
+      .eq('tournament_id', championshipId)
+      .order('gold', { ascending: false });
+
+    if (error) {
+      console.warn('[getMedalTable] Supabase error:', error.message);
       return [];
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data ?? []).map((row: any) => ({
+      academy_id: row.academy_id,
+      academy_name: row.academy_name,
+      gold: row.gold ?? 0,
+      silver: row.silver ?? 0,
+      bronze: row.bronze ?? 0,
+      total: (row.gold ?? 0) + (row.silver ?? 0) + (row.bronze ?? 0),
+    }));
   } catch (error) {
     console.warn('[getMedalTable] Fallback:', error);
     return [];

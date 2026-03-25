@@ -84,18 +84,57 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       const { mockGetPersonalContext } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetPersonalContext(studentId);
     }
-    try {
-      const res = await fetch(`/api/ai/personal-context/${studentId}`);
-      if (!res.ok) {
-        console.warn('[getPersonalContext] API error:', res.status);
-        return emptyContext(studentId);
-      }
-      return res.json();
-    } catch {
-      console.warn('[personal-ai.getPersonalContext] API not available, using mock fallback');
-      const { mockGetPersonalContext } = await import('@/lib/mocks/personal-ai.mock');
-      return mockGetPersonalContext(studentId);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: student } = await supabase
+      .from('students')
+      .select('name, belt, stripes, academy_id, weight')
+      .eq('id', studentId)
+      .single();
+
+    const { count: attendanceCount } = await supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId);
+
+    // Get latest attendance for last class date
+    const { data: lastAttendance } = await supabase
+      .from('attendance')
+      .select('class_date')
+      .eq('student_id', studentId)
+      .order('class_date', { ascending: false })
+      .limit(1);
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', studentId)
+      .single();
+
+    const total = attendanceCount ?? 0;
+    const weeklyFreq = Math.min(7, Math.round(total / Math.max(1, 4))); // rough estimate
+
+    return {
+      student_id: studentId,
+      name: student?.name ?? profile?.full_name ?? '',
+      belt: student?.belt ?? '',
+      stripes: student?.stripes ?? 0,
+      academy: '',
+      frequency_weekly: weeklyFreq,
+      last_class_date: lastAttendance?.[0]?.class_date ?? '',
+      next_class_date: '',
+      next_class_name: '',
+      current_weight_kg: (student?.weight as number) ?? 0,
+      target_weight_kg: null,
+      upcoming_competition: null,
+      strengths: total > 30 ? ['Frequência consistente'] : [],
+      weaknesses: total < 10 ? ['Aumentar frequência'] : [],
+      goals: [],
+      xp_total: total * 10,
+      xp_rank: 0,
+      streak_days: 0,
+    };
   } catch (error) {
     console.warn('[getPersonalContext] Fallback:', error);
     return emptyContext(studentId);
@@ -108,22 +147,15 @@ export async function chat(studentId: string, message: string, history: ChatMess
       const { mockChat } = await import('@/lib/mocks/personal-ai.mock');
       return mockChat(studentId, message, history);
     }
-    try {
-      const res = await fetch('/api/ai/personal-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, message, history }),
-      });
-      if (!res.ok) {
-        console.warn('[chat] API error:', res.status);
-        return { message: 'IA Coach em desenvolvimento.', context_used: [], suggested_actions: [] };
-      }
-      return res.json();
-    } catch {
-      console.warn('[personal-ai.chat] API not available, using mock fallback');
-      const { mockChat } = await import('@/lib/mocks/personal-ai.mock');
-      return mockChat(studentId, message, history);
-    }
+    // AI chat requires API key — return graceful fallback
+    console.warn('[chat] AI API not configured — returning default response');
+    return {
+      message: 'Assistente IA não configurado. Configure a API key em Configurações > Integrações para habilitar o chat.',
+      context_used: [],
+      suggested_actions: [
+        { label: 'Configurar IA', action: '/configuracoes/integracoes' },
+      ],
+    };
   } catch (error) {
     console.warn('[chat] Fallback:', error);
     return { message: '', context_used: [], suggested_actions: [] };
@@ -136,18 +168,28 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       const { mockGetDailyBriefing } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetDailyBriefing(studentId);
     }
-    try {
-      const res = await fetch(`/api/ai/daily-briefing/${studentId}`);
-      if (!res.ok) {
-        console.warn('[getDailyBriefing] API error:', res.status);
-        return emptyBriefing;
-      }
-      return res.json();
-    } catch {
-      console.warn('[personal-ai.getDailyBriefing] API not available, using mock fallback');
-      const { mockGetDailyBriefing } = await import('@/lib/mocks/personal-ai.mock');
-      return mockGetDailyBriefing(studentId);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: student } = await supabase
+      .from('students')
+      .select('name, belt')
+      .eq('id', studentId)
+      .single();
+
+    const name = student?.name ?? 'Aluno';
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? `Bom dia, ${name}!` : hour < 18 ? `Boa tarde, ${name}!` : `Boa noite, ${name}!`;
+
+    return {
+      greeting,
+      todays_class: null,
+      focus_suggestion: 'Treine com consistência e atenção aos detalhes.',
+      competition_countdown: null,
+      weight_check: null,
+      motivational_quote: 'A faixa preta é uma faixa branca que nunca desistiu.',
+      streak_info: '',
+    };
   } catch (error) {
     console.warn('[getDailyBriefing] Fallback:', error);
     return emptyBriefing;
@@ -160,18 +202,15 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       const { mockGetWeeklyPlan } = await import('@/lib/mocks/personal-ai.mock');
       return mockGetWeeklyPlan(studentId);
     }
-    try {
-      const res = await fetch(`/api/ai/weekly-plan/${studentId}`);
-      if (!res.ok) {
-        console.warn('[getWeeklyPlan] API error:', res.status);
-        return emptyWeeklyPlan;
-      }
-      return res.json();
-    } catch {
-      console.warn('[personal-ai.getWeeklyPlan] API not available, using mock fallback');
-      const { mockGetWeeklyPlan } = await import('@/lib/mocks/personal-ai.mock');
-      return mockGetWeeklyPlan(studentId);
-    }
+    // AI feature — return empty plan with guidance
+    console.warn('[getWeeklyPlan] AI API not configured — returning default');
+    return {
+      ...emptyWeeklyPlan,
+      summary: 'Plano semanal requer configuração da IA. Acesse Configurações > Integrações.',
+      weekly_goal: 'Manter frequência regular de treinos',
+      nutrition_tip: 'Mantenha-se hidratado e alimente-se bem antes do treino.',
+      recovery_tip: 'Descanse adequadamente entre os treinos.',
+    };
   } catch (error) {
     console.warn('[getWeeklyPlan] Fallback:', error);
     return emptyWeeklyPlan;

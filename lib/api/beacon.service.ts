@@ -46,17 +46,48 @@ export async function configureBeacon(unitId: string, beaconId: string, config?:
       const { mockConfigureBeacon } = await import('@/lib/mocks/beacon.mock');
       return mockConfigureBeacon(unitId, beaconId, config);
     }
-    try {
-      const res = await fetch('/api/beacon/configure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, beaconId, ...config }) });
-      if (!res.ok) {
-        console.warn('[configureBeacon] API error:', res.status);
-        return emptyBeacon(unitId, beaconId);
-      }
-      return res.json();
-    } catch {
-      console.warn('[beacon.configureBeacon] API not available — integração Beacon em desenvolvimento');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Read current settings
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', unitId)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+    const beacons = (settings.beacons ?? []) as BeaconConfig[];
+
+    const now = new Date().toISOString();
+    const newBeacon: BeaconConfig = {
+      ...emptyBeacon(unitId, beaconId),
+      ...config,
+      id: config?.id ?? beaconId,
+      unit_id: unitId,
+      beacon_id: beaconId,
+      active: config?.active ?? true,
+      last_seen: now,
+    };
+
+    const idx = beacons.findIndex((b) => b.beacon_id === beaconId);
+    if (idx >= 0) {
+      beacons[idx] = { ...beacons[idx], ...newBeacon };
+    } else {
+      beacons.push(newBeacon);
+    }
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: unitId, settings: { ...settings, beacons }, updated_at: now },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[configureBeacon] Supabase error:', error.message);
       return emptyBeacon(unitId, beaconId);
     }
+
+    return idx >= 0 ? beacons[idx] : newBeacon;
   } catch (error) {
     console.warn('[configureBeacon] Fallback:', error);
     return emptyBeacon(unitId, beaconId);
@@ -69,17 +100,42 @@ export async function configureGeofence(unitId: string, lat: number, lng: number
       const { mockConfigureGeofence } = await import('@/lib/mocks/beacon.mock');
       return mockConfigureGeofence(unitId, lat, lng, radius);
     }
-    try {
-      const res = await fetch('/api/beacon/geofence', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, lat, lng, radius }) });
-      if (!res.ok) {
-        console.warn('[configureGeofence] API error:', res.status);
-        return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
-      }
-      return res.json();
-    } catch {
-      console.warn('[beacon.configureGeofence] API not available — integração Beacon em desenvolvimento');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', unitId)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+    const geofences = (settings.geofences ?? []) as GeofenceConfig[];
+
+    const now = new Date().toISOString();
+    const newGeo: GeofenceConfig = {
+      ...emptyGeofence(unitId),
+      id: `geo-${Date.now()}`,
+      name: `Geofence ${geofences.length + 1}`,
+      latitude: lat,
+      longitude: lng,
+      radius_meters: radius,
+      active: true,
+    };
+
+    geofences.push(newGeo);
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: unitId, settings: { ...settings, geofences }, updated_at: now },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[configureGeofence] Supabase error:', error.message);
       return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
     }
+
+    return newGeo;
   } catch (error) {
     console.warn('[configureGeofence] Fallback:', error);
     return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
@@ -92,17 +148,27 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       const { mockGetProximityConfig } = await import('@/lib/mocks/beacon.mock');
       return mockGetProximityConfig(unitId);
     }
-    try {
-      const res = await fetch(`/api/beacon/config?unitId=${unitId}`);
-      if (!res.ok) {
-        console.warn('[getProximityConfig] API error:', res.status);
-        return { unit_id: unitId, beacons: [], geofences: [], auto_checkin_enabled: false, min_dwell_seconds: 0 };
-      }
-      return res.json();
-    } catch {
-      console.warn('[beacon.getProximityConfig] API not available — integração Beacon em desenvolvimento');
-      return { unit_id: unitId, beacons: [], geofences: [], auto_checkin_enabled: false, min_dwell_seconds: 0 };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', unitId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[getProximityConfig] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    return {
+      unit_id: unitId,
+      beacons: (settings.beacons ?? []) as BeaconConfig[],
+      geofences: (settings.geofences ?? []) as GeofenceConfig[],
+      auto_checkin_enabled: (settings.auto_checkin_enabled ?? false) as boolean,
+      min_dwell_seconds: (settings.min_dwell_seconds ?? 0) as number,
+    };
   } catch (error) {
     console.warn('[getProximityConfig] Fallback:', error);
     return { unit_id: unitId, beacons: [], geofences: [], auto_checkin_enabled: false, min_dwell_seconds: 0 };
@@ -115,17 +181,31 @@ export async function toggleAutoCheckin(unitId: string, enabled: boolean): Promi
       const { mockToggleAutoCheckin } = await import('@/lib/mocks/beacon.mock');
       return mockToggleAutoCheckin(unitId, enabled);
     }
-    try {
-      const res = await fetch('/api/beacon/auto-checkin', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unitId, enabled }) });
-      if (!res.ok) {
-        console.warn('[toggleAutoCheckin] API error:', res.status);
-        return { enabled };
-      }
-      return res.json();
-    } catch {
-      console.warn('[beacon.toggleAutoCheckin] API not available — integração Beacon em desenvolvimento');
-      return { enabled };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', unitId)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      {
+        academy_id: unitId,
+        settings: { ...settings, auto_checkin_enabled: enabled },
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[toggleAutoCheckin] Supabase error:', error.message);
     }
+
+    return { enabled };
   } catch (error) {
     console.warn('[toggleAutoCheckin] Fallback:', error);
     return { enabled };

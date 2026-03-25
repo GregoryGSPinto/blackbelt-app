@@ -41,21 +41,19 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       const { mockAnalyzePosture } = await import('@/lib/mocks/posture-analysis.mock');
       return mockAnalyzePosture(imageBase64);
     }
-    try {
-      const res = await fetch('/api/ai/posture-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64 }),
-      });
-      if (!res.ok) {
-        console.warn('[analyzePosture] API error:', res.status);
-        return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
-      }
-      return res.json();
-    } catch {
-      console.warn('[posture-analysis.analyzePosture] API not available — feature em desenvolvimento');
-      return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
-    }
+    // Vision API not configured — return graceful default
+    console.warn('[analyzePosture] Vision API not configured — returning default');
+    return {
+      ...emptyPostureResult,
+      analyzed_at: new Date().toISOString(),
+      issues: [{
+        type: 'posture' as IssueType,
+        body_part: 'geral',
+        severity: 'low' as IssueSeverity,
+        description: 'Análise de postura requer configuração da Vision API.',
+        suggestion: 'Configure a API em Configurações > Integrações para habilitar análise automática.',
+      }],
+    };
   } catch (error) {
     console.warn('[analyzePosture] Fallback:', error);
     return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };

@@ -40,17 +40,31 @@ export async function listApps(params?: { category?: string; search?: string }):
       const { mockListApps } = await import('@/lib/mocks/app-store.mock');
       return mockListApps(params);
     }
-    try {
-      const query = new URLSearchParams();
-      if (params?.category) query.set('category', params.category);
-      if (params?.search) query.set('search', params.search);
-      const res = await fetch(`/api/v1/app-store?${query}`);
-      return res.json();
-    } catch {
-      console.warn('[app-store.listApps] API not available, using mock fallback');
-      const { mockListApps } = await import('@/lib/mocks/app-store.mock');
-      return mockListApps(params);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[listApps] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    let apps = (settings.app_store_apps ?? []) as AppStoreItem[];
+
+    if (params?.category) {
+      apps = apps.filter((a) => a.category === params.category);
+    }
+    if (params?.search) {
+      const q = params.search.toLowerCase();
+      apps = apps.filter((a) => a.name.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+    }
+
+    return apps;
   } catch (error) {
     console.warn('[listApps] Fallback:', error);
     return [];
@@ -63,14 +77,26 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
       const { mockGetApp } = await import('@/lib/mocks/app-store.mock');
       return mockGetApp(appId);
     }
-    try {
-      const res = await fetch(`/api/v1/app-store/${appId}`);
-      return res.json();
-    } catch {
-      console.warn('[app-store.getApp] API not available, using mock fallback');
-      const { mockGetApp } = await import('@/lib/mocks/app-store.mock');
-      return mockGetApp(appId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[getApp] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    const apps = (settings.app_store_apps ?? []) as AppStoreItem[];
+    const found = apps.find((a) => a.id === appId);
+
+    if (found) return found;
+
+    return { id: appId, name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false };
   } catch (error) {
     console.warn('[getApp] Fallback:', error);
     return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false };
@@ -83,14 +109,22 @@ export async function getAppReviews(appId: string): Promise<AppReview[]> {
       const { mockGetAppReviews } = await import('@/lib/mocks/app-store.mock');
       return mockGetAppReviews(appId);
     }
-    try {
-      const res = await fetch(`/api/v1/app-store/${appId}/reviews`);
-      return res.json();
-    } catch {
-      console.warn('[app-store.getAppReviews] API not available, using mock fallback');
-      const { mockGetAppReviews } = await import('@/lib/mocks/app-store.mock');
-      return mockGetAppReviews(appId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[getAppReviews] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    const reviews = (settings.app_store_reviews ?? []) as AppReview[];
+    return reviews.filter((r) => r.appId === appId);
   } catch (error) {
     console.warn('[getAppReviews] Fallback:', error);
     return [];
@@ -103,18 +137,38 @@ export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'revi
       const { mockSubmitApp } = await import('@/lib/mocks/app-store.mock');
       return mockSubmitApp(data);
     }
-    try {
-      const res = await fetch('/api/v1/app-store', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      return res.json();
-    } catch {
-      console.warn('[app-store.submitApp] API not available, using mock fallback');
-      const { mockSubmitApp } = await import('@/lib/mocks/app-store.mock');
-      return mockSubmitApp(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const newApp: AppStoreItem = {
+      ...data,
+      id: crypto.randomUUID(),
+      rating: 0,
+      reviewCount: 0,
+      downloads: 0,
+      featured: false,
+    };
+
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .limit(1)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+    const apps = (settings.app_store_apps ?? []) as AppStoreItem[];
+    apps.push(newApp);
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: (existing as Record<string, unknown>)?.academy_id as string ?? '', settings: { ...settings, app_store_apps: apps }, updated_at: new Date().toISOString() },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[submitApp] Supabase error:', error.message);
     }
+
+    return newApp;
   } catch (error) {
     console.warn('[submitApp] Fallback:', error);
     return { ...data, id: '', rating: 0, reviewCount: 0, downloads: 0, featured: false };
@@ -127,14 +181,17 @@ export async function getCategories(): Promise<AppCategory[]> {
       const { mockGetCategories } = await import('@/lib/mocks/app-store.mock');
       return mockGetCategories();
     }
-    try {
-      const res = await fetch('/api/v1/app-store/categories');
-      return res.json();
-    } catch {
-      console.warn('[app-store.getCategories] API not available, using mock fallback');
-      const { mockGetCategories } = await import('@/lib/mocks/app-store.mock');
-      return mockGetCategories();
-    }
+    // Return curated categories list
+    return [
+      { id: 'management', name: 'Gestão', count: 0 },
+      { id: 'communication', name: 'Comunicação', count: 0 },
+      { id: 'finance', name: 'Financeiro', count: 0 },
+      { id: 'marketing', name: 'Marketing', count: 0 },
+      { id: 'competition', name: 'Competição', count: 0 },
+      { id: 'training', name: 'Treinamento', count: 0 },
+      { id: 'analytics', name: 'Analytics', count: 0 },
+      { id: 'integration', name: 'Integrações', count: 0 },
+    ];
   } catch (error) {
     console.warn('[getCategories] Fallback:', error);
     return [];
@@ -147,14 +204,22 @@ export async function getFeatured(): Promise<AppStoreItem[]> {
       const { mockGetFeatured } = await import('@/lib/mocks/app-store.mock');
       return mockGetFeatured();
     }
-    try {
-      const res = await fetch('/api/v1/app-store/featured');
-      return res.json();
-    } catch {
-      console.warn('[app-store.getFeatured] API not available, using mock fallback');
-      const { mockGetFeatured } = await import('@/lib/mocks/app-store.mock');
-      return mockGetFeatured();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[getFeatured] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    const apps = (settings.app_store_apps ?? []) as AppStoreItem[];
+    return apps.filter((a) => a.featured);
   } catch (error) {
     console.warn('[getFeatured] Fallback:', error);
     return [];

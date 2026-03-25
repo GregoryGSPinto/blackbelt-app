@@ -79,23 +79,41 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       const { mockGetAthleteRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAthleteRanking(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.belt) params.set('belt', filters.belt);
-      if (filters?.weight) params.set('weight', filters.weight);
-      if (filters?.region) params.set('region', filters.region);
-      const res = await fetch(`/api/ranking/athletes?${params.toString()}`);
-      if (!res.ok) {
-        console.warn('[getAthleteRanking] error:', `HTTP ${res.status}`);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[federation-ranking.getAthleteRanking] API not available, using mock fallback');
-      const { mockGetAthleteRanking } = await import('@/lib/mocks/federation-ranking.mock');
-      return mockGetAthleteRanking(filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    let query = supabase
+      .from('athlete_profiles')
+      .select('user_id, full_name, academy_name, belt, weight_class, ranking_points, gold_medals, silver_medals, bronze_medals, total_fights')
+      .order('ranking_points', { ascending: false })
+      .limit(100);
+
+    if (filters?.belt) query = query.eq('belt', filters.belt);
+    if (filters?.weight) query = query.eq('weight_class', filters.weight);
+    if (filters?.modality) query = query.eq('modality', filters.modality);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('[getAthleteRanking] Supabase error:', error.message);
+      return [];
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data ?? []).map((row: any, idx: number) => ({
+      position: idx + 1,
+      athlete_id: row.user_id,
+      athlete_name: row.full_name,
+      academy: row.academy_name ?? '',
+      belt: row.belt ?? '',
+      weight_class: row.weight_class ?? '',
+      region: '',
+      points: row.ranking_points ?? 0,
+      gold: row.gold_medals ?? 0,
+      silver: row.silver_medals ?? 0,
+      bronze: row.bronze_medals ?? 0,
+      events_count: row.total_fights ?? 0,
+    }));
   } catch (error) {
     console.warn('[getAthleteRanking] Fallback:', error);
     return [];
@@ -108,21 +126,56 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       const { mockGetAcademyRanking } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAcademyRanking(filters);
     }
-    try {
-      const params = new URLSearchParams();
-      if (filters?.modality) params.set('modality', filters.modality);
-      if (filters?.region) params.set('region', filters.region);
-      const res = await fetch(`/api/ranking/academies?${params.toString()}`);
-      if (!res.ok) {
-        console.warn('[getAcademyRanking] error:', `HTTP ${res.status}`);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[federation-ranking.getAcademyRanking] API not available, using mock fallback');
-      const { mockGetAcademyRanking } = await import('@/lib/mocks/federation-ranking.mock');
-      return mockGetAcademyRanking(filters);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_tournament_stats')
+      .select('academy_id, academy_name, total_athletes, gold, silver, bronze, points')
+      .order('points', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.warn('[getAcademyRanking] Supabase error:', error.message);
+      return [];
     }
+
+    // Aggregate across all tournaments per academy
+    const academyMap = new Map<string, { academy_id: string; academy_name: string; total_points: number; athletes_count: number; gold: number; silver: number; bronze: number }>();
+
+    for (const row of data ?? []) {
+      const existing = academyMap.get(row.academy_id);
+      if (existing) {
+        existing.total_points += row.points ?? 0;
+        existing.athletes_count += row.total_athletes ?? 0;
+        existing.gold += row.gold ?? 0;
+        existing.silver += row.silver ?? 0;
+        existing.bronze += row.bronze ?? 0;
+      } else {
+        academyMap.set(row.academy_id, {
+          academy_id: row.academy_id,
+          academy_name: row.academy_name,
+          total_points: row.points ?? 0,
+          athletes_count: row.total_athletes ?? 0,
+          gold: row.gold ?? 0,
+          silver: row.silver ?? 0,
+          bronze: row.bronze ?? 0,
+        });
+      }
+    }
+
+    const sorted = [...academyMap.values()].sort((a, b) => b.total_points - a.total_points);
+    return sorted.map((a, idx) => ({
+      position: idx + 1,
+      academy_id: a.academy_id,
+      academy_name: a.academy_name,
+      region: '',
+      total_points: a.total_points,
+      athletes_count: a.athletes_count,
+      gold: a.gold,
+      silver: a.silver,
+      bronze: a.bronze,
+    }));
   } catch (error) {
     console.warn('[getAcademyRanking] Fallback:', error);
     return [];
@@ -135,17 +188,67 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       const { mockGetAthleteProfile } = await import('@/lib/mocks/federation-ranking.mock');
       return mockGetAthleteProfile(athleteId);
     }
-    try {
-      const res = await fetch(`/api/ranking/athletes/${athleteId}`);
-      if (!res.ok) {
-        console.warn('[getAthleteProfile] error:', `HTTP ${res.status}`);
-        return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: ap, error } = await supabase
+      .from('athlete_profiles')
+      .select('*')
+      .eq('user_id', athleteId)
+      .single();
+
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.warn('[getAthleteProfile] Supabase error:', error.message);
       }
-      return res.json();
-    } catch {
-      console.warn('[federation-ranking.getAthleteProfile] API not available, using fallback');
       return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
     }
+
+    // Fetch competition history from tournament_registrations
+    const { data: regs } = await supabase
+      .from('tournament_registrations')
+      .select(`
+        tournament_id,
+        status,
+        tournaments!inner(name, event_date),
+        tournament_categories!inner(name)
+      `)
+      .eq('user_id', athleteId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const history: AthleteCompetitionHistory[] = (regs ?? []).map((r: any) => ({
+      championship_id: r.tournament_id,
+      championship_name: (r.tournaments as unknown as { name: string })?.name ?? '',
+      date: (r.tournaments as unknown as { event_date: string })?.event_date ?? '',
+      category: (r.tournament_categories as unknown as { name: string })?.name ?? '',
+      result: 'eliminated' as const,
+      points_earned: 0,
+      importance: 'local' as const,
+    }));
+
+    return {
+      athlete_id: athleteId,
+      athlete_name: ap?.full_name ?? '',
+      academy: ap?.academy_name ?? '',
+      belt: ap?.belt ?? '',
+      weight_class: ap?.weight_class ?? '',
+      region: '',
+      age: 0,
+      total_points: ap?.ranking_points ?? 0,
+      ranking_position: ap?.ranking_position ?? 0,
+      win_rate: Number(ap?.win_rate ?? 0),
+      submission_rate: ap?.total_fights ? (ap.submissions ?? 0) / ap.total_fights : 0,
+      total_fights: ap?.total_fights ?? 0,
+      total_wins: ap?.wins ?? 0,
+      total_losses: ap?.losses ?? 0,
+      gold: ap?.gold_medals ?? 0,
+      silver: ap?.silver_medals ?? 0,
+      bronze: ap?.bronze_medals ?? 0,
+      achievements: [],
+      history,
+    };
   } catch (error) {
     console.warn('[getAthleteProfile] Fallback:', error);
     return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };

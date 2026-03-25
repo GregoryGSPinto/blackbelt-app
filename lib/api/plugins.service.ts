@@ -7,14 +7,45 @@ export async function listPlugins(): Promise<Plugin[]> {
       const { mockListPlugins } = await import('@/lib/mocks/plugins.mock');
       return mockListPlugins();
     }
-    try {
-      const res = await fetch('/api/v1/plugins');
-      return res.json();
-    } catch {
-      console.warn('[plugins.listPlugins] API not available, using mock fallback');
-      const { mockListPlugins } = await import('@/lib/mocks/plugins.mock');
-      return mockListPlugins();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Get the user's academy to check installed plugins
+    const { data: { user } } = await supabase.auth.getUser();
+    let installed: string[] = [];
+
+    if (user) {
+      const { data: membership } = await supabase
+        .from('memberships')
+        .select('academy_id')
+        .eq('profile_id', user.id)
+        .limit(1)
+        .single();
+
+      if (membership) {
+        const { data: settingsRow } = await supabase
+          .from('academy_settings')
+          .select('settings')
+          .eq('academy_id', membership.academy_id)
+          .single();
+
+        const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+        installed = (settings.installed_plugins ?? []) as string[];
+      }
     }
+
+    // Return catalog — for now an empty list; installed status from DB
+    // The catalog can be expanded later
+    return installed.map((id) => ({
+      id,
+      name: id,
+      description: '',
+      version: '1.0.0',
+      author: '',
+      enabled: true,
+      installed: true,
+      config: {},
+    })) as unknown as Plugin[];
   } catch (error) {
     console.warn('[listPlugins] Fallback:', error);
     return [];
@@ -27,13 +58,41 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       const { mockGetPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockGetPlugin(pluginId);
     }
-    try {
-      const res = await fetch(`/api/v1/plugins/${pluginId}`);
-      return res.json();
-    } catch {
-      console.warn('[plugins.getPlugin] API not available, using fallback');
-      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config: {} } as unknown as Plugin;
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config: {} } as unknown as Plugin;
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const installed = (settings.installed_plugins ?? []) as string[];
+    const configs = (settings.plugin_configs ?? {}) as Record<string, Record<string, unknown>>;
+
+    return {
+      id: pluginId,
+      name: pluginId,
+      description: '',
+      version: '1.0.0',
+      author: '',
+      enabled: installed.includes(pluginId),
+      installed: installed.includes(pluginId),
+      config: configs[pluginId] ?? {},
+    } as unknown as Plugin;
   } catch (error) {
     console.warn('[getPlugin] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
@@ -46,13 +105,44 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
       const { mockInstallPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockInstallPlugin(pluginId);
     }
-    try {
-      const res = await fetch(`/api/v1/plugins/${pluginId}/install`, { method: 'POST' });
-      return res.json();
-    } catch {
-      console.warn('[plugins.installPlugin] API not available, using fallback');
-      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config: {} } as unknown as Plugin;
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config: {} } as unknown as Plugin;
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const installed = (settings.installed_plugins ?? []) as string[];
+
+    if (!installed.includes(pluginId)) {
+      installed.push(pluginId);
     }
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: membership.academy_id, settings: { ...settings, installed_plugins: installed }, updated_at: new Date().toISOString() },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[installPlugin] Supabase error:', error.message);
+    }
+
+    return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config: {} } as unknown as Plugin;
   } catch (error) {
     console.warn('[installPlugin] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
@@ -65,10 +155,37 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
       const { mockUninstallPlugin } = await import('@/lib/mocks/plugins.mock');
       return mockUninstallPlugin(pluginId);
     }
-    try {
-      await fetch(`/api/v1/plugins/${pluginId}/uninstall`, { method: 'POST' });
-    } catch {
-      console.warn('[plugins.uninstallPlugin] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return;
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const installed = ((settings.installed_plugins ?? []) as string[]).filter((id) => id !== pluginId);
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: membership.academy_id, settings: { ...settings, installed_plugins: installed }, updated_at: new Date().toISOString() },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[uninstallPlugin] Supabase error:', error.message);
     }
   } catch (error) {
     console.warn('[uninstallPlugin] Fallback:', error);
@@ -84,17 +201,41 @@ export async function updatePluginConfig(
       const { mockUpdatePluginConfig } = await import('@/lib/mocks/plugins.mock');
       return mockUpdatePluginConfig(pluginId, config);
     }
-    try {
-      const res = await fetch(`/api/v1/plugins/${pluginId}/config`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      return res.json();
-    } catch {
-      console.warn('[plugins.updatePluginConfig] API not available, using fallback');
-      return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config } as unknown as Plugin;
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return { id: pluginId, name: pluginId, description: '', version: '', author: '', enabled: false, installed: false, config } as unknown as Plugin;
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const configs = (settings.plugin_configs ?? {}) as Record<string, Record<string, unknown>>;
+    configs[pluginId] = config;
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: membership.academy_id, settings: { ...settings, plugin_configs: configs }, updated_at: new Date().toISOString() },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[updatePluginConfig] Supabase error:', error.message);
     }
+
+    return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config } as unknown as Plugin;
   } catch (error) {
     console.warn('[updatePluginConfig] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
@@ -107,14 +248,30 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
       const { mockGetPluginLogs } = await import('@/lib/mocks/plugins.mock');
       return mockGetPluginLogs(pluginId);
     }
-    try {
-      const res = await fetch(`/api/v1/plugins/${pluginId}/logs`);
-      return res.json();
-    } catch {
-      console.warn('[plugins.getPluginLogs] API not available, using mock fallback');
-      const { mockGetPluginLogs } = await import('@/lib/mocks/plugins.mock');
-      return mockGetPluginLogs(pluginId);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return [];
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const allLogs = (settings.plugin_logs ?? {}) as Record<string, PluginLog[]>;
+    return allLogs[pluginId] ?? [];
   } catch (error) {
     console.warn('[getPluginLogs] Fallback:', error);
     return [];

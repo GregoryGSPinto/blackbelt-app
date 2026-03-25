@@ -75,24 +75,26 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       const { mockProcessCommand } = await import('@/lib/mocks/voice-assistant.mock');
       return mockProcessCommand(audioTranscript);
     }
-    try {
-      const res = await fetch('/api/ai/voice-command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: audioTranscript }),
-      });
-      if (!res.ok) {
-        console.warn('[processCommand] API error:', res.status);
-        // Fallback to local command parsing
-        const cmdType = parseCommand(audioTranscript);
-        return { command_type: cmdType, text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
-      }
-      return res.json();
-    } catch {
-      console.warn('[voice-assistant.processCommand] API not available — feature em desenvolvimento');
-      const cmdType = parseCommand(audioTranscript);
-      return { command_type: cmdType, text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
-    }
+    // Use local keyword matching — no external API needed
+    const cmdType = parseCommand(audioTranscript);
+    const responses: Record<VoiceCommandType, string> = {
+      start_timer: 'Cronômetro iniciado.',
+      stop_timer: 'Cronômetro parado.',
+      next_exercise: 'Avançando para o próximo exercício.',
+      time_remaining: 'Verificando tempo restante.',
+      check_posture: 'Análise de postura requer configuração da Vision API.',
+      register_attendance: 'Registrando presença.',
+      next_training: 'Verificando próximo treino.',
+      match_result: 'Consultando resultado da luta.',
+      unknown: 'Comando não reconhecido. Tente novamente.',
+    };
+
+    return {
+      command_type: cmdType,
+      text_response: responses[cmdType],
+      action: cmdType !== 'unknown' ? cmdType : null,
+      data: null,
+    };
   } catch (error) {
     console.warn('[processCommand] Fallback:', error);
     return { command_type: 'unknown', text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };

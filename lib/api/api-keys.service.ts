@@ -23,14 +23,49 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
       const { mockGenerateApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockGenerateApiKey(academyId, name);
     }
-    try {
-      const res = await fetch('/api/v1/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ academyId, name }) });
-      return res.json();
-    } catch {
-      console.warn('[api-keys.generateApiKey] API not available, using mock fallback');
-      const { mockGenerateApiKey } = await import('@/lib/mocks/api-keys.mock');
-      return mockGenerateApiKey(academyId, name);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Generate random key and secret
+    const randomHex = (len: number) => Array.from(crypto.getRandomValues(new Uint8Array(len))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const keyValue = `bb_${randomHex(16)}`;
+    const secretValue = `bbs_${randomHex(32)}`;
+    const now = new Date().toISOString();
+    const keyId = crypto.randomUUID();
+
+    const newApiKey: ApiKey = {
+      id: keyId,
+      academyId,
+      name,
+      keyPrefix: keyValue.slice(0, 10),
+      permissions: ['read', 'write'],
+      createdAt: now,
+      lastUsedAt: null,
+      revokedAt: null,
+    };
+
+    // Read current settings
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', academyId)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+    const keys = (settings.api_keys ?? []) as ApiKey[];
+    keys.push(newApiKey);
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: academyId, settings: { ...settings, api_keys: keys }, updated_at: now },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[generateApiKey] Supabase error:', error.message);
+      return { key: '', secret: '', apiKey: { ...newApiKey, id: '' } };
     }
+
+    return { key: keyValue, secret: secretValue, apiKey: newApiKey };
   } catch (error) {
     console.warn('[generateApiKey] Fallback:', error);
     return { key: '', secret: '', apiKey: { id: '', academyId, name, keyPrefix: '', permissions: [], createdAt: '', lastUsedAt: null, revokedAt: null } };
@@ -43,14 +78,23 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       const { mockListApiKeys } = await import('@/lib/mocks/api-keys.mock');
       return mockListApiKeys(academyId);
     }
-    try {
-      const res = await fetch(`/api/v1/api-keys?academyId=${academyId}`);
-      return res.json();
-    } catch {
-      console.warn('[api-keys.listApiKeys] API not available, using mock fallback');
-      const { mockListApiKeys } = await import('@/lib/mocks/api-keys.mock');
-      return mockListApiKeys(academyId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data, error } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', academyId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[listApiKeys] Supabase error:', error.message);
     }
+
+    const settings = (data?.settings ?? {}) as Record<string, unknown>;
+    const keys = (settings.api_keys ?? []) as ApiKey[];
+    // Only return non-revoked keys
+    return keys.filter((k) => !k.revokedAt);
   } catch (error) {
     console.warn('[listApiKeys] Fallback:', error);
     return [];
@@ -63,10 +107,26 @@ export async function revokeApiKey(keyId: string): Promise<void> {
       const { mockRevokeApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockRevokeApiKey(keyId);
     }
-    try {
-      await fetch(`/api/v1/api-keys/${keyId}`, { method: 'DELETE' });
-    } catch {
-      console.warn('[api-keys.revokeApiKey] API not available, using fallback');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Search across all academy_settings for this key
+    const { data: rows } = await supabase
+      .from('academy_settings')
+      .select('academy_id, settings');
+
+    for (const row of rows ?? []) {
+      const settings = (row.settings ?? {}) as Record<string, unknown>;
+      const keys = (settings.api_keys ?? []) as ApiKey[];
+      const idx = keys.findIndex((k) => k.id === keyId);
+      if (idx >= 0) {
+        keys[idx] = { ...keys[idx], revokedAt: new Date().toISOString() };
+        const { error } = await supabase.from('academy_settings').update(
+          { settings: { ...settings, api_keys: keys }, updated_at: new Date().toISOString() },
+        ).eq('academy_id', row.academy_id);
+        if (error) console.warn('[revokeApiKey] Supabase error:', error.message);
+        return;
+      }
     }
   } catch (error) {
     console.warn('[revokeApiKey] Fallback:', error);
@@ -79,14 +139,25 @@ export async function validateApiKey(key: string): Promise<{ academyId: string; 
       const { mockValidateApiKey } = await import('@/lib/mocks/api-keys.mock');
       return mockValidateApiKey(key);
     }
-    try {
-      const res = await fetch('/api/v1/api-keys/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
-      if (!res.ok) return null;
-      return res.json();
-    } catch {
-      console.warn('[api-keys.validateApiKey] API not available, using fallback');
-      return null;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const prefix = key.slice(0, 10);
+
+    const { data: rows } = await supabase
+      .from('academy_settings')
+      .select('academy_id, settings');
+
+    for (const row of rows ?? []) {
+      const settings = (row.settings ?? {}) as Record<string, unknown>;
+      const keys = (settings.api_keys ?? []) as ApiKey[];
+      const found = keys.find((k) => k.keyPrefix === prefix && !k.revokedAt);
+      if (found) {
+        return { academyId: found.academyId, permissions: found.permissions };
+      }
     }
+
+    return null;
   } catch (error) {
     console.warn('[validateApiKey] Fallback:', error);
     return null;

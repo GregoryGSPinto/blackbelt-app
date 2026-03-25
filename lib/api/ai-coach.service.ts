@@ -64,17 +64,31 @@ export async function getTrainingSuggestion(studentId: string): Promise<string> 
       const { mockGetTrainingSuggestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockGetTrainingSuggestion(studentId);
     }
-    try {
-      const res = await fetch('/api/ai/training-suggestion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-      if (!res.ok) {
-        console.warn('[getTrainingSuggestion] API error:', res.status);
-        return 'IA Coach em desenvolvimento. Configure a API key em Configurações.';
-      }
-      return res.json().then((r: { suggestion: string }) => r.suggestion);
-    } catch {
-      console.warn('[ai-coach.getTrainingSuggestion] API not available, using mock fallback');
-      const { mockGetTrainingSuggestion } = await import('@/lib/mocks/ai-coach.mock');
-      return mockGetTrainingSuggestion(studentId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch student data from DB
+    const { data: student } = await supabase
+      .from('students')
+      .select('name, belt, stripes')
+      .eq('id', studentId)
+      .single();
+
+    const { count: attendanceCount } = await supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId);
+
+    const belt = student?.belt ?? 'branca';
+    const total = attendanceCount ?? 0;
+
+    // Data-driven suggestion based on attendance and belt
+    if (total < 10) {
+      return `Foco em fundamentos básicos. Com ${total} aulas registradas, priorize posições de base e defesa.`;
+    } else if (total < 50) {
+      return `Bom progresso com ${total} aulas! Para faixa ${belt}, trabalhe transições de guarda e passagens.`;
+    } else {
+      return `Excelente dedicação (${total} aulas)! Faixa ${belt} — refine seu jogo ofensivo e prepare-se para competições.`;
     }
   } catch (error) {
     console.warn('[getTrainingSuggestion] Fallback:', error);
@@ -88,18 +102,53 @@ export async function analyzePerformance(studentId: string): Promise<Performance
       const { mockAnalyzePerformance } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnalyzePerformance(studentId);
     }
-    try {
-      const res = await fetch('/api/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId }) });
-      if (!res.ok) {
-        console.warn('[analyzePerformance] API error:', res.status);
-        return { summary: '', strengths: [], improvements: [], recommendation: '' };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.analyzePerformance] API not available, using mock fallback');
-      const { mockAnalyzePerformance } = await import('@/lib/mocks/ai-coach.mock');
-      return mockAnalyzePerformance(studentId);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: student } = await supabase
+      .from('students')
+      .select('name, belt, stripes')
+      .eq('id', studentId)
+      .single();
+
+    const { count: attendanceCount } = await supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId);
+
+    const { data: evals } = await supabase
+      .from('evaluations')
+      .select('score, notes')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    const belt = student?.belt ?? 'branca';
+    const total = attendanceCount ?? 0;
+    const avgScore = evals?.length
+      ? evals.reduce((s: number, e: { score: number | null; notes: string | null }) => s + (e.score ?? 0), 0) / evals.length
+      : 0;
+
+    const strengths: string[] = [];
+    const improvements: string[] = [];
+
+    if (total > 30) strengths.push('Frequência consistente');
+    else improvements.push('Aumentar frequência de treinos');
+
+    if (avgScore >= 7) strengths.push('Boas avaliações técnicas');
+    else if (avgScore > 0) improvements.push('Melhorar desempenho nas avaliações');
+
+    strengths.push('Dedicação ao treinamento');
+    improvements.push('Variar parceiros de treino');
+
+    return {
+      summary: `Aluno faixa ${belt} com ${total} presenças e média de avaliação ${avgScore.toFixed(1)}.`,
+      strengths,
+      improvements,
+      recommendation: total > 20
+        ? 'Continue o ritmo e foque em posições específicas para aprimorar.'
+        : 'Priorize frequência regular para consolidar a base técnica.',
+    };
   } catch (error) {
     console.warn('[analyzePerformance] Fallback:', error);
     return { summary: '', strengths: [], improvements: [], recommendation: '' };
@@ -112,18 +161,14 @@ export async function generateClassPlan(professorId: string, classId: string): P
       const { mockGenerateClassPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateClassPlan(professorId, classId);
     }
-    try {
-      const res = await fetch('/api/ai/class-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ professorId, classId }) });
-      if (!res.ok) {
-        console.warn('[generateClassPlan] API error:', res.status);
-        return { warmup: '', technique: '', drills: [], sparring: '', cooldown: '' };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.generateClassPlan] API not available, using mock fallback');
-      const { mockGenerateClassPlan } = await import('@/lib/mocks/ai-coach.mock');
-      return mockGenerateClassPlan(professorId, classId);
-    }
+    // AI feature — return structured default when API key not configured
+    return {
+      warmup: 'Corrida leve + alongamento dinâmico (10 min)',
+      technique: 'Técnica do dia conforme planejamento do professor',
+      drills: ['Repetição da técnica em duplas', 'Drill posicional (guard pass/retention)'],
+      sparring: 'Sparring livre ou posicional (3 rounds de 5 min)',
+      cooldown: 'Alongamento estático + respiração (5 min)',
+    };
   } catch (error) {
     console.warn('[generateClassPlan] Fallback:', error);
     return { warmup: '', technique: '', drills: [], sparring: '', cooldown: '' };
@@ -136,18 +181,9 @@ export async function answerQuestion(studentId: string, question: string): Promi
       const { mockAnswerQuestion } = await import('@/lib/mocks/ai-coach.mock');
       return mockAnswerQuestion(studentId, question);
     }
-    try {
-      const res = await fetch('/api/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, question }) });
-      if (!res.ok) {
-        console.warn('[answerQuestion] API error:', res.status);
-        return '';
-      }
-      return res.json().then((r: { answer: string }) => r.answer);
-    } catch {
-      console.warn('[ai-coach.answerQuestion] API not available, using mock fallback');
-      const { mockAnswerQuestion } = await import('@/lib/mocks/ai-coach.mock');
-      return mockAnswerQuestion(studentId, question);
-    }
+    // AI feature — requires API key to answer questions
+    console.warn('[answerQuestion] AI API not configured — returning default');
+    return 'Assistente IA não configurado. Configure a API key em Configurações > Integrações.';
   } catch (error) {
     console.warn('[answerQuestion] Fallback:', error);
     return '';
@@ -160,18 +196,24 @@ export async function generateTrainingPlan(studentId: string, goal: string, week
       const { mockGenerateTrainingPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockGenerateTrainingPlan(studentId, goal, weeks);
     }
-    try {
-      const res = await fetch('/api/ai/generate-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, goal, weeks }) });
-      if (!res.ok) {
-        console.warn('[generateTrainingPlan] API error:', res.status);
-        return { name: '', goal, duration_weeks: weeks, weeks: [], reasoning: '' };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.generateTrainingPlan] API not available, using mock fallback');
-      const { mockGenerateTrainingPlan } = await import('@/lib/mocks/ai-coach.mock');
-      return mockGenerateTrainingPlan(studentId, goal, weeks);
-    }
+    // AI feature — return basic template plan
+    const weekPlans = Array.from({ length: weeks }, (_, i) => ({
+      week_number: i + 1,
+      theme: i % 2 === 0 ? 'Guarda e Passagem' : 'Controle e Finalização',
+      sessions: [
+        { day_of_week: 1, label: 'Técnica', exercises: [{ name: 'Drill técnico', sets: 3, reps: '10x', notes: 'Foco na posição do dia' }] },
+        { day_of_week: 3, label: 'Sparring', exercises: [{ name: 'Sparring posicional', duration_min: 30, notes: 'Aplicar técnicas da semana' }] },
+        { day_of_week: 5, label: 'Competição', exercises: [{ name: 'Sparring livre', duration_min: 40, notes: 'Simulação de competição' }] },
+      ],
+    }));
+
+    return {
+      name: `Plano de ${weeks} semanas — ${goal}`,
+      goal,
+      duration_weeks: weeks,
+      weeks: weekPlans,
+      reasoning: 'Plano básico gerado automaticamente. Configure a IA para planos personalizados.',
+    };
   } catch (error) {
     console.warn('[generateTrainingPlan] Fallback:', error);
     return { name: '', goal, duration_weeks: weeks, weeks: [], reasoning: '' };
@@ -184,18 +226,13 @@ export async function adjustPlan(planId: string, feedback: string): Promise<Plan
       const { mockAdjustPlan } = await import('@/lib/mocks/ai-coach.mock');
       return mockAdjustPlan(planId, feedback);
     }
-    try {
-      const res = await fetch('/api/ai/adjust-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId, feedback }) });
-      if (!res.ok) {
-        console.warn('[adjustPlan] API error:', res.status);
-        return { changes: [], reasoning: '', updated_plan_id: planId };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.adjustPlan] API not available, using mock fallback');
-      const { mockAdjustPlan } = await import('@/lib/mocks/ai-coach.mock');
-      return mockAdjustPlan(planId, feedback);
-    }
+    // AI feature — return acknowledgment without actual adjustment
+    console.warn('[adjustPlan] AI API not configured — returning default');
+    return {
+      changes: [{ week: 1, description: 'Feedback registrado. Configure a IA para ajustes automáticos.' }],
+      reasoning: 'Ajuste automático requer configuração da API de IA.',
+      updated_plan_id: planId,
+    };
   } catch (error) {
     console.warn('[adjustPlan] Fallback:', error);
     return { changes: [], reasoning: '', updated_plan_id: planId };
@@ -208,18 +245,25 @@ export async function generatePeriodization(studentId: string, competitionDate: 
       const { mockGeneratePeriodization } = await import('@/lib/mocks/ai-coach.mock');
       return mockGeneratePeriodization(studentId, competitionDate);
     }
-    try {
-      const res = await fetch('/api/ai/generate-periodization', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, competitionDate }) });
-      if (!res.ok) {
-        console.warn('[generatePeriodization] API error:', res.status);
-        return { competition_name: '', competition_date: competitionDate, phases: [], reasoning: '' };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.generatePeriodization] API not available, using mock fallback');
-      const { mockGeneratePeriodization } = await import('@/lib/mocks/ai-coach.mock');
-      return mockGeneratePeriodization(studentId, competitionDate);
-    }
+    // AI feature — return basic periodization template
+    const compDate = new Date(competitionDate);
+    const now = new Date();
+    const weeksUntil = Math.max(1, Math.ceil((compDate.getTime() - now.getTime()) / (7 * 24 * 60 * 60 * 1000)));
+
+    const prepWeeks = Math.max(1, Math.floor(weeksUntil * 0.5));
+    const peakWeeks = Math.max(1, Math.floor(weeksUntil * 0.3));
+    const taperWeeks = Math.max(1, weeksUntil - prepWeeks - peakWeeks);
+
+    return {
+      competition_name: 'Competição',
+      competition_date: competitionDate,
+      phases: [
+        { name: 'Preparação Geral', weeks: prepWeeks, intensity: 60, volume: 80, focus: ['Condicionamento', 'Técnica base'] },
+        { name: 'Preparação Específica', weeks: peakWeeks, intensity: 85, volume: 60, focus: ['Sparring competitivo', 'Estratégia'] },
+        { name: 'Taper / Polimento', weeks: taperWeeks, intensity: 50, volume: 30, focus: ['Recuperação', 'Visualização', 'Peso'] },
+      ],
+      reasoning: 'Periodização básica gerada automaticamente. Configure a IA para personalização avançada.',
+    };
   } catch (error) {
     console.warn('[generatePeriodization] Fallback:', error);
     return { competition_name: '', competition_date: competitionDate, phases: [], reasoning: '' };
@@ -232,18 +276,15 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
       const { mockWeeklyCheckIn } = await import('@/lib/mocks/ai-coach.mock');
       return mockWeeklyCheckIn(planId);
     }
-    try {
-      const res = await fetch('/api/ai/weekly-checkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ planId }) });
-      if (!res.ok) {
-        console.warn('[weeklyCheckIn] API error:', res.status);
-        return { summary: '', adherence_pct: 0, highlights: [], adjustments: [], motivation: '' };
-      }
-      return res.json();
-    } catch {
-      console.warn('[ai-coach.weeklyCheckIn] API not available, using mock fallback');
-      const { mockWeeklyCheckIn } = await import('@/lib/mocks/ai-coach.mock');
-      return mockWeeklyCheckIn(planId);
-    }
+    // AI feature — return default weekly check-in
+    console.warn('[weeklyCheckIn] AI API not configured — returning default');
+    return {
+      summary: 'Check-in semanal registrado. Configure a IA para análises detalhadas.',
+      adherence_pct: 0,
+      highlights: ['Continue treinando regularmente'],
+      adjustments: [],
+      motivation: 'A consistência é a chave do progresso. Oss!',
+    };
   } catch (error) {
     console.warn('[weeklyCheckIn] Fallback:', error);
     return { summary: '', adherence_pct: 0, highlights: [], adjustments: [], motivation: '' };

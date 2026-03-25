@@ -47,17 +47,55 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       const { mockSyncHealthData } = await import('@/lib/mocks/wearable.mock');
       return mockSyncHealthData(userId, data);
     }
-    try {
-      const res = await fetch('/api/wearable/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, data }) });
-      if (!res.ok) {
-        console.warn('[syncHealthData] API error:', res.status);
-        return { synced: 0 };
-      }
-      return res.json();
-    } catch {
-      console.warn('[wearable.syncHealthData] API not available — integração Wearable em desenvolvimento');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Get user's academy
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', userId)
+      .limit(1)
+      .single();
+
+    if (!membership) {
+      console.warn('[syncHealthData] No academy membership found');
       return { synced: 0 };
     }
+
+    const { data: existing } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (existing?.settings ?? {}) as Record<string, unknown>;
+    const healthData = (settings.health_data ?? {}) as Record<string, HealthDataPoint[]>;
+    const userHealth = healthData[userId] ?? [];
+
+    // Append new data points
+    const newPoints = data.map((d) => ({
+      timestamp: d.timestamp ?? new Date().toISOString(),
+      heart_rate_bpm: d.heart_rate_bpm ?? 0,
+      calories_burned: d.calories_burned ?? 0,
+      active_minutes: d.active_minutes ?? 0,
+      steps: d.steps ?? 0,
+      heart_rate_zones: d.heart_rate_zones ?? { rest_minutes: 0, fat_burn_minutes: 0, cardio_minutes: 0, peak_minutes: 0 },
+    }));
+
+    healthData[userId] = [...userHealth, ...newPoints];
+
+    const { error } = await supabase.from('academy_settings').upsert(
+      { academy_id: membership.academy_id, settings: { ...settings, health_data: healthData }, updated_at: new Date().toISOString() },
+      { onConflict: 'academy_id' },
+    );
+
+    if (error) {
+      console.warn('[syncHealthData] Supabase error:', error.message);
+      return { synced: 0 };
+    }
+
+    return { synced: newPoints.length };
   } catch (error) {
     console.warn('[syncHealthData] Fallback:', error);
     return { synced: 0 };
@@ -70,17 +108,34 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
       const { mockGetHealthHistory } = await import('@/lib/mocks/wearable.mock');
       return mockGetHealthHistory(userId, period);
     }
-    try {
-      const res = await fetch(`/api/wearable/history?userId=${userId}&period=${period}`);
-      if (!res.ok) {
-        console.warn('[getHealthHistory] API error:', res.status);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[wearable.getHealthHistory] API not available — integração Wearable em desenvolvimento');
-      return [];
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', userId)
+      .limit(1)
+      .single();
+
+    if (!membership) return [];
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const healthData = (settings.health_data ?? {}) as Record<string, HealthDataPoint[]>;
+    const userHealth = healthData[userId] ?? [];
+
+    // Filter by period
+    const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90 };
+    const days = daysMap[period] ?? 30;
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    return userHealth.filter((h) => h.timestamp >= cutoff);
   } catch (error) {
     console.warn('[getHealthHistory] Fallback:', error);
     return [];
@@ -93,17 +148,42 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
       const { mockGetRealtimeMetrics } = await import('@/lib/mocks/wearable.mock');
       return mockGetRealtimeMetrics(userId);
     }
-    try {
-      const res = await fetch(`/api/wearable/realtime?userId=${userId}`);
-      if (!res.ok) {
-        console.warn('[getRealtimeMetrics] API error:', res.status);
-        return emptyRealtime;
-      }
-      return res.json();
-    } catch {
-      console.warn('[wearable.getRealtimeMetrics] API not available — integração Wearable em desenvolvimento');
-      return emptyRealtime;
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', userId)
+      .limit(1)
+      .single();
+
+    if (!membership) return emptyRealtime;
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    const healthData = (settings.health_data ?? {}) as Record<string, HealthDataPoint[]>;
+    const userHealth = healthData[userId] ?? [];
+
+    // Return latest data point as realtime metrics
+    if (userHealth.length === 0) return emptyRealtime;
+
+    const latest = userHealth[userHealth.length - 1];
+    return {
+      heart_rate_bpm: latest.heart_rate_bpm,
+      calories_today: latest.calories_burned,
+      steps_today: latest.steps,
+      active_minutes_today: latest.active_minutes,
+      last_sync: latest.timestamp,
+      device_connected: false,
+      device_name: '',
+      battery_pct: 0,
+    };
   } catch (error) {
     console.warn('[getRealtimeMetrics] Fallback:', error);
     return emptyRealtime;
@@ -116,17 +196,26 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
       const { mockGetTrainingSession } = await import('@/lib/mocks/wearable.mock');
       return mockGetTrainingSession(userId);
     }
-    try {
-      const res = await fetch(`/api/wearable/sessions?userId=${userId}`);
-      if (!res.ok) {
-        console.warn('[getTrainingSession] API error:', res.status);
-        return [];
-      }
-      return res.json();
-    } catch {
-      console.warn('[wearable.getTrainingSession] API not available — integração Wearable em desenvolvimento');
-      return [];
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('academy_id')
+      .eq('profile_id', userId)
+      .limit(1)
+      .single();
+
+    if (!membership) return [];
+
+    const { data: settingsRow } = await supabase
+      .from('academy_settings')
+      .select('settings')
+      .eq('academy_id', membership.academy_id)
+      .single();
+
+    const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
+    return (settings.wearable_sessions?.[userId as keyof typeof settings.wearable_sessions] ?? []) as unknown as WearableSession[];
   } catch (error) {
     console.warn('[getTrainingSession] Fallback:', error);
     return [];

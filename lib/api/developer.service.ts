@@ -41,14 +41,38 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       const { mockGetDeveloperProfile } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperProfile();
     }
-    try {
-      const res = await fetch('/api/v1/developer/profile');
-      return res.json();
-    } catch {
-      console.warn('[developer.getDeveloperProfile] API not available, using mock fallback');
-      const { mockGetDeveloperProfile } = await import('@/lib/mocks/developer.mock');
-      return mockGetDeveloperProfile();
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[getDeveloperProfile] No authenticated user');
+      return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, metadata')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.warn('[getDeveloperProfile] Supabase error:', error.message);
+      return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
+    }
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const dev = (meta.developer ?? {}) as Record<string, unknown>;
+
+    return {
+      id: profile?.id ?? '',
+      name: (dev.name as string) ?? profile?.full_name ?? '',
+      email: (dev.email as string) ?? profile?.email ?? '',
+      company: (dev.company as string) ?? '',
+      website: (dev.website as string) ?? '',
+      verified: (dev.verified as boolean) ?? false,
+      createdAt: (dev.createdAt as string) ?? '',
+    };
   } catch (error) {
     console.warn('[getDeveloperProfile] Fallback:', error);
     return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
@@ -66,18 +90,45 @@ export async function createDeveloperAccount(data: {
       const { mockCreateDeveloperAccount } = await import('@/lib/mocks/developer.mock');
       return mockCreateDeveloperAccount(data);
     }
-    try {
-      const res = await fetch('/api/v1/developer/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      return res.json();
-    } catch {
-      console.warn('[developer.createDeveloperAccount] API not available, using mock fallback');
-      const { mockCreateDeveloperAccount } = await import('@/lib/mocks/developer.mock');
-      return mockCreateDeveloperAccount(data);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.warn('[createDeveloperAccount] No authenticated user');
+      return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
     }
+
+    const now = new Date().toISOString();
+
+    // Read current profile metadata
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('metadata')
+      .eq('id', user.id)
+      .single();
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const devInfo = { ...data, verified: false, createdAt: now };
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ metadata: { ...meta, developer: devInfo } })
+      .eq('id', user.id);
+
+    if (error) {
+      console.warn('[createDeveloperAccount] Supabase error:', error.message);
+    }
+
+    return {
+      id: user.id,
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      website: data.website,
+      verified: false,
+      createdAt: now,
+    };
   } catch (error) {
     console.warn('[createDeveloperAccount] Fallback:', error);
     return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
@@ -90,14 +141,21 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
       const { mockGetSubmittedApps } = await import('@/lib/mocks/developer.mock');
       return mockGetSubmittedApps();
     }
-    try {
-      const res = await fetch('/api/v1/developer/apps');
-      return res.json();
-    } catch {
-      console.warn('[developer.getSubmittedApps] API not available, using mock fallback');
-      const { mockGetSubmittedApps } = await import('@/lib/mocks/developer.mock');
-      return mockGetSubmittedApps();
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('metadata')
+      .eq('id', user.id)
+      .single();
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const dev = (meta.developer ?? {}) as Record<string, unknown>;
+    return (dev.submitted_apps ?? []) as DeveloperApp[];
   } catch (error) {
     console.warn('[getSubmittedApps] Fallback:', error);
     return [];
@@ -110,14 +168,40 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       const { mockSubmitAppForReview } = await import('@/lib/mocks/developer.mock');
       return mockSubmitAppForReview(appId);
     }
-    try {
-      const res = await fetch(`/api/v1/developer/apps/${appId}/submit`, { method: 'POST' });
-      return res.json();
-    } catch {
-      console.warn('[developer.submitAppForReview] API not available, using mock fallback');
-      const { mockSubmitAppForReview } = await import('@/lib/mocks/developer.mock');
-      return mockSubmitAppForReview(appId);
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { id: appId, name: '', status: 'draft', version: '', submittedAt: null, category: '' };
     }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('metadata')
+      .eq('id', user.id)
+      .single();
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const dev = (meta.developer ?? {}) as Record<string, unknown>;
+    const apps = (dev.submitted_apps ?? []) as DeveloperApp[];
+    const now = new Date().toISOString();
+
+    const idx = apps.findIndex((a) => a.id === appId);
+    if (idx >= 0) {
+      apps[idx] = { ...apps[idx], status: 'in_review', submittedAt: now };
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ metadata: { ...meta, developer: { ...dev, submitted_apps: apps } } })
+      .eq('id', user.id);
+
+    if (error) {
+      console.warn('[submitAppForReview] Supabase error:', error.message);
+    }
+
+    return idx >= 0 ? apps[idx] : { id: appId, name: '', status: 'in_review' as const, version: '', submittedAt: now, category: '' };
   } catch (error) {
     console.warn('[submitAppForReview] Fallback:', error);
     return { id: appId, name: '', status: 'draft', version: '', submittedAt: null, category: '' };
@@ -130,14 +214,29 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       const { mockGetDeveloperStats } = await import('@/lib/mocks/developer.mock');
       return mockGetDeveloperStats();
     }
-    try {
-      const res = await fetch('/api/v1/developer/stats');
-      return res.json();
-    } catch {
-      console.warn('[developer.getDeveloperStats] API not available, using mock fallback');
-      const { mockGetDeveloperStats } = await import('@/lib/mocks/developer.mock');
-      return mockGetDeveloperStats();
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { totalApps: 0, totalDownloads: 0, totalRevenue: 0, averageRating: 0, activeInstalls: 0 };
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('metadata')
+      .eq('id', user.id)
+      .single();
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const dev = (meta.developer ?? {}) as Record<string, unknown>;
+    const stats = (dev.stats ?? {}) as Record<string, unknown>;
+
+    return {
+      totalApps: (stats.totalApps as number) ?? 0,
+      totalDownloads: (stats.totalDownloads as number) ?? 0,
+      totalRevenue: (stats.totalRevenue as number) ?? 0,
+      averageRating: (stats.averageRating as number) ?? 0,
+      activeInstalls: (stats.activeInstalls as number) ?? 0,
+    };
   } catch (error) {
     console.warn('[getDeveloperStats] Fallback:', error);
     return { totalApps: 0, totalDownloads: 0, totalRevenue: 0, averageRating: 0, activeInstalls: 0 };
@@ -150,14 +249,21 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
       const { mockGetAPIUsage } = await import('@/lib/mocks/developer.mock');
       return mockGetAPIUsage(days);
     }
-    try {
-      const res = await fetch(`/api/v1/developer/api-usage?days=${days ?? 30}`);
-      return res.json();
-    } catch {
-      console.warn('[developer.getAPIUsage] API not available, using mock fallback');
-      const { mockGetAPIUsage } = await import('@/lib/mocks/developer.mock');
-      return mockGetAPIUsage(days);
-    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('metadata')
+      .eq('id', user.id)
+      .single();
+
+    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
+    const dev = (meta.developer ?? {}) as Record<string, unknown>;
+    return (dev.api_usage ?? []) as APIUsageRecord[];
   } catch (error) {
     console.warn('[getAPIUsage] Fallback:', error);
     return [];
