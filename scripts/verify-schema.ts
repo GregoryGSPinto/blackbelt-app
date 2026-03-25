@@ -246,37 +246,36 @@ const MIGRATION_055_060_TABLES = [
   ...CONTENT_TABLES,
 ];
 
+async function probeTable(supabase: ReturnType<typeof createClient>, table: string): Promise<boolean> {
+  const { error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+  // If error contains "relation" and "does not exist", the table is missing
+  if (error && /relation.*does not exist|does not exist/.test(error.message)) return false;
+  // Any other error (RLS, empty, etc.) means the table exists
+  return true;
+}
+
 async function main() {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-  // Query information_schema for public tables
-  const { data: tables, error } = await supabase
-    .from('information_schema.tables' as string)
-    .select('table_name')
-    .eq('table_schema', 'public')
-    .eq('table_type', 'BASE TABLE');
+  const allTables = [
+    ...CRITICAL_TABLES,
+    ...MIGRATION_055_060_TABLES,
+    ...OPTIONAL_TABLES,
+  ];
+  const unique = [...new Set(allTables)];
 
-  if (error) {
-    // Fallback: use RPC
-    console.log('Direct information_schema query failed, trying RPC...');
-    const { data: rpcData, error: rpcError } = await supabase.rpc('get_public_tables' as string);
-    if (rpcError) {
-      console.error('Could not query tables:', rpcError.message);
-      console.log('\nTo enable this script, run this SQL in Supabase SQL Editor:');
-      console.log(`
-CREATE OR REPLACE FUNCTION get_public_tables()
-RETURNS TABLE(table_name text) AS $$
-  SELECT tablename::text FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;
-$$ LANGUAGE sql SECURITY DEFINER;
-      `);
-      process.exit(1);
+  console.log(`Probing ${unique.length} tables...\n`);
+
+  // Probe in batches of 20 for speed
+  const existingTables = new Set<string>();
+  for (let i = 0; i < unique.length; i += 20) {
+    const batch = unique.slice(i, i + 20);
+    const results = await Promise.all(batch.map((t) => probeTable(supabase, t).then((ok) => ({ t, ok }))));
+    for (const { t, ok } of results) {
+      if (ok) existingTables.add(t);
     }
-    const existingTables = new Set((rpcData as { table_name: string }[]).map((r) => r.table_name));
-    reportResults(existingTables);
-    return;
   }
 
-  const existingTables = new Set((tables as { table_name: string }[]).map((r) => r.table_name));
   reportResults(existingTables);
 }
 
