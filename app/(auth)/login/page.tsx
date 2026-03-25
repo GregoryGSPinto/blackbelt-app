@@ -28,12 +28,16 @@ export default function LoginPage() {
       const profiles = await login(email, password);
       if (profiles.length === 1) {
         await selectProfile(profiles[0].id);
-      } else {
+      } else if (profiles.length > 1) {
         router.push('/selecionar-perfil');
+      } else {
+        setLocalError('Nenhum perfil encontrado para este usuário.');
       }
     } catch (err: unknown) {
+      console.error('[LoginPage] handleSubmit error:', err);
       const message = err instanceof Error ? err.message : 'Email ou senha incorretos';
       setLocalError(message);
+    } finally {
       setLoading(false);
     }
   };
@@ -55,8 +59,10 @@ export default function LoginPage() {
         }
       }
     } catch (err: unknown) {
+      console.error('[LoginPage] handleOAuth error:', err);
       const message = err instanceof Error ? err.message : 'Erro ao fazer login social';
       setLocalError(message);
+    } finally {
       setOauthLoading(null);
     }
   };

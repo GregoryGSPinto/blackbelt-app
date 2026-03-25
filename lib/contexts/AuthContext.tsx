@@ -87,8 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               const loaded = await authService.getMyProfiles(payload.sub);
               if (loaded.length > 0) allProfiles = loaded;
-            } catch {
-              // fallback to single profile
+            } catch (err) {
+              console.error('[AuthContext] bootstrap getMyProfiles error:', err);
             }
 
             setState({
@@ -143,8 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
           return;
         }
-      } catch {
-        // Session expired or invalid
+      } catch (err) {
+        console.error('[AuthContext] bootstrap session error:', err);
       }
 
       setState((prev) => ({ ...prev, isLoading: false }));
@@ -304,7 +304,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const response = await authService.refreshToken(refresh);
         setTokens(response.accessToken, refresh);
-      } catch {
+      } catch (err) {
+        console.error('[AuthContext] mock refreshSession error:', err);
         await logout();
       }
       return;
@@ -315,8 +316,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { createBrowserClient } = await import('@/lib/supabase/client');
       const supabase = createBrowserClient();
       const { error } = await supabase.auth.refreshSession();
-      if (error) await logout();
-    } catch {
+      if (error) {
+        console.error('[AuthContext] refreshSession failed:', error.message);
+        await logout();
+      }
+    } catch (err) {
+      console.error('[AuthContext] refreshSession error:', err);
       await logout();
     }
   }, [logout]);
