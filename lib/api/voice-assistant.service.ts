@@ -75,6 +75,14 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       const { mockProcessCommand } = await import('@/lib/mocks/voice-assistant.mock');
       return mockProcessCommand(audioTranscript);
     }
+    // Log voice command to DB for analytics
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    await supabase.from('telemetry_events').insert({
+      event: 'voice_command',
+      payload: { transcript: audioTranscript },
+    }).then(() => {}, () => {});
+
     // Use local keyword matching — no external API needed
     const cmdType = parseCommand(audioTranscript);
     const responses: Record<VoiceCommandType, string> = {

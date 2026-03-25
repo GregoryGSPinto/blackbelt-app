@@ -41,6 +41,14 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       const { mockAnalyzePosture } = await import('@/lib/mocks/posture-analysis.mock');
       return mockAnalyzePosture(imageBase64);
     }
+    // Log analysis request to DB
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    await supabase.from('telemetry_events').insert({
+      event: 'posture_analysis_requested',
+      payload: { image_size: imageBase64.length },
+    }).then(() => {}, () => {});
+
     // Vision API not configured — return graceful default
     console.warn('[analyzePosture] Vision API not configured — returning default');
     return {
