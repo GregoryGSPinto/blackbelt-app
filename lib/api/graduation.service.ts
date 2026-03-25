@@ -119,8 +119,42 @@ export async function checkCriteria(
       const { mockCheckCriteria } = await import('@/lib/mocks/graduation.mock');
       return mockCheckCriteria(studentId, targetBelt);
     }
-    console.warn('[graduation.checkCriteria] fallback — criteria check not yet implemented');
-    return { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } };
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    // Fetch criteria for this belt level
+    const { data: criteria } = await supabase
+      .from('belt_criteria')
+      .select('*')
+      .eq('to_belt', targetBelt)
+      .maybeSingle();
+
+    const minAttendance = (criteria?.min_attendance as number) ?? 30;
+    const minMonths = (criteria?.min_months as number) ?? 6;
+    const minQuiz = (criteria?.min_quiz_avg as number) ?? 70;
+
+    // Fetch student's attendance count
+    const { count: attendanceCount } = await supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId);
+
+    // Fetch student's enrollment date to calculate months
+    const { data: student } = await supabase
+      .from('students')
+      .select('started_at')
+      .eq('id', studentId)
+      .maybeSingle();
+
+    const startedAt = student?.started_at ? new Date(student.started_at as string) : new Date();
+    const monthsTraining = Math.round((Date.now() - startedAt.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    const currentAttendance = attendanceCount ?? 0;
+
+    return {
+      attendance: { required: minAttendance, current: currentAttendance, met: currentAttendance >= minAttendance },
+      months: { required: minMonths, current: monthsTraining, met: monthsTraining >= minMonths },
+      quiz_avg: { required: minQuiz, current: 0, met: false },
+    };
   } catch (error) {
     console.warn('[checkCriteria] Fallback:', error);
     return { attendance: { required: 0, current: 0, met: false }, months: { required: 0, current: 0, met: false }, quiz_avg: { required: 0, current: 0, met: false } };

@@ -169,8 +169,15 @@ export async function dismissDashboardAlert(_alertId: string): Promise<void> {
     if (isMock()) {
       return;
     }
-    console.warn('[adminDashboard.dismissAlert] fallback — not yet connected to Supabase');
-    return;
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('id', _alertId);
+    if (error) {
+      console.warn('[dismissDashboardAlert] error:', error.message);
+    }
   } catch (error) {
     console.warn('[dismissDashboardAlert] Fallback:', error);
   }

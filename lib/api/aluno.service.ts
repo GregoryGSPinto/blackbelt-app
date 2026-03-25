@@ -388,7 +388,31 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       membro_desde: student.started_at as string,
       proximaAula,
       aulaAgora: proximaAula ? false : false, // computed client-side
-      proximaAulaAmanha: null, // TODO: compute tomorrow's class
+      proximaAulaAmanha: (() => {
+        const tomorrow = (currentDay + 1) % 7;
+        for (const enrollment of enrollmentsRes.data ?? []) {
+          const cls = enrollment.classes as Record<string, unknown> | null;
+          if (!cls) continue;
+          const schedule = (cls.schedule as ScheduleSlot[]) ?? [];
+          const mod = cls.modalities as Record<string, unknown> | null;
+          const prof = cls.profiles as Record<string, unknown> | null;
+          const unit = cls.units as Record<string, unknown> | null;
+          for (const slot of schedule) {
+            if (slot.day_of_week === tomorrow) {
+              return {
+                class_id: cls.id as string,
+                modality_name: (mod?.name ?? '') as string,
+                level_label: '',
+                professor_name: (prof?.display_name ?? '') as string,
+                start_time: slot.start_time,
+                end_time: slot.end_time,
+                unit_name: (unit?.name ?? '') as string,
+              } as ProximaAulaDTO;
+            }
+          }
+        }
+        return null;
+      })(),
       progressoFaixa: {
         faixa_atual: currentBelt,
         proxima_faixa: nextBelt,
@@ -412,8 +436,11 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       },
       frequenciaMesAnteriorPct,
       streak,
-      videos_watched: 0, // TODO: fetch from video_watch_history count
-      quiz_score_avg: 0, // TODO: fetch from quiz results
+      videos_watched: await (async () => {
+        const { count } = await supabase.from('video_watch_history').select('id', { count: 'exact', head: true }).eq('student_id', studentId);
+        return count ?? 0;
+      })(),
+      quiz_score_avg: 0, // quiz feature not yet active
       evolucao: {
         presencas_atual: totalAttendance,
         presencas_necessario: 120,
@@ -422,7 +449,18 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
         quiz_avg: 0,
         quiz_necessario: 70,
       },
-      heatmap3Meses: [], // TODO: fetch 3-month attendance history
+      heatmap3Meses: await (async () => {
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
+        const { data: heatData } = await supabase
+          .from('attendance')
+          .select('checked_at')
+          .eq('student_id', studentId)
+          .gte('checked_at', threeMonthsAgo);
+        return (heatData ?? []).map((r: Record<string, unknown>) => ({
+          date: (r.checked_at as string).split('T')[0],
+          count: 1,
+        }));
+      })(),
       mensalidade: {
         plano_nome: '',
         valor: 0,
@@ -432,9 +470,47 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
       },
       proximasAulas: proximaAula ? [proximaAula] : [],
       conteudoRecomendado,
-      continuarAssistindo: null, // TODO: fetch from video_watch_history
+      continuarAssistindo: await (async () => {
+        const { data: lastWatched } = await supabase
+          .from('video_watch_history')
+          .select('video_id, progress, videos(title, duration)')
+          .eq('student_id', studentId)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!lastWatched) return null;
+        const vid = lastWatched.videos as Record<string, unknown> | null;
+        const duration = ((vid?.duration as number) ?? 0);
+        const progressPct = (lastWatched.progress as number) ?? 0;
+        return {
+          video_id: lastWatched.video_id as string,
+          title: (vid?.title ?? '') as string,
+          thumbnail_url: '',
+          duration,
+          watched_seconds: Math.round(duration * progressPct / 100),
+          progress_pct: progressPct,
+        } as ContinuarAssistindoDTO;
+      })(),
       ultimasConquistas,
-      proximaConquista: null, // TODO: compute next achievement
+      proximaConquista: await (async () => {
+        const earnedIds = (achievementsRes.data ?? []).map((a: Record<string, unknown>) => a.id as string);
+        const query = supabase
+          .from('achievement_definitions')
+          .select('id, type, title, description, target')
+          .limit(1);
+        if (earnedIds.length > 0) {
+          query.not('id', 'in', `(${earnedIds.join(',')})`);
+        }
+        const { data: nextAch } = await query.maybeSingle();
+        if (!nextAch) return null;
+        return {
+          name: ((nextAch.title ?? nextAch.type) ?? '') as string,
+          icon: 'trophy',
+          description: ((nextAch.description ?? '') as string),
+          progress_current: totalAttendance,
+          progress_target: ((nextAch.target as number) ?? 50),
+        } as ProximaConquistaDTO;
+      })(),
       semana,
     };
   } catch (error) {
