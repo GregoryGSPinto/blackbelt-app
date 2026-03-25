@@ -26,63 +26,33 @@ const FAQ_ITEMS = [
 const PLANS = [
   {
     name: 'Starter',
-    price: 'R$ 97',
-    period: '/mês',
-    students: '50 alunos',
-    classes: '3 turmas',
-    professors: '1 professor',
-    features: ['Check-in por QR Code'],
-    cta: 'Começar Grátis',
+    features: ['50 alunos', '3 turmas', '1 professor', 'Check-in por QR Code'],
     href: '/cadastrar-academia?plan=starter',
     highlighted: false,
   },
   {
     name: 'Essencial',
-    price: 'R$ 197',
-    period: '/mês',
-    students: '150 alunos',
-    classes: '10 turmas',
-    professors: '3 professores',
-    features: ['Check-in por QR Code', 'Financeiro', 'Relatórios'],
-    cta: 'Começar Grátis',
+    features: ['150 alunos', '10 turmas', '3 professores', 'Check-in por QR Code', 'Financeiro', 'Relatórios'],
     href: '/cadastrar-academia?plan=essencial',
     highlighted: false,
   },
   {
     name: 'Pro',
-    price: 'R$ 347',
-    period: '/mês',
-    students: '300 alunos',
-    classes: 'Turmas ilimitadas',
-    professors: '10 professores',
-    features: ['Check-in por QR Code', 'Financeiro', 'Relatórios', 'Streaming', 'Gamificação', 'Campeonatos'],
-    cta: 'Começar Grátis',
+    features: ['300 alunos', 'Turmas ilimitadas', '10 professores', 'Check-in por QR Code', 'Financeiro', 'Relatórios', 'Streaming', 'Gamificação', 'Campeonatos'],
     href: '/cadastrar-academia?plan=pro',
     highlighted: true,
     badge: 'Mais Popular',
   },
   {
     name: 'Black Belt',
-    price: 'R$ 597',
-    period: '/mês',
-    students: 'Alunos ilimitados',
-    classes: 'Turmas ilimitadas',
-    professors: 'Professores ilimitados',
-    features: ['Tudo do Pro', 'White-label', 'Multi-unidade', 'Integrações'],
-    cta: 'Começar Grátis',
+    features: ['Alunos ilimitados', 'Turmas ilimitadas', 'Professores ilimitados', 'Tudo do Pro', 'White-label', 'Multi-unidade', 'Integrações'],
     href: '/cadastrar-academia?plan=blackbelt',
     highlighted: false,
   },
   {
     name: 'Enterprise',
-    price: 'Sob consulta',
-    period: '',
-    students: 'Ilimitado',
-    classes: 'Ilimitado',
-    professors: 'Ilimitado',
-    features: ['Tudo do Black Belt', 'API dedicada', 'Suporte dedicado', 'SLA'],
-    cta: 'Falar com a Gente',
-    href: 'https://wa.me/5531999990000?text=Olá! Tenho interesse no plano Enterprise do BlackBelt',
+    features: ['Ilimitado em tudo', 'Tudo do Black Belt', 'API dedicada', 'Suporte dedicado', 'SLA'],
+    href: '/cadastrar-academia?plan=enterprise',
     highlighted: false,
   },
 ];
@@ -377,16 +347,7 @@ export default function LandingPage() {
                     </span>
                   )}
                   <h3 className="text-base font-bold">{plan.name}</h3>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-2xl font-extrabold">{plan.price}</span>
-                    {plan.period && <span className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>{plan.period}</span>}
-                  </div>
-                  <div className="mt-4 space-y-1.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                    <p>{plan.students}</p>
-                    <p>{plan.classes}</p>
-                    <p>{plan.professors}</p>
-                  </div>
-                  <div className="mt-4 flex-1">
+                  <div className="mt-3 flex-1">
                     {plan.features.map((f) => (
                       <div key={f} className="flex items-start gap-1.5 py-0.5">
                         <span className="text-xs mt-0.5" style={{ color: '#22C55E' }}>✓</span>
@@ -403,11 +364,15 @@ export default function LandingPage() {
                       border: plan.highlighted ? 'none' : '1px solid var(--bb-glass-border)',
                     }}
                   >
-                    {plan.cta}
+                    Começar Grátis — 7 Dias
                   </Link>
                 </div>
               ))}
             </div>
+
+            <p className="mt-8 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+              Veja os valores durante o cadastro. Teste grátis por 7 dias, sem cartão.
+            </p>
           </div>
         </FadeInSection>
       </section>
