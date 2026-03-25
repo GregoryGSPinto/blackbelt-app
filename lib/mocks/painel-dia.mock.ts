@@ -31,6 +31,7 @@ const BRIEFING: DailyBriefingDTO = {
   resumo: {
     alunosAtivos: 142,
     aulasHoje: 4,
+    presencasHoje: 23,
     receitaMes: 28500,
     taxaPresencaSemana: 78,
   },
