@@ -66,13 +66,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   pending: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6', label: 'Pendente' },
 };
 
-const TURMAS = [
-  'BJJ Fundamentos',
-  'BJJ All Levels',
-  'Judô Adulto',
-  'BJJ Avançado',
-  'BJJ Noturno',
-];
+// Turmas derived from student data below (no hardcoded list)
 
 function getInitials(name: string): string {
   return name
@@ -110,6 +104,11 @@ export default function AdminAlunosPage() {
     }
     load();
   }, [toast]);
+
+  const turmaOptions = useMemo(
+    () => [...new Set(students.flatMap((s) => s.turmas))].sort(),
+    [students],
+  );
 
   const filtered = useMemo(() => {
     let result = students;
@@ -313,7 +312,7 @@ export default function AdminAlunosPage() {
           }}
         >
           <option value="">Todas as turmas</option>
-          {TURMAS.map((t) => (
+          {turmaOptions.map((t) => (
             <option key={t} value={t}>{t}</option>
           ))}
         </select>
