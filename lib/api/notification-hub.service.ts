@@ -41,9 +41,61 @@ export async function sendNotification(
 
     const results: NotificationResult[] = [];
     for (const channel of channels) {
-      const sender = await getChannelSender(channel);
-      const result = await sender.send(userId, template, data);
-      results.push(result);
+      if (channel === 'in_app') {
+        try {
+          const { createBrowserClient } = await import('@/lib/supabase/client');
+          const supabase = createBrowserClient();
+          const body = resolveTemplate(template, data);
+          const { data: inserted, error } = await supabase
+            .from('notifications')
+            .insert({
+              profile_id: userId,
+              title: template,
+              body,
+              type: channel,
+            })
+            .select('id')
+            .single();
+          if (error) {
+            console.warn('[sendNotification] in_app Supabase error:', error.message);
+            results.push({
+              id: '',
+              channel: 'in_app',
+              status: 'failed',
+              error: error.message,
+            });
+          } else {
+            results.push({
+              id: inserted?.id ?? '',
+              channel: 'in_app',
+              status: 'sent',
+              sentAt: new Date().toISOString(),
+            });
+          }
+        } catch (err) {
+          console.warn('[sendNotification] in_app insert failed:', err);
+          results.push({
+            id: '',
+            channel: 'in_app',
+            status: 'failed',
+            error: String(err),
+          });
+        }
+      } else {
+        try {
+          const sender = await getChannelSender(channel);
+          const result = await sender.send(userId, template, data);
+          results.push(result);
+        } catch (err) {
+          console.warn(`[sendNotification] ${channel} channel failed:`, err);
+          results.push({
+            id: '',
+            channel,
+            status: 'failed',
+            error: String(err),
+          });
+        }
+      }
     }
     return results;
   } catch (error) {

@@ -13,16 +13,23 @@ export async function listNotifications(
       return mockListNotifications(userId, unreadOnly);
     }
     try {
-      const params = new URLSearchParams({ userId });
-      if (unreadOnly) params.set('unreadOnly', 'true');
-      const res = await fetch(`/api/in-app-notifications?${params.toString()}`);
-      if (!res.ok) {
-        console.warn('[listNotifications] error:', `HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      let query = supabase
+        .from('notifications')
+        .select('*')
+        .eq('profile_id', userId);
+      if (unreadOnly) {
+        query = query.eq('read', false);
+      }
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) {
+        console.warn('[listNotifications] Supabase error:', error.message);
         return [];
       }
-      return res.json();
-    } catch {
-      console.warn('[in-app-notification.listNotifications] API not available, using mock fallback');
+      return (data ?? []) as InAppNotification[];
+    } catch (err) {
+      console.warn('[in-app-notification.listNotifications] query failed, using mock fallback', err);
       const { mockListNotifications } = await import('@/lib/mocks/in-app-notification.mock');
       return mockListNotifications(userId, unreadOnly);
     }
@@ -41,14 +48,17 @@ export async function markAsRead(id: string): Promise<void> {
       return mockMarkAsRead(id);
     }
     try {
-      const res = await fetch(`/api/in-app-notifications/${id}/read`, {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        console.warn('[markAsRead] error:', `HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+      if (error) {
+        console.warn('[markAsRead] Supabase error:', error.message);
       }
-    } catch {
-      console.warn('[in-app-notification.markAsRead] API not available, using fallback');
+    } catch (err) {
+      console.warn('[in-app-notification.markAsRead] query failed, using fallback', err);
     }
   } catch (error) {
     console.warn('[markAsRead] Fallback:', error);
@@ -64,16 +74,18 @@ export async function markAllRead(userId: string): Promise<void> {
       return mockMarkAllRead(userId);
     }
     try {
-      const res = await fetch('/api/in-app-notifications/read-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!res.ok) {
-        console.warn('[markAllRead] error:', `HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('profile_id', userId)
+        .eq('read', false);
+      if (error) {
+        console.warn('[markAllRead] Supabase error:', error.message);
       }
-    } catch {
-      console.warn('[in-app-notification.markAllRead] API not available, using fallback');
+    } catch (err) {
+      console.warn('[in-app-notification.markAllRead] query failed, using fallback', err);
     }
   } catch (error) {
     console.warn('[markAllRead] Fallback:', error);
@@ -89,14 +101,17 @@ export async function dismiss(id: string): Promise<void> {
       return mockDismiss(id);
     }
     try {
-      const res = await fetch(`/api/in-app-notifications/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        console.warn('[dismiss] error:', `HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        console.warn('[dismiss] Supabase error:', error.message);
       }
-    } catch {
-      console.warn('[in-app-notification.dismiss] API not available, using fallback');
+    } catch (err) {
+      console.warn('[in-app-notification.dismiss] query failed, using fallback', err);
     }
   } catch (error) {
     console.warn('[dismiss] Fallback:', error);
@@ -112,17 +127,20 @@ export async function getUnreadCount(userId: string): Promise<number> {
       return mockGetUnreadCount(userId);
     }
     try {
-      const res = await fetch(
-        `/api/in-app-notifications/unread-count?userId=${userId}`,
-      );
-      if (!res.ok) {
-        console.warn('[getUnreadCount] error:', `HTTP ${res.status}`);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('profile_id', userId)
+        .eq('read', false);
+      if (error) {
+        console.warn('[getUnreadCount] Supabase error:', error.message);
         return 0;
       }
-      const data: { count: number } = await res.json();
-      return data.count;
-    } catch {
-      console.warn('[in-app-notification.getUnreadCount] API not available, using fallback');
+      return count ?? 0;
+    } catch (err) {
+      console.warn('[in-app-notification.getUnreadCount] query failed, using fallback', err);
       return 0;
     }
   } catch (error) {
