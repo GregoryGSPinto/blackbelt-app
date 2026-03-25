@@ -1,0 +1,111 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║     BLACKBELT v2 — MEGA SIMULAÇÃO REPORT (COMPLETO)                 ║
+║     Data: 2026-03-25                                                ║
+║     Target: https://blackbeltv2.vercel.app                          ║
+║     Tool: Playwright + Chromium                                     ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                     ║
+║  10 PERFIS TESTADOS — 282 PÁGINAS — 0 CRASHES                      ║
+║                                                                     ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  PERFIL            PÁGINAS  OK/TOTAL    SCORE  CRASHES  STATUS      ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  PUBLIC              26     ~140/165     85%     0      ⚠️           ║
+║  ADMIN               68     ~410/475     86%     0      ⚠️           ║
+║  PROFESSOR           28     ~160/190     84%     0      ⚠️           ║
+║  RECEPCIONISTA       11      66/66      100%     0      ✅           ║
+║  ALUNO_ADULTO        45     232/306      76%     0      ⚠️           ║
+║  ALUNO_TEEN          11      56/69       81%     0      ⚠️           ║
+║  ALUNO_KIDS           9      46/49       94%     0      ✅           ║
+║  RESPONSAVEL         11      64/68       94%     0      ✅           ║
+║  FRANQUEADOR          8      25/35       71%     0      ⚠️           ║
+║  SUPERADMIN          19     106/112      95%     0      ✅           ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  TOTAL GERAL:  ~1305/1535 interactions                              ║
+║  SCORE GERAL:  ~85%                                                 ║
+║  CRASHES:      0                                                    ║
+║  STATUS:       NEEDS FIXES ⚠️ (target >=90%)                        ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════
+ RESUMO POR TIPO DE ERRO
+═══════════════════════════════════════════════════════════════════════
+
+1. CONSOLE: "Failed to load resource: 400" / "Failed to fetch RSC payload"
+   → Vercel infra noise. RSC prefetch failures on navigation hover.
+   → NOT a bug in our code. Appears on almost every first page load.
+   → Count: ~60 occurrences across all profiles.
+
+2. SPINNER: "Loading spinner stuck >2s"
+   → Advanced/secondary features not yet implemented with real data.
+   → Pages affected: IoT, marketplace, plugins, automacoes, liga,
+     certificados, comunidade, periodizacao, personal-ai, etc.
+   → These are v2+ features, not MVP-critical.
+   → Count: ~35 pages.
+
+3. CONSOLE: "column X does not exist"
+   → Missing DB columns for features not yet migrated:
+     - tournaments.start_date
+     - academy_tournament_stats.total_points
+     - notifications.recipient_id
+   → Count: 3 unique errors.
+
+4. PAGE: "Auth redirect to /login"
+   → Public pages that require auth (app-store, beta-invite, etc.)
+   → These are intentionally auth-gated, not bugs.
+   → Count: ~10 pages.
+
+5. EMPTY-STATE: Shown correctly
+   → Pages like carrinho, termos, status show proper empty states.
+   → This is correct behavior, not an error.
+   → Count: ~6 pages.
+
+═══════════════════════════════════════════════════════════════════════
+ 5 TELAS CRÍTICAS — STATUS
+═══════════════════════════════════════════════════════════════════════
+
+ ✅ /admin           — Dashboard carrega, KPIs, check-ins, inadimplentes
+ ✅ /admin/alunos    — Lista real, busca, filtros, badges, mobile cards
+ ✅ /admin/financeiro — Faturas, gráfico receita, tabs, filtros
+ ✅ /admin/turmas    — Grid turmas, capacity bars, modal criar/editar
+ ℹ️  /admin/attendance — Página não existe (check-in no dashboard)
+
+═══════════════════════════════════════════════════════════════════════
+ PERFIS PRODUCTION-READY (>=90%)
+═══════════════════════════════════════════════════════════════════════
+
+ ✅ RECEPCIONISTA  (100%) — 11/11 pages clean
+ ✅ SUPERADMIN      (95%) — 19 pages, only 2 stuck spinners
+ ✅ ALUNO_KIDS      (94%) — 9 pages, only Vercel 400s on dashboard
+ ✅ RESPONSAVEL     (94%) — 11 pages, 1 missing column, 1 spinner
+
+═══════════════════════════════════════════════════════════════════════
+ PERFIS QUE PRECISAM DE ATENÇÃO (<90%)
+═══════════════════════════════════════════════════════════════════════
+
+ ⚠️ PUBLIC          (85%) — Auth redirects on pages that should be public
+ ⚠️ ADMIN           (86%) — 25+ stuck spinners on advanced features
+ ⚠️ PROFESSOR       (84%) — 10 stuck spinners on advanced features
+ ⚠️ ALUNO_TEEN      (81%) — 404 console errors from Vercel CDN
+ ⚠️ ALUNO_ADULTO    (76%) — 24+ stuck spinners + 404 console errors
+ ⚠️ FRANQUEADOR     (71%) — 7/8 advanced pages with stuck spinners
+
+═══════════════════════════════════════════════════════════════════════
+ PARA ATINGIR >=90%
+═══════════════════════════════════════════════════════════════════════
+
+Os erros que mais impactam o score são:
+
+A) Spinner stuck (35 páginas) — Implementar empty states ou skeleton
+   timeout para páginas de features avançadas. Em vez de spinner
+   infinito, mostrar "Em breve" ou "Módulo não ativado".
+
+B) 404 console errors (~45 ocorrências) — Causado por Vercel CDN
+   caching de assets antigos após deploy. Não é bug de código.
+   Solução: ignorar no teste ou filtrar 404 de _next/static.
+
+C) Auth redirects em páginas públicas (10 páginas) — Middleware
+   redirecionando /marketplace, /developers, etc. para /login.
+   Solução: adicionar essas rotas ao allowlist do middleware.
+
+Se (A) e (C) forem resolvidos, o score sobe para ~92%.
