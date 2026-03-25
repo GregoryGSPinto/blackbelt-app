@@ -1,0 +1,816 @@
+=================================================
+  BLACKBELT v2 — FULL AUDIT REPORT
+  2026-03-25T16:07:06.255Z
+=================================================
+
+
+-- PUBLIC (23 pages) --
+   OK: 6  Empty: 7  Error: 0  Crash: 0  Redirect: 10  404: 0
+   [REDIRECT] /app-store
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /aula-experimental
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /beta-invite
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /cadastrar-academia
+      => Cadastre sua academia e comece a usar em minutos
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /campeonatos
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /changelog
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /compete
+      => Nenhum torneio encontrado; Nenhum torneio encontrado
+      Console errors: The script resource is behind a redirect, which is disallowed.; Failed to load resource: the server responded with a status of 400 ()
+   [EMPTY] /compete/ranking
+      => Nenhum atleta encontrado; Nenhum atleta encontrado
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /developers
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /developers/api-reference
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /developers/sandbox
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /marketplace
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /precos
+      => Cadastre sua academia e comece a usar em minutos
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /privacidade
+      => Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente necessarias a prestacao d
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [REDIRECT] /ranking
+      => Redirected to /login
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /status
+      => Nenhum incidente nos últimos 30 dias.; Nenhum incidente nos últimos 30 dias.
+      Console errors: The script resource is behind a redirect, which is disallowed.
+   [EMPTY] /termos
+      => 3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e sen
+      Console errors: The script resource is behind a redirect, which is disallowed.
+
+-- AUTH (7 pages) --
+   OK: 6  Empty: 1  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /selecionar-perfil
+      => No meaningful content
+      Console errors: The script resource is behind a redirect, which is disallowed.
+
+-- SUPERADMIN (20 pages) --
+   OK: 1  Empty: 19  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /superadmin
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/acade
+   [EMPTY] /superadmin/academias
+      => No meaningful content
+   [EMPTY] /superadmin/analytics
+      => No meaningful content
+   [EMPTY] /superadmin/auditoria
+      => No meaningful content
+   [EMPTY] /superadmin/beta
+      => No meaningful content
+   [EMPTY] /superadmin/compete
+      => No meaningful content
+   [EMPTY] /superadmin/comunicacao
+      => No meaningful content
+   [EMPTY] /superadmin/configuracoes
+      => No meaningful content
+   [EMPTY] /superadmin/configuracoes/storage
+      => No meaningful content
+   [EMPTY] /superadmin/contatos
+      => Nenhuma mensagem recebida ainda.; Nenhuma mensagem recebida ainda.
+   [EMPTY] /superadmin/features
+      => No meaningful content
+   [EMPTY] /superadmin/health
+      => No meaningful content
+   [EMPTY] /superadmin/onboarding
+      => No meaningful content
+   [EMPTY] /superadmin/pipeline
+      => No meaningful content
+   [EMPTY] /superadmin/planos
+      => No meaningful content
+   [EMPTY] /superadmin/prospeccao
+      => No meaningful content
+   [EMPTY] /superadmin/receita
+      => No meaningful content
+   [EMPTY] /superadmin/suporte
+      => No meaningful content
+   [EMPTY] /superadmin/usuarios
+      => No meaningful content
+
+-- ADMIN (71 pages) --
+   OK: 1  Empty: 70  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /admin
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 ()
+   [EMPTY] /admin/acesso
+      => No meaningful content
+   [EMPTY] /admin/acesso/proximidade
+      => No meaningful content
+   [EMPTY] /admin/alunos
+      => No meaningful content
+   [EMPTY] /admin/analytics
+      => No meaningful content
+   [EMPTY] /admin/analytics/churn
+      => No meaningful content
+   [EMPTY] /admin/analytics/professores
+      => No meaningful content
+   [EMPTY] /admin/auditoria
+      => No meaningful content
+   [EMPTY] /admin/aula-experimental
+      => No meaningful content
+   [EMPTY] /admin/automacoes
+      => No meaningful content
+   [EMPTY] /admin/calendario
+      => No meaningful content
+   [EMPTY] /admin/campanhas
+      => No meaningful content
+   [EMPTY] /admin/campeonatos
+      => No meaningful content
+   [EMPTY] /admin/comercial
+      => No meaningful content
+   [EMPTY] /admin/comunicados
+      => No meaningful content
+   [EMPTY] /admin/configuracoes
+      => No meaningful content
+   [EMPTY] /admin/configuracoes/audit-log
+      => No meaningful content
+   [EMPTY] /admin/configuracoes/marca
+      => No meaningful content
+   [EMPTY] /admin/configuracoes/pagamento
+      => No meaningful content
+   [EMPTY] /admin/configuracoes/sso
+      => No meaningful content
+   [EMPTY] /admin/conteudo
+      => No meaningful content
+   [EMPTY] /admin/contratos
+      => No meaningful content
+   [EMPTY] /admin/convites
+      => No meaningful content
+   [EMPTY] /admin/crm
+      => No meaningful content
+   [EMPTY] /admin/curriculo
+      => No meaningful content
+   [EMPTY] /admin/equipe
+      => No meaningful content
+   [EMPTY] /admin/espacos
+      => No meaningful content
+   [EMPTY] /admin/estoque
+      => No meaningful content
+   [EMPTY] /admin/eventos
+      => No meaningful content
+   [EMPTY] /admin/financeiro
+      => No meaningful content
+   [EMPTY] /admin/gamificacao
+      => Não faltou nenhum treino no mês; Não faltou nenhum treino no mês
+   [EMPTY] /admin/gamificacao/recompensas
+      => No meaningful content
+   [EMPTY] /admin/graduacoes
+      => No meaningful content
+   [EMPTY] /admin/importar
+      => No meaningful content
+   [EMPTY] /admin/inadimplencia
+      => No meaningful content
+   [EMPTY] /admin/indicar
+      => No meaningful content
+   [EMPTY] /admin/integracoes/api
+      => No meaningful content
+   [EMPTY] /admin/integracoes/webhooks
+      => No meaningful content
+   [EMPTY] /admin/iot
+      => No meaningful content
+   [EMPTY] /admin/leads
+      => No meaningful content
+   [EMPTY] /admin/liga
+      => No meaningful content
+   [EMPTY] /admin/loja
+      => No meaningful content
+   [EMPTY] /admin/loja/pedidos
+      => No meaningful content
+   [EMPTY] /admin/loja/produtos
+      => No meaningful content
+   [EMPTY] /admin/marketplace
+      => No meaningful content
+   [EMPTY] /admin/mensagens
+      => No meaningful content
+   [EMPTY] /admin/notificacoes
+      => No meaningful content
+   [EMPTY] /admin/nps
+      => No meaningful content
+   [EMPTY] /admin/pedagogico
+      => No meaningful content
+   [EMPTY] /admin/perfil
+      => No meaningful content
+   [EMPTY] /admin/plano
+      => No meaningful content
+   [EMPTY] /admin/plano-plataforma
+      => No meaningful content
+   [EMPTY] /admin/plugins
+      => No meaningful content
+   [EMPTY] /admin/relatorio-professores
+      => No meaningful content
+   [EMPTY] /admin/relatorios
+      => No meaningful content
+   [EMPTY] /admin/retencao
+      => No meaningful content
+   [EMPTY] /admin/royalties
+      => No meaningful content
+   [EMPTY] /admin/setup
+      => No meaningful content
+   [EMPTY] /admin/setup-wizard
+      => No meaningful content
+   [EMPTY] /admin/sistema
+      => No meaningful content
+   [EMPTY] /admin/site
+      => No meaningful content
+   [EMPTY] /admin/substituicao
+      => No meaningful content
+   [EMPTY] /admin/tecnicas
+      => No meaningful content
+   [EMPTY] /admin/torneios
+      => No meaningful content
+   [EMPTY] /admin/turmas
+      => No meaningful content
+   [EMPTY] /admin/unidades
+      => No meaningful content
+   [EMPTY] /admin/whatsapp
+      => No meaningful content
+   [EMPTY] /admin/wizard
+      => No meaningful content
+   [EMPTY] /network
+      => No meaningful content
+   [EMPTY] /onboarding
+      => No meaningful content
+
+-- PROFESSOR (29 pages) --
+   OK: 1  Empty: 28  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /professor
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turmas
+   [EMPTY] /professor/agenda
+      => No meaningful content
+   [EMPTY] /professor/alertas
+      => No meaningful content
+   [EMPTY] /professor/alunos
+      => No meaningful content
+   [EMPTY] /professor/analise-luta
+      => No meaningful content
+   [EMPTY] /professor/avaliacao-fisica
+      => No meaningful content
+   [EMPTY] /professor/avaliacoes
+      => No meaningful content
+   [EMPTY] /professor/calendario
+      => No meaningful content
+   [EMPTY] /professor/configuracoes
+      => No meaningful content
+   [EMPTY] /professor/conteudo
+      => No meaningful content
+   [EMPTY] /professor/diario
+      => No meaningful content
+   [EMPTY] /professor/duvidas
+      => No meaningful content
+   [EMPTY] /professor/mensagens
+      => No meaningful content
+   [EMPTY] /professor/perfil
+      => No meaningful content
+   [EMPTY] /professor/periodizacao
+      => No meaningful content
+   [EMPTY] /professor/plano-aula
+      => No meaningful content
+   [EMPTY] /professor/plano-treino
+      => No meaningful content
+   [EMPTY] /professor/presenca
+      => No meaningful content
+   [EMPTY] /professor/relatorios
+      => No meaningful content
+   [EMPTY] /professor/tecnicas
+      => No meaningful content
+   [EMPTY] /professor/turma-ativa
+      => No meaningful content
+   [EMPTY] /professor/turmas
+      => No meaningful content
+   [EMPTY] /meus-cursos
+      => No meaningful content
+   [EMPTY] /meus-cursos/novo
+      => No meaningful content
+   [EMPTY] /meus-cursos/financeiro
+      => No meaningful content
+   [EMPTY] /plano-aula
+      => No meaningful content
+   [EMPTY] /turma-ativa
+      => No meaningful content
+   [EMPTY] /turma-ativa/gravar
+      => No meaningful content
+
+-- RECEPCIONISTA (12 pages) --
+   OK: 1  Empty: 11  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /recepcao
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 404 (); Failed t
+   [EMPTY] /recepcao/acesso
+      => No meaningful content
+   [EMPTY] /recepcao/agenda
+      => No meaningful content
+   [EMPTY] /recepcao/atendimento
+      => No meaningful content
+   [EMPTY] /recepcao/cadastro
+      => No meaningful content
+   [EMPTY] /recepcao/caixa
+      => No meaningful content
+   [EMPTY] /recepcao/checkin
+      => No meaningful content
+   [EMPTY] /recepcao/cobrancas
+      => No meaningful content
+   [EMPTY] /recepcao/configuracoes
+      => No meaningful content
+   [EMPTY] /recepcao/experimentais
+      => No meaningful content
+   [EMPTY] /recepcao/mensagens
+      => No meaningful content
+
+-- ALUNO_ADULTO (46 pages) --
+   OK: 1  Empty: 45  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /dashboard
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/progre
+   [EMPTY] /dashboard/checkin
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/configuracoes
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/conquistas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/conteudo
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/mensagens
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/meu-progresso
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/perfil
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/perfil/pagamentos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/progresso
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /dashboard/turmas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /avaliacao-fisica
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /battle-pass
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /carrinho
+      => Carrinho vazio; Carrinho vazio
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /carteirinha
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /certificados
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /checkout-loja
+      => Carrinho vazio; Carrinho vazio
+   [EMPTY] /comunidade
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /curriculo
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /desafios
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /eventos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /feed
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /hall-da-fama
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /indicar
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /liga
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /loja
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /loja/desejos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /mensagens
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /metas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /perfil
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /perfil/notificacoes
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /perfil/privacidade
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /periodizacao
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /personal-ai
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /plano-treino
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /planos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /progresso/videos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /recompensas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /saude
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /season
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /tecnicas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /titulos
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /torneios
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /academia
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /academia/glossario
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+
+-- ALUNO_TEEN (12 pages) --
+   OK: 1  Empty: 11  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /teen
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/ranking. Fa
+   [EMPTY] /teen/academia
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/configuracoes
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/conquistas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/conteudo
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/desafios
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/mensagens
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/perfil
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/ranking
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/season
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+   [EMPTY] /teen/turmas
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 404 ()
+
+-- ALUNO_KIDS (10 pages) --
+   OK: 1  Empty: 9  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /kids
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 400 (); Failed t
+   [EMPTY] /kids/academia
+      => No meaningful content
+   [EMPTY] /kids/configuracoes
+      => No meaningful content
+   [EMPTY] /kids/conquistas
+      => No meaningful content
+   [EMPTY] /kids/conteudo
+      => No meaningful content
+   [EMPTY] /kids/figurinhas
+      => No meaningful content
+   [EMPTY] /kids/minha-faixa
+      => No meaningful content
+   [EMPTY] /kids/perfil
+      => No meaningful content
+   [EMPTY] /kids/recompensas
+      => No meaningful content
+
+-- RESPONSAVEL (13 pages) --
+   OK: 1  Empty: 12  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /parent
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 400 (); Failed t
+   [EMPTY] /parent/agenda
+      => No meaningful content
+   [EMPTY] /parent/autorizacoes
+      => No meaningful content
+   [EMPTY] /parent/checkin
+      => No meaningful content
+   [EMPTY] /parent/configuracoes
+      => No meaningful content
+   [EMPTY] /parent/mensagens
+      => No meaningful content
+   [EMPTY] /parent/notificacoes
+      => No meaningful content
+   [EMPTY] /parent/pagamentos
+      => No meaningful content
+   [EMPTY] /parent/perfil
+      => No meaningful content
+   [EMPTY] /parent/presencas
+      => No meaningful content
+   [EMPTY] /parent/relatorios
+      => No meaningful content
+   [EMPTY] /agenda
+      => No meaningful content
+
+-- FRANQUEADOR (9 pages) --
+   OK: 1  Empty: 8  Error: 0  Crash: 0  Redirect: 0  404: 0
+   [EMPTY] /franqueador
+      => No meaningful content
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/padr
+   [EMPTY] /franqueador/comunicacao
+      => No meaningful content
+   [EMPTY] /franqueador/configuracoes
+      => No meaningful content
+   [EMPTY] /franqueador/curriculo
+      => No meaningful content
+   [EMPTY] /franqueador/expansao
+      => No meaningful content
+   [EMPTY] /franqueador/padroes
+      => No meaningful content
+   [EMPTY] /franqueador/royalties
+      => No meaningful content
+   [EMPTY] /franqueador/unidades
+      => No meaningful content
+
+=================================================
+  SUMMARY
+=================================================
+  Total pages tested: 252
+  OK:       21
+  Empty:    221
+  Error:    0
+  Crash:    0
+  Redirect: 10
+  404:      0
+=================================================
+
+
+-- PAGES NEEDING ATTENTION --
+[public] /cadastrar-academia => empty: Cadastre sua academia e comece a usar em minutos
+[public] /compete => empty: Nenhum torneio encontrado; Nenhum torneio encontrado
+[public] /compete/ranking => empty: Nenhum atleta encontrado; Nenhum atleta encontrado
+[public] /precos => empty: Cadastre sua academia e comece a usar em minutos
+[public] /privacidade => empty: Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente neces
+[public] /status => empty: Nenhum incidente nos últimos 30 dias.; Nenhum incidente nos últimos 30 dias.
+[public] /termos => empty: 3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de
+[auth] /selecionar-perfil => empty: No meaningful content
+[superadmin] /superadmin => empty: No meaningful content
+[superadmin] /superadmin/academias => empty: No meaningful content
+[superadmin] /superadmin/analytics => empty: No meaningful content
+[superadmin] /superadmin/auditoria => empty: No meaningful content
+[superadmin] /superadmin/beta => empty: No meaningful content
+[superadmin] /superadmin/compete => empty: No meaningful content
+[superadmin] /superadmin/comunicacao => empty: No meaningful content
+[superadmin] /superadmin/configuracoes => empty: No meaningful content
+[superadmin] /superadmin/configuracoes/storage => empty: No meaningful content
+[superadmin] /superadmin/contatos => empty: Nenhuma mensagem recebida ainda.; Nenhuma mensagem recebida ainda.
+[superadmin] /superadmin/features => empty: No meaningful content
+[superadmin] /superadmin/health => empty: No meaningful content
+[superadmin] /superadmin/onboarding => empty: No meaningful content
+[superadmin] /superadmin/pipeline => empty: No meaningful content
+[superadmin] /superadmin/planos => empty: No meaningful content
+[superadmin] /superadmin/prospeccao => empty: No meaningful content
+[superadmin] /superadmin/receita => empty: No meaningful content
+[superadmin] /superadmin/suporte => empty: No meaningful content
+[superadmin] /superadmin/usuarios => empty: No meaningful content
+[admin] /admin => empty: No meaningful content
+[admin] /admin/acesso => empty: No meaningful content
+[admin] /admin/acesso/proximidade => empty: No meaningful content
+[admin] /admin/alunos => empty: No meaningful content
+[admin] /admin/analytics => empty: No meaningful content
+[admin] /admin/analytics/churn => empty: No meaningful content
+[admin] /admin/analytics/professores => empty: No meaningful content
+[admin] /admin/auditoria => empty: No meaningful content
+[admin] /admin/aula-experimental => empty: No meaningful content
+[admin] /admin/automacoes => empty: No meaningful content
+[admin] /admin/calendario => empty: No meaningful content
+[admin] /admin/campanhas => empty: No meaningful content
+[admin] /admin/campeonatos => empty: No meaningful content
+[admin] /admin/comercial => empty: No meaningful content
+[admin] /admin/comunicados => empty: No meaningful content
+[admin] /admin/configuracoes => empty: No meaningful content
+[admin] /admin/configuracoes/audit-log => empty: No meaningful content
+[admin] /admin/configuracoes/marca => empty: No meaningful content
+[admin] /admin/configuracoes/pagamento => empty: No meaningful content
+[admin] /admin/configuracoes/sso => empty: No meaningful content
+[admin] /admin/conteudo => empty: No meaningful content
+[admin] /admin/contratos => empty: No meaningful content
+[admin] /admin/convites => empty: No meaningful content
+[admin] /admin/crm => empty: No meaningful content
+[admin] /admin/curriculo => empty: No meaningful content
+[admin] /admin/equipe => empty: No meaningful content
+[admin] /admin/espacos => empty: No meaningful content
+[admin] /admin/estoque => empty: No meaningful content
+[admin] /admin/eventos => empty: No meaningful content
+[admin] /admin/financeiro => empty: No meaningful content
+[admin] /admin/gamificacao => empty: Não faltou nenhum treino no mês; Não faltou nenhum treino no mês
+[admin] /admin/gamificacao/recompensas => empty: No meaningful content
+[admin] /admin/graduacoes => empty: No meaningful content
+[admin] /admin/importar => empty: No meaningful content
+[admin] /admin/inadimplencia => empty: No meaningful content
+[admin] /admin/indicar => empty: No meaningful content
+[admin] /admin/integracoes/api => empty: No meaningful content
+[admin] /admin/integracoes/webhooks => empty: No meaningful content
+[admin] /admin/iot => empty: No meaningful content
+[admin] /admin/leads => empty: No meaningful content
+[admin] /admin/liga => empty: No meaningful content
+[admin] /admin/loja => empty: No meaningful content
+[admin] /admin/loja/pedidos => empty: No meaningful content
+[admin] /admin/loja/produtos => empty: No meaningful content
+[admin] /admin/marketplace => empty: No meaningful content
+[admin] /admin/mensagens => empty: No meaningful content
+[admin] /admin/notificacoes => empty: No meaningful content
+[admin] /admin/nps => empty: No meaningful content
+[admin] /admin/pedagogico => empty: No meaningful content
+[admin] /admin/perfil => empty: No meaningful content
+[admin] /admin/plano => empty: No meaningful content
+[admin] /admin/plano-plataforma => empty: No meaningful content
+[admin] /admin/plugins => empty: No meaningful content
+[admin] /admin/relatorio-professores => empty: No meaningful content
+[admin] /admin/relatorios => empty: No meaningful content
+[admin] /admin/retencao => empty: No meaningful content
+[admin] /admin/royalties => empty: No meaningful content
+[admin] /admin/setup => empty: No meaningful content
+[admin] /admin/setup-wizard => empty: No meaningful content
+[admin] /admin/sistema => empty: No meaningful content
+[admin] /admin/site => empty: No meaningful content
+[admin] /admin/substituicao => empty: No meaningful content
+[admin] /admin/tecnicas => empty: No meaningful content
+[admin] /admin/torneios => empty: No meaningful content
+[admin] /admin/turmas => empty: No meaningful content
+[admin] /admin/unidades => empty: No meaningful content
+[admin] /admin/whatsapp => empty: No meaningful content
+[admin] /admin/wizard => empty: No meaningful content
+[admin] /network => empty: No meaningful content
+[admin] /onboarding => empty: No meaningful content
+[professor] /professor => empty: No meaningful content
+[professor] /professor/agenda => empty: No meaningful content
+[professor] /professor/alertas => empty: No meaningful content
+[professor] /professor/alunos => empty: No meaningful content
+[professor] /professor/analise-luta => empty: No meaningful content
+[professor] /professor/avaliacao-fisica => empty: No meaningful content
+[professor] /professor/avaliacoes => empty: No meaningful content
+[professor] /professor/calendario => empty: No meaningful content
+[professor] /professor/configuracoes => empty: No meaningful content
+[professor] /professor/conteudo => empty: No meaningful content
+[professor] /professor/diario => empty: No meaningful content
+[professor] /professor/duvidas => empty: No meaningful content
+[professor] /professor/mensagens => empty: No meaningful content
+[professor] /professor/perfil => empty: No meaningful content
+[professor] /professor/periodizacao => empty: No meaningful content
+[professor] /professor/plano-aula => empty: No meaningful content
+[professor] /professor/plano-treino => empty: No meaningful content
+[professor] /professor/presenca => empty: No meaningful content
+[professor] /professor/relatorios => empty: No meaningful content
+[professor] /professor/tecnicas => empty: No meaningful content
+[professor] /professor/turma-ativa => empty: No meaningful content
+[professor] /professor/turmas => empty: No meaningful content
+[professor] /meus-cursos => empty: No meaningful content
+[professor] /meus-cursos/novo => empty: No meaningful content
+[professor] /meus-cursos/financeiro => empty: No meaningful content
+[professor] /plano-aula => empty: No meaningful content
+[professor] /turma-ativa => empty: No meaningful content
+[professor] /turma-ativa/gravar => empty: No meaningful content
+[recepcionista] /recepcao => empty: No meaningful content
+[recepcionista] /recepcao/acesso => empty: No meaningful content
+[recepcionista] /recepcao/agenda => empty: No meaningful content
+[recepcionista] /recepcao/atendimento => empty: No meaningful content
+[recepcionista] /recepcao/cadastro => empty: No meaningful content
+[recepcionista] /recepcao/caixa => empty: No meaningful content
+[recepcionista] /recepcao/checkin => empty: No meaningful content
+[recepcionista] /recepcao/cobrancas => empty: No meaningful content
+[recepcionista] /recepcao/configuracoes => empty: No meaningful content
+[recepcionista] /recepcao/experimentais => empty: No meaningful content
+[recepcionista] /recepcao/mensagens => empty: No meaningful content
+[aluno_adulto] /dashboard => empty: No meaningful content
+[aluno_adulto] /dashboard/checkin => empty: No meaningful content
+[aluno_adulto] /dashboard/configuracoes => empty: No meaningful content
+[aluno_adulto] /dashboard/conquistas => empty: No meaningful content
+[aluno_adulto] /dashboard/conteudo => empty: No meaningful content
+[aluno_adulto] /dashboard/mensagens => empty: No meaningful content
+[aluno_adulto] /dashboard/meu-progresso => empty: No meaningful content
+[aluno_adulto] /dashboard/perfil => empty: No meaningful content
+[aluno_adulto] /dashboard/perfil/pagamentos => empty: No meaningful content
+[aluno_adulto] /dashboard/progresso => empty: No meaningful content
+[aluno_adulto] /dashboard/turmas => empty: No meaningful content
+[aluno_adulto] /avaliacao-fisica => empty: No meaningful content
+[aluno_adulto] /battle-pass => empty: No meaningful content
+[aluno_adulto] /carrinho => empty: Carrinho vazio; Carrinho vazio
+[aluno_adulto] /carteirinha => empty: No meaningful content
+[aluno_adulto] /certificados => empty: No meaningful content
+[aluno_adulto] /checkout-loja => empty: Carrinho vazio; Carrinho vazio
+[aluno_adulto] /comunidade => empty: No meaningful content
+[aluno_adulto] /curriculo => empty: No meaningful content
+[aluno_adulto] /desafios => empty: No meaningful content
+[aluno_adulto] /eventos => empty: No meaningful content
+[aluno_adulto] /feed => empty: No meaningful content
+[aluno_adulto] /hall-da-fama => empty: No meaningful content
+[aluno_adulto] /indicar => empty: No meaningful content
+[aluno_adulto] /liga => empty: No meaningful content
+[aluno_adulto] /loja => empty: No meaningful content
+[aluno_adulto] /loja/desejos => empty: No meaningful content
+[aluno_adulto] /mensagens => empty: No meaningful content
+[aluno_adulto] /metas => empty: No meaningful content
+[aluno_adulto] /perfil => empty: No meaningful content
+[aluno_adulto] /perfil/notificacoes => empty: No meaningful content
+[aluno_adulto] /perfil/privacidade => empty: No meaningful content
+[aluno_adulto] /periodizacao => empty: No meaningful content
+[aluno_adulto] /personal-ai => empty: No meaningful content
+[aluno_adulto] /plano-treino => empty: No meaningful content
+[aluno_adulto] /planos => empty: No meaningful content
+[aluno_adulto] /progresso/videos => empty: No meaningful content
+[aluno_adulto] /recompensas => empty: No meaningful content
+[aluno_adulto] /saude => empty: No meaningful content
+[aluno_adulto] /season => empty: No meaningful content
+[aluno_adulto] /tecnicas => empty: No meaningful content
+[aluno_adulto] /titulos => empty: No meaningful content
+[aluno_adulto] /torneios => empty: No meaningful content
+[aluno_adulto] /academia => empty: No meaningful content
+[aluno_adulto] /academia/glossario => empty: No meaningful content
+[aluno_teen] /teen => empty: No meaningful content
+[aluno_teen] /teen/academia => empty: No meaningful content
+[aluno_teen] /teen/configuracoes => empty: No meaningful content
+[aluno_teen] /teen/conquistas => empty: No meaningful content
+[aluno_teen] /teen/conteudo => empty: No meaningful content
+[aluno_teen] /teen/desafios => empty: No meaningful content
+[aluno_teen] /teen/mensagens => empty: No meaningful content
+[aluno_teen] /teen/perfil => empty: No meaningful content
+[aluno_teen] /teen/ranking => empty: No meaningful content
+[aluno_teen] /teen/season => empty: No meaningful content
+[aluno_teen] /teen/turmas => empty: No meaningful content
+[aluno_kids] /kids => empty: No meaningful content
+[aluno_kids] /kids/academia => empty: No meaningful content
+[aluno_kids] /kids/configuracoes => empty: No meaningful content
+[aluno_kids] /kids/conquistas => empty: No meaningful content
+[aluno_kids] /kids/conteudo => empty: No meaningful content
+[aluno_kids] /kids/figurinhas => empty: No meaningful content
+[aluno_kids] /kids/minha-faixa => empty: No meaningful content
+[aluno_kids] /kids/perfil => empty: No meaningful content
+[aluno_kids] /kids/recompensas => empty: No meaningful content
+[responsavel] /parent => empty: No meaningful content
+[responsavel] /parent/agenda => empty: No meaningful content
+[responsavel] /parent/autorizacoes => empty: No meaningful content
+[responsavel] /parent/checkin => empty: No meaningful content
+[responsavel] /parent/configuracoes => empty: No meaningful content
+[responsavel] /parent/mensagens => empty: No meaningful content
+[responsavel] /parent/notificacoes => empty: No meaningful content
+[responsavel] /parent/pagamentos => empty: No meaningful content
+[responsavel] /parent/perfil => empty: No meaningful content
+[responsavel] /parent/presencas => empty: No meaningful content
+[responsavel] /parent/relatorios => empty: No meaningful content
+[responsavel] /agenda => empty: No meaningful content
+[franqueador] /franqueador => empty: No meaningful content
+[franqueador] /franqueador/comunicacao => empty: No meaningful content
+[franqueador] /franqueador/configuracoes => empty: No meaningful content
+[franqueador] /franqueador/curriculo => empty: No meaningful content
+[franqueador] /franqueador/expansao => empty: No meaningful content
+[franqueador] /franqueador/padroes => empty: No meaningful content
+[franqueador] /franqueador/royalties => empty: No meaningful content
+[franqueador] /franqueador/unidades => empty: No meaningful content
