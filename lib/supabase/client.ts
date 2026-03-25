@@ -7,8 +7,30 @@ type SupabaseClient = ReturnType<typeof createBrowser>;
 
 let browserClient: SupabaseClient | null = null;
 
+function validateSupabaseConfig(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.warn('[Supabase] Missing URL or ANON_KEY — running in degraded mode');
+    return false;
+  }
+
+  if (key.startsWith('sb_')) {
+    console.info('[Supabase] Using new API key format');
+  } else if (key.startsWith('eyJ')) {
+    console.info('[Supabase] Using legacy JWT key format');
+  } else {
+    console.warn('[Supabase] Unknown key format — may cause issues');
+  }
+
+  return true;
+}
+
 export function createBrowserClient(): SupabaseClient {
   if (browserClient) return browserClient;
+
+  validateSupabaseConfig();
 
   browserClient = createBrowser(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
