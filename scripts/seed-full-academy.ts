@@ -183,6 +183,7 @@ async function cleanup() {
     'valentina@email.com', 'enzo@email.com',
     'miguel.kids@email.com', 'helena.kids@email.com', 'arthur.kids@email.com', 'laura.kids@email.com',
     'maria.resp@email.com', 'patricia@email.com', 'carlos.resp@email.com', 'renata@email.com',
+    'julia@guerreiros.com', 'fernando@guerreiros.com',
   ];
 
   // Fetch all users once
@@ -294,7 +295,7 @@ interface UserSpec {
   num: number;
   name: string;
   email: string;
-  role: 'admin' | 'professor' | 'aluno_adulto' | 'aluno_teen' | 'aluno_kids' | 'responsavel';
+  role: 'admin' | 'professor' | 'aluno_adulto' | 'aluno_teen' | 'aluno_kids' | 'responsavel' | 'recepcao' | 'franqueador';
   belt?: string;
 }
 
@@ -329,6 +330,8 @@ const USER_SPECS: UserSpec[] = [
   { num: 28, name: 'Patricia Oliveira', email: 'patricia@email.com', role: 'responsavel' },
   { num: 29, name: 'Carlos Pereira', email: 'carlos.resp@email.com', role: 'responsavel' },
   { num: 30, name: 'Renata Costa', email: 'renata@email.com', role: 'responsavel' },
+  { num: 31, name: 'Julia Santos', email: 'julia@guerreiros.com', role: 'recepcao' },
+  { num: 32, name: 'Fernando Almeida', email: 'fernando@guerreiros.com', role: 'franqueador' },
 ];
 
 function delay(ms: number) {

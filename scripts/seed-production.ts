@@ -234,6 +234,25 @@ async function main() {
   }
 
   // ─────────────────────────────────────────────────────────────────
+  // C2. FRANQUEADOR — Fernando Almeida
+  // ─────────────────────────────────────────────────────────────────
+  console.log('\n🏢 Creating Franqueador...');
+  const fernandoUserId = await createUserIfNotExists(
+    'fernando@guerreiros.com',
+    'BlackBelt@2026',
+    'Fernando Almeida',
+    'franqueador',
+    ACADEMY_ID,
+  );
+
+  if (fernandoUserId) {
+    const profileId = await ensureProfile(fernandoUserId, 'franqueador', 'Fernando Almeida');
+    if (profileId) {
+      await ensureMembership(profileId, ACADEMY_ID, 'franqueador');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   // D. Summary
   // ─────────────────────────────────────────────────────────────────
   console.log('\n═══ SEED COMPLETE ═══');
@@ -257,6 +276,7 @@ async function main() {
   console.log('  Recepcao: julia@guerreiros.com / BlackBelt@2026');
   console.log('  Aluno: joao@email.com / BlackBelt@2026');
   console.log('  Responsavel: patricia@email.com / BlackBelt@2026');
+  console.log('  Franqueador: fernando@guerreiros.com / BlackBelt@2026');
 }
 
 main().catch(console.error);
