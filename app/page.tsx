@@ -352,7 +352,7 @@ export default function LandingPage() {
             <p className="mt-4 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
               Ou{' '}
               <a
-                href="https://wa.me/5531999990000?text=Olá! Quero saber mais sobre o BlackBelt"
+                href="https://wa.me/5531996793625?text=Olá! Quero saber mais sobre o BlackBelt"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline transition-colors duration-200"
@@ -409,17 +409,17 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li>
                   <a
-                    href="https://wa.me/5531999990000"
+                    href="https://wa.me/5531996793625"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm"
                     style={{ color: 'var(--bb-ink-60)' }}
                   >
-                    WhatsApp
+                    WhatsApp — (31) 99679-3625
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:contato@blackbelt.app" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  <a href="mailto:gregoryguimaraes12@gmail.com" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
                     Email
                   </a>
                 </li>
