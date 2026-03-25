@@ -233,9 +233,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
               &copy; {new Date().getFullYear()} BlackBelt. Todos os direitos reservados.
             </p>
-            <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Feito com &#x1F94B; por BlackBelt
-            </p>
           </div>
         </div>
       </footer>

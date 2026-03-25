@@ -434,9 +434,6 @@ export default function LandingPage() {
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
               &copy; 2026 BlackBelt. Todos os direitos reservados.
             </p>
-            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Feito com 🥋 em Minas Gerais.
-            </p>
           </div>
         </div>
       </footer>
