@@ -265,6 +265,17 @@
   100% { transform: scale(1); }
 }
 
+/* ─── Landing page premium font ─── */
+.landing-page {
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+}
+.landing-page h1,
+.landing-page h2,
+.landing-page h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
 @layer utilities {
   .animate-slide-up {
     animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;

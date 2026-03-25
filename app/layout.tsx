@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Instrument_Sans, JetBrains_Mono } from 'next/font/google';
+import { Instrument_Sans, JetBrains_Mono, Outfit } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
@@ -22,13 +22,21 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
+
 export const viewport: Viewport = {
   themeColor: '#C62828',
 };
 
 export const metadata: Metadata = {
-  title: { default: 'BlackBelt — Gestão de Academias', template: '%s | BlackBelt' },
-  description: 'Plataforma completa para gestão de academias de artes marciais. Check-in, turmas, progresso, pagamentos.',
+  title: { default: 'BlackBelt — Gestão de Academias de Artes Marciais', template: '%s | BlackBelt' },
+  description: 'Check-in, turmas, cobranças e presença para academias de jiu-jitsu, judô, karatê e MMA. 7 dias grátis.',
+  keywords: 'gestão academia, artes marciais, jiu jitsu, bjj, check-in, turmas, presença, cobrança',
   manifest: '/manifest.json',
   icons: {
     icon: '/icon.svg',
@@ -37,15 +45,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
+    url: 'https://blackbeltv2.vercel.app',
     siteName: 'BlackBelt',
-    title: 'BlackBelt — Gestão de Academias',
-    description: 'Plataforma completa para gestão de academias de artes marciais.',
+    title: 'BlackBelt — Sua academia funcionando no automático',
+    description: 'Check-in, turmas, cobranças e presença. 7 dias grátis.',
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />

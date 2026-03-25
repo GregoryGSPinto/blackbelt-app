@@ -163,7 +163,7 @@ function NotFound() {
         O link que voce acessou nao corresponde a nenhuma academia cadastrada.
       </p>
       <a
-        href="/landing"
+        href="/"
         className="mt-8 inline-flex rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
       >
@@ -1263,7 +1263,7 @@ export default function AcademyLandingPage() {
         <p className="mt-2 text-xs" style={{ color: ink20 }}>
           Powered by{' '}
           <a
-            href="/landing"
+            href="/"
             className="font-medium transition-colors"
             style={{ color: ink40 }}
           >

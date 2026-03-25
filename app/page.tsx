@@ -1,301 +1,577 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import {
-  ChevronDown,
-  QrCode, Award, Trophy, Target, Video, BarChart3,
-  GraduationCap, BookOpen, Clipboard, Eye, AlertTriangle, Users as UsersIcon,
-  Calendar, MessageCircle, FileText, ShieldCheck,
-  LayoutDashboard, DollarSign, Users, Smartphone,
-  Clock, Tv, Gamepad2, Send,
-} from 'lucide-react';
-import { LandingHero } from '@/components/landing/LandingHero';
-import { BenefitSection } from '@/components/landing/BenefitSection';
-import { TeenKidsSection } from '@/components/landing/TeenKidsSection';
-import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
-import { LandingFooter } from '@/components/landing/LandingFooter';
-import { DesktopLanding } from '@/components/landing/DesktopLanding';
+import { LandingNavbar } from '@/components/landing/LandingNavbar';
+import { FadeInSection } from '@/components/landing/FadeInSection';
+import { DashboardMockup } from '@/components/landing/DashboardMockup';
+import { CheckinMockup } from '@/components/landing/CheckinMockup';
+import { ParentMockup } from '@/components/landing/ParentMockup';
+import { BillingMockup } from '@/components/landing/BillingMockup';
+import { WhatsAppFAB } from '@/components/landing/WhatsAppFAB';
 
-/* ── Rotating inspirational phrases (mobile hero) ── */
-const PHRASES = [
-  'Evolua a cada treino.',
-  'O tatame ensina mais que tecnica.',
-  'Disciplina no treino, excelencia na vida.',
-  'A faixa e so o comeco da jornada.',
-  'Cada repeticao te faz mais forte.',
+/* ── FAQ Accordion ── */
+const FAQ_ITEMS = [
+  { q: 'Preciso de cartão de crédito para começar?', a: 'Não. O trial de 7 dias é 100% grátis. Você só informa dados de pagamento quando escolher um plano.' },
+  { q: 'Funciona para qualquer arte marcial?', a: 'Sim. Jiu-Jitsu, Judô, Karatê, MMA, Muay Thai, Taekwondo — qualquer modalidade.' },
+  { q: 'Como funciona o check-in dos alunos?', a: 'O aluno abre o app, escaneia o QR Code na academia, e a presença é registrada. Leva 3 segundos.' },
+  { q: 'E se eu já uso outro sistema?', a: 'Sem problema. Você pode rodar os dois em paralelo durante o trial. Se gostar, migramos seus dados.' },
+  { q: 'Tem contrato de fidelidade?', a: 'Não. Cancele quando quiser, sem multa.' },
+  { q: 'Funciona no celular?', a: 'Sim. Web app que funciona em qualquer celular. Também disponível para iOS e Android.' },
+  { q: 'Meus alunos precisam baixar alguma coisa?', a: 'Não obrigatoriamente. O app funciona no navegador do celular. Mas se quiserem, podem instalar direto da tela.' },
+  { q: 'Como funciona o suporte?', a: 'WhatsApp direto com a equipe. Resposta em até 24h úteis.' },
 ];
 
-const BELT_COLORS = [
-  '#FAFAFA', '#EAB308', '#EA580C', '#16A34A',
-  '#2563EB', '#9333EA', '#92400E', '#0A0A0A',
+/* ── Pricing Data ── */
+const PLANS = [
+  {
+    name: 'Starter',
+    price: 'R$ 97',
+    period: '/mês',
+    students: '50 alunos',
+    classes: '3 turmas',
+    professors: '1 professor',
+    features: ['Check-in por QR Code'],
+    cta: 'Começar Grátis',
+    href: '/cadastrar-academia?plan=starter',
+    highlighted: false,
+  },
+  {
+    name: 'Essencial',
+    price: 'R$ 197',
+    period: '/mês',
+    students: '150 alunos',
+    classes: '10 turmas',
+    professors: '3 professores',
+    features: ['Check-in por QR Code', 'Financeiro', 'Relatórios'],
+    cta: 'Começar Grátis',
+    href: '/cadastrar-academia?plan=essencial',
+    highlighted: false,
+  },
+  {
+    name: 'Pro',
+    price: 'R$ 347',
+    period: '/mês',
+    students: '300 alunos',
+    classes: 'Turmas ilimitadas',
+    professors: '10 professores',
+    features: ['Check-in por QR Code', 'Financeiro', 'Relatórios', 'Streaming', 'Gamificação', 'Campeonatos'],
+    cta: 'Começar Grátis',
+    href: '/cadastrar-academia?plan=pro',
+    highlighted: true,
+    badge: 'Mais Popular',
+  },
+  {
+    name: 'Black Belt',
+    price: 'R$ 597',
+    period: '/mês',
+    students: 'Alunos ilimitados',
+    classes: 'Turmas ilimitadas',
+    professors: 'Professores ilimitados',
+    features: ['Tudo do Pro', 'White-label', 'Multi-unidade', 'Integrações'],
+    cta: 'Começar Grátis',
+    href: '/cadastrar-academia?plan=blackbelt',
+    highlighted: false,
+  },
+  {
+    name: 'Enterprise',
+    price: 'Sob consulta',
+    period: '',
+    students: 'Ilimitado',
+    classes: 'Ilimitado',
+    professors: 'Ilimitado',
+    features: ['Tudo do Black Belt', 'API dedicada', 'Suporte dedicado', 'SLA'],
+    cta: 'Falar com a Gente',
+    href: 'https://wa.me/5531999990000?text=Olá! Tenho interesse no plano Enterprise do BlackBelt',
+    highlighted: false,
+  },
 ];
+
+/* ── Product Tabs ── */
+const PRODUCT_TABS = [
+  { id: 'dashboard', label: 'Dashboard do Admin', desc: 'KPIs em tempo real. Receita, presença, inadimplência. No celular.' },
+  { id: 'checkin', label: 'Check-in por QR Code', desc: 'Aluno chegou? 3 segundos e a presença está registrada.' },
+  { id: 'pais', label: 'Painel do Responsável', desc: 'Pais acompanham tudo. Presença, evolução, pagamentos. Sem ligar pra academia.' },
+  { id: 'financeiro', label: 'Cobranças Automáticas', desc: 'PIX e boleto automáticos. Lembrete antes do vencimento. Zero constrangimento.' },
+];
+
+/* ── Profile Cards ── */
+const PROFILES = [
+  { emoji: '🏢', name: 'Admin', keywords: 'Dashboard, turmas, financeiro' },
+  { emoji: '🥋', name: 'Professor', keywords: 'Modo aula, avaliações, técnicas' },
+  { emoji: '💪', name: 'Aluno', keywords: 'Check-in, progresso, conquistas' },
+  { emoji: '🎮', name: 'Teen', keywords: 'XP, ranking, desafios' },
+  { emoji: '⭐', name: 'Kids', keywords: 'Estrelas, figurinhas, diversão' },
+  { emoji: '👨‍👩‍👧', name: 'Pais', keywords: 'Presença, evolução, pagamentos' },
+];
+
+/* ── FAQ Accordion Component ── */
+function FAQItem({ item }: { item: { q: string; a: string } }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="overflow-hidden rounded-xl transition-colors duration-200"
+      style={{
+        background: 'var(--bb-depth-2)',
+        border: '1px solid var(--bb-glass-border)',
+      }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium sm:text-base"
+        style={{ color: 'var(--bb-ink-100)' }}
+        aria-expanded={open}
+      >
+        <span className="pr-4">{item.q}</span>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="shrink-0 transition-transform duration-200"
+          style={{ color: 'var(--bb-ink-40)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      <div
+        className="overflow-hidden transition-all duration-200"
+        style={{ maxHeight: open ? '300px' : '0px', opacity: open ? 1 : 0 }}
+      >
+        <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+          {item.a}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ━━━ LANDING PAGE ━━━ */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 export default function LandingPage() {
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [showArrow, setShowArrow] = useState(true);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    function onScroll() { setShowArrow(window.scrollY < 100); }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  function handleScrollDown() {
-    document.getElementById('landing')?.scrollIntoView({ behavior: 'smooth' });
-  }
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes bb-phrase-in {
-          0% { opacity: 0; transform: translateY(8px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .bb-phrase-enter { animation: bb-phrase-in 0.6s ease-out forwards; }
+    <div className="landing-page w-full overflow-x-hidden" style={{ background: 'var(--bb-depth-1)', color: 'var(--bb-ink-100)' }}>
+      <LandingNavbar />
+      <WhatsAppFAB />
 
-        .scroll-reveal {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1),
-                      transform 0.6s cubic-bezier(0.16,1,0.3,1);
-        }
-        .scroll-reveal.revealed {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .scroll-reveal.revealed > *:nth-child(1) { transition-delay: 0ms; }
-        .scroll-reveal.revealed > *:nth-child(2) { transition-delay: 100ms; }
-        .scroll-reveal.revealed > *:nth-child(3) { transition-delay: 200ms; }
-        .scroll-reveal.revealed > *:nth-child(4) { transition-delay: 300ms; }
-      ` }} />
-
-      {/* ═══ MOBILE EXPERIENCE (< lg) ═══ */}
-      <div
-        className="w-full overflow-x-hidden lg:hidden"
-        style={{ backgroundColor: 'var(--bb-depth-1)' }}
+      {/* ━━━ 1. HERO ━━━ */}
+      <section
+        className="relative flex min-h-screen flex-col items-center justify-center px-4 pt-24 pb-16 lg:flex-row lg:gap-12 lg:px-8 lg:pt-32 lg:pb-24"
+        style={{ minHeight: '100dvh' }}
       >
-        {/* Hero */}
-        <section
-          className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6"
-          style={{ backgroundColor: 'var(--bb-depth-1)', minHeight: '100dvh' }}
-        >
-          {/* Brand */}
-          <div className="flex flex-col items-center text-center">
-            <h1
-              className="text-4xl font-extrabold sm:text-5xl"
-              style={{
-                letterSpacing: '-0.03em',
-                color: 'var(--bb-brand)',
-                filter: 'drop-shadow(0 0 30px rgba(239, 68, 68, 0.3))',
-              }}
-            >
-              BLACKBELT
-            </h1>
-            <div
-              className="mt-3"
-              style={{ width: 40, height: 3, borderRadius: 2, background: 'var(--bb-brand)' }}
-            />
-          </div>
+        {/* Subtle radial glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 60% 40% at 30% 30%, rgba(198,40,40,0.05) 0%, transparent 70%)' }}
+          aria-hidden="true"
+        />
 
-          {/* Rotating phrases */}
-          <div className="mt-8 flex flex-col items-center text-center">
-            <h2
-              className="font-extrabold leading-tight"
-              style={{
-                color: 'var(--bb-ink-100)',
-                fontSize: 'clamp(1.3rem, 0.8rem + 1.5vw, 2.2rem)',
-              }}
+        {/* Text */}
+        <div className="relative z-10 flex flex-col items-center text-center lg:flex-1 lg:items-start lg:text-left">
+          <h1
+            className="text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+            style={{ letterSpacing: '-0.03em' }}
+          >
+            Sua academia funcionando no automático.
+          </h1>
+          <p
+            className="mt-5 max-w-xl text-base leading-relaxed sm:text-lg"
+            style={{ color: 'var(--bb-ink-60)' }}
+          >
+            Check-in, turmas, cobranças e presença — tudo num app que seus alunos e professores vão amar.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
+            <Link
+              href="/cadastrar-academia"
+              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: '#C62828', boxShadow: '0 4px 24px rgba(198,40,40,0.3)' }}
             >
-              <span key={phraseIndex} className="bb-phrase-enter block">
-                {PHRASES[phraseIndex]}
-              </span>
+              COMEÇAR GRÁTIS — 7 DIAS
+            </Link>
+          </div>
+          <p className="mt-3 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+            Sem cartão de crédito. Cancele quando quiser.
+          </p>
+        </div>
+
+        {/* Dashboard Mockup */}
+        <FadeInSection delay={200} direction="right" className="relative z-10 mt-12 lg:mt-0 lg:flex-1">
+          <DashboardMockup />
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 2. PROBLEMA → SOLUÇÃO ━━━ */}
+      <section className="px-4 py-24 sm:px-6 lg:py-32" style={{ background: 'var(--bb-depth-2)' }}>
+        <FadeInSection>
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Você não abriu uma academia pra virar cobrador.
             </h2>
-            <p
-              className="mt-3 max-w-md text-sm leading-relaxed sm:text-base"
-              style={{ color: 'var(--bb-ink-60)' }}
-            >
-              Gestao completa para academias de artes marciais. Do tatame ao financeiro.
+
+            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <FadeInSection delay={0}>
+                <div className="rounded-2xl p-6 h-full" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+                  <span className="text-3xl">📋</span>
+                  <h3 className="mt-3 text-lg font-bold">Caderno e WhatsApp</h3>
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+                    Controle de presença no papel. Cobrança por mensagem. Lista de alunos na planilha. Você sabe que precisa mudar.
+                  </p>
+                </div>
+              </FadeInSection>
+              <FadeInSection delay={100}>
+                <div className="rounded-2xl p-6 h-full" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+                  <span className="text-3xl">💸</span>
+                  <h3 className="mt-3 text-lg font-bold">Inadimplência que dói</h3>
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+                    Todo mês é a mesma história: aluno que sumiu, mensalidade atrasada, cobrança constrangedora. Isso consome seu tempo e energia.
+                  </p>
+                </div>
+              </FadeInSection>
+              <FadeInSection delay={200}>
+                <div className="rounded-2xl p-6 h-full sm:col-span-2 lg:col-span-1" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+                  <span className="text-3xl">😰</span>
+                  <h3 className="mt-3 text-lg font-bold">Sem visão do negócio</h3>
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+                    Quantos alunos você tem de verdade? Qual sua taxa de retenção? Quanto entrou este mês? Se você não sabe, está voando às cegas.
+                  </p>
+                </div>
+              </FadeInSection>
+            </div>
+
+            <FadeInSection delay={300}>
+              <p
+                className="mt-12 text-center text-lg font-semibold sm:text-xl"
+                style={{ color: '#C62828' }}
+              >
+                O BlackBelt resolve tudo isso. Em um app.
+              </p>
+            </FadeInSection>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 3. PRODUTO — MOCKUPS EM TABS ━━━ */}
+      <section id="funcionalidades" className="px-4 py-24 sm:px-6 lg:py-32">
+        <FadeInSection>
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Veja como funciona
+            </h2>
+
+            {/* Tabs */}
+            <div className="mt-10 flex flex-wrap justify-center gap-2">
+              {PRODUCT_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200"
+                  style={{
+                    background: activeTab === tab.id ? 'rgba(198,40,40,0.1)' : 'transparent',
+                    color: activeTab === tab.id ? '#C62828' : 'var(--bb-ink-60)',
+                    border: activeTab === tab.id ? '1px solid rgba(198,40,40,0.3)' : '1px solid transparent',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div className="mt-10 flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
+              <div className="flex-1">
+                {activeTab === 'dashboard' && <DashboardMockup />}
+                {activeTab === 'checkin' && <CheckinMockup />}
+                {activeTab === 'pais' && <ParentMockup />}
+                {activeTab === 'financeiro' && <BillingMockup />}
+              </div>
+              <div className="flex-1 text-center lg:text-left lg:pt-8">
+                <h3 className="text-xl font-bold sm:text-2xl">
+                  {PRODUCT_TABS.find((t) => t.id === activeTab)?.label}
+                </h3>
+                <p className="mt-3 text-base leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+                  {PRODUCT_TABS.find((t) => t.id === activeTab)?.desc}
+                </p>
+                <Link
+                  href="/cadastrar-academia"
+                  className="mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
+                  style={{ background: '#C62828' }}
+                >
+                  Testar Grátis
+                </Link>
+              </div>
+            </div>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 4. PERFIS — 6 CARDS COMPACTOS ━━━ */}
+      <section id="perfis" className="px-4 py-24 sm:px-6 lg:py-32" style={{ background: 'var(--bb-depth-2)' }}>
+        <FadeInSection>
+          <div className="mx-auto max-w-4xl">
+            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Cada pessoa tem sua experiência
+            </h2>
+            <p className="mt-3 text-center text-base" style={{ color: 'var(--bb-ink-60)' }}>
+              9 perfis especializados. Cada um vê só o que precisa.
             </p>
-            <div className="mt-6 flex w-64 gap-1">
-              {BELT_COLORS.map((c, i) => (
-                <div
-                  key={i}
-                  className="h-1.5 flex-1 rounded-full"
-                  style={{ backgroundColor: c, opacity: 0.6 }}
-                />
+
+            <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-6">
+              {PROFILES.map((profile, i) => (
+                <FadeInSection key={profile.name} delay={i * 80}>
+                  <div
+                    className="flex flex-col items-center rounded-2xl p-5 text-center transition-all duration-200 hover:-translate-y-1"
+                    style={{
+                      background: 'var(--bb-depth-3)',
+                      border: '1px solid var(--bb-glass-border)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(198,40,40,0.4)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--bb-glass-border)'; }}
+                  >
+                    <span className="text-3xl">{profile.emoji}</span>
+                    <h3 className="mt-2 text-sm font-bold">{profile.name}</h3>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{profile.keywords}</p>
+                  </div>
+                </FadeInSection>
               ))}
             </div>
           </div>
+        </FadeInSection>
+      </section>
 
-          {/* CTAs */}
-          <div className="mt-10 flex w-full max-w-xs flex-col gap-3">
+      {/* ━━━ 5. PRICING — 5 PLANOS ━━━ */}
+      <section id="planos" className="px-4 py-24 sm:px-6 lg:py-32">
+        <FadeInSection>
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Planos simples, sem surpresa
+            </h2>
+            <p className="mt-3 text-center text-base" style={{ color: 'var(--bb-ink-60)' }}>
+              7 dias grátis em qualquer plano. Sem cartão de crédito.
+            </p>
+
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {PLANS.map((plan) => (
+                <div
+                  key={plan.name}
+                  className="relative flex flex-col rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1"
+                  style={{
+                    background: 'var(--bb-depth-2)',
+                    border: plan.highlighted ? '2px solid #C62828' : '1px solid var(--bb-glass-border)',
+                    boxShadow: plan.highlighted ? '0 0 30px rgba(198,40,40,0.15)' : 'none',
+                  }}
+                >
+                  {plan.badge && (
+                    <span
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[10px] font-bold text-white"
+                      style={{ background: '#C62828' }}
+                    >
+                      {plan.badge}
+                    </span>
+                  )}
+                  <h3 className="text-base font-bold">{plan.name}</h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-2xl font-extrabold">{plan.price}</span>
+                    {plan.period && <span className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>{plan.period}</span>}
+                  </div>
+                  <div className="mt-4 space-y-1.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                    <p>{plan.students}</p>
+                    <p>{plan.classes}</p>
+                    <p>{plan.professors}</p>
+                  </div>
+                  <div className="mt-4 flex-1">
+                    {plan.features.map((f) => (
+                      <div key={f} className="flex items-start gap-1.5 py-0.5">
+                        <span className="text-xs mt-0.5" style={{ color: '#22C55E' }}>✓</span>
+                        <span className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    href={plan.href}
+                    className="mt-5 block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                    style={{
+                      background: plan.highlighted ? '#C62828' : 'transparent',
+                      color: plan.highlighted ? '#fff' : 'var(--bb-ink-100)',
+                      border: plan.highlighted ? 'none' : '1px solid var(--bb-glass-border)',
+                    }}
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 6. DEPOIMENTOS HONESTOS ━━━ */}
+      <section className="px-4 py-24 sm:px-6 lg:py-32" style={{ background: 'var(--bb-depth-2)' }}>
+        <FadeInSection>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Feito por quem entende o tatame
+            </h2>
+            <div
+              className="mx-auto mt-10 rounded-2xl p-8 text-left sm:p-10"
+              style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}
+            >
+              <p className="text-base leading-relaxed italic sm:text-lg" style={{ color: 'var(--bb-ink-80)' }}>
+                &ldquo;O BlackBelt foi criado por praticantes de artes marciais que vivem o dia a dia de uma academia. Cada funcionalidade foi pensada para resolver problemas reais — não por um time de tech que nunca pisou num tatame.&rdquo;
+              </p>
+              <div className="mt-6 flex items-center gap-3">
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+                  style={{ background: '#C62828' }}
+                >
+                  G
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Gregory Pinto</p>
+                  <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Fundador</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 7. FAQ ━━━ */}
+      <section id="faq" className="px-4 py-24 sm:px-6 lg:py-32">
+        <FadeInSection>
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Perguntas Frequentes
+            </h2>
+
+            <div className="mt-12 space-y-3">
+              {FAQ_ITEMS.map((item) => (
+                <FAQItem key={item.q} item={item} />
+              ))}
+            </div>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 8. CTA FINAL ━━━ */}
+      <section
+        className="px-4 py-24 sm:px-6 lg:py-32"
+        style={{ background: 'linear-gradient(180deg, rgba(198,40,40,0.06) 0%, var(--bb-depth-1) 100%)' }}
+      >
+        <FadeInSection>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+              Pronto para tirar sua academia do papel?
+            </h2>
+            <p className="mt-4 text-base" style={{ color: 'var(--bb-ink-60)' }}>
+              7 dias grátis. Sem cartão. Sem compromisso.
+            </p>
             <Link
               href="/cadastrar-academia"
-              className="flex items-center justify-center rounded-xl py-3.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                background: 'var(--bb-brand-gradient)',
-                boxShadow: '0 4px 24px rgba(239, 68, 68, 0.25)',
-              }}
+              className="mt-8 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: '#C62828', boxShadow: '0 4px 24px rgba(198,40,40,0.3)' }}
             >
-              COMECAR GRATIS — 7 DIAS
+              COMEÇAR AGORA
             </Link>
-            <Link
-              href="/login"
-              className="flex items-center justify-center rounded-xl py-3 text-sm font-medium transition-colors duration-200"
-              style={{
-                border: '1px solid var(--bb-glass-border)',
-                background: 'var(--bb-depth-3)',
-                color: 'var(--bb-ink-80)',
-              }}
-            >
-              Ja tem conta? Entrar
-            </Link>
+            <p className="mt-4 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+              Ou{' '}
+              <a
+                href="https://wa.me/5531999990000?text=Olá! Quero saber mais sobre o BlackBelt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline transition-colors duration-200"
+                style={{ color: 'var(--bb-ink-60)' }}
+              >
+                fale com a gente pelo WhatsApp
+              </a>
+            </p>
+          </div>
+        </FadeInSection>
+      </section>
+
+      {/* ━━━ 9. FOOTER ━━━ */}
+      <footer style={{ background: 'var(--bb-depth-2)', borderTop: '1px solid var(--bb-glass-border)' }}>
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div>
+              <span className="text-lg font-extrabold tracking-tight" style={{ color: '#C62828' }}>
+                BLACKBELT
+              </span>
+              <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                Gestão de academias de artes marciais
+              </p>
+            </div>
+
+            {/* Produto */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                Produto
+              </h4>
+              <ul className="space-y-2">
+                <li><a href="#funcionalidades" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a></li>
+                <li><a href="#planos" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Planos</a></li>
+                <li><a href="#faq" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                Legal
+              </h4>
+              <ul className="space-y-2">
+                <li><Link href="/termos" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Privacidade</Link></li>
+              </ul>
+            </div>
+
+            {/* Contato */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                Contato
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="https://wa.me/5531999990000"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm"
+                    style={{ color: 'var(--bb-ink-60)' }}
+                  >
+                    WhatsApp
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:contato@blackbelt.app" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                    Email
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Scroll-down arrow */}
-          {showArrow && (
-            <button
-              type="button"
-              onClick={handleScrollDown}
-              className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 border-none bg-transparent sm:bottom-8"
-              style={{ color: 'var(--bb-ink-40)', cursor: 'pointer' }}
-              aria-label="Rolar para baixo"
-            >
-              <span className="text-[10px] uppercase tracking-widest sm:text-[11px]">Saiba mais</span>
-              <ChevronDown size={22} />
-            </button>
-          )}
-        </section>
-
-        {/* Landing Sections */}
-        <div id="landing">
-          <LandingHero />
-
-          <BenefitSection
-            id="benefit-aluno"
-            icon={<QrCode size={28} />}
-            title="Para o Aluno"
-            subtitle="Sua evolucao, na palma da mao."
-            features={[
-              { icon: <QrCode size={22} />, title: 'Check-in inteligente', description: 'Chegou na academia? Escaneie o QR code e sua presenca e registrada automaticamente.' },
-              { icon: <Award size={22} />, title: 'Jornada de faixa', description: 'Acompanhe seu progresso rumo a proxima graduacao. Presencas, avaliacoes e tempo de treino.' },
-              { icon: <Trophy size={22} />, title: 'Conquistas', description: 'Desbloqueie badges treinando. Da primeira aula ao Streak 365. Algumas sao lendarias.' },
-            ]}
-            extraFeatures={[
-              { icon: <Video size={16} />, label: 'Biblioteca de videos' },
-              { icon: <BarChart3 size={16} />, label: 'Analytics de treino' },
-              { icon: <GraduationCap size={16} />, label: 'Academia teorica' },
-              { icon: <Smartphone size={16} />, label: 'Carteirinha digital' },
-              { icon: <BookOpen size={16} />, label: 'Notas pessoais' },
-              { icon: <Target size={16} />, label: 'Streak de treino' },
-            ]}
-          />
-
-          <BenefitSection
-            id="benefit-professor"
-            icon={<GraduationCap size={28} />}
-            title="Para o Professor"
-            subtitle="Foco no que importa: ensinar."
-            features={[
-              { icon: <Target size={22} />, title: 'Modo Aula', description: 'Tela fullscreen durante a aula. Chamada por QR, timer de rounds, alertas de alunos e notas rapidas. Sem papel, sem planilha.' },
-              { icon: <BarChart3 size={22} />, title: 'Avaliacao Tecnica com Radar', description: '8 criterios visuais. Guarda, passagem, finalizacao, defesa, quedas, posicionamento. Evolucao ao longo do tempo.' },
-              { icon: <Video size={22} />, title: 'Envie Videos para suas Turmas', description: 'Grave no celular, suba no app. Organize por turma, faixa e nivel. Seus alunos assistem na hora.' },
-            ]}
-            extraFeatures={[
-              { icon: <Clipboard size={16} />, label: 'Diario de aulas' },
-              { icon: <BookOpen size={16} />, label: 'Plano de aula semanal' },
-              { icon: <Award size={16} />, label: 'Banco de 60+ tecnicas' },
-              { icon: <Eye size={16} />, label: 'Visao 360 do aluno' },
-              { icon: <MessageCircle size={16} />, label: 'Duvidas dos videos' },
-              { icon: <AlertTriangle size={16} />, label: 'Alertas inteligentes' },
-            ]}
-          />
-
-          <BenefitSection
-            id="benefit-pais"
-            icon={<UsersIcon size={28} />}
-            title="Para Pais e Responsaveis"
-            subtitle="Acompanhe a evolucao dos seus filhos com tranquilidade."
-            features={[
-              { icon: <Calendar size={22} />, title: 'Agenda Familiar', description: 'Aulas de TODOS os filhos num calendario. Saiba quando levar e buscar.' },
-              { icon: <MessageCircle size={22} />, title: 'Chat com Professor', description: 'Canal direto com quem cuida do seu filho no tatame. Pergunte, acompanhe.' },
-              { icon: <FileText size={22} />, title: 'Relatorio Mensal', description: 'Todo mes: presencas, evolucao, nota do professor. No WhatsApp ou PDF.' },
-              { icon: <ShieldCheck size={22} />, title: 'Autorizacoes', description: 'Campeonato, evento, viagem. Autorize pelo app. Controle total.' },
-            ]}
-            extraFeatures={[]}
-          />
-
-          <BenefitSection
-            id="benefit-admin"
-            icon={<LayoutDashboard size={28} />}
-            title="Para a Academia"
-            subtitle="Tudo num lugar so. Sem papel, sem planilha."
-            features={[
-              { icon: <LayoutDashboard size={22} />, title: 'Dashboard', description: 'KPIs em tempo real. Alunos ativos, receita, presencas, retencao. Tudo no seu celular.' },
-              { icon: <DollarSign size={22} />, title: 'Financeiro', description: 'Mensalidades, PIX, cobrancas automaticas. Controle total do caixa.' },
-              { icon: <Users size={22} />, title: 'Gestao de Alunos', description: 'Cadastro, faixas, evolucao, historico. Tudo organizado.' },
-            ]}
-            extraFeatures={[
-              { icon: <Clock size={16} />, label: 'Turmas e horarios' },
-              { icon: <Tv size={16} />, label: 'Biblioteca de videos' },
-              { icon: <Gamepad2 size={16} />, label: 'Gamificacao' },
-              { icon: <Send size={16} />, label: 'WhatsApp automatico' },
-            ]}
-          />
-
-          <TeenKidsSection />
-          <TestimonialCarousel />
-
-          {/* CTA Final */}
-          <section
-            className="flex flex-col items-center justify-center px-4 py-16 sm:px-6 md:py-24 lg:py-32"
-            style={{
-              background: 'linear-gradient(180deg, var(--bb-depth-1) 0%, var(--bb-depth-2) 50%, var(--bb-depth-1) 100%)',
-            }}
+          <div
+            className="mt-10 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row"
+            style={{ borderColor: 'var(--bb-glass-border)' }}
           >
-            <h3
-              className="text-center text-xl font-bold tracking-tight sm:text-2xl md:text-4xl"
-              style={{ color: 'var(--bb-ink-100)' }}
-            >
-              Pronto para transformar sua academia?
-            </h3>
-
-            <Link
-              href="/cadastrar-academia"
-              className="mt-10 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                background: 'var(--bb-brand-gradient)',
-                boxShadow: '0 4px 24px rgba(239, 68, 68, 0.25)',
-              }}
-            >
-              COMECAR GRATIS — 7 DIAS
-            </Link>
-
-            <Link
-              href="/login"
-              className="mt-6 text-sm transition-colors duration-200"
-              style={{ color: 'var(--bb-ink-60)' }}
-            >
-              Ja tem conta? <span style={{ textDecoration: 'underline' }}>Entrar</span>
-            </Link>
-          </section>
-
-          <LandingFooter />
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              &copy; 2026 BlackBelt. Todos os direitos reservados.
+            </p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              Feito com 🥋 em Minas Gerais.
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* ═══ DESKTOP EXPERIENCE (lg+) ═══ */}
-      <div className="hidden lg:block">
-        <DesktopLanding onLoginClick={() => { window.location.href = '/login'; }} />
-      </div>
-    </>
+      </footer>
+    </div>
   );
 }

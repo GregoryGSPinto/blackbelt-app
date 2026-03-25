@@ -428,7 +428,7 @@ export default function LoginPage() {
             {/* Registration options */}
             <div className="bb-s bb-s-extra mt-4 flex flex-col gap-3">
               <Link
-                href="/landing"
+                href="/"
                 className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5"
                 style={{
                   border: '1px solid var(--bb-glass-border)',

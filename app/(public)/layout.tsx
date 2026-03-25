@@ -6,10 +6,10 @@ import { useState } from 'react';
 import { MenuIcon, XIcon } from '@/components/shell/icons';
 
 const NAV_LINKS = [
-  { href: '/landing#funcionalidades', label: 'Funcionalidades' },
+  { href: '/#funcionalidades', label: 'Funcionalidades' },
   { href: '/cadastrar-academia', label: 'Planos' },
-  { href: '/landing#por-perfil', label: 'Por Perfil' },
-  { href: '/landing#faq', label: 'FAQ' },
+  { href: '/#perfis', label: 'Perfis' },
+  { href: '/#faq', label: 'FAQ' },
   { href: '/contato', label: 'Contato' },
 ];
 
@@ -29,7 +29,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       >
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/landing" className="flex items-center gap-2 text-xl font-bold tracking-tight sm:text-2xl">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight sm:text-2xl">
             <span
               className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-black text-white"
               style={{ background: 'var(--bb-brand-gradient)' }}
@@ -149,7 +149,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             {/* Brand */}
             <div className="lg:col-span-2">
-              <Link href="/landing" className="flex items-center gap-2 text-xl font-bold">
+              <Link href="/" className="flex items-center gap-2 text-xl font-bold">
                 <span
                   className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-black text-white"
                   style={{ background: 'var(--bb-brand-gradient)' }}
@@ -171,9 +171,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               </h4>
               <ul className="space-y-3">
                 {[
-                  { href: '/landing#funcionalidades', label: 'Funcionalidades' },
+                  { href: '/#funcionalidades', label: 'Funcionalidades' },
                   { href: '/cadastrar-academia', label: 'Planos e Preços' },
-                  { href: '/landing#faq', label: 'FAQ' },
+                  { href: '/#faq', label: 'FAQ' },
                   { href: '/status', label: 'Status' },
                 ].map((l) => (
                   <li key={l.href}>
