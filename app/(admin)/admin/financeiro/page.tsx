@@ -70,8 +70,11 @@ export default function AdminFinanceiroPage() {
   const [reportData, setReportData] = useState<FinancialReportData | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
 
-  // Filters
-  const [filterMonth, setFilterMonth] = useState('2026-03');
+  // Filters — default to current month
+  const [filterMonth, setFilterMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [filterStatus, setFilterStatus] = useState('');
   const [filterSearch, setFilterSearch] = useState('');
 
@@ -264,9 +267,13 @@ export default function AdminFinanceiroPage() {
                   color: 'var(--bb-ink-100)',
                 }}
               >
-                <option value="2026-03">Mar/2026</option>
-                <option value="2026-02">Fev/2026</option>
-                <option value="2026-01">Jan/2026</option>
+                {Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date();
+                  d.setMonth(d.getMonth() - i);
+                  const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                  const label = d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+                  return <option key={val} value={val}>{label}</option>;
+                })}
               </select>
               <select
                 value={filterStatus}
@@ -407,7 +414,7 @@ export default function AdminFinanceiroPage() {
                 }}
               >
                 <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                  Resumo Mensal — Março 2026
+                  Resumo Mensal — {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
                 </h2>
 
                 <div className="space-y-3">
@@ -438,7 +445,7 @@ export default function AdminFinanceiroPage() {
                   onClick={async () => {
                     setReportLoading(true);
                     try {
-                      const data = await generateFinancialReport(getActiveAcademyId(), 'Marco 2026');
+                      const data = await generateFinancialReport(getActiveAcademyId(), new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
                       setReportData(data);
                     } catch (err) {
                       toast(translateError(err), 'error');
