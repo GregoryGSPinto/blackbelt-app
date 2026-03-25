@@ -1,6 +1,6 @@
 =================================================
   BLACKBELT v2 — FULL AUDIT REPORT
-  2026-03-25T16:07:06.255Z
+  2026-03-25T16:26:09.447Z
 =================================================
 
 
@@ -68,7 +68,7 @@
    OK: 1  Empty: 19  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /superadmin
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/acade
+      Console errors: Failed to load resource: the server responded with a status of 400 ()
    [EMPTY] /superadmin/academias
       => No meaningful content
    [EMPTY] /superadmin/analytics
@@ -110,7 +110,8 @@
    OK: 1  Empty: 70  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /admin
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 ()
+      Console errors: Failed to load resource: the server responded with a status of 400 (); TypeError: Failed to fetch
+    at window.fetch (https://blackbeltv2.vercel.app/
    [EMPTY] /admin/acesso
       => No meaningful content
    [EMPTY] /admin/acesso/proximidade
@@ -254,7 +255,8 @@
    OK: 1  Empty: 28  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /professor
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turmas
+      Console errors: Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turmas. Falling back to browser navigation. TypeError: Failed to fetch
+    at
    [EMPTY] /professor/agenda
       => No meaningful content
    [EMPTY] /professor/alertas
@@ -314,7 +316,7 @@
    OK: 1  Empty: 11  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /recepcao
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 404 (); Failed t
+      Console errors: Failed to load resource: the server responded with a status of 400 ()
    [EMPTY] /recepcao/acesso
       => No meaningful content
    [EMPTY] /recepcao/agenda
@@ -340,7 +342,7 @@
    OK: 1  Empty: 45  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /dashboard
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/progre
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 404 ()
    [EMPTY] /dashboard/checkin
       => No meaningful content
       Console errors: Failed to load resource: the server responded with a status of 404 ()
@@ -477,7 +479,7 @@
    OK: 1  Empty: 11  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /teen
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/ranking. Fa
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 404 ()
    [EMPTY] /teen/academia
       => No meaningful content
       Console errors: Failed to load resource: the server responded with a status of 404 ()
@@ -513,7 +515,7 @@
    OK: 1  Empty: 9  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /kids
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to load resource: the server responded with a status of 400 (); Failed t
+      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/academia. F
    [EMPTY] /kids/academia
       => No meaningful content
    [EMPTY] /kids/configuracoes
@@ -563,7 +565,7 @@
    OK: 1  Empty: 8  Error: 0  Crash: 0  Redirect: 0  404: 0
    [EMPTY] /franqueador
       => No meaningful content
-      Console errors: Failed to load resource: the server responded with a status of 400 (); Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/padr
+      Console errors: Failed to load resource: the server responded with a status of 400 ()
    [EMPTY] /franqueador/comunicacao
       => No meaningful content
    [EMPTY] /franqueador/configuracoes

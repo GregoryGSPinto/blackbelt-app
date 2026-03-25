@@ -24,26 +24,40 @@ const ESTADOS = [
 
 const PLATFORM_PLANS = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 'Grátis',
-    color: '#6b7280',
-    features: ['1 unidade', '30 alunos', '3 turmas', 'Check-in básico'],
+    id: 'starter',
+    name: 'Starter',
+    price: 'R$ 79/mês',
+    color: '#6B7085',
+    features: ['Até 50 alunos', '1 unidade', '2 professores', 'Gestão de alunos', 'Check-in', 'Financeiro básico', 'Agenda', 'Notificações'],
+  },
+  {
+    id: 'essencial',
+    name: 'Essencial',
+    price: 'R$ 149/mês',
+    color: '#3B82F6',
+    features: ['Até 100 alunos', '1 unidade', '5 professores', 'Tudo do Starter', 'Streaming library', 'Certificados digitais', 'Relatórios avançados', 'Comunicação com responsáveis'],
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: 'R$ 199/mês',
+    price: 'R$ 249/mês',
     color: 'var(--bb-brand)',
     popular: true,
-    features: ['3 unidades', '200 alunos', 'Turmas ilimitadas', 'Relatórios avançados', 'Automações', 'App mobile'],
+    features: ['Até 200 alunos', '2 unidades', 'Professores ilimitados', 'Tudo do Essencial', 'Campeonatos', 'Gamificação teen', 'Currículo técnico', 'Estoque', 'Contratos digitais'],
+  },
+  {
+    id: 'blackbelt',
+    name: 'Black Belt',
+    price: 'R$ 397/mês',
+    color: '#F59E0B',
+    features: ['Alunos ilimitados', 'Unidades ilimitadas', 'Tudo do Pro', 'Painel franqueador', 'White-label', 'API access', 'Suporte prioritário', 'Relatórios multi-unidade'],
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 'R$ 499/mês',
-    color: '#f59e0b',
-    features: ['Unidades ilimitadas', 'White-label', 'API completa', 'Suporte prioritário', 'Multi-academia', 'Dashboard franquia'],
+    price: 'Sob consulta',
+    color: '#8B5CF6',
+    features: ['Tudo do Black Belt', 'SLA dedicado', 'Onboarding assistido', 'Customizações', 'Integração com sistemas legados'],
   },
 ];
 
@@ -82,7 +96,7 @@ export default function CadastrarAcademiaPage() {
   const [admin, setAdmin] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
 
   // Step 4: Plan
-  const [plan, setPlan] = useState('pro');
+  const [plan, setPlan] = useState('blackbelt');
 
   function validateStep1(): boolean {
     if (!academy.name.trim()) { toast('Nome da academia é obrigatório', 'error'); return false; }
@@ -547,7 +561,7 @@ export default function CadastrarAcademiaPage() {
               Escolha seu Plano
             </h2>
             <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-              Todos os planos incluem 14 dias de trial grátis.
+              7 dias grátis no plano Black Belt (acesso total). Sem cartão de crédito.
             </p>
 
             <div className="space-y-3">

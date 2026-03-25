@@ -5,12 +5,12 @@ const delay = () => new Promise((r) => setTimeout(r, 200));
 
 export async function mockGetCurrentPlan(_academyId: string): Promise<PlatformPlan> {
   await delay();
-  return PLATFORM_PLANS[1]; // Pro
+  return PLATFORM_PLANS[2]; // Pro
 }
 
 export async function mockGetUsage(_academyId: string): Promise<UsageDTO> {
   await delay();
-  const plan = PLATFORM_PLANS[1];
+  const plan = PLATFORM_PLANS[2];
   return {
     units: { current: 1, limit: plan.limits.units },
     students: { current: 48, limit: plan.limits.students },

@@ -26,32 +26,32 @@ const FAQ_ITEMS = [
 const PLANS = [
   {
     name: 'Starter',
-    features: ['50 alunos', '3 turmas', '1 professor', 'Check-in por QR Code'],
+    features: ['Até 50 alunos', '1 unidade', '2 professores', 'Gestão de alunos', 'Check-in', 'Financeiro básico', 'Agenda', 'Notificações'],
     href: '/cadastrar-academia?plan=starter',
     highlighted: false,
   },
   {
     name: 'Essencial',
-    features: ['150 alunos', '10 turmas', '3 professores', 'Check-in por QR Code', 'Financeiro', 'Relatórios'],
+    features: ['Até 100 alunos', '1 unidade', '5 professores', 'Tudo do Starter', 'Streaming library', 'Certificados digitais', 'Relatórios avançados', 'Comunicação com responsáveis', 'App do aluno'],
     href: '/cadastrar-academia?plan=essencial',
     highlighted: false,
   },
   {
     name: 'Pro',
-    features: ['300 alunos', 'Turmas ilimitadas', '10 professores', 'Check-in por QR Code', 'Financeiro', 'Relatórios', 'Streaming', 'Gamificação', 'Campeonatos'],
+    features: ['Até 200 alunos', '2 unidades', 'Professores ilimitados', 'Tudo do Essencial', 'Campeonatos', 'Gamificação teen', 'Currículo técnico', 'Match analysis', 'Estoque', 'Contratos digitais'],
     href: '/cadastrar-academia?plan=pro',
     highlighted: true,
     badge: 'Mais Popular',
   },
   {
     name: 'Black Belt',
-    features: ['Alunos ilimitados', 'Turmas ilimitadas', 'Professores ilimitados', 'Tudo do Pro', 'White-label', 'Multi-unidade', 'Integrações'],
+    features: ['Alunos ilimitados', 'Unidades ilimitadas', 'Tudo do Pro', 'Painel franqueador', 'White-label', 'API access', 'Suporte prioritário', 'Relatórios multi-unidade'],
     href: '/cadastrar-academia?plan=blackbelt',
     highlighted: false,
   },
   {
     name: 'Enterprise',
-    features: ['Ilimitado em tudo', 'Tudo do Black Belt', 'API dedicada', 'Suporte dedicado', 'SLA'],
+    features: ['Tudo do Black Belt', 'SLA dedicado', 'Onboarding assistido', 'Customizações', 'Integração com sistemas legados'],
     href: '/cadastrar-academia?plan=enterprise',
     highlighted: false,
   },

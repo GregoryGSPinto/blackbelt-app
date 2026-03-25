@@ -138,14 +138,13 @@ CREATE POLICY "usage_superadmin" ON module_usage_tracking FOR ALL USING (public.
 -- SEED DATA
 -- ============================================================
 
--- 6 Faixas de base
+-- 5 Faixas de base
 INSERT INTO pricing_tiers (name, slug, min_students, max_students, price_monthly, price_yearly, professors_included, classes_included, units_included, sort_order) VALUES
-  ('Solo',       'solo',       1,   30,   97.00,   77.60, 1, 5,  1, 1),
-  ('Starter',    'starter',   31,   60,  147.00,  117.60, 2, 10, 1, 2),
-  ('Growth',     'growth',    61,  120,  197.00,  157.60, 3, 20, 1, 3),
-  ('Pro',        'pro',      121,  200,  297.00,  237.60, 5, 40, 2, 4),
-  ('Scale',      'scale',    201,  400,  397.00,  317.60, 8, 80, 3, 5),
-  ('Enterprise', 'enterprise',401, 9999, 497.00,  397.60,15,999, 5, 6)
+  ('Starter',    'starter',      1,   50,   79.00,   63.20,   2,   10,   1, 1),
+  ('Essencial',  'essencial',   51,  100,  149.00,  119.20,   5,   20,   1, 2),
+  ('Pro',        'pro',        101,  200,  249.00,  199.20, 999, 9999,   2, 3),
+  ('Black Belt', 'blackbelt',  201, 9999,  397.00,  317.60, 999, 9999, 999, 4),
+  ('Enterprise', 'enterprise',9999,99999,    0.00,    0.00, 999, 9999, 999, 5)
 ON CONFLICT (slug) DO NOTHING;
 
 -- 16 Modulos

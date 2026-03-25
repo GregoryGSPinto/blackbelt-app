@@ -7,7 +7,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 1202,
+      "loadTime": 1957,
       "details": "OK"
     },
     {
@@ -17,7 +17,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 1128,
+      "loadTime": 793,
       "details": "OK"
     },
     {
@@ -27,7 +27,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 765,
+      "loadTime": 777,
       "details": "Redirected to /login"
     },
     {
@@ -37,7 +37,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 748,
+      "loadTime": 758,
       "details": "Redirected to /login"
     },
     {
@@ -47,7 +47,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 761,
+      "loadTime": 777,
       "details": "Redirected to /login"
     },
     {
@@ -57,7 +57,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 730,
+      "loadTime": 762,
       "details": "OK"
     },
     {
@@ -69,7 +69,7 @@
       "emptyIndicators": [
         "Cadastre sua academia e comece a usar em minutos"
       ],
-      "loadTime": 682,
+      "loadTime": 687,
       "details": "Cadastre sua academia e comece a usar em minutos"
     },
     {
@@ -79,7 +79,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 746,
+      "loadTime": 767,
       "details": "Redirected to /login"
     },
     {
@@ -89,7 +89,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 821,
+      "loadTime": 817,
       "details": "Redirected to /login"
     },
     {
@@ -103,7 +103,7 @@
         "Nenhum torneio encontrado",
         "Nenhum torneio encontrado"
       ],
-      "loadTime": 2067,
+      "loadTime": 1883,
       "details": "Nenhum torneio encontrado; Nenhum torneio encontrado"
     },
     {
@@ -116,7 +116,7 @@
         "Nenhum atleta encontrado",
         "Nenhum atleta encontrado"
       ],
-      "loadTime": 825,
+      "loadTime": 852,
       "details": "Nenhum atleta encontrado; Nenhum atleta encontrado"
     },
     {
@@ -126,7 +126,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 678,
+      "loadTime": 705,
       "details": "OK"
     },
     {
@@ -136,7 +136,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 876,
+      "loadTime": 726,
       "details": "OK"
     },
     {
@@ -146,7 +146,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 753,
+      "loadTime": 749,
       "details": "Redirected to /login"
     },
     {
@@ -156,7 +156,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 760,
+      "loadTime": 762,
       "details": "Redirected to /login"
     },
     {
@@ -166,7 +166,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 747,
+      "loadTime": 738,
       "details": "Redirected to /login"
     },
     {
@@ -176,7 +176,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 759,
+      "loadTime": 740,
       "details": "Redirected to /login"
     },
     {
@@ -188,7 +188,7 @@
       "emptyIndicators": [
         "Cadastre sua academia e comece a usar em minutos"
       ],
-      "loadTime": 736,
+      "loadTime": 928,
       "details": "Cadastre sua academia e comece a usar em minutos"
     },
     {
@@ -201,7 +201,7 @@
         "Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente necessarias a prestacao do servico.",
         "Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente necessarias a prestacao do servico."
       ],
-      "loadTime": 682,
+      "loadTime": 716,
       "details": "Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente necessarias a prestacao do servico.; Nenhum dado de menor e compartilhado com terceiros para finalidades que nao sejam estritamente necessarias a prestacao do servico."
     },
     {
@@ -211,7 +211,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 777,
+      "loadTime": 736,
       "details": "Redirected to /login"
     },
     {
@@ -221,7 +221,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 720,
+      "loadTime": 850,
       "details": "OK"
     },
     {
@@ -234,7 +234,7 @@
         "Nenhum incidente nos últimos 30 dias.",
         "Nenhum incidente nos últimos 30 dias."
       ],
-      "loadTime": 725,
+      "loadTime": 739,
       "details": "Nenhum incidente nos últimos 30 dias.; Nenhum incidente nos últimos 30 dias."
     },
     {
@@ -247,7 +247,7 @@
         "3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage.",
         "3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage."
       ],
-      "loadTime": 665,
+      "loadTime": 753,
       "details": "3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage.; 3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage."
     }
   ],
@@ -259,7 +259,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 913,
+      "loadTime": 929,
       "details": "OK"
     },
     {
@@ -269,7 +269,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 677,
+      "loadTime": 679,
       "details": "OK"
     },
     {
@@ -279,7 +279,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 674,
+      "loadTime": 657,
       "details": "OK"
     },
     {
@@ -289,7 +289,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 668,
+      "loadTime": 676,
       "details": "OK"
     },
     {
@@ -299,7 +299,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 674,
+      "loadTime": 673,
       "details": "OK"
     },
     {
@@ -309,7 +309,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 596,
+      "loadTime": 597,
       "details": "No meaningful content"
     },
     {
@@ -319,7 +319,7 @@
         "The script resource is behind a redirect, which is disallowed."
       ],
       "emptyIndicators": [],
-      "loadTime": 680,
+      "loadTime": 668,
       "details": "OK"
     }
   ],
@@ -336,15 +336,10 @@
       "url": "/superadmin",
       "status": "empty",
       "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/academias. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/prospeccao. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/receita. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/planos. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/pipeline. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
+        "Failed to load resource: the server responded with a status of 400 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1452,
+      "loadTime": 2217,
       "details": "No meaningful content"
     },
     {
@@ -352,7 +347,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1139,
+      "loadTime": 2790,
       "details": "No meaningful content"
     },
     {
@@ -360,7 +355,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 969,
+      "loadTime": 1125,
       "details": "No meaningful content"
     },
     {
@@ -368,7 +363,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 944,
+      "loadTime": 969,
       "details": "No meaningful content"
     },
     {
@@ -376,7 +371,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 937,
+      "loadTime": 893,
       "details": "No meaningful content"
     },
     {
@@ -384,7 +379,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 998,
+      "loadTime": 951,
       "details": "No meaningful content"
     },
     {
@@ -392,7 +387,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 921,
+      "loadTime": 937,
       "details": "No meaningful content"
     },
     {
@@ -400,7 +395,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1030,
+      "loadTime": 973,
       "details": "No meaningful content"
     },
     {
@@ -408,7 +403,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 964,
+      "loadTime": 971,
       "details": "No meaningful content"
     },
     {
@@ -419,7 +414,7 @@
         "Nenhuma mensagem recebida ainda.",
         "Nenhuma mensagem recebida ainda."
       ],
-      "loadTime": 1329,
+      "loadTime": 1687,
       "details": "Nenhuma mensagem recebida ainda.; Nenhuma mensagem recebida ainda."
     },
     {
@@ -427,7 +422,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1060,
+      "loadTime": 971,
       "details": "No meaningful content"
     },
     {
@@ -435,7 +430,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 968,
+      "loadTime": 1574,
       "details": "No meaningful content"
     },
     {
@@ -443,7 +438,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 972,
+      "loadTime": 927,
       "details": "No meaningful content"
     },
     {
@@ -451,7 +446,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 934,
+      "loadTime": 927,
       "details": "No meaningful content"
     },
     {
@@ -459,7 +454,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1495,
+      "loadTime": 931,
       "details": "No meaningful content"
     },
     {
@@ -475,7 +470,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 961,
+      "loadTime": 1047,
       "details": "No meaningful content"
     },
     {
@@ -483,7 +478,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1168,
+      "loadTime": 931,
       "details": "No meaningful content"
     },
     {
@@ -491,7 +486,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 994,
+      "loadTime": 999,
       "details": "No meaningful content"
     }
   ],
@@ -508,10 +503,16 @@
       "url": "/admin",
       "status": "empty",
       "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 ()"
+        "Failed to load resource: the server responded with a status of 400 ()",
+        "TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:39354\n    at tJ (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:44394)\n    at tz (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:44138)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:15357\n    at rO._useSession (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:12862)\n    at async rO._getUser (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:15175)\n    at async https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:14969",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/aula-experimental. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/turmas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/alunos. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/graduacoes. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/calendario. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
       ],
       "emptyIndicators": [],
-      "loadTime": 1179,
+      "loadTime": 1176,
       "details": "No meaningful content"
     },
     {
@@ -519,7 +520,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1027,
+      "loadTime": 1607,
       "details": "No meaningful content"
     },
     {
@@ -527,7 +528,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1072,
+      "loadTime": 1113,
       "details": "No meaningful content"
     },
     {
@@ -535,7 +536,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1023,
+      "loadTime": 1085,
       "details": "No meaningful content"
     },
     {
@@ -543,7 +544,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1031,
+      "loadTime": 1012,
       "details": "No meaningful content"
     },
     {
@@ -551,7 +552,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1034,
+      "loadTime": 1087,
       "details": "No meaningful content"
     },
     {
@@ -559,7 +560,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1028,
+      "loadTime": 1042,
       "details": "No meaningful content"
     },
     {
@@ -567,7 +568,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1009,
+      "loadTime": 1014,
       "details": "No meaningful content"
     },
     {
@@ -575,7 +576,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1067,
+      "loadTime": 973,
       "details": "No meaningful content"
     },
     {
@@ -583,7 +584,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1076,
+      "loadTime": 1030,
       "details": "No meaningful content"
     },
     {
@@ -591,7 +592,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 962,
+      "loadTime": 954,
       "details": "No meaningful content"
     },
     {
@@ -599,7 +600,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1041,
+      "loadTime": 1050,
       "details": "No meaningful content"
     },
     {
@@ -607,7 +608,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1012,
+      "loadTime": 1052,
       "details": "No meaningful content"
     },
     {
@@ -615,7 +616,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1062,
+      "loadTime": 1051,
       "details": "No meaningful content"
     },
     {
@@ -623,7 +624,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1081,
+      "loadTime": 987,
       "details": "No meaningful content"
     },
     {
@@ -631,7 +632,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1036,
+      "loadTime": 1022,
       "details": "No meaningful content"
     },
     {
@@ -639,7 +640,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 997,
+      "loadTime": 1038,
       "details": "No meaningful content"
     },
     {
@@ -647,7 +648,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1145,
+      "loadTime": 1050,
       "details": "No meaningful content"
     },
     {
@@ -655,7 +656,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 2124,
+      "loadTime": 1042,
       "details": "No meaningful content"
     },
     {
@@ -663,7 +664,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1707,
+      "loadTime": 1110,
       "details": "No meaningful content"
     },
     {
@@ -671,7 +672,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1135,
+      "loadTime": 1150,
       "details": "No meaningful content"
     },
     {
@@ -679,7 +680,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1045,
+      "loadTime": 995,
       "details": "No meaningful content"
     },
     {
@@ -687,7 +688,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1059,
+      "loadTime": 971,
       "details": "No meaningful content"
     },
     {
@@ -695,7 +696,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1053,
+      "loadTime": 1040,
       "details": "No meaningful content"
     },
     {
@@ -703,7 +704,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1017,
+      "loadTime": 1048,
       "details": "No meaningful content"
     },
     {
@@ -711,7 +712,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1016,
+      "loadTime": 1200,
       "details": "No meaningful content"
     },
     {
@@ -719,7 +720,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 994,
+      "loadTime": 1045,
       "details": "No meaningful content"
     },
     {
@@ -727,7 +728,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1059,
+      "loadTime": 1051,
       "details": "No meaningful content"
     },
     {
@@ -735,7 +736,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 979,
+      "loadTime": 1132,
       "details": "No meaningful content"
     },
     {
@@ -743,7 +744,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 955,
+      "loadTime": 981,
       "details": "No meaningful content"
     },
     {
@@ -754,7 +755,7 @@
         "Não faltou nenhum treino no mês",
         "Não faltou nenhum treino no mês"
       ],
-      "loadTime": 1026,
+      "loadTime": 1171,
       "details": "Não faltou nenhum treino no mês; Não faltou nenhum treino no mês"
     },
     {
@@ -762,7 +763,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1014,
+      "loadTime": 1059,
       "details": "No meaningful content"
     },
     {
@@ -770,7 +771,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 979,
+      "loadTime": 1008,
       "details": "No meaningful content"
     },
     {
@@ -778,7 +779,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1041,
+      "loadTime": 1197,
       "details": "No meaningful content"
     },
     {
@@ -786,7 +787,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 956,
+      "loadTime": 1022,
       "details": "No meaningful content"
     },
     {
@@ -794,7 +795,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1010,
+      "loadTime": 1038,
       "details": "No meaningful content"
     },
     {
@@ -802,7 +803,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 998,
+      "loadTime": 1693,
       "details": "No meaningful content"
     },
     {
@@ -818,7 +819,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1076,
+      "loadTime": 1176,
       "details": "No meaningful content"
     },
     {
@@ -826,7 +827,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1006,
+      "loadTime": 1028,
       "details": "No meaningful content"
     },
     {
@@ -834,7 +835,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 996,
+      "loadTime": 2315,
       "details": "No meaningful content"
     },
     {
@@ -842,7 +843,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 990,
+      "loadTime": 2290,
       "details": "No meaningful content"
     },
     {
@@ -850,7 +851,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1016,
+      "loadTime": 3570,
       "details": "No meaningful content"
     },
     {
@@ -858,7 +859,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1023,
+      "loadTime": 1079,
       "details": "No meaningful content"
     },
     {
@@ -866,7 +867,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1023,
+      "loadTime": 1079,
       "details": "No meaningful content"
     },
     {
@@ -874,7 +875,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1019,
+      "loadTime": 1016,
       "details": "No meaningful content"
     },
     {
@@ -882,7 +883,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 997,
+      "loadTime": 1044,
       "details": "No meaningful content"
     },
     {
@@ -890,7 +891,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1001,
+      "loadTime": 1318,
       "details": "No meaningful content"
     },
     {
@@ -898,7 +899,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 957,
+      "loadTime": 3693,
       "details": "No meaningful content"
     },
     {
@@ -906,7 +907,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1033,
+      "loadTime": 1871,
       "details": "No meaningful content"
     },
     {
@@ -914,7 +915,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 965,
+      "loadTime": 1582,
       "details": "No meaningful content"
     },
     {
@@ -922,7 +923,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1017,
+      "loadTime": 1438,
       "details": "No meaningful content"
     },
     {
@@ -930,7 +931,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 992,
+      "loadTime": 1094,
       "details": "No meaningful content"
     },
     {
@@ -938,7 +939,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1041,
+      "loadTime": 1157,
       "details": "No meaningful content"
     },
     {
@@ -946,7 +947,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 995,
+      "loadTime": 1028,
       "details": "No meaningful content"
     },
     {
@@ -954,7 +955,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 967,
+      "loadTime": 1045,
       "details": "No meaningful content"
     },
     {
@@ -962,7 +963,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1011,
+      "loadTime": 1996,
       "details": "No meaningful content"
     },
     {
@@ -970,7 +971,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1023,
+      "loadTime": 1265,
       "details": "No meaningful content"
     },
     {
@@ -978,7 +979,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1022,
+      "loadTime": 1633,
       "details": "No meaningful content"
     },
     {
@@ -986,7 +987,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1041,
+      "loadTime": 1037,
       "details": "No meaningful content"
     },
     {
@@ -994,7 +995,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 931,
+      "loadTime": 936,
       "details": "No meaningful content"
     },
     {
@@ -1002,7 +1003,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1052,
+      "loadTime": 1016,
       "details": "No meaningful content"
     },
     {
@@ -1010,7 +1011,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1056,
+      "loadTime": 1132,
       "details": "No meaningful content"
     },
     {
@@ -1018,7 +1019,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1015,
+      "loadTime": 1018,
       "details": "No meaningful content"
     },
     {
@@ -1026,7 +1027,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 935,
+      "loadTime": 951,
       "details": "No meaningful content"
     },
     {
@@ -1034,7 +1035,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1008,
+      "loadTime": 1024,
       "details": "No meaningful content"
     },
     {
@@ -1042,7 +1043,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 989,
+      "loadTime": 969,
       "details": "No meaningful content"
     },
     {
@@ -1050,7 +1051,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 999,
+      "loadTime": 1008,
       "details": "No meaningful content"
     },
     {
@@ -1058,7 +1059,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 724,
+      "loadTime": 650,
       "details": "No meaningful content"
     },
     {
@@ -1066,7 +1067,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1330,
+      "loadTime": 1295,
       "details": "No meaningful content"
     }
   ],
@@ -1083,16 +1084,14 @@
       "url": "/professor",
       "status": "empty",
       "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turmas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/avaliacoes. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turma-ativa. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/calendario. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/alunos. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:39354\n    at tJ (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:44394)\n    at tz (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:24:44138)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:15357\n    at rO._useSession (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:12862)\n    at async rO._getUser (https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:15175)\n    at async https://blackbeltv2.vercel.app/_next/static/chunks/40223-e9a38e17c4f0935c.js:37:14969"
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turmas. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)\n    at Object.action (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:2:7100)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/alunos. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)\n    at Object.action (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:2:7100)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/calendario. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)\n    at Object.action (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:2:7100)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/turma-ativa. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)\n    at Object.action (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:2:7100)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/avaliacoes. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)\n    at Object.action (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:2:7100)"
       ],
       "emptyIndicators": [],
-      "loadTime": 1718,
+      "loadTime": 2029,
       "details": "No meaningful content"
     },
     {
@@ -1100,7 +1099,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1344,
+      "loadTime": 1424,
       "details": "No meaningful content"
     },
     {
@@ -1108,7 +1107,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1252,
+      "loadTime": 1480,
       "details": "No meaningful content"
     },
     {
@@ -1116,7 +1115,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1135,
+      "loadTime": 1215,
       "details": "No meaningful content"
     },
     {
@@ -1124,7 +1123,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1410,
+      "loadTime": 1341,
       "details": "No meaningful content"
     },
     {
@@ -1132,7 +1131,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1464,
+      "loadTime": 1270,
       "details": "No meaningful content"
     },
     {
@@ -1140,7 +1139,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1208,
+      "loadTime": 1104,
       "details": "No meaningful content"
     },
     {
@@ -1148,7 +1147,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1102,
+      "loadTime": 1139,
       "details": "No meaningful content"
     },
     {
@@ -1156,7 +1155,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1441,
+      "loadTime": 1329,
       "details": "No meaningful content"
     },
     {
@@ -1164,7 +1163,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1401,
+      "loadTime": 1448,
       "details": "No meaningful content"
     },
     {
@@ -1172,7 +1171,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1278,
+      "loadTime": 1363,
       "details": "No meaningful content"
     },
     {
@@ -1180,7 +1179,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1120,
+      "loadTime": 1199,
       "details": "No meaningful content"
     },
     {
@@ -1188,7 +1187,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1407,
+      "loadTime": 1434,
       "details": "No meaningful content"
     },
     {
@@ -1196,7 +1195,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1298,
+      "loadTime": 1402,
       "details": "No meaningful content"
     },
     {
@@ -1204,7 +1203,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1395,
+      "loadTime": 1353,
       "details": "No meaningful content"
     },
     {
@@ -1212,7 +1211,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1205,
+      "loadTime": 1168,
       "details": "No meaningful content"
     },
     {
@@ -1220,7 +1219,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1375,
+      "loadTime": 1382,
       "details": "No meaningful content"
     },
     {
@@ -1228,7 +1227,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1298,
+      "loadTime": 1335,
       "details": "No meaningful content"
     },
     {
@@ -1236,7 +1235,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1360,
+      "loadTime": 1365,
       "details": "No meaningful content"
     },
     {
@@ -1244,7 +1243,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1178,
+      "loadTime": 1147,
       "details": "No meaningful content"
     },
     {
@@ -1252,7 +1251,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1230,
+      "loadTime": 1184,
       "details": "No meaningful content"
     },
     {
@@ -1260,7 +1259,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1205,
+      "loadTime": 1241,
       "details": "No meaningful content"
     },
     {
@@ -1268,7 +1267,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1489,
+      "loadTime": 1336,
       "details": "No meaningful content"
     },
     {
@@ -1276,7 +1275,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1432,
+      "loadTime": 1278,
       "details": "No meaningful content"
     },
     {
@@ -1284,7 +1283,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1359,
+      "loadTime": 1521,
       "details": "No meaningful content"
     },
     {
@@ -1292,7 +1291,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1364,
+      "loadTime": 1527,
       "details": "No meaningful content"
     },
     {
@@ -1300,7 +1299,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1318,
+      "loadTime": 1408,
       "details": "No meaningful content"
     },
     {
@@ -1308,7 +1307,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1387,
+      "loadTime": 1349,
       "details": "No meaningful content"
     }
   ],
@@ -1325,16 +1324,10 @@
       "url": "/recepcao",
       "status": "empty",
       "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/recepcao/experimentais. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/recepcao/caixa. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/recepcao/atendimento. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/recepcao/checkin. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
+        "Failed to load resource: the server responded with a status of 400 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1545,
+      "loadTime": 1977,
       "details": "No meaningful content"
     },
     {
@@ -1342,7 +1335,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1386,
+      "loadTime": 1275,
       "details": "No meaningful content"
     },
     {
@@ -1350,7 +1343,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1341,
+      "loadTime": 1283,
       "details": "No meaningful content"
     },
     {
@@ -1358,7 +1351,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1066,
+      "loadTime": 1047,
       "details": "No meaningful content"
     },
     {
@@ -1366,7 +1359,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1088,
+      "loadTime": 1081,
       "details": "No meaningful content"
     },
     {
@@ -1374,7 +1367,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1167,
+      "loadTime": 1116,
       "details": "No meaningful content"
     },
     {
@@ -1382,7 +1375,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1075,
+      "loadTime": 1151,
       "details": "No meaningful content"
     },
     {
@@ -1390,7 +1383,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 2361,
+      "loadTime": 1268,
       "details": "No meaningful content"
     },
     {
@@ -1398,7 +1391,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1403,
+      "loadTime": 1096,
       "details": "No meaningful content"
     },
     {
@@ -1406,7 +1399,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1214,
+      "loadTime": 1153,
       "details": "No meaningful content"
     },
     {
@@ -1414,7 +1407,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1324,
+      "loadTime": 1181,
       "details": "No meaningful content"
     }
   ],
@@ -1432,15 +1425,10 @@
       "status": "empty",
       "consoleErrors": [
         "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/progresso. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/metas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/checkin. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/turmas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/dashboard/conquistas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 3060,
+      "loadTime": 4020,
       "details": "No meaningful content"
     },
     {
@@ -1450,7 +1438,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1325,
+      "loadTime": 1215,
       "details": "No meaningful content"
     },
     {
@@ -1460,7 +1448,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1343,
+      "loadTime": 1334,
       "details": "No meaningful content"
     },
     {
@@ -1470,7 +1458,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1196,
+      "loadTime": 1238,
       "details": "No meaningful content"
     },
     {
@@ -1480,7 +1468,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1248,
+      "loadTime": 1357,
       "details": "No meaningful content"
     },
     {
@@ -1490,7 +1478,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1339,
+      "loadTime": 1202,
       "details": "No meaningful content"
     },
     {
@@ -1500,7 +1488,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1196,
+      "loadTime": 1313,
       "details": "No meaningful content"
     },
     {
@@ -1510,7 +1498,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1453,
+      "loadTime": 1436,
       "details": "No meaningful content"
     },
     {
@@ -1520,7 +1508,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1417,
+      "loadTime": 1634,
       "details": "No meaningful content"
     },
     {
@@ -1530,7 +1518,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1249,
+      "loadTime": 1265,
       "details": "No meaningful content"
     },
     {
@@ -1540,7 +1528,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1526,
+      "loadTime": 1296,
       "details": "No meaningful content"
     },
     {
@@ -1550,7 +1538,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1433,
+      "loadTime": 1506,
       "details": "No meaningful content"
     },
     {
@@ -1560,7 +1548,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1401,
+      "loadTime": 1721,
       "details": "No meaningful content"
     },
     {
@@ -1573,7 +1561,7 @@
         "Carrinho vazio",
         "Carrinho vazio"
       ],
-      "loadTime": 1393,
+      "loadTime": 1337,
       "details": "Carrinho vazio; Carrinho vazio"
     },
     {
@@ -1583,7 +1571,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1392,
+      "loadTime": 1295,
       "details": "No meaningful content"
     },
     {
@@ -1593,7 +1581,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1471,
+      "loadTime": 1627,
       "details": "No meaningful content"
     },
     {
@@ -1604,7 +1592,7 @@
         "Carrinho vazio",
         "Carrinho vazio"
       ],
-      "loadTime": 1635,
+      "loadTime": 1374,
       "details": "Carrinho vazio; Carrinho vazio"
     },
     {
@@ -1614,7 +1602,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1456,
+      "loadTime": 4452,
       "details": "No meaningful content"
     },
     {
@@ -1624,7 +1612,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1466,
+      "loadTime": 1494,
       "details": "No meaningful content"
     },
     {
@@ -1634,7 +1622,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1474,
+      "loadTime": 1554,
       "details": "No meaningful content"
     },
     {
@@ -1644,7 +1632,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1867,
+      "loadTime": 1492,
       "details": "No meaningful content"
     },
     {
@@ -1654,7 +1642,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1408,
+      "loadTime": 1407,
       "details": "No meaningful content"
     },
     {
@@ -1664,7 +1652,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1443,
+      "loadTime": 1378,
       "details": "No meaningful content"
     },
     {
@@ -1674,7 +1662,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1327,
+      "loadTime": 1280,
       "details": "No meaningful content"
     },
     {
@@ -1684,7 +1672,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1378,
+      "loadTime": 1510,
       "details": "No meaningful content"
     },
     {
@@ -1694,7 +1682,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1228,
+      "loadTime": 1210,
       "details": "No meaningful content"
     },
     {
@@ -1704,7 +1692,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1493,
+      "loadTime": 1348,
       "details": "No meaningful content"
     },
     {
@@ -1724,7 +1712,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1233,
+      "loadTime": 1208,
       "details": "No meaningful content"
     },
     {
@@ -1734,7 +1722,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1223,
+      "loadTime": 1210,
       "details": "No meaningful content"
     },
     {
@@ -1744,7 +1732,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1530,
+      "loadTime": 1511,
       "details": "No meaningful content"
     },
     {
@@ -1754,7 +1742,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1664,
+      "loadTime": 1483,
       "details": "No meaningful content"
     },
     {
@@ -1764,7 +1752,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1389,
+      "loadTime": 1379,
       "details": "No meaningful content"
     },
     {
@@ -1774,7 +1762,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1393,
+      "loadTime": 1421,
       "details": "No meaningful content"
     },
     {
@@ -1784,7 +1772,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1494,
+      "loadTime": 1406,
       "details": "No meaningful content"
     },
     {
@@ -1794,7 +1782,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1641,
+      "loadTime": 1478,
       "details": "No meaningful content"
     },
     {
@@ -1804,7 +1792,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1500,
+      "loadTime": 1416,
       "details": "No meaningful content"
     },
     {
@@ -1814,7 +1802,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1354,
+      "loadTime": 1374,
       "details": "No meaningful content"
     },
     {
@@ -1824,7 +1812,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1572,
+      "loadTime": 1489,
       "details": "No meaningful content"
     },
     {
@@ -1834,7 +1822,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1426,
+      "loadTime": 1544,
       "details": "No meaningful content"
     },
     {
@@ -1844,7 +1832,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1484,
+      "loadTime": 1395,
       "details": "No meaningful content"
     },
     {
@@ -1854,7 +1842,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1356,
+      "loadTime": 1394,
       "details": "No meaningful content"
     },
     {
@@ -1864,7 +1852,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1280,
+      "loadTime": 1198,
       "details": "No meaningful content"
     },
     {
@@ -1874,7 +1862,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1180,
+      "loadTime": 1257,
       "details": "No meaningful content"
     },
     {
@@ -1884,7 +1872,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1495,
+      "loadTime": 1365,
       "details": "No meaningful content"
     }
   ],
@@ -1902,15 +1890,10 @@
       "status": "empty",
       "consoleErrors": [
         "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/ranking. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/turmas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/conquistas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/checkin. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/teen/desafios. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 4724,
+      "loadTime": 2260,
       "details": "No meaningful content"
     },
     {
@@ -1920,7 +1903,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1266,
+      "loadTime": 1181,
       "details": "No meaningful content"
     },
     {
@@ -1930,7 +1913,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1142,
+      "loadTime": 1159,
       "details": "No meaningful content"
     },
     {
@@ -1940,7 +1923,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1346,
+      "loadTime": 1165,
       "details": "No meaningful content"
     },
     {
@@ -1950,7 +1933,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1199,
+      "loadTime": 1211,
       "details": "No meaningful content"
     },
     {
@@ -1960,7 +1943,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1194,
+      "loadTime": 1170,
       "details": "No meaningful content"
     },
     {
@@ -1970,7 +1953,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1175,
+      "loadTime": 1183,
       "details": "No meaningful content"
     },
     {
@@ -1980,7 +1963,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1286,
+      "loadTime": 1158,
       "details": "No meaningful content"
     },
     {
@@ -1990,7 +1973,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1175,
+      "loadTime": 1154,
       "details": "No meaningful content"
     },
     {
@@ -2000,7 +1983,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1290,
+      "loadTime": 1163,
       "details": "No meaningful content"
     },
     {
@@ -2010,7 +1993,7 @@
         "Failed to load resource: the server responded with a status of 404 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1135,
+      "loadTime": 1131,
       "details": "No meaningful content"
     }
   ],
@@ -2028,13 +2011,14 @@
       "status": "empty",
       "consoleErrors": [
         "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 400 ()"
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/academia. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/recompensas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/perfil. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/configuracoes. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/kids/conquistas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
       ],
       "emptyIndicators": [],
-      "loadTime": 1380,
+      "loadTime": 1625,
       "details": "No meaningful content"
     },
     {
@@ -2042,7 +2026,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1126,
+      "loadTime": 1022,
       "details": "No meaningful content"
     },
     {
@@ -2050,7 +2034,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1088,
+      "loadTime": 1068,
       "details": "No meaningful content"
     },
     {
@@ -2058,7 +2042,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1081,
+      "loadTime": 1018,
       "details": "No meaningful content"
     },
     {
@@ -2066,7 +2050,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1243,
+      "loadTime": 1199,
       "details": "No meaningful content"
     },
     {
@@ -2074,7 +2058,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1300,
+      "loadTime": 1202,
       "details": "No meaningful content"
     },
     {
@@ -2082,7 +2066,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1178,
+      "loadTime": 1269,
       "details": "No meaningful content"
     },
     {
@@ -2090,7 +2074,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1008,
+      "loadTime": 1729,
       "details": "No meaningful content"
     },
     {
@@ -2098,7 +2082,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 965,
+      "loadTime": 1124,
       "details": "No meaningful content"
     }
   ],
@@ -2117,13 +2101,12 @@
       "consoleErrors": [
         "Failed to load resource: the server responded with a status of 400 ()",
         "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/checkin. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/pagamentos. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/agenda. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/presencas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/mensagens. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/presencas. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
+        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/parent/agenda. Falling back to browser navigation. TypeError: network error"
       ],
       "emptyIndicators": [],
-      "loadTime": 1829,
+      "loadTime": 1815,
       "details": "No meaningful content"
     },
     {
@@ -2131,7 +2114,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1270,
+      "loadTime": 1165,
       "details": "No meaningful content"
     },
     {
@@ -2139,7 +2122,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1125,
+      "loadTime": 1187,
       "details": "No meaningful content"
     },
     {
@@ -2147,7 +2130,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1201,
+      "loadTime": 1156,
       "details": "No meaningful content"
     },
     {
@@ -2155,7 +2138,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1034,
+      "loadTime": 1130,
       "details": "No meaningful content"
     },
     {
@@ -2163,7 +2146,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1216,
+      "loadTime": 1101,
       "details": "No meaningful content"
     },
     {
@@ -2171,7 +2154,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1124,
+      "loadTime": 1185,
       "details": "No meaningful content"
     },
     {
@@ -2179,7 +2162,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1172,
+      "loadTime": 1122,
       "details": "No meaningful content"
     },
     {
@@ -2187,7 +2170,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1230,
+      "loadTime": 1049,
       "details": "No meaningful content"
     },
     {
@@ -2195,7 +2178,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1140,
+      "loadTime": 1230,
       "details": "No meaningful content"
     },
     {
@@ -2203,7 +2186,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1100,
+      "loadTime": 1205,
       "details": "No meaningful content"
     },
     {
@@ -2211,7 +2194,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1315,
+      "loadTime": 1447,
       "details": "No meaningful content"
     }
   ],
@@ -2228,15 +2211,10 @@
       "url": "/franqueador",
       "status": "empty",
       "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 ()",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/padroes. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/expansao. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/royalties. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/unidades. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)",
-        "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/franqueador/curriculo. Falling back to browser navigation. TypeError: Failed to fetch\n    at window.fetch (https://blackbeltv2.vercel.app/_next/static/chunks/app/layout-53a0570d27390e5b.js:1:24909)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:45600)\n    at https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59148\n    at Object.u [as task] (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:31950)\n    at c.s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32655)\n    at c.enqueue (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:32080)\n    at s (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:59111)\n    at i (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:58651)\n    at a (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:65476)\n    at f (https://blackbeltv2.vercel.app/_next/static/chunks/82621-7d53e68cd569f5fc.js:1:75390)"
+        "Failed to load resource: the server responded with a status of 400 ()"
       ],
       "emptyIndicators": [],
-      "loadTime": 1888,
+      "loadTime": 1951,
       "details": "No meaningful content"
     },
     {
@@ -2244,7 +2222,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1065,
+      "loadTime": 1057,
       "details": "No meaningful content"
     },
     {
@@ -2252,7 +2230,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1369,
+      "loadTime": 1179,
       "details": "No meaningful content"
     },
     {
@@ -2260,7 +2238,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1020,
+      "loadTime": 1096,
       "details": "No meaningful content"
     },
     {
@@ -2268,7 +2246,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1161,
+      "loadTime": 1096,
       "details": "No meaningful content"
     },
     {
@@ -2276,7 +2254,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1175,
+      "loadTime": 1246,
       "details": "No meaningful content"
     },
     {
@@ -2284,7 +2262,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1060,
+      "loadTime": 1187,
       "details": "No meaningful content"
     },
     {
@@ -2292,7 +2270,7 @@
       "status": "empty",
       "consoleErrors": [],
       "emptyIndicators": [],
-      "loadTime": 1034,
+      "loadTime": 1073,
       "details": "No meaningful content"
     }
   ]
