@@ -68,7 +68,7 @@ export default function TermosPage() {
             className="mt-2 text-sm"
             style={{ color: 'var(--bb-ink-60, #999)' }}
           >
-            Ultima atualizacao: 18 de marco de 2026
+            Ultima atualizacao: Marco de 2026
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function TermosPage() {
                   style={{ color: 'var(--bb-ink-60, #999)' }}
                 >
                   <p>
-                    Ao acessar, navegar ou utilizar a plataforma BlackBelt (&quot;Plataforma&quot;), disponibilizada pela BlackBelt Tecnologia Ltda., inscrita no CNPJ sob o n. XX.XXX.XXX/0001-XX, com sede na cidade de Belo Horizonte/MG (&quot;BlackBelt&quot; ou &quot;Nos&quot;), voce (&quot;Usuario&quot;) declara que leu, entendeu e concorda integralmente com estes Termos de Uso (&quot;Termos&quot;).
+                    Ao acessar, navegar ou utilizar a plataforma BlackBelt (&quot;Plataforma&quot;), disponibilizada por Gregory Guimaraes Pinto, com sede em Vespasiano - MG, Brasil (&quot;BlackBelt&quot; ou &quot;Nos&quot;), voce (&quot;Usuario&quot;) declara que leu, entendeu e concorda integralmente com estes Termos de Uso (&quot;Termos&quot;).
                   </p>
                   <p>
                     Caso nao concorde com qualquer disposicao destes Termos, voce devera cessar imediatamente o uso da Plataforma. O uso continuado da Plataforma apos alteracoes nos Termos implica aceitacao das novas condicoes.
@@ -289,7 +289,7 @@ export default function TermosPage() {
                     3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage.
                   </p>
                   <p>
-                    3.3. O Usuario deve notificar imediatamente a BlackBelt em caso de uso nao autorizado da sua conta ou qualquer violacao de seguranca, pelo email suporte@blackbelt.com.
+                    3.3. O Usuario deve notificar imediatamente a BlackBelt em caso de uso nao autorizado da sua conta ou qualquer violacao de seguranca, pelo email gregoryguimaraes12@gmail.com.
                   </p>
                   <p>
                     3.4. A BlackBelt reserva-se o direito de suspender ou encerrar contas que violem estes Termos, que apresentem comportamento fraudulento ou que permanecam inativas por periodo superior a 12 (doze) meses, sem prejuizo de outras medidas cabiveis.
@@ -384,7 +384,7 @@ export default function TermosPage() {
                     5.2. A BlackBelt podera limitar, suspender ou encerrar o acesso de qualquer Usuario que viole estas disposicoes, sem aviso previo e sem prejuizo de outras medidas legais cabiveis, incluindo responsabilizacao civil e criminal.
                   </p>
                   <p>
-                    5.3. O Usuario que identificar vulnerabilidades de seguranca na Plataforma devera reporta-las imediatamente para seguranca@blackbelt.com, comprometendo-se a nao explora-las.
+                    5.3. O Usuario que identificar vulnerabilidades de seguranca na Plataforma devera reporta-las imediatamente para gregoryguimaraes12@gmail.com, comprometendo-se a nao explora-las.
                   </p>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function TermosPage() {
                   style={{ color: 'var(--bb-ink-60, #999)' }}
                 >
                   <p>
-                    6.1. Todo o conteudo, marca, logotipo, design, codigo-fonte, algoritmos, modelos de dados, interfaces, textos, graficos, icones e demais elementos da Plataforma sao de propriedade exclusiva da BlackBelt Tecnologia Ltda. ou de seus licenciadores, protegidos pela Lei de Direitos Autorais (Lei n. 9.610/1998), pela Lei de Propriedade Industrial (Lei n. 9.279/1996) e por tratados internacionais de propriedade intelectual.
+                    6.1. Todo o conteudo, marca, logotipo, design, codigo-fonte, algoritmos, modelos de dados, interfaces, textos, graficos, icones e demais elementos da Plataforma sao de propriedade exclusiva da Gregory Guimaraes Pinto ou de seus licenciadores, protegidos pela Lei de Direitos Autorais (Lei n. 9.610/1998), pela Lei de Propriedade Industrial (Lei n. 9.279/1996) e por tratados internacionais de propriedade intelectual.
                   </p>
                   <p>
                     6.2. A utilizacao da Plataforma nao confere ao Usuario qualquer direito de propriedade intelectual sobre a Plataforma ou seus componentes. O Usuario recebe apenas uma licenca limitada, nao exclusiva, intransferivel e revogavel para uso da Plataforma conforme o plano contratado.
@@ -509,7 +509,7 @@ export default function TermosPage() {
                     8.4. Os perfis Kids possuem interface simplificada e ludica, sem acesso a funcionalidades financeiras, de comunicacao direta ou conteudos nao adequados a faixa etaria. Os perfis Teen possuem funcionalidades intermediarias com supervisao do Responsavel.
                   </p>
                   <p>
-                    8.5. O Responsavel pode revogar o consentimento e solicitar a exclusao dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para privacidade@blackbelt.com. A exclusao sera efetivada no prazo de 15 (quinze) dias.
+                    8.5. O Responsavel pode revogar o consentimento e solicitar a exclusao dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para gregoryguimaraes12@gmail.com. A exclusao sera efetivada no prazo de 15 (quinze) dias.
                   </p>
                   <p>
                     8.6. A BlackBelt nao utiliza dados de menores para fins de marketing, publicidade, perfilamento comportamental ou qualquer finalidade alem da prestacao do servico educacional/esportivo contratado.
@@ -558,7 +558,7 @@ export default function TermosPage() {
                       className="underline"
                       style={{ color: 'var(--bb-brand, #ef4444)' }}
                     >
-                      blackbelt.com/status
+                      blackbeltv2.vercel.app/status
                     </a>
                     .
                   </p>
@@ -676,7 +676,7 @@ export default function TermosPage() {
                     12.1. Estes Termos sao regidos exclusivamente pela legislacao da Republica Federativa do Brasil, incluindo, mas nao se limitando a: Codigo Civil (Lei n. 10.406/2002), Marco Civil da Internet (Lei n. 12.965/2014), Lei Geral de Protecao de Dados (Lei n. 13.709/2018), Codigo de Defesa do Consumidor (Lei n. 8.078/1990) quando aplicavel, e Estatuto da Crianca e do Adolescente (Lei n. 8.069/1990) para funcionalidades envolvendo menores.
                   </p>
                   <p>
-                    12.2. Fica eleito o foro da Comarca de Belo Horizonte, Estado de Minas Gerais, para dirimir quaisquer controversias decorrentes destes Termos, renunciando as partes a qualquer outro, por mais privilegiado que seja. Esta clausula nao prejudica o direito do consumidor de ajuizar acao no foro do seu domicilio, conforme Art. 101, I do Codigo de Defesa do Consumidor.
+                    12.2. Fica eleito o foro da Comarca de Vespasiano, Estado de Minas Gerais, para dirimir quaisquer controversias decorrentes destes Termos, renunciando as partes a qualquer outro, por mais privilegiado que seja. Esta clausula nao prejudica o direito do consumidor de ajuizar acao no foro do seu domicilio, conforme Art. 101, I do Codigo de Defesa do Consumidor.
                   </p>
                   <p>
                     12.3. A BlackBelt incentiva a resolucao amigavel de disputas. Antes de iniciar qualquer procedimento judicial, as partes deverao tentar resolver a questao por meio de negociacao direta, pelo prazo minimo de 30 (trinta) dias, contados da notificacao por escrito da parte reclamante.
@@ -685,10 +685,11 @@ export default function TermosPage() {
                     <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Contato:</strong>
                   </p>
                   <ul className="list-none space-y-1 pl-0">
-                    <li><strong>Email:</strong> suporte@blackbelt.com</li>
-                    <li><strong>DPO:</strong> privacidade@blackbelt.com</li>
-                    <li><strong>Seguranca:</strong> seguranca@blackbelt.com</li>
-                    <li><strong>Sede:</strong> Belo Horizonte/MG, Brasil</li>
+                    <li><strong>Responsavel:</strong> Gregory Guimaraes Pinto</li>
+                    <li><strong>Email:</strong> gregoryguimaraes12@gmail.com</li>
+                    <li><strong>WhatsApp:</strong> +55 (31) 99679-3625</li>
+                    <li><strong>Sede:</strong> Vespasiano - MG, Brasil</li>
+                    <li><strong>Site:</strong> https://blackbeltv2.vercel.app</li>
                   </ul>
                 </div>
               </div>
@@ -706,7 +707,7 @@ export default function TermosPage() {
                 className="text-xs"
                 style={{ color: 'var(--bb-ink-60, #999)' }}
               >
-                Documento mantido pela BlackBelt Tecnologia Ltda. A versao mais atualizada deste documento pode ser encontrada em blackbelt.com/termos.
+                Documento mantido por Gregory Guimaraes Pinto. A versao mais atualizada deste documento pode ser encontrada em blackbeltv2.vercel.app/termos.
               </p>
             </div>
           </article>

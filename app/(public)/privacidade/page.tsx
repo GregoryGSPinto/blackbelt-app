@@ -66,7 +66,7 @@ export default function PrivacidadePage() {
             className="mt-2 text-sm"
             style={{ color: 'var(--bb-ink-60, #999)' }}
           >
-            Ultima atualizacao: 18 de marco de 2026
+            Ultima atualizacao: Marco de 2026
           </p>
         </div>
 
@@ -199,7 +199,7 @@ export default function PrivacidadePage() {
                   style={{ color: 'var(--bb-ink-60, #999)' }}
                 >
                   <p>
-                    A BlackBelt Tecnologia Ltda. (&quot;BlackBelt&quot;, &quot;nos&quot; ou &quot;nosso&quot;), inscrita no CNPJ sob o n. XX.XXX.XXX/0001-XX, com sede em Belo Horizonte/MG, Brasil, e a empresa responsavel pela plataforma BlackBelt — um sistema SaaS (Software as a Service) de gestao inteligente para academias de artes marciais.
+                    Gregory Guimaraes Pinto (&quot;BlackBelt&quot;, &quot;nos&quot; ou &quot;nosso&quot;), com sede em Vespasiano - MG, Brasil, e o responsavel pela plataforma BlackBelt — um sistema SaaS (Software as a Service) de gestao inteligente para academias de artes marciais.
                   </p>
                   <p>
                     A BlackBelt esta comprometida com a privacidade e a protecao dos dados pessoais dos seus usuarios, em total conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018 — LGPD), o Marco Civil da Internet (Lei n. 12.965/2014) e, quando aplicavel, o Children&apos;s Online Privacy Protection Act (COPPA) dos Estados Unidos.
@@ -425,7 +425,7 @@ export default function PrivacidadePage() {
                   <ul className="list-disc space-y-1 pl-6">
                     <li>O acesso do menor a Plataforma e vinculado ao perfil do responsavel legal, garantindo supervisao adequada.</li>
                     <li>O responsavel tem acesso completo a todos os dados do menor, incluindo historico de presenca, avaliacoes, evolucao e mensagens (quando aplicavel).</li>
-                    <li>O responsavel pode solicitar a exclusao, correcao ou portabilidade dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para privacidade@blackbelt.com.</li>
+                    <li>O responsavel pode solicitar a exclusao, correcao ou portabilidade dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para gregoryguimaraes12@gmail.com.</li>
                   </ul>
 
                   <h3
@@ -607,7 +607,7 @@ export default function PrivacidadePage() {
                   </p>
                   <ul className="list-disc space-y-1 pl-6">
                     <li>Pela propria Plataforma: acesse Configuracoes {'>'} Privacidade {'>'} Meus Dados.</li>
-                    <li>Por email: envie sua solicitacao para <strong>privacidade@blackbelt.com</strong>, identificando-se como titular dos dados.</li>
+                    <li>Por email: envie sua solicitacao para <strong>gregoryguimaraes12@gmail.com</strong>, identificando-se como titular dos dados.</li>
                   </ul>
                   <p>
                     As solicitacoes serao respondidas no prazo de 15 (quinze) dias uteis, conforme Art. 18, par. 5 da LGPD. Caso nao esteja satisfeito com a resposta, voce pode apresentar reclamacao perante a Autoridade Nacional de Protecao de Dados (ANPD).
@@ -866,10 +866,16 @@ export default function PrivacidadePage() {
                     O uso continuado da Plataforma apos a entrada em vigor das alteracoes implica concordancia com as novas condicoes. Caso o usuario nao concorde com as alteracoes, devera cessar o uso da Plataforma e solicitar a exclusao dos seus dados.
                   </p>
                   <p className="mt-4">
-                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Encarregado de Protecao de Dados (DPO):</strong> privacidade@blackbelt.com
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Responsavel:</strong> Gregory Guimaraes Pinto
                   </p>
                   <p>
-                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Suporte:</strong> suporte@blackbelt.com
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Email:</strong> gregoryguimaraes12@gmail.com
+                  </p>
+                  <p>
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>WhatsApp:</strong> +55 (31) 99679-3625
+                  </p>
+                  <p>
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Site:</strong> https://blackbeltv2.vercel.app
                   </p>
                   <p>
                     Caso nao esteja satisfeito com a resposta da BlackBelt, voce pode apresentar reclamacao perante a Autoridade Nacional de Protecao de Dados (ANPD) em{' '}
@@ -900,7 +906,7 @@ export default function PrivacidadePage() {
                 className="text-xs"
                 style={{ color: 'var(--bb-ink-60, #999)' }}
               >
-                Documento mantido pela BlackBelt Tecnologia Ltda. em conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018). A versao mais atualizada pode ser encontrada em blackbelt.com/privacidade.
+                Documento mantido por Gregory Guimaraes Pinto em conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018). A versao mais atualizada pode ser encontrada em blackbeltv2.vercel.app/privacidade.
               </p>
             </div>
           </article>
