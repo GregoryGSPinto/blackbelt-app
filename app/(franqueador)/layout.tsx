@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NotificationBell } from '@/components/shared/NotificationBell';
@@ -137,7 +137,13 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
         </header>
 
         <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bb-depth-1)' }}>
-          {children}
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600" />
+            </div>
+          }>
+            {children}
+          </Suspense>
         </main>
       </div>
     </div>
