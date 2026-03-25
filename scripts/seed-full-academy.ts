@@ -174,6 +174,7 @@ async function cleanup() {
 
   // Delete auth users by email
   const emails = [
+    'super@blackbelt.app',
     'roberto@guerreiros.com', 'camila@guerreiros.com',
     'andre@guerreiros.com', 'fernanda@guerreiros.com', 'thiago@guerreiros.com',
     'joao@email.com', 'marcos@email.com', 'rafael@email.com', 'bruno@email.com',
@@ -198,6 +199,46 @@ async function cleanup() {
   }
 
   console.log('  Cleanup concluido.');
+}
+
+// ── Step 0.5: Super Admin ──────────────────────────────────────────────────
+
+async function createSuperAdmin() {
+  console.log('Criando super admin...');
+
+  const { data: superAuth, error: sErr } = await supabase.auth.admin.createUser({
+    email: 'super@blackbelt.app',
+    password: '@Greg1994',
+    email_confirm: true,
+    user_metadata: { name: 'Gregory Pinto', display_name: 'Gregory Pinto' },
+  });
+  if (sErr) throw new Error(`Erro ao criar Super Admin: ${sErr.message}`);
+
+  await delay(500);
+
+  // Get auto-created profile
+  const { data: sProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('user_id', superAuth.user.id)
+    .single();
+
+  if (sProfile) {
+    await supabase
+      .from('profiles')
+      .update({ role: 'superadmin', display_name: 'Gregory Pinto' })
+      .eq('id', sProfile.id);
+  } else {
+    // Create manually if trigger didn't fire
+    await supabase.from('profiles').insert({
+      user_id: superAuth.user.id,
+      role: 'superadmin',
+      display_name: 'Gregory Pinto',
+    });
+  }
+
+  totalRecords += 2; // auth + profile
+  console.log('  Super Admin criado: super@blackbelt.app / @Greg1994');
 }
 
 // ── Step 1: Academy + Units + Modalities ───────────────────────────────────
@@ -1847,6 +1888,7 @@ async function main() {
 
   try {
     await cleanup();
+    await createSuperAdmin();
     await createAcademy();
     await createUsers();
     await createGuardians();
@@ -1874,11 +1916,17 @@ async function main() {
   console.log(` Seed completo: ${totalRecords}+ registros criados`);
   console.log(` Tempo: ${elapsed}s`);
   console.log('=================================================');
-  console.log('\nCredenciais de acesso (todos):');
-  console.log('  Senha: BlackBelt@2026');
-  console.log('  Admin: roberto@guerreiros.com / camila@guerreiros.com');
+  console.log('\nCredenciais de acesso:');
+  console.log('  Super Admin: super@blackbelt.app / @Greg1994');
+  console.log('  Admin: roberto@guerreiros.com / BlackBelt@2026');
+  console.log('  Admin: camila@guerreiros.com / BlackBelt@2026');
   console.log('  Prof:  andre@guerreiros.com / fernanda@guerreiros.com / thiago@guerreiros.com');
+  console.log('  Recep: julia@guerreiros.com / BlackBelt@2026');
   console.log('  Aluno: joao@email.com, rafael@email.com, marcos@email.com ...');
+  console.log('  Teen:  lucas.teen@email.com, sophia@email.com ...');
+  console.log('  Kids:  miguel.kids@email.com, helena.kids@email.com ...');
+  console.log('  Resp:  maria.resp@email.com, patricia@email.com ...');
+  console.log('  Franq: fernando@guerreiros.com / BlackBelt@2026');
 }
 
 main();
