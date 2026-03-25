@@ -41,8 +41,8 @@ import type { MonthlyReportData } from '@/lib/types/report';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
-const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
-const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
+const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
 const XAxis = dynamic(() => import('recharts').then((m) => m.XAxis), { ssr: false });
 const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis), { ssr: false });
 const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), { ssr: false });
@@ -406,7 +406,6 @@ export default function AdminDashboardPage() {
     () => getPedagogicoDashboard(getActiveAcademyId()),
   );
 
-  const [chartMode, setChartMode] = useState<'students' | 'revenue'>('students');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
 
@@ -437,11 +436,7 @@ export default function AdminDashboardPage() {
   const totalOverdue = financial_summary.overdue_names.reduce((acc, o) => acc + o.amount, 0);
   const readyPromotions = pending_promotions.filter((p) => p.ready);
 
-  // Growth trend text
-  const studentGrowth = growth_chart.students;
-  const firstStudents = studentGrowth[0];
-  const lastStudents = studentGrowth[studentGrowth.length - 1];
-  const growthPct = Math.round(((lastStudents - firstStudents) / firstStudents) * 100);
+  // (Growth trend removed — revenue bar chart replaces the old area chart)
 
   return (
     <div className="min-h-screen space-y-8 p-4 sm:p-6" data-stagger>
@@ -729,53 +724,153 @@ export default function AdminDashboardPage() {
         </section>
       )}
 
-      {/* ═══ SECTION 2: HEADLINES ══════════════════════════════════════ */}
+      {/* ═══ LINHA 1: 4 KPI CARDS ═══════════════════════════════════════ */}
       <section ref={headlinesObs.ref} className="animate-reveal">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" data-stagger>
           <HeadlineCard
             label="Alunos Ativos"
             value={headlines.active_students.value}
-            change={`+${headlines.active_students.change} (+${((headlines.active_students.change / (headlines.active_students.value - headlines.active_students.change)) * 100).toFixed(1)}%)`}
+            change={headlines.active_students.change > 0 ? `+${headlines.active_students.change}` : `${headlines.active_students.change}`}
             trend={headlines.active_students.trend}
-            subtext={headlines.active_students.period}
+            subtext="este mês"
             sparkline={growth_chart.students}
             icon={<UsersIcon className="h-4 w-4" />}
             inView={headlinesObs.inView}
           />
           <HeadlineCard
-            label="Faturamento"
-            value={headlines.monthly_revenue.value}
+            label="Receita do Mês"
+            value={financial_summary.revenue_this_month}
             prefix="R$"
-            change={`+R$${(headlines.monthly_revenue.change / 1000).toFixed(1)}k`}
-            trend={headlines.monthly_revenue.trend}
-            subtext={headlines.monthly_revenue.period}
+            change={financial_summary.revenue_last_month > 0 ? `${Math.round(((financial_summary.revenue_this_month - financial_summary.revenue_last_month) / financial_summary.revenue_last_month) * 100)}% vs anterior` : '—'}
+            trend={financial_summary.revenue_this_month >= financial_summary.revenue_last_month ? 'up' : 'down'}
+            subtext="faturado"
             sparkline={growth_chart.revenue}
             icon={<DollarIcon className="h-4 w-4" />}
             inView={headlinesObs.inView}
           />
           <HeadlineCard
-            label="Retenção"
-            value={headlines.retention_rate.value}
-            suffix="%"
-            change={`+${headlines.retention_rate.change}pp`}
-            trend={headlines.retention_rate.trend}
-            subtext={headlines.retention_rate.period}
-            icon={<TrendingUpIcon className="h-4 w-4" />}
+            label="Presença Hoje"
+            value={today_schedule.reduce((sum, s) => sum + s.confirmed, 0) || (briefing?.resumo?.presencasHoje ?? 0)}
+            change={`${today_schedule.length} aulas`}
+            trend="stable"
+            subtext="check-ins"
+            icon={<CalendarIcon className="h-4 w-4" />}
             inView={headlinesObs.inView}
           />
           <HeadlineCard
-            label="Aulas/Semana"
-            value={headlines.classes_this_week.value}
-            change={`${headlines.classes_this_week.fill_rate}% lotação`}
-            trend="stable"
-            subtext={`${Math.round(headlines.classes_this_week.total_capacity * headlines.classes_this_week.fill_rate / 100)}/${headlines.classes_this_week.total_capacity} vagas`}
-            icon={<CalendarIcon className="h-4 w-4" />}
+            label="Inadimplentes"
+            value={financial_summary.overdue_count}
+            change={financial_summary.overdue_count > 0 ? `R$${formatCurrency(totalOverdue)}` : 'Tudo em dia'}
+            trend={financial_summary.overdue_count > 0 ? 'down' : 'up'}
+            subtext={financial_summary.overdue_count > 0 ? 'em atraso' : ''}
+            icon={<CreditCardIcon className="h-4 w-4" />}
             inView={headlinesObs.inView}
           />
         </div>
       </section>
 
-      {/* ═══ SECTION 3: GROWTH CHART ═══════════════════════════════════ */}
+      {/* ═══ LINHA 2: CHECK-INS + INADIMPLENTES (60/40) ════════════════ */}
+      <section className="animate-reveal grid grid-cols-1 gap-4 lg:grid-cols-5">
+        {/* Check-ins de Hoje (60%) */}
+        <div
+          className="lg:col-span-3 p-5"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Check-ins de Hoje</h2>
+          </div>
+          {activity_feed.filter((a) => a.type === 'check_in').length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-8" style={{ color: 'var(--bb-ink-40)' }}>
+              <span className="text-3xl">{'\uD83E\uDD4B'}</span>
+              <p className="text-sm">Nenhum check-in registrado hoje</p>
+            </div>
+          ) : (
+            <div className="space-y-2" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+              {activity_feed.filter((a) => a.type === 'check_in').map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2"
+                  style={{ background: 'var(--bb-depth-3)' }}
+                >
+                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm" style={{ background: 'rgba(34,197,94,0.12)' }}>
+                    {'\u2705'}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>{item.actor_name}</p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{item.message}</p>
+                  </div>
+                  <span className="flex-shrink-0 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{item.timestamp}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Inadimplentes (40%) */}
+        <div
+          className="lg:col-span-2 p-5"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+            borderRadius: 'var(--bb-radius-lg)',
+          }}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CreditCardIcon className="h-4 w-4" style={{ color: '#EF4444' }} />
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Inadimplentes</h2>
+            </div>
+            {financial_summary.overdue_count > 0 && (
+              <span className="text-xs font-semibold" style={{ color: '#EF4444' }}>
+                R${formatCurrency(totalOverdue)}
+              </span>
+            )}
+          </div>
+          {financial_summary.overdue_names.length === 0 ? (
+            <div
+              className="rounded-lg p-6 text-center"
+              style={{ background: 'rgba(34,197,94,0.08)' }}
+            >
+              <p className="text-sm font-medium" style={{ color: '#22C55E' }}>
+                {'\u2705'} Nenhum inadimplente! Tudo em dia.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+              {financial_summary.overdue_names.map((o) => (
+                <div
+                  key={o.name}
+                  className="flex items-center justify-between rounded-lg p-3"
+                  style={{ background: 'var(--bb-depth-3)', borderLeft: '3px solid #EF4444' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>{o.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      R${formatCurrency(o.amount)} &middot; {o.days_overdue}d atraso
+                    </p>
+                  </div>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent('Olá ' + o.name + ', identificamos uma pendência na sua mensalidade. Podemos ajudar?')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 flex-shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium"
+                    style={{ background: '#25D366', color: '#fff' }}
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═══ LINHA 3: RECEITA BAR CHART (Últimos 6 Meses) ═════════════ */}
       <section
         ref={chartObs.ref}
         className="animate-reveal overflow-hidden p-5"
@@ -785,102 +880,29 @@ export default function AdminDashboardPage() {
           borderRadius: 'var(--bb-radius-lg)',
         }}
       >
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUpIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} />
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Crescimento</h2>
-          </div>
-          <div className="flex gap-1 rounded-lg p-1" style={{ background: 'var(--bb-depth-3)' }}>
-            <button
-              type="button"
-              onClick={() => setChartMode('students')}
-              className="rounded-md px-3 py-1 text-xs font-medium transition-all"
-              style={{
-                background: chartMode === 'students' ? 'var(--bb-brand)' : 'transparent',
-                color: chartMode === 'students' ? '#fff' : 'var(--bb-ink-60)',
-              }}
-            >
-              Alunos
-            </button>
-            <button
-              type="button"
-              onClick={() => setChartMode('revenue')}
-              className="rounded-md px-3 py-1 text-xs font-medium transition-all"
-              style={{
-                background: chartMode === 'revenue' ? 'var(--bb-brand)' : 'transparent',
-                color: chartMode === 'revenue' ? '#fff' : 'var(--bb-ink-60)',
-              }}
-            >
-              Receita
-            </button>
-          </div>
+        <div className="mb-4 flex items-center gap-2">
+          <BarChartIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Receita — Últimos 6 Meses</h2>
         </div>
-
         <div style={{ height: '260px', opacity: chartObs.inView ? 1 : 0, transition: 'opacity 1s ease' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
-              <defs>
-                <linearGradient id="gradStudents" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#22C55E" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#22C55E" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="name"
-                tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-                width={45}
-                tickFormatter={chartMode === 'revenue' ? (v) => `${(v / 1000).toFixed(0)}k` : undefined}
-              />
-              <Tooltip
-                contentStyle={chartTooltipStyle}
-                formatter={(value) =>
-                  chartMode === 'revenue'
-                    ? [`R$ ${formatCurrency(Number(value))}`, 'Receita']
-                    : [`${value}`, 'Alunos']
-                }
-              />
-              {chartMode === 'students' ? (
-                <Area
-                  type="monotone"
-                  dataKey="students"
-                  stroke="#3B82F6"
-                  strokeWidth={2.5}
-                  fill="url(#gradStudents)"
-                  dot={{ fill: '#3B82F6', r: 4 }}
-                  activeDot={{ r: 6 }}
-                  animationDuration={1500}
-                />
-              ) : (
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#22C55E"
-                  strokeWidth={2.5}
-                  fill="url(#gradRevenue)"
-                  dot={{ fill: '#22C55E', r: 4 }}
-                  activeDot={{ r: 6 }}
-                  animationDuration={1500}
-                />
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
+                <XAxis dataKey="name" tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--bb-ink-40)', fontSize: 11 }} axisLine={false} tickLine={false} width={45} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(value) => [`R$ ${formatCurrency(Number(value))}`, 'Receita']} />
+                <Bar dataKey="revenue" fill="#22C55E" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Dados de receita indisponíveis</p>
+            </div>
+          )}
         </div>
-
-        <p className="mt-3 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-          Tendência: +{growthPct}% em 6 meses (+{lastStudents - firstStudents} alunos)
-        </p>
       </section>
+
+      {/* Old growth chart replaced by LINHA 3 revenue bar chart above */}
 
       {/* ═══ SECTION 4: TODAY — SCHEDULE + ACTIVITY FEED ═══════════════ */}
       <section className="animate-reveal grid grid-cols-1 gap-4 lg:grid-cols-2">
