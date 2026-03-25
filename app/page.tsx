@@ -22,41 +22,6 @@ const FAQ_ITEMS = [
   { q: 'Como funciona o suporte?', a: 'WhatsApp direto com a equipe. Resposta em até 24h úteis.' },
 ];
 
-/* ── Pricing Data ── */
-const PLANS = [
-  {
-    name: 'Starter',
-    features: ['Até 50 alunos', '1 unidade', '2 professores', 'Gestão de alunos', 'Check-in', 'Financeiro básico', 'Agenda', 'Notificações'],
-    href: '/cadastrar-academia?plan=starter',
-    highlighted: false,
-  },
-  {
-    name: 'Essencial',
-    features: ['Até 100 alunos', '1 unidade', '5 professores', 'Tudo do Starter', 'Streaming library', 'Certificados digitais', 'Relatórios avançados', 'Comunicação com responsáveis', 'App do aluno'],
-    href: '/cadastrar-academia?plan=essencial',
-    highlighted: false,
-  },
-  {
-    name: 'Pro',
-    features: ['Até 200 alunos', '2 unidades', 'Professores ilimitados', 'Tudo do Essencial', 'Campeonatos', 'Gamificação teen', 'Currículo técnico', 'Match analysis', 'Estoque', 'Contratos digitais'],
-    href: '/cadastrar-academia?plan=pro',
-    highlighted: true,
-    badge: 'Mais Popular',
-  },
-  {
-    name: 'Black Belt',
-    features: ['Alunos ilimitados', 'Unidades ilimitadas', 'Tudo do Pro', 'Painel franqueador', 'White-label', 'API access', 'Suporte prioritário', 'Relatórios multi-unidade'],
-    href: '/cadastrar-academia?plan=blackbelt',
-    highlighted: false,
-  },
-  {
-    name: 'Enterprise',
-    features: ['Tudo do Black Belt', 'SLA dedicado', 'Onboarding assistido', 'Customizações', 'Integração com sistemas legados'],
-    href: '/cadastrar-academia?plan=enterprise',
-    highlighted: false,
-  },
-];
-
 /* ── Product Tabs ── */
 const PRODUCT_TABS = [
   { id: 'dashboard', label: 'Dashboard do Admin', desc: 'KPIs em tempo real. Receita, presença, inadimplência. No celular.' },
@@ -316,68 +281,7 @@ export default function LandingPage() {
         </FadeInSection>
       </section>
 
-      {/* ━━━ 5. PRICING — 5 PLANOS ━━━ */}
-      <section id="planos" className="px-4 py-24 sm:px-6 lg:py-32">
-        <FadeInSection>
-          <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
-              Planos simples, sem surpresa
-            </h2>
-            <p className="mt-3 text-center text-base" style={{ color: 'var(--bb-ink-60)' }}>
-              7 dias grátis em qualquer plano. Sem cartão de crédito.
-            </p>
-
-            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {PLANS.map((plan) => (
-                <div
-                  key={plan.name}
-                  className="relative flex flex-col rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1"
-                  style={{
-                    background: 'var(--bb-depth-2)',
-                    border: plan.highlighted ? '2px solid #C62828' : '1px solid var(--bb-glass-border)',
-                    boxShadow: plan.highlighted ? '0 0 30px rgba(198,40,40,0.15)' : 'none',
-                  }}
-                >
-                  {plan.badge && (
-                    <span
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[10px] font-bold text-white"
-                      style={{ background: '#C62828' }}
-                    >
-                      {plan.badge}
-                    </span>
-                  )}
-                  <h3 className="text-base font-bold">{plan.name}</h3>
-                  <div className="mt-3 flex-1">
-                    {plan.features.map((f) => (
-                      <div key={f} className="flex items-start gap-1.5 py-0.5">
-                        <span className="text-xs mt-0.5" style={{ color: '#22C55E' }}>✓</span>
-                        <span className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Link
-                    href={plan.href}
-                    className="mt-5 block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-                    style={{
-                      background: plan.highlighted ? '#C62828' : 'transparent',
-                      color: plan.highlighted ? '#fff' : 'var(--bb-ink-100)',
-                      border: plan.highlighted ? 'none' : '1px solid var(--bb-glass-border)',
-                    }}
-                  >
-                    Começar Grátis — 7 Dias
-                  </Link>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-8 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Veja os valores durante o cadastro. Teste grátis por 7 dias, sem cartão.
-            </p>
-          </div>
-        </FadeInSection>
-      </section>
-
-      {/* ━━━ 6. DEPOIMENTOS HONESTOS ━━━ */}
+      {/* ━━━ 5. DEPOIMENTOS HONESTOS ━━━ */}
       <section className="px-4 py-24 sm:px-6 lg:py-32" style={{ background: 'var(--bb-depth-2)' }}>
         <FadeInSection>
           <div className="mx-auto max-w-3xl text-center">
@@ -482,7 +386,6 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-2">
                 <li><a href="#funcionalidades" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a></li>
-                <li><a href="#planos" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Planos</a></li>
                 <li><a href="#faq" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a></li>
               </ul>
             </div>
