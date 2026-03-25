@@ -29,6 +29,12 @@ As migrations estão em `supabase/migrations/`. Execute cada uma **na ordem num�
 | 050–051 | Enterprise | Consolidação enterprise |
 | 053 | `053_auth_trigger_aluno_default.sql` | Trigger default role → aluno_adulto |
 | 054 | `054_missing_tables_final.sql` | Tabelas faltantes (announcements, certificates, etc.) |
+| 055 | `055_tables_academy_config.sql` | Academy branding, billing, plans, usage, insights, spaces (21 tabelas) |
+| 056 | `056_tables_financial.sql` | Devedores, contratos, mensalidades, products, orders, royalties, estoque (18 tabelas) |
+| 057 | `057_tables_training.sql` | Professors, agenda, curricula, diários, técnicas, belts, match analysis (27 tabelas) |
+| 058 | `058_tables_communication.sql` | Campaign metrics, notification logs, guardian, family, suggestions (13 tabelas) |
+| 059 | `059_tables_gamification.sql` | Battle pass, seasons, leagues, hall of fame, titles, rewards, teen desafios (16 tabelas) |
+| 060 | `060_tables_misc.sql` | Courses, streaming, kids, video series, wishlist (20 tabelas) |
 
 ### 3. Como Executar Cada Migration
 
@@ -70,6 +76,7 @@ Se quiser executar apenas o essencial primeiro:
 
 1. `001` → `010` (core: auth, tenants, classes, attendance, content, social, financial)
 2. `053` (auth trigger fix)
-3. `054` (missing tables)
-4. Seed script
-5. Demais migrations conforme necessário
+3. `054` (missing tables — 14 tabelas)
+4. `055` → `060` (115 tabelas adicionais — todas referenciadas por services)
+5. Seed script
+6. Demais migrations conforme necessário

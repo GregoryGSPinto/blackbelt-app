@@ -78,6 +78,145 @@ const CRITICAL_TABLES = [
   'pricing_packages',
 ];
 
+// Migration 055 — Academy Config & Platform
+const ACADEMY_CONFIG_TABLES = [
+  'academy_branding',
+  'academy_events',
+  'academy_plans',
+  'academy_platform_plans',
+  'academy_usage',
+  'billing_plans',
+  'billing_config',
+  'billing_alerts',
+  'billing_invoices',
+  'billing_overage_projections',
+  'billing_previews',
+  'billing_summaries',
+  'billing_downgrade_requests',
+  'billing_upgrade_requests',
+  'billing_usage_metrics',
+  'wizard_progress',
+  'insights',
+  'error_logs',
+  'storage_stats',
+  'spaces',
+  'space_schedules',
+];
+
+// Migration 056 — Financial, Payments, Contracts
+const FINANCIAL_TABLES = [
+  'devedores',
+  'contatos_cobranca',
+  'contrato_templates',
+  'contratos',
+  'inadimplentes_view',
+  'mensalidades',
+  'pagamentos',
+  'products',
+  'orders',
+  'shipments',
+  'royalty_calculations',
+  'royalty_invoices',
+  'referral_clicks',
+  'referral_stats',
+  'estoque',
+  'movimentacoes_estoque',
+  'inventory_items',
+  'stock_movements',
+];
+
+// Migration 057 — Training & Professors
+const TRAINING_TABLES = [
+  'professors',
+  'agenda_slots',
+  'class_schedule',
+  'class_students',
+  'curricula',
+  'curriculum_requirements',
+  'diarios_aula',
+  'exercise_logs',
+  'experimentais',
+  'lesson_requests',
+  'notas_aluno',
+  'professor_alerts',
+  'professor_reports',
+  'promotion_candidates',
+  'relatorios_aula',
+  'substitutions',
+  'techniques',
+  'tecnicas',
+  'trial_classes',
+  'belt_history',
+  'belt_requirements',
+  'student_curriculum_progress',
+  'student_journeys',
+  'student_progress',
+  'match_analyses',
+  'match_analysis_shares',
+  'match_annotations',
+];
+
+// Migration 058 — Communication, Notifications, Family
+const COMMUNICATION_TABLES = [
+  'campaign_metrics',
+  'notification_logs',
+  'notification_prefs',
+  'guardian_dashboards',
+  'guardian_notifications',
+  'family_calendar',
+  'family_monthly_reports',
+  'parent_checkin_history',
+  'parent_today_classes',
+  'sentiment_trends',
+  'suggestions',
+  'event_enrollments',
+  'tournament_enrollments',
+];
+
+// Migration 059 — Gamification, Rankings, Seasons
+const GAMIFICATION_TABLES = [
+  'battle_pass_seasons',
+  'battle_pass_progress',
+  'seasons',
+  'season_leaderboard',
+  'season_progress',
+  'leagues',
+  'league_standings',
+  'hall_of_fame',
+  'titles',
+  'user_titles',
+  'store_rewards',
+  'reward_balances',
+  'reward_redemptions',
+  'reward_transactions',
+  'teen_desafios',
+  'reviews',
+];
+
+// Migration 060 — Content, Streaming, Kids
+const CONTENT_TABLES = [
+  'courses',
+  'course_modules',
+  'course_lessons',
+  'course_analytics',
+  'streaming_trails',
+  'streaming_series',
+  'streaming_episodes',
+  'streaming_library',
+  'streaming_certificates',
+  'streaming_trail_progress',
+  'streaming_watch_progress',
+  'video_series',
+  'kids_profiles',
+  'kids_albums',
+  'kids_estrelas_historico',
+  'kids_faixas',
+  'kids_personalizacao',
+  'kids_recompensas',
+  'kids_resgates',
+  'wishlist',
+];
+
 // Tables referenced by services but not yet in migrations (non-critical, gracefully fallback)
 const OPTIONAL_TABLES = [
   'announcements',
@@ -95,6 +234,16 @@ const OPTIONAL_TABLES = [
   'campaigns',
   'calendar_events',
   'contracts',
+];
+
+// All tables from migrations 055-060 combined
+const MIGRATION_055_060_TABLES = [
+  ...ACADEMY_CONFIG_TABLES,
+  ...FINANCIAL_TABLES,
+  ...TRAINING_TABLES,
+  ...COMMUNICATION_TABLES,
+  ...GAMIFICATION_TABLES,
+  ...CONTENT_TABLES,
 ];
 
 async function main() {
@@ -147,11 +296,24 @@ function reportResults(existingTables: Set<string>) {
     console.log('✅ All critical tables present!\n');
   }
 
-  // Check optional tables
+  // Check migration 055-060 tables
+  const missing055_060 = MIGRATION_055_060_TABLES.filter((t) => !existingTables.has(t));
+  const present055_060 = MIGRATION_055_060_TABLES.filter((t) => existingTables.has(t));
+
+  console.log(`MIGRATION 055-060 TABLES: ${present055_060.length}/${MIGRATION_055_060_TABLES.length} present`);
+  if (missing055_060.length > 0) {
+    console.log(`\n⚠️  MISSING 055-060 TABLES (${missing055_060.length}):`);
+    missing055_060.forEach((t) => console.log(`   - ${t}`));
+    console.log('\nRun migrations 055-060 to create these tables.');
+  } else {
+    console.log('✅ All 055-060 tables present!\n');
+  }
+
+  // Check optional tables (migration 054)
   const missingOptional = OPTIONAL_TABLES.filter((t) => !existingTables.has(t));
   const presentOptional = OPTIONAL_TABLES.filter((t) => existingTables.has(t));
 
-  console.log(`\nOPTIONAL TABLES: ${presentOptional.length}/${OPTIONAL_TABLES.length} present`);
+  console.log(`\nOPTIONAL TABLES (054): ${presentOptional.length}/${OPTIONAL_TABLES.length} present`);
   if (missingOptional.length > 0) {
     console.log(`\n⚠️  MISSING OPTIONAL TABLES (${missingOptional.length}):`);
     missingOptional.forEach((t) => console.log(`   - ${t}`));
@@ -159,9 +321,13 @@ function reportResults(existingTables: Set<string>) {
   }
 
   // Summary
+  const totalExpected = CRITICAL_TABLES.length + MIGRATION_055_060_TABLES.length + OPTIONAL_TABLES.length;
+  const totalPresent = presentCritical.length + present055_060.length + presentOptional.length;
   console.log('\n=== SUMMARY ===');
-  console.log(`Critical: ${presentCritical.length}/${CRITICAL_TABLES.length}`);
-  console.log(`Optional: ${presentOptional.length}/${OPTIONAL_TABLES.length}`);
+  console.log(`Critical:      ${presentCritical.length}/${CRITICAL_TABLES.length}`);
+  console.log(`055-060:       ${present055_060.length}/${MIGRATION_055_060_TABLES.length}`);
+  console.log(`Optional (054): ${presentOptional.length}/${OPTIONAL_TABLES.length}`);
+  console.log(`Total:         ${totalPresent}/${totalExpected}`);
 
   if (missingCritical.length > 0) {
     console.log('\n⚠️  Run migration 054_missing_tables_final.sql to create missing tables.');
