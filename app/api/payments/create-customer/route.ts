@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createCustomer, findCustomerByCpfCnpj } from '@/lib/integrations/asaas';
 
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {
+    Sentry.captureException(error);
     console.error('[POST /api/payments/create-customer]', error);
     const message = error instanceof Error ? error.message : 'Erro ao criar cliente';
     return NextResponse.json({ error: message }, { status: 500 });

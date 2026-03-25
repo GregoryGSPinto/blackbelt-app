@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createPayment } from '@/lib/integrations/asaas';
 import type { AsaasBillingType } from '@/lib/integrations/asaas';
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ payment, record: record ?? null }, { status: 201 });
   } catch (error) {
+    Sentry.captureException(error);
     console.error('[POST /api/payments/create-payment]', error);
     const message = error instanceof Error ? error.message : 'Erro ao criar cobrança';
     return NextResponse.json({ error: message }, { status: 500 });

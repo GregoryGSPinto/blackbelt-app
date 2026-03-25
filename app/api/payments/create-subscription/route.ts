@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createSubscription } from '@/lib/integrations/asaas';
 import type { AsaasBillingType, AsaasCycle } from '@/lib/integrations/asaas';
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(subscription, { status: 201 });
   } catch (error) {
+    Sentry.captureException(error);
     console.error('[POST /api/payments/create-subscription]', error);
     const message = error instanceof Error ? error.message : 'Erro ao criar assinatura';
     return NextResponse.json({ error: message }, { status: 500 });

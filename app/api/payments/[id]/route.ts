@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPayment, getPaymentPixQrCode } from '@/lib/integrations/asaas';
 
@@ -61,6 +62,7 @@ export async function GET(
       pix: pixData,
     });
   } catch (error) {
+    Sentry.captureException(error);
     console.error('[GET /api/payments/[id]]', error);
     const message = error instanceof Error ? error.message : 'Erro ao consultar pagamento';
     return NextResponse.json({ error: message }, { status: 500 });
