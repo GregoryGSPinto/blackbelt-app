@@ -1,0 +1,32 @@
+╔═══════════════════════════════════════════════════════════════╗
+║     BLACKBELT v2 — MEGA SIMULAÇÃO REPORT                    ║
+║     2026-03-25T22:13:24                              ║
+╠═══════════════════════════════════════════════════════════════╣
+║  ❌ PUBLIC            97/135 OK ( 72%)  💥 0 ❌33 ⚠️ 5 ║
+║       / → console: The script resource is behind a redirect,║
+║       /login → console: The script resource is behind a redi║
+║       /login → console: The script resource is behind a redi║
+║       /login → console: Failed to load resource: the server ║
+║       /cadastrar-academia → console: The script resource is ║
+║     ... +33 more                                            ║
+║  ❌ ADMIN            355/393 OK ( 90%)  💥 0 ❌37 ⚠️ 1 ║
+║       /admin → console: Failed to load resource: the server ║
+║       /admin → console: Failed to fetch RSC payload for http║
+║       /admin → console: Failed to fetch RSC payload for http║
+║       /admin/acesso → spinner: Loading spinner stuck >2s    ║
+║       /admin/acesso/proximidade → spinner: Loading spinner s║
+║     ... +33 more                                            ║
+║  ❌ PROFESSOR        153/169 OK ( 91%)  💥 0 ❌16 ⚠️ 0 ║
+║       /professor → console: Failed to load resource: the ser║
+║       /professor → console: Failed to load resource: the ser║
+║       /professor → console: [getDuvidasPendentes] Query fail║
+║       /professor/agenda → spinner: Loading spinner stuck >2s║
+║       /professor/alunos → spinner: Loading spinner stuck >2s║
+║     ... +11 more                                            ║
+║  ❌ RECEPCIONISTA     57/ 58 OK ( 98%)  💥 0 ❌ 1 ⚠️ 0 ║
+║       /recepcao → console: Failed to load resource: the serv║
+╠═══════════════════════════════════════════════════════════════╣
+║  TOTAL: 662/755 (88%)                                       ║
+║  ✅ 662  ❌ 87  💥 0  ⚠️ 6                                    ║
+║  STATUS: NEEDS FIXES ⚠️                                     ║
+╚═══════════════════════════════════════════════════════════════╝

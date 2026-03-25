@@ -7,6 +7,7 @@ import { getProduct, listProducts, type Product, type ProductCategory } from '@/
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { useCart } from '@/lib/hooks/useCart';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimonos', faixa: 'Faixas', equipamento: 'Equipamentos',
@@ -43,7 +44,7 @@ export default function ProductDetailPage() {
         }
         setActiveImage(0);
         setQuantity(1);
-        return listProducts('academy-1', { category: p.category });
+        return listProducts(getActiveAcademyId(), { category: p.category });
       })
       .then((all) => {
         setRelated(all.filter((r) => r.id !== productId && r.status === 'active').slice(0, 4));

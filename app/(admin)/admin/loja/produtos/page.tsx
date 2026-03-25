@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimono', faixa: 'Faixa', equipamento: 'Equipamento',
@@ -49,7 +50,7 @@ export default function AdminProdutosPage() {
   const [showLowStock, setShowLowStock] = useState(false);
 
   useEffect(() => {
-    listProducts('academy-1').then(setProducts).finally(() => setLoading(false));
+    listProducts(getActiveAcademyId()).then(setProducts).finally(() => setLoading(false));
   }, []);
 
   const filtered = products.filter((p) => {

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function TorneiosAdminPage() {
   const [tournaments, setTournaments] = useState<TournamentDTO[]>([]);
@@ -14,7 +15,7 @@ export default function TorneiosAdminPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listTournaments('academy-1').then(setTournaments).finally(() => setLoading(false));
+    listTournaments(getActiveAcademyId()).then(setTournaments).finally(() => setLoading(false));
   }, []);
 
   async function handleViewBracket(id: string) {

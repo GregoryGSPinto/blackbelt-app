@@ -23,6 +23,7 @@ import {
   DollarIcon,
 } from '@/components/shell/icons';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -108,7 +109,7 @@ export default function AdminEventosPage() {
   useEffect(() => {
     async function loadEvents() {
       try {
-        const data = await listAcademyEvents('academy-1');
+        const data = await listAcademyEvents(getActiveAcademyId());
         setEvents(data);
       } catch (err) {
         toast(translateError(err), 'error');
@@ -180,7 +181,7 @@ export default function AdminEventosPage() {
         setEvents((prev) => prev.map((e) => (e.id === editingEvent.id ? updated : e)));
         toast('Evento atualizado!', 'success');
       } else {
-        const created = await createAcademyEvent('academy-1', data);
+        const created = await createAcademyEvent(getActiveAcademyId(), data);
         setEvents((prev) => [...prev, created]);
         toast('Evento criado!', 'success');
       }

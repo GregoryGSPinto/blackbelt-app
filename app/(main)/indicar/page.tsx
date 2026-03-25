@@ -22,6 +22,7 @@ import {
   CheckCircleIcon,
 } from '@/components/shell/icons';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // -- Constants ----------------------------------------------------------------
 
@@ -62,7 +63,7 @@ function buildWhatsAppUrl(code: string): string {
 }
 
 // -- Placeholder student ID (would come from auth context in production) ------
-const STUDENT_ACADEMY_ID = 'academy-1';
+const STUDENT_ACADEMY_ID = getActiveAcademyId();
 
 // -- Component ----------------------------------------------------------------
 

@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function MarcaPage() {
   const { toast } = useToast();
@@ -15,14 +16,14 @@ export default function MarcaPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    getBranding('academy-1').then(setBranding).finally(() => setLoading(false));
+    getBranding(getActiveAcademyId()).then(setBranding).finally(() => setLoading(false));
   }, []);
 
   async function handleSave() {
     if (!branding) return;
     setSaving(true);
     try {
-      await updateBranding('academy-1', branding);
+      await updateBranding(getActiveAcademyId(), branding);
       toast('Marca atualizada', 'success');
     } catch (err) {
       toast(translateError(err), 'error');

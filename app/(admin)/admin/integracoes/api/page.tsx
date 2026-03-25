@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { ApiKey, ApiKeyCreateResult } from '@/lib/api/api-keys.service';
 import { listApiKeys, generateApiKey, revokeApiKey } from '@/lib/api/api-keys.service';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ENDPOINTS = [
   { method: 'GET', path: '/api/v1/students', desc: 'Listar alunos' },
@@ -28,12 +29,12 @@ export default function ApiKeysPage() {
   const [tab, setTab] = useState<'keys' | 'docs'>('keys');
 
   useEffect(() => {
-    listApiKeys('academy-1').then((k) => { setKeys(k); setLoading(false); });
+    listApiKeys(getActiveAcademyId()).then((k) => { setKeys(k); setLoading(false); });
   }, []);
 
   async function handleCreate() {
     if (!name.trim()) return;
-    const result = await generateApiKey('academy-1', name);
+    const result = await generateApiKey(getActiveAcademyId(), name);
     setNewKeyResult(result);
     setKeys((prev) => [result.apiKey, ...prev]);
     setShowCreate(false);

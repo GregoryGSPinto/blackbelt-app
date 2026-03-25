@@ -25,6 +25,7 @@ import {
 } from '@/components/shell/icons';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_LABEL: Record<StatusContrato, string> = {
   rascunho: 'Rascunho',
@@ -66,9 +67,9 @@ export default function ContratosPage() {
 
   useEffect(() => {
     Promise.all([
-      listContratos('academy-1'),
-      listContratosTemplates('academy-1'),
-      getContratosMetrics('academy-1'),
+      listContratos(getActiveAcademyId()),
+      listContratosTemplates(getActiveAcademyId()),
+      getContratosMetrics(getActiveAcademyId()),
     ])
       .then(([c, t, m]) => {
         setContratos(c);

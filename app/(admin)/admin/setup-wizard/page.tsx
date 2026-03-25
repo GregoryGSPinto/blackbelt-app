@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function SetupWizardPage() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function SetupWizardPage() {
     <div className="flex min-h-[80vh] items-center justify-center p-6">
       <OnboardingWizard
         onComplete={() => router.push('/admin')}
-        academyId="academy-1"
+        academyId={getActiveAcademyId()}
       />
     </div>
   );

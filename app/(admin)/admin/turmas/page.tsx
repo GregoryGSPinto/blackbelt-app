@@ -25,6 +25,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { exportToCSV } from '@/lib/utils/export-csv';
 import { Download } from 'lucide-react';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -187,7 +188,7 @@ export default function AdminTurmasPage() {
 
   const loadClasses = useCallback(async () => {
     try {
-      const data = await listClasses('academy-1');
+      const data = await listClasses(getActiveAcademyId());
       setClasses(data);
     } catch (err) {
       toast(translateError(err), 'error');
@@ -279,7 +280,7 @@ export default function AdminTurmasPage() {
         toast('Turma atualizada com sucesso', 'success');
       } else {
         const dto: CreateClassDTO = {
-          academy_id: 'academy-1',
+          academy_id: getActiveAcademyId(),
           name: form.name,
           modality: form.modality,
           professor_id: form.professor_id,

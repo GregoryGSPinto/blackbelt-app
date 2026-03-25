@@ -23,6 +23,7 @@ import { GRADIENT_PRESETS } from '@/lib/mocks/content-management.mock';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { useToast } from '@/lib/hooks/useToast';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -116,11 +117,11 @@ export default function ProfessorConteudoPage() {
   const reload = useCallback(async () => {
     try {
       const [st, v, se, tr, ma] = await Promise.all([
-        getContentStats('academy-1'),
-        listVideos('academy-1', { search: search || undefined, is_published: filterPublished }),
-        listSeries('academy-1'),
-        listTrails('academy-1'),
-        listMaterials('academy-1'),
+        getContentStats(getActiveAcademyId()),
+        listVideos(getActiveAcademyId(), { search: search || undefined, is_published: filterPublished }),
+        listSeries(getActiveAcademyId()),
+        listTrails(getActiveAcademyId()),
+        listMaterials(getActiveAcademyId()),
       ]);
       setStats(st);
       setVideos(v.videos);
@@ -923,7 +924,7 @@ function NewVideoModal({
       await uploadVideo(file, {
         title,
         description,
-        academy_id: 'academy-1',
+        academy_id: getActiveAcademyId(),
         professor_id: 'prof-andre',
         modality,
         belt_level: minBelt,
@@ -944,7 +945,7 @@ function NewVideoModal({
         series_id: seriesId, order: seriesVideos.length + 1,
         is_published: publishNow, is_free: false, quiz_questions: quizQuestions,
       };
-      await createVideo('academy-1', 'prof-andre', data);
+      await createVideo(getActiveAcademyId(), 'prof-andre', data);
       setStep(4);
     } catch {
       toast('Erro ao enviar video.', 'error');
@@ -1249,7 +1250,7 @@ function NewSeriesModal({ onClose, onCreated }: { onClose: () => void; onCreated
     if (!title.trim()) return;
     setSaving(true);
     try {
-      await createSeries('academy-1', 'prof-andre', {
+      await createSeries(getActiveAcademyId(), 'prof-andre', {
         title, description, modality, min_belt: minBelt,
         gradient_css: gradient, tags, category, is_published: true,
       });
@@ -1355,7 +1356,7 @@ function NewTrailModal({ series, onClose, onCreated }: { series: StreamingSeries
     if (!name.trim() || selectedSeries.length === 0) return;
     setSaving(true);
     try {
-      await createTrail('academy-1', { name, description, min_belt: minBelt, series_ids: selectedSeries, certificate_available: certificate });
+      await createTrail(getActiveAcademyId(), { name, description, min_belt: minBelt, series_ids: selectedSeries, certificate_available: certificate });
       onCreated();
     } catch {
       toast('Erro ao criar trilha.', 'error');
@@ -1438,7 +1439,7 @@ function NewMaterialModal({ series, onClose, onCreated }: { series: StreamingSer
     if (!title.trim()) return;
     setSaving(true);
     try {
-      await createMaterial('academy-1', 'prof-andre', {
+      await createMaterial(getActiveAcademyId(), 'prof-andre', {
         title, description, type, file_url: fileUrl || '/mock/uploaded-file.pdf',
         modality, min_belt: minBelt, tags: [], series_id: seriesId, is_published: true,
       });

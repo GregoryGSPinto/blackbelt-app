@@ -5,6 +5,7 @@ import { getFeed, likePost, type FeedPost, type PostType } from '@/lib/api/feed.
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const TYPE_ICON: Record<PostType, string> = { achievement: '🏆', class_photo: '📸', event: '📅', milestone: '🎯', coach_tip: '💡', promotion: '🥋' };
 const FILTERS: { id: PostType | ''; label: string }[] = [
@@ -18,7 +19,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     setLoading(true);
-    getFeed('academy-1', 1, filter || undefined).then(setPosts).finally(() => setLoading(false));
+    getFeed(getActiveAcademyId(), 1, filter || undefined).then(setPosts).finally(() => setLoading(false));
   }, [filter]);
 
   async function handleLike(postId: string) {

@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function TorneiosPage() {
   const { toast } = useToast();
@@ -15,7 +16,7 @@ export default function TorneiosPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listTournaments('academy-1').then(setTournaments).finally(() => setLoading(false));
+    listTournaments(getActiveAcademyId()).then(setTournaments).finally(() => setLoading(false));
   }, []);
 
   async function handleEnroll(id: string) {

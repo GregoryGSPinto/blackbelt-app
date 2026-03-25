@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useStudentId } from '@/lib/hooks/useStudentId';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -259,7 +260,7 @@ export default function MetasPage() {
     try {
       const payload: SaveDiaryPayload = {
         student_id: studentId ?? '',
-        academy_id: 'academy-1',
+        academy_id: getActiveAcademyId(),
         date: new Date().toISOString().split('T')[0],
         mood: diaryMood,
         tags: diaryTags,

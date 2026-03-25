@@ -12,6 +12,7 @@ import {
 } from '@/components/shell/icons';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const RISK_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   critical: { label: 'Crítico', color: '#EF4444', bg: '#EF444420' },
@@ -26,7 +27,7 @@ export default function ChurnPredictionPage() {
   const [filterRisk, setFilterRisk] = useState<string>('');
 
   useEffect(() => {
-    getChurnPredictions('academy-1')
+    getChurnPredictions(getActiveAcademyId())
       .then(setPredictions)
       .finally(() => setLoading(false));
   }, []);

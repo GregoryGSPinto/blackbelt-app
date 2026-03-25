@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORIA_LABEL: Record<CategoriaEstoque, string> = {
   kimono: 'Kimono',
@@ -39,8 +40,8 @@ export default function EstoquePage() {
     async function load() {
       try {
         const [prods, alerts] = await Promise.all([
-          getEstoque('academy-1'),
-          getAlertasEstoqueBaixo('academy-1'),
+          getEstoque(getActiveAcademyId()),
+          getAlertasEstoqueBaixo(getActiveAcademyId()),
         ]);
         setProdutos(prods);
         setAlertas(alerts);
@@ -73,7 +74,7 @@ export default function EstoquePage() {
       toast(movModal.tipo === 'entrada' ? 'Entrada registrada' : 'Saída registrada', 'success');
       setMovModal(null);
       setMovForm({ quantidade: '', motivo: '' });
-      const alerts = await getAlertasEstoqueBaixo('academy-1');
+      const alerts = await getAlertasEstoqueBaixo(getActiveAcademyId());
       setAlertas(alerts);
     } catch (err) {
       toast(translateError(err), 'error');

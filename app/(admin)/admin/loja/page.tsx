@@ -7,13 +7,14 @@ import type { Product } from '@/lib/api/store.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ShoppingBag, Package, AlertTriangle, TrendingUp } from 'lucide-react';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function LojaAdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listProducts('academy-1')
+    listProducts(getActiveAcademyId())
       .then(setProducts)
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -13,6 +13,7 @@ import type {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Dynamic Recharts imports ──────────────────────────────────────────
 
@@ -79,7 +80,7 @@ export default function RelatorioProfessoresPage() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getRelatorioProfessores('academy-1', periodo);
+        const data = await getRelatorioProfessores(getActiveAcademyId(), periodo);
         setProfessores(data);
       } catch {
         /* silently fail for read-only page */

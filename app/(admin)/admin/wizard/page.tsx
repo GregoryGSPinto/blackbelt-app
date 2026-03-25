@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 interface StepConfig {
   title: string;
@@ -85,7 +86,7 @@ export default function WizardPage() {
   const [enabledAutomations, setEnabledAutomations] = useState<string[]>(['welcome', 'absence']);
 
   useEffect(() => {
-    getWizardProgress('academy-1')
+    getWizardProgress(getActiveAcademyId())
       .then((p) => {
         setProgress(p);
         setCurrentStep(p.currentStep);
@@ -117,7 +118,7 @@ export default function WizardPage() {
   async function handleNext() {
     setSaving(true);
     try {
-      const updated = await saveWizardStep('academy-1', currentStep, getStepData());
+      const updated = await saveWizardStep(getActiveAcademyId(), currentStep, getStepData());
       setProgress(updated);
       setCurrentStep(currentStep + 1);
     } catch (err) {
@@ -134,7 +135,7 @@ export default function WizardPage() {
   async function handleComplete() {
     setSaving(true);
     try {
-      await completeWizard('academy-1');
+      await completeWizard(getActiveAcademyId());
       toast('Academia configurada com sucesso!', 'success');
     } catch (err) {
       toast(translateError(err), 'error');

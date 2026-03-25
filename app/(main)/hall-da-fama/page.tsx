@@ -6,6 +6,7 @@ import { getHallOfFame, type RecordDTO, type HallOfFameDTO } from '@/lib/api/hal
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string; bgColor: string }> = {
   streak: { icon: '🔥', color: 'text-orange-700', bgColor: 'bg-orange-50' },
@@ -89,7 +90,7 @@ export default function HallDaFamaPage() {
   const [filter, setFilter] = useState<string>('all');
 
   useEffect(() => {
-    getHallOfFame('academy-1')
+    getHallOfFame(getActiveAcademyId())
       .then(setHallData)
       .finally(() => setLoading(false));
   }, []);

@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { AuditLog, AuditAction } from '@/lib/api/audit.service';
 import { searchAuditLogs, exportAuditLogs } from '@/lib/api/audit.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   login: 'Login', logout: 'Logout', password_change: 'Alteração de Senha', mfa_enable: 'MFA Ativado',
@@ -33,7 +34,7 @@ export default function AuditLogPage() {
       const filters: Record<string, string> = {};
       if (filterAction) filters.action = filterAction;
       if (filterEntity) filters.entityType = filterEntity;
-      const result = await searchAuditLogs('academy-1', filters);
+      const result = await searchAuditLogs(getActiveAcademyId(), filters);
       setLogs(result.logs);
       setLoading(false);
     }
@@ -41,7 +42,7 @@ export default function AuditLogPage() {
   }, [filterAction, filterEntity]);
 
   async function handleExport() {
-    const blob = await exportAuditLogs('academy-1');
+    const blob = await exportAuditLogs(getActiveAcademyId());
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

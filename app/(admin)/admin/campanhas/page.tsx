@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_COLOR: Record<CampaignStatus, string> = {
   draft: 'bg-bb-gray-100 text-bb-gray-700',
@@ -55,7 +56,7 @@ export default function CampanhasPage() {
   const [formSchedule, setFormSchedule] = useState('');
 
   useEffect(() => {
-    getCampaigns('academy-1')
+    getCampaigns(getActiveAcademyId())
       .then(async (data) => {
         setCampaigns(data);
         // Load metrics for all campaigns

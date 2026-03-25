@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrador',
@@ -26,7 +27,7 @@ export default function EquipePage() {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    Promise.all([listStaff('academy-1'), getActiveInvites('academy-1')])
+    Promise.all([listStaff(getActiveAcademyId()), getActiveInvites(getActiveAcademyId())])
       .then(([s, i]) => { setStaff(s); setInvites(i); })
       .finally(() => setLoading(false));
   }, []);

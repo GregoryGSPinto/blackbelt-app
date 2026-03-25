@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   diamond: { label: 'Diamante', color: 'text-cyan-400', bg: 'bg-cyan-50' },
@@ -37,7 +38,7 @@ export default function SeasonPage() {
 
   useEffect(() => {
     Promise.all([
-      getCurrentSeason('academy-1'),
+      getCurrentSeason(getActiveAcademyId()),
       getSeasonLeaderboard('season-3'),
       getMySeasonProgress('student-1', 'season-3'),
     ])

@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_LABEL: Record<string, string> = {
   paid: 'Pago',
@@ -33,8 +34,8 @@ export default function PagamentosPage() {
       try {
         const [sub, inv, pl] = await Promise.all([
           getSubscriptionByStudent('student-1'),
-          listInvoices('academy-1'),
-          listPlans('academy-1'),
+          listInvoices(getActiveAcademyId()),
+          listPlans(getActiveAcademyId()),
         ]);
         setSubscription(sub);
         setInvoices(inv.filter((i) => i.student_id === 'student-1'));

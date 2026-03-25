@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { ReferralStatsDTO } from '@/lib/api/referral-b2b.service';
 import { getReferralStats } from '@/lib/api/referral-b2b.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function ReferralPage() {
   const [stats, setStats] = useState<ReferralStatsDTO | null>(null);
@@ -14,7 +15,7 @@ export default function ReferralPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    getReferralStats('academy-1').then((s) => { setStats(s); setLoading(false); });
+    getReferralStats(getActiveAcademyId()).then((s) => { setStats(s); setLoading(false); });
   }, []);
 
   function copyLink() {

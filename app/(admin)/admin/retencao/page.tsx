@@ -15,6 +15,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const LineChart = dynamic(() => import('recharts').then((m) => m.LineChart), { ssr: false });
@@ -85,7 +86,7 @@ export default function RetencaoPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await getRetentionData('academy-1', {
+      const result = await getRetentionData(getActiveAcademyId(), {
         period,
         modality: modalityFilter || undefined,
         className: classFilter || undefined,
@@ -104,9 +105,9 @@ export default function RetencaoPage() {
 
   // ── Fetch churn data ─────────────────────────────────────────────
   useEffect(() => {
-    getAlunosEmRisco('academy-1').then(setAlunosRisco).catch(() => {});
-    getChurnMetrics('academy-1').then(setChurnMetrics).catch(() => {});
-    getChurnTrend('academy-1').then(setChurnTrend).catch(() => {});
+    getAlunosEmRisco(getActiveAcademyId()).then(setAlunosRisco).catch(() => {});
+    getChurnMetrics(getActiveAcademyId()).then(setChurnMetrics).catch(() => {});
+    getChurnTrend(getActiveAcademyId()).then(setChurnTrend).catch(() => {});
   }, []);
 
   // ── Churn actions ─────────────────────────────────────────────────

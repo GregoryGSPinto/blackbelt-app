@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function UnidadesPage() {
   const { toast } = useToast();
@@ -19,13 +20,13 @@ export default function UnidadesPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    listUnits('academy-1').then(setUnits).finally(() => setLoading(false));
+    listUnits(getActiveAcademyId()).then(setUnits).finally(() => setLoading(false));
   }, []);
 
   async function handleCreate() {
     setCreating(true);
     try {
-      const unit = await createUnit('academy-1', form);
+      const unit = await createUnit(getActiveAcademyId(), form);
       setUnits((prev) => [...prev, unit]);
       setShowCreate(false);
       setForm({ name: '', address: '', phone: '', operatingHours: '' });

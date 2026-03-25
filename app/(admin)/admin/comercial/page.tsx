@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const PIPELINE_STATUSES = ['lead', 'contatado', 'experimental', 'compareceu', 'matriculou'] as const;
 type PipelineStatus = (typeof PIPELINE_STATUSES)[number];
@@ -56,8 +57,8 @@ export default function ComercialPage() {
 
   useEffect(() => {
     Promise.all([
-      getLeads('academy-1'),
-      getCRMMetrics('academy-1'),
+      getLeads(getActiveAcademyId()),
+      getCRMMetrics(getActiveAcademyId()),
     ])
       .then(([l, m]) => {
         setLeads(l);

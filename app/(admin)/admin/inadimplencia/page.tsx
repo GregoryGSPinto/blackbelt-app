@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -102,8 +103,8 @@ export default function InadimplenciaPage() {
   const loadData = useCallback(async () => {
     try {
       const [devList, devMetrics] = await Promise.all([
-        getDevedores('academy-1'),
-        getInadimplenciaMetrics('academy-1'),
+        getDevedores(getActiveAcademyId()),
+        getInadimplenciaMetrics(getActiveAcademyId()),
       ]);
       setDevedores(devList.sort((a, b) => b.diasAtraso - a.diasAtraso));
       setMetrics(devMetrics);

@@ -18,6 +18,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const MODALITIES = [
   { value: 'bjj', label: 'Jiu-Jitsu' },
@@ -63,7 +64,7 @@ export default function CurriculoAdminPage() {
   async function loadCurriculum() {
     setLoading(true);
     try {
-      const data = await getCurriculum('academy-1', modality, belt);
+      const data = await getCurriculum(getActiveAcademyId(), modality, belt);
       setCurriculum(data);
       if (data) setNotesVal(data.notes);
     } catch (err) {
@@ -77,7 +78,7 @@ export default function CurriculoAdminPage() {
     setCreatingCurriculum(true);
     try {
       const created = await createCurriculum({
-        academy_id: 'academy-1',
+        academy_id: getActiveAcademyId(),
         modality,
         target_belt: belt,
         requirements: [],

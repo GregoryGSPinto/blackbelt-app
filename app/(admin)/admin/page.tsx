@@ -395,11 +395,11 @@ export default function AdminDashboardPage() {
   );
   const { data: churnAlunos } = useSWRFetch<AlunoRisco[]>(
     'admin-churn-alunos',
-    () => getAlunosEmRisco('academy-1'),
+    () => getAlunosEmRisco(getActiveAcademyId()),
   );
   const { data: churnMetrics } = useSWRFetch<ChurnMetrics>(
     'admin-churn-metrics',
-    () => getChurnMetrics('academy-1'),
+    () => getChurnMetrics(getActiveAcademyId()),
   );
   const { data: pedagogicoData } = useSWRFetch<PedagogicoDashboardDTO>(
     'admin-pedagogico-dashboard',

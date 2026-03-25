@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORY_LABELS: Record<RewardCategory, string> = {
   desconto: 'Descontos',
@@ -62,8 +63,8 @@ export default function AdminRecompensasPage() {
 
   useEffect(() => {
     Promise.all([
-      getRewardsStore('academy-1'),
-      getAllRedemptions('academy-1'),
+      getRewardsStore(getActiveAcademyId()),
+      getAllRedemptions(getActiveAcademyId()),
     ])
       .then(([store, reds]) => {
         setRewards(store.rewards);
@@ -98,7 +99,7 @@ export default function AdminRecompensasPage() {
         const updated = await updateStoreReward(editId, form);
         setRewards((prev) => prev.map((r) => (r.id === editId ? updated : r)));
       } else {
-        const created = await createStoreReward('academy-1', form);
+        const created = await createStoreReward(getActiveAcademyId(), form);
         setRewards((prev) => [...prev, created]);
       }
       setShowForm(false);

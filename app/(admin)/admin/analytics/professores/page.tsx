@@ -12,6 +12,7 @@ import {
 } from '@/components/shell/icons';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 type SortKey = 'retention_rate' | 'avg_attendance' | 'avg_evaluation' | 'total_students';
 
@@ -21,7 +22,7 @@ export default function ProfessorAnalyticsPage() {
   const [sortBy, setSortBy] = useState<SortKey>('retention_rate');
 
   useEffect(() => {
-    getProfessorPerformance('academy-1')
+    getProfessorPerformance(getActiveAcademyId())
       .then(setProfessors)
       .finally(() => setLoading(false));
   }, []);

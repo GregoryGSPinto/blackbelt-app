@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -63,7 +64,7 @@ export default function EventosPage() {
   const [registering, setRegistering] = useState<string | null>(null);
 
   useEffect(() => {
-    getEvents('academy-1')
+    getEvents(getActiveAcademyId())
       .then(setEvents)
       .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));

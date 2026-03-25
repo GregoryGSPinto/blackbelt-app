@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { SSOConfig, SSOProvider } from '@/lib/api/sso.service';
 import { getSSOConfig, updateSSOConfig, testSSOConnection } from '@/lib/api/sso.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const PROVIDERS: { value: SSOProvider; label: string }[] = [
   { value: 'google', label: 'Google Workspace' },
@@ -20,19 +21,19 @@ export default function SSOConfigPage() {
   const [testResult, setTestResult] = useState<{ success: boolean; error: string | null } | null>(null);
 
   useEffect(() => {
-    getSSOConfig('academy-1').then((c) => { setConfig(c); setLoading(false); });
+    getSSOConfig(getActiveAcademyId()).then((c) => { setConfig(c); setLoading(false); });
   }, []);
 
   async function handleSave() {
     if (!config) return;
     setSaving(true);
-    const updated = await updateSSOConfig('academy-1', config);
+    const updated = await updateSSOConfig(getActiveAcademyId(), config);
     setConfig(updated);
     setSaving(false);
   }
 
   async function handleTest() {
-    const result = await testSSOConnection('academy-1');
+    const result = await testSSOConnection(getActiveAcademyId());
     setTestResult(result);
   }
 

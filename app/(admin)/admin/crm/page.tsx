@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useToast } from '@/lib/hooks/useToast';
 import { getLeads, getCRMMetrics, updateLeadStatus, createLead } from '@/lib/api/crm.service';
 import type { Lead, CRMMetrics } from '@/lib/api/crm.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ETAPAS = [
   { key: 'lead', label: 'Novo', color: '#6b7280' },
@@ -20,7 +21,7 @@ const ORIGENS = ['Indicação', 'Instagram', 'Google', 'Walk-in', 'WhatsApp', 'S
 export default function AdminCRMPage() {
   useTheme();
   const { toast } = useToast();
-  const academyId = 'academy-1';
+  const academyId = getActiveAcademyId();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [metrics, setMetrics] = useState<CRMMetrics | null>(null);

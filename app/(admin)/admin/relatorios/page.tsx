@@ -16,6 +16,7 @@ import { generateFinancialReport } from '@/lib/reports/financial-report';
 import type { ReportData, ReportType as ReportViewType } from '@/lib/types/report';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ReportChart = dynamic(() => import('./ReportChart'), { ssr: false });
 
@@ -41,7 +42,7 @@ export default function AdminRelatoriosPage() {
   useEffect(() => {
     setLoading(true);
     trackFeatureUsage('reports', 'view', { type: selectedType });
-    getReport('academy-1', { type: selectedType, from, to })
+    getReport(getActiveAcademyId(), { type: selectedType, from, to })
       .then(setReport)
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -59,13 +60,13 @@ export default function AdminRelatoriosPage() {
       let viewType: ReportViewType;
 
       if (selectedType === 'presenca' || selectedType === 'performance') {
-        data = await generateAttendanceReport('academy-1', period);
+        data = await generateAttendanceReport(getActiveAcademyId(), period);
         viewType = 'attendance';
       } else if (selectedType === 'financeiro') {
-        data = await generateFinancialReport('academy-1', period);
+        data = await generateFinancialReport(getActiveAcademyId(), period);
         viewType = 'financial';
       } else {
-        data = await generateMonthlyReport('academy-1', period);
+        data = await generateMonthlyReport(getActiveAcademyId(), period);
         viewType = 'monthly';
       }
 

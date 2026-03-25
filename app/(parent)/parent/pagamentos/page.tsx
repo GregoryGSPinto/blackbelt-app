@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 interface Filho {
   id: string;
@@ -34,7 +35,7 @@ export default function ParentPagamentosPage() {
   const [selectedFilho, setSelectedFilho] = useState(MOCK_FILHOS[0].id);
 
   useEffect(() => {
-    listInvoices('academy-1')
+    listInvoices(getActiveAcademyId())
       .then((inv) => { setInvoices(inv); })
       .catch(() => {})
       .finally(() => setLoading(false));

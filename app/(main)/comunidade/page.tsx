@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -214,7 +215,7 @@ export default function ComunidadePage() {
   const loadFeed = useCallback(async () => {
     setLoading(true);
     try {
-      const feedData = await getFeed('academy-1', 1, filter || undefined);
+      const feedData = await getFeed(getActiveAcademyId(), 1, filter || undefined);
       setPosts(feedData);
     } catch (err) {
       toast(translateError(err), 'error');
@@ -228,7 +229,7 @@ export default function ComunidadePage() {
   }, [loadFeed]);
 
   useEffect(() => {
-    getHighlights('academy-1')
+    getHighlights(getActiveAcademyId())
       .then(setHighlights)
       .catch(() => {});
   }, []);

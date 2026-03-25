@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 type Phase = 'upload' | 'mapping' | 'preview' | 'importing' | 'report';
 
@@ -83,7 +84,7 @@ export default function ImportarPage() {
     if (!parsedData) return;
     setParsing(true);
     try {
-      const dupeResult = await detectDuplicates(parsedData.rows, 'academy-1');
+      const dupeResult = await detectDuplicates(parsedData.rows, getActiveAcademyId());
       setDuplicates(dupeResult);
       setPhase('preview');
     } catch (err) {
@@ -113,7 +114,7 @@ export default function ImportarPage() {
       const nonDuplicateRows = parsedData.rows.filter(
         (_, idx) => !duplicates?.duplicates.includes(idx),
       );
-      const result = await importStudents(nonDuplicateRows, 'academy-1');
+      const result = await importStudents(nonDuplicateRows, getActiveAcademyId());
       clearInterval(interval);
       setImportProgress(100);
       setImportResult(result);

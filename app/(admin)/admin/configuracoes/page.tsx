@@ -28,6 +28,7 @@ import {
 } from '@/lib/api/preferences.service';
 import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ const DAY_NAMES: Record<string, string> = {
 };
 
 const MOCK_PROFILE_ID = 'admin-1';
-const MOCK_ACADEMY_ID = 'academy-1';
+const MOCK_ACADEMY_ID = getActiveAcademyId();
 
 // ── Loading Skeleton ─────────────────────────────────────────────────
 

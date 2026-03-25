@@ -21,6 +21,7 @@ import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
 import { exportToCSV } from '@/lib/utils/export-csv';
 import { Download } from 'lucide-react';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -78,10 +79,10 @@ export default function AdminFinanceiroPage() {
     async function load() {
       try {
         const [s, c, m, o] = await Promise.all([
-          getFinancialSummary('academy-1'),
-          getRevenueChart('academy-1'),
-          listMensalidades('academy-1', { month: filterMonth, status: filterStatus || undefined, search: filterSearch || undefined }),
-          getOverdueList('academy-1'),
+          getFinancialSummary(getActiveAcademyId()),
+          getRevenueChart(getActiveAcademyId()),
+          listMensalidades(getActiveAcademyId(), { month: filterMonth, status: filterStatus || undefined, search: filterSearch || undefined }),
+          getOverdueList(getActiveAcademyId()),
         ]);
         setSummary(s);
         setChart(c);
@@ -437,7 +438,7 @@ export default function AdminFinanceiroPage() {
                   onClick={async () => {
                     setReportLoading(true);
                     try {
-                      const data = await generateFinancialReport('academy-1', 'Marco 2026');
+                      const data = await generateFinancialReport(getActiveAcademyId(), 'Marco 2026');
                       setReportData(data);
                     } catch (err) {
                       toast(translateError(err), 'error');

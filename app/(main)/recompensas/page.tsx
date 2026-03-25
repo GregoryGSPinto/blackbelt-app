@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CATEGORY_LABELS: Record<RewardCategory, string> = {
   desconto: 'Descontos',
@@ -47,7 +48,7 @@ export default function RecompensasPage() {
 
   useEffect(() => {
     Promise.all([
-      getRewardsStore('academy-1'),
+      getRewardsStore(getActiveAcademyId()),
       getMyRedemptions('student-1'),
     ])
       .then(([store, reds]) => {

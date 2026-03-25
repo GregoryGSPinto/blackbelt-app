@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const DAY_NAMES = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
@@ -21,7 +22,7 @@ export default function TurmasPage() {
   useEffect(() => {
     async function load() {
       try {
-        const grade = await getGrade('academy-1');
+        const grade = await getGrade(getActiveAcademyId());
         setSlots(grade.slots);
       } finally {
         setLoading(false);

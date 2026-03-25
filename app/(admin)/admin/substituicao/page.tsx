@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CLASSES = [
   { id: 'class-1', name: 'BJJ Iniciante', time: '19:00-20:30' },
@@ -65,7 +66,7 @@ export default function SubstituicaoPage() {
   const [tab, setTab] = useState<'calendar' | 'history'>('calendar');
 
   useEffect(() => {
-    getSubstitutions('academy-1')
+    getSubstitutions(getActiveAcademyId())
       .then(setSubstitutions)
       .finally(() => setLoading(false));
   }, []);

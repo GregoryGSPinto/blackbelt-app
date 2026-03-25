@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -91,8 +92,8 @@ export default function AulaExperimentalPage() {
     async function load() {
       try {
         const [trialList, trialMetrics] = await Promise.all([
-          listTrialClasses('academy-1'),
-          getTrialMetrics('academy-1'),
+          listTrialClasses(getActiveAcademyId()),
+          getTrialMetrics(getActiveAcademyId()),
         ]);
         setTrials(trialList);
         setMetrics(trialMetrics);
@@ -123,7 +124,7 @@ export default function AulaExperimentalPage() {
       return;
     }
     try {
-      const created = await createTrialClass('academy-1', form);
+      const created = await createTrialClass(getActiveAcademyId(), form);
       setTrials((prev) => [created, ...prev]);
       setShowCreateModal(false);
       setForm({ leadNome: '', leadEmail: '', leadTelefone: '', leadOrigem: 'site', turmaId: 'turma-1', dataAgendada: '' });

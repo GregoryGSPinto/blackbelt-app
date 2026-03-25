@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function PlanosPage() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function PlanosPage() {
   const [currentPlanId] = useState<string | null>(null); // TODO: fetch from subscription
 
   useEffect(() => {
-    listPlans('academy-1').then(setPlans).finally(() => setLoading(false));
+    listPlans(getActiveAcademyId()).then(setPlans).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;

@@ -8,6 +8,7 @@ import { useCart } from '@/lib/hooks/useCart';
 import { useToast } from '@/lib/hooks/useToast';
 import { SearchIcon, ShoppingCartIcon, FilterIcon, XIcon } from '@/components/shell/icons';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export default function LojaPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    listProducts('academy-1')
+    listProducts(getActiveAcademyId())
       .then(setProducts)
       .catch((err) => toast(translateError(err), 'error'))
       .finally(() => setLoading(false));

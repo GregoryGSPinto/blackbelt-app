@@ -8,6 +8,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_PIPELINE: LeadStatus[] = ['novo', 'contatado', 'agendado', 'compareceu', 'matriculou', 'desistiu'];
 const STATUS_LABEL: Record<LeadStatus, string> = { novo: 'Novo', contatado: 'Contatado', agendado: 'Agendado', compareceu: 'Compareceu', matriculou: 'Matriculou', desistiu: 'Desistiu' };
@@ -26,7 +27,7 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listLeads('academy-1').then(setLeads).finally(() => setLoading(false));
+    listLeads(getActiveAcademyId()).then(setLeads).finally(() => setLoading(false));
   }, []);
 
   async function handleStatusChange(id: string, status: LeadStatus) {

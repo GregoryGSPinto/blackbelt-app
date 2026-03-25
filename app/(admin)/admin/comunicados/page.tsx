@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_LABEL: Record<AnnouncementStatus, string> = {
   draft: 'Rascunho',
@@ -59,8 +60,8 @@ export default function ComunicadosPage() {
     async function load() {
       try {
         const [anns, s] = await Promise.all([
-          listAnnouncements('academy-1'),
-          getAnnouncementStats('academy-1'),
+          listAnnouncements(getActiveAcademyId()),
+          getAnnouncementStats(getActiveAcademyId()),
         ]);
         setAnnouncements(anns);
         setStats(s);
@@ -95,7 +96,7 @@ export default function ComunicadosPage() {
   async function handleCreate() {
     if (!formTitle.trim() || !formContent.trim()) return;
     try {
-      const ann = await createAnnouncement('academy-1', {
+      const ann = await createAnnouncement(getActiveAcademyId(), {
         title: formTitle,
         content: formContent,
         target_audience: formAudience,

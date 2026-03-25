@@ -16,6 +16,7 @@ import { BeltLevel } from '@/lib/types/domain';
 import { translateError } from '@/lib/utils/error-translator';
 import { exportToCSV } from '@/lib/utils/export-csv';
 import { Download } from 'lucide-react';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const BELT_LABEL: Record<string, string> = {
   white: 'Branca',
@@ -96,8 +97,8 @@ export default function AdminAlunosPage() {
     async function load() {
       try {
         const [s, st] = await Promise.all([
-          listStudents('academy-1'),
-          getStudentManagementStats('academy-1'),
+          listStudents(getActiveAcademyId()),
+          getStudentManagementStats(getActiveAcademyId()),
         ]);
         setStudents(s);
         setStats(st);

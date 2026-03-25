@@ -7,6 +7,7 @@ import type { CohortData, ChurnRiskDTO, ForecastDTO, ProfessorMetricsDTO, Occupa
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const AnalyticsCharts = dynamic(() => import('./AnalyticsCharts'), { ssr: false });
 
@@ -23,11 +24,11 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     Promise.all([
-      getRetentionCohort('academy-1', 12),
-      getChurnRisk('academy-1'),
-      getRevenueForecasting('academy-1', 6),
-      getProfessorPerformance('academy-1'),
-      getClassOccupancy('academy-1'),
+      getRetentionCohort(getActiveAcademyId(), 12),
+      getChurnRisk(getActiveAcademyId()),
+      getRevenueForecasting(getActiveAcademyId(), 6),
+      getProfessorPerformance(getActiveAcademyId()),
+      getClassOccupancy(getActiveAcademyId()),
     ]).then(([c, ch, f, p, o]) => {
       setCohort(c); setChurn(ch); setForecast(f); setProfessors(p); setOccupancy(o);
     }).catch(() => {}).finally(() => setLoading(false));

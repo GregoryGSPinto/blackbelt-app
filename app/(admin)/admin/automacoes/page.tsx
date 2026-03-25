@@ -9,6 +9,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const CHANNEL_ICONS: Record<string, string> = {
   push: '📱',
@@ -24,7 +25,7 @@ export default function AutomacoesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listAutomations('academy-1').then(setAutomations).finally(() => setLoading(false));
+    listAutomations(getActiveAcademyId()).then(setAutomations).finally(() => setLoading(false));
   }, []);
 
   async function handleToggle(id: string, enabled: boolean) {

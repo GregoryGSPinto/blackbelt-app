@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import type { OutgoingWebhook, WebhookDelivery, WebhookEvent } from '@/lib/api/webhooks-outgoing.service';
 import { listWebhooks, registerWebhook, deleteWebhook, testWebhook, getDeliveryLog } from '@/lib/api/webhooks-outgoing.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const ALL_EVENTS: WebhookEvent[] = [
   'student.created', 'student.updated', 'attendance.created',
@@ -26,12 +27,12 @@ export default function WebhooksPage() {
   const [testing, setTesting] = useState<string | null>(null);
 
   useEffect(() => {
-    listWebhooks('academy-1').then((w) => { setWebhooks(w); setLoading(false); });
+    listWebhooks(getActiveAcademyId()).then((w) => { setWebhooks(w); setLoading(false); });
   }, []);
 
   async function handleCreate() {
     if (!url.trim() || selectedEvents.length === 0) return;
-    const wh = await registerWebhook('academy-1', url, selectedEvents);
+    const wh = await registerWebhook(getActiveAcademyId(), url, selectedEvents);
     setWebhooks((prev) => [wh, ...prev]);
     setShowCreate(false);
     setUrl('');

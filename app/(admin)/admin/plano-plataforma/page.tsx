@@ -5,13 +5,14 @@ import { getUsage, PLATFORM_PLANS, type UsageDTO } from '@/lib/api/platform-plan
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function PlanoPlataformaPage() {
   const [usage, setUsage] = useState<UsageDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getUsage('academy-1').then(setUsage).finally(() => setLoading(false));
+    getUsage(getActiveAcademyId()).then(setUsage).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;

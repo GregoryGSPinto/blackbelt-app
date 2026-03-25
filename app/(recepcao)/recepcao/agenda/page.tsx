@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/contexts/ThemeContext';
 import { getGrade } from '@/lib/api/horarios.service';
 import type { WeeklyScheduleSlot } from '@/lib/api/horarios.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface AulaSlot {
@@ -52,7 +53,7 @@ export default function RecepcaoAgendaPage() {
   useEffect(() => {
     async function load() {
       try {
-        const grade = await getGrade('academy-1');
+        const grade = await getGrade(getActiveAcademyId());
         setAulas(grade.slots.map((s, i) => slotToAula(s, i)));
       } catch {
         setAulas([]);

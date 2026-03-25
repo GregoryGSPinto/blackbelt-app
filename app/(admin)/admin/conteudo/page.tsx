@@ -12,6 +12,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { Search, Film, Eye, Heart, Upload, HardDrive, MoreVertical, Globe, EyeOff, Trash2, Video } from 'lucide-react';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function AdminConteudoPage() {
   const { toast } = useToast();
@@ -28,8 +29,8 @@ export default function AdminConteudoPage() {
 
   useEffect(() => {
     Promise.all([
-      listAdminVideos('academy-1'),
-      getAdminStorageStats('academy-1'),
+      listAdminVideos(getActiveAcademyId()),
+      getAdminStorageStats(getActiveAcademyId()),
     ])
       .then(([vids, stats]) => {
         setVideos(vids);

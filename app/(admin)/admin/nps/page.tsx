@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 function npsColor(score: number): string {
   if (score >= 50) return '#22c55e';
@@ -58,7 +59,7 @@ export default function NPSPage() {
   const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'promoter' | 'passive' | 'detractor'>('all');
 
   useEffect(() => {
-    getNPSData('academy-1')
+    getNPSData(getActiveAcademyId())
       .then(setData)
       .catch(() => {})
       .finally(() => setLoading(false));

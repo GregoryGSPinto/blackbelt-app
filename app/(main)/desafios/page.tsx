@@ -5,6 +5,7 @@ import { listChallenges, type ChallengeDTO } from '@/lib/api/challenges.service'
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const TYPE_ICON: Record<string, string> = { presenca: '📍', streak: '🔥', social: '👥', conteudo: '🎬', avaliacao: '📝' };
 
@@ -13,7 +14,7 @@ export default function DesafiosPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listChallenges('academy-1').then(setChallenges).finally(() => setLoading(false));
+    listChallenges(getActiveAcademyId()).then(setChallenges).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;

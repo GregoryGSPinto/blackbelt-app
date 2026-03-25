@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -179,10 +180,10 @@ export default function AdminPlanoPage() {
     async function load() {
       try {
         const [sub, mods, billing, extrasData] = await Promise.all([
-          getAssinatura('academy-1'),
+          getAssinatura(getActiveAcademyId()),
           getModulos(),
-          getHistoricoCobrancas('academy-1'),
-          getModulosExtrasDescoberta('academy-1'),
+          getHistoricoCobrancas(getActiveAcademyId()),
+          getModulosExtrasDescoberta(getActiveAcademyId()),
         ]);
         setAssinatura(sub);
         setModulos(mods);
@@ -219,7 +220,7 @@ export default function AdminPlanoPage() {
     if (!assinatura) return;
     setActivatingSlug(slug);
     try {
-      const updated = await ativarModulo('academy-1', slug);
+      const updated = await ativarModulo(getActiveAcademyId(), slug);
       setAssinatura(updated);
       toast('Modulo ativado com sucesso!', 'success');
     } catch (error) {
@@ -233,7 +234,7 @@ export default function AdminPlanoPage() {
     if (!assinatura) return;
     setActivatingSlug(slug);
     try {
-      const updated = await desativarModulo('academy-1', slug);
+      const updated = await desativarModulo(getActiveAcademyId(), slug);
       setAssinatura(updated);
       toast('Modulo desativado.', 'info');
     } catch (error) {
