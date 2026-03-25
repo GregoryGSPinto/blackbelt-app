@@ -22,6 +22,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_COLOR: Record<CampaignStatus, string> = {
   draft: 'bg-bb-gray-100 text-bb-gray-700',
@@ -45,6 +46,7 @@ export default function CampanhasPage() {
   const [campaigns, setCampaigns] = useState<CampaignDTO[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, CampaignMetricsDTO>>({});
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<CampaignDTO | null>(null);
@@ -54,6 +56,8 @@ export default function CampanhasPage() {
   const [formTemplate, setFormTemplate] = useState<CampaignTemplate>('volte_treinar');
   const [formAudience, setFormAudience] = useState(AUDIENCE_OPTIONS[0]);
   const [formSchedule, setFormSchedule] = useState('');
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     getCampaigns(getActiveAcademyId())
@@ -100,6 +104,7 @@ export default function CampanhasPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) {
     return (
       <div className="flex justify-center py-20">

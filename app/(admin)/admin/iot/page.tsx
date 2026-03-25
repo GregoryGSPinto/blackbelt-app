@@ -18,6 +18,7 @@ import {
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -58,6 +59,7 @@ function getHourColor(count: number, max: number): string {
 
 export default function IoTPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [liveAccess, setLiveAccess] = useState<LiveAccessEvent[]>([]);
@@ -65,6 +67,7 @@ export default function IoTPage() {
   const [alerts, setAlerts] = useState<DeviceAlert[]>([]);
   const [tab, setTab] = useState<'devices' | 'access' | 'metrics' | 'settings'>('devices');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getDevices('unit-1'),
@@ -83,6 +86,7 @@ export default function IoTPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const onlineCount = devices.filter((d) => d.status === 'online').length;

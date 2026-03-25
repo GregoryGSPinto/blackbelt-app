@@ -1,0 +1,207 @@
+{
+  "config": {
+    "configFile": "/Users/user_pc/Projetos/black_belt_v2/playwright.config.ts",
+    "rootDir": "/Users/user_pc/Projetos/black_belt_v2/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/user_pc/Projetos/black_belt_v2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/user_pc/Projetos/black_belt_v2/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 300000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "mega-simulation.spec.ts",
+      "file": "mega-simulation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "MEGA SIMULATION",
+          "file": "mega-simulation.spec.ts",
+          "line": 276,
+          "column": 15,
+          "specs": [
+            {
+              "title": "SUPERADMIN — super@blackbelt.app (19 pages)",
+              "ok": true,
+              "tags": [
+                "blackbelt.app"
+              ],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 127563,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "  ✅ Login OK: super@blackbelt.app → https://blackbeltv2.vercel.app/superadmin\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin ──\n"
+                        },
+                        {
+                          "text": "  ❌ console → Failed to load resource: the server responded with a status of 400 ()\n"
+                        },
+                        {
+                          "text": "  ❌ console → Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/pipeline. Falling back to \n"
+                        },
+                        {
+                          "text": "  ❌ console → Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/academias. Falling back to\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/academias ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/analytics ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/auditoria ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/beta ──\n"
+                        },
+                        {
+                          "text": "  ❌ spinner → Loading spinner stuck >2s\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/compete ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/comunicacao ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/configuracoes ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/configuracoes/storage ──\n"
+                        },
+                        {
+                          "text": "  ❌ spinner → Loading spinner stuck >2s\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/contatos ──\n"
+                        },
+                        {
+                          "text": "  ⚠️ empty-state → Nenhuma mensagem recebida ainda.\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/features ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/health ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/onboarding ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/pipeline ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/planos ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/prospeccao ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/receita ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/suporte ──\n"
+                        },
+                        {
+                          "text": "\n── SUPERADMIN: /superadmin/usuarios ──\n"
+                        },
+                        {
+                          "text": "╔═══════════════════════════════════════════════════════════════╗\n║     BLACKBELT v2 — MEGA SIMULAÇÃO REPORT                    ║\n║     2026-03-25T23:02:08                              ║\n╠═══════════════════════════════════════════════════════════════╣\n║  ❌ SUPERADMIN       106/112 OK ( 95%)  💥 0 ❌ 5 ⚠️ 1 ║\n║       /superadmin → console: Failed to load resource: the se║\n║       /superadmin → console: Failed to fetch RSC payload for║\n║       /superadmin → console: Failed to fetch RSC payload for║\n║       /superadmin/beta → spinner: Loading spinner stuck >2s ║\n║       /superadmin/configuracoes/storage → spinner: Loading s║\n║     ... +1 more                                             ║\n╠═══════════════════════════════════════════════════════════════╣\n║  TOTAL: 106/112 (95%)                                       ║\n║  ✅ 106  ❌ 5  💥 0  ⚠️ 1                                     ║\n║  STATUS: PRODUCTION-READY ✅                                 ║\n╚═══════════════════════════════════════════════════════════════╝\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-25T22:59:59.952Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e517334db34249248ee9-4c3cfb9e352cf1498643",
+              "file": "mega-simulation.spec.ts",
+              "line": 296,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-25T22:59:58.736Z",
+    "duration": 129789.943,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

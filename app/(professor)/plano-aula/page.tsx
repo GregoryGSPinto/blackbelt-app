@@ -23,6 +23,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 // ── Constants ────────────────────────────────────────────────────────
 const DEFAULT_CLASS_ID = 'class-bjj-noite';
@@ -95,6 +96,7 @@ export default function PlanoAulaPage() {
 
   const [activeTab, setActiveTab] = useState<TabId>('plans');
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Data
@@ -139,6 +141,8 @@ export default function PlanoAulaPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     loadData();
@@ -270,6 +274,7 @@ export default function PlanoAulaPage() {
   }
 
   // ── Loading state ─────────────────────────────────────────────────
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) {
     return (
       <div className="flex justify-center py-20">

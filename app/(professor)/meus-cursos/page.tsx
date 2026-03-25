@@ -8,14 +8,17 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<string, string> = { draft: 'Rascunho', published: 'Publicado', suspended: 'Suspenso' };
 const STATUS_VARIANT: Record<string, 'pending' | 'active' | 'inactive'> = { draft: 'pending', published: 'active', suspended: 'inactive' };
 
 export default function MeusCursosPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [analytics, setAnalytics] = useState<CourseAnalytics[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getCourseAnalytics('prof-1')
       .then(setAnalytics)
@@ -26,6 +29,7 @@ export default function MeusCursosPage() {
   const totalSales = analytics.reduce((s, a) => s + a.sales, 0);
   const totalViews = analytics.reduce((s, a) => s + a.views, 0);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

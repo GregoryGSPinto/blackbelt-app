@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TYPE_ICON: Record<PostType, string> = { achievement: '🏆', class_photo: '📸', event: '📅', milestone: '🎯', coach_tip: '💡', promotion: '🥋' };
 const FILTERS: { id: PostType | ''; label: string }[] = [
@@ -13,10 +14,12 @@ const FILTERS: { id: PostType | ''; label: string }[] = [
 ];
 
 export default function FeedPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<PostType | ''>('');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     setLoading(true);
     getFeed(getActiveAcademyId(), 1, filter || undefined).then(setPosts).finally(() => setLoading(false));
@@ -27,6 +30,7 @@ export default function FeedPage() {
     await likePost(postId);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

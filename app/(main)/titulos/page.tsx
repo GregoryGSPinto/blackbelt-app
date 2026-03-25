@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const RARITY_CONFIG: Record<TitleRarity, { label: string; color: string; bg: string; border: string; glow: string }> = {
   common: { label: 'Comum', color: 'text-gray-500', bg: 'bg-gray-100', border: 'border-gray-300', glow: '' },
@@ -21,11 +22,13 @@ const RARITY_CONFIG: Record<TitleRarity, { label: string; color: string; bg: str
 };
 
 export default function TitulosPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [titles, setTitles] = useState<TitleDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getAvailableTitles('student-1').then(setTitles).finally(() => setLoading(false));
   }, []);
@@ -52,6 +55,7 @@ export default function TitulosPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const equipped = titles.find((t) => t.is_equipped);

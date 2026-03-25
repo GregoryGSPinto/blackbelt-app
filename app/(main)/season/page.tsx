@@ -15,6 +15,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   diamond: { label: 'Diamante', color: 'text-cyan-400', bg: 'bg-cyan-50' },
@@ -30,12 +31,14 @@ function daysUntil(dateStr: string) {
 }
 
 export default function SeasonPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [season, setSeason] = useState<SeasonDTO | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [progress, setProgress] = useState<SeasonProgress | null>(null);
   const [tab, setTab] = useState<'current' | 'history'>('current');
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getCurrentSeason(getActiveAcademyId()),
@@ -50,6 +53,7 @@ export default function SeasonPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!season || !progress) return null;
 

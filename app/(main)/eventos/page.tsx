@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -58,11 +59,13 @@ function isUpcoming(dateStr: string): boolean {
 
 export default function EventosPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [events, setEvents] = useState<EventoDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<EventoType | ''>('');
   const [registering, setRegistering] = useState<string | null>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getEvents(getActiveAcademyId())
       .then(setEvents)
@@ -103,13 +106,8 @@ export default function EventosPage() {
     .filter((e) => (filter ? e.type === filter : true))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Spinner />
-      </div>
-    );
-  }
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
+  if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <div className="space-y-6">

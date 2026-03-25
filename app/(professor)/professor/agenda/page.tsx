@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const SLOT_COLORS: Record<string, string> = {
@@ -18,10 +19,12 @@ const SLOT_COLORS: Record<string, string> = {
 
 export default function ProfessorAgendaPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [agenda, setAgenda] = useState<AgendaSlot[]>([]);
   const [requests, setRequests] = useState<LessonRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([getAgenda('prof-1', 'current'), getLessonRequests('prof-1')])
       .then(([a, r]) => { setAgenda(a); setRequests(r); })
@@ -48,6 +51,7 @@ export default function ProfessorAgendaPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

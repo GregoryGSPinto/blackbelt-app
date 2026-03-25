@@ -11,13 +11,16 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function AdminLigaPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [league, setLeague] = useState<LeagueDTO | null>(null);
   const [stats, setStats] = useState<AcademyLeagueStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getActiveLeague(),
@@ -41,6 +44,7 @@ export default function AdminLigaPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!league || !stats) return null;
 

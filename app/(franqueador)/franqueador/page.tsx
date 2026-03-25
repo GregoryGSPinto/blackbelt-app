@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { sendNetworkMessage } from '@/lib/api/franchise.service';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<AcademyStatus, string> = { ativa: 'Ativa', inadimplente: 'Inadimplente', suspensa: 'Suspensa', em_setup: 'Em Setup' };
 const STATUS_COLOR: Record<AcademyStatus, string> = { ativa: 'bg-green-100 text-green-700', inadimplente: 'bg-red-100 text-red-700', suspensa: 'bg-yellow-100 text-yellow-700', em_setup: 'bg-blue-100 text-blue-700' };
@@ -16,12 +17,14 @@ const ALERT_ICON: Record<string, string> = { high_churn: 'Churn', overdue: 'Atra
 
 export default function FranqueadorDashboardPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [dashboard, setDashboard] = useState<NetworkDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [msgModal, setMsgModal] = useState(false);
   const [msgForm, setMsgForm] = useState({ subject: '', body: '', channel: 'email' as 'email' | 'push' | 'sms' });
   const [sending, setSending] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getNetworkDashboard('franchise-1')
       .then(setDashboard)
@@ -48,6 +51,7 @@ export default function FranqueadorDashboardPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!dashboard) return <div className="p-6 text-bb-gray-500">Erro ao carregar dashboard.</div>;
 

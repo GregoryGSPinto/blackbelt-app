@@ -14,6 +14,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const QUICK_ACTIONS = [
   { label: 'Meu plano', icon: '📋', message: 'Qual meu plano para esta semana?' },
@@ -31,6 +32,7 @@ const TONE_OPTIONS: { value: ToneType; label: string; icon: string }[] = [
 const DAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export default function PersonalAIPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [briefing, setBriefing] = useState<DailyBriefing | null>(null);
   const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -41,6 +43,7 @@ export default function PersonalAIPage() {
   const [showWeeklyPlan, setShowWeeklyPlan] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getDailyBriefing('student-1')
       .then(setBriefing)
@@ -79,6 +82,7 @@ export default function PersonalAIPage() {
     }
   }, [weeklyPlan]);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

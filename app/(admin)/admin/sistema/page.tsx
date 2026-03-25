@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import type { SystemStatus } from '@/lib/api/observability.service';
 import { getSystemStatus } from '@/lib/api/observability.service';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 function formatUptime(seconds: number): string {
   const days = Math.floor(seconds / 86400);
@@ -15,11 +16,15 @@ function formatUptime(seconds: number): string {
 export default function SystemPage() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     getSystemStatus().then((s) => { setStatus(s); setLoading(false); });
   }, []);
 
+  if ((loading || !status) && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading || !status) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const statusColor = status.healthStatus === 'healthy' ? 'text-green-600' : status.healthStatus === 'degraded' ? 'text-yellow-600' : 'text-red-600';

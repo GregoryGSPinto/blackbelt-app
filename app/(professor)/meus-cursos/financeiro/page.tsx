@@ -9,12 +9,14 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<string, string> = { pending: 'Pendente', processing: 'Processando', completed: 'Concluído', failed: 'Falhou' };
 const STATUS_COLOR: Record<string, string> = { pending: 'bg-yellow-100 text-yellow-700', processing: 'bg-blue-100 text-blue-700', completed: 'bg-green-100 text-green-700', failed: 'bg-red-100 text-red-700' };
 
 export default function FinanceiroPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [balance, setBalance] = useState<BalanceDTO | null>(null);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRecord[]>([]);
   const [analytics, setAnalytics] = useState<CourseAnalytics[]>([]);
@@ -23,6 +25,7 @@ export default function FinanceiroPage() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawing, setWithdrawing] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getCreatorBalance('prof-1'),
@@ -55,6 +58,7 @@ export default function FinanceiroPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!balance) return null;
 

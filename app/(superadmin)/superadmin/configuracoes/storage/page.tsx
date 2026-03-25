@@ -37,6 +37,7 @@ import type {
   StorageStats,
 } from '@/lib/api/video-storage.service';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 // ── Constants ───────────────────────────────────────────────────────────
 
@@ -126,6 +127,7 @@ export default function StorageConfigPage() {
 
   // ── State ─────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [config, setConfig] = useState<StorageConfig | null>(null);
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<StorageProvider>('supabase');
@@ -180,6 +182,8 @@ export default function StorageConfigPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     loadData();
@@ -434,6 +438,7 @@ export default function StorageConfigPage() {
 
   // ── Loading ───────────────────────────────────────────────────────────
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/superadmin" backLabel="Voltar ao Painel" />;
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">

@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const MODALITY_LABEL: Record<TechniqueModality, string> = { bjj: 'BJJ', 'muay-thai': 'Muay Thai', judo: 'Judô', wrestling: 'Wrestling', mma: 'MMA' };
 const CATEGORY_LABEL: Record<TechniqueCategory, string> = { finalização: 'Finalização', passagem: 'Passagem', raspagem: 'Raspagem', queda: 'Queda', defesa: 'Defesa', posição: 'Posição', transição: 'Transição', striking: 'Striking' };
@@ -26,11 +27,14 @@ const MODALITY_TABS: { key: string; label: string }[] = [
 export default function TecnicasCatalogPage() {
   const [techniques, setTechniques] = useState<TechniqueDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [activeModality, setActiveModality] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterBelt, setFilterBelt] = useState('');
   const [search, setSearch] = useState('');
   const [selectedTech, setSelectedTech] = useState<TechniqueDTO | null>(null);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     listTechniques().then(setTechniques).finally(() => setLoading(false));
@@ -47,6 +51,7 @@ export default function TecnicasCatalogPage() {
     return true;
   });
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) {
     return (
       <div className="flex justify-center py-20">

@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TYPE_LABEL: Record<BroadcastType, string> = {
   comunicado: 'Comunicado',
@@ -77,6 +78,7 @@ type Tab = 'broadcasts' | 'trainings';
 
 export default function ComunicacaoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [tab, setTab] = useState<Tab>('broadcasts');
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [trainings, setTrainings] = useState<NetworkTraining[]>([]);
@@ -104,6 +106,7 @@ export default function ComunicacaoPage() {
     format: 'online' as 'presencial' | 'online' | 'hibrido', instructor: '', max_participants: 30,
   });
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getBroadcasts('franchise-1'),
@@ -164,6 +167,7 @@ export default function ComunicacaoPage() {
     }));
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const TABS: { id: Tab; label: string }[] = [

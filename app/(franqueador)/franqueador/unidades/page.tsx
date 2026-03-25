@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 type UnitStatus = UnidadeFranquia['status'];
 
@@ -40,6 +41,7 @@ function healthColor(score: number): string {
 
 export default function UnidadesFranqueadorPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [unidades, setUnidades] = useState<UnidadeFranquia[]>([]);
   const [overview, setOverview] = useState<UnidadesOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +51,7 @@ export default function UnidadesFranqueadorPage() {
   const [newStatus, setNewStatus] = useState<UnitStatus>('ativa');
   const [updating, setUpdating] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getUnidades('franchise-1'),
@@ -84,6 +87,7 @@ export default function UnidadesFranqueadorPage() {
     setNewStatus(unit.status);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const filtered = unidades.filter((u) => {

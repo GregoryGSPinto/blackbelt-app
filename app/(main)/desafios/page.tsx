@@ -6,17 +6,21 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TYPE_ICON: Record<string, string> = { presenca: '📍', streak: '🔥', social: '👥', conteudo: '🎬', avaliacao: '📝' };
 
 export default function DesafiosPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [challenges, setChallenges] = useState<ChallengeDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listChallenges(getActiveAcademyId()).then(setChallenges).finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

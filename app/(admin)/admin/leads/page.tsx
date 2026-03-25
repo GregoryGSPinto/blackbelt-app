@@ -9,6 +9,7 @@ import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_PIPELINE: LeadStatus[] = ['novo', 'contatado', 'agendado', 'compareceu', 'matriculou', 'desistiu'];
 const STATUS_LABEL: Record<LeadStatus, string> = { novo: 'Novo', contatado: 'Contatado', agendado: 'Agendado', compareceu: 'Compareceu', matriculou: 'Matriculou', desistiu: 'Desistiu' };
@@ -23,9 +24,11 @@ const STATUS_COLOR: Record<LeadStatus, { background: string; color: string }> = 
 
 export default function LeadsPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [leads, setLeads] = useState<LeadDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listLeads(getActiveAcademyId()).then(setLeads).finally(() => setLoading(false));
   }, []);
@@ -40,6 +43,7 @@ export default function LeadsPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   // Kanban view

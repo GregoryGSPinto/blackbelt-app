@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const BELT_COLORS: Record<string, string> = {
   white: '#FAFAFA',
@@ -53,8 +54,11 @@ export default function ProfessorAlunosPage() {
   const { toast } = useToast();
   const [alunos, setAlunos] = useState<AlunoResumoDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [search, setSearch] = useState('');
   const [filterBelt, setFilterBelt] = useState<string>('all');
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     async function load() {
@@ -84,6 +88,7 @@ export default function ProfessorAlunosPage() {
     return counts;
   }, [alunos]);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">

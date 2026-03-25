@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/franqueador-curriculo.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 type TechCategory = TecnicaCurriculo['category'];
 
@@ -54,6 +55,7 @@ const BELT_LABEL: Record<string, string> = {
 };
 
 export default function CurriculoFranqueadorPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [curriculos, setCurriculos] = useState<CurriculoRede[]>([]);
   const [overview, setOverview] = useState<CurriculoOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,7 @@ export default function CurriculoFranqueadorPage() {
   const [filterBelt, setFilterBelt] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getCurriculos('franchise-1'),
@@ -74,6 +77,7 @@ export default function CurriculoFranqueadorPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const modalities = overview?.modalities ?? [...new Set(curriculos.map((c) => c.modality))];

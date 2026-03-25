@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import type { Plugin, PluginCategory } from '@/lib/types/plugins';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 import {
   listPlugins,
   installPlugin,
@@ -24,6 +25,7 @@ const CATEGORY_LABELS: Record<PluginCategory, string> = {
 const ALL_CATEGORIES: PluginCategory[] = ['analytics', 'communication', 'payment', 'automation', 'integration'];
 
 export default function PluginsPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -32,6 +34,7 @@ export default function PluginsPage() {
   const [configValues, setConfigValues] = useState<Record<string, string | boolean | number>>({});
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listPlugins().then((p) => {
       setPlugins(p);
@@ -76,13 +79,8 @@ export default function PluginsPage() {
     setConfigModal(null);
   }, [configModal, configValues]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Spinner />
-      </div>
-    );
-  }
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
+  if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">

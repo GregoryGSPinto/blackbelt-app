@@ -11,6 +11,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: 'Pendente', paid: 'Pago', shipped: 'Enviado', delivered: 'Entregue', cancelled: 'Cancelado',
@@ -36,12 +37,15 @@ export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [dashboard, setDashboard] = useState<StoreDashboard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPeriod, setFilterPeriod] = useState<OrderFilters['period']>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [trackingInput, setTrackingInput] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     Promise.all([
@@ -101,6 +105,7 @@ export default function AdminPedidosPage() {
     }
   }
 
+  if (loading && !orders.length && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading && !orders.length) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
   }

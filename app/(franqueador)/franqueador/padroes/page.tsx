@@ -15,6 +15,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_LABEL: Record<StandardCategory, string> = {
   visual: 'Visual',
@@ -58,6 +59,7 @@ type Tab = 'standards' | 'compliance';
 
 export default function PadroesPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [tab, setTab] = useState<Tab>('standards');
   const [standards, setStandards] = useState<Standard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +79,7 @@ export default function PadroesPage() {
   const [checking, setChecking] = useState(false);
   const [filterCategory, setFilterCategory] = useState<StandardCategory | ''>('');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getStandards('franchise-1')
       .then(setStandards)
@@ -131,6 +134,7 @@ export default function PadroesPage() {
     setForm({ ...form, checklist_items: form.checklist_items.filter((_, i) => i !== idx) });
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const filteredStandards = filterCategory

@@ -18,11 +18,13 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const PHASE_NAMES: PhaseName[] = ['base', 'build', 'peak', 'taper', 'recovery'];
 
 export default function PeriodizacaoProfessorPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [macro, setMacro] = useState<MacrocycleDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -35,6 +37,7 @@ export default function PeriodizacaoProfessorPage() {
     competition_date: '',
   });
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getMacrocycle('student-1').then(setMacro).finally(() => setLoading(false));
   }, []);
@@ -80,6 +83,7 @@ export default function PeriodizacaoProfessorPage() {
     setPhaseForm({ intensity: phase.intensity, volume: phase.volume, focus: phase.focus.join(', ') });
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   if (!macro) {

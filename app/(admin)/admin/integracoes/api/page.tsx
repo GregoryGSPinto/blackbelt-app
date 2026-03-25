@@ -8,6 +8,7 @@ import type { ApiKey, ApiKeyCreateResult } from '@/lib/api/api-keys.service';
 import { listApiKeys, generateApiKey, revokeApiKey } from '@/lib/api/api-keys.service';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const ENDPOINTS = [
   { method: 'GET', path: '/api/v1/students', desc: 'Listar alunos' },
@@ -21,6 +22,7 @@ const ENDPOINTS = [
 ];
 
 export default function ApiKeysPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -28,6 +30,7 @@ export default function ApiKeysPage() {
   const [name, setName] = useState('');
   const [tab, setTab] = useState<'keys' | 'docs'>('keys');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listApiKeys(getActiveAcademyId()).then((k) => { setKeys(k); setLoading(false); });
   }, []);
@@ -46,6 +49,7 @@ export default function ApiKeysPage() {
     setKeys((prev) => prev.map((k) => k.id === keyId ? { ...k, revokedAt: new Date().toISOString() } : k));
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

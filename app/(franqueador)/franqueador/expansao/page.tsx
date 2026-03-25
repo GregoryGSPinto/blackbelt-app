@@ -17,6 +17,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STAGES: PipelineStage[] = ['lead', 'analise', 'aprovado', 'setup', 'operando'];
 const STAGE_LABEL: Record<PipelineStage, string> = { lead: 'Lead', analise: 'Analise', aprovado: 'Aprovado', setup: 'Setup', operando: 'Operando' };
@@ -57,6 +58,7 @@ type ViewMode = 'kanban' | 'onboarding';
 
 export default function ExpansaoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [leads, setLeads] = useState<FranchiseLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewMode>('kanban');
@@ -73,6 +75,7 @@ export default function ExpansaoPage() {
   const [viabilityResult, setViabilityResult] = useState<ViabilityAnalysis | null>(null);
   const [analyzingViability, setAnalyzingViability] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getLeads('franchise-1')
       .then(setLeads)
@@ -122,6 +125,7 @@ export default function ExpansaoPage() {
     setViabilityResult(null);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

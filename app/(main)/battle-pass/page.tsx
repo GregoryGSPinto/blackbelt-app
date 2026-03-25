@@ -13,8 +13,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function BattlePassPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [battlePass, setBattlePass] = useState<BattlePassDTO | null>(null);
   const [progress, setProgress] = useState<BattlePassProgress | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,7 @@ export default function BattlePassPage() {
   const [upgrading, setUpgrading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getBattlePass('season-3'),
@@ -73,6 +76,7 @@ export default function BattlePassPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!battlePass || !progress) return null;
 

@@ -5,6 +5,7 @@ import { listTrainingVideos, type TrainingVideoDTO } from '@/lib/api/training-vi
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<string, string> = { processing: 'Processando', ready: 'Pronto', failed: 'Falhou' };
 const STATUS_COLOR: Record<string, string> = { processing: 'bg-[var(--bb-warning)]/10 text-[var(--bb-warning)]', ready: 'bg-[var(--bb-success)]/10 text-[var(--bb-success)]', failed: 'bg-[var(--bb-brand-primary)]/10 text-[var(--bb-brand-primary)]' };
@@ -12,9 +13,12 @@ const STATUS_COLOR: Record<string, string> = { processing: 'bg-[var(--bb-warning
 export default function VideosGalleryPage() {
   const [videos, setVideos] = useState<TrainingVideoDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [dateFilter, setDateFilter] = useState('');
   const [classFilter, setClassFilter] = useState('');
   const [professorFilter, setProfessorFilter] = useState('');
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     async function load() {
@@ -46,6 +50,7 @@ export default function VideosGalleryPage() {
 
   const formatDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) {
     return (
       <div className="flex justify-center py-20">

@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_COLOR: Record<RequirementCategory, string> = {
   tecnicas_obrigatorias: 'bg-red-100 text-red-700',
@@ -23,9 +24,11 @@ const CATEGORIES: RequirementCategory[] = ['tecnicas_obrigatorias', 'opcionais',
 
 export default function CurriculoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [progress, setProgress] = useState<StudentCurriculumProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getStudentProgress('student-1', 'bjj', 'azul')
       .then(setProgress)
@@ -34,6 +37,7 @@ export default function CurriculoPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!progress) return <div className="p-6 text-center text-sm text-bb-gray-500">Nenhum currículo disponível.</div>;
 

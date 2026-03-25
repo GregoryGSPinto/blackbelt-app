@@ -15,6 +15,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CLASSES = [
   { id: 'class-1', name: 'BJJ Iniciante', time: '19:00-20:30' },
@@ -44,6 +45,7 @@ function getMonthDays(year: number, month: number): { date: string; day: number;
 
 export default function SubstituicaoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [substitutions, setSubstitutions] = useState<SubstitutionDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -65,6 +67,7 @@ export default function SubstituicaoPage() {
 
   const [tab, setTab] = useState<'calendar' | 'history'>('calendar');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getSubstitutions(getActiveAcademyId())
       .then(setSubstitutions)
@@ -157,6 +160,7 @@ export default function SubstituicaoPage() {
 
   const monthName = new Date(viewYear, viewMonth).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

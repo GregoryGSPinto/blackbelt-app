@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TEMPLATE_LABELS: Record<NotificationTemplate, string> = {
   aula_em_breve: 'Lembrete de Aula',
@@ -33,10 +34,12 @@ const ALL_TEMPLATES = Object.keys(TEMPLATE_LABELS) as NotificationTemplate[];
 
 export default function NotificacoesPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getNotificationPreferences('user-1').then(setPrefs).finally(() => setLoading(false));
   }, []);
@@ -66,6 +69,7 @@ export default function NotificacoesPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!prefs) return null;
 

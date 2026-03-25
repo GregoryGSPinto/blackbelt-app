@@ -14,14 +14,17 @@ import {
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function AcessoAdminPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<AccessEvent[]>([]);
   const [rules, setRules] = useState<AccessRule[]>([]);
   const [tab, setTab] = useState<'log' | 'rules'>('log');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getAccessLog('unit-1'),
@@ -46,6 +49,7 @@ export default function AcessoAdminPage() {
     }
   };
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const blockedEvents = events.filter((e) => !e.allowed);

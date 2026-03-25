@@ -13,6 +13,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimono', faixa: 'Faixa', equipamento: 'Equipamento',
@@ -38,6 +39,7 @@ const EMPTY_FORM: CreateProductData = {
 
 export default function AdminProdutosPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState('');
@@ -49,6 +51,7 @@ export default function AdminProdutosPage() {
   const [saving, setSaving] = useState(false);
   const [showLowStock, setShowLowStock] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listProducts(getActiveAcademyId()).then(setProducts).finally(() => setLoading(false));
   }, []);
@@ -119,7 +122,8 @@ export default function AdminProdutosPage() {
     }
   }
 
-  if (loading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
+  if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <PlanGate module="loja">

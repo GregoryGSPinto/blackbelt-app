@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { useCart } from '@/lib/hooks/useCart';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 function formatBRL(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -21,6 +22,9 @@ export default function DesejosPage() {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [balance, setBalance] = useState<RewardBalance | null>(null);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     Promise.all([
@@ -61,6 +65,7 @@ export default function DesejosPage() {
     toast('Movido para o carrinho', 'success');
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) {
     return (
       <div className="flex justify-center py-20">

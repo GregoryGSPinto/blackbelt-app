@@ -19,6 +19,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const MODALITIES = [
   { value: 'bjj', label: 'Jiu-Jitsu' },
@@ -45,6 +46,7 @@ const CATEGORIES: RequirementCategory[] = ['tecnicas_obrigatorias', 'opcionais',
 
 export default function CurriculoAdminPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [modality, setModality] = useState('bjj');
   const [belt, setBelt] = useState('azul');
   const [curriculum, setCurriculum] = useState<CurriculumDTO | null>(null);
@@ -97,6 +99,7 @@ export default function CurriculoAdminPage() {
     }
   }
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     loadCurriculum();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,6 +141,7 @@ export default function CurriculoAdminPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

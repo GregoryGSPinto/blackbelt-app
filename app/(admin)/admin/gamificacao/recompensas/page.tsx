@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_LABELS: Record<RewardCategory, string> = {
   desconto: 'Descontos',
@@ -51,6 +52,7 @@ const EMPTY_FORM: RewardForm = {
 };
 
 export default function AdminRecompensasPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [rewards, setRewards] = useState<StoreReward[]>([]);
   const [redemptions, setRedemptions] = useState<RedemptionDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,7 @@ export default function AdminRecompensasPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getRewardsStore(getActiveAcademyId()),
@@ -120,6 +123,7 @@ export default function AdminRecompensasPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

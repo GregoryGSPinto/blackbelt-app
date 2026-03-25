@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string; bgColor: string }> = {
   streak: { icon: '🔥', color: 'text-orange-700', bgColor: 'bg-orange-50' },
@@ -85,16 +86,19 @@ function RecordCard({ record, rank }: { record: RecordDTO; rank: number }) {
 }
 
 export default function HallDaFamaPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [hallData, setHallData] = useState<HallOfFameDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getHallOfFame(getActiveAcademyId())
       .then(setHallData)
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!hallData) return null;
 

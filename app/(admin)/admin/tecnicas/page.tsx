@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const MODALITY_LABEL: Record<TechniqueModality, string> = { bjj: 'BJJ', 'muay-thai': 'Muay Thai', judo: 'Judô', wrestling: 'Wrestling', mma: 'MMA' };
 const CATEGORY_LABEL: Record<TechniqueCategory, string> = { finalização: 'Finalização', passagem: 'Passagem', raspagem: 'Raspagem', queda: 'Queda', defesa: 'Defesa', posição: 'Posição', transição: 'Transição', striking: 'Striking' };
@@ -29,6 +30,7 @@ const EMPTY_FORM = {
 
 export default function TecnicasAdminPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [techniques, setTechniques] = useState<TechniqueDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -38,6 +40,7 @@ export default function TecnicasAdminPage() {
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [search, setSearch] = useState('');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listTechniques().then(setTechniques).finally(() => setLoading(false));
   }, []);
@@ -85,6 +88,7 @@ export default function TecnicasAdminPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

@@ -7,14 +7,17 @@ import { Button } from '@/components/ui/Button';
 import type { ConsentRecord } from '@/lib/api/privacy.service';
 import { getConsents, updateConsent, requestDataExport, requestAccountDeletion } from '@/lib/api/privacy.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function PrivacyPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [consents, setConsents] = useState<ConsentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getConsents('current-user').then((c) => { setConsents(c); setLoading(false); });
   }, []);
@@ -44,6 +47,7 @@ export default function PrivacyPage() {
     cookies: { title: 'Cookies Analíticos', desc: 'Permitir cookies para análise de uso da plataforma' },
   };
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

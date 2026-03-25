@@ -21,6 +21,7 @@ import {
   type ChangelogEntry,
 } from '@/lib/api/beta-changelog.service';
 import { betaMessageTemplates } from '@/lib/templates/beta-messages';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const AMBER = '#f59e0b';
 
@@ -652,6 +653,9 @@ function KpiCard({ label, value, highlight }: { label: string; value: string; hi
 }
 
 function LoadingSpinner() {
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setTimedOut(true), 4000); return () => clearTimeout(t); }, []);
+  if (timedOut) return <ComingSoon backHref="/superadmin" backLabel="Voltar ao Painel" />;
   return (
     <div className="flex justify-center py-12">
       <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" style={{ color: AMBER }} />

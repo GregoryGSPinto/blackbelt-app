@@ -8,6 +8,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import type { OutgoingWebhook, WebhookDelivery, WebhookEvent } from '@/lib/api/webhooks-outgoing.service';
 import { listWebhooks, registerWebhook, deleteWebhook, testWebhook, getDeliveryLog } from '@/lib/api/webhooks-outgoing.service';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const ALL_EVENTS: WebhookEvent[] = [
   'student.created', 'student.updated', 'attendance.created',
@@ -17,6 +18,7 @@ const ALL_EVENTS: WebhookEvent[] = [
 
 export default function WebhooksPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [webhooks, setWebhooks] = useState<OutgoingWebhook[]>([]);
   const [deliveries, setDeliveries] = useState<Record<string, WebhookDelivery[]>>({});
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,7 @@ export default function WebhooksPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listWebhooks(getActiveAcademyId()).then((w) => { setWebhooks(w); setLoading(false); });
   }, []);
@@ -64,6 +67,7 @@ export default function WebhooksPage() {
     setSelectedEvents((prev) => prev.includes(ev) ? prev.filter((e) => e !== ev) : [...prev, ev]);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

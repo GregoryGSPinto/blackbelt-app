@@ -15,6 +15,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false });
@@ -43,12 +44,14 @@ function generateHRCurve(): { minute: number; bpm: number }[] {
 
 export default function SaudePage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<WearableSession[]>([]);
   const [history, setHistory] = useState<HealthDataPoint[]>([]);
   const [metrics, setMetrics] = useState<RealtimeMetrics | null>(null);
   const [hasWearable, setHasWearable] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getTrainingSession('student-1'),
@@ -66,6 +69,7 @@ export default function SaudePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   if (!hasWearable || sessions.length === 0) {

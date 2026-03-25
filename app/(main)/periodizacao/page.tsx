@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const LineChart = dynamic(() => import('recharts').then((m) => m.LineChart), { ssr: false });
 const Line = dynamic(() => import('recharts').then((m) => m.Line), { ssr: false });
@@ -22,9 +23,11 @@ const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.Respo
 
 export default function PeriodizacaoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [macro, setMacro] = useState<MacrocycleDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getMacrocycle('student-1')
       .then(setMacro)
@@ -33,6 +36,7 @@ export default function PeriodizacaoPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   if (!macro) {

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 // ── Belt color mapping ─────────────────────────────────────────────
 const BELT_BG: Record<string, string> = {
@@ -40,6 +41,7 @@ export default function TurmaAtivaPage() {
   const [classData, setClassData] = useState<ActiveClassDTO | null>(null);
   const [students, setStudents] = useState<ActiveClassStudent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Timer
@@ -55,6 +57,8 @@ export default function TurmaAtivaPage() {
 
   // Confirm end
   const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   // ── Load class ─────────────────────────────────────────────────
   useEffect(() => {
@@ -164,6 +168,7 @@ export default function TurmaAtivaPage() {
   const presencePct = students.length > 0 ? Math.round((presentCount / students.length) * 100) : 0;
 
   // ── Loading ────────────────────────────────────────────────────
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--bb-depth-1)]">

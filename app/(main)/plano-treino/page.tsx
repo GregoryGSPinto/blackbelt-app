@@ -12,9 +12,11 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function PlanoTreinoPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [plan, setPlan] = useState<TrainingPlanDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkedExercises, setCheckedExercises] = useState<Set<string>>(new Set());
@@ -22,6 +24,7 @@ export default function PlanoTreinoPage() {
   // Simulate current week based on plan start
   const currentWeek = 3;
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getActivePlan('student-1')
       .then(setPlan)
@@ -55,6 +58,7 @@ export default function PlanoTreinoPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   if (!plan) {

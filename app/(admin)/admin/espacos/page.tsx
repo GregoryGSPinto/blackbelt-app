@@ -5,21 +5,25 @@ import { listSpaces, getSpaceSchedule, type SpaceDTO, type SpaceScheduleSlot } f
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const STATUS_COLOR: Record<string, string> = { available: 'bg-green-100 text-green-700', occupied: 'bg-red-100 text-red-700', maintenance: 'bg-yellow-100 text-yellow-700' };
 
 export default function EspacosPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [spaces, setSpaces] = useState<SpaceDTO[]>([]);
   const [schedule, setSchedule] = useState<SpaceScheduleSlot[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([listSpaces('unit-1'), getSpaceSchedule('unit-1')])
       .then(([s, sc]) => { setSpaces(s); setSchedule(sc); })
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

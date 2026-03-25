@@ -11,6 +11,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrador',
@@ -19,6 +20,7 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default function EquipePage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [invites, setInvites] = useState<InviteDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,7 @@ export default function EquipePage() {
   const [inviteForm, setInviteForm] = useState({ email: '', role: Role.Professor as Role });
   const [sending, setSending] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([listStaff(getActiveAcademyId()), getActiveInvites(getActiveAcademyId())])
       .then(([s, i]) => { setStaff(s); setInvites(i); })
@@ -66,6 +69,7 @@ export default function EquipePage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

@@ -7,13 +7,16 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function TorneiosAdminPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [tournaments, setTournaments] = useState<TournamentDTO[]>([]);
   const [bracket, setBracket] = useState<BracketMatch[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listTournaments(getActiveAcademyId()).then(setTournaments).finally(() => setLoading(false));
   }, []);
@@ -24,6 +27,7 @@ export default function TorneiosAdminPage() {
     setBracket(b);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const rounds = bracket.length > 0 ? Math.max(...bracket.map((m) => m.round)) : 0;

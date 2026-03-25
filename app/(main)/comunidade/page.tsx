@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -210,6 +211,7 @@ export default function ComunidadePage() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [highlights, setHighlights] = useState<FeedHighlights | null>(null);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [filter, setFilter] = useState<PostType | ''>('');
 
   const loadFeed = useCallback(async () => {
@@ -223,6 +225,8 @@ export default function ComunidadePage() {
       setLoading(false);
     }
   }, [filter, toast]);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     loadFeed();
@@ -274,6 +278,8 @@ export default function ComunidadePage() {
       toast(translateError(err), 'error');
     }
   }
+
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
 
   return (
     <div className="space-y-6">

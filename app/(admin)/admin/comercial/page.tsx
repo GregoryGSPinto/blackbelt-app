@@ -11,6 +11,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const PIPELINE_STATUSES = ['lead', 'contatado', 'experimental', 'compareceu', 'matriculou'] as const;
 type PipelineStatus = (typeof PIPELINE_STATUSES)[number];
@@ -37,6 +38,7 @@ function daysAgo(dateStr: string): number {
 
 export default function ComercialPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [metrics, setMetrics] = useState<CRMMetrics | null>(null);
@@ -55,6 +57,7 @@ export default function ComercialPage() {
     experimental_date: '',
   });
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getLeads(getActiveAcademyId()),
@@ -115,13 +118,8 @@ export default function ComercialPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Spinner />
-      </div>
-    );
-  }
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
+  if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <PlanGate module="landing_page">

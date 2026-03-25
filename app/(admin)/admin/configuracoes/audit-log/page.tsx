@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { AuditLog, AuditAction } from '@/lib/api/audit.service';
 import { searchAuditLogs, exportAuditLogs } from '@/lib/api/audit.service';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   login: 'Login', logout: 'Logout', password_change: 'Alteração de Senha', mfa_enable: 'MFA Ativado',
@@ -24,9 +25,12 @@ const ACTION_COLORS: Record<string, string> = {
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [filterAction, setFilterAction] = useState<AuditAction | ''>('');
   const [filterEntity, setFilterEntity] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     async function load() {
@@ -53,6 +57,8 @@ export default function AuditLogPage() {
 
   const entityTypes = [...new Set(logs.map((l) => l.entityType))];
   const actionTypes = Object.keys(ACTION_LABELS) as AuditAction[];
+
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">

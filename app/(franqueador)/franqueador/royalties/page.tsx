@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
 const STATUS_COLOR: Record<RoyaltyStatus, string> = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', atrasado: 'bg-red-100 text-red-700', parcial: 'bg-orange-100 text-orange-700' };
@@ -30,6 +31,7 @@ type ViewTab = 'resumo' | 'detalhes' | 'gerar';
 
 export default function RoyaltiesFranqueadorPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [tab, setTab] = useState<ViewTab>('resumo');
   const [history, setHistory] = useState<RoyaltyHistorySummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,7 @@ export default function RoyaltiesFranqueadorPage() {
   const [genMonth, setGenMonth] = useState('');
   const [generating, setGenerating] = useState(false);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getRoyaltyHistory('franchise-1')
       .then(setHistory)
@@ -61,6 +64,7 @@ export default function RoyaltiesFranqueadorPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!history) return <div className="p-6 text-bb-gray-500">Erro ao carregar dados.</div>;
 

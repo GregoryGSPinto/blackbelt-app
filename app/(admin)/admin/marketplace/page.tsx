@@ -7,9 +7,11 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function AdminMarketplacePage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [revenue, setRevenue] = useState<PlatformRevenue | null>(null);
   const [topCreators, setTopCreators] = useState<TopCreator[]>([]);
   const [pending, setPending] = useState<PendingApproval[]>([]);
@@ -17,6 +19,7 @@ export default function AdminMarketplacePage() {
   const [commissionRate, setCommissionRate] = useState(20);
   const [tab, setTab] = useState<'overview' | 'creators' | 'approvals'>('overview');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getPlatformRevenue('6m'),
@@ -42,6 +45,7 @@ export default function AdminMarketplacePage() {
     toast('Curso rejeitado', 'success');
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!revenue) return null;
 

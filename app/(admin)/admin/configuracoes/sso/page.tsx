@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { SSOConfig, SSOProvider } from '@/lib/api/sso.service';
 import { getSSOConfig, updateSSOConfig, testSSOConnection } from '@/lib/api/sso.service';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const PROVIDERS: { value: SSOProvider; label: string }[] = [
   { value: 'google', label: 'Google Workspace' },
@@ -15,11 +16,13 @@ const PROVIDERS: { value: SSOProvider; label: string }[] = [
 ];
 
 export default function SSOConfigPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [config, setConfig] = useState<SSOConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; error: string | null } | null>(null);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getSSOConfig(getActiveAcademyId()).then((c) => { setConfig(c); setLoading(false); });
   }, []);
@@ -37,6 +40,7 @@ export default function SSOConfigPage() {
     setTestResult(result);
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!config) return <div className="p-6 text-bb-gray-500">SSO disponível apenas no plano Enterprise.</div>;
 

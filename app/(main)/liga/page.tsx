@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/leagues.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const RANK_STYLE: Record<number, { bg: string; border: string; text: string }> = {
   1: { bg: 'bg-yellow-50', border: 'border-yellow-400', text: 'text-yellow-600' },
@@ -19,10 +20,12 @@ const RANK_STYLE: Record<number, { bg: string; border: string; text: string }> =
 const RANK_EMOJI: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 export default function LigaPage() {
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [league, setLeague] = useState<LeagueDTO | null>(null);
   const [myStats, setMyStats] = useState<AcademyLeagueStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     Promise.all([
       getActiveLeague(),
@@ -35,6 +38,7 @@ export default function LigaPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!league || !myStats) return null;
 

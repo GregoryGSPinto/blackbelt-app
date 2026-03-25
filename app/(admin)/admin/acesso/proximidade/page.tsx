@@ -14,11 +14,13 @@ import {
 } from '@/lib/api/beacon.service';
 import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 import { translateError } from '@/lib/utils/error-translator';
 
 export default function ProximidadeAdminPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [config, setConfig] = useState<ProximityConfig | null>(null);
   const [showBeaconForm, setShowBeaconForm] = useState(false);
   const [newBeaconId, setNewBeaconId] = useState('');
@@ -27,6 +29,8 @@ export default function ProximidadeAdminPage() {
   const [geoLat, setGeoLat] = useState('');
   const [geoLng, setGeoLng] = useState('');
   const [geoRadius, setGeoRadius] = useState('50');
+
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     getProximityConfig('unit-1')
@@ -101,6 +105,7 @@ export default function ProximidadeAdminPage() {
     }
   };
 
+  if ((loading || !config) && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading || !config) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

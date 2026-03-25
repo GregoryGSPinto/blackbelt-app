@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TYPE_LABEL: Record<CertificateType, string> = { course: 'Curso', belt: 'Graduação', event: 'Evento' };
 const TYPE_ICON: Record<CertificateType, string> = { course: '📜', belt: '🥋', event: '🏆' };
@@ -13,10 +14,12 @@ const TYPE_COLOR: Record<CertificateType, string> = { course: 'bg-blue-100 text-
 
 export default function CertificadosPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<CertificateType | ''>('');
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getMyCertificates('student-1')
       .then(setCertificates)
@@ -35,6 +38,7 @@ export default function CertificadosPage() {
     ? certificates.filter((c) => c.type === filter)
     : certificates;
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

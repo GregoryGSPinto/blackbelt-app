@@ -18,6 +18,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const MEASUREMENT_LABELS: Record<keyof Measurements, string> = {
   weight_kg: 'Peso (kg)',
@@ -42,6 +43,7 @@ const emptyFitness: FitnessTests = { pushups_1min: 0, situps_1min: 0, plank_seco
 
 export default function AvaliacaoFisicaProfessorPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [assessments, setAssessments] = useState<PhysicalAssessmentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -55,6 +57,7 @@ export default function AvaliacaoFisicaProfessorPage() {
     notes: '',
   });
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getHistory('student-1').then(setAssessments).finally(() => setLoading(false));
   }, []);
@@ -94,6 +97,7 @@ export default function AvaliacaoFisicaProfessorPage() {
     setForm((prev) => ({ ...prev, fitness_tests: { ...prev.fitness_tests, [key]: val } }));
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

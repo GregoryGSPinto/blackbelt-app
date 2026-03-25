@@ -1,5292 +1,785 @@
 {
-  "public": [
-    {
-      "page": "/",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "13 btns, 18 links, 0 inputs"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Dashboard do Admin\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Check-in por QR Code\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Painel do Responsável\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Cobranças Automáticas\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Preciso de cartão de crédito para começa\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Funciona para qualquer arte marcial?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Como funciona o check-in dos alunos?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"E se eu já uso outro sistema?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Tem contrato de fidelidade?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "btn:\"Funciona no celular?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/login",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/login",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "4 btns, 7 links, 2 inputs"
-    },
-    {
-      "page": "/login",
-      "element": "btn:\"Google\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/login",
-      "element": "btn:\"Apple\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/login",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/login",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/login",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/cadastrar-academia",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/cadastrar-academia",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 20 links, 12 inputs"
-    },
-    {
-      "page": "/cadastrar-academia",
-      "element": "btn:\"Próximo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/cadastrar-academia",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/ajuda",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/ajuda",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "17 btns, 19 links, 1 inputs"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Primeiros Passos2 artigos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Turmas2 artigos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Presenca2 artigos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Financeiro2 artigos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Streaming1 artigo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Planos1 artigo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Quais planos a BlackBelt oferece?\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "btn:\"🐛BugAlgo nao funciona\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/ajuda",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/app-store",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/aula-experimental",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/beta-invite",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/blog",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/blog",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 19 links, 0 inputs"
-    },
-    {
-      "page": "/blog",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/blog",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/campeonatos",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/changelog",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/compete",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/compete",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "Nenhum torneio encontrado"
-    },
-    {
-      "page": "/compete",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 19 links, 4 inputs"
-    },
-    {
-      "page": "/compete",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/compete",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/compete",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/compete",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "[getTournaments] error: column tournaments.start_date does not exist"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "Nenhum atleta encontrado"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "3 btns, 19 links, 2 inputs"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "btn:\"Atletas\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "btn:\"Academias\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/compete/ranking",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "[getAcademyRanking] error: column academy_tournament_stats.total_points does not exist"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "4 btns, 19 links, 2 inputs"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "btn:\"Sou dono de academiaQuero cadastrar minh\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "btn:\"Tenho codigo de conviteRecebi um link ou\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "btn:\"Validar\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "btn:\"Quero treinarAinda nao tenho academia ca\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/completar-cadastro",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/contato",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/contato",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "2 btns, 19 links, 4 inputs"
-    },
-    {
-      "page": "/contato",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/contato",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/developers",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/developers/api-reference",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/developers/sandbox",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/marketplace",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/precos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/precos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 20 links, 12 inputs"
-    },
-    {
-      "page": "/precos",
-      "element": "btn:\"Próximo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/precos",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/precos",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/privacidade",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/privacidade",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "Nenhum dado de menor e compartilhado com terceiros para fina"
-    },
-    {
-      "page": "/privacidade",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "11 btns, 21 links, 0 inputs"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"1. Quem Somos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"2. Dados que Coletamos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"3. Como Usamos Seus Dados\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"4. Dados de Menores (KIDS)\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"5. Compartilhamento\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"6. Armazenamento e Seguranca\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"7. Seus Direitos (LGPD)\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"8. Retencao\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"9. Cookies\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "btn:\"10. Alteracoes\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/privacidade",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/ranking",
-      "element": "page",
-      "action": "load",
-      "result": "error",
-      "details": "Auth redirect to /login"
-    },
-    {
-      "page": "/sobre",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/sobre",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 19 links, 0 inputs"
-    },
-    {
-      "page": "/sobre",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/sobre",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/status",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/status",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "Nenhum incidente nos últimos 30 dias."
-    },
-    {
-      "page": "/status",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 19 links, 0 inputs"
-    },
-    {
-      "page": "/status",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/status",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/termos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/termos",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "3.2. O Usuario e integralmente responsavel pela seguranca e "
-    },
-    {
-      "page": "/termos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "13 btns, 21 links, 0 inputs"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"1. Aceitacao dos Termos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"2. Descricao do Servico\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"3. Cadastro e Conta\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"4. Planos e Pagamento\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"5. Uso Aceitavel\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"6. Propriedade Intelectual\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"7. Dados e Privacidade\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"8. Menores de Idade\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"9. Disponibilidade do Servico\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "btn:\"10. Rescisao\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/termos",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/esqueci-senha",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/esqueci-senha",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "1 btns, 2 links, 1 inputs"
-    },
-    {
-      "page": "/esqueci-senha",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    },
-    {
-      "page": "/comecar",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/comecar",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "12 btns, 2 links, 7 inputs"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Jiu-Jitsu\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Muay Thai\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Boxe\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Karate\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Taekwondo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Judo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"MMA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Capoeira\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Kung Fu\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "btn:\"Krav Maga\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/comecar",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "The script resource is behind a redirect, which is disallowed."
-    }
-  ],
-  "admin": [
+  "superadmin": [
     {
       "page": "/login",
       "element": "auth",
       "action": "login",
       "result": "ok",
-      "details": "admin"
+      "details": "superadmin"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/admin",
-      "element": "btn:\"A\"",
+      "page": "/superadmin",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "console",
       "action": "error",
       "result": "error",
       "details": "Failed to load resource: the server responded with a status of 400 ()"
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "console",
       "action": "error",
       "result": "error",
-      "details": "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/alunos. Falling back to browser"
+      "details": "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/pipeline. Falling back to "
     },
     {
-      "page": "/admin",
+      "page": "/superadmin",
       "element": "console",
       "action": "error",
       "result": "error",
-      "details": "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/admin/turmas. Falling back to browser"
+      "details": "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/superadmin/academias. Falling back to"
     },
     {
-      "page": "/admin/acesso",
+      "page": "/superadmin/academias",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/admin/acesso",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/acesso",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/acesso",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/acesso",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/acesso",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/acesso/proximidade",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/alunos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/alunos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/alunos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/alunos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/alunos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/analytics",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/analytics",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/churn",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/analytics/professores",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "8 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/auditoria",
-      "element": "btn:\"Filtros\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/aula-experimental",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/aula-experimental",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/aula-experimental",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/aula-experimental",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/aula-experimental",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/automacoes",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/calendario",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/calendario",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/calendario",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/calendario",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/calendario",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campanhas",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campeonatos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/campeonatos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/campeonatos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campeonatos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/campeonatos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comercial",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comunicados",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/comunicados",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/comunicados",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comunicados",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/comunicados",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/configuracoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/configuracoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "8 btns, 28 links, 2 inputs"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/audit-log",
-      "element": "btn:\"Exportar CSV\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/marca",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/pagamento",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/configuracoes/pagamento",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/configuracoes/pagamento",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/pagamento",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/pagamento",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/configuracoes/sso",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/conteudo",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/conteudo",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/conteudo",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/conteudo",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/conteudo",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/contratos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/contratos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/contratos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/contratos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/contratos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/convites",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/convites",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/convites",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/convites",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/convites",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "16 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"+ Novo Lead\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"Todos\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/crm",
-      "element": "btn:\"Indicação\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/curriculo",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/equipe",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/espacos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/estoque",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/estoque",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/estoque",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/estoque",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/estoque",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/eventos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/eventos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/eventos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/eventos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/eventos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/financeiro",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/financeiro",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/financeiro",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/financeiro",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/financeiro",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "empty-state",
-      "action": "detected",
-      "result": "empty",
-      "details": "Não faltou nenhum treino no mês"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "18 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"+ Nova Conquista\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"Conquistas\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao",
-      "element": "btn:\"Ranking XP\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/gamificacao/recompensas",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/graduacoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/graduacoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/graduacoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/graduacoes",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/graduacoes",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/importar",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/importar",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/importar",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/importar",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/importar",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/inadimplencia",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/inadimplencia",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/inadimplencia",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/inadimplencia",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/inadimplencia",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/indicar",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/api",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/integracoes/webhooks",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/iot",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/leads",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/liga",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/loja",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/loja",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/pedidos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/loja/produtos",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/marketplace",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/mensagens",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "13 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"Todas (0)\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"Alerta (0)\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/notificacoes",
-      "element": "btn:\"Informação (0)\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/nps",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/nps",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/nps",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/nps",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/nps",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/pedagogico",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/pedagogico",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/pedagogico",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/pedagogico",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/pedagogico",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/perfil",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/perfil",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/perfil",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/perfil",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/perfil",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano-plataforma",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/plano",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/plano",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plano",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/plugins",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorio-professores",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/relatorio-professores",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/relatorio-professores",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorio-professores",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorio-professores",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/relatorios",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/retencao",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/retencao",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/retencao",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/retencao",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/retencao",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/royalties",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "8 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup-wizard",
-      "element": "btn:\"Comecar\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "9 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "btn:\"Proximo\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/setup",
-      "element": "btn:\"Pular por enquanto\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/sistema",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/site",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/site",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/site",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/site",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/site",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/substituicao",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/tecnicas",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/torneios",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/turmas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/turmas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/turmas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/turmas",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/turmas",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/unidades",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/whatsapp",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/whatsapp",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/whatsapp",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/whatsapp",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/whatsapp",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 28 links, 0 inputs"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "btn:\"BETA\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/admin/wizard",
-      "element": "btn:\"A\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    }
-  ],
-  "professor": [
-    {
-      "page": "/login",
-      "element": "auth",
-      "action": "login",
-      "result": "ok",
-      "details": "professor"
-    },
-    {
-      "page": "/professor",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor",
+      "page": "/superadmin/academias",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/professor",
+      "page": "/superadmin/academias",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor",
-      "element": "btn:\"PProfessorProfessor\"",
+      "page": "/superadmin/academias",
+      "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor",
-      "element": "btn:\"Trocar Perfil\"",
+      "page": "/superadmin/academias",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/professor",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/professor",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "[getDuvidasPendentes] Query failed: Could not find a relationship between 'video_questions' and 'con"
-    },
-    {
-      "page": "/professor/agenda",
+      "page": "/superadmin/analytics",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/professor/agenda",
+      "page": "/superadmin/analytics",
+      "element": "ui-elements",
+      "action": "count",
+      "result": "ok",
+      "details": "5 btns, 17 links, 0 inputs"
+    },
+    {
+      "page": "/superadmin/analytics",
+      "element": "btn:\"Abrir Ticket\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/analytics",
+      "element": "btn:\"BETA\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/analytics",
+      "element": "btn:\"SA\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/auditoria",
+      "element": "page",
+      "action": "load",
+      "result": "ok",
+      "details": "HTTP 200"
+    },
+    {
+      "page": "/superadmin/auditoria",
+      "element": "ui-elements",
+      "action": "count",
+      "result": "ok",
+      "details": "5 btns, 17 links, 0 inputs"
+    },
+    {
+      "page": "/superadmin/auditoria",
+      "element": "btn:\"Abrir Ticket\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/auditoria",
+      "element": "btn:\"BETA\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/auditoria",
+      "element": "btn:\"SA\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/beta",
+      "element": "page",
+      "action": "load",
+      "result": "ok",
+      "details": "HTTP 200"
+    },
+    {
+      "page": "/superadmin/beta",
       "element": "spinner",
       "action": "stuck",
       "result": "error",
       "details": "Loading spinner stuck >2s"
     },
     {
-      "page": "/professor/agenda",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/agenda",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/agenda",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/agenda",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alertas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/alertas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/alertas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alertas",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alertas",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/alunos",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/analise-luta",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacao-fisica",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/avaliacoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/avaliacoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacoes",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/avaliacoes",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "39 btns, 17 links, 1 inputs"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"‹\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"›\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"1\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"2BJJ NoiteBJJ Manhã\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/calendario",
-      "element": "btn:\"3Kids BJJ\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/configuracoes",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/configuracoes",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/configuracoes",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/configuracoes",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/configuracoes",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/conteudo",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/conteudo",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/conteudo",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/conteudo",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/conteudo",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/diario",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/diario",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/diario",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/diario",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/diario",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/duvidas",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/mensagens",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/perfil",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/perfil",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/perfil",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/perfil",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/perfil",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/periodizacao",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-aula",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/plano-aula",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/plano-aula",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-aula",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-aula",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/plano-treino",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/presenca",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/presenca",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/presenca",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/presenca",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/presenca",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/relatorios",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/relatorios",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/relatorios",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/relatorios",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/relatorios",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/tecnicas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/tecnicas",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/tecnicas",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/tecnicas",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/tecnicas",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turma-ativa",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/turma-ativa",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "5 btns, 17 links, 0 inputs"
-    },
-    {
-      "page": "/professor/turma-ativa",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turma-ativa",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turma-ativa",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turmas",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/professor/turmas",
+      "page": "/superadmin/beta",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "10 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/professor/turmas",
+      "page": "/superadmin/beta",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor/turmas",
-      "element": "btn:\"PProfessorProfessor\"",
+      "page": "/superadmin/beta",
+      "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor/turmas",
-      "element": "btn:\"Trocar Perfil\"",
+      "page": "/superadmin/beta",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor/turmas",
-      "element": "btn:\"🥋BJJ Adulto NoiteBJJ · Prof. AndreSeg /\"",
+      "page": "/superadmin/beta",
+      "element": "btn:\"Overview\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/professor/turmas",
-      "element": "btn:\"🥋Judo AdultoJudo · Prof. FernandaTer / \"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turmas",
-      "element": "btn:\"🥋BJJ KidsBJJ · Prof. FernandaSab — 09:0\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turmas",
-      "element": "btn:\"🥋BJJ TeenBJJ · Prof. AndreTer / Qui — 1\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/professor/turmas",
+      "page": "/superadmin/beta",
       "element": "btn:\"Feedback\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos",
+      "page": "/superadmin/beta",
+      "element": "btn:\"NPS\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/beta",
+      "element": "btn:\"Analytics\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/beta",
+      "element": "btn:\"Changelog\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/compete",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/meus-cursos",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/meus-cursos",
+      "page": "/superadmin/compete",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/meus-cursos",
+      "page": "/superadmin/compete",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos",
-      "element": "btn:\"PProfessorProfessor\"",
+      "page": "/superadmin/compete",
+      "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos",
-      "element": "btn:\"Trocar Perfil\"",
+      "page": "/superadmin/compete",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos/financeiro",
+      "page": "/superadmin/comunicacao",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/meus-cursos/financeiro",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/meus-cursos/financeiro",
+      "page": "/superadmin/comunicacao",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/meus-cursos/financeiro",
+      "page": "/superadmin/comunicacao",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos/financeiro",
-      "element": "btn:\"PProfessorProfessor\"",
+      "page": "/superadmin/comunicacao",
+      "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos/financeiro",
-      "element": "btn:\"Trocar Perfil\"",
+      "page": "/superadmin/comunicacao",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/meus-cursos/novo",
+      "page": "/superadmin/configuracoes",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/meus-cursos/novo",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "6 btns, 17 links, 5 inputs"
-    },
-    {
-      "page": "/meus-cursos/novo",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/meus-cursos/novo",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/meus-cursos/novo",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/meus-cursos/novo",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/plano-aula",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/plano-aula",
-      "element": "spinner",
-      "action": "stuck",
-      "result": "error",
-      "details": "Loading spinner stuck >2s"
-    },
-    {
-      "page": "/plano-aula",
+      "page": "/superadmin/configuracoes",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/plano-aula",
+      "page": "/superadmin/configuracoes",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/plano-aula",
-      "element": "btn:\"PProfessorProfessor\"",
+      "page": "/superadmin/configuracoes",
+      "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/plano-aula",
-      "element": "btn:\"Trocar Perfil\"",
+      "page": "/superadmin/configuracoes",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/turma-ativa",
+      "page": "/superadmin/configuracoes/storage",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/turma-ativa",
+      "page": "/superadmin/configuracoes/storage",
       "element": "spinner",
       "action": "stuck",
       "result": "error",
       "details": "Loading spinner stuck >2s"
     },
     {
-      "page": "/turma-ativa",
+      "page": "/superadmin/configuracoes/storage",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
       "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/turma-ativa",
+      "page": "/superadmin/configuracoes/storage",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/turma-ativa",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/turma-ativa",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/turma-ativa",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to fetch RSC payload for https://blackbeltv2.vercel.app/professor/perfil. Falling back to bro"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "6 btns, 17 links, 2 inputs"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "btn:\"PProfessorProfessor\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "btn:\"Trocar Perfil\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/turma-ativa/gravar",
-      "element": "btn:\"Feedback\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    }
-  ],
-  "recepcionista": [
-    {
-      "page": "/login",
-      "element": "auth",
-      "action": "login",
-      "result": "ok",
-      "details": "recepcionista"
-    },
-    {
-      "page": "/recepcao",
-      "element": "page",
-      "action": "load",
-      "result": "ok",
-      "details": "HTTP 200"
-    },
-    {
-      "page": "/recepcao",
-      "element": "ui-elements",
-      "action": "count",
-      "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
-    },
-    {
-      "page": "/recepcao",
-      "element": "btn:\"Abrir Ticket\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/recepcao",
+      "page": "/superadmin/configuracoes/storage",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/configuracoes/storage",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao",
-      "element": "console",
-      "action": "error",
-      "result": "error",
-      "details": "Failed to load resource: the server responded with a status of 400 ()"
-    },
-    {
-      "page": "/recepcao/acesso",
+      "page": "/superadmin/contatos",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/acesso",
+      "page": "/superadmin/contatos",
+      "element": "empty-state",
+      "action": "detected",
+      "result": "empty",
+      "details": "Nenhuma mensagem recebida ainda."
+    },
+    {
+      "page": "/superadmin/contatos",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/acesso",
+      "page": "/superadmin/contatos",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/acesso",
+      "page": "/superadmin/contatos",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/acesso",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/contatos",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/agenda",
+      "page": "/superadmin/features",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/agenda",
+      "page": "/superadmin/features",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/agenda",
+      "page": "/superadmin/features",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/agenda",
+      "page": "/superadmin/features",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/agenda",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/features",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/atendimento",
+      "page": "/superadmin/health",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/atendimento",
+      "page": "/superadmin/health",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 1 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/atendimento",
+      "page": "/superadmin/health",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/atendimento",
+      "page": "/superadmin/health",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/atendimento",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/health",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/cadastro",
+      "page": "/superadmin/onboarding",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/cadastro",
+      "page": "/superadmin/onboarding",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/cadastro",
+      "page": "/superadmin/onboarding",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/cadastro",
+      "page": "/superadmin/onboarding",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/cadastro",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/onboarding",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/caixa",
+      "page": "/superadmin/pipeline",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/caixa",
+      "page": "/superadmin/pipeline",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/caixa",
+      "page": "/superadmin/pipeline",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/caixa",
+      "page": "/superadmin/pipeline",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/caixa",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/pipeline",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/checkin",
+      "page": "/superadmin/planos",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/checkin",
+      "page": "/superadmin/planos",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "8 btns, 10 links, 1 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/checkin",
+      "page": "/superadmin/planos",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/checkin",
+      "page": "/superadmin/planos",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/checkin",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/planos",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/checkin",
-      "element": "btn:\"+ Visitante\"",
-      "action": "click",
-      "result": "ok",
-      "details": "OK"
-    },
-    {
-      "page": "/recepcao/cobrancas",
+      "page": "/superadmin/prospeccao",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/cobrancas",
+      "page": "/superadmin/prospeccao",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/cobrancas",
+      "page": "/superadmin/prospeccao",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/cobrancas",
+      "page": "/superadmin/prospeccao",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/cobrancas",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/prospeccao",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/configuracoes",
+      "page": "/superadmin/receita",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/configuracoes",
+      "page": "/superadmin/receita",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/configuracoes",
+      "page": "/superadmin/receita",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/configuracoes",
+      "page": "/superadmin/receita",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/configuracoes",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/receita",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/experimentais",
+      "page": "/superadmin/suporte",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/experimentais",
+      "page": "/superadmin/suporte",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "11 btns, 17 links, 0 inputs"
     },
     {
-      "page": "/recepcao/experimentais",
+      "page": "/superadmin/suporte",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/experimentais",
+      "page": "/superadmin/suporte",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/experimentais",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/suporte",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/mensagens",
+      "page": "/superadmin/suporte",
+      "element": "btn:\"Ao Vivo\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/suporte",
+      "element": "btn:\"Erros\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/suporte",
+      "element": "btn:\"Performance\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/suporte",
+      "element": "btn:\"Dispositivos\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/suporte",
+      "element": "btn:\"Tickets\"",
+      "action": "click",
+      "result": "ok",
+      "details": "OK"
+    },
+    {
+      "page": "/superadmin/usuarios",
       "element": "page",
       "action": "load",
       "result": "ok",
       "details": "HTTP 200"
     },
     {
-      "page": "/recepcao/mensagens",
+      "page": "/superadmin/usuarios",
       "element": "ui-elements",
       "action": "count",
       "result": "ok",
-      "details": "7 btns, 10 links, 0 inputs"
+      "details": "5 btns, 17 links, 3 inputs"
     },
     {
-      "page": "/recepcao/mensagens",
+      "page": "/superadmin/usuarios",
       "element": "btn:\"Abrir Ticket\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/mensagens",
+      "page": "/superadmin/usuarios",
       "element": "btn:\"BETA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"
     },
     {
-      "page": "/recepcao/mensagens",
-      "element": "btn:\"R\"",
+      "page": "/superadmin/usuarios",
+      "element": "btn:\"SA\"",
       "action": "click",
       "result": "ok",
       "details": "OK"

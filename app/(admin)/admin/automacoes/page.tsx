@@ -10,6 +10,7 @@ import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CHANNEL_ICONS: Record<string, string> = {
   push: '📱',
@@ -21,9 +22,11 @@ const CHANNEL_ICONS: Record<string, string> = {
 
 export default function AutomacoesPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [automations, setAutomations] = useState<AutomationConfig[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     listAutomations(getActiveAcademyId()).then(setAutomations).finally(() => setLoading(false));
   }, []);
@@ -38,6 +41,7 @@ export default function AutomacoesPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const activeCount = automations.filter((a) => a.enabled).length;

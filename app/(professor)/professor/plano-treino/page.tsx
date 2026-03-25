@@ -16,6 +16,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<PlanStatus, string> = { active: 'Ativo', completed: 'Concluído', archived: 'Arquivado' };
 const STATUS_COLOR: Record<PlanStatus, string> = { active: 'bg-green-100 text-green-700', completed: 'bg-blue-100 text-blue-700', archived: 'bg-gray-100 text-gray-500' };
@@ -24,6 +25,7 @@ type WizardStep = 'goal' | 'duration' | 'review';
 
 export default function PlanoTreinoProfessorPage() {
   const { toast } = useToast();
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [plans, setPlans] = useState<TrainingPlanDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
@@ -37,6 +39,7 @@ export default function PlanoTreinoProfessorPage() {
     duration_weeks: 8,
   });
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getPlans('student-1').then(setPlans).finally(() => setLoading(false));
   }, []);
@@ -90,6 +93,7 @@ export default function PlanoTreinoProfessorPage() {
     }
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/professor" backLabel="Voltar ao Painel" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

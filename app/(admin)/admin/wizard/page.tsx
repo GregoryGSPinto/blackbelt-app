@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { ComingSoon } from '@/components/shared/ComingSoon';
 
 interface StepConfig {
   title: string;
@@ -49,6 +50,7 @@ const AUTOMATIONS = [
 export default function WizardPage() {
   const { toast } = useToast();
   const [, setProgress] = useState<WizardProgressDTO | null>(null);
+  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -85,6 +87,7 @@ export default function WizardPage() {
   // Step 8: Automations
   const [enabledAutomations, setEnabledAutomations] = useState<string[]>(['welcome', 'absence']);
 
+  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
     getWizardProgress(getActiveAcademyId())
       .then((p) => {
@@ -170,6 +173,7 @@ export default function WizardPage() {
     );
   }
 
+  if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const stepConfig = STEPS[currentStep];
