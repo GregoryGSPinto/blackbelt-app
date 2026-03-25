@@ -246,7 +246,8 @@ const MIGRATION_055_060_TABLES = [
   ...CONTENT_TABLES,
 ];
 
-async function probeTable(supabase: ReturnType<typeof createClient>, table: string): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function probeTable(supabase: any, table: string): Promise<boolean> {
   const { error } = await supabase.from(table).select('*', { count: 'exact', head: true });
   // If error contains "relation" and "does not exist", the table is missing
   if (error && /relation.*does not exist|does not exist/.test(error.message)) return false;
