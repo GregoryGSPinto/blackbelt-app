@@ -39,6 +39,10 @@ export default function LoginPage() {
   };
 
   const handleOAuth = async (provider: 'google' | 'apple') => {
+    if (isMock()) {
+      alert('OAuth disponível apenas em produção. Use as contas demo abaixo.');
+      return;
+    }
     setOauthLoading(provider);
     setLocalError('');
     try {

@@ -153,6 +153,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     bootstrap();
   }, []);
 
+  // Listen for Supabase auth state changes (e.g. OAuth redirect back)
+  useEffect(() => {
+    if (isMock()) return;
+
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    (async () => {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { data } = supabase.auth.onAuthStateChange(async (event: string, session: { user: { id: string } } | null) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', session.user.id);
+
+          const profileList = (profiles ?? []) as Profile[];
+
+          if (profileList.length > 0) {
+            const activeProfile = profileList[0];
+            identifyUser(activeProfile.id, {
+              role: activeProfile.role,
+              display_name: activeProfile.display_name,
+            });
+
+            setState({
+              profile: activeProfile,
+              profiles: profileList,
+              isLoading: false,
+              isAuthenticated: true,
+            });
+          }
+        }
+
+        if (event === 'SIGNED_OUT') {
+          setState({
+            profile: null,
+            profiles: [],
+            isLoading: false,
+            isAuthenticated: false,
+          });
+        }
+      });
+
+      subscription = data.subscription;
+    })();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
   const login = useCallback(async (email: string, password: string): Promise<Profile[]> => {
     const response = await authService.login({ email, password });
 
