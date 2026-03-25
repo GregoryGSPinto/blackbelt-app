@@ -92,12 +92,70 @@ export default function OnboardingPage() {
   async function handleSubmit() {
     setSubmitting(true);
     try {
-      await redeemOnboardToken(
-        tokenParam!,
-        tokenData?.id ?? '',
-        'new-profile',
-      );
-      setStep('done');
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // 1. Sign up the admin user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: adminEmail.trim().toLowerCase(),
+        password: adminPassword,
+        options: { data: { name: adminName.trim() } },
+      });
+      if (authError || !authData.user) {
+        throw new Error(authError?.message ?? 'Erro ao criar conta.');
+      }
+
+      // 2. Fetch the auto-created profile
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', authData.user.id)
+        .limit(1);
+      const profileId = profiles?.[0]?.id ?? authData.user.id;
+
+      // 3. Update profile to admin role
+      await supabase
+        .from('profiles')
+        .update({ role: 'admin', display_name: adminName.trim() })
+        .eq('id', profileId);
+
+      // 4. Create membership if token has academy_id
+      const academyId = tokenData?.academy_id;
+      if (academyId) {
+        await supabase
+          .from('memberships')
+          .insert({
+            profile_id: profileId,
+            academy_id: academyId,
+            role: 'admin',
+            status: 'active',
+          });
+
+        // Update academy with additional data
+        await supabase
+          .from('academies')
+          .update({
+            phone: academyPhone || undefined,
+            city: academyCity || undefined,
+            state: academyState || undefined,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', academyId);
+      }
+
+      // 5. Set cookies
+      const cookieOpts = ';path=/;max-age=' + (60 * 60 * 24 * 30) + ';samesite=lax';
+      document.cookie = 'bb-active-role=admin' + cookieOpts;
+      if (academyId) {
+        document.cookie = 'bb-academy-id=' + academyId + cookieOpts;
+      }
+
+      // 6. Redeem the onboard token
+      await redeemOnboardToken(tokenParam!, academyId ?? '', profileId);
+
+      // 7. Redirect to admin dashboard
+      toast('Cadastro realizado com sucesso!', 'success');
+      window.location.href = '/admin';
     } catch (err) {
       toast(translateError(err), 'error');
     } finally {

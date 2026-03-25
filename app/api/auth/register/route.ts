@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -81,83 +82,161 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 3. Real Supabase implementation ────────────────────────────
-    // Steps for production (implement when connecting real Supabase):
-    //
-    // 3a. If inviteToken: validate it
-    //     - Fetch invite_tokens where token = inviteToken
-    //     - Check is_active = true
-    //     - Check expires_at > now() or null
-    //     - Check current_uses < max_uses or max_uses is null
-    //     - If invalid: return 400 with specific error
-    //
-    // 3b. Create user in Supabase Auth
-    //     const { data: authData, error: authError } = await admin.auth.admin.createUser({
-    //       email: body.email,
-    //       password: body.senha,
-    //       email_confirm: true, // auto-confirm for invite flow
-    //       user_metadata: { nome: body.nome, telefone: body.telefone },
-    //     });
-    //
-    // 3c. Create profile in profiles table
-    //     const { data: profile } = await admin.from('profiles').insert({
-    //       user_id: authData.user.id,
-    //       academy_id: invite?.academy_id ?? null,
-    //       role: invite?.target_role ?? 'aluno_adulto',
-    //       name: body.nome,
-    //       email: body.email,
-    //       phone: body.telefone,
-    //       birth_date: body.dataNascimento,
-    //     }).select().single();
-    //
-    // 3d. Create membership (academy_members)
-    //     if (invite?.academy_id) {
-    //       await admin.from('academy_members').insert({
-    //         profile_id: profile.id,
-    //         academy_id: invite.academy_id,
-    //         role: invite.target_role,
-    //         status: 'active',
-    //       });
-    //     }
-    //
-    // 3e. If student role: create student record
-    //     if (['aluno_adulto', 'aluno_teen', 'aluno_kids'].includes(invite?.target_role)) {
-    //       await admin.from('students').insert({
-    //         profile_id: profile.id,
-    //         academy_id: invite.academy_id,
-    //         belt_level: 'white',
-    //         stripes: 0,
-    //       });
-    //     }
-    //
-    // 3f. If minor with guardian: create guardian_link
-    //     if (body.responsavel) {
-    //       await admin.from('guardian_links').insert({
-    //         student_profile_id: profile.id,
-    //         guardian_name: body.responsavel.nome,
-    //         guardian_email: body.responsavel.email,
-    //         guardian_phone: body.responsavel.telefone,
-    //         relationship: body.responsavel.parentesco,
-    //       });
-    //     }
-    //
-    // 3g. If inviteToken: increment current_uses
-    //     await admin.from('invite_tokens')
-    //       .update({ current_uses: invite.current_uses + 1 })
-    //       .eq('id', invite.id);
-    //
-    // 3h. Return response
-    //     return NextResponse.json({
-    //       userId: authData.user.id,
-    //       profileId: profile.id,
-    //       role: profile.role,
-    //       academyId: profile.academy_id,
-    //     }, { status: 201 });
+    const admin = getAdminClient();
 
-    // Fallback for non-mock without Supabase configured
-    return NextResponse.json(
-      { error: 'Supabase nao configurado. Ative NEXT_PUBLIC_USE_MOCK=true para testes.' },
-      { status: 503 },
-    );
+    // 3a. If inviteToken: validate it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let invite: Record<string, any> | null = null;
+    if (body.inviteToken) {
+      const { data: inviteData, error: inviteError } = await admin
+        .from('invite_tokens')
+        .select('*')
+        .eq('code', body.inviteToken)
+        .eq('is_active', true)
+        .single();
+
+      if (inviteError || !inviteData) {
+        return NextResponse.json({ error: 'Convite invalido ou expirado.' }, { status: 400 });
+      }
+
+      const now = new Date();
+      const expires = inviteData.expires_at ? new Date(inviteData.expires_at) : null;
+      if (expires && now > expires) {
+        return NextResponse.json({ error: 'Convite expirado.' }, { status: 400 });
+      }
+      if (inviteData.max_uses && inviteData.uses_count >= inviteData.max_uses) {
+        return NextResponse.json({ error: 'Limite de usos atingido.' }, { status: 400 });
+      }
+
+      invite = inviteData;
+    }
+
+    // 3b. Create user in Supabase Auth
+    const { data: authData, error: authError } = await admin.auth.admin.createUser({
+      email: body.email.trim().toLowerCase(),
+      password: body.senha,
+      email_confirm: true,
+      user_metadata: {
+        name: body.nome.trim(),
+        phone: body.telefone,
+      },
+    });
+
+    if (authError || !authData.user) {
+      console.error('[POST /api/auth/register] createUser error:', authError?.message);
+      const msg = authError?.message?.includes('already registered')
+        ? 'Este email ja esta cadastrado.'
+        : `Erro ao criar conta: ${authError?.message ?? 'unknown'}`;
+      return NextResponse.json({ error: msg }, { status: 400 });
+    }
+
+    // 3c. The DB trigger auto-creates a profile; fetch or create it
+    const { data: profileData } = await admin
+      .from('profiles')
+      .select('*')
+      .eq('user_id', authData.user.id)
+      .limit(1)
+      .maybeSingle();
+
+    let profileId: string;
+    if (profileData) {
+      profileId = profileData.id;
+      // Update role if invite specifies one
+      if (invite?.target_role) {
+        await admin
+          .from('profiles')
+          .update({ role: invite.target_role, display_name: body.nome.trim() })
+          .eq('id', profileId);
+      }
+    } else {
+      // Trigger didn't fire; create profile manually
+      const role = invite?.target_role ?? 'aluno_adulto';
+      const { data: newProfile, error: profileError } = await admin
+        .from('profiles')
+        .insert({
+          user_id: authData.user.id,
+          role,
+          display_name: body.nome.trim(),
+        })
+        .select()
+        .single();
+      if (profileError || !newProfile) {
+        console.error('[POST /api/auth/register] create profile error:', profileError?.message);
+        return NextResponse.json({ error: 'Erro ao criar perfil.' }, { status: 500 });
+      }
+      profileId = newProfile.id;
+    }
+
+    // 3d. Create membership if invite has academy_id
+    let academyId: string | null = null;
+    if (invite?.academy_id) {
+      academyId = invite.academy_id;
+      const { error: memberError } = await admin
+        .from('memberships')
+        .insert({
+          profile_id: profileId,
+          academy_id: invite.academy_id,
+          role: invite.target_role ?? 'aluno_adulto',
+          status: 'active',
+        });
+      if (memberError) {
+        console.error('[POST /api/auth/register] create membership error:', memberError.message);
+      }
+    }
+
+    // 3e. If student role: create student record
+    const role = invite?.target_role ?? 'aluno_adulto';
+    if (['aluno_adulto', 'aluno_teen', 'aluno_kids'].includes(role) && academyId) {
+      const { error: studentError } = await admin
+        .from('students')
+        .insert({
+          profile_id: profileId,
+          academy_id: academyId,
+          name: body.nome.trim(),
+          email: body.email.trim().toLowerCase(),
+          phone: body.telefone ?? null,
+          birth_date: body.dataNascimento ?? null,
+          belt_rank: 'white',
+          stripes: 0,
+        });
+      if (studentError) {
+        console.error('[POST /api/auth/register] create student error:', studentError.message);
+        // Non-fatal — continue
+      }
+    }
+
+    // 3f. If minor with guardian: create guardian link
+    if (body.responsavel && profileId) {
+      const { error: guardianError } = await admin
+        .from('guardian_links')
+        .insert({
+          student_profile_id: profileId,
+          guardian_name: body.responsavel.nome.trim(),
+          guardian_email: body.responsavel.email.trim().toLowerCase(),
+          guardian_phone: body.responsavel.telefone ?? null,
+          relationship: body.responsavel.parentesco,
+        });
+      if (guardianError) {
+        console.error('[POST /api/auth/register] create guardian error:', guardianError.message);
+        // Non-fatal
+      }
+    }
+
+    // 3g. If inviteToken: increment uses_count
+    if (invite) {
+      await admin
+        .from('invite_tokens')
+        .update({ uses_count: (invite.uses_count ?? 0) + 1 })
+        .eq('id', invite.id);
+    }
+
+    // 3h. Return response
+    return NextResponse.json({
+      userId: authData.user.id,
+      profileId,
+      role,
+      academyId,
+    } satisfies RegisterResponse, { status: 201 });
   } catch (error) {
     console.error('[POST /api/auth/register]', error);
     return NextResponse.json(

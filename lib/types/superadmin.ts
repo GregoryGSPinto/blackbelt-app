@@ -54,6 +54,7 @@ export interface AcademyFull {
 export interface OnboardToken {
   readonly id: string;
   token: string;
+  academy_id?: string;
   academy_name: string;
   plan_id: string | null;
   plan_name?: string;
