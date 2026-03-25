@@ -82,6 +82,49 @@ export interface VideoSeriesData {
   videos: { id: string; titulo: string; thumbnail: string; duracao: string; sortOrder: number }[];
 }
 
+// ── Helpers ─────────────────────────────────────────────────────────
+
+function formatBytes(bytes: number): string {
+  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
+  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
+  return `${(bytes / 1e3).toFixed(1)} KB`;
+}
+
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function mapRowToUploadedVideo(row: Record<string, unknown>, turmas: { id: string; nome: string }[], publicos: string[]): UploadedVideo {
+  return {
+    id: row.id as string,
+    titulo: (row.title as string) || '',
+    descricao: (row.description as string) || '',
+    thumbnailUrl: (row.thumbnail_storage_url as string) || '',
+    storagePath: (row.storage_path as string) || '',
+    duracao: (row.duration as number) || 0,
+    duracaoFormatada: formatDuration((row.duration as number) || 0),
+    fileSizeBytes: (row.file_size_bytes as number) || 0,
+    fileSizeFormatted: formatBytes((row.file_size_bytes as number) || 0),
+    mimeType: (row.mime_type as string) || '',
+    modalidade: (row.modality as string) || '',
+    faixaMinima: (row.min_belt as string) || '',
+    dificuldade: (row.difficulty as string) || '',
+    categoria: (row.category as string) || '',
+    tags: (row.tags as string[]) || [],
+    turmas,
+    publicos,
+    isPublished: (row.is_published as boolean) ?? true,
+    publishedAt: (row.published_at as string) || undefined,
+    uploadedBy: (row.uploaded_by as string) || '',
+    uploadedByName: '',
+    viewsCount: (row.views_count as number) || 0,
+    likesCount: (row.likes_count as number) || 0,
+    createdAt: (row.created_at as string) || '',
+  };
+}
+
 // ── Upload ──────────────────────────────────────────────────────────
 
 export async function uploadVideo(
@@ -95,27 +138,131 @@ export async function uploadVideo(
       return mockUploadVideo(academyId, data, onProgress);
     }
 
-    const formData = new FormData();
-    formData.append('file', data.file);
-    if (data.thumbnail) formData.append('thumbnail', data.thumbnail);
-    formData.append('titulo', data.titulo);
-    formData.append('descricao', data.descricao);
-    if (data.descricaoCompleta) formData.append('descricaoCompleta', data.descricaoCompleta);
-    formData.append('modalidade', data.modalidade);
-    formData.append('faixaMinima', data.faixaMinima);
-    formData.append('dificuldade', data.dificuldade);
-    formData.append('categoria', data.categoria);
-    formData.append('tags', JSON.stringify(data.tags));
-    formData.append('turmaIds', JSON.stringify(data.turmaIds));
-    formData.append('publicos', JSON.stringify(data.publicos));
-    if (data.serieId) formData.append('serieId', data.serieId);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
 
-    const res = await fetch(`/api/video-upload/${academyId}`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      onProgress?.({ percent: 0, bytesUploaded: 0, bytesTotal: data.file.size, status: 'uploading', message: 'Iniciando upload...' });
+
+      // Upload video file to Supabase Storage
+      const filePath = `videos/${academyId}/${Date.now()}_${data.file.name}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('videos')
+        .upload(filePath, data.file, { upsert: false });
+
+      if (uploadErr) {
+        console.warn('[video-upload] storage upload failed:', uploadErr.message);
+      }
+
+      onProgress?.({ percent: 60, bytesUploaded: data.file.size, bytesTotal: data.file.size, status: 'processing_thumbnail', message: 'Processando thumbnail...' });
+
+      // Upload thumbnail if provided
+      let thumbnailUrl = '';
+      if (data.thumbnail) {
+        const thumbPath = `thumbnails/${academyId}/${Date.now()}_thumb.jpg`;
+        const { error: thumbErr } = await supabase.storage
+          .from('videos')
+          .upload(thumbPath, data.thumbnail, { upsert: false });
+
+        if (!thumbErr) {
+          const { data: thumbUrlData } = supabase.storage.from('videos').getPublicUrl(thumbPath);
+          thumbnailUrl = thumbUrlData?.publicUrl || '';
+        }
+      }
+
+      const { data: urlData } = supabase.storage.from('videos').getPublicUrl(filePath);
+      const storageUrl = urlData?.publicUrl || '';
+
+      onProgress?.({ percent: 80, bytesUploaded: data.file.size, bytesTotal: data.file.size, status: 'saving_metadata', message: 'Salvando metadados...' });
+
+      // Insert video record
+      const userId = (await supabase.auth.getUser()).data.user?.id ?? null;
+
+      const { data: videoRow, error: insertErr } = await supabase
+        .from('videos')
+        .insert({
+          academy_id: academyId,
+          title: data.titulo,
+          description: data.descricao,
+          url: storageUrl,
+          storage_path: filePath,
+          storage_url: storageUrl,
+          thumbnail_storage_url: thumbnailUrl,
+          file_size_bytes: data.file.size,
+          mime_type: data.file.type,
+          upload_status: 'ready',
+          uploaded_by: userId,
+          modality: data.modalidade,
+          min_belt: data.faixaMinima,
+          difficulty: data.dificuldade,
+          category: data.categoria,
+          tags: data.tags,
+          is_published: true,
+          published_at: new Date().toISOString(),
+          provider: 'supabase',
+          metadata: { descricao_completa: data.descricaoCompleta },
+        })
+        .select()
+        .single();
+
+      if (insertErr || !videoRow) {
+        console.warn('[video-upload] insert error:', insertErr?.message);
+        const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
+        return mockUploadVideo(academyId, data, onProgress);
+      }
+
+      // Insert audience records
+      if (data.publicos?.length) {
+        const audienceRows = data.publicos.map((a) => ({ video_id: videoRow.id, audience: a }));
+        await supabase.from('video_audiences').insert(audienceRows);
+      }
+
+      // Insert class assignments
+      if (data.turmaIds?.length) {
+        const classRows = data.turmaIds.map((cid) => ({
+          video_id: videoRow.id,
+          class_id: cid,
+          assigned_by: userId,
+        }));
+        await supabase.from('video_class_assignments').insert(classRows);
+      }
+
+      // Link to series if specified
+      if (data.serieId) {
+        await supabase.from('video_series_items').insert({
+          series_id: data.serieId,
+          video_id: videoRow.id,
+          sort_order: 0,
+        });
+      }
+
+      // Update storage_usage
+      await supabase.rpc('update_storage_usage_on_upload', { p_academy_id: academyId, p_file_size: data.file.size }).then(() => {}).catch(() => {
+        // If RPC doesn't exist, manually update
+        supabase
+          .from('storage_usage')
+          .upsert({
+            academy_id: academyId,
+            total_videos: 1,
+            total_size_bytes: data.file.size,
+            last_calculated_at: new Date().toISOString(),
+          }, { onConflict: 'academy_id' })
+          .then(() => {});
+      });
+
+      onProgress?.({ percent: 100, bytesUploaded: data.file.size, bytesTotal: data.file.size, status: 'ready', message: 'Upload concluido!' });
+
+      return {
+        videoId: videoRow.id,
+        storageUrl,
+        thumbnailUrl,
+        status: 'ready',
+      };
+    } catch (err) {
+      console.warn('[video-upload] uploadVideo: Supabase not available, using mock', err);
+      const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
+      return mockUploadVideo(academyId, data, onProgress);
+    }
   } catch {
     console.warn('[video-upload] uploadVideo: API not available, using mock');
     const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
@@ -132,8 +279,36 @@ export async function deleteUploadedVideo(videoId: string): Promise<void> {
       return mockDeleteUploadedVideo(videoId);
     }
 
-    const res = await fetch(`/api/video-upload/videos/${videoId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Get storage path before deleting the record
+      const { data: video } = await supabase
+        .from('videos')
+        .select('storage_path')
+        .eq('id', videoId)
+        .single();
+
+      // Delete from storage if path exists
+      if (video?.storage_path) {
+        await supabase.storage.from('videos').remove([video.storage_path]);
+      }
+
+      // Delete the DB record (cascade will clean up annotations, audiences, etc.)
+      const { error } = await supabase
+        .from('videos')
+        .delete()
+        .eq('id', videoId);
+
+      if (error) {
+        console.warn('[video-upload] deleteUploadedVideo: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] deleteUploadedVideo: Supabase not available, using mock', err);
+      const { mockDeleteUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
+      return mockDeleteUploadedVideo(videoId);
+    }
   } catch {
     console.warn('[video-upload] deleteUploadedVideo: API not available, using mock');
     const { mockDeleteUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
@@ -153,13 +328,79 @@ export async function updateUploadedVideo(
       return mockUpdateUploadedVideo(videoId, data);
     }
 
-    const res = await fetch(`/api/video-upload/videos/${videoId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const updatePayload: Record<string, unknown> = {};
+      if (data.titulo !== undefined) updatePayload.title = data.titulo;
+      if (data.descricao !== undefined) updatePayload.description = data.descricao;
+      if (data.modalidade !== undefined) updatePayload.modality = data.modalidade;
+      if (data.faixaMinima !== undefined) updatePayload.min_belt = data.faixaMinima;
+      if (data.dificuldade !== undefined) updatePayload.difficulty = data.dificuldade;
+      if (data.categoria !== undefined) updatePayload.category = data.categoria;
+      if (data.tags !== undefined) updatePayload.tags = data.tags;
+
+      const { data: row, error } = await supabase
+        .from('videos')
+        .update(updatePayload)
+        .eq('id', videoId)
+        .select()
+        .single();
+
+      if (error || !row) {
+        console.warn('[video-upload] updateUploadedVideo: Supabase error:', error?.message);
+        const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
+        return mockUpdateUploadedVideo(videoId, data);
+      }
+
+      // Update audiences if provided
+      if (data.publicos !== undefined) {
+        await supabase.from('video_audiences').delete().eq('video_id', videoId);
+        if (data.publicos.length) {
+          const audienceRows = data.publicos.map((a) => ({ video_id: videoId, audience: a }));
+          await supabase.from('video_audiences').insert(audienceRows);
+        }
+      }
+
+      // Update class assignments if provided
+      if (data.turmaIds !== undefined) {
+        await supabase.from('video_class_assignments').delete().eq('video_id', videoId);
+        if (data.turmaIds.length) {
+          const userId = (await supabase.auth.getUser()).data.user?.id ?? null;
+          const classRows = data.turmaIds.map((cid) => ({
+            video_id: videoId,
+            class_id: cid,
+            assigned_by: userId,
+          }));
+          await supabase.from('video_class_assignments').insert(classRows);
+        }
+      }
+
+      // Fetch turmas and publicos for the response
+      const { data: turmaRows } = await supabase
+        .from('video_class_assignments')
+        .select('class_id, classes(name)')
+        .eq('video_id', videoId);
+
+      const turmas = (turmaRows || []).map((t: Record<string, unknown>) => ({
+        id: t.class_id as string,
+        nome: ((t as Record<string, unknown>).classes as Record<string, string>)?.name || '',
+      }));
+
+      const { data: audienceRows } = await supabase
+        .from('video_audiences')
+        .select('audience')
+        .eq('video_id', videoId);
+
+      const publicos = (audienceRows || []).map((a: Record<string, unknown>) => a.audience as string);
+
+      return mapRowToUploadedVideo(row as Record<string, unknown>, turmas, publicos);
+    } catch (err) {
+      console.warn('[video-upload] updateUploadedVideo: Supabase not available, using mock', err);
+      const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
+      return mockUpdateUploadedVideo(videoId, data);
+    }
   } catch {
     console.warn('[video-upload] updateUploadedVideo: API not available, using mock');
     const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
@@ -176,8 +417,23 @@ export async function publishUploadedVideo(videoId: string): Promise<void> {
       return mockPublishUploadedVideo(videoId);
     }
 
-    const res = await fetch(`/api/video-upload/videos/${videoId}/publish`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { error } = await supabase
+        .from('videos')
+        .update({ is_published: true, published_at: new Date().toISOString() })
+        .eq('id', videoId);
+
+      if (error) {
+        console.warn('[video-upload] publishUploadedVideo: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] publishUploadedVideo: Supabase not available, using mock', err);
+      const { mockPublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
+      return mockPublishUploadedVideo(videoId);
+    }
   } catch {
     console.warn('[video-upload] publishUploadedVideo: API not available, using mock');
     const { mockPublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
@@ -192,8 +448,23 @@ export async function unpublishUploadedVideo(videoId: string): Promise<void> {
       return mockUnpublishUploadedVideo(videoId);
     }
 
-    const res = await fetch(`/api/video-upload/videos/${videoId}/unpublish`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { error } = await supabase
+        .from('videos')
+        .update({ is_published: false })
+        .eq('id', videoId);
+
+      if (error) {
+        console.warn('[video-upload] unpublishUploadedVideo: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] unpublishUploadedVideo: Supabase not available, using mock', err);
+      const { mockUnpublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
+      return mockUnpublishUploadedVideo(videoId);
+    }
   } catch {
     console.warn('[video-upload] unpublishUploadedVideo: API not available, using mock');
     const { mockUnpublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
@@ -210,9 +481,51 @@ export async function getVideosByAcademy(academyId: string): Promise<UploadedVid
       return mockGetVideosByAcademy(academyId);
     }
 
-    const res = await fetch(`/api/video-upload/${academyId}/videos`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { data: rows, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('academy_id', academyId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[video-upload] getVideosByAcademy: Supabase error:', error.message);
+        return [];
+      }
+
+      // Batch fetch audiences and class assignments for all videos
+      const videoIds = (rows || []).map((r: Record<string, unknown>) => r.id as string);
+
+      const { data: allAudiences } = await supabase
+        .from('video_audiences')
+        .select('video_id, audience')
+        .in('video_id', videoIds);
+
+      const { data: allClasses } = await supabase
+        .from('video_class_assignments')
+        .select('video_id, class_id, classes(name)')
+        .in('video_id', videoIds);
+
+      return (rows || []).map((row: Record<string, unknown>) => {
+        const publicos = (allAudiences || [])
+          .filter((a: Record<string, unknown>) => a.video_id === row.id)
+          .map((a: Record<string, unknown>) => a.audience as string);
+        const turmas = (allClasses || [])
+          .filter((c: Record<string, unknown>) => c.video_id === row.id)
+          .map((c: Record<string, unknown>) => ({
+            id: c.class_id as string,
+            nome: ((c as Record<string, unknown>).classes as Record<string, string>)?.name || '',
+          }));
+        return mapRowToUploadedVideo(row, turmas, publicos);
+      });
+    } catch (err) {
+      console.warn('[video-upload] getVideosByAcademy: Supabase not available, using mock', err);
+      const { mockGetVideosByAcademy } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetVideosByAcademy(academyId);
+    }
   } catch {
     console.warn('[video-upload] getVideosByAcademy: API not available, using mock');
     const { mockGetVideosByAcademy } = await import('@/lib/mocks/video-upload.mock');
@@ -229,9 +542,36 @@ export async function getVideosByClass(classId: string): Promise<UploadedVideo[]
       return mockGetVideosByClass(classId);
     }
 
-    const res = await fetch(`/api/video-upload/classes/${classId}/videos`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Get video IDs assigned to this class
+      const { data: assignments } = await supabase
+        .from('video_class_assignments')
+        .select('video_id')
+        .eq('class_id', classId);
+
+      const videoIds = (assignments || []).map((a: Record<string, unknown>) => a.video_id as string);
+      if (!videoIds.length) return [];
+
+      const { data: rows, error } = await supabase
+        .from('videos')
+        .select('*')
+        .in('id', videoIds)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[video-upload] getVideosByClass: Supabase error:', error.message);
+        return [];
+      }
+
+      return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], []));
+    } catch (err) {
+      console.warn('[video-upload] getVideosByClass: Supabase not available, using mock', err);
+      const { mockGetVideosByClass } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetVideosByClass(classId);
+    }
   } catch {
     console.warn('[video-upload] getVideosByClass: API not available, using mock');
     const { mockGetVideosByClass } = await import('@/lib/mocks/video-upload.mock');
@@ -251,9 +591,37 @@ export async function getVideosByAudience(
       return mockGetVideosByAudience(academyId, audience);
     }
 
-    const res = await fetch(`/api/video-upload/${academyId}/videos?audience=${encodeURIComponent(audience)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Get video IDs for this audience
+      const { data: audienceRows } = await supabase
+        .from('video_audiences')
+        .select('video_id')
+        .eq('audience', audience);
+
+      const videoIds = (audienceRows || []).map((a: Record<string, unknown>) => a.video_id as string);
+      if (!videoIds.length) return [];
+
+      const { data: rows, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('academy_id', academyId)
+        .in('id', videoIds)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[video-upload] getVideosByAudience: Supabase error:', error.message);
+        return [];
+      }
+
+      return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], [audience]));
+    } catch (err) {
+      console.warn('[video-upload] getVideosByAudience: Supabase not available, using mock', err);
+      const { mockGetVideosByAudience } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetVideosByAudience(academyId, audience);
+    }
   } catch {
     console.warn('[video-upload] getVideosByAudience: API not available, using mock');
     const { mockGetVideosByAudience } = await import('@/lib/mocks/video-upload.mock');
@@ -270,9 +638,27 @@ export async function getVideosByProfessor(professorId: string): Promise<Uploade
       return mockGetVideosByProfessor(professorId);
     }
 
-    const res = await fetch(`/api/video-upload/professors/${professorId}/videos`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { data: rows, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('uploaded_by', professorId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[video-upload] getVideosByProfessor: Supabase error:', error.message);
+        return [];
+      }
+
+      return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], []));
+    } catch (err) {
+      console.warn('[video-upload] getVideosByProfessor: Supabase not available, using mock', err);
+      const { mockGetVideosByProfessor } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetVideosByProfessor(professorId);
+    }
   } catch {
     console.warn('[video-upload] getVideosByProfessor: API not available, using mock');
     const { mockGetVideosByProfessor } = await import('@/lib/mocks/video-upload.mock');
@@ -292,13 +678,50 @@ export async function createVideoSeries(
       return mockCreateVideoSeries(academyId, data);
     }
 
-    const res = await fetch(`/api/video-upload/${academyId}/series`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const userId = (await supabase.auth.getUser()).data.user?.id ?? null;
+
+      const { data: row, error } = await supabase
+        .from('video_series')
+        .insert({
+          academy_id: academyId,
+          professor_id: userId,
+          title: data.titulo,
+          description: data.descricao || null,
+          thumbnail_url: data.thumbnailUrl || null,
+          modality: data.modalidade || null,
+          min_belt: data.faixaMinima || null,
+          audience: data.publico,
+          is_published: data.isPublished,
+        })
+        .select()
+        .single();
+
+      if (error || !row) {
+        console.warn('[video-upload] createVideoSeries: Supabase error:', error?.message);
+        const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
+        return mockCreateVideoSeries(academyId, data);
+      }
+
+      return {
+        id: row.id,
+        titulo: row.title,
+        descricao: row.description || undefined,
+        thumbnailUrl: row.thumbnail_url || undefined,
+        modalidade: row.modality || undefined,
+        faixaMinima: row.min_belt || undefined,
+        publico: row.audience || '',
+        isPublished: row.is_published ?? true,
+        videos: [],
+      };
+    } catch (err) {
+      console.warn('[video-upload] createVideoSeries: Supabase not available, using mock', err);
+      const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
+      return mockCreateVideoSeries(academyId, data);
+    }
   } catch {
     console.warn('[video-upload] createVideoSeries: API not available, using mock');
     const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
@@ -316,13 +739,66 @@ export async function updateVideoSeries(
       return mockUpdateVideoSeries(seriesId, data);
     }
 
-    const res = await fetch(`/api/video-upload/series/${seriesId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const updatePayload: Record<string, unknown> = {};
+      if (data.titulo !== undefined) updatePayload.title = data.titulo;
+      if (data.descricao !== undefined) updatePayload.description = data.descricao;
+      if (data.thumbnailUrl !== undefined) updatePayload.thumbnail_url = data.thumbnailUrl;
+      if (data.modalidade !== undefined) updatePayload.modality = data.modalidade;
+      if (data.faixaMinima !== undefined) updatePayload.min_belt = data.faixaMinima;
+      if (data.publico !== undefined) updatePayload.audience = data.publico;
+      if (data.isPublished !== undefined) updatePayload.is_published = data.isPublished;
+
+      const { data: row, error } = await supabase
+        .from('video_series')
+        .update(updatePayload)
+        .eq('id', seriesId)
+        .select()
+        .single();
+
+      if (error || !row) {
+        console.warn('[video-upload] updateVideoSeries: Supabase error:', error?.message);
+        const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
+        return mockUpdateVideoSeries(seriesId, data);
+      }
+
+      // Fetch series items
+      const { data: items } = await supabase
+        .from('video_series_items')
+        .select('video_id, sort_order, videos(title, thumbnail_storage_url, duration)')
+        .eq('series_id', seriesId)
+        .order('sort_order');
+
+      const videos = (items || []).map((i: Record<string, unknown>) => {
+        const v = (i as Record<string, unknown>).videos as Record<string, unknown> | null;
+        return {
+          id: i.video_id as string,
+          titulo: (v?.title as string) || '',
+          thumbnail: (v?.thumbnail_storage_url as string) || '',
+          duracao: formatDuration((v?.duration as number) || 0),
+          sortOrder: (i.sort_order as number) || 0,
+        };
+      });
+
+      return {
+        id: row.id,
+        titulo: row.title,
+        descricao: row.description || undefined,
+        thumbnailUrl: row.thumbnail_url || undefined,
+        modalidade: row.modality || undefined,
+        faixaMinima: row.min_belt || undefined,
+        publico: row.audience || '',
+        isPublished: row.is_published ?? true,
+        videos,
+      };
+    } catch (err) {
+      console.warn('[video-upload] updateVideoSeries: Supabase not available, using mock', err);
+      const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
+      return mockUpdateVideoSeries(seriesId, data);
+    }
   } catch {
     console.warn('[video-upload] updateVideoSeries: API not available, using mock');
     const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
@@ -337,8 +813,23 @@ export async function deleteVideoSeries(seriesId: string): Promise<void> {
       return mockDeleteVideoSeries(seriesId);
     }
 
-    const res = await fetch(`/api/video-upload/series/${seriesId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { error } = await supabase
+        .from('video_series')
+        .delete()
+        .eq('id', seriesId);
+
+      if (error) {
+        console.warn('[video-upload] deleteVideoSeries: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] deleteVideoSeries: Supabase not available, using mock', err);
+      const { mockDeleteVideoSeries } = await import('@/lib/mocks/video-upload.mock');
+      return mockDeleteVideoSeries(seriesId);
+    }
   } catch {
     console.warn('[video-upload] deleteVideoSeries: API not available, using mock');
     const { mockDeleteVideoSeries } = await import('@/lib/mocks/video-upload.mock');
@@ -359,12 +850,25 @@ export async function addVideoToSeries(
       return mockAddVideoToSeries(seriesId, videoId, order);
     }
 
-    const res = await fetch(`/api/video-upload/series/${seriesId}/videos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, order }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { error } = await supabase
+        .from('video_series_items')
+        .upsert(
+          { series_id: seriesId, video_id: videoId, sort_order: order },
+          { onConflict: 'series_id,video_id' },
+        );
+
+      if (error) {
+        console.warn('[video-upload] addVideoToSeries: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] addVideoToSeries: Supabase not available, using mock', err);
+      const { mockAddVideoToSeries } = await import('@/lib/mocks/video-upload.mock');
+      return mockAddVideoToSeries(seriesId, videoId, order);
+    }
   } catch {
     console.warn('[video-upload] addVideoToSeries: API not available, using mock');
     const { mockAddVideoToSeries } = await import('@/lib/mocks/video-upload.mock');
@@ -382,10 +886,24 @@ export async function removeVideoFromSeries(
       return mockRemoveVideoFromSeries(seriesId, videoId);
     }
 
-    const res = await fetch(`/api/video-upload/series/${seriesId}/videos/${videoId}`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { error } = await supabase
+        .from('video_series_items')
+        .delete()
+        .eq('series_id', seriesId)
+        .eq('video_id', videoId);
+
+      if (error) {
+        console.warn('[video-upload] removeVideoFromSeries: Supabase error:', error.message);
+      }
+    } catch (err) {
+      console.warn('[video-upload] removeVideoFromSeries: Supabase not available, using mock', err);
+      const { mockRemoveVideoFromSeries } = await import('@/lib/mocks/video-upload.mock');
+      return mockRemoveVideoFromSeries(seriesId, videoId);
+    }
   } catch {
     console.warn('[video-upload] removeVideoFromSeries: API not available, using mock');
     const { mockRemoveVideoFromSeries } = await import('@/lib/mocks/video-upload.mock');
@@ -402,9 +920,59 @@ export async function getSeriesByAcademy(academyId: string): Promise<VideoSeries
       return mockGetSeriesByAcademy(academyId);
     }
 
-    const res = await fetch(`/api/video-upload/${academyId}/series`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { data: seriesRows, error } = await supabase
+        .from('video_series')
+        .select('*')
+        .eq('academy_id', academyId)
+        .order('sort_order');
+
+      if (error) {
+        console.warn('[video-upload] getSeriesByAcademy: Supabase error:', error.message);
+        return [];
+      }
+
+      const seriesIds = (seriesRows || []).map((s: Record<string, unknown>) => s.id as string);
+
+      const { data: allItems } = await supabase
+        .from('video_series_items')
+        .select('series_id, video_id, sort_order, videos(title, thumbnail_storage_url, duration)')
+        .in('series_id', seriesIds)
+        .order('sort_order');
+
+      return (seriesRows || []).map((s: Record<string, unknown>) => {
+        const items = (allItems || []).filter((i: Record<string, unknown>) => i.series_id === s.id);
+        const videos = items.map((i: Record<string, unknown>) => {
+          const v = (i as Record<string, unknown>).videos as Record<string, unknown> | null;
+          return {
+            id: i.video_id as string,
+            titulo: (v?.title as string) || '',
+            thumbnail: (v?.thumbnail_storage_url as string) || '',
+            duracao: formatDuration((v?.duration as number) || 0),
+            sortOrder: (i.sort_order as number) || 0,
+          };
+        });
+
+        return {
+          id: s.id as string,
+          titulo: (s.title as string) || '',
+          descricao: (s.description as string) || undefined,
+          thumbnailUrl: (s.thumbnail_url as string) || undefined,
+          modalidade: (s.modality as string) || undefined,
+          faixaMinima: (s.min_belt as string) || undefined,
+          publico: (s.audience as string) || '',
+          isPublished: (s.is_published as boolean) ?? true,
+          videos,
+        };
+      });
+    } catch (err) {
+      console.warn('[video-upload] getSeriesByAcademy: Supabase not available, using mock', err);
+      const { mockGetSeriesByAcademy } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetSeriesByAcademy(academyId);
+    }
   } catch {
     console.warn('[video-upload] getSeriesByAcademy: API not available, using mock');
     const { mockGetSeriesByAcademy } = await import('@/lib/mocks/video-upload.mock');
@@ -421,9 +989,70 @@ export async function getStorageStats(academyId: string): Promise<StorageStats> 
       return mockGetStorageStats(academyId);
     }
 
-    const res = await fetch(`/api/video-upload/${academyId}/storage-stats`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Get from storage_usage table first
+      const { data: usage } = await supabase
+        .from('storage_usage')
+        .select('*')
+        .eq('academy_id', academyId)
+        .single();
+
+      if (usage) {
+        const limitBytes = usage.storage_limit_bytes || 5368709120; // 5GB default
+        const totalBytes = usage.total_size_bytes || 0;
+        return {
+          totalVideos: usage.total_videos || 0,
+          totalSizeBytes: totalBytes,
+          totalSizeFormatted: formatBytes(totalBytes),
+          limitBytes,
+          limitFormatted: formatBytes(limitBytes),
+          usagePercent: limitBytes > 0 ? Math.round((totalBytes / limitBytes) * 100) : 0,
+          videosThisMonth: 0, // Computed below if needed
+        };
+      }
+
+      // Fallback: compute from videos table directly
+      const { count } = await supabase
+        .from('videos')
+        .select('*', { count: 'exact', head: true })
+        .eq('academy_id', academyId);
+
+      const { data: sizeRows } = await supabase
+        .from('videos')
+        .select('file_size_bytes, created_at')
+        .eq('academy_id', academyId);
+
+      const totalBytes = (sizeRows || []).reduce(
+        (sum: number, r: Record<string, unknown>) => sum + (Number(r.file_size_bytes) || 0),
+        0,
+      );
+
+      const thisMonth = new Date();
+      thisMonth.setDate(1);
+      thisMonth.setHours(0, 0, 0, 0);
+      const videosThisMonth = (sizeRows || []).filter(
+        (r: Record<string, unknown>) => new Date(r.created_at as string) >= thisMonth,
+      ).length;
+
+      const limitBytes = 5368709120; // 5GB default
+
+      return {
+        totalVideos: count || 0,
+        totalSizeBytes: totalBytes,
+        totalSizeFormatted: formatBytes(totalBytes),
+        limitBytes,
+        limitFormatted: formatBytes(limitBytes),
+        usagePercent: limitBytes > 0 ? Math.round((totalBytes / limitBytes) * 100) : 0,
+        videosThisMonth,
+      };
+    } catch (err) {
+      console.warn('[video-upload] getStorageStats: Supabase not available, using mock', err);
+      const { mockGetStorageStats } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetStorageStats(academyId);
+    }
   } catch {
     console.warn('[video-upload] getStorageStats: API not available, using mock');
     const { mockGetStorageStats } = await import('@/lib/mocks/video-upload.mock');
@@ -440,10 +1069,26 @@ export async function getSignedUrl(storagePath: string): Promise<string> {
       return mockGetSignedUrl(storagePath);
     }
 
-    const res = await fetch(`/api/video-upload/signed-url?path=${encodeURIComponent(storagePath)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json: { url: string } = await res.json();
-    return json.url;
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .createSignedUrl(storagePath, 3600); // 1 hour expiry
+
+      if (error || !data?.signedUrl) {
+        console.warn('[video-upload] getSignedUrl: Supabase error:', error?.message);
+        const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
+        return mockGetSignedUrl(storagePath);
+      }
+
+      return data.signedUrl;
+    } catch (err) {
+      console.warn('[video-upload] getSignedUrl: Supabase not available, using mock', err);
+      const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
+      return mockGetSignedUrl(storagePath);
+    }
   } catch {
     console.warn('[video-upload] getSignedUrl: API not available, using mock');
     const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');

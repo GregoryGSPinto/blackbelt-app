@@ -41,15 +41,47 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
       return mockAnalyzeFrame(videoId, timestampSec);
     }
     try {
-      const res = await fetch('/api/video-analysis/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId, timestampSec }) });
-      if (!res.ok) {
-        console.warn('[analyzeFrame] API error:', res.status);
-        const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
-        return mockAnalyzeFrame(videoId, timestampSec);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Check for cached frame analysis in videos.metadata
+      const { data: video } = await supabase
+        .from('videos')
+        .select('metadata')
+        .eq('id', videoId)
+        .single();
+
+      const meta = (video?.metadata as Record<string, unknown>) || {};
+      const cachedFrames = (meta.frame_analyses as FrameAnalysis[]) || [];
+      const cached = cachedFrames.find((f) => f.timestamp_sec === timestampSec);
+      if (cached) {
+        return cached;
       }
-      return res.json();
-    } catch {
-      console.warn('[video-analysis.analyzeFrame] API not available, using mock fallback');
+
+      // AI analysis not available without API key — return graceful fallback
+      // In production, this would call the AI API and cache results
+      console.warn('[analyzeFrame] AI analysis not configured, returning fallback');
+
+      const fallback: FrameAnalysis = {
+        timestamp_sec: timestampSec,
+        posture_score: 0,
+        balance_score: 0,
+        technique_notes: [],
+        corrections: ['AI analysis not configured. Set ANTHROPIC_API_KEY to enable.'],
+      };
+
+      // Save the analysis request to metadata for future processing
+      const updatedFrames = [...cachedFrames, fallback];
+      await supabase
+        .from('videos')
+        .update({
+          metadata: { ...meta, frame_analyses: updatedFrames, analysis_pending: true },
+        })
+        .eq('id', videoId);
+
+      return fallback;
+    } catch (err) {
+      console.warn('[video-analysis.analyzeFrame] Supabase not available, using mock fallback', err);
       const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeFrame(videoId, timestampSec);
     }
@@ -66,15 +98,50 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
       return mockAnalyzeVideo(videoId);
     }
     try {
-      const res = await fetch('/api/video-analysis/full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId }) });
-      if (!res.ok) {
-        console.warn('[analyzeVideo] API error:', res.status);
-        const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
-        return mockAnalyzeVideo(videoId);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Check for cached full analysis in videos.metadata
+      const { data: video } = await supabase
+        .from('videos')
+        .select('metadata')
+        .eq('id', videoId)
+        .single();
+
+      const meta = (video?.metadata as Record<string, unknown>) || {};
+      const cachedAnalysis = meta.ai_analysis as VideoAnalysis | undefined;
+      if (cachedAnalysis && cachedAnalysis.analyzed_at) {
+        return cachedAnalysis;
       }
-      return res.json();
-    } catch {
-      console.warn('[video-analysis.analyzeVideo] API not available, using mock fallback');
+
+      // AI analysis not available — save request and return graceful fallback
+      console.warn('[analyzeVideo] AI analysis not configured, returning fallback');
+
+      const fallback: VideoAnalysis = {
+        id: '',
+        video_id: videoId,
+        overall_score: 0,
+        posture_score: 0,
+        balance_score: 0,
+        technique_score: 0,
+        highlights: [],
+        corrections: ['AI analysis not configured. Set ANTHROPIC_API_KEY to enable.'],
+        summary: 'Analysis pending — AI service not configured.',
+        frame_analyses: [],
+        analyzed_at: '',
+      };
+
+      // Save the request to DB for future background processing
+      await supabase
+        .from('videos')
+        .update({
+          metadata: { ...meta, analysis_requested: true, analysis_requested_at: new Date().toISOString() },
+        })
+        .eq('id', videoId);
+
+      return fallback;
+    } catch (err) {
+      console.warn('[video-analysis.analyzeVideo] Supabase not available, using mock fallback', err);
       const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeVideo(videoId);
     }
@@ -91,15 +158,54 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
       return mockCompareExecution(referenceVideoId, studentVideoId);
     }
     try {
-      const res = await fetch('/api/video-analysis/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referenceVideoId, studentVideoId }) });
-      if (!res.ok) {
-        console.warn('[compareExecution] API error:', res.status);
-        const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
-        return mockCompareExecution(referenceVideoId, studentVideoId);
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+
+      // Check for cached comparison in the student video's metadata
+      const { data: video } = await supabase
+        .from('videos')
+        .select('metadata')
+        .eq('id', studentVideoId)
+        .single();
+
+      const meta = (video?.metadata as Record<string, unknown>) || {};
+      const cachedComparisons = (meta.comparisons as ComparisonResult[]) || [];
+      const cached = cachedComparisons.find((c) => c.reference_video_id === referenceVideoId);
+      if (cached) {
+        return cached;
       }
-      return res.json();
-    } catch {
-      console.warn('[video-analysis.compareExecution] API not available, using mock fallback');
+
+      // AI comparison not available — save request and return graceful fallback
+      console.warn('[compareExecution] AI analysis not configured, returning fallback');
+
+      const fallback: ComparisonResult = {
+        id: '',
+        reference_video_id: referenceVideoId,
+        student_video_id: studentVideoId,
+        similarity_score: 0,
+        posture_diff: 0,
+        timing_diff: 0,
+        key_differences: [],
+        recommendations: ['AI comparison not configured. Set ANTHROPIC_API_KEY to enable.'],
+        compared_at: '',
+      };
+
+      // Save comparison request to DB for future processing
+      await supabase
+        .from('videos')
+        .update({
+          metadata: {
+            ...meta,
+            comparison_requested: true,
+            comparison_reference_id: referenceVideoId,
+            comparison_requested_at: new Date().toISOString(),
+          },
+        })
+        .eq('id', studentVideoId);
+
+      return fallback;
+    } catch (err) {
+      console.warn('[video-analysis.compareExecution] Supabase not available, using mock fallback', err);
       const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
       return mockCompareExecution(referenceVideoId, studentVideoId);
     }
