@@ -46,7 +46,7 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
         .eq('key', 'white_label')
         .single();
       if (error || !data) {
-        console.warn('[getWhiteLabelConfig] Query failed:', error?.message);
+        console.error('[getWhiteLabelConfig] Query failed:', error?.message);
         return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
       }
       const value = (data.value as Record<string, unknown>) || {};
@@ -64,11 +64,11 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
         hidePoweredBy: (value.hidePoweredBy as boolean) || false,
       };
     } catch {
-      console.warn('[white-label.getWhiteLabelConfig] API not available, using fallback');
+      console.error('[white-label.getWhiteLabelConfig] API not available, using fallback');
       return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
     }
   } catch (error) {
-    console.warn('[getWhiteLabelConfig] Fallback:', error);
+    console.error('[getWhiteLabelConfig] Fallback:', error);
     return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
   }
 }
@@ -93,13 +93,13 @@ export async function updateWhiteLabelConfig(
           updated_at: new Date().toISOString(),
         }, { onConflict: 'academy_id,key' });
       if (error) {
-        console.warn('[updateWhiteLabelConfig] Upsert failed:', error.message);
+        console.error('[updateWhiteLabelConfig] Upsert failed:', error.message);
       }
     } catch {
-      console.warn('[white-label.updateWhiteLabelConfig] API not available, using fallback');
+      console.error('[white-label.updateWhiteLabelConfig] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[updateWhiteLabelConfig] Fallback:', error);
+    console.error('[updateWhiteLabelConfig] Fallback:', error);
   }
 }
 

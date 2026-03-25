@@ -17,12 +17,12 @@ export async function listAutomations(academyId: string): Promise<AutomationConf
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[listAutomations] error:', error.message);
+      console.error('[listAutomations] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as AutomationConfig[];
   } catch (error) {
-    console.warn('[listAutomations] Fallback:', error);
+    console.error('[listAutomations] Fallback:', error);
     return [];
   }
 }
@@ -44,12 +44,12 @@ export async function toggleAutomation(id: string, enabled: boolean): Promise<Au
       .single();
 
     if (error || !data) {
-      console.warn('[toggleAutomation] error:', error?.message);
+      console.error('[toggleAutomation] error:', error?.message);
       return { id, enabled } as unknown as AutomationConfig;
     }
     return data as unknown as AutomationConfig;
   } catch (error) {
-    console.warn('[toggleAutomation] Fallback:', error);
+    console.error('[toggleAutomation] Fallback:', error);
     return { id, enabled } as unknown as AutomationConfig;
   }
 }

@@ -20,7 +20,7 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
         .eq('parent_academy_id', academyId)
         .order('name');
       if (error || !data) {
-        console.warn('[listBranches] Query failed:', error?.message);
+        console.error('[listBranches] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>): Branch => ({
@@ -40,11 +40,11 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
         createdAt: (row.created_at as string) || '',
       }));
     } catch {
-      console.warn('[branch.listBranches] API not available, returning empty');
+      console.error('[branch.listBranches] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[listBranches] Fallback:', error);
+    console.error('[listBranches] Fallback:', error);
     return [];
   }
 }
@@ -64,7 +64,7 @@ export async function getBranch(branchId: string): Promise<Branch> {
         .eq('id', branchId)
         .single();
       if (error || !data) {
-        console.warn('[getBranch] Query failed:', error?.message);
+        console.error('[getBranch] Query failed:', error?.message);
         return emptyBranch(branchId);
       }
       return {
@@ -84,11 +84,11 @@ export async function getBranch(branchId: string): Promise<Branch> {
         createdAt: (data.created_at as string) || '',
       };
     } catch {
-      console.warn('[branch.getBranch] API not available, returning empty');
+      console.error('[branch.getBranch] API not available, returning empty');
       return emptyBranch(branchId);
     }
   } catch (error) {
-    console.warn('[getBranch] Fallback:', error);
+    console.error('[getBranch] Fallback:', error);
     return emptyBranch(branchId);
   }
 }
@@ -119,7 +119,7 @@ export async function createBranch(
         .select()
         .single();
       if (error || !row) {
-        console.warn('[createBranch] Insert failed:', error?.message);
+        console.error('[createBranch] Insert failed:', error?.message);
         return { ...emptyBranch(), academyId, name: payload.name };
       }
       return {
@@ -139,12 +139,12 @@ export async function createBranch(
         createdAt: (row.created_at as string) || '',
       };
     } catch {
-      console.warn('[branch.createBranch] API not available, using mock fallback');
+      console.error('[branch.createBranch] API not available, using mock fallback');
       const { mockCreateBranch } = await import('@/lib/mocks/branch.mock');
       return mockCreateBranch(academyId, payload);
     }
   } catch (error) {
-    console.warn('[createBranch] Fallback:', error);
+    console.error('[createBranch] Fallback:', error);
     return emptyBranch();
   }
 }
@@ -163,7 +163,7 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
         .select('id, name, student_count')
         .eq('parent_academy_id', academyId);
       if (error || !data) {
-        console.warn('[getBranchStats] Query failed:', error?.message);
+        console.error('[getBranchStats] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>): BranchStats => ({
@@ -175,11 +175,11 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
         attendance: 0,
       }));
     } catch {
-      console.warn('[branch.getBranchStats] API not available, returning empty');
+      console.error('[branch.getBranchStats] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[getBranchStats] Fallback:', error);
+    console.error('[getBranchStats] Fallback:', error);
     return [];
   }
 }

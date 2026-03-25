@@ -64,7 +64,7 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       .single();
 
     if (error || !cls) {
-      console.warn('[getModoAula] Supabase error:', error?.message);
+      console.error('[getModoAula] Supabase error:', error?.message);
       return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
     }
 
@@ -131,7 +131,7 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       alertas: [],
     };
   } catch (error) {
-    console.warn('[getModoAula] Fallback:', error);
+    console.error('[getModoAula] Fallback:', error);
     return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
   }
 }
@@ -160,7 +160,7 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
         );
 
       if (error) {
-        console.warn('[registrarPresenca] Supabase error:', error.message);
+        console.error('[registrarPresenca] Supabase error:', error.message);
       }
     } else {
       // Remove attendance record for today (mark as absent = no record)
@@ -175,11 +175,11 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
         .gte('checked_at', todayStart.toISOString());
 
       if (error) {
-        console.warn('[registrarPresenca] Delete error:', error.message);
+        console.error('[registrarPresenca] Delete error:', error.message);
       }
     }
   } catch (error) {
-    console.warn('[registrarPresenca] Fallback:', error);
+    console.error('[registrarPresenca] Fallback:', error);
   }
 }
 
@@ -203,7 +203,7 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       .gte('checked_at', todayStart.toISOString());
 
     if (countError) {
-      console.warn('[encerrarAula] Supabase error:', countError.message);
+      console.error('[encerrarAula] Supabase error:', countError.message);
       return { totalPresentes: 0, totalAlunos: 0 };
     }
 
@@ -219,7 +219,7 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       totalAlunos: enrolledCount ?? 0,
     };
   } catch (error) {
-    console.warn('[encerrarAula] Fallback:', error);
+    console.error('[encerrarAula] Fallback:', error);
     return { totalPresentes: 0, totalAlunos: 0 };
   }
 }

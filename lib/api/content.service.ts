@@ -38,72 +38,60 @@ export interface SeriesDTO {
 }
 
 export async function listVideos(academyId: string, filters?: VideoFilters): Promise<VideoCardDTO[]> {
-  try {
-    if (isMock()) {
-      const { mockListVideos } = await import('@/lib/mocks/content.mock');
-      return mockListVideos(academyId, filters);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    let query = supabase.from('videos').select('*').eq('academy_id', academyId);
-    if (filters?.belt) query = query.eq('belt_level', filters.belt);
-    if (filters?.modality) query = query.eq('modality', filters.modality);
-    if (filters?.search) query = query.ilike('title', `%${filters.search}%`);
-    const { data, error } = await query;
-    if (error || !data) {
-      console.warn('[listVideos] Supabase error:', error?.message);
-      return [];
-    }
-    return data as unknown as VideoCardDTO[];
-  } catch (error) {
-    console.warn('[listVideos] Fallback:', error);
+  if (isMock()) {
+    const { mockListVideos } = await import('@/lib/mocks/content.mock');
+    return mockListVideos(academyId, filters);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  let query = supabase.from('videos').select('*').eq('academy_id', academyId);
+  if (filters?.belt) query = query.eq('belt_level', filters.belt);
+  if (filters?.modality) query = query.eq('modality', filters.modality);
+  if (filters?.search) query = query.ilike('title', `%${filters.search}%`);
+  const { data, error } = await query;
+  if (error || !data) {
+    console.error('[listVideos] Supabase error:', error?.message);
     return [];
   }
+  return data as unknown as VideoCardDTO[];
 }
 
 export async function getVideo(id: string): Promise<VideoDetail> {
-  try {
-    if (isMock()) {
-      const { mockGetVideo } = await import('@/lib/mocks/content.mock');
-      return mockGetVideo(id);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('videos')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (error || !data) {
-      console.warn('[getVideo] Supabase error:', error?.message);
-      return {} as VideoDetail;
-    }
-    return data as unknown as VideoDetail;
-  } catch (error) {
-    console.warn('[getVideo] Fallback:', error);
+  if (isMock()) {
+    const { mockGetVideo } = await import('@/lib/mocks/content.mock');
+    return mockGetVideo(id);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('videos')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error || !data) {
+    console.error('[getVideo] Supabase error:', error?.message);
     return {} as VideoDetail;
   }
+  return data as unknown as VideoDetail;
 }
 
 export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
-  try {
-    if (isMock()) {
-      const { mockGetSeries } = await import('@/lib/mocks/content.mock');
-      return mockGetSeries(academyId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('video_series')
-      .select('*')
-      .eq('academy_id', academyId);
-    if (error || !data) {
-      console.warn('[getSeries] Supabase error:', error?.message);
-      return [];
-    }
-    return data as unknown as SeriesDTO[];
-  } catch (error) {
-    console.warn('[getSeries] Fallback:', error);
+  if (isMock()) {
+    const { mockGetSeries } = await import('@/lib/mocks/content.mock');
+    return mockGetSeries(academyId);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('video_series')
+    .select('*')
+    .eq('academy_id', academyId);
+  if (error || !data) {
+    console.error('[getSeries] Supabase error:', error?.message);
     return [];
   }
+  return data as unknown as SeriesDTO[];
 }

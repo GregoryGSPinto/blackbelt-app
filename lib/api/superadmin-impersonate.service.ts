@@ -46,12 +46,12 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
       }
       return session;
     } catch {
-      console.warn('[superadmin-impersonate.startImpersonation] API not available, using mock fallback');
+      console.error('[superadmin-impersonate.startImpersonation] API not available, using mock fallback');
       const { mockStartImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStartImpersonation(academiaId);
     }
   } catch (error) {
-    console.warn('[startImpersonation] Fallback:', error);
+    console.error('[startImpersonation] Fallback:', error);
     return { originalUserId: '', impersonatedUserId: '', academiaId, academiaNome: '', role: 'admin', iniciadoEm: new Date().toISOString() };
   }
 }
@@ -67,7 +67,7 @@ export async function stopImpersonation(): Promise<void> {
       sessionStorage.removeItem('bb_impersonate_session');
     }
   } catch (error) {
-    console.warn('[stopImpersonation] Fallback:', error);
+    console.error('[stopImpersonation] Fallback:', error);
   }
 }
 
@@ -97,7 +97,7 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
         .select('id, name, plan, student_count, health_score')
         .order('name');
       if (error || !data) {
-        console.warn('[listImpersonateAcademias] Query failed:', error?.message);
+        console.error('[listImpersonateAcademias] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -108,11 +108,11 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
         healthScore: (row.health_score as number) || 0,
       }));
     } catch {
-      console.warn('[superadmin-impersonate.listImpersonateAcademias] API not available, returning empty');
+      console.error('[superadmin-impersonate.listImpersonateAcademias] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[listImpersonateAcademias] Fallback:', error);
+    console.error('[listImpersonateAcademias] Fallback:', error);
     return [];
   }
 }

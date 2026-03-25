@@ -38,7 +38,7 @@ export async function getAlertas(professorId: string): Promise<AlertaProfessor[]
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getAlertas] Supabase error:', error?.message);
+      console.error('[getAlertas] Supabase error:', error?.message);
       return [];
     }
 
@@ -57,7 +57,7 @@ export async function getAlertas(professorId: string): Promise<AlertaProfessor[]
       criadoEm: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.warn('[getAlertas] Fallback:', error);
+    console.error('[getAlertas] Fallback:', error);
     return [];
   }
 }
@@ -78,13 +78,13 @@ export async function getAlertasCount(professorId: string): Promise<number> {
       .eq('lido', false);
 
     if (error) {
-      console.warn('[getAlertasCount] Supabase error:', error.message);
+      console.error('[getAlertasCount] Supabase error:', error.message);
       return 0;
     }
 
     return count ?? 0;
   } catch (error) {
-    console.warn('[getAlertasCount] Fallback:', error);
+    console.error('[getAlertasCount] Fallback:', error);
     return 0;
   }
 }
@@ -104,10 +104,10 @@ export async function marcarLido(alertaId: string): Promise<void> {
       .eq('id', alertaId);
 
     if (error) {
-      console.warn('[marcarLido] Supabase error:', error.message);
+      console.error('[marcarLido] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarLido] Fallback:', error);
+    console.error('[marcarLido] Fallback:', error);
   }
 }
 
@@ -127,9 +127,9 @@ export async function marcarTodosLidos(professorId: string): Promise<void> {
       .eq('lido', false);
 
     if (error) {
-      console.warn('[marcarTodosLidos] Supabase error:', error.message);
+      console.error('[marcarTodosLidos] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarTodosLidos] Fallback:', error);
+    console.error('[marcarTodosLidos] Fallback:', error);
   }
 }

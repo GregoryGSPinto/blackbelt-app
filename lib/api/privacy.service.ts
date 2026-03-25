@@ -39,7 +39,7 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
         .eq('user_id', userId)
         .order('updated_at', { ascending: false });
       if (error) {
-        console.warn('[getConsents] query error:', error.message);
+        console.error('[getConsents] query error:', error.message);
         return [];
       }
       return (data ?? []).map((r: { id: string; type: string; accepted: boolean; version: string | null; updated_at: string | null }) => ({
@@ -50,11 +50,11 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
         version: r.version ?? '1.0',
       }));
     } catch (err) {
-      console.warn('[privacy.getConsents] error, using fallback:', err);
+      console.error('[privacy.getConsents] error, using fallback:', err);
       return [];
     }
   } catch (error) {
-    console.warn('[getConsents] Fallback:', error);
+    console.error('[getConsents] Fallback:', error);
     return [];
   }
 }
@@ -78,7 +78,7 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
         .select('id, type, accepted, version, updated_at')
         .single();
       if (error || !data) {
-        console.warn('[updateConsent] upsert error:', error?.message);
+        console.error('[updateConsent] upsert error:', error?.message);
         return { id: '', type, accepted, acceptedAt: null, version: '1.0' };
       }
       return {
@@ -89,11 +89,11 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
         version: data.version ?? '1.0',
       };
     } catch (err) {
-      console.warn('[privacy.updateConsent] error, using fallback:', err);
+      console.error('[privacy.updateConsent] error, using fallback:', err);
       return { id: '', type, accepted, acceptedAt: null, version: '' };
     }
   } catch (error) {
-    console.warn('[updateConsent] Fallback:', error);
+    console.error('[updateConsent] Fallback:', error);
     return { id: '', type, accepted, acceptedAt: null, version: '' };
   }
 }
@@ -114,7 +114,7 @@ export async function requestDataExport(userId: string): Promise<DataExportReque
         .select('id, status, created_at, completed_at, download_url')
         .single();
       if (error || !data) {
-        console.warn('[requestDataExport] insert error:', error?.message);
+        console.error('[requestDataExport] insert error:', error?.message);
         return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
       }
       return {
@@ -125,11 +125,11 @@ export async function requestDataExport(userId: string): Promise<DataExportReque
         downloadUrl: data.download_url,
       };
     } catch (err) {
-      console.warn('[privacy.requestDataExport] error, using fallback:', err);
+      console.error('[privacy.requestDataExport] error, using fallback:', err);
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
     }
   } catch (error) {
-    console.warn('[requestDataExport] Fallback:', error);
+    console.error('[requestDataExport] Fallback:', error);
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
   }
 }
@@ -150,7 +150,7 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
         .eq('id', requestId)
         .single();
       if (error || !data) {
-        console.warn('[getDataExportStatus] query error:', error?.message);
+        console.error('[getDataExportStatus] query error:', error?.message);
         return { id: requestId, status: 'pending' as const, requestedAt: '', completedAt: null, downloadUrl: null };
       }
       return {
@@ -161,11 +161,11 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
         downloadUrl: data.download_url,
       };
     } catch (err) {
-      console.warn('[privacy.getDataExportStatus] error, using fallback:', err);
+      console.error('[privacy.getDataExportStatus] error, using fallback:', err);
       return { id: requestId, status: 'pending' as const, requestedAt: '', completedAt: null, downloadUrl: null };
     }
   } catch (error) {
-    console.warn('[getDataExportStatus] Fallback:', error);
+    console.error('[getDataExportStatus] Fallback:', error);
     return { id: requestId, status: 'pending', requestedAt: '', completedAt: null, downloadUrl: null };
   }
 }
@@ -187,7 +187,7 @@ export async function requestAccountDeletion(userId: string): Promise<DeletionRe
         .select('id, status, created_at, scheduled_at')
         .single();
       if (error || !data) {
-        console.warn('[requestAccountDeletion] insert error:', error?.message);
+        console.error('[requestAccountDeletion] insert error:', error?.message);
         return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), scheduledDeletionAt: scheduledAt };
       }
       return {
@@ -197,11 +197,11 @@ export async function requestAccountDeletion(userId: string): Promise<DeletionRe
         scheduledDeletionAt: data.scheduled_at ?? scheduledAt,
       };
     } catch (err) {
-      console.warn('[privacy.requestAccountDeletion] error, using fallback:', err);
+      console.error('[privacy.requestAccountDeletion] error, using fallback:', err);
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
     }
   } catch (error) {
-    console.warn('[requestAccountDeletion] Fallback:', error);
+    console.error('[requestAccountDeletion] Fallback:', error);
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
   }
 }

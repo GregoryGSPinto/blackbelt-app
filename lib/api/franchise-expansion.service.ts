@@ -72,13 +72,13 @@ export async function createLead(data: CreateLeadData): Promise<FranchiseLead> {
       .single();
 
     if (error) {
-      console.warn('[createLead] error:', error.message);
+      console.error('[createLead] error:', error.message);
       return {} as FranchiseLead;
     }
 
     return inserted as unknown as FranchiseLead;
   } catch (error) {
-    console.warn('[createLead] Fallback:', error);
+    console.error('[createLead] Fallback:', error);
     return {} as FranchiseLead;
   }
 }
@@ -100,13 +100,13 @@ export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getLeads] error:', error.message);
+      console.error('[getLeads] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as FranchiseLead[];
   } catch (error) {
-    console.warn('[getLeads] Fallback:', error);
+    console.error('[getLeads] Fallback:', error);
     return [];
   }
 }
@@ -129,13 +129,13 @@ export async function updateLeadStatus(leadId: string, stage: PipelineStage): Pr
       .single();
 
     if (error) {
-      console.warn('[updateLeadStatus] error:', error.message);
+      console.error('[updateLeadStatus] error:', error.message);
       return {} as FranchiseLead;
     }
 
     return data as unknown as FranchiseLead;
   } catch (error) {
-    console.warn('[updateLeadStatus] Fallback:', error);
+    console.error('[updateLeadStatus] Fallback:', error);
     return {} as FranchiseLead;
   }
 }
@@ -154,7 +154,7 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       .rpc('analyze_franchise_viability', { p_location: location });
 
     if (error) {
-      console.warn('[analyzeViability] error:', error.message);
+      console.error('[analyzeViability] error:', error.message);
       return {
         location,
         population: 0,
@@ -176,7 +176,7 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       factors: [],
     };
   } catch (error) {
-    console.warn('[analyzeViability] Fallback:', error);
+    console.error('[analyzeViability] Fallback:', error);
     return {
       location,
       population: 0,
@@ -207,13 +207,13 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       .single();
 
     if (error) {
-      console.warn('[setupFranchise] error:', error.message);
+      console.error('[setupFranchise] error:', error.message);
       return {} as FranchiseLead;
     }
 
     return data as unknown as FranchiseLead;
   } catch (error) {
-    console.warn('[setupFranchise] Fallback:', error);
+    console.error('[setupFranchise] Fallback:', error);
     return {} as FranchiseLead;
   }
 }

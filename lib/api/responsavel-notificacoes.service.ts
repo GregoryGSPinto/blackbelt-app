@@ -34,13 +34,13 @@ export async function getNotificacoes(guardianId: string): Promise<NotificacaoRe
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getNotificacoes] Supabase error:', error?.message);
+      console.error('[getNotificacoes] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as NotificacaoResponsavel[];
   } catch (error) {
-    console.warn('[getNotificacoes] Fallback:', error);
+    console.error('[getNotificacoes] Fallback:', error);
     return [];
   }
 }
@@ -60,10 +60,10 @@ export async function marcarLida(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.warn('[marcarLida] Supabase error:', error.message);
+      console.error('[marcarLida] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarLida] Fallback:', error);
+    console.error('[marcarLida] Fallback:', error);
   }
 }
 
@@ -83,9 +83,9 @@ export async function marcarTodasLidas(guardianId: string): Promise<void> {
       .eq('read', false);
 
     if (error) {
-      console.warn('[marcarTodasLidas] Supabase error:', error.message);
+      console.error('[marcarTodasLidas] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarTodasLidas] Fallback:', error);
+    console.error('[marcarTodasLidas] Fallback:', error);
   }
 }

@@ -72,7 +72,7 @@ export async function getMyContacts(
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[getMyContacts] Supabase error:', error.message);
+      console.error('[getMyContacts] Supabase error:', error.message);
       return [];
     }
 
@@ -90,7 +90,7 @@ export async function getMyContacts(
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getMyContacts] Fallback:', msg);
+    console.error('[getMyContacts] Fallback:', msg);
     return [];
   }
 }
@@ -116,7 +116,7 @@ export async function getConversations(profileId: string): Promise<Conversation[
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (error) {
-      console.warn('[getConversations] Supabase error:', error.message);
+      console.error('[getConversations] Supabase error:', error.message);
       return [];
     }
 
@@ -147,7 +147,7 @@ export async function getConversations(profileId: string): Promise<Conversation[
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getConversations] Fallback:', msg);
+    console.error('[getConversations] Fallback:', msg);
     return [];
   }
 }
@@ -207,7 +207,7 @@ export async function getOrCreateConversation(
       .maybeSingle();
 
     if (findError) {
-      console.warn('[getOrCreateConversation] Find error:', findError.message);
+      console.error('[getOrCreateConversation] Find error:', findError.message);
       return fallback;
     }
 
@@ -242,7 +242,7 @@ export async function getOrCreateConversation(
       .single();
 
     if (createError || !created) {
-      console.warn('[getOrCreateConversation] Create error:', createError?.message);
+      console.error('[getOrCreateConversation] Create error:', createError?.message);
       return fallback;
     }
 
@@ -263,7 +263,7 @@ export async function getOrCreateConversation(
     };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getOrCreateConversation] Fallback:', msg);
+    console.error('[getOrCreateConversation] Fallback:', msg);
     return fallback;
   }
 }
@@ -298,7 +298,7 @@ export async function getMessages(
       .range(offset, offset + pageSize - 1);
 
     if (error) {
-      console.warn('[getMessages] Supabase error:', error.message);
+      console.error('[getMessages] Supabase error:', error.message);
       return [];
     }
 
@@ -316,7 +316,7 @@ export async function getMessages(
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getMessages] Fallback:', msg);
+    console.error('[getMessages] Fallback:', msg);
     return [];
   }
 }
@@ -365,7 +365,7 @@ export async function sendMessage(
       .single();
 
     if (error || !data) {
-      console.warn('[sendMessage] Supabase error:', error?.message);
+      console.error('[sendMessage] Supabase error:', error?.message);
       return fallback;
     }
 
@@ -396,7 +396,7 @@ export async function sendMessage(
     };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[sendMessage] Fallback:', msg);
+    console.error('[sendMessage] Fallback:', msg);
     return fallback;
   }
 }
@@ -426,11 +426,11 @@ export async function markAsRead(
       .is('read_at', null);
 
     if (error) {
-      console.warn('[markAsRead] Supabase error:', error.message);
+      console.error('[markAsRead] Supabase error:', error.message);
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[markAsRead] Fallback:', msg);
+    console.error('[markAsRead] Fallback:', msg);
   }
 }
 
@@ -454,11 +454,11 @@ export async function deleteMessage(messageId: string): Promise<void> {
       .eq('id', messageId);
 
     if (error) {
-      console.warn('[deleteMessage] Supabase error:', error.message);
+      console.error('[deleteMessage] Supabase error:', error.message);
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[deleteMessage] Fallback:', msg);
+    console.error('[deleteMessage] Fallback:', msg);
   }
 }
 
@@ -514,7 +514,7 @@ export async function sendBroadcast(
       .single();
 
     if (error || !data) {
-      console.warn('[sendBroadcast] Supabase error:', error?.message);
+      console.error('[sendBroadcast] Supabase error:', error?.message);
       return fallback;
     }
 
@@ -536,7 +536,7 @@ export async function sendBroadcast(
     };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[sendBroadcast] Fallback:', msg);
+    console.error('[sendBroadcast] Fallback:', msg);
     return fallback;
   }
 }
@@ -562,7 +562,7 @@ export async function getBroadcasts(profileId: string): Promise<BroadcastMessage
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getBroadcasts] Supabase error:', error.message);
+      console.error('[getBroadcasts] Supabase error:', error.message);
       return [];
     }
 
@@ -583,7 +583,7 @@ export async function getBroadcasts(profileId: string): Promise<BroadcastMessage
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getBroadcasts] Fallback:', msg);
+    console.error('[getBroadcasts] Fallback:', msg);
     return [];
   }
 }
@@ -618,11 +618,11 @@ export async function markBroadcastRead(
       );
 
     if (error) {
-      console.warn('[markBroadcastRead] Supabase error:', error.message);
+      console.error('[markBroadcastRead] Supabase error:', error.message);
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[markBroadcastRead] Fallback:', msg);
+    console.error('[markBroadcastRead] Fallback:', msg);
   }
 }
 
@@ -647,14 +647,14 @@ export async function getTotalUnread(profileId: string): Promise<number> {
       .is('read_at', null);
 
     if (error) {
-      console.warn('[getTotalUnread] Supabase error:', error.message);
+      console.error('[getTotalUnread] Supabase error:', error.message);
       return 0;
     }
 
     return count ?? 0;
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getTotalUnread] Fallback:', msg);
+    console.error('[getTotalUnread] Fallback:', msg);
     return 0;
   }
 }
@@ -683,7 +683,7 @@ export async function searchMessages(
       .or(`participant_a.eq.${profileId},participant_b.eq.${profileId}`);
 
     if (convoError || !convos?.length) {
-      if (convoError) console.warn('[searchMessages] Supabase error:', convoError.message);
+      if (convoError) console.error('[searchMessages] Supabase error:', convoError.message);
       return [];
     }
 
@@ -699,7 +699,7 @@ export async function searchMessages(
       .limit(50);
 
     if (error) {
-      console.warn('[searchMessages] Supabase error:', error.message);
+      console.error('[searchMessages] Supabase error:', error.message);
       return [];
     }
 
@@ -717,7 +717,7 @@ export async function searchMessages(
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[searchMessages] Fallback:', msg);
+    console.error('[searchMessages] Fallback:', msg);
     return [];
   }
 }

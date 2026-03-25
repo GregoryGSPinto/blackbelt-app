@@ -30,7 +30,7 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[listLeads] Supabase error:', error?.message);
+      console.error('[listLeads] Supabase error:', error?.message);
       return [];
     }
 
@@ -46,7 +46,7 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       createdAt: (l.created_at as string) ?? '',
     }));
   } catch (error) {
-    console.warn('[listLeads] Fallback:', error);
+    console.error('[listLeads] Fallback:', error);
     return [];
   }
 }
@@ -74,7 +74,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       .single();
 
     if (error || !row) {
-      console.warn('[createLead] Supabase error:', error?.message);
+      console.error('[createLead] Supabase error:', error?.message);
       return { id: '', name: data.name, email: data.email, phone: data.phone, interest: data.interest, source: data.source, referralCode: data.referralCode, status: 'novo', createdAt: new Date().toISOString() };
     }
 
@@ -91,7 +91,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       createdAt: row.created_at ?? '',
     };
   } catch (error) {
-    console.warn('[createLead] Fallback:', error);
+    console.error('[createLead] Fallback:', error);
     return { id: '', name: data.name, email: data.email, phone: data.phone, interest: data.interest, source: data.source, referralCode: data.referralCode, status: 'novo', createdAt: new Date().toISOString() };
   }
 }
@@ -110,9 +110,9 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus): Prom
       .eq('id', leadId);
 
     if (error) {
-      console.warn('[updateLeadStatus] Supabase error:', error.message);
+      console.error('[updateLeadStatus] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[updateLeadStatus] Fallback:', error);
+    console.error('[updateLeadStatus] Fallback:', error);
   }
 }

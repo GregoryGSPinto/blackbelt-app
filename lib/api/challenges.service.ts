@@ -33,7 +33,7 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       .order('start_date', { ascending: false });
 
     if (error || !data) {
-      console.warn('[listChallenges] Supabase error:', error?.message);
+      console.error('[listChallenges] Supabase error:', error?.message);
       return [];
     }
 
@@ -52,7 +52,7 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       participantCount: Number(row.participant_count ?? 0),
     }));
   } catch (error) {
-    console.warn('[listChallenges] Fallback:', error);
+    console.error('[listChallenges] Fallback:', error);
     return [];
   }
 }
@@ -84,7 +84,7 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       .single();
 
     if (error || !row) {
-      console.warn('[createChallenge] Supabase error:', error?.message);
+      console.error('[createChallenge] Supabase error:', error?.message);
       return { id: '', ...data, progress: 0, participantCount: 0 };
     }
 
@@ -103,7 +103,7 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       participantCount: 0,
     };
   } catch (error) {
-    console.warn('[createChallenge] Fallback:', error);
+    console.error('[createChallenge] Fallback:', error);
     return { id: '', ...data, progress: 0, participantCount: 0 };
   }
 }

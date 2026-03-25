@@ -51,12 +51,12 @@ export async function registerWebhook(academyId: string, url: string, events: We
       .single();
 
     if (error || !data) {
-      console.warn('[registerWebhook] error:', error?.message);
+      console.error('[registerWebhook] error:', error?.message);
       return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
     }
     return data as unknown as OutgoingWebhook;
   } catch (error) {
-    console.warn('[registerWebhook] Fallback:', error);
+    console.error('[registerWebhook] Fallback:', error);
     return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
   }
 }
@@ -77,12 +77,12 @@ export async function listWebhooks(academyId: string): Promise<OutgoingWebhook[]
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[listWebhooks] error:', error.message);
+      console.error('[listWebhooks] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as OutgoingWebhook[];
   } catch (error) {
-    console.warn('[listWebhooks] Fallback:', error);
+    console.error('[listWebhooks] Fallback:', error);
     return [];
   }
 }
@@ -102,10 +102,10 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       .eq('id', webhookId);
 
     if (error) {
-      console.warn('[deleteWebhook] error:', error.message);
+      console.error('[deleteWebhook] error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteWebhook] Fallback:', error);
+    console.error('[deleteWebhook] Fallback:', error);
   }
 }
 
@@ -125,7 +125,7 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       .single();
 
     if (error || !webhook) {
-      console.warn('[testWebhook] error:', error?.message ?? 'not found');
+      console.error('[testWebhook] error:', error?.message ?? 'not found');
       return { success: false, responseCode: 0, responseTime: 0, error: 'Webhook not found' };
     }
 
@@ -140,11 +140,11 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       return { success: res.ok, responseCode: res.status, responseTime, error: res.ok ? null : `HTTP ${res.status}` };
     } catch (err) {
       const responseTime = Date.now() - start;
-      console.warn('[testWebhook] Failed to reach webhook URL');
+      console.error('[testWebhook] Failed to reach webhook URL');
       return { success: false, responseCode: 0, responseTime, error: err instanceof Error ? err.message : 'Connection failed' };
     }
   } catch (error) {
-    console.warn('[testWebhook] Fallback:', error);
+    console.error('[testWebhook] Fallback:', error);
     return { success: false, responseCode: 0, responseTime: 0, error: 'Unknown error' };
   }
 }
@@ -166,12 +166,12 @@ export async function getDeliveryLog(webhookId: string): Promise<WebhookDelivery
       .limit(50);
 
     if (error) {
-      console.warn('[getDeliveryLog] error:', error.message);
+      console.error('[getDeliveryLog] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as WebhookDelivery[];
   } catch (error) {
-    console.warn('[getDeliveryLog] Fallback:', error);
+    console.error('[getDeliveryLog] Fallback:', error);
     return [];
   }
 }

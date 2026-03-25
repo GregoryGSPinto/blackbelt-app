@@ -36,12 +36,12 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       .select('*')
       .eq('student_id', studentId);
     if (error || !data) {
-      console.warn('[getRecompensasKids] Supabase error:', error?.message);
+      console.error('[getRecompensasKids] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as RecompensaKids[];
   } catch (error) {
-    console.warn('[getRecompensasKids] Fallback:', error);
+    console.error('[getRecompensasKids] Fallback:', error);
     return [];
   }
 }
@@ -60,12 +60,12 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       .eq('student_id', studentId)
       .order('data', { ascending: false });
     if (error || !data) {
-      console.warn('[getHistoricoResgates] Supabase error:', error?.message);
+      console.error('[getHistoricoResgates] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as HistoricoResgate[];
   } catch (error) {
-    console.warn('[getHistoricoResgates] Fallback:', error);
+    console.error('[getHistoricoResgates] Fallback:', error);
     return [];
   }
 }
@@ -80,12 +80,12 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('resgatar_recompensa_kids', { p_student_id: studentId, p_recompensa_id: recompensaId });
     if (error || !data) {
-      console.warn('[resgatarRecompensa] Supabase error:', error?.message);
+      console.error('[resgatarRecompensa] Supabase error:', error?.message);
       return {} as HistoricoResgate;
     }
     return data as unknown as HistoricoResgate;
   } catch (error) {
-    console.warn('[resgatarRecompensa] Fallback:', error);
+    console.error('[resgatarRecompensa] Fallback:', error);
     return {} as HistoricoResgate;
   }
 }

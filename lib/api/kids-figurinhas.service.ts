@@ -46,13 +46,13 @@ export async function getAlbum(studentId: string): Promise<AlbumFigurinhas> {
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getAlbum] Supabase error:', error?.message);
+      console.error('[getAlbum] Supabase error:', error?.message);
       const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
       return mockGetAlbum(studentId);
     }
     return data as unknown as AlbumFigurinhas;
   } catch (error) {
-    console.warn('[getAlbum] Fallback:', error);
+    console.error('[getAlbum] Fallback:', error);
     const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
     return mockGetAlbum(studentId);
   }

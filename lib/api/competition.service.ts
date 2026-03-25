@@ -85,7 +85,7 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
         .eq('academy_id', academyId)
         .order('date', { ascending: false });
       if (error || !data) {
-        console.warn('[listCompetitions] Query failed:', error?.message);
+        console.error('[listCompetitions] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -98,11 +98,11 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
         totalParticipants: (row.total_participants as number) || 0,
       }));
     } catch {
-      console.warn('[competition.listCompetitions] API not available, returning empty');
+      console.error('[competition.listCompetitions] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[listCompetitions] Fallback:', error);
+    console.error('[listCompetitions] Fallback:', error);
     return [];
   }
 }
@@ -131,7 +131,7 @@ export async function createCompetition(
         .select()
         .single();
       if (error || !row) {
-        console.warn('[createCompetition] Insert failed:', error?.message);
+        console.error('[createCompetition] Insert failed:', error?.message);
         return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
       }
       return {
@@ -144,11 +144,11 @@ export async function createCompetition(
         totalParticipants: 0,
       };
     } catch {
-      console.warn('[competition.createCompetition] API not available, returning fallback');
+      console.error('[competition.createCompetition] API not available, returning fallback');
       return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
     }
   } catch (error) {
-    console.warn('[createCompetition] Fallback:', error);
+    console.error('[createCompetition] Fallback:', error);
     return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
   }
 }
@@ -173,16 +173,16 @@ export async function generateBracket(
         body: JSON.stringify({ categoryId, eliminationType }),
       });
       if (!res.ok) {
-        console.warn('[generateBracket] API error:', res.status);
+        console.error('[generateBracket] API error:', res.status);
         return [];
       }
       return res.json();
     } catch {
-      console.warn('[competition.generateBracket] API not available, returning empty');
+      console.error('[competition.generateBracket] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[generateBracket] Fallback:', error);
+    console.error('[generateBracket] Fallback:', error);
     return [];
   }
 }
@@ -206,12 +206,12 @@ export async function recordMatchResult(
         body: JSON.stringify({ winnerId, score1, score2, method }),
       });
       if (!res.ok) {
-        console.warn('[recordMatchResult] API error:', res.status);
+        console.error('[recordMatchResult] API error:', res.status);
       }
     } catch {
-      console.warn('[competition.recordMatchResult] API not available, using fallback');
+      console.error('[competition.recordMatchResult] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[recordMatchResult] Fallback:', error);
+    console.error('[recordMatchResult] Fallback:', error);
   }
 }

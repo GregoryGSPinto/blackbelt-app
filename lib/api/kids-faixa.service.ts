@@ -42,13 +42,13 @@ export async function getFaixaKids(studentId: string): Promise<FaixaKids> {
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getFaixaKids] Supabase error:', error?.message);
+      console.error('[getFaixaKids] Supabase error:', error?.message);
       const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
       return mockGetFaixaKids(studentId);
     }
     return data as unknown as FaixaKids;
   } catch (error) {
-    console.warn('[getFaixaKids] Fallback:', error);
+    console.error('[getFaixaKids] Fallback:', error);
     const { mockGetFaixaKids } = await import('@/lib/mocks/kids-faixa.mock');
     return mockGetFaixaKids(studentId);
   }

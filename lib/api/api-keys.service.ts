@@ -61,13 +61,13 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
     );
 
     if (error) {
-      console.warn('[generateApiKey] Supabase error:', error.message);
+      console.error('[generateApiKey] Supabase error:', error.message);
       return { key: '', secret: '', apiKey: { ...newApiKey, id: '' } };
     }
 
     return { key: keyValue, secret: secretValue, apiKey: newApiKey };
   } catch (error) {
-    console.warn('[generateApiKey] Fallback:', error);
+    console.error('[generateApiKey] Fallback:', error);
     return { key: '', secret: '', apiKey: { id: '', academyId, name, keyPrefix: '', permissions: [], createdAt: '', lastUsedAt: null, revokedAt: null } };
   }
 }
@@ -88,7 +88,7 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[listApiKeys] Supabase error:', error.message);
+      console.error('[listApiKeys] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -96,7 +96,7 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
     // Only return non-revoked keys
     return keys.filter((k) => !k.revokedAt);
   } catch (error) {
-    console.warn('[listApiKeys] Fallback:', error);
+    console.error('[listApiKeys] Fallback:', error);
     return [];
   }
 }
@@ -124,12 +124,12 @@ export async function revokeApiKey(keyId: string): Promise<void> {
         const { error } = await supabase.from('academy_settings').update(
           { settings: { ...settings, api_keys: keys }, updated_at: new Date().toISOString() },
         ).eq('academy_id', row.academy_id);
-        if (error) console.warn('[revokeApiKey] Supabase error:', error.message);
+        if (error) console.error('[revokeApiKey] Supabase error:', error.message);
         return;
       }
     }
   } catch (error) {
-    console.warn('[revokeApiKey] Fallback:', error);
+    console.error('[revokeApiKey] Fallback:', error);
   }
 }
 
@@ -159,7 +159,7 @@ export async function validateApiKey(key: string): Promise<{ academyId: string; 
 
     return null;
   } catch (error) {
-    console.warn('[validateApiKey] Fallback:', error);
+    console.error('[validateApiKey] Fallback:', error);
     return null;
   }
 }

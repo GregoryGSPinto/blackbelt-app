@@ -45,12 +45,12 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[listAdminVideos] Supabase error:', error.message);
+      console.error('[listAdminVideos] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as AdminVideoDTO[];
   } catch (error) {
-    console.warn('[listAdminVideos] Fallback:', error);
+    console.error('[listAdminVideos] Fallback:', error);
     return [];
   }
 }
@@ -69,13 +69,13 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createVideo] Supabase error:', error?.message);
+      console.error('[createVideo] Supabase error:', error?.message);
       const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockCreateVideo(data);
     }
     return row as unknown as Video;
   } catch (error) {
-    console.warn('[createVideo] Fallback:', error);
+    console.error('[createVideo] Fallback:', error);
     const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
     return mockCreateVideo(data);
   }
@@ -94,10 +94,10 @@ export async function deleteVideo(id: string): Promise<void> {
       .delete()
       .eq('id', id);
     if (error) {
-      console.warn('[deleteVideo] Supabase error:', error.message);
+      console.error('[deleteVideo] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteVideo] Fallback:', error);
+    console.error('[deleteVideo] Fallback:', error);
   }
 }
 
@@ -114,10 +114,10 @@ export async function togglePublish(id: string, publish: boolean): Promise<void>
       .update({ status: publish ? 'published' : 'draft' })
       .eq('id', id);
     if (error) {
-      console.warn('[togglePublish] Supabase error:', error.message);
+      console.error('[togglePublish] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[togglePublish] Fallback:', error);
+    console.error('[togglePublish] Fallback:', error);
   }
 }
 
@@ -135,12 +135,12 @@ export async function getAdminStorageStats(academyId: string): Promise<AdminStor
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getAdminStorageStats] Supabase error:', error?.message);
+      console.error('[getAdminStorageStats] Supabase error:', error?.message);
       return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
     }
     return data as AdminStorageStats;
   } catch (error) {
-    console.warn('[getAdminStorageStats] Fallback:', error);
+    console.error('[getAdminStorageStats] Fallback:', error);
     return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
   }
 }

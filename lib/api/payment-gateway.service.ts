@@ -106,12 +106,12 @@ export async function getGatewayConfig(academyId: string): Promise<PaymentGatewa
       .single();
 
     if (error || !data) {
-      console.warn('[getGatewayConfig] error:', error?.message ?? 'not found');
+      console.error('[getGatewayConfig] error:', error?.message ?? 'not found');
       return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
     }
     return data.value as unknown as PaymentGatewayConfig;
   } catch (error) {
-    console.warn('[getGatewayConfig] Fallback:', error);
+    console.error('[getGatewayConfig] Fallback:', error);
     return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
   }
 }
@@ -129,10 +129,10 @@ export async function saveGatewayConfig(academyId: string, config: Partial<Payme
       .upsert({ academy_id: academyId, key: 'payment_gateway', value: config }, { onConflict: 'academy_id,key' });
 
     if (error) {
-      console.warn('[saveGatewayConfig] error:', error.message);
+      console.error('[saveGatewayConfig] error:', error.message);
     }
   } catch (error) {
-    console.warn('[saveGatewayConfig] Fallback:', error);
+    console.error('[saveGatewayConfig] Fallback:', error);
   }
 }
 
@@ -145,7 +145,7 @@ export async function testGatewayConnection(config: Partial<PaymentGatewayConfig
     // Without a real gateway API key, we just return true (manual mode)
     return true;
   } catch (error) {
-    console.warn('[testGatewayConnection] Fallback:', error);
+    console.error('[testGatewayConnection] Fallback:', error);
     return false;
   }
 }
@@ -171,7 +171,7 @@ export async function getGatewayStatus(academyId: string): Promise<GatewayStatus
     const cfg = data.value as Record<string, unknown>;
     return { connected: (cfg.connected as boolean) ?? false, provider: (cfg.provider as string) ?? 'none', lastSync: cfg.lastSync as string | undefined };
   } catch (error) {
-    console.warn('[getGatewayStatus] Fallback:', error);
+    console.error('[getGatewayStatus] Fallback:', error);
     return { connected: false, provider: 'none' };
   }
 }
@@ -191,12 +191,12 @@ export async function createCharge(academyId: string, customerId: string, value:
       .single();
 
     if (error || !data) {
-      console.warn('[createCharge] error:', error?.message ?? 'no data');
+      console.error('[createCharge] error:', error?.message ?? 'no data');
       return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
     }
     return data as unknown as PaymentCharge;
   } catch (error) {
-    console.warn('[createCharge] Fallback:', error);
+    console.error('[createCharge] Fallback:', error);
     return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
   }
 }
@@ -215,12 +215,12 @@ export async function listCharges(academyId: string, filters?: ChargeFilters): P
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[listCharges] error:', error.message);
+      console.error('[listCharges] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as PaymentCharge[];
   } catch (error) {
-    console.warn('[listCharges] Fallback:', error);
+    console.error('[listCharges] Fallback:', error);
     return [];
   }
 }
@@ -236,12 +236,12 @@ export async function listSubscriptions(academyId: string): Promise<PaymentSubsc
     const { data, error } = await supabase.from('payment_subscriptions').select('*, payment_customers(name)').eq('academy_id', academyId);
 
     if (error) {
-      console.warn('[listSubscriptions] error:', error.message);
+      console.error('[listSubscriptions] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as PaymentSubscription[];
   } catch (error) {
-    console.warn('[listSubscriptions] Fallback:', error);
+    console.error('[listSubscriptions] Fallback:', error);
     return [];
   }
 }
@@ -260,7 +260,7 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       .eq('academy_id', academyId);
 
     if (error || !data) {
-      console.warn('[getFinancialSummary] error:', error?.message);
+      console.error('[getFinancialSummary] error:', error?.message);
       return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
     }
 
@@ -280,7 +280,7 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
     }
     return { received, pending, overdue, refunded, netRevenue: received - refunded, fees: 0, byMethod };
   } catch (error) {
-    console.warn('[getFinancialSummary] Fallback:', error);
+    console.error('[getFinancialSummary] Fallback:', error);
     return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
   }
 }
@@ -292,10 +292,10 @@ export async function generatePixQrCode(chargeId: string): Promise<{ qrCode: str
       return mockGeneratePixQrCode(chargeId);
     }
     // Without gateway API key, Pix QR code generation is not available
-    console.warn('[generatePixQrCode] Gateway not configured — PIX QR code not available for charge:', chargeId);
+    console.error('[generatePixQrCode] Gateway not configured — PIX QR code not available for charge:', chargeId);
     return { qrCode: '', copyPaste: '' };
   } catch (error) {
-    console.warn('[generatePixQrCode] Fallback:', error);
+    console.error('[generatePixQrCode] Fallback:', error);
     return { qrCode: '', copyPaste: '' };
   }
 }
@@ -307,10 +307,10 @@ export async function syncCustomers(academyId: string): Promise<{ synced: number
       return mockSyncCustomers(academyId);
     }
     // Without gateway API key, sync is manual
-    console.warn('[syncCustomers] Gateway not configured — sync not available for academy:', academyId);
+    console.error('[syncCustomers] Gateway not configured — sync not available for academy:', academyId);
     return { synced: 0 };
   } catch (error) {
-    console.warn('[syncCustomers] Fallback:', error);
+    console.error('[syncCustomers] Fallback:', error);
     return { synced: 0 };
   }
 }

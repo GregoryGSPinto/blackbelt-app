@@ -38,7 +38,7 @@ export async function getMFAStatus(userId: string): Promise<MFAStatus> {
       .single();
 
     if (error || !data) {
-      console.warn('[getMFAStatus] error:', error?.message ?? 'not found');
+      console.error('[getMFAStatus] error:', error?.message ?? 'not found');
       return { enabled: false, method: null, backupCodesRemaining: 0, lastVerified: null };
     }
 
@@ -50,7 +50,7 @@ export async function getMFAStatus(userId: string): Promise<MFAStatus> {
       lastVerified: (prefs.mfa_last_verified as string) ?? null,
     };
   } catch (error) {
-    console.warn('[getMFAStatus] Fallback:', error);
+    console.error('[getMFAStatus] Fallback:', error);
     return { enabled: false, method: null, backupCodesRemaining: 0, lastVerified: null };
   }
 }
@@ -90,10 +90,10 @@ export async function setupMFA(userId: string): Promise<MFASetupData> {
       .from('user_preferences')
       .upsert({ user_id: userId, mfa_enabled: true }, { onConflict: 'user_id' });
 
-    console.warn('[setupMFA] Supabase MFA not available, using preference flag');
+    console.error('[setupMFA] Supabase MFA not available, using preference flag');
     return { secret: '', qrCodeUrl: '', backupCodes: [] };
   } catch (error) {
-    console.warn('[setupMFA] Fallback:', error);
+    console.error('[setupMFA] Fallback:', error);
     return { secret: '', qrCodeUrl: '', backupCodes: [] };
   }
 }
@@ -123,10 +123,10 @@ export async function verifyMFA(userId: string, code: string): Promise<{ valid: 
       // Supabase MFA not available
     }
 
-    console.warn('[verifyMFA] Supabase MFA not available, verification not possible');
+    console.error('[verifyMFA] Supabase MFA not available, verification not possible');
     return { valid: false };
   } catch (error) {
-    console.warn('[verifyMFA] Fallback:', error);
+    console.error('[verifyMFA] Fallback:', error);
     return { valid: false };
   }
 }
@@ -157,12 +157,12 @@ export async function disableMFA(userId: string, _code: string): Promise<{ succe
       .upsert({ user_id: userId, mfa_enabled: false }, { onConflict: 'user_id' });
 
     if (error) {
-      console.warn('[disableMFA] error:', error.message);
+      console.error('[disableMFA] error:', error.message);
       return { success: false };
     }
     return { success: true };
   } catch (error) {
-    console.warn('[disableMFA] Fallback:', error);
+    console.error('[disableMFA] Fallback:', error);
     return { success: false };
   }
 }
@@ -178,10 +178,10 @@ export async function regenerateBackupCodes(userId: string): Promise<{ codes: st
       };
     }
     // Backup codes are not natively supported by Supabase MFA
-    console.warn('[regenerateBackupCodes] Backup codes not available for user:', userId);
+    console.error('[regenerateBackupCodes] Backup codes not available for user:', userId);
     return { codes: [] };
   } catch (error) {
-    console.warn('[regenerateBackupCodes] Fallback:', error);
+    console.error('[regenerateBackupCodes] Fallback:', error);
     return { codes: [] };
   }
 }

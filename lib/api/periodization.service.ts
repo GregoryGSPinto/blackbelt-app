@@ -63,7 +63,7 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
         .single();
 
       if (error || !data) {
-        console.warn('[createMacrocycle] Supabase error:', error?.message);
+        console.error('[createMacrocycle] Supabase error:', error?.message);
         return {
           id: '',
           student_id: macrocycle.student_id,
@@ -85,12 +85,12 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
         created_by: data.created_by || '',
       };
     } catch (err) {
-      console.warn('[periodization.createMacrocycle] Supabase not available, using mock fallback', err);
+      console.error('[periodization.createMacrocycle] Supabase not available, using mock fallback', err);
       const { mockCreateMacrocycle } = await import('@/lib/mocks/periodization.mock');
       return mockCreateMacrocycle(macrocycle);
     }
   } catch (error) {
-    console.warn('[createMacrocycle] Fallback:', error);
+    console.error('[createMacrocycle] Fallback:', error);
     return { id: '', student_id: macrocycle.student_id, competition_name: macrocycle.competition_name, competition_date: macrocycle.competition_date, phases: macrocycle.phases, created_at: new Date().toISOString(), created_by: macrocycle.created_by };
   }
 }
@@ -116,7 +116,7 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
       if (error || !data) {
         // PGRST116 means no rows — that's OK, not an error
         if (error?.code !== 'PGRST116') {
-          console.warn('[getMacrocycle] Supabase error:', error?.message);
+          console.error('[getMacrocycle] Supabase error:', error?.message);
         }
         return null;
       }
@@ -131,11 +131,11 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
         created_by: data.created_by || '',
       };
     } catch (err) {
-      console.warn('[periodization.getMacrocycle] Supabase not available, using fallback', err);
+      console.error('[periodization.getMacrocycle] Supabase not available, using fallback', err);
       return null;
     }
   } catch (error) {
-    console.warn('[getMacrocycle] Fallback:', error);
+    console.error('[getMacrocycle] Fallback:', error);
     return null;
   }
 }
@@ -158,7 +158,7 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
         .single();
 
       if (fetchError || !macrocycle) {
-        console.warn('[updatePhase] Supabase fetch error:', fetchError?.message);
+        console.error('[updatePhase] Supabase fetch error:', fetchError?.message);
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
@@ -167,7 +167,7 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
       const phaseIndex = phases.findIndex((p) => p.id === phaseId);
 
       if (phaseIndex === -1) {
-        console.warn('[updatePhase] Phase not found:', phaseId);
+        console.error('[updatePhase] Phase not found:', phaseId);
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
@@ -181,18 +181,18 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
         .eq('id', macrocycleId);
 
       if (updateError) {
-        console.warn('[updatePhase] Supabase update error:', updateError.message);
+        console.error('[updatePhase] Supabase update error:', updateError.message);
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
       return updatedPhase;
     } catch (err) {
-      console.warn('[periodization.updatePhase] Supabase not available, using mock fallback', err);
+      console.error('[periodization.updatePhase] Supabase not available, using mock fallback', err);
       const { mockUpdatePhase } = await import('@/lib/mocks/periodization.mock');
       return mockUpdatePhase(macrocycleId, phaseId, data);
     }
   } catch (error) {
-    console.warn('[updatePhase] Fallback:', error);
+    console.error('[updatePhase] Fallback:', error);
     return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
   }
 }

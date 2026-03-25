@@ -17,13 +17,13 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
       .single();
 
     if (error || !data) {
-      console.warn('[getNotificationPreferences] Supabase error:', error?.message);
+      console.error('[getNotificationPreferences] Supabase error:', error?.message);
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
     return data as unknown as NotificationPreferences;
   } catch (error) {
-    console.warn('[getNotificationPreferences] Fallback:', error);
+    console.error('[getNotificationPreferences] Fallback:', error);
     return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
   }
 }
@@ -47,13 +47,13 @@ export async function updateNotificationPreferences(
       .single();
 
     if (error || !data) {
-      console.warn('[updateNotificationPreferences] Supabase error:', error?.message);
+      console.error('[updateNotificationPreferences] Supabase error:', error?.message);
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
     return data as unknown as NotificationPreferences;
   } catch (error) {
-    console.warn('[updateNotificationPreferences] Fallback:', error);
+    console.error('[updateNotificationPreferences] Fallback:', error);
     return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
   }
 }

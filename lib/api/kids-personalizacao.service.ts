@@ -57,12 +57,12 @@ export async function getPersonalizacao(studentId: string): Promise<Personalizac
       .eq('student_id', studentId)
       .single();
     if (error || !data) {
-      console.warn('[getPersonalizacao] Supabase error:', error?.message);
+      console.error('[getPersonalizacao] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as PersonalizacaoKids;
   } catch (error) {
-    console.warn('[getPersonalizacao] Fallback:', error);
+    console.error('[getPersonalizacao] Fallback:', error);
     return fallback;
   }
 }
@@ -80,12 +80,12 @@ export async function setMascoteKids(studentId: string, mascoteId: string): Prom
       .update({ mascote_atual: mascoteId })
       .eq('student_id', studentId);
     if (error) {
-      console.warn('[setMascoteKids] Supabase error:', error.message);
+      console.error('[setMascoteKids] Supabase error:', error.message);
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.warn('[setMascoteKids] Fallback:', error);
+    console.error('[setMascoteKids] Fallback:', error);
     return { sucesso: false };
   }
 }
@@ -103,12 +103,12 @@ export async function setCorKids(studentId: string, corId: string): Promise<{ su
       .update({ cor_atual: corId })
       .eq('student_id', studentId);
     if (error) {
-      console.warn('[setCorKids] Supabase error:', error.message);
+      console.error('[setCorKids] Supabase error:', error.message);
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.warn('[setCorKids] Fallback:', error);
+    console.error('[setCorKids] Fallback:', error);
     return { sucesso: false };
   }
 }
@@ -126,12 +126,12 @@ export async function setTituloKids(studentId: string, titulo: string): Promise<
       .update({ titulo_atual: titulo })
       .eq('student_id', studentId);
     if (error) {
-      console.warn('[setTituloKids] Supabase error:', error.message);
+      console.error('[setTituloKids] Supabase error:', error.message);
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.warn('[setTituloKids] Fallback:', error);
+    console.error('[setTituloKids] Fallback:', error);
     return { sucesso: false };
   }
 }

@@ -103,11 +103,11 @@ export async function detectProximity(data: ProximityData): Promise<ProximityRes
 
       return { detected, distance_meters, signal_quality, matching_class };
     } catch (err) {
-      console.warn('[proximity-checkin.detectProximity] error, using fallback:', err);
+      console.error('[proximity-checkin.detectProximity] error, using fallback:', err);
       return { detected: false, signal_quality: 'none' as const };
     }
   } catch (error) {
-    console.warn('[detectProximity] Fallback:', error);
+    console.error('[detectProximity] Fallback:', error);
     return { detected: false, signal_quality: 'none' };
   }
 }
@@ -153,7 +153,7 @@ export async function autoCheckin(studentId: string, classId: string): Promise<A
             message: 'Check-in já realizado para esta aula hoje.',
           };
         }
-        console.warn('[autoCheckin] insert error:', attErr.message);
+        console.error('[autoCheckin] insert error:', attErr.message);
         return {
           success: false,
           class_name: cls?.name ?? '',
@@ -172,11 +172,11 @@ export async function autoCheckin(studentId: string, classId: string): Promise<A
         message: 'Check-in automático realizado com sucesso!',
       };
     } catch (err) {
-      console.warn('[proximity-checkin.autoCheckin] error, using fallback:', err);
+      console.error('[proximity-checkin.autoCheckin] error, using fallback:', err);
       return { success: false, class_name: '', checked_in_at: '', method: 'ble_beacon' as const, message: 'Erro ao fazer check-in' };
     }
   } catch (error) {
-    console.warn('[autoCheckin] Fallback:', error);
+    console.error('[autoCheckin] Fallback:', error);
     return { success: false, class_name: '', checked_in_at: '', method: 'ble_beacon', message: 'Erro ao fazer check-in' };
   }
 }

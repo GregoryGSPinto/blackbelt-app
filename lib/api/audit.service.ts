@@ -49,7 +49,7 @@ export async function logAudit(
       .from('audit_logs')
       .insert({ action, entity_type: entityType, entity_id: entityId, old_data: oldData ?? null, new_data: newData ?? null })
       .then(({ error: err }: { error: { message: string } | null }) => {
-        if (err) console.warn('[logAudit] Supabase error:', err.message);
+        if (err) console.error('[logAudit] Supabase error:', err.message);
       });
   } catch { /* fire-and-forget */ }
 }
@@ -79,7 +79,7 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[searchAuditLogs] Supabase error:', error?.message);
+      console.error('[searchAuditLogs] Supabase error:', error?.message);
       return { logs: [], nextCursor: null };
     }
 
@@ -101,7 +101,7 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
     const nextCursor = logs.length > 0 ? logs[logs.length - 1].createdAt : null;
     return { logs, nextCursor };
   } catch (error) {
-    console.warn('[searchAuditLogs] Fallback:', error);
+    console.error('[searchAuditLogs] Fallback:', error);
     return { logs: [], nextCursor: null };
   }
 }
@@ -122,7 +122,7 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getEntityHistory] Supabase error:', error?.message);
+      console.error('[getEntityHistory] Supabase error:', error?.message);
       return [];
     }
 
@@ -141,7 +141,7 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       createdAt: (d.created_at as string) ?? '',
     }));
   } catch (error) {
-    console.warn('[getEntityHistory] Fallback:', error);
+    console.error('[getEntityHistory] Fallback:', error);
     return [];
   }
 }
@@ -166,7 +166,7 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[exportAuditLogs] Supabase error:', error?.message);
+      console.error('[exportAuditLogs] Supabase error:', error?.message);
       return new Blob();
     }
 
@@ -179,7 +179,7 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
 
     return new Blob([csv], { type: 'text/csv' });
   } catch (error) {
-    console.warn('[exportAuditLogs] Fallback:', error);
+    console.error('[exportAuditLogs] Fallback:', error);
     return new Blob();
   }
 }
@@ -214,13 +214,13 @@ export async function listAuditEntries(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[listAuditEntries] Supabase error:', error?.message);
+      console.error('[listAuditEntries] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as AuditEntry[];
   } catch (error) {
-    console.warn('[listAuditEntries] Fallback:', error);
+    console.error('[listAuditEntries] Fallback:', error);
     return [];
   }
 }
@@ -244,13 +244,13 @@ export async function createAuditEntry(
       .single();
 
     if (error || !data) {
-      console.warn('[createAuditEntry] Supabase error:', error?.message);
+      console.error('[createAuditEntry] Supabase error:', error?.message);
       return fallback;
     }
 
     return data as unknown as AuditEntry;
   } catch (error) {
-    console.warn('[createAuditEntry] Fallback:', error);
+    console.error('[createAuditEntry] Fallback:', error);
     return fallback;
   }
 }

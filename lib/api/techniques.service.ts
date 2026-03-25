@@ -34,12 +34,12 @@ export async function listTechniques(filters?: { modality?: TechniqueModality; c
     if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
     const { data, error } = await query.order('name');
     if (error) {
-      console.warn('[listTechniques] Supabase error:', error.message);
+      console.error('[listTechniques] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as TechniqueDTO[];
   } catch (error) {
-    console.warn('[listTechniques] Fallback:', error);
+    console.error('[listTechniques] Fallback:', error);
     return [];
   }
 }
@@ -58,13 +58,13 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       .eq('id', techniqueId)
       .single();
     if (error || !data) {
-      console.warn('[getTechniqueById] Supabase error:', error?.message);
+      console.error('[getTechniqueById] Supabase error:', error?.message);
       const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
       return mockGetTechniqueById(techniqueId);
     }
     return data as TechniqueDTO;
   } catch (error) {
-    console.warn('[getTechniqueById] Fallback:', error);
+    console.error('[getTechniqueById] Fallback:', error);
     const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
     return mockGetTechniqueById(techniqueId);
   }
@@ -84,13 +84,13 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       .select()
       .single();
     if (error || !data) {
-      console.warn('[createTechnique] Supabase error:', error?.message);
+      console.error('[createTechnique] Supabase error:', error?.message);
       const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
       return mockCreateTechnique(technique);
     }
     return data as TechniqueDTO;
   } catch (error) {
-    console.warn('[createTechnique] Fallback:', error);
+    console.error('[createTechnique] Fallback:', error);
     const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
     return mockCreateTechnique(technique);
   }
@@ -110,12 +110,12 @@ export async function getByModality(modality: TechniqueModality): Promise<Techni
       .eq('modality', modality)
       .order('name');
     if (error) {
-      console.warn('[getByModality] Supabase error:', error.message);
+      console.error('[getByModality] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as TechniqueDTO[];
   } catch (error) {
-    console.warn('[getByModality] Fallback:', error);
+    console.error('[getByModality] Fallback:', error);
     return [];
   }
 }

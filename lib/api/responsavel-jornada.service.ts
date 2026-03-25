@@ -42,13 +42,13 @@ export async function getJornadaDependente(studentId: string): Promise<JornadaDe
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getJornadaDependente] Supabase error:', error?.message);
+      console.error('[getJornadaDependente] Supabase error:', error?.message);
       const { mockGetJornadaDependente } = await import('@/lib/mocks/responsavel-jornada.mock');
       return mockGetJornadaDependente(studentId);
     }
     return data as unknown as JornadaDependente;
   } catch (error) {
-    console.warn('[getJornadaDependente] Fallback:', error);
+    console.error('[getJornadaDependente] Fallback:', error);
     const { mockGetJornadaDependente } = await import('@/lib/mocks/responsavel-jornada.mock');
     return mockGetJornadaDependente(studentId);
   }

@@ -66,12 +66,12 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.warn('[getCampaigns] Supabase error:', error?.message);
+      console.error('[getCampaigns] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as CampaignDTO[];
   } catch (error) {
-    console.warn('[getCampaigns] Fallback:', error);
+    console.error('[getCampaigns] Fallback:', error);
     return [];
   }
 }
@@ -90,12 +90,12 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createCampaign] Supabase error:', error?.message);
+      console.error('[createCampaign] Supabase error:', error?.message);
       return {} as CampaignDTO;
     }
     return row as unknown as CampaignDTO;
   } catch (error) {
-    console.warn('[createCampaign] Fallback:', error);
+    console.error('[createCampaign] Fallback:', error);
     return {} as CampaignDTO;
   }
 }
@@ -115,12 +115,12 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       .eq('campaign_id', campaignId)
       .single();
     if (error || !data) {
-      console.warn('[getCampaignMetrics] Supabase error:', error?.message);
+      console.error('[getCampaignMetrics] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as CampaignMetricsDTO;
   } catch (error) {
-    console.warn('[getCampaignMetrics] Fallback:', error);
+    console.error('[getCampaignMetrics] Fallback:', error);
     return fallback;
   }
 }

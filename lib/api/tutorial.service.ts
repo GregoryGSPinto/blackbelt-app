@@ -128,7 +128,7 @@ export async function getTutorialProgress(userId: string): Promise<TutorialProgr
 
     return merged;
   } catch {
-    console.warn('[tutorial.getTutorialProgress] Supabase unavailable, using localStorage');
+    console.error('[tutorial.getTutorialProgress] Supabase unavailable, using localStorage');
     return localData;
   }
 }
@@ -158,7 +158,7 @@ export async function startTutorial(userId: string, tutorialId: string): Promise
         ...patch,
       }, { onConflict: 'user_id,tutorial_id' });
   } catch {
-    console.warn('[tutorial.startTutorial] Supabase unavailable, localStorage used as fallback');
+    console.error('[tutorial.startTutorial] Supabase unavailable, localStorage used as fallback');
   }
 }
 
@@ -177,7 +177,7 @@ export async function updateTutorialStep(userId: string, tutorialId: string, ste
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
   } catch {
-    console.warn('[tutorial.updateStep] Supabase unavailable, localStorage used as fallback');
+    console.error('[tutorial.updateStep] Supabase unavailable, localStorage used as fallback');
   }
 }
 
@@ -201,7 +201,7 @@ export async function completeTutorial(userId: string, tutorialId: string): Prom
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
   } catch {
-    console.warn('[tutorial.completeTutorial] Supabase unavailable, localStorage used as fallback');
+    console.error('[tutorial.completeTutorial] Supabase unavailable, localStorage used as fallback');
   }
 }
 
@@ -227,7 +227,7 @@ export async function skipTutorial(userId: string, tutorialId: string): Promise<
         ...patch,
       }, { onConflict: 'user_id,tutorial_id' });
   } catch {
-    console.warn('[tutorial.skipTutorial] Supabase unavailable, localStorage used as fallback');
+    console.error('[tutorial.skipTutorial] Supabase unavailable, localStorage used as fallback');
   }
 }
 
@@ -249,6 +249,6 @@ export async function resetTutorial(userId: string, tutorialId: string): Promise
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
   } catch {
-    console.warn('[tutorial.resetTutorial] Supabase unavailable, localStorage used as fallback');
+    console.error('[tutorial.resetTutorial] Supabase unavailable, localStorage used as fallback');
   }
 }

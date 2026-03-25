@@ -165,7 +165,7 @@ export async function generateWeeklyReport(academyId: string): Promise<WeeklyRep
       topClass: { name: topClassName, attendance: topClassCount },
     };
   } catch (error) {
-    console.warn('[generateWeeklyReport] Fallback:', error);
+    console.error('[generateWeeklyReport] Fallback:', error);
     return {
       academyName: '',
       period: { start: '', end: '' },
@@ -205,13 +205,13 @@ export async function sendWeeklyReport(
       });
 
     if (error) {
-      console.warn('[sendWeeklyReport] error:', error.message);
+      console.error('[sendWeeklyReport] error:', error.message);
       return { sent: 0 };
     }
 
     return { sent: recipients.length };
   } catch (error) {
-    console.warn('[sendWeeklyReport] Fallback:', error);
+    console.error('[sendWeeklyReport] Fallback:', error);
     return { sent: 0 };
   }
 }

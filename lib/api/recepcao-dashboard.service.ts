@@ -96,8 +96,8 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       supabase.from('checkins').select('id, profile_name, belt, check_in_at, person_type, class_name').gte('check_in_at', todayISO),
     ]);
 
-    if (classesRes.error) console.warn('[getRecepcaoDashboard] classes error:', classesRes.error.message);
-    if (checkinsRes.error) console.warn('[getRecepcaoDashboard] checkins error:', checkinsRes.error.message);
+    if (classesRes.error) console.error('[getRecepcaoDashboard] classes error:', classesRes.error.message);
+    if (checkinsRes.error) console.error('[getRecepcaoDashboard] checkins error:', checkinsRes.error.message);
 
     const checkins = checkinsRes.data ?? [];
     const checkinsHoje: CheckinResumo[] = checkins.map((c: Record<string, unknown>) => ({
@@ -120,7 +120,7 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       },
     };
   } catch (error) {
-    console.warn('[getRecepcaoDashboard] Fallback:', error);
+    console.error('[getRecepcaoDashboard] Fallback:', error);
     return EMPTY_DASHBOARD;
   }
 }

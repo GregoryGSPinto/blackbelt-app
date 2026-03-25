@@ -50,7 +50,7 @@ export async function getChildrenBills(parentId: string): Promise<ChildBill[]> {
       .order('due_date', { ascending: false });
 
     if (error) {
-      console.warn('[getChildrenBills] error:', error.message);
+      console.error('[getChildrenBills] error:', error.message);
       return [];
     }
 
@@ -68,7 +68,7 @@ export async function getChildrenBills(parentId: string): Promise<ChildBill[]> {
       };
     });
   } catch (error) {
-    console.warn('[getChildrenBills] Fallback:', error);
+    console.error('[getChildrenBills] Fallback:', error);
     return [];
   }
 }
@@ -97,7 +97,7 @@ export async function initiatePayment(
       .single();
 
     if (error) {
-      console.warn('[initiatePayment] error:', error.message);
+      console.error('[initiatePayment] error:', error.message);
       return { paymentUrl: '' };
     }
 
@@ -107,7 +107,7 @@ export async function initiatePayment(
       boletoCode: method === 'boleto' ? ((data as Record<string, unknown>).boleto_code as string) : undefined,
     };
   } catch (error) {
-    console.warn('[initiatePayment] Fallback:', error);
+    console.error('[initiatePayment] Fallback:', error);
     return { paymentUrl: '' };
   }
 }
@@ -132,7 +132,7 @@ export async function getPaymentHistory(parentId: string): Promise<PaymentReceip
       .order('paid_at', { ascending: false });
 
     if (error) {
-      console.warn('[getPaymentHistory] error:', error.message);
+      console.error('[getPaymentHistory] error:', error.message);
       return [];
     }
 
@@ -145,7 +145,7 @@ export async function getPaymentHistory(parentId: string): Promise<PaymentReceip
       receiptUrl: (p.receipt_url as string) ?? '',
     }));
   } catch (error) {
-    console.warn('[getPaymentHistory] Fallback:', error);
+    console.error('[getPaymentHistory] Fallback:', error);
     return [];
   }
 }

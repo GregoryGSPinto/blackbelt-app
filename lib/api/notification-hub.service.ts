@@ -57,7 +57,7 @@ export async function sendNotification(
             .select('id')
             .single();
           if (error) {
-            console.warn('[sendNotification] in_app Supabase error:', error.message);
+            console.error('[sendNotification] in_app Supabase error:', error.message);
             results.push({
               id: '',
               channel: 'in_app',
@@ -73,7 +73,7 @@ export async function sendNotification(
             });
           }
         } catch (err) {
-          console.warn('[sendNotification] in_app insert failed:', err);
+          console.error('[sendNotification] in_app insert failed:', err);
           results.push({
             id: '',
             channel: 'in_app',
@@ -87,7 +87,7 @@ export async function sendNotification(
           const result = await sender.send(userId, template, data);
           results.push(result);
         } catch (err) {
-          console.warn(`[sendNotification] ${channel} channel failed:`, err);
+          console.error(`[sendNotification] ${channel} channel failed:`, err);
           results.push({
             id: '',
             channel,
@@ -99,7 +99,7 @@ export async function sendNotification(
     }
     return results;
   } catch (error) {
-    console.warn('[sendNotification] Fallback:', error);
+    console.error('[sendNotification] Fallback:', error);
     return [];
   }
 }

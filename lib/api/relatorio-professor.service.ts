@@ -46,12 +46,12 @@ export async function getRelatorioProfessores(academyId: string, periodo?: strin
     if (periodo) query = query.eq('periodo', periodo);
     const { data, error } = await query;
     if (error || !data) {
-      console.warn('[getRelatorioProfessores] Supabase error:', error?.message);
+      console.error('[getRelatorioProfessores] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as RelatorioProfessor[];
   } catch (error) {
-    console.warn('[getRelatorioProfessores] Fallback:', error);
+    console.error('[getRelatorioProfessores] Fallback:', error);
     return [];
   }
 }
@@ -71,12 +71,12 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
     if (periodo) query = query.eq('periodo', periodo);
     const { data, error } = await query.single();
     if (error || !data) {
-      console.warn('[getDetalheProfessor] Supabase error:', error?.message);
+      console.error('[getDetalheProfessor] Supabase error:', error?.message);
       return {} as DetalheProfessor;
     }
     return data as unknown as DetalheProfessor;
   } catch (error) {
-    console.warn('[getDetalheProfessor] Fallback:', error);
+    console.error('[getDetalheProfessor] Fallback:', error);
     return {} as DetalheProfessor;
   }
 }

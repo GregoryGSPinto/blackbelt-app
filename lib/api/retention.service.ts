@@ -88,7 +88,7 @@ export async function getRetentionData(
         .select('id, belt, started_at, profile:profiles!students_profile_id_fkey(display_name, avatar)')
         .eq('academy_id', academyId);
       if (stuErr || !students) {
-        console.warn('[getRetentionData] students query error:', stuErr?.message);
+        console.error('[getRetentionData] students query error:', stuErr?.message);
         return emptyResult;
       }
 
@@ -103,7 +103,7 @@ export async function getRetentionData(
         .gte('checked_at', periodStartISO)
         .order('checked_at', { ascending: false });
       if (attErr) {
-        console.warn('[getRetentionData] attendance query error:', attErr.message);
+        console.error('[getRetentionData] attendance query error:', attErr.message);
         return emptyResult;
       }
 
@@ -209,11 +209,11 @@ export async function getRetentionData(
         atRiskStudents: atRiskStudents.sort((a, b) => b.daysWithoutTraining - a.daysWithoutTraining),
       };
     } catch (err) {
-      console.warn('[retention.getRetentionData] error, using fallback:', err);
+      console.error('[retention.getRetentionData] error, using fallback:', err);
       return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
     }
   } catch (error) {
-    console.warn('[getRetentionData] Fallback:', error);
+    console.error('[getRetentionData] Fallback:', error);
     return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
   }
 }
@@ -239,7 +239,7 @@ export async function markStudentContacted(
 
       const userId = (student?.profile as { user_id: string } | null)?.user_id;
       if (!userId) {
-        console.warn('[markStudentContacted] could not resolve user_id for student', studentId);
+        console.error('[markStudentContacted] could not resolve user_id for student', studentId);
         return;
       }
 
@@ -253,12 +253,12 @@ export async function markStudentContacted(
           read: false,
         });
       if (error) {
-        console.warn('[markStudentContacted] insert error:', error.message);
+        console.error('[markStudentContacted] insert error:', error.message);
       }
     } catch (err) {
-      console.warn('[retention.markStudentContacted] error, using fallback:', err);
+      console.error('[retention.markStudentContacted] error, using fallback:', err);
     }
   } catch (error) {
-    console.warn('[markStudentContacted] Fallback:', error);
+    console.error('[markStudentContacted] Fallback:', error);
   }
 }

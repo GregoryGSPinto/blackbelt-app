@@ -58,7 +58,7 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.warn('[globalSearch] students search error:', err);
+      console.error('[globalSearch] students search error:', err);
     }
 
     // Search classes by name
@@ -80,7 +80,7 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.warn('[globalSearch] classes search error:', err);
+      console.error('[globalSearch] classes search error:', err);
     }
 
     // Search profiles (professors, etc.) by display_name
@@ -103,12 +103,12 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.warn('[globalSearch] profiles search error:', err);
+      console.error('[globalSearch] profiles search error:', err);
     }
 
     return { results, total: results.length };
   } catch (error) {
-    console.warn('[globalSearch] Fallback:', error);
+    console.error('[globalSearch] Fallback:', error);
     return { results: [], total: 0 };
   }
 }

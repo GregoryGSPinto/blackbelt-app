@@ -41,12 +41,12 @@ export async function buscarAlunoAtendimento(query: string): Promise<AlunoAtendi
       .or(`nome.ilike.%${query}%,email.ilike.%${query}%,telefone.ilike.%${query}%`)
       .limit(20);
     if (error) {
-      console.warn('[buscarAlunoAtendimento] Supabase error:', error.message);
+      console.error('[buscarAlunoAtendimento] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as AlunoAtendimento[];
   } catch (error) {
-    console.warn('[buscarAlunoAtendimento] Fallback:', error);
+    console.error('[buscarAlunoAtendimento] Fallback:', error);
     return [];
   }
 }
@@ -63,12 +63,12 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       .from('checkins')
       .insert({ student_id: alunoId, class_id: turmaId, checked_in_at: new Date().toISOString(), method: 'manual' });
     if (error) {
-      console.warn('[checkinManual] Supabase error:', error.message);
+      console.error('[checkinManual] Supabase error:', error.message);
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.warn('[checkinManual] Fallback:', error);
+    console.error('[checkinManual] Fallback:', error);
     return { ok: false };
   }
 }
@@ -96,12 +96,12 @@ export async function registrarPagamento(data: {
         paid_at: new Date().toISOString(),
       });
     if (error) {
-      console.warn('[registrarPagamento] Supabase error:', error.message);
+      console.error('[registrarPagamento] Supabase error:', error.message);
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.warn('[registrarPagamento] Fallback:', error);
+    console.error('[registrarPagamento] Fallback:', error);
     return { ok: false };
   }
 }

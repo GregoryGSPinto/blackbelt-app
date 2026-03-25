@@ -35,7 +35,7 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       .limit(50);
 
     if (error || !data) {
-      console.warn('[listNotifications] Supabase error:', error?.message);
+      console.error('[listNotifications] Supabase error:', error?.message);
       return [];
     }
 
@@ -49,7 +49,7 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       link: row.link ? String(row.link) : undefined,
     }));
   } catch (error) {
-    console.warn('[listNotifications] Fallback:', error);
+    console.error('[listNotifications] Fallback:', error);
     return [];
   }
 }
@@ -69,10 +69,10 @@ export async function markNotificationsRead(ids: string[]): Promise<void> {
       .in('id', ids);
 
     if (error) {
-      console.warn('[markNotificationsRead] Supabase error:', error.message);
+      console.error('[markNotificationsRead] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[markNotificationsRead] Fallback:', error);
+    console.error('[markNotificationsRead] Fallback:', error);
   }
 }
 
@@ -95,10 +95,10 @@ export async function markAllRead(): Promise<void> {
       .eq('read', false);
 
     if (error) {
-      console.warn('[markAllRead] Supabase error:', error.message);
+      console.error('[markAllRead] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[markAllRead] Fallback:', error);
+    console.error('[markAllRead] Fallback:', error);
   }
 }
 
@@ -118,13 +118,13 @@ export async function getPreferences(userId: string): Promise<NotificationPrefs>
       .single();
 
     if (error || !data) {
-      console.warn('[getPreferences] Supabase error:', error?.message);
+      console.error('[getPreferences] Supabase error:', error?.message);
       return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
     }
 
     return data as unknown as NotificationPrefs;
   } catch (error) {
-    console.warn('[getPreferences] Fallback:', error);
+    console.error('[getPreferences] Fallback:', error);
     return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
   }
 }
@@ -143,9 +143,9 @@ export async function updatePreferences(userId: string, prefs: NotificationPrefs
       .upsert({ user_id: userId, ...prefs });
 
     if (error) {
-      console.warn('[updatePreferences] Supabase error:', error.message);
+      console.error('[updatePreferences] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[updatePreferences] Fallback:', error);
+    console.error('[updatePreferences] Fallback:', error);
   }
 }

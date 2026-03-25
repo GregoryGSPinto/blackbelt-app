@@ -73,7 +73,7 @@ export async function getCalendarEvents(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[getCalendarEvents] Supabase error:', error?.message);
+      console.error('[getCalendarEvents] Supabase error:', error?.message);
       return [];
     }
 
@@ -94,7 +94,7 @@ export async function getCalendarEvents(
       description: row.description ? String(row.description) : null,
     }));
   } catch (error) {
-    console.warn('[getCalendarEvents] Fallback:', error);
+    console.error('[getCalendarEvents] Fallback:', error);
     return [];
   }
 }
@@ -117,7 +117,7 @@ export async function getCalendarEventById(
       .single();
 
     if (error || !data) {
-      console.warn('[getCalendarEventById] Supabase error:', error?.message);
+      console.error('[getCalendarEventById] Supabase error:', error?.message);
       return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
     }
 
@@ -138,7 +138,7 @@ export async function getCalendarEventById(
       description: data.description ? String(data.description) : null,
     };
   } catch (error) {
-    console.warn('[getCalendarEventById] Fallback:', error);
+    console.error('[getCalendarEventById] Fallback:', error);
     return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
   }
 }

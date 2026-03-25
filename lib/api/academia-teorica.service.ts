@@ -157,12 +157,12 @@ export async function getModulos(modalidade?: string, faixa?: string): Promise<M
 
     const { data, error } = await query;
     if (error) {
-      console.warn('[getModulos] Query failed:', error.message);
+      console.error('[getModulos] Query failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as ModuloTeorico[];
   } catch (error) {
-    console.warn('[getModulos] Fallback:', error);
+    console.error('[getModulos] Fallback:', error);
     return [];
   }
 }
@@ -181,7 +181,7 @@ export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: L
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getModulo] Query failed:', error?.message);
+      console.error('[getModulo] Query failed:', error?.message);
       return emptyModulo();
     }
     const licoes = ((data.theoretical_lessons as unknown[]) ?? []) as unknown as Licao[];
@@ -189,7 +189,7 @@ export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: L
     const { theoretical_lessons: _lessons, ...modulo } = data;
     return { ...(modulo as unknown as ModuloTeorico), licoes };
   } catch (error) {
-    console.warn('[getModulo] Fallback:', error);
+    console.error('[getModulo] Fallback:', error);
     return emptyModulo();
   }
 }
@@ -208,12 +208,12 @@ export async function getLicao(id: string): Promise<Licao> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getLicao] Query failed:', error?.message);
+      console.error('[getLicao] Query failed:', error?.message);
       return emptyLicao();
     }
     return data as unknown as Licao;
   } catch (error) {
-    console.warn('[getLicao] Fallback:', error);
+    console.error('[getLicao] Fallback:', error);
     return emptyLicao();
   }
 }
@@ -228,7 +228,7 @@ export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[marcarLicaoConcluida] No authenticated user');
+      console.error('[marcarLicaoConcluida] No authenticated user');
       return;
     }
     const { error } = await supabase
@@ -240,10 +240,10 @@ export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
         completed_at: new Date().toISOString(),
       }, { onConflict: 'lesson_id,user_id' });
     if (error) {
-      console.warn('[marcarLicaoConcluida] Upsert failed:', error.message);
+      console.error('[marcarLicaoConcluida] Upsert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarLicaoConcluida] Fallback:', error);
+    console.error('[marcarLicaoConcluida] Fallback:', error);
   }
 }
 
@@ -257,7 +257,7 @@ export async function getProgressoGeral(): Promise<ProgressoGeral> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[getProgressoGeral] No authenticated user');
+      console.error('[getProgressoGeral] No authenticated user');
       return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
     }
     const [modulosRes, certRes] = await Promise.all([
@@ -274,7 +274,7 @@ export async function getProgressoGeral(): Promise<ProgressoGeral> {
       percentual: totalModulos > 0 ? Math.round((certificados / totalModulos) * 100) : 0,
     };
   } catch (error) {
-    console.warn('[getProgressoGeral] Fallback:', error);
+    console.error('[getProgressoGeral] Fallback:', error);
     return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
   }
 }
@@ -295,12 +295,12 @@ export async function getQuiz(moduloId: string): Promise<QuizModulo> {
       .eq('module_id', moduloId)
       .single();
     if (error || !data) {
-      console.warn('[getQuiz] Query failed:', error?.message);
+      console.error('[getQuiz] Query failed:', error?.message);
       return emptyQuizModulo(moduloId);
     }
     return data as unknown as QuizModulo;
   } catch (error) {
-    console.warn('[getQuiz] Fallback:', error);
+    console.error('[getQuiz] Fallback:', error);
     return emptyQuizModulo(moduloId);
   }
 }
@@ -318,7 +318,7 @@ export async function submeterQuiz(
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[submeterQuiz] No authenticated user');
+      console.error('[submeterQuiz] No authenticated user');
       return emptyResultadoQuiz();
     }
     // Get quiz questions to evaluate
@@ -328,7 +328,7 @@ export async function submeterQuiz(
       .eq('module_id', moduloId)
       .single();
     if (!quiz) {
-      console.warn('[submeterQuiz] Quiz not found for module:', moduloId);
+      console.error('[submeterQuiz] Quiz not found for module:', moduloId);
       return emptyResultadoQuiz();
     }
     const perguntas = ((quiz.perguntas ?? quiz.questions) as QuizPergunta[]) || [];
@@ -355,7 +355,7 @@ export async function submeterQuiz(
     });
     return { nota, aprovado, total, acertos, explicacoes };
   } catch (error) {
-    console.warn('[submeterQuiz] Fallback:', error);
+    console.error('[submeterQuiz] Fallback:', error);
     return emptyResultadoQuiz();
   }
 }
@@ -385,12 +385,12 @@ export async function getTermos(
 
     const { data, error } = await query;
     if (error) {
-      console.warn('[getTermos] Query failed:', error.message);
+      console.error('[getTermos] Query failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as TermoArtesMarciais[];
   } catch (error) {
-    console.warn('[getTermos] Fallback:', error);
+    console.error('[getTermos] Fallback:', error);
     return [];
   }
 }
@@ -409,12 +409,12 @@ export async function buscarTermo(query: string): Promise<TermoArtesMarciais[]> 
       .or(`original.ilike.%${query}%,traducao.ilike.%${query}%,descricao.ilike.%${query}%`)
       .order('original', { ascending: true });
     if (error) {
-      console.warn('[buscarTermo] Query failed:', error.message);
+      console.error('[buscarTermo] Query failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as TermoArtesMarciais[];
   } catch (error) {
-    console.warn('[buscarTermo] Fallback:', error);
+    console.error('[buscarTermo] Fallback:', error);
     return [];
   }
 }
@@ -431,7 +431,7 @@ export async function getCertificados(): Promise<CertificadoTeorico[]> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[getCertificados] No authenticated user');
+      console.error('[getCertificados] No authenticated user');
       return [];
     }
     const { data, error } = await supabase
@@ -440,12 +440,12 @@ export async function getCertificados(): Promise<CertificadoTeorico[]> {
       .eq('user_id', user.id)
       .order('emitido_em', { ascending: false });
     if (error) {
-      console.warn('[getCertificados] Query failed:', error.message);
+      console.error('[getCertificados] Query failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as CertificadoTeorico[];
   } catch (error) {
-    console.warn('[getCertificados] Fallback:', error);
+    console.error('[getCertificados] Fallback:', error);
     return [];
   }
 }
@@ -460,7 +460,7 @@ export async function emitirCertificado(moduloId: string): Promise<CertificadoTe
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[emitirCertificado] No authenticated user');
+      console.error('[emitirCertificado] No authenticated user');
       return emptyCertificado();
     }
     const codigoVerificacao = crypto.randomUUID().slice(0, 8).toUpperCase();
@@ -475,12 +475,12 @@ export async function emitirCertificado(moduloId: string): Promise<CertificadoTe
       .select()
       .single();
     if (error || !row) {
-      console.warn('[emitirCertificado] Insert failed:', error?.message);
+      console.error('[emitirCertificado] Insert failed:', error?.message);
       return emptyCertificado();
     }
     return row as unknown as CertificadoTeorico;
   } catch (error) {
-    console.warn('[emitirCertificado] Fallback:', error);
+    console.error('[emitirCertificado] Fallback:', error);
     return emptyCertificado();
   }
 }
@@ -499,12 +499,12 @@ export async function validarCertificado(code: string): Promise<CertificadoTeori
       .eq('codigo_verificacao', code)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[validarCertificado] Not found or error:', error?.message);
+      console.error('[validarCertificado] Not found or error:', error?.message);
       return null;
     }
     return data as unknown as CertificadoTeorico;
   } catch (error) {
-    console.warn('[validarCertificado] Fallback:', error);
+    console.error('[validarCertificado] Fallback:', error);
     return null;
   }
 }

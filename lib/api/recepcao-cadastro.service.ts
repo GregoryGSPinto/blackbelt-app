@@ -84,7 +84,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
     const result = await res.json();
 
     if (!res.ok) {
-      console.warn('[cadastrarRapido] API error:', result.error);
+      console.error('[cadastrarRapido] API error:', result.error);
       return { alunoId: '', tipo: data.tipo };
     }
 
@@ -96,7 +96,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       loginTemporario: result.loginTemporario as CadastroResult['loginTemporario'],
     };
   } catch (error) {
-    console.warn('[cadastrarRapido] Fallback:', error);
+    console.error('[cadastrarRapido] Fallback:', error);
     return { alunoId: '', tipo: data.tipo };
   }
 }
@@ -114,12 +114,12 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       .select('id, name, price, features')
       .eq('active', true);
     if (error || !data) {
-      console.warn('[getPlanos] Supabase error:', error?.message);
+      console.error('[getPlanos] Supabase error:', error?.message);
       return [];
     }
     return data.map((p: { id: string; name: string; price: number; features: string[] | null }) => ({ id: p.id, nome: p.name, valor: p.price, beneficios: p.features ?? [] })) as PlanoResumo[];
   } catch (error) {
-    console.warn('[getPlanos] Fallback:', error);
+    console.error('[getPlanos] Fallback:', error);
     return [];
   }
 }
@@ -136,7 +136,7 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       .from('classes')
       .select('id, schedule, modalities(name), profiles!classes_professor_id_fkey(display_name)');
     if (error || !data) {
-      console.warn('[getTurmasDisponiveis] Supabase error:', error?.message);
+      console.error('[getTurmasDisponiveis] Supabase error:', error?.message);
       return [];
     }
     return data.map((c: Record<string, unknown>) => {
@@ -151,7 +151,7 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       };
     });
   } catch (error) {
-    console.warn('[getTurmasDisponiveis] Fallback:', error);
+    console.error('[getTurmasDisponiveis] Fallback:', error);
     return [];
   }
 }

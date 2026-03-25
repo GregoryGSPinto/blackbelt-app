@@ -66,12 +66,12 @@ export async function createOrder(userId: string, data: CreateOrderData): Promis
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createOrder] Supabase error:', error?.message);
+      console.error('[createOrder] Supabase error:', error?.message);
       return emptyOrder;
     }
     return row as unknown as Order;
   } catch (error) {
-    console.warn('[createOrder] Fallback:', error);
+    console.error('[createOrder] Fallback:', error);
     return emptyOrder;
   }
 }
@@ -90,12 +90,12 @@ export async function getMyOrders(userId: string): Promise<Order[]> {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.warn('[getMyOrders] Supabase error:', error?.message);
+      console.error('[getMyOrders] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as Order[];
   } catch (error) {
-    console.warn('[getMyOrders] Fallback:', error);
+    console.error('[getMyOrders] Fallback:', error);
     return [];
   }
 }
@@ -114,12 +114,12 @@ export async function getOrderById(id: string): Promise<Order> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getOrderById] Supabase error:', error?.message);
+      console.error('[getOrderById] Supabase error:', error?.message);
       return emptyOrder;
     }
     return data as unknown as Order;
   } catch (error) {
-    console.warn('[getOrderById] Fallback:', error);
+    console.error('[getOrderById] Fallback:', error);
     return emptyOrder;
   }
 }
@@ -139,12 +139,12 @@ export async function cancelOrder(id: string): Promise<Order> {
       .select()
       .single();
     if (error || !data) {
-      console.warn('[cancelOrder] Supabase error:', error?.message);
+      console.error('[cancelOrder] Supabase error:', error?.message);
       return emptyOrder;
     }
     return data as unknown as Order;
   } catch (error) {
-    console.warn('[cancelOrder] Fallback:', error);
+    console.error('[cancelOrder] Fallback:', error);
     return emptyOrder;
   }
 }

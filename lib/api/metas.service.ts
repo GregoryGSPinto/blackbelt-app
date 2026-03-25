@@ -74,12 +74,12 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.warn('[getGoals] Supabase error:', error?.message);
+      console.error('[getGoals] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as GoalDTO[];
   } catch (error) {
-    console.warn('[getGoals] Fallback:', error);
+    console.error('[getGoals] Fallback:', error);
     return [];
   }
 }
@@ -98,12 +98,12 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createGoal] Supabase error:', error?.message);
+      console.error('[createGoal] Supabase error:', error?.message);
       return {} as GoalDTO;
     }
     return row as unknown as GoalDTO;
   } catch (error) {
-    console.warn('[createGoal] Fallback:', error);
+    console.error('[createGoal] Fallback:', error);
     return {} as GoalDTO;
   }
 }
@@ -123,12 +123,12 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       .like('date', `${month}%`)
       .order('date', { ascending: false });
     if (error || !data) {
-      console.warn('[getDiary] Supabase error:', error?.message);
+      console.error('[getDiary] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as DiaryEntryDTO[];
   } catch (error) {
-    console.warn('[getDiary] Fallback:', error);
+    console.error('[getDiary] Fallback:', error);
     return [];
   }
 }
@@ -147,12 +147,12 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       .select()
       .single();
     if (error || !row) {
-      console.warn('[saveDiaryEntry] Supabase error:', error?.message);
+      console.error('[saveDiaryEntry] Supabase error:', error?.message);
       return {} as DiaryEntryDTO;
     }
     return row as unknown as DiaryEntryDTO;
   } catch (error) {
-    console.warn('[saveDiaryEntry] Fallback:', error);
+    console.error('[saveDiaryEntry] Fallback:', error);
     return {} as DiaryEntryDTO;
   }
 }

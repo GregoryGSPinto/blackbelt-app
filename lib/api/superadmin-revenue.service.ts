@@ -63,16 +63,16 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
         .eq('key', 'revenue_metrics')
         .single();
       if (error || !data) {
-        console.warn('[getRevenueMetrics] Query failed:', error?.message);
+        console.error('[getRevenueMetrics] Query failed:', error?.message);
         return emptyRevenue;
       }
       return (data.value as RevenueMetrics) || emptyRevenue;
     } catch {
-      console.warn('[superadmin-revenue.getRevenueMetrics] API not available, returning empty');
+      console.error('[superadmin-revenue.getRevenueMetrics] API not available, returning empty');
       return emptyRevenue;
     }
   } catch (error) {
-    console.warn('[getRevenueMetrics] Fallback:', error);
+    console.error('[getRevenueMetrics] Fallback:', error);
     return emptyRevenue;
   }
 }

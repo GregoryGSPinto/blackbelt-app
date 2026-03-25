@@ -56,7 +56,7 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
       .limit(10);
 
     if (error || !data) {
-      console.warn('[buscarAlunoCheckin] Supabase error:', error?.message);
+      console.error('[buscarAlunoCheckin] Supabase error:', error?.message);
       return [];
     }
 
@@ -111,7 +111,7 @@ export async function registrarEntrada(alunoId: string): Promise<{ success: bool
     });
 
     if (error) {
-      console.warn('[registrarEntrada] Supabase error:', error.message);
+      console.error('[registrarEntrada] Supabase error:', error.message);
       return { success: false, message: error.message };
     }
     return { success: true, message: 'Entrada registrada!' };
@@ -227,7 +227,7 @@ export async function registrarVisitante(nome: string, motivo: string): Promise<
     });
 
     if (error) {
-      console.warn('[registrarVisitante] Supabase error:', error.message);
+      console.error('[registrarVisitante] Supabase error:', error.message);
       return { success: false };
     }
     return { success: true };

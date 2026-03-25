@@ -60,7 +60,7 @@ export async function createAssessment(assessment: Omit<PhysicalAssessmentDTO, '
       .single();
 
     if (error || !data) {
-      console.warn('[createAssessment] Supabase error:', error?.message);
+      console.error('[createAssessment] Supabase error:', error?.message);
       return { id: '', ...assessment };
     }
 
@@ -74,7 +74,7 @@ export async function createAssessment(assessment: Omit<PhysicalAssessmentDTO, '
       notes: String(data.notes ?? ''),
     };
   } catch (error) {
-    console.warn('[createAssessment] Fallback:', error);
+    console.error('[createAssessment] Fallback:', error);
     return { id: '', ...assessment };
   }
 }
@@ -95,7 +95,7 @@ export async function getHistory(studentId: string): Promise<PhysicalAssessmentD
       .order('date', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getHistory] Supabase error:', error?.message);
+      console.error('[getHistory] Supabase error:', error?.message);
       return [];
     }
 
@@ -109,7 +109,7 @@ export async function getHistory(studentId: string): Promise<PhysicalAssessmentD
       notes: String(row.notes ?? ''),
     }));
   } catch (error) {
-    console.warn('[getHistory] Fallback:', error);
+    console.error('[getHistory] Fallback:', error);
     return [];
   }
 }
@@ -132,7 +132,7 @@ export async function getLatest(studentId: string): Promise<PhysicalAssessmentDT
       .maybeSingle();
 
     if (error || !data) {
-      console.warn('[getLatest] Supabase error:', error?.message);
+      console.error('[getLatest] Supabase error:', error?.message);
       return null;
     }
 
@@ -146,7 +146,7 @@ export async function getLatest(studentId: string): Promise<PhysicalAssessmentDT
       notes: String(data.notes ?? ''),
     };
   } catch (error) {
-    console.warn('[getLatest] Fallback:', error);
+    console.error('[getLatest] Fallback:', error);
     return null;
   }
 }
@@ -167,7 +167,7 @@ export async function compareAssessments(studentId: string, assessmentId1: strin
       .in('id', [assessmentId1, assessmentId2]);
 
     if (error || !data || data.length < 2) {
-      console.warn('[compareAssessments] Supabase error:', error?.message);
+      console.error('[compareAssessments] Supabase error:', error?.message);
       const empty = { id: '', student_id: studentId, assessed_by: '', date: '', measurements: {} as Measurements, fitness_tests: {} as FitnessTests, notes: '' };
       return { current: empty, previous: empty, deltas: { measurements: {} as Record<keyof Measurements, number>, fitness_tests: {} as Record<keyof FitnessTests, number> } };
     }
@@ -197,7 +197,7 @@ export async function compareAssessments(studentId: string, assessmentId1: strin
       },
     };
   } catch (error) {
-    console.warn('[compareAssessments] Fallback:', error);
+    console.error('[compareAssessments] Fallback:', error);
     const empty = { id: '', student_id: studentId, assessed_by: '', date: '', measurements: {} as Measurements, fitness_tests: {} as FitnessTests, notes: '' };
     return { current: empty, previous: empty, deltas: { measurements: {} as Record<keyof Measurements, number>, fitness_tests: {} as Record<keyof FitnessTests, number> } };
   }

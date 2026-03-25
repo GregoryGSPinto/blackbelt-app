@@ -66,7 +66,7 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       .eq('status', 'in_progress');
 
     if (error) {
-      console.warn('[getLiveMatches] Supabase error:', error.message);
+      console.error('[getLiveMatches] Supabase error:', error.message);
       return [];
     }
 
@@ -85,7 +85,7 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       method: m.method ?? null,
     }));
   } catch (error) {
-    console.warn('[getLiveMatches] Fallback:', error);
+    console.error('[getLiveMatches] Fallback:', error);
     return [];
   }
 }
@@ -129,7 +129,7 @@ export async function getResults(championshipId: string, categoryId?: string): P
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[getResults] Supabase error:', error.message);
+      console.error('[getResults] Supabase error:', error.message);
       return [];
     }
 
@@ -174,7 +174,7 @@ export async function getResults(championshipId: string, categoryId?: string): P
 
     return results;
   } catch (error) {
-    console.warn('[getResults] Fallback:', error);
+    console.error('[getResults] Fallback:', error);
     return [];
   }
 }
@@ -195,7 +195,7 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       .order('gold', { ascending: false });
 
     if (error) {
-      console.warn('[getMedalTable] Supabase error:', error.message);
+      console.error('[getMedalTable] Supabase error:', error.message);
       return [];
     }
 
@@ -209,7 +209,7 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       total: (row.gold ?? 0) + (row.silver ?? 0) + (row.bronze ?? 0),
     }));
   } catch (error) {
-    console.warn('[getMedalTable] Fallback:', error);
+    console.error('[getMedalTable] Fallback:', error);
     return [];
   }
 }

@@ -57,7 +57,7 @@ export async function getPlatformRevenue(period: string): Promise<PlatformRevenu
       .gte('created_at', period);
 
     if (error || !data) {
-      console.warn('[getPlatformRevenue] error:', error?.message);
+      console.error('[getPlatformRevenue] error:', error?.message);
       return { total_revenue: 0, platform_commission: 0, creator_payouts: 0, commission_rate: 0, monthly_data: [] };
     }
 
@@ -69,7 +69,7 @@ export async function getPlatformRevenue(period: string): Promise<PlatformRevenu
     }
     return { total_revenue, platform_commission, creator_payouts: total_revenue - platform_commission, commission_rate: total_revenue > 0 ? platform_commission / total_revenue : 0, monthly_data: [] };
   } catch (error) {
-    console.warn('[getPlatformRevenue] Fallback:', error);
+    console.error('[getPlatformRevenue] Fallback:', error);
     return { total_revenue: 0, platform_commission: 0, creator_payouts: 0, commission_rate: 0, monthly_data: [] };
   }
 }
@@ -90,12 +90,12 @@ export async function getCreatorBalance(creatorId: string): Promise<BalanceDTO> 
       .single();
 
     if (error || !data) {
-      console.warn('[getCreatorBalance] error:', error?.message);
+      console.error('[getCreatorBalance] error:', error?.message);
       return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0 };
     }
     return data as unknown as BalanceDTO;
   } catch (error) {
-    console.warn('[getCreatorBalance] Fallback:', error);
+    console.error('[getCreatorBalance] Fallback:', error);
     return { available: 0, pending: 0, total_earned: 0, total_withdrawn: 0 };
   }
 }
@@ -116,12 +116,12 @@ export async function requestWithdrawal(creatorId: string, amount: number): Prom
       .single();
 
     if (error || !data) {
-      console.warn('[requestWithdrawal] error:', error?.message);
+      console.error('[requestWithdrawal] error:', error?.message);
       return { id: '', creator_id: creatorId, amount, status: 'pending', requested_at: new Date().toISOString(), bank_info: '' };
     }
     return data as unknown as WithdrawalRecord;
   } catch (error) {
-    console.warn('[requestWithdrawal] Fallback:', error);
+    console.error('[requestWithdrawal] Fallback:', error);
     return { id: '', creator_id: creatorId, amount, status: 'pending', requested_at: new Date().toISOString(), bank_info: '' };
   }
 }
@@ -142,12 +142,12 @@ export async function getWithdrawalHistory(creatorId: string): Promise<Withdrawa
       .order('requested_at', { ascending: false });
 
     if (error) {
-      console.warn('[getWithdrawalHistory] error:', error.message);
+      console.error('[getWithdrawalHistory] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as WithdrawalRecord[];
   } catch (error) {
-    console.warn('[getWithdrawalHistory] Fallback:', error);
+    console.error('[getWithdrawalHistory] Fallback:', error);
     return [];
   }
 }
@@ -168,12 +168,12 @@ export async function getTopCreators(): Promise<TopCreator[]> {
       .limit(20);
 
     if (error) {
-      console.warn('[getTopCreators] error:', error.message);
+      console.error('[getTopCreators] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as TopCreator[];
   } catch (error) {
-    console.warn('[getTopCreators] Fallback:', error);
+    console.error('[getTopCreators] Fallback:', error);
     return [];
   }
 }
@@ -194,7 +194,7 @@ export async function getPendingApprovals(): Promise<PendingApproval[]> {
       .order('submitted_at', { ascending: true });
 
     if (error) {
-      console.warn('[getPendingApprovals] error:', error.message);
+      console.error('[getPendingApprovals] error:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -205,7 +205,7 @@ export async function getPendingApprovals(): Promise<PendingApproval[]> {
       modality: row.modality as string,
     }));
   } catch (error) {
-    console.warn('[getPendingApprovals] Fallback:', error);
+    console.error('[getPendingApprovals] Fallback:', error);
     return [];
   }
 }

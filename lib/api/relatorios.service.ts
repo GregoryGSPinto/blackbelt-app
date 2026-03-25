@@ -42,14 +42,14 @@ export async function getReport(academyId: string, filters: ReportFilters): Prom
       });
 
     if (error || !data) {
-      console.warn('[getReport] Supabase error:', error?.message);
+      console.error('[getReport] Supabase error:', error?.message);
       return empty;
     }
 
     const row = Array.isArray(data) ? data[0] : data;
     return (row as ReportResult) ?? empty;
   } catch (error) {
-    console.warn('[getReport] Fallback:', error);
+    console.error('[getReport] Fallback:', error);
     return empty;
   }
 }

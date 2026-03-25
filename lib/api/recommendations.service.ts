@@ -30,7 +30,7 @@ export async function getRecommendations(studentId: string): Promise<Recommended
         .order('views_count', { ascending: false })
         .limit(10);
       if (error || !data) {
-        console.warn('[getRecommendations] Query failed:', error?.message);
+        console.error('[getRecommendations] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -41,11 +41,11 @@ export async function getRecommendations(studentId: string): Promise<Recommended
         score: 100 - idx * 5,
       }));
     } catch {
-      console.warn('[recommendations.getRecommendations] API not available, returning empty');
+      console.error('[recommendations.getRecommendations] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[getRecommendations] Fallback:', error);
+    console.error('[getRecommendations] Fallback:', error);
     return [];
   }
 }
@@ -65,7 +65,7 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
         .order('created_at', { ascending: false })
         .limit(20);
       if (error || !data) {
-        console.warn('[getPersonalizedFeed] Query failed:', error?.message);
+        console.error('[getPersonalizedFeed] Query failed:', error?.message);
         return { recommended: [], newContent: [], trending: [], completeSeries: [] };
       }
       const vids = (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -82,11 +82,11 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
         completeSeries: vids.slice(15, 20),
       };
     } catch {
-      console.warn('[recommendations.getPersonalizedFeed] API not available, returning empty');
+      console.error('[recommendations.getPersonalizedFeed] API not available, returning empty');
       return { recommended: [], newContent: [], trending: [], completeSeries: [] };
     }
   } catch (error) {
-    console.warn('[getPersonalizedFeed] Fallback:', error);
+    console.error('[getPersonalizedFeed] Fallback:', error);
     return { recommended: [], newContent: [], trending: [], completeSeries: [] };
   }
 }

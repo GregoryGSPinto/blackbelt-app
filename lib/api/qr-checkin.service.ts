@@ -91,11 +91,11 @@ export async function generateQRCode(classId: string): Promise<QRCheckInCode> {
         qrDataUrl,
       };
     } catch (err) {
-      console.warn('[qr-checkin.generateQRCode] error, using fallback:', err);
+      console.error('[qr-checkin.generateQRCode] error, using fallback:', err);
       return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
     }
   } catch (error) {
-    console.warn('[generateQRCode] Fallback:', error);
+    console.error('[generateQRCode] Fallback:', error);
     return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
   }
 }
@@ -176,7 +176,7 @@ export async function validateQRCode(
         if (attErr.code === '23505') {
           return { valid: false, message: 'Check-in já realizado para esta aula hoje.' };
         }
-        console.warn('[validateQRCode] insert error:', attErr.message);
+        console.error('[validateQRCode] insert error:', attErr.message);
         return { valid: false, message: 'Erro ao registrar presença.' };
       }
 
@@ -189,11 +189,11 @@ export async function validateQRCode(
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      console.warn('[qr-checkin.validateQRCode] error, using fallback:', err);
+      console.error('[qr-checkin.validateQRCode] error, using fallback:', err);
       return { valid: false, message: 'Erro ao validar QR code' };
     }
   } catch (error) {
-    console.warn('[validateQRCode] Fallback:', error);
+    console.error('[validateQRCode] Fallback:', error);
     return { valid: false, message: 'Erro ao validar QR code' };
   }
 }
@@ -259,11 +259,11 @@ export async function getActiveQRCodes(academyId: string): Promise<QRCheckInCode
         qrDataUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(q.code)}`,
       }));
     } catch (err) {
-      console.warn('[qr-checkin.getActiveQRCodes] error, using fallback:', err);
+      console.error('[qr-checkin.getActiveQRCodes] error, using fallback:', err);
       return [];
     }
   } catch (error) {
-    console.warn('[getActiveQRCodes] Fallback:', error);
+    console.error('[getActiveQRCodes] Fallback:', error);
     return [];
   }
 }

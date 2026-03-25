@@ -51,7 +51,7 @@ export async function startListening(): Promise<ListeningState> {
     // Web Speech API would be initialized here
     return { is_listening: true, transcript: '', confidence: 0 };
   } catch (error) {
-    console.warn('[startListening] Fallback:', error);
+    console.error('[startListening] Fallback:', error);
     return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
@@ -64,7 +64,7 @@ export async function stopListening(): Promise<ListeningState> {
     }
     return { is_listening: false, transcript: '', confidence: 0 };
   } catch (error) {
-    console.warn('[stopListening] Fallback:', error);
+    console.error('[stopListening] Fallback:', error);
     return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
@@ -104,7 +104,7 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       data: null,
     };
   } catch (error) {
-    console.warn('[processCommand] Fallback:', error);
+    console.error('[processCommand] Fallback:', error);
     return { command_type: 'unknown', text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
   }
 }

@@ -45,12 +45,12 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       .eq('status', 'active')
       .single();
     if (error || !data) {
-      console.warn('[getActiveLeague] Supabase error:', error?.message);
+      console.error('[getActiveLeague] Supabase error:', error?.message);
       return {} as LeagueDTO;
     }
     return data as unknown as LeagueDTO;
   } catch (error) {
-    console.warn('[getActiveLeague] Fallback:', error);
+    console.error('[getActiveLeague] Fallback:', error);
     return {} as LeagueDTO;
   }
 }
@@ -68,12 +68,12 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       .select('*')
       .order('rank', { ascending: true });
     if (error || !data) {
-      console.warn('[getLeagueStandings] Supabase error:', error?.message);
+      console.error('[getLeagueStandings] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as LeagueAcademy[];
   } catch (error) {
-    console.warn('[getLeagueStandings] Fallback:', error);
+    console.error('[getLeagueStandings] Fallback:', error);
     return [];
   }
 }
@@ -93,12 +93,12 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getMyAcademyRank] Supabase error:', error?.message);
+      console.error('[getMyAcademyRank] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as AcademyLeagueStats;
   } catch (error) {
-    console.warn('[getMyAcademyRank] Fallback:', error);
+    console.error('[getMyAcademyRank] Fallback:', error);
     return fallback;
   }
 }
@@ -113,12 +113,12 @@ export async function contributePoints(studentId: string, action: string): Promi
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('contribute_league_points', { p_student_id: studentId, p_action: action });
     if (error || !data) {
-      console.warn('[contributePoints] Supabase error:', error?.message);
+      console.error('[contributePoints] Supabase error:', error?.message);
       return { points_added: 0, total_points: 0 };
     }
     return data as unknown as { points_added: number; total_points: number };
   } catch (error) {
-    console.warn('[contributePoints] Fallback:', error);
+    console.error('[contributePoints] Fallback:', error);
     return { points_added: 0, total_points: 0 };
   }
 }
@@ -136,12 +136,12 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       .update({ opted_in: optIn })
       .eq('academy_id', academyId);
     if (error) {
-      console.warn('[toggleOptIn] Supabase error:', error.message);
+      console.error('[toggleOptIn] Supabase error:', error.message);
       return { success: false };
     }
     return { success: true };
   } catch (error) {
-    console.warn('[toggleOptIn] Fallback:', error);
+    console.error('[toggleOptIn] Fallback:', error);
     return { success: false };
   }
 }

@@ -48,12 +48,12 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       .select()
       .single();
     if (error || !data) {
-      console.warn('[createCourse] Supabase error:', error?.message);
+      console.error('[createCourse] Supabase error:', error?.message);
       return {} as MarketplaceCourse;
     }
     return data as unknown as MarketplaceCourse;
   } catch (error) {
-    console.warn('[createCourse] Fallback:', error);
+    console.error('[createCourse] Fallback:', error);
     return {} as MarketplaceCourse;
   }
 }
@@ -72,12 +72,12 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       .select()
       .single();
     if (error || !data) {
-      console.warn('[addModule] Supabase error:', error?.message);
+      console.error('[addModule] Supabase error:', error?.message);
       return {} as CourseModule;
     }
     return data as unknown as CourseModule;
   } catch (error) {
-    console.warn('[addModule] Fallback:', error);
+    console.error('[addModule] Fallback:', error);
     return {} as CourseModule;
   }
 }
@@ -94,10 +94,10 @@ export async function addLesson(payload: AddLessonPayload): Promise<void> {
       .from('course_lessons')
       .insert({ course_id: payload.course_id, module_id: payload.module_id, title: payload.title, video_url: payload.video_url, duration: payload.duration });
     if (error) {
-      console.warn('[addLesson] Supabase error:', error.message);
+      console.error('[addLesson] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[addLesson] Fallback:', error);
+    console.error('[addLesson] Fallback:', error);
   }
 }
 
@@ -114,7 +114,7 @@ export async function reorderModules(courseId: string, moduleIds: string[]): Pro
     );
     await Promise.all(updates);
   } catch (error) {
-    console.warn('[reorderModules] Fallback:', error);
+    console.error('[reorderModules] Fallback:', error);
   }
 }
 
@@ -133,12 +133,12 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       .select()
       .single();
     if (error || !data) {
-      console.warn('[publishCourse] Supabase error:', error?.message);
+      console.error('[publishCourse] Supabase error:', error?.message);
       return {} as MarketplaceCourse;
     }
     return data as unknown as MarketplaceCourse;
   } catch (error) {
-    console.warn('[publishCourse] Fallback:', error);
+    console.error('[publishCourse] Fallback:', error);
     return {} as MarketplaceCourse;
   }
 }
@@ -156,12 +156,12 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       .select('*')
       .eq('creator_id', creatorId);
     if (error || !data) {
-      console.warn('[getCourseAnalytics] Supabase error:', error?.message);
+      console.error('[getCourseAnalytics] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as CourseAnalytics[];
   } catch (error) {
-    console.warn('[getCourseAnalytics] Fallback:', error);
+    console.error('[getCourseAnalytics] Fallback:', error);
     return [];
   }
 }

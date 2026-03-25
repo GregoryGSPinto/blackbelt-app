@@ -25,13 +25,13 @@ export async function addToWishlist(userId: string, productId: string): Promise<
       .single();
 
     if (error || !data) {
-      console.warn('[addToWishlist] Supabase error:', error?.message);
+      console.error('[addToWishlist] Supabase error:', error?.message);
       return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
     }
 
     return data as unknown as WishlistItem;
   } catch (error) {
-    console.warn('[addToWishlist] Fallback:', error);
+    console.error('[addToWishlist] Fallback:', error);
     return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
   }
 }
@@ -52,10 +52,10 @@ export async function removeFromWishlist(userId: string, productId: string): Pro
       .eq('product_id', productId);
 
     if (error) {
-      console.warn('[removeFromWishlist] Supabase error:', error.message);
+      console.error('[removeFromWishlist] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[removeFromWishlist] Fallback:', error);
+    console.error('[removeFromWishlist] Fallback:', error);
   }
 }
 
@@ -75,13 +75,13 @@ export async function getWishlist(userId: string): Promise<WishlistItem[]> {
       .order('added_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getWishlist] Supabase error:', error?.message);
+      console.error('[getWishlist] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as WishlistItem[];
   } catch (error) {
-    console.warn('[getWishlist] Fallback:', error);
+    console.error('[getWishlist] Fallback:', error);
     return [];
   }
 }

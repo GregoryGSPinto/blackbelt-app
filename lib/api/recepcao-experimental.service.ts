@@ -46,7 +46,7 @@ export async function listExperimentais(): Promise<{ hoje: ExperimentalRecepcao[
       .select('*')
       .order('data', { ascending: false });
     if (error || !data) {
-      console.warn('[listExperimentais] Supabase error:', error?.message);
+      console.error('[listExperimentais] Supabase error:', error?.message);
       return fallback;
     }
     const all = data as unknown as ExperimentalRecepcao[];
@@ -58,7 +58,7 @@ export async function listExperimentais(): Promise<{ hoje: ExperimentalRecepcao[
     const matricularam = all.filter(e => e.status === 'matriculou').length;
     return { hoje, followUp, historico, funnel: { agendadas, vieram, matricularam, conversao: agendadas > 0 ? matricularam / agendadas : 0 } };
   } catch (error) {
-    console.warn('[listExperimentais] Fallback:', error);
+    console.error('[listExperimentais] Fallback:', error);
     return fallback;
   }
 }
@@ -76,12 +76,12 @@ export async function marcarChegou(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'chegou' })
       .eq('id', id);
     if (error) {
-      console.warn('[marcarChegou] Supabase error:', error.message);
+      console.error('[marcarChegou] Supabase error:', error.message);
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.warn('[marcarChegou] Fallback:', error);
+    console.error('[marcarChegou] Fallback:', error);
     return { ok: false };
   }
 }
@@ -99,12 +99,12 @@ export async function marcarNaoVeio(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'nao_veio' })
       .eq('id', id);
     if (error) {
-      console.warn('[marcarNaoVeio] Supabase error:', error.message);
+      console.error('[marcarNaoVeio] Supabase error:', error.message);
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.warn('[marcarNaoVeio] Fallback:', error);
+    console.error('[marcarNaoVeio] Fallback:', error);
     return { ok: false };
   }
 }
@@ -122,12 +122,12 @@ export async function marcarMatriculou(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'matriculou' })
       .eq('id', id);
     if (error) {
-      console.warn('[marcarMatriculou] Supabase error:', error.message);
+      console.error('[marcarMatriculou] Supabase error:', error.message);
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.warn('[marcarMatriculou] Fallback:', error);
+    console.error('[marcarMatriculou] Fallback:', error);
     return { ok: false };
   }
 }

@@ -93,12 +93,12 @@ export async function getTodayClasses(guardianId: string): Promise<ParentChildCl
       .gte('class_date', todayStart.toISOString());
 
     if (error) {
-      console.warn('[getTodayClasses] Supabase error:', error.message);
+      console.error('[getTodayClasses] Supabase error:', error.message);
       return MOCK_TODAY_CLASSES;
     }
     return (data ?? []) as unknown as ParentChildClass[];
   } catch (error) {
-    console.warn('[getTodayClasses] Fallback:', error);
+    console.error('[getTodayClasses] Fallback:', error);
     return MOCK_TODAY_CLASSES;
   }
 }
@@ -142,13 +142,13 @@ export async function doParentCheckin(
       .single();
 
     if (error) {
-      console.warn('[doParentCheckin] Supabase error:', error.message);
+      console.error('[doParentCheckin] Supabase error:', error.message);
       throw new Error(error.message);
     }
     return data as Attendance;
   } catch (error) {
     if (error instanceof Error) throw error;
-    console.warn('[doParentCheckin] Fallback:', error);
+    console.error('[doParentCheckin] Fallback:', error);
     throw new Error('Erro ao realizar check-in.');
   }
 }
@@ -171,12 +171,12 @@ export async function getCheckinHistory(guardianId: string): Promise<ParentCheck
       .limit(30);
 
     if (error) {
-      console.warn('[getCheckinHistory] Supabase error:', error.message);
+      console.error('[getCheckinHistory] Supabase error:', error.message);
       return MOCK_HISTORY;
     }
     return (data ?? []) as unknown as ParentCheckinHistory[];
   } catch (error) {
-    console.warn('[getCheckinHistory] Fallback:', error);
+    console.error('[getCheckinHistory] Fallback:', error);
     return MOCK_HISTORY;
   }
 }

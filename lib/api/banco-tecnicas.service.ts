@@ -56,12 +56,12 @@ export async function listTecnicas(filtros?: TecnicaFiltros): Promise<Tecnica[]>
     if (filtros?.query) query = query.ilike('nome', `%${filtros.query}%`);
     const { data, error } = await query;
     if (error) {
-      console.warn('[listTecnicas] error:', error.message);
+      console.error('[listTecnicas] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    console.warn('[listTecnicas] Fallback:', error);
+    console.error('[listTecnicas] Fallback:', error);
     return [];
   }
 }
@@ -76,12 +76,12 @@ export async function getTecnica(id: string): Promise<Tecnica> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').select('*').eq('id', id).single();
     if (error) {
-      console.warn('[getTecnica] error:', error.message);
+      console.error('[getTecnica] error:', error.message);
       return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
     }
     return data as unknown as Tecnica;
   } catch (error) {
-    console.warn('[getTecnica] Fallback:', error);
+    console.error('[getTecnica] Fallback:', error);
     return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
   }
 }
@@ -96,12 +96,12 @@ export async function createTecnica(dados: CreateTecnicaPayload): Promise<Tecnic
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').insert(dados).select().single();
     if (error) {
-      console.warn('[createTecnica] error:', error.message);
+      console.error('[createTecnica] error:', error.message);
       return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
     }
     return data as unknown as Tecnica;
   } catch (error) {
-    console.warn('[createTecnica] Fallback:', error);
+    console.error('[createTecnica] Fallback:', error);
     return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
   }
 }
@@ -116,12 +116,12 @@ export async function searchTecnicas(query: string): Promise<Tecnica[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').select('*').ilike('nome', `%${query}%`);
     if (error) {
-      console.warn('[searchTecnicas] error:', error.message);
+      console.error('[searchTecnicas] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    console.warn('[searchTecnicas] Fallback:', error);
+    console.error('[searchTecnicas] Fallback:', error);
     return [];
   }
 }

@@ -45,13 +45,13 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       .order('name', { ascending: true });
 
     if (error) {
-      console.warn('[getUnidades] error:', error.message);
+      console.error('[getUnidades] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as UnidadeFranquia[];
   } catch (error) {
-    console.warn('[getUnidades] Fallback:', error);
+    console.error('[getUnidades] Fallback:', error);
     return [];
   }
 }
@@ -72,7 +72,7 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       .eq('franchise_id', franchiseId);
 
     if (error) {
-      console.warn('[getUnidadesOverview] error:', error.message);
+      console.error('[getUnidadesOverview] error:', error.message);
       return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
     }
 
@@ -90,7 +90,7 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       avg_compliance: Math.round(avgCompliance * 10) / 10,
     };
   } catch (error) {
-    console.warn('[getUnidadesOverview] Fallback:', error);
+    console.error('[getUnidadesOverview] Fallback:', error);
     return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
   }
 }
@@ -112,13 +112,13 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       .single();
 
     if (error) {
-      console.warn('[getUnidadeDetail] error:', error.message);
+      console.error('[getUnidadeDetail] error:', error.message);
       return {} as UnidadeFranquia;
     }
 
     return data as unknown as UnidadeFranquia;
   } catch (error) {
-    console.warn('[getUnidadeDetail] Fallback:', error);
+    console.error('[getUnidadeDetail] Fallback:', error);
     return {} as UnidadeFranquia;
   }
 }
@@ -144,13 +144,13 @@ export async function updateUnidadeStatus(
       .single();
 
     if (error) {
-      console.warn('[updateUnidadeStatus] error:', error.message);
+      console.error('[updateUnidadeStatus] error:', error.message);
       return {} as UnidadeFranquia;
     }
 
     return data as unknown as UnidadeFranquia;
   } catch (error) {
-    console.warn('[updateUnidadeStatus] Fallback:', error);
+    console.error('[updateUnidadeStatus] Fallback:', error);
     return {} as UnidadeFranquia;
   }
 }

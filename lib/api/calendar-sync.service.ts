@@ -43,7 +43,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
       .single();
 
     if (error || !data) {
-      console.warn('[getCalendarSyncStatus] No integration found or error:', error?.message);
+      console.error('[getCalendarSyncStatus] No integration found or error:', error?.message);
       return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
     }
 
@@ -54,7 +54,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
       syncedClasses: data.synced_classes ?? 0,
     };
   } catch (error) {
-    console.warn('[getCalendarSyncStatus] Fallback:', error);
+    console.error('[getCalendarSyncStatus] Fallback:', error);
     return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
   }
 }
@@ -68,10 +68,10 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
 
     // Google Calendar API integration requires server-side OAuth flow
     // Return empty until Google API credentials are configured
-    console.warn('[connectGoogleCalendar] Google Calendar API not configured yet');
+    console.error('[connectGoogleCalendar] Google Calendar API not configured yet');
     return { authUrl: '' };
   } catch (error) {
-    console.warn('[connectGoogleCalendar] Fallback:', error);
+    console.error('[connectGoogleCalendar] Fallback:', error);
     return { authUrl: '' };
   }
 }
@@ -92,10 +92,10 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
       .eq('user_id', userId);
 
     if (error) {
-      console.warn('[disconnectGoogleCalendar] error:', error.message);
+      console.error('[disconnectGoogleCalendar] error:', error.message);
     }
   } catch (error) {
-    console.warn('[disconnectGoogleCalendar] Fallback:', error);
+    console.error('[disconnectGoogleCalendar] Fallback:', error);
   }
 }
 
@@ -108,10 +108,10 @@ export async function syncClassesToCalendar(_userId: string): Promise<{ synced: 
 
     // Google Calendar sync requires server-side API integration
     // Return fallback until Google API credentials are configured
-    console.warn('[syncClassesToCalendar] Google Calendar API not configured, returning fallback');
+    console.error('[syncClassesToCalendar] Google Calendar API not configured, returning fallback');
     return { synced: 0 };
   } catch (error) {
-    console.warn('[syncClassesToCalendar] Fallback:', error);
+    console.error('[syncClassesToCalendar] Fallback:', error);
     return { synced: 0 };
   }
 }

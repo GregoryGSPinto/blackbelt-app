@@ -22,12 +22,12 @@ export async function getBillingCycleConfig(academyId: string): Promise<BillingC
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getBillingCycleConfig] Supabase error:', error?.message);
+      console.error('[getBillingCycleConfig] Supabase error:', error?.message);
       return {} as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.warn('[getBillingCycleConfig] Fallback:', error);
+    console.error('[getBillingCycleConfig] Fallback:', error);
     return {} as BillingConfig;
   }
 }
@@ -46,12 +46,12 @@ export async function previewNextBillingCycle(academyId: string): Promise<Billin
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[previewNextBillingCycle] Supabase error:', error?.message);
+      console.error('[previewNextBillingCycle] Supabase error:', error?.message);
       return {} as BillingPreview;
     }
     return data as unknown as BillingPreview;
   } catch (error) {
-    console.warn('[previewNextBillingCycle] Fallback:', error);
+    console.error('[previewNextBillingCycle] Fallback:', error);
     return {} as BillingPreview;
   }
 }
@@ -67,12 +67,12 @@ export async function runBillingCycle(academyId: string): Promise<BillingCycleRe
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('run_billing_cycle', { p_academy_id: academyId });
     if (error || !data) {
-      console.warn('[runBillingCycle] Supabase error:', error?.message);
+      console.error('[runBillingCycle] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as BillingCycleResult;
   } catch (error) {
-    console.warn('[runBillingCycle] Fallback:', error);
+    console.error('[runBillingCycle] Fallback:', error);
     return fallback;
   }
 }

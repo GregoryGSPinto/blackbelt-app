@@ -62,12 +62,12 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       .eq('student_id', studentId)
       .single();
     if (error || !data) {
-      console.warn('[getPromotionCandidate] Supabase error:', error?.message);
+      console.error('[getPromotionCandidate] Supabase error:', error?.message);
       return {} as PromotionCandidateDTO;
     }
     return data as unknown as PromotionCandidateDTO;
   } catch (error) {
-    console.warn('[getPromotionCandidate] Fallback:', error);
+    console.error('[getPromotionCandidate] Fallback:', error);
     return {} as PromotionCandidateDTO;
   }
 }
@@ -90,12 +90,12 @@ export async function executePromotion(data: ExecutePromotionPayload): Promise<P
       p_promoted_by: data.promoted_by,
     });
     if (error || !result) {
-      console.warn('[executePromotion] Supabase error:', error?.message);
+      console.error('[executePromotion] Supabase error:', error?.message);
       return fallback;
     }
     return result as unknown as PromotionResult;
   } catch (error) {
-    console.warn('[executePromotion] Fallback:', error);
+    console.error('[executePromotion] Fallback:', error);
     return fallback;
   }
 }

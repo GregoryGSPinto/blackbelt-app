@@ -72,7 +72,7 @@ export async function createAvaliacao(
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[createAvaliacao] Not authenticated');
+      console.error('[createAvaliacao] Not authenticated');
       return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
     }
 
@@ -95,7 +95,7 @@ export async function createAvaliacao(
       .single();
 
     if (error) {
-      console.warn('[createAvaliacao] Supabase error:', error.message);
+      console.error('[createAvaliacao] Supabase error:', error.message);
     }
 
     return {
@@ -112,7 +112,7 @@ export async function createAvaliacao(
       recomendacao: recomendacao as AvaliacaoTecnica['recomendacao'],
     };
   } catch (error) {
-    console.warn('[createAvaliacao] Fallback:', error);
+    console.error('[createAvaliacao] Fallback:', error);
     return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
   }
 }
@@ -137,7 +137,7 @@ export async function listAvaliacoes(
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[listAvaliacoes] Supabase error:', error.message);
+      console.error('[listAvaliacoes] Supabase error:', error.message);
       return [];
     }
 
@@ -159,7 +159,7 @@ export async function listAvaliacoes(
       };
     });
   } catch (error) {
-    console.warn('[listAvaliacoes] Fallback:', error);
+    console.error('[listAvaliacoes] Fallback:', error);
     return [];
   }
 }
@@ -181,7 +181,7 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.warn('[getEvolucaoAluno] Supabase error:', error.message);
+      console.error('[getEvolucaoAluno] Supabase error:', error.message);
       return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
     }
 
@@ -212,7 +212,7 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       requisitosPromocao: [],
     };
   } catch (error) {
-    console.warn('[getEvolucaoAluno] Fallback:', error);
+    console.error('[getEvolucaoAluno] Fallback:', error);
     return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
   }
 }
@@ -228,12 +228,12 @@ export async function getCriterios(): Promise<CriterioAvaliacao[]> {
 
     const { data, error } = await supabase.from('evaluation_criteria').select('*');
     if (error || !data?.length) {
-      console.warn('[getCriterios] Using default criteria');
+      console.error('[getCriterios] Using default criteria');
       return CRITERIOS_BJJ;
     }
     return data as unknown as CriterioAvaliacao[];
   } catch (error) {
-    console.warn('[getCriterios] Fallback:', error);
+    console.error('[getCriterios] Fallback:', error);
     return CRITERIOS_BJJ;
   }
 }

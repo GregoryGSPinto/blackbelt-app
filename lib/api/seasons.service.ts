@@ -60,7 +60,7 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       .single();
 
     if (error || !data) {
-      console.warn('[getCurrentSeason] Supabase error:', error?.message);
+      console.error('[getCurrentSeason] Supabase error:', error?.message);
       return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
     }
 
@@ -75,7 +75,7 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       rewards: (data.rewards ?? []) as SeasonRewardTier[],
     };
   } catch (error) {
-    console.warn('[getCurrentSeason] Fallback:', error);
+    console.error('[getCurrentSeason] Fallback:', error);
     return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
   }
 }
@@ -101,7 +101,7 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[getSeasonLeaderboard] Supabase error:', error?.message);
+      console.error('[getSeasonLeaderboard] Supabase error:', error?.message);
       return [];
     }
 
@@ -114,7 +114,7 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
       tier: (row.tier ?? 'bronze') as SeasonTier,
     }));
   } catch (error) {
-    console.warn('[getSeasonLeaderboard] Fallback:', error);
+    console.error('[getSeasonLeaderboard] Fallback:', error);
     return [];
   }
 }
@@ -135,13 +135,13 @@ export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTi
       .single();
 
     if (error || !data) {
-      console.warn('[getSeasonRewards] Supabase error:', error?.message);
+      console.error('[getSeasonRewards] Supabase error:', error?.message);
       return [];
     }
 
     return (data.rewards ?? []) as SeasonRewardTier[];
   } catch (error) {
-    console.warn('[getSeasonRewards] Fallback:', error);
+    console.error('[getSeasonRewards] Fallback:', error);
     return [];
   }
 }
@@ -163,7 +163,7 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       .single();
 
     if (error || !data) {
-      console.warn('[getMySeasonProgress] Supabase error:', error?.message);
+      console.error('[getMySeasonProgress] Supabase error:', error?.message);
       return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
     }
 
@@ -178,7 +178,7 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       classes_attended_this_season: Number(data.classes_attended_this_season ?? 0),
     };
   } catch (error) {
-    console.warn('[getMySeasonProgress] Fallback:', error);
+    console.error('[getMySeasonProgress] Fallback:', error);
     return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
   }
 }

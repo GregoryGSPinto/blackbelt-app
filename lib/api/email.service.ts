@@ -32,7 +32,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
 
     // ── Graceful fallback when API key not set ──
     if (!EMAIL_API_KEY) {
-      console.warn('[email.service] EMAIL_API_KEY not set — skipping send, logging attempt');
+      console.error('[email.service] EMAIL_API_KEY not set — skipping send, logging attempt');
       await logToNotificationLogs(params, { success: false, error: 'API key not configured' });
       return { success: false, error: 'Email API key not configured' };
     }
@@ -98,6 +98,6 @@ async function logToNotificationLogs(
       sent_at: new Date().toISOString(),
     });
   } catch (logError) {
-    console.warn('[email.service] Failed to log to notification_logs:', logError);
+    console.error('[email.service] Failed to log to notification_logs:', logError);
   }
 }

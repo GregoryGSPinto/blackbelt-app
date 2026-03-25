@@ -106,11 +106,11 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
         },
       };
     } catch {
-      console.warn('[superadmin-dashboard.getMissionControl] API not available, returning empty');
+      console.error('[superadmin-dashboard.getMissionControl] API not available, returning empty');
       return emptyMissionControl;
     }
   } catch (error) {
-    console.warn('[getMissionControl] Fallback:', error);
+    console.error('[getMissionControl] Fallback:', error);
     return emptyMissionControl;
   }
 }
@@ -129,12 +129,12 @@ export async function resolverAlerta(alertaId: string): Promise<void> {
         .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq('id', alertaId);
       if (error) {
-        console.warn('[resolverAlerta] Update failed:', error.message);
+        console.error('[resolverAlerta] Update failed:', error.message);
       }
     } catch {
-      console.warn('[superadmin-dashboard.resolverAlerta] API not available, using fallback');
+      console.error('[superadmin-dashboard.resolverAlerta] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[resolverAlerta] Fallback:', error);
+    console.error('[resolverAlerta] Fallback:', error);
   }
 }

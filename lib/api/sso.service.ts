@@ -35,12 +35,12 @@ export async function getSSOConfig(academyId: string): Promise<SSOConfig | null>
       .single();
 
     if (error || !data) {
-      console.warn('[getSSOConfig] error:', error?.message ?? 'not found');
+      console.error('[getSSOConfig] error:', error?.message ?? 'not found');
       return null;
     }
     return data.value as unknown as SSOConfig;
   } catch (error) {
-    console.warn('[getSSOConfig] Fallback:', error);
+    console.error('[getSSOConfig] Fallback:', error);
     return null;
   }
 }
@@ -61,12 +61,12 @@ export async function updateSSOConfig(academyId: string, config: Partial<SSOConf
       .single();
 
     if (error || !data) {
-      console.warn('[updateSSOConfig] error:', error?.message);
+      console.error('[updateSSOConfig] error:', error?.message);
       return config as SSOConfig;
     }
     return data.value as unknown as SSOConfig;
   } catch (error) {
-    console.warn('[updateSSOConfig] Fallback:', error);
+    console.error('[updateSSOConfig] Fallback:', error);
     return config as SSOConfig;
   }
 }
@@ -78,10 +78,10 @@ export async function initSSOLogin(provider: SSOProvider, _academyId: string): P
       return mockInitSSOLogin(provider, _academyId);
     }
     // SSO login requires external provider configuration
-    console.warn('[initSSOLogin] SSO not configured for provider:', provider);
+    console.error('[initSSOLogin] SSO not configured for provider:', provider);
     return { redirectUrl: '' };
   } catch (error) {
-    console.warn('[initSSOLogin] Fallback:', error);
+    console.error('[initSSOLogin] Fallback:', error);
     return { redirectUrl: '' };
   }
 }
@@ -93,10 +93,10 @@ export async function handleSSOCallback(provider: SSOProvider, _code: string): P
       return mockHandleSSOCallback(provider, _code);
     }
     // SSO callback requires external provider configuration
-    console.warn('[handleSSOCallback] SSO not configured for provider:', provider);
+    console.error('[handleSSOCallback] SSO not configured for provider:', provider);
     return { user: { id: '', email: '', name: '' }, profile: { externalId: '', provider }, tokens: { accessToken: '', refreshToken: '' } };
   } catch (error) {
-    console.warn('[handleSSOCallback] Fallback:', error);
+    console.error('[handleSSOCallback] Fallback:', error);
     return { user: { id: '', email: '', name: '' }, profile: { externalId: '', provider }, tokens: { accessToken: '', refreshToken: '' } };
   }
 }
@@ -128,7 +128,7 @@ export async function testSSOConnection(academyId: string): Promise<{ success: b
 
     return { success: true, error: null };
   } catch (error) {
-    console.warn('[testSSOConnection] Fallback:', error);
+    console.error('[testSSOConnection] Fallback:', error);
     return { success: false, error: 'Erro ao testar conexão SSO' };
   }
 }

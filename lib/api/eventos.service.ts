@@ -54,7 +54,7 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       .order('date', { ascending: true });
 
     if (error) {
-      console.warn('[getEvents] error:', error.message);
+      console.error('[getEvents] error:', error.message);
       return [];
     }
 
@@ -74,7 +74,7 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       academy_id: String(row.academy_id ?? ''),
     }));
   } catch (error) {
-    console.warn('[getEvents] Fallback:', error);
+    console.error('[getEvents] Fallback:', error);
     return [];
   }
 }
@@ -102,7 +102,7 @@ export async function registerForEvent(
       .single();
 
     if (error || !data) {
-      console.warn('[registerForEvent] error:', error?.message);
+      console.error('[registerForEvent] error:', error?.message);
       return EMPTY_REGISTRATION;
     }
 
@@ -114,7 +114,7 @@ export async function registerForEvent(
       status: (row.status as EventRegistration['status']) ?? 'confirmed',
     };
   } catch (error) {
-    console.warn('[registerForEvent] Fallback:', error);
+    console.error('[registerForEvent] Fallback:', error);
     return EMPTY_REGISTRATION;
   }
 }

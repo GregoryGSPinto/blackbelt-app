@@ -18,12 +18,12 @@ export async function listWebhooks(academyId: string): Promise<WebhookConfig[]> 
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[listWebhooks] error:', error.message);
+      console.error('[listWebhooks] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as WebhookConfig[];
   } catch (error) {
-    console.warn('[listWebhooks] Fallback:', error);
+    console.error('[listWebhooks] Fallback:', error);
     return [];
   }
 }
@@ -53,12 +53,12 @@ export async function createWebhook(
       .single();
 
     if (error || !data) {
-      console.warn('[createWebhook] error:', error?.message);
+      console.error('[createWebhook] error:', error?.message);
       return {} as WebhookConfig;
     }
     return data as unknown as WebhookConfig;
   } catch (error) {
-    console.warn('[createWebhook] Fallback:', error);
+    console.error('[createWebhook] Fallback:', error);
     return {} as WebhookConfig;
   }
 }
@@ -78,10 +78,10 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       .eq('id', webhookId);
 
     if (error) {
-      console.warn('[deleteWebhook] error:', error.message);
+      console.error('[deleteWebhook] error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteWebhook] Fallback:', error);
+    console.error('[deleteWebhook] Fallback:', error);
   }
 }
 
@@ -100,10 +100,10 @@ export async function toggleWebhook(webhookId: string, active: boolean): Promise
       .eq('id', webhookId);
 
     if (error) {
-      console.warn('[toggleWebhook] error:', error.message);
+      console.error('[toggleWebhook] error:', error.message);
     }
   } catch (error) {
-    console.warn('[toggleWebhook] Fallback:', error);
+    console.error('[toggleWebhook] Fallback:', error);
   }
 }
 
@@ -127,12 +127,12 @@ export async function getWebhookDeliveries(
       .limit(limit);
 
     if (error) {
-      console.warn('[getWebhookDeliveries] error:', error.message);
+      console.error('[getWebhookDeliveries] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as WebhookDelivery[];
   } catch (error) {
-    console.warn('[getWebhookDeliveries] Fallback:', error);
+    console.error('[getWebhookDeliveries] Fallback:', error);
     return [];
   }
 }
@@ -154,7 +154,7 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       .single();
 
     if (error || !webhook) {
-      console.warn('[testWebhook] error:', error?.message ?? 'not found');
+      console.error('[testWebhook] error:', error?.message ?? 'not found');
       return { success: false, statusCode: 0 };
     }
 
@@ -167,11 +167,11 @@ export async function testWebhook(webhookId: string): Promise<{ success: boolean
       });
       return { success: res.ok, statusCode: res.status };
     } catch {
-      console.warn('[testWebhook] Failed to reach webhook URL');
+      console.error('[testWebhook] Failed to reach webhook URL');
       return { success: false, statusCode: 0 };
     }
   } catch (error) {
-    console.warn('[testWebhook] Fallback:', error);
+    console.error('[testWebhook] Fallback:', error);
     return { success: false, statusCode: 0 };
   }
 }

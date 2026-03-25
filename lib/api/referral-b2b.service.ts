@@ -23,12 +23,12 @@ export async function getReferralCode(academyId: string): Promise<string> {
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getReferralCode] Supabase error:', error?.message);
+      console.error('[getReferralCode] Supabase error:', error?.message);
       return '';
     }
     return String(data.code ?? '');
   } catch (error) {
-    console.warn('[getReferralCode] Fallback:', error);
+    console.error('[getReferralCode] Fallback:', error);
     return '';
   }
 }
@@ -47,12 +47,12 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getReferralStats] Supabase error:', error?.message);
+      console.error('[getReferralStats] Supabase error:', error?.message);
       return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
     }
     return data as unknown as ReferralStatsDTO;
   } catch (error) {
-    console.warn('[getReferralStats] Fallback:', error);
+    console.error('[getReferralStats] Fallback:', error);
     return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
   }
 }
@@ -69,10 +69,10 @@ export async function applyReferralCredit(academyId: string): Promise<void> {
       p_academy_id: academyId,
     });
     if (error) {
-      console.warn('[applyReferralCredit] Supabase error:', error.message);
+      console.error('[applyReferralCredit] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[applyReferralCredit] Fallback:', error);
+    console.error('[applyReferralCredit] Fallback:', error);
   }
 }
 

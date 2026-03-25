@@ -39,13 +39,13 @@ export async function listOrders(filters?: OrderFilters): Promise<Order[]> {
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[listOrders] Supabase error:', error?.message);
+      console.error('[listOrders] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as Order[];
   } catch (error) {
-    console.warn('[listOrders] Fallback:', error);
+    console.error('[listOrders] Fallback:', error);
     return [];
   }
 }
@@ -66,13 +66,13 @@ export async function getOrderDetail(id: string): Promise<Order> {
       .single();
 
     if (error || !data) {
-      console.warn('[getOrderDetail] Supabase error:', error?.message);
+      console.error('[getOrderDetail] Supabase error:', error?.message);
       return { ...EMPTY_ORDER, id };
     }
 
     return data as unknown as Order;
   } catch (error) {
-    console.warn('[getOrderDetail] Fallback:', error);
+    console.error('[getOrderDetail] Fallback:', error);
     return { ...EMPTY_ORDER, id };
   }
 }
@@ -97,13 +97,13 @@ export async function updateOrderStatus(id: string, status: OrderStatus, trackin
       .single();
 
     if (error || !data) {
-      console.warn('[updateOrderStatus] Supabase error:', error?.message);
+      console.error('[updateOrderStatus] Supabase error:', error?.message);
       return { ...EMPTY_ORDER, id, status };
     }
 
     return data as unknown as Order;
   } catch (error) {
-    console.warn('[updateOrderStatus] Fallback:', error);
+    console.error('[updateOrderStatus] Fallback:', error);
     return { ...EMPTY_ORDER, id, status };
   }
 }
@@ -126,7 +126,7 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       .gte('created_at', monthStart);
 
     if (error || !data) {
-      console.warn('[getStoreDashboard] Supabase error:', error?.message);
+      console.error('[getStoreDashboard] Supabase error:', error?.message);
       return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
     }
 
@@ -141,7 +141,7 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       top_products: [],
     };
   } catch (error) {
-    console.warn('[getStoreDashboard] Fallback:', error);
+    console.error('[getStoreDashboard] Fallback:', error);
     return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
   }
 }

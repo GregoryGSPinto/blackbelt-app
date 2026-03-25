@@ -31,7 +31,7 @@ export async function getSystemStatus(): Promise<SystemStatus> {
         .order('created_at', { ascending: false })
         .limit(50);
       if (evErr) {
-        console.warn('[getSystemStatus] telemetry_events query error:', evErr.message);
+        console.error('[getSystemStatus] telemetry_events query error:', evErr.message);
       }
 
       // Count total events in last 24h for error rate
@@ -79,11 +79,11 @@ export async function getSystemStatus(): Promise<SystemStatus> {
         uptimeHistory: [],
       };
     } catch (err) {
-      console.warn('[observability.getSystemStatus] error, using fallback:', err);
+      console.error('[observability.getSystemStatus] error, using fallback:', err);
       return { uptime: 0, version: '', healthStatus: 'unhealthy' as const, avgResponseTime: 0, errorRate: 0, activeUsers: 0, recentErrors: [], uptimeHistory: [] };
     }
   } catch (error) {
-    console.warn('[getSystemStatus] Fallback:', error);
+    console.error('[getSystemStatus] Fallback:', error);
     return { uptime: 0, version: '', healthStatus: 'unhealthy', avgResponseTime: 0, errorRate: 0, activeUsers: 0, recentErrors: [], uptimeHistory: [] };
   }
 }

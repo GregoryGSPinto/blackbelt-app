@@ -59,7 +59,7 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       .single();
 
     if (!membership) {
-      console.warn('[syncHealthData] No academy membership found');
+      console.error('[syncHealthData] No academy membership found');
       return { synced: 0 };
     }
 
@@ -91,13 +91,13 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
     );
 
     if (error) {
-      console.warn('[syncHealthData] Supabase error:', error.message);
+      console.error('[syncHealthData] Supabase error:', error.message);
       return { synced: 0 };
     }
 
     return { synced: newPoints.length };
   } catch (error) {
-    console.warn('[syncHealthData] Fallback:', error);
+    console.error('[syncHealthData] Fallback:', error);
     return { synced: 0 };
   }
 }
@@ -137,7 +137,7 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
 
     return userHealth.filter((h) => h.timestamp >= cutoff);
   } catch (error) {
-    console.warn('[getHealthHistory] Fallback:', error);
+    console.error('[getHealthHistory] Fallback:', error);
     return [];
   }
 }
@@ -185,7 +185,7 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
       battery_pct: 0,
     };
   } catch (error) {
-    console.warn('[getRealtimeMetrics] Fallback:', error);
+    console.error('[getRealtimeMetrics] Fallback:', error);
     return emptyRealtime;
   }
 }
@@ -217,7 +217,7 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
     const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
     return (settings.wearable_sessions?.[userId as keyof typeof settings.wearable_sessions] ?? []) as unknown as WearableSession[];
   } catch (error) {
-    console.warn('[getTrainingSession] Fallback:', error);
+    console.error('[getTrainingSession] Fallback:', error);
     return [];
   }
 }

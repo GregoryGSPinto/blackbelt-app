@@ -26,7 +26,7 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       .limit(50);
 
     if (error) {
-      console.warn('[getGroupMessages] error:', error.message);
+      console.error('[getGroupMessages] error:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -41,7 +41,7 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       };
     });
   } catch (error) {
-    console.warn('[getGroupMessages] Fallback:', error);
+    console.error('[getGroupMessages] Fallback:', error);
     return [];
   }
 }
@@ -65,7 +65,7 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       .single();
 
     if (error || !data) {
-      console.warn('[sendGroupMessage] error:', error?.message);
+      console.error('[sendGroupMessage] error:', error?.message);
       return { id: '', classId, authorId: userId, authorName: '', content, createdAt: new Date().toISOString() };
     }
 
@@ -80,7 +80,7 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       createdAt: row.created_at as string,
     };
   } catch (error) {
-    console.warn('[sendGroupMessage] Fallback:', error);
+    console.error('[sendGroupMessage] Fallback:', error);
     return { id: '', classId, authorId: '', authorName: '', content, createdAt: new Date().toISOString() };
   }
 }

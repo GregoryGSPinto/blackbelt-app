@@ -33,12 +33,12 @@ export async function extractVideoInfo(url: string): Promise<ExtractedVideoInfo>
       .eq('source_url', url)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[extractVideoInfo] No existing video info found for URL:', url);
+      console.error('[extractVideoInfo] No existing video info found for URL:', url);
       return { source: 'youtube', source_url: url, embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '' } as ExtractedVideoInfo;
     }
     return data as ExtractedVideoInfo;
   } catch (error) {
-    console.warn('[extractVideoInfo] Fallback:', error);
+    console.error('[extractVideoInfo] Fallback:', error);
     return { source: 'youtube', source_url: url, embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '' } as ExtractedVideoInfo;
   }
 }
@@ -63,12 +63,12 @@ export async function createVideo(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createVideo] Insert failed:', error?.message);
+      console.error('[createVideo] Insert failed:', error?.message);
       return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: professorId, professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as ContentVideo;
     }
     return row as unknown as ContentVideo;
   } catch (error) {
-    console.warn('[createVideo] Fallback:', error);
+    console.error('[createVideo] Fallback:', error);
     return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: professorId, professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as ContentVideo;
   }
 }
@@ -91,12 +91,12 @@ export async function updateVideo(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateVideo] Update failed:', error?.message);
+      console.error('[updateVideo] Update failed:', error?.message);
       return { id: videoId, title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: new Date().toISOString() } as ContentVideo;
     }
     return row as unknown as ContentVideo;
   } catch (error) {
-    console.warn('[updateVideo] Fallback:', error);
+    console.error('[updateVideo] Fallback:', error);
     return { id: videoId, title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: new Date().toISOString() } as ContentVideo;
   }
 }
@@ -114,10 +114,10 @@ export async function deleteVideo(videoId: string): Promise<void> {
       .delete()
       .eq('id', videoId);
     if (error) {
-      console.warn('[deleteVideo] Delete failed:', error.message);
+      console.error('[deleteVideo] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteVideo] Fallback:', error);
+    console.error('[deleteVideo] Fallback:', error);
   }
 }
 
@@ -160,12 +160,12 @@ export async function listVideos(
 
     const { data, count, error } = await query;
     if (error) {
-      console.warn('[listVideos] Query failed:', error.message);
+      console.error('[listVideos] Query failed:', error.message);
       return { videos: [], total: 0 };
     }
     return { videos: (data ?? []) as unknown as ContentVideo[], total: count ?? 0 };
   } catch (error) {
-    console.warn('[listVideos] Fallback:', error);
+    console.error('[listVideos] Fallback:', error);
     return { videos: [], total: 0 };
   }
 }
@@ -183,10 +183,10 @@ export async function publishVideo(videoId: string): Promise<void> {
       .update({ is_published: true, updated_at: new Date().toISOString() })
       .eq('id', videoId);
     if (error) {
-      console.warn('[publishVideo] Update failed:', error.message);
+      console.error('[publishVideo] Update failed:', error.message);
     }
   } catch (error) {
-    console.warn('[publishVideo] Fallback:', error);
+    console.error('[publishVideo] Fallback:', error);
   }
 }
 
@@ -203,10 +203,10 @@ export async function unpublishVideo(videoId: string): Promise<void> {
       .update({ is_published: false, updated_at: new Date().toISOString() })
       .eq('id', videoId);
     if (error) {
-      console.warn('[unpublishVideo] Update failed:', error.message);
+      console.error('[unpublishVideo] Update failed:', error.message);
     }
   } catch (error) {
-    console.warn('[unpublishVideo] Fallback:', error);
+    console.error('[unpublishVideo] Fallback:', error);
   }
 }
 
@@ -224,7 +224,7 @@ export async function duplicateVideo(videoId: string): Promise<ContentVideo> {
       .eq('id', videoId)
       .single();
     if (fetchError || !original) {
-      console.warn('[duplicateVideo] Fetch original failed:', fetchError?.message);
+      console.error('[duplicateVideo] Fetch original failed:', fetchError?.message);
       return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: '' } as ContentVideo;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -235,12 +235,12 @@ export async function duplicateVideo(videoId: string): Promise<ContentVideo> {
       .select()
       .single();
     if (insertError || !duplicate) {
-      console.warn('[duplicateVideo] Insert failed:', insertError?.message);
+      console.error('[duplicateVideo] Insert failed:', insertError?.message);
       return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: '' } as ContentVideo;
     }
     return duplicate as unknown as ContentVideo;
   } catch (error) {
-    console.warn('[duplicateVideo] Fallback:', error);
+    console.error('[duplicateVideo] Fallback:', error);
     return { id: '', title: '', description: '', source: 'youtube', source_url: '', embed_url: '', source_video_id: '', thumbnail_url: '', duration_seconds: 0, original_title: '', modality: '', min_belt: '', tags: [], series_id: null, series_title: null, order: 0, is_published: false, is_free: false, professor_id: '', professor_name: '', views: 0, completions: 0, quiz_count: 0, created_at: '', updated_at: '' } as ContentVideo;
   }
 }
@@ -265,12 +265,12 @@ export async function createSeries(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createSeries] Insert failed:', error?.message);
+      console.error('[createSeries] Insert failed:', error?.message);
       return { id: '', title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: professorId, professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
     }
     return { ...row, videos: [], total_duration: '0' } as unknown as StreamingSeries;
   } catch (error) {
-    console.warn('[createSeries] Fallback:', error);
+    console.error('[createSeries] Fallback:', error);
     return { id: '', title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: professorId, professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
   }
 }
@@ -293,12 +293,12 @@ export async function updateSeries(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateSeries] Update failed:', error?.message);
+      console.error('[updateSeries] Update failed:', error?.message);
       return { id: seriesId, title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: '', professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
     }
     return { ...row, videos: [], total_duration: '0' } as unknown as StreamingSeries;
   } catch (error) {
-    console.warn('[updateSeries] Fallback:', error);
+    console.error('[updateSeries] Fallback:', error);
     return { id: seriesId, title: '', description: '', thumbnail_url: '', gradient_css: '', professor_id: '', professor_name: '', modality: '', min_belt: '', videos: [], total_duration: '0', category: 'fundamentos', tags: [] } as StreamingSeries;
   }
 }
@@ -316,10 +316,10 @@ export async function deleteSeries(seriesId: string): Promise<void> {
       .delete()
       .eq('id', seriesId);
     if (error) {
-      console.warn('[deleteSeries] Delete failed:', error.message);
+      console.error('[deleteSeries] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteSeries] Fallback:', error);
+    console.error('[deleteSeries] Fallback:', error);
   }
 }
 
@@ -344,12 +344,12 @@ export async function listSeries(
 
     const { data, error } = await query;
     if (error) {
-      console.warn('[listSeries] Query failed:', error.message);
+      console.error('[listSeries] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({ ...row, videos: [], total_duration: '0' })) as unknown as StreamingSeries[];
   } catch (error) {
-    console.warn('[listSeries] Fallback:', error);
+    console.error('[listSeries] Fallback:', error);
     return [];
   }
 }
@@ -373,12 +373,12 @@ export async function createTrail(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createTrail] Insert failed:', error?.message);
+      console.error('[createTrail] Insert failed:', error?.message);
       return { id: '', name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
     }
     return { ...row, series: [], total_videos: 0, total_duration: '0' } as unknown as StreamingTrail;
   } catch (error) {
-    console.warn('[createTrail] Fallback:', error);
+    console.error('[createTrail] Fallback:', error);
     return { id: '', name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
   }
 }
@@ -401,12 +401,12 @@ export async function updateTrail(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateTrail] Update failed:', error?.message);
+      console.error('[updateTrail] Update failed:', error?.message);
       return { id: trailId, name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
     }
     return { ...row, series: [], total_videos: 0, total_duration: '0' } as unknown as StreamingTrail;
   } catch (error) {
-    console.warn('[updateTrail] Fallback:', error);
+    console.error('[updateTrail] Fallback:', error);
     return { id: trailId, name: '', description: '', gradient_css: '', series: [], total_videos: 0, total_duration: '0', min_belt: '', certificate_available: false } as StreamingTrail;
   }
 }
@@ -424,10 +424,10 @@ export async function deleteTrail(trailId: string): Promise<void> {
       .delete()
       .eq('id', trailId);
     if (error) {
-      console.warn('[deleteTrail] Delete failed:', error.message);
+      console.error('[deleteTrail] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteTrail] Fallback:', error);
+    console.error('[deleteTrail] Fallback:', error);
   }
 }
 
@@ -445,12 +445,12 @@ export async function listTrails(academyId: string): Promise<StreamingTrail[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[listTrails] Query failed:', error.message);
+      console.error('[listTrails] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({ ...row, series: [], total_videos: 0, total_duration: '0' })) as unknown as StreamingTrail[];
   } catch (error) {
-    console.warn('[listTrails] Fallback:', error);
+    console.error('[listTrails] Fallback:', error);
     return [];
   }
 }
@@ -477,12 +477,12 @@ export async function setQuizForVideo(
       .insert(rows)
       .select();
     if (error) {
-      console.warn('[setQuizForVideo] Insert failed:', error.message);
+      console.error('[setQuizForVideo] Insert failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as QuizQuestion[];
   } catch (error) {
-    console.warn('[setQuizForVideo] Fallback:', error);
+    console.error('[setQuizForVideo] Fallback:', error);
     return [];
   }
 }
@@ -501,12 +501,12 @@ export async function getQuizForVideo(videoId: string): Promise<QuizQuestion[]> 
       .eq('video_id', videoId)
       .order('order', { ascending: true });
     if (error) {
-      console.warn('[getQuizForVideo] Query failed:', error.message);
+      console.error('[getQuizForVideo] Query failed:', error.message);
       return [];
     }
     return (data ?? []) as unknown as QuizQuestion[];
   } catch (error) {
-    console.warn('[getQuizForVideo] Fallback:', error);
+    console.error('[getQuizForVideo] Fallback:', error);
     return [];
   }
 }
@@ -524,10 +524,10 @@ export async function deleteQuizForVideo(videoId: string): Promise<void> {
       .delete()
       .eq('video_id', videoId);
     if (error) {
-      console.warn('[deleteQuizForVideo] Delete failed:', error.message);
+      console.error('[deleteQuizForVideo] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteQuizForVideo] Fallback:', error);
+    console.error('[deleteQuizForVideo] Fallback:', error);
   }
 }
 
@@ -551,12 +551,12 @@ export async function createMaterial(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createMaterial] Insert failed:', error?.message);
+      console.error('[createMaterial] Insert failed:', error?.message);
       return { id: '', title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: professorId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as AcademicMaterial;
     }
     return row as unknown as AcademicMaterial;
   } catch (error) {
-    console.warn('[createMaterial] Fallback:', error);
+    console.error('[createMaterial] Fallback:', error);
     return { id: '', title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: professorId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as AcademicMaterial;
   }
 }
@@ -579,12 +579,12 @@ export async function updateMaterial(
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateMaterial] Update failed:', error?.message);
+      console.error('[updateMaterial] Update failed:', error?.message);
       return { id: materialId, title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: '', created_at: '', updated_at: new Date().toISOString() } as AcademicMaterial;
     }
     return row as unknown as AcademicMaterial;
   } catch (error) {
-    console.warn('[updateMaterial] Fallback:', error);
+    console.error('[updateMaterial] Fallback:', error);
     return { id: materialId, title: '', description: '', type: 'pdf', file_url: '', file_size_bytes: 0, modality: '', min_belt: '', tags: [], series_id: null, downloads: 0, is_published: false, created_by: '', created_at: '', updated_at: new Date().toISOString() } as AcademicMaterial;
   }
 }
@@ -602,10 +602,10 @@ export async function deleteMaterial(materialId: string): Promise<void> {
       .delete()
       .eq('id', materialId);
     if (error) {
-      console.warn('[deleteMaterial] Delete failed:', error.message);
+      console.error('[deleteMaterial] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteMaterial] Fallback:', error);
+    console.error('[deleteMaterial] Fallback:', error);
   }
 }
 
@@ -631,12 +631,12 @@ export async function listMaterials(
 
     const { data, count, error } = await query;
     if (error) {
-      console.warn('[listMaterials] Query failed:', error.message);
+      console.error('[listMaterials] Query failed:', error.message);
       return { materials: [], total: 0 };
     }
     return { materials: (data ?? []) as unknown as AcademicMaterial[], total: count ?? 0 };
   } catch (error) {
-    console.warn('[listMaterials] Fallback:', error);
+    console.error('[listMaterials] Fallback:', error);
     return { materials: [], total: 0 };
   }
 }
@@ -677,7 +677,7 @@ export async function getContentStats(academyId: string): Promise<ContentStats> 
       avg_quiz_score: 0,
     } as ContentStats;
   } catch (error) {
-    console.warn('[getContentStats] Fallback:', error);
+    console.error('[getContentStats] Fallback:', error);
     return { total_videos: 0, published_videos: 0, draft_videos: 0, total_series: 0, total_trails: 0, total_materials: 0, total_quiz_questions: 0, total_views: 0, total_completions: 0, avg_quiz_score: 0 } as ContentStats;
   }
 }
@@ -696,7 +696,7 @@ export async function getVideoAnalytics(videoId: string): Promise<VideoAnalytics
       .eq('id', videoId)
       .single();
     if (error || !data) {
-      console.warn('[getVideoAnalytics] Query failed:', error?.message);
+      console.error('[getVideoAnalytics] Query failed:', error?.message);
       return { views: 0, completions: 0, avg_watch_time: 0, quiz_avg_score: 0 } as VideoAnalytics;
     }
     return {
@@ -706,7 +706,7 @@ export async function getVideoAnalytics(videoId: string): Promise<VideoAnalytics
       quiz_avg_score: 0,
     } as VideoAnalytics;
   } catch (error) {
-    console.warn('[getVideoAnalytics] Fallback:', error);
+    console.error('[getVideoAnalytics] Fallback:', error);
     return { views: 0, completions: 0, avg_watch_time: 0, quiz_avg_score: 0 } as VideoAnalytics;
   }
 }

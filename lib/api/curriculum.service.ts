@@ -54,12 +54,12 @@ export async function getCurriculum(academyId: string, modality: string, belt: s
       .eq('target_belt', belt)
       .single();
     if (error || !data) {
-      console.warn('[getCurriculum] Supabase error:', error?.message);
+      console.error('[getCurriculum] Supabase error:', error?.message);
       return null;
     }
     return data as unknown as CurriculumDTO;
   } catch (error) {
-    console.warn('[getCurriculum] Fallback:', error);
+    console.error('[getCurriculum] Fallback:', error);
     return null;
   }
 }
@@ -78,12 +78,12 @@ export async function createCurriculum(curriculum: Omit<CurriculumDTO, 'id'>): P
       .select()
       .single();
     if (error || !data) {
-      console.warn('[createCurriculum] Supabase error:', error?.message);
+      console.error('[createCurriculum] Supabase error:', error?.message);
       return {} as CurriculumDTO;
     }
     return data as unknown as CurriculumDTO;
   } catch (error) {
-    console.warn('[createCurriculum] Fallback:', error);
+    console.error('[createCurriculum] Fallback:', error);
     return {} as CurriculumDTO;
   }
 }
@@ -103,12 +103,12 @@ export async function updateCurriculum(id: string, data: Partial<CurriculumDTO>)
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateCurriculum] Supabase error:', error?.message);
+      console.error('[updateCurriculum] Supabase error:', error?.message);
       return {} as CurriculumDTO;
     }
     return row as unknown as CurriculumDTO;
   } catch (error) {
-    console.warn('[updateCurriculum] Fallback:', error);
+    console.error('[updateCurriculum] Fallback:', error);
     return {} as CurriculumDTO;
   }
 }
@@ -127,12 +127,12 @@ export async function addRequirement(curriculumId: string, requirement: Omit<Cur
       .select()
       .single();
     if (error || !data) {
-      console.warn('[addRequirement] Supabase error:', error?.message);
+      console.error('[addRequirement] Supabase error:', error?.message);
       return {} as CurriculumRequirement;
     }
     return data as unknown as CurriculumRequirement;
   } catch (error) {
-    console.warn('[addRequirement] Fallback:', error);
+    console.error('[addRequirement] Fallback:', error);
     return {} as CurriculumRequirement;
   }
 }
@@ -151,10 +151,10 @@ export async function removeRequirement(curriculumId: string, requirementId: str
       .eq('id', requirementId)
       .eq('curriculum_id', curriculumId);
     if (error) {
-      console.warn('[removeRequirement] Supabase error:', error.message);
+      console.error('[removeRequirement] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[removeRequirement] Fallback:', error);
+    console.error('[removeRequirement] Fallback:', error);
   }
 }
 
@@ -175,12 +175,12 @@ export async function getStudentProgress(studentId: string, modality: string, be
       .eq('target_belt', belt)
       .single();
     if (error || !data) {
-      console.warn('[getStudentProgress] Supabase error:', error?.message);
+      console.error('[getStudentProgress] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as StudentCurriculumProgress;
   } catch (error) {
-    console.warn('[getStudentProgress] Fallback:', error);
+    console.error('[getStudentProgress] Fallback:', error);
     return fallback;
   }
 }

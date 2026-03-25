@@ -56,13 +56,13 @@ export async function createChampionship(data: Omit<ChampionshipDTO, 'id' | 'cur
       .single();
 
     if (error || !row) {
-      console.warn('[createChampionship] Supabase error:', error?.message);
+      console.error('[createChampionship] Supabase error:', error?.message);
       return { id: '', ...data, current_participants: 0, categories: [] };
     }
 
     return { ...(row as unknown as ChampionshipDTO), categories: [] };
   } catch (error) {
-    console.warn('[createChampionship] Fallback:', error);
+    console.error('[createChampionship] Fallback:', error);
     return { id: '', ...data, current_participants: 0, categories: [] };
   }
 }
@@ -85,7 +85,7 @@ export async function getChampionships(filters?: ChampionshipFilters): Promise<C
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[getChampionships] Supabase error:', error?.message);
+      console.error('[getChampionships] Supabase error:', error?.message);
       return [];
     }
 
@@ -94,7 +94,7 @@ export async function getChampionships(filters?: ChampionshipFilters): Promise<C
       categories: [],
     }));
   } catch (error) {
-    console.warn('[getChampionships] Fallback:', error);
+    console.error('[getChampionships] Fallback:', error);
     return [];
   }
 }
@@ -115,13 +115,13 @@ export async function getChampionshipById(id: string): Promise<ChampionshipDTO> 
       .single();
 
     if (error || !data) {
-      console.warn('[getChampionshipById] Supabase error:', error?.message);
+      console.error('[getChampionshipById] Supabase error:', error?.message);
       return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'draft' };
     }
 
     return { ...(data as unknown as ChampionshipDTO), categories: [] };
   } catch (error) {
-    console.warn('[getChampionshipById] Fallback:', error);
+    console.error('[getChampionshipById] Fallback:', error);
     return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'draft' };
   }
 }
@@ -143,13 +143,13 @@ export async function openRegistration(id: string): Promise<ChampionshipDTO> {
       .single();
 
     if (error || !data) {
-      console.warn('[openRegistration] Supabase error:', error?.message);
+      console.error('[openRegistration] Supabase error:', error?.message);
       return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'registration_open' };
     }
 
     return { ...(data as unknown as ChampionshipDTO), categories: [] };
   } catch (error) {
-    console.warn('[openRegistration] Fallback:', error);
+    console.error('[openRegistration] Fallback:', error);
     return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'registration_open' };
   }
 }
@@ -171,13 +171,13 @@ export async function closeRegistration(id: string): Promise<ChampionshipDTO> {
       .single();
 
     if (error || !data) {
-      console.warn('[closeRegistration] Supabase error:', error?.message);
+      console.error('[closeRegistration] Supabase error:', error?.message);
       return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'closed' };
     }
 
     return { ...(data as unknown as ChampionshipDTO), categories: [] };
   } catch (error) {
-    console.warn('[closeRegistration] Fallback:', error);
+    console.error('[closeRegistration] Fallback:', error);
     return { id, organizer_id: '', name: '', description: '', date: '', location: '', modalities: [], categories: [], registration_fee: 0, registration_deadline: '', max_participants: 0, current_participants: 0, rules_pdf_url: null, status: 'closed' };
   }
 }

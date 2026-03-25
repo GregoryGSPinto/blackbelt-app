@@ -108,13 +108,13 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
       .single();
 
     if (error || !data) {
-      console.warn('[getZapierApiKey] error:', error?.message ?? 'not found');
+      console.error('[getZapierApiKey] error:', error?.message ?? 'not found');
       return { apiKey: '', createdAt: '' };
     }
     const config = data.value as Record<string, unknown>;
     return { apiKey: (config.apiKey as string) ?? '', createdAt: (config.createdAt as string) ?? '' };
   } catch (error) {
-    console.warn('[getZapierApiKey] Fallback:', error);
+    console.error('[getZapierApiKey] Fallback:', error);
     return { apiKey: '', createdAt: '' };
   }
 }
@@ -134,12 +134,12 @@ export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKe
       .upsert({ academy_id: academyId, key: 'zapier', value: { apiKey: newKey, createdAt: new Date().toISOString(), connected: true } }, { onConflict: 'academy_id,key' });
 
     if (error) {
-      console.warn('[regenerateZapierApiKey] error:', error.message);
+      console.error('[regenerateZapierApiKey] error:', error.message);
       return { apiKey: '' };
     }
     return { apiKey: newKey };
   } catch (error) {
-    console.warn('[regenerateZapierApiKey] Fallback:', error);
+    console.error('[regenerateZapierApiKey] Fallback:', error);
     return { apiKey: '' };
   }
 }

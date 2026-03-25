@@ -50,7 +50,7 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
     }).then(() => {}, () => {});
 
     // Vision API not configured — return graceful default
-    console.warn('[analyzePosture] Vision API not configured — returning default');
+    console.error('[analyzePosture] Vision API not configured — returning default');
     return {
       ...emptyPostureResult,
       analyzed_at: new Date().toISOString(),
@@ -63,7 +63,7 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       }],
     };
   } catch (error) {
-    console.warn('[analyzePosture] Fallback:', error);
+    console.error('[analyzePosture] Fallback:', error);
     return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
   }
 }
@@ -79,7 +79,7 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
     canvas.height = videoRef.videoHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      console.warn('[captureAndAnalyze] Cannot get canvas context');
+      console.error('[captureAndAnalyze] Cannot get canvas context');
       return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
     }
     ctx.drawImage(videoRef, 0, 0);
@@ -91,7 +91,7 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
       captured_at: new Date().toISOString(),
     };
   } catch (error) {
-    console.warn('[captureAndAnalyze] Fallback:', error);
+    console.error('[captureAndAnalyze] Fallback:', error);
     return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
   }
 }

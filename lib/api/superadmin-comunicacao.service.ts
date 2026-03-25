@@ -59,7 +59,7 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
       }
       const { data, error } = await query;
       if (error || !data) {
-        console.warn('[listComunicados] Query failed:', error?.message);
+        console.error('[listComunicados] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -77,11 +77,11 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
         criadoPor: (row.created_by as string) || '',
       }));
     } catch {
-      console.warn('[superadmin-comunicacao.listComunicados] API not available, returning empty');
+      console.error('[superadmin-comunicacao.listComunicados] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[listComunicados] Fallback:', error);
+    console.error('[listComunicados] Fallback:', error);
     return [];
   }
 }
@@ -111,7 +111,7 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
         .select()
         .single();
       if (error || !row) {
-        console.warn('[createComunicado] Insert failed:', error?.message);
+        console.error('[createComunicado] Insert failed:', error?.message);
         return { id: '', titulo: data.titulo, mensagem: data.mensagem, tipo: data.tipo, segmentacao: data.segmentacao, canal: data.canal, status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: new Date().toISOString(), criadoPor: '' };
       }
       return {
@@ -127,12 +127,12 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
         criadoPor: (row.created_by as string) || '',
       };
     } catch {
-      console.warn('[superadmin-comunicacao.createComunicado] API not available, using mock fallback');
+      console.error('[superadmin-comunicacao.createComunicado] API not available, using mock fallback');
       const { mockCreateComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockCreateComunicado(data);
     }
   } catch (error) {
-    console.warn('[createComunicado] Fallback:', error);
+    console.error('[createComunicado] Fallback:', error);
     return { id: '', titulo: data.titulo, mensagem: data.mensagem, tipo: data.tipo, segmentacao: data.segmentacao, canal: data.canal, status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: new Date().toISOString(), criadoPor: '' };
   }
 }
@@ -153,7 +153,7 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
         .select()
         .single();
       if (error || !row) {
-        console.warn('[enviarComunicado] Update failed:', error?.message);
+        console.error('[enviarComunicado] Update failed:', error?.message);
         return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
       }
       return {
@@ -170,11 +170,11 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
         criadoPor: (row.created_by as string) || '',
       };
     } catch {
-      console.warn('[superadmin-comunicacao.enviarComunicado] API not available, returning fallback');
+      console.error('[superadmin-comunicacao.enviarComunicado] API not available, returning fallback');
       return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
     }
   } catch (error) {
-    console.warn('[enviarComunicado] Fallback:', error);
+    console.error('[enviarComunicado] Fallback:', error);
     return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
   }
 }
@@ -193,12 +193,12 @@ export async function deleteComunicado(id: string): Promise<void> {
         .delete()
         .eq('id', id);
       if (error) {
-        console.warn('[deleteComunicado] Delete failed:', error.message);
+        console.error('[deleteComunicado] Delete failed:', error.message);
       }
     } catch {
-      console.warn('[superadmin-comunicacao.deleteComunicado] API not available, using fallback');
+      console.error('[superadmin-comunicacao.deleteComunicado] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[deleteComunicado] Fallback:', error);
+    console.error('[deleteComunicado] Fallback:', error);
   }
 }

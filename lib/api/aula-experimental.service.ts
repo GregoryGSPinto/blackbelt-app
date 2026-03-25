@@ -56,12 +56,12 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createTrialClass] Supabase error:', error?.message);
+      console.error('[createTrialClass] Supabase error:', error?.message);
       return {} as TrialClass;
     }
     return row as unknown as TrialClass;
   } catch (error) {
-    console.warn('[createTrialClass] Fallback:', error);
+    console.error('[createTrialClass] Fallback:', error);
     return {} as TrialClass;
   }
 }
@@ -79,12 +79,12 @@ export async function listTrialClasses(academyId: string, filters?: TrialFilters
     if (filters?.origem) query = query.eq('lead_origem', filters.origem);
     const { data, error } = await query;
     if (error || !data) {
-      console.warn('[listTrialClasses] Supabase error:', error?.message);
+      console.error('[listTrialClasses] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as TrialClass[];
   } catch (error) {
-    console.warn('[listTrialClasses] Fallback:', error);
+    console.error('[listTrialClasses] Fallback:', error);
     return [];
   }
 }
@@ -104,12 +104,12 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       .select()
       .single();
     if (error || !data) {
-      console.warn('[updateTrialStatus] Supabase error:', error?.message);
+      console.error('[updateTrialStatus] Supabase error:', error?.message);
       return {} as TrialClass;
     }
     return data as unknown as TrialClass;
   } catch (error) {
-    console.warn('[updateTrialStatus] Fallback:', error);
+    console.error('[updateTrialStatus] Fallback:', error);
     return {} as TrialClass;
   }
 }
@@ -128,7 +128,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       .select('status')
       .eq('academy_id', academyId);
     if (error || !data) {
-      console.warn('[getTrialMetrics] Supabase error:', error?.message);
+      console.error('[getTrialMetrics] Supabase error:', error?.message);
       return fallback;
     }
     const agendadas = data.length;
@@ -137,7 +137,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
     const matricularam = data.filter((r: { status: string }) => r.status === 'matriculou').length;
     return { agendadas, confirmadas, compareceram, matricularam, taxaConversao: agendadas > 0 ? matricularam / agendadas : 0 };
   } catch (error) {
-    console.warn('[getTrialMetrics] Fallback:', error);
+    console.error('[getTrialMetrics] Fallback:', error);
     return fallback;
   }
 }

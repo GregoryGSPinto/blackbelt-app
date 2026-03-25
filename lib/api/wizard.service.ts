@@ -33,7 +33,7 @@ export async function getWizardProgress(academyId: string): Promise<WizardProgre
       .single();
 
     if (error || !data) {
-      console.warn('[getWizardProgress] Supabase error:', error?.message);
+      console.error('[getWizardProgress] Supabase error:', error?.message);
       return { ...EMPTY_PROGRESS, academyId };
     }
 
@@ -46,7 +46,7 @@ export async function getWizardProgress(academyId: string): Promise<WizardProgre
       completedAt: data.completed_at ? String(data.completed_at) : null,
     };
   } catch (error) {
-    console.warn('[getWizardProgress] Fallback:', error);
+    console.error('[getWizardProgress] Fallback:', error);
     return { ...EMPTY_PROGRESS, academyId };
   }
 }
@@ -82,7 +82,7 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       .single();
 
     if (error || !row) {
-      console.warn('[saveWizardStep] Supabase error:', error?.message);
+      console.error('[saveWizardStep] Supabase error:', error?.message);
       return { ...EMPTY_PROGRESS, academyId };
     }
 
@@ -95,7 +95,7 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       completedAt: row.completed_at ? String(row.completed_at) : null,
     };
   } catch (error) {
-    console.warn('[saveWizardStep] Fallback:', error);
+    console.error('[saveWizardStep] Fallback:', error);
     return { ...EMPTY_PROGRESS, academyId };
   }
 }
@@ -117,7 +117,7 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       .single();
 
     if (error || !data) {
-      console.warn('[completeWizard] Supabase error:', error?.message);
+      console.error('[completeWizard] Supabase error:', error?.message);
       return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
     }
 
@@ -130,7 +130,7 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       completedAt: data.completed_at ? String(data.completed_at) : new Date().toISOString(),
     };
   } catch (error) {
-    console.warn('[completeWizard] Fallback:', error);
+    console.error('[completeWizard] Fallback:', error);
     return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
   }
 }

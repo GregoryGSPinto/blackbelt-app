@@ -50,7 +50,7 @@ export async function getAcademyHealth(academyId: string): Promise<AcademyHealth
 
     return { average_score: average, total_students: total, at_risk: atRisk, critical, healthy };
   } catch (error) {
-    console.warn('[getAcademyHealth] Fallback:', error);
+    console.error('[getAcademyHealth] Fallback:', error);
     return { average_score: 0, total_students: 0, at_risk: 0, critical: 0, healthy: 0 };
   }
 }
@@ -73,7 +73,7 @@ export async function getStudentHealthScores(academyId: string): Promise<Student
       .eq('academy_id', academyId);
 
     if (studentsErr) {
-      console.warn('[getStudentHealthScores] students error:', studentsErr.message);
+      console.error('[getStudentHealthScores] students error:', studentsErr.message);
       return [];
     }
     type StudentRow = { id: string; profile_id: string; belt: string; profiles: { display_name: string | null; avatar: string | null } | null };
@@ -151,7 +151,7 @@ export async function getStudentHealthScores(academyId: string): Promise<Student
       };
     });
   } catch (error) {
-    console.warn('[getStudentHealthScores] Fallback:', error);
+    console.error('[getStudentHealthScores] Fallback:', error);
     return [];
   }
 }

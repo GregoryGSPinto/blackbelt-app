@@ -42,7 +42,7 @@ export async function parseCSV(file: File): Promise<ParsedCSVResult> {
     });
     return { headers, rows, totalRows: rows.length };
   } catch (error) {
-    console.warn('[parseCSV] Fallback:', error);
+    console.error('[parseCSV] Fallback:', error);
     return { headers: [], rows: [], totalRows: 0 };
   }
 }
@@ -62,7 +62,7 @@ export async function detectDuplicates(rows: ImportRow[], academyId: string): Pr
       .eq('academy_id', academyId)
       .in('email', emails);
     if (error || !data) {
-      console.warn('[detectDuplicates] Supabase error:', error?.message);
+      console.error('[detectDuplicates] Supabase error:', error?.message);
       return { duplicates: [], matchDetails: {} };
     }
     const existingEmails = new Set(data.map((d: { email: string }) => d.email));
@@ -76,7 +76,7 @@ export async function detectDuplicates(rows: ImportRow[], academyId: string): Pr
     });
     return { duplicates, matchDetails };
   } catch (error) {
-    console.warn('[detectDuplicates] Fallback:', error);
+    console.error('[detectDuplicates] Fallback:', error);
     return { duplicates: [], matchDetails: {} };
   }
 }
@@ -109,7 +109,7 @@ export async function importStudents(rows: ImportRow[], academyId: string): Prom
     }
     return { imported, skipped, errors: errorDetails.length, errorDetails };
   } catch (error) {
-    console.warn('[importStudents] Fallback:', error);
+    console.error('[importStudents] Fallback:', error);
     return { imported: 0, skipped: 0, errors: rows.length, errorDetails: [{ row: 0, reason: 'Unexpected error' }] };
   }
 }

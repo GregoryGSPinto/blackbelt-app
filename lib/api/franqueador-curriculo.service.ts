@@ -49,13 +49,13 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       .order('modality', { ascending: true });
 
     if (error) {
-      console.warn('[getCurriculos] error:', error.message);
+      console.error('[getCurriculos] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as CurriculoRede[];
   } catch (error) {
-    console.warn('[getCurriculos] Fallback:', error);
+    console.error('[getCurriculos] Fallback:', error);
     return [];
   }
 }
@@ -76,7 +76,7 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       .eq('franchise_id', franchiseId);
 
     if (error) {
-      console.warn('[getCurriculoOverview] error:', error.message);
+      console.error('[getCurriculoOverview] error:', error.message);
       return { modalities: [], total_curriculos: 0, total_techniques: 0 };
     }
 
@@ -96,7 +96,7 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       total_techniques: totalTechniques,
     };
   } catch (error) {
-    console.warn('[getCurriculoOverview] Fallback:', error);
+    console.error('[getCurriculoOverview] Fallback:', error);
     return { modalities: [], total_curriculos: 0, total_techniques: 0 };
   }
 }
@@ -118,13 +118,13 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       .single();
 
     if (error) {
-      console.warn('[getCurriculoDetail] error:', error.message);
+      console.error('[getCurriculoDetail] error:', error.message);
       return {} as CurriculoRede;
     }
 
     return data as unknown as CurriculoRede;
   } catch (error) {
-    console.warn('[getCurriculoDetail] Fallback:', error);
+    console.error('[getCurriculoDetail] Fallback:', error);
     return {} as CurriculoRede;
   }
 }

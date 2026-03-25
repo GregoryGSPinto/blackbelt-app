@@ -57,16 +57,16 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
         .eq('key', 'product_analytics')
         .single();
       if (error || !data) {
-        console.warn('[getProductAnalytics] Query failed:', error?.message);
+        console.error('[getProductAnalytics] Query failed:', error?.message);
         return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
       }
       return (data.value as ProductAnalytics) || { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
     } catch {
-      console.warn('[superadmin-analytics.getProductAnalytics] API not available, returning empty');
+      console.error('[superadmin-analytics.getProductAnalytics] API not available, returning empty');
       return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
     }
   } catch (error) {
-    console.warn('[getProductAnalytics] Fallback:', error);
+    console.error('[getProductAnalytics] Fallback:', error);
     return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
   }
 }

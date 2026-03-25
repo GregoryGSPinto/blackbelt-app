@@ -151,7 +151,7 @@ export async function uploadVideo(
         .upload(filePath, data.file, { upsert: false });
 
       if (uploadErr) {
-        console.warn('[video-upload] storage upload failed:', uploadErr.message);
+        console.error('[video-upload] storage upload failed:', uploadErr.message);
       }
 
       onProgress?.({ percent: 60, bytesUploaded: data.file.size, bytesTotal: data.file.size, status: 'processing_thumbnail', message: 'Processando thumbnail...' });
@@ -206,7 +206,7 @@ export async function uploadVideo(
         .single();
 
       if (insertErr || !videoRow) {
-        console.warn('[video-upload] insert error:', insertErr?.message);
+        console.error('[video-upload] insert error:', insertErr?.message);
         const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
         return mockUploadVideo(academyId, data, onProgress);
       }
@@ -259,12 +259,12 @@ export async function uploadVideo(
         status: 'ready',
       };
     } catch (err) {
-      console.warn('[video-upload] uploadVideo: Supabase not available, using mock', err);
+      console.error('[video-upload] uploadVideo: Supabase not available, using mock', err);
       const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
       return mockUploadVideo(academyId, data, onProgress);
     }
   } catch {
-    console.warn('[video-upload] uploadVideo: API not available, using mock');
+    console.error('[video-upload] uploadVideo: API not available, using mock');
     const { mockUploadVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUploadVideo(academyId, data, onProgress);
   }
@@ -302,15 +302,15 @@ export async function deleteUploadedVideo(videoId: string): Promise<void> {
         .eq('id', videoId);
 
       if (error) {
-        console.warn('[video-upload] deleteUploadedVideo: Supabase error:', error.message);
+        console.error('[video-upload] deleteUploadedVideo: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] deleteUploadedVideo: Supabase not available, using mock', err);
+      console.error('[video-upload] deleteUploadedVideo: Supabase not available, using mock', err);
       const { mockDeleteUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
       return mockDeleteUploadedVideo(videoId);
     }
   } catch {
-    console.warn('[video-upload] deleteUploadedVideo: API not available, using mock');
+    console.error('[video-upload] deleteUploadedVideo: API not available, using mock');
     const { mockDeleteUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockDeleteUploadedVideo(videoId);
   }
@@ -349,7 +349,7 @@ export async function updateUploadedVideo(
         .single();
 
       if (error || !row) {
-        console.warn('[video-upload] updateUploadedVideo: Supabase error:', error?.message);
+        console.error('[video-upload] updateUploadedVideo: Supabase error:', error?.message);
         const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
         return mockUpdateUploadedVideo(videoId, data);
       }
@@ -397,12 +397,12 @@ export async function updateUploadedVideo(
 
       return mapRowToUploadedVideo(row as Record<string, unknown>, turmas, publicos);
     } catch (err) {
-      console.warn('[video-upload] updateUploadedVideo: Supabase not available, using mock', err);
+      console.error('[video-upload] updateUploadedVideo: Supabase not available, using mock', err);
       const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
       return mockUpdateUploadedVideo(videoId, data);
     }
   } catch {
-    console.warn('[video-upload] updateUploadedVideo: API not available, using mock');
+    console.error('[video-upload] updateUploadedVideo: API not available, using mock');
     const { mockUpdateUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUpdateUploadedVideo(videoId, data);
   }
@@ -427,15 +427,15 @@ export async function publishUploadedVideo(videoId: string): Promise<void> {
         .eq('id', videoId);
 
       if (error) {
-        console.warn('[video-upload] publishUploadedVideo: Supabase error:', error.message);
+        console.error('[video-upload] publishUploadedVideo: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] publishUploadedVideo: Supabase not available, using mock', err);
+      console.error('[video-upload] publishUploadedVideo: Supabase not available, using mock', err);
       const { mockPublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
       return mockPublishUploadedVideo(videoId);
     }
   } catch {
-    console.warn('[video-upload] publishUploadedVideo: API not available, using mock');
+    console.error('[video-upload] publishUploadedVideo: API not available, using mock');
     const { mockPublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockPublishUploadedVideo(videoId);
   }
@@ -458,15 +458,15 @@ export async function unpublishUploadedVideo(videoId: string): Promise<void> {
         .eq('id', videoId);
 
       if (error) {
-        console.warn('[video-upload] unpublishUploadedVideo: Supabase error:', error.message);
+        console.error('[video-upload] unpublishUploadedVideo: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] unpublishUploadedVideo: Supabase not available, using mock', err);
+      console.error('[video-upload] unpublishUploadedVideo: Supabase not available, using mock', err);
       const { mockUnpublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
       return mockUnpublishUploadedVideo(videoId);
     }
   } catch {
-    console.warn('[video-upload] unpublishUploadedVideo: API not available, using mock');
+    console.error('[video-upload] unpublishUploadedVideo: API not available, using mock');
     const { mockUnpublishUploadedVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockUnpublishUploadedVideo(videoId);
   }
@@ -492,7 +492,7 @@ export async function getVideosByAcademy(academyId: string): Promise<UploadedVid
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('[video-upload] getVideosByAcademy: Supabase error:', error.message);
+        console.error('[video-upload] getVideosByAcademy: Supabase error:', error.message);
         return [];
       }
 
@@ -522,12 +522,12 @@ export async function getVideosByAcademy(academyId: string): Promise<UploadedVid
         return mapRowToUploadedVideo(row, turmas, publicos);
       });
     } catch (err) {
-      console.warn('[video-upload] getVideosByAcademy: Supabase not available, using mock', err);
+      console.error('[video-upload] getVideosByAcademy: Supabase not available, using mock', err);
       const { mockGetVideosByAcademy } = await import('@/lib/mocks/video-upload.mock');
       return mockGetVideosByAcademy(academyId);
     }
   } catch {
-    console.warn('[video-upload] getVideosByAcademy: API not available, using mock');
+    console.error('[video-upload] getVideosByAcademy: API not available, using mock');
     const { mockGetVideosByAcademy } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByAcademy(academyId);
   }
@@ -562,18 +562,18 @@ export async function getVideosByClass(classId: string): Promise<UploadedVideo[]
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('[video-upload] getVideosByClass: Supabase error:', error.message);
+        console.error('[video-upload] getVideosByClass: Supabase error:', error.message);
         return [];
       }
 
       return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], []));
     } catch (err) {
-      console.warn('[video-upload] getVideosByClass: Supabase not available, using mock', err);
+      console.error('[video-upload] getVideosByClass: Supabase not available, using mock', err);
       const { mockGetVideosByClass } = await import('@/lib/mocks/video-upload.mock');
       return mockGetVideosByClass(classId);
     }
   } catch {
-    console.warn('[video-upload] getVideosByClass: API not available, using mock');
+    console.error('[video-upload] getVideosByClass: API not available, using mock');
     const { mockGetVideosByClass } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByClass(classId);
   }
@@ -612,18 +612,18 @@ export async function getVideosByAudience(
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('[video-upload] getVideosByAudience: Supabase error:', error.message);
+        console.error('[video-upload] getVideosByAudience: Supabase error:', error.message);
         return [];
       }
 
       return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], [audience]));
     } catch (err) {
-      console.warn('[video-upload] getVideosByAudience: Supabase not available, using mock', err);
+      console.error('[video-upload] getVideosByAudience: Supabase not available, using mock', err);
       const { mockGetVideosByAudience } = await import('@/lib/mocks/video-upload.mock');
       return mockGetVideosByAudience(academyId, audience);
     }
   } catch {
-    console.warn('[video-upload] getVideosByAudience: API not available, using mock');
+    console.error('[video-upload] getVideosByAudience: API not available, using mock');
     const { mockGetVideosByAudience } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByAudience(academyId, audience);
   }
@@ -649,18 +649,18 @@ export async function getVideosByProfessor(professorId: string): Promise<Uploade
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('[video-upload] getVideosByProfessor: Supabase error:', error.message);
+        console.error('[video-upload] getVideosByProfessor: Supabase error:', error.message);
         return [];
       }
 
       return (rows || []).map((row: Record<string, unknown>) => mapRowToUploadedVideo(row, [], []));
     } catch (err) {
-      console.warn('[video-upload] getVideosByProfessor: Supabase not available, using mock', err);
+      console.error('[video-upload] getVideosByProfessor: Supabase not available, using mock', err);
       const { mockGetVideosByProfessor } = await import('@/lib/mocks/video-upload.mock');
       return mockGetVideosByProfessor(professorId);
     }
   } catch {
-    console.warn('[video-upload] getVideosByProfessor: API not available, using mock');
+    console.error('[video-upload] getVideosByProfessor: API not available, using mock');
     const { mockGetVideosByProfessor } = await import('@/lib/mocks/video-upload.mock');
     return mockGetVideosByProfessor(professorId);
   }
@@ -701,7 +701,7 @@ export async function createVideoSeries(
         .single();
 
       if (error || !row) {
-        console.warn('[video-upload] createVideoSeries: Supabase error:', error?.message);
+        console.error('[video-upload] createVideoSeries: Supabase error:', error?.message);
         const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
         return mockCreateVideoSeries(academyId, data);
       }
@@ -718,12 +718,12 @@ export async function createVideoSeries(
         videos: [],
       };
     } catch (err) {
-      console.warn('[video-upload] createVideoSeries: Supabase not available, using mock', err);
+      console.error('[video-upload] createVideoSeries: Supabase not available, using mock', err);
       const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
       return mockCreateVideoSeries(academyId, data);
     }
   } catch {
-    console.warn('[video-upload] createVideoSeries: API not available, using mock');
+    console.error('[video-upload] createVideoSeries: API not available, using mock');
     const { mockCreateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockCreateVideoSeries(academyId, data);
   }
@@ -760,7 +760,7 @@ export async function updateVideoSeries(
         .single();
 
       if (error || !row) {
-        console.warn('[video-upload] updateVideoSeries: Supabase error:', error?.message);
+        console.error('[video-upload] updateVideoSeries: Supabase error:', error?.message);
         const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
         return mockUpdateVideoSeries(seriesId, data);
       }
@@ -795,12 +795,12 @@ export async function updateVideoSeries(
         videos,
       };
     } catch (err) {
-      console.warn('[video-upload] updateVideoSeries: Supabase not available, using mock', err);
+      console.error('[video-upload] updateVideoSeries: Supabase not available, using mock', err);
       const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
       return mockUpdateVideoSeries(seriesId, data);
     }
   } catch {
-    console.warn('[video-upload] updateVideoSeries: API not available, using mock');
+    console.error('[video-upload] updateVideoSeries: API not available, using mock');
     const { mockUpdateVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockUpdateVideoSeries(seriesId, data);
   }
@@ -823,15 +823,15 @@ export async function deleteVideoSeries(seriesId: string): Promise<void> {
         .eq('id', seriesId);
 
       if (error) {
-        console.warn('[video-upload] deleteVideoSeries: Supabase error:', error.message);
+        console.error('[video-upload] deleteVideoSeries: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] deleteVideoSeries: Supabase not available, using mock', err);
+      console.error('[video-upload] deleteVideoSeries: Supabase not available, using mock', err);
       const { mockDeleteVideoSeries } = await import('@/lib/mocks/video-upload.mock');
       return mockDeleteVideoSeries(seriesId);
     }
   } catch {
-    console.warn('[video-upload] deleteVideoSeries: API not available, using mock');
+    console.error('[video-upload] deleteVideoSeries: API not available, using mock');
     const { mockDeleteVideoSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockDeleteVideoSeries(seriesId);
   }
@@ -862,15 +862,15 @@ export async function addVideoToSeries(
         );
 
       if (error) {
-        console.warn('[video-upload] addVideoToSeries: Supabase error:', error.message);
+        console.error('[video-upload] addVideoToSeries: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] addVideoToSeries: Supabase not available, using mock', err);
+      console.error('[video-upload] addVideoToSeries: Supabase not available, using mock', err);
       const { mockAddVideoToSeries } = await import('@/lib/mocks/video-upload.mock');
       return mockAddVideoToSeries(seriesId, videoId, order);
     }
   } catch {
-    console.warn('[video-upload] addVideoToSeries: API not available, using mock');
+    console.error('[video-upload] addVideoToSeries: API not available, using mock');
     const { mockAddVideoToSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockAddVideoToSeries(seriesId, videoId, order);
   }
@@ -897,15 +897,15 @@ export async function removeVideoFromSeries(
         .eq('video_id', videoId);
 
       if (error) {
-        console.warn('[video-upload] removeVideoFromSeries: Supabase error:', error.message);
+        console.error('[video-upload] removeVideoFromSeries: Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[video-upload] removeVideoFromSeries: Supabase not available, using mock', err);
+      console.error('[video-upload] removeVideoFromSeries: Supabase not available, using mock', err);
       const { mockRemoveVideoFromSeries } = await import('@/lib/mocks/video-upload.mock');
       return mockRemoveVideoFromSeries(seriesId, videoId);
     }
   } catch {
-    console.warn('[video-upload] removeVideoFromSeries: API not available, using mock');
+    console.error('[video-upload] removeVideoFromSeries: API not available, using mock');
     const { mockRemoveVideoFromSeries } = await import('@/lib/mocks/video-upload.mock');
     return mockRemoveVideoFromSeries(seriesId, videoId);
   }
@@ -931,7 +931,7 @@ export async function getSeriesByAcademy(academyId: string): Promise<VideoSeries
         .order('sort_order');
 
       if (error) {
-        console.warn('[video-upload] getSeriesByAcademy: Supabase error:', error.message);
+        console.error('[video-upload] getSeriesByAcademy: Supabase error:', error.message);
         return [];
       }
 
@@ -969,12 +969,12 @@ export async function getSeriesByAcademy(academyId: string): Promise<VideoSeries
         };
       });
     } catch (err) {
-      console.warn('[video-upload] getSeriesByAcademy: Supabase not available, using mock', err);
+      console.error('[video-upload] getSeriesByAcademy: Supabase not available, using mock', err);
       const { mockGetSeriesByAcademy } = await import('@/lib/mocks/video-upload.mock');
       return mockGetSeriesByAcademy(academyId);
     }
   } catch {
-    console.warn('[video-upload] getSeriesByAcademy: API not available, using mock');
+    console.error('[video-upload] getSeriesByAcademy: API not available, using mock');
     const { mockGetSeriesByAcademy } = await import('@/lib/mocks/video-upload.mock');
     return mockGetSeriesByAcademy(academyId);
   }
@@ -1049,12 +1049,12 @@ export async function getStorageStats(academyId: string): Promise<StorageStats> 
         videosThisMonth,
       };
     } catch (err) {
-      console.warn('[video-upload] getStorageStats: Supabase not available, using mock', err);
+      console.error('[video-upload] getStorageStats: Supabase not available, using mock', err);
       const { mockGetStorageStats } = await import('@/lib/mocks/video-upload.mock');
       return mockGetStorageStats(academyId);
     }
   } catch {
-    console.warn('[video-upload] getStorageStats: API not available, using mock');
+    console.error('[video-upload] getStorageStats: API not available, using mock');
     const { mockGetStorageStats } = await import('@/lib/mocks/video-upload.mock');
     return mockGetStorageStats(academyId);
   }
@@ -1078,19 +1078,19 @@ export async function getSignedUrl(storagePath: string): Promise<string> {
         .createSignedUrl(storagePath, 3600); // 1 hour expiry
 
       if (error || !data?.signedUrl) {
-        console.warn('[video-upload] getSignedUrl: Supabase error:', error?.message);
+        console.error('[video-upload] getSignedUrl: Supabase error:', error?.message);
         const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
         return mockGetSignedUrl(storagePath);
       }
 
       return data.signedUrl;
     } catch (err) {
-      console.warn('[video-upload] getSignedUrl: Supabase not available, using mock', err);
+      console.error('[video-upload] getSignedUrl: Supabase not available, using mock', err);
       const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
       return mockGetSignedUrl(storagePath);
     }
   } catch {
-    console.warn('[video-upload] getSignedUrl: API not available, using mock');
+    console.error('[video-upload] getSignedUrl: API not available, using mock');
     const { mockGetSignedUrl } = await import('@/lib/mocks/video-upload.mock');
     return mockGetSignedUrl(storagePath);
   }
@@ -1148,7 +1148,7 @@ export async function generateThumbnailFromVideo(videoFile: File): Promise<Blob>
       video.src = URL.createObjectURL(videoFile);
     });
   } catch {
-    console.warn('[video-upload] generateThumbnailFromVideo: client-side failed, using mock');
+    console.error('[video-upload] generateThumbnailFromVideo: client-side failed, using mock');
     const { mockGenerateThumbnailFromVideo } = await import('@/lib/mocks/video-upload.mock');
     return mockGenerateThumbnailFromVideo(videoFile);
   }

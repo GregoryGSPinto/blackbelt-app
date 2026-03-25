@@ -56,12 +56,12 @@ export async function getBattlePass(seasonId: string): Promise<BattlePassDTO> {
       .eq('id', seasonId)
       .single();
     if (error || !data) {
-      console.warn('[getBattlePass] Supabase error:', error?.message);
+      console.error('[getBattlePass] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as BattlePassDTO;
   } catch (error) {
-    console.warn('[getBattlePass] Fallback:', error);
+    console.error('[getBattlePass] Fallback:', error);
     return fallback;
   }
 }
@@ -82,12 +82,12 @@ export async function getMyBattlePassProgress(userId: string, seasonId: string):
       .eq('season_id', seasonId)
       .single();
     if (error || !data) {
-      console.warn('[getMyBattlePassProgress] Supabase error:', error?.message);
+      console.error('[getMyBattlePassProgress] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as BattlePassProgress;
   } catch (error) {
-    console.warn('[getMyBattlePassProgress] Fallback:', error);
+    console.error('[getMyBattlePassProgress] Fallback:', error);
     return fallback;
   }
 }
@@ -102,12 +102,12 @@ export async function claimReward(userId: string, levelId: number): Promise<{ su
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('claim_battle_pass_reward', { p_user_id: userId, p_level_id: levelId });
     if (error || !data) {
-      console.warn('[claimReward] Supabase error:', error?.message);
+      console.error('[claimReward] Supabase error:', error?.message);
       return { success: false, message: error?.message ?? 'Unknown error' };
     }
     return data as unknown as { success: boolean; message: string };
   } catch (error) {
-    console.warn('[claimReward] Fallback:', error);
+    console.error('[claimReward] Fallback:', error);
     return { success: false, message: 'Fallback error' };
   }
 }
@@ -126,12 +126,12 @@ export async function upgradeToPremium(userId: string, seasonId: string): Promis
       .eq('user_id', userId)
       .eq('season_id', seasonId);
     if (error) {
-      console.warn('[upgradeToPremium] Supabase error:', error.message);
+      console.error('[upgradeToPremium] Supabase error:', error.message);
       return { success: false, message: error.message };
     }
     return { success: true, message: 'Premium ativado com sucesso!' };
   } catch (error) {
-    console.warn('[upgradeToPremium] Fallback:', error);
+    console.error('[upgradeToPremium] Fallback:', error);
     return { success: false, message: 'Fallback error' };
   }
 }

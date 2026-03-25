@@ -47,13 +47,13 @@ export async function getSubstitutions(academyId: string): Promise<SubstitutionD
       .order('date', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getSubstitutions] Supabase error:', error?.message);
+      console.error('[getSubstitutions] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as SubstitutionDTO[];
   } catch (error) {
-    console.warn('[getSubstitutions] Fallback:', error);
+    console.error('[getSubstitutions] Fallback:', error);
     return [];
   }
 }
@@ -81,13 +81,13 @@ export async function createSubstitution(data: CreateSubstitutionData): Promise<
       .single();
 
     if (error || !row) {
-      console.warn('[createSubstitution] Supabase error:', error?.message);
+      console.error('[createSubstitution] Supabase error:', error?.message);
       return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
     }
 
     return row as unknown as SubstitutionDTO;
   } catch (error) {
-    console.warn('[createSubstitution] Fallback:', error);
+    console.error('[createSubstitution] Fallback:', error);
     return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
   }
 }
@@ -107,7 +107,7 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       .eq('active', true);
 
     if (error || !data) {
-      console.warn('[getAvailableTeachers] Supabase error:', error?.message);
+      console.error('[getAvailableTeachers] Supabase error:', error?.message);
       return [];
     }
 
@@ -121,7 +121,7 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       available: true,
     }));
   } catch (error) {
-    console.warn('[getAvailableTeachers] Fallback:', error);
+    console.error('[getAvailableTeachers] Fallback:', error);
     return [];
   }
 }

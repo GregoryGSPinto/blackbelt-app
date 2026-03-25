@@ -58,13 +58,13 @@ export async function getDevices(unitId: string): Promise<IoTDevice[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getDevices] Supabase error:', error.message);
+      console.error('[getDevices] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     return (settings.iot_devices ?? []) as IoTDevice[];
   } catch (error) {
-    console.warn('[getDevices] Fallback:', error);
+    console.error('[getDevices] Fallback:', error);
     return [];
   }
 }
@@ -84,7 +84,7 @@ export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
       .select('settings');
 
     if (error) {
-      console.warn('[getDeviceStatus] Supabase error:', error.message);
+      console.error('[getDeviceStatus] Supabase error:', error.message);
       return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
     }
 
@@ -97,7 +97,7 @@ export async function getDeviceStatus(deviceId: string): Promise<IoTDevice> {
 
     return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
   } catch (error) {
-    console.warn('[getDeviceStatus] Fallback:', error);
+    console.error('[getDeviceStatus] Fallback:', error);
     return { id: deviceId, type: 'sensor', name: '', status: 'offline', last_communication: '', firmware_version: '', unit_id: '', location: '' };
   }
 }
@@ -118,13 +118,13 @@ export async function getLiveAccess(unitId: string): Promise<LiveAccessEvent[]> 
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getLiveAccess] Supabase error:', error.message);
+      console.error('[getLiveAccess] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     return (settings.live_access_events ?? []) as LiveAccessEvent[];
   } catch (error) {
-    console.warn('[getLiveAccess] Fallback:', error);
+    console.error('[getLiveAccess] Fallback:', error);
     return [];
   }
 }
@@ -145,14 +145,14 @@ export async function getOccupancy(unitId: string): Promise<OccupancyData> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getOccupancy] Supabase error:', error.message);
+      console.error('[getOccupancy] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     const occ = settings.occupancy as OccupancyData | undefined;
     return occ ?? { current: 0, max: 0, percentage: 0, hourly: [] };
   } catch (error) {
-    console.warn('[getOccupancy] Fallback:', error);
+    console.error('[getOccupancy] Fallback:', error);
     return { current: 0, max: 0, percentage: 0, hourly: [] };
   }
 }
@@ -173,13 +173,13 @@ export async function getDeviceAlerts(unitId: string): Promise<DeviceAlert[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getDeviceAlerts] Supabase error:', error.message);
+      console.error('[getDeviceAlerts] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     return (settings.device_alerts ?? []) as DeviceAlert[];
   } catch (error) {
-    console.warn('[getDeviceAlerts] Fallback:', error);
+    console.error('[getDeviceAlerts] Fallback:', error);
     return [];
   }
 }

@@ -50,7 +50,7 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       .order('requested_at', { ascending: false });
 
     if (error) {
-      console.warn('[getAutorizacoes] error:', error.message);
+      console.error('[getAutorizacoes] error:', error.message);
       return [];
     }
 
@@ -69,7 +69,7 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       };
     });
   } catch (error) {
-    console.warn('[getAutorizacoes] Fallback:', error);
+    console.error('[getAutorizacoes] Fallback:', error);
     return [];
   }
 }
@@ -95,7 +95,7 @@ export async function respondAutorizacao(
       .single();
 
     if (error) {
-      console.warn('[respondAutorizacao] error:', error.message);
+      console.error('[respondAutorizacao] error:', error.message);
       return {} as Autorizacao;
     }
 
@@ -112,7 +112,7 @@ export async function respondAutorizacao(
       responded_at: data.responded_at,
     } as Autorizacao;
   } catch (error) {
-    console.warn('[respondAutorizacao] Fallback:', error);
+    console.error('[respondAutorizacao] Fallback:', error);
     return {} as Autorizacao;
   }
 }
@@ -134,7 +134,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       .single();
 
     if (studentError) {
-      console.warn('[getControleParental] error fetching student:', studentError.message);
+      console.error('[getControleParental] error fetching student:', studentError.message);
       return { student_id: studentId, student_name: '', permissions: [] };
     }
 
@@ -144,7 +144,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       .eq('student_id', studentId);
 
     if (permsError) {
-      console.warn('[getControleParental] error fetching permissions:', permsError.message);
+      console.error('[getControleParental] error fetching permissions:', permsError.message);
     }
 
     const permissions: ParentalPermission[] = (perms ?? []).map((p: Record<string, unknown>) => ({
@@ -160,7 +160,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       permissions,
     };
   } catch (error) {
-    console.warn('[getControleParental] Fallback:', error);
+    console.error('[getControleParental] Fallback:', error);
     return { student_id: studentId, student_name: '', permissions: [] };
   }
 }
@@ -186,9 +186,9 @@ export async function updatePermission(
       .eq('key', key);
 
     if (error) {
-      console.warn('[updatePermission] error:', error.message);
+      console.error('[updatePermission] error:', error.message);
     }
   } catch (error) {
-    console.warn('[updatePermission] Fallback:', error);
+    console.error('[updatePermission] Fallback:', error);
   }
 }

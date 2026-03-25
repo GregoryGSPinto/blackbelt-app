@@ -81,7 +81,7 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
         .from('prospects')
         .select('status');
       if (error || !data) {
-        console.warn('[getPipelineMetrics] Query failed:', error?.message);
+        console.error('[getPipelineMetrics] Query failed:', error?.message);
         return emptyMetrics;
       }
       const counts: Record<string, number> = {};
@@ -92,11 +92,11 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       const funil = Object.entries(counts).map(([nome, quantidade]) => ({ nome, quantidade, valor: 0 }));
       return { ...emptyMetrics, funil, leadsEsteMes: data.length };
     } catch {
-      console.warn('[superadmin-pipeline.getPipelineMetrics] API not available, returning empty');
+      console.error('[superadmin-pipeline.getPipelineMetrics] API not available, returning empty');
       return emptyMetrics;
     }
   } catch (error) {
-    console.warn('[getPipelineMetrics] Fallback:', error);
+    console.error('[getPipelineMetrics] Fallback:', error);
     return emptyMetrics;
   }
 }
@@ -119,7 +119,7 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
       }
       const { data, error } = await query;
       if (error || !data) {
-        console.warn('[listLeads] Query failed:', error?.message);
+        console.error('[listLeads] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -143,11 +143,11 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
         atualizadoEm: (row.updated_at as string) || '',
       }));
     } catch {
-      console.warn('[superadmin-pipeline.listLeads] API not available, returning empty');
+      console.error('[superadmin-pipeline.listLeads] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[listLeads] Fallback:', error);
+    console.error('[listLeads] Fallback:', error);
     return [];
   }
 }
@@ -181,17 +181,17 @@ export async function createLead(data: CreateLeadPayload): Promise<LeadAcademia>
         .select()
         .single();
       if (error || !row) {
-        console.warn('[createLead] Insert failed:', error?.message);
+        console.error('[createLead] Insert failed:', error?.message);
         return emptyLead();
       }
       return { ...emptyLead((row.id as string) || ''), nomeAcademia: data.nomeAcademia, contatoNome: data.contatoNome, contatoEmail: data.contatoEmail, criadoEm: (row.created_at as string) || '' };
     } catch {
-      console.warn('[superadmin-pipeline.createLead] API not available, using mock fallback');
+      console.error('[superadmin-pipeline.createLead] API not available, using mock fallback');
       const { mockCreateLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockCreateLead(data);
     }
   } catch (error) {
-    console.warn('[createLead] Fallback:', error);
+    console.error('[createLead] Fallback:', error);
     return emptyLead();
   }
 }
@@ -220,16 +220,16 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
         .select()
         .single();
       if (error || !row) {
-        console.warn('[avancarLead] Update failed:', error?.message);
+        console.error('[avancarLead] Update failed:', error?.message);
         return emptyLead(leadId);
       }
       return { ...emptyLead(leadId), status: nextStatus };
     } catch {
-      console.warn('[superadmin-pipeline.avancarLead] API not available, returning fallback');
+      console.error('[superadmin-pipeline.avancarLead] API not available, returning fallback');
       return emptyLead(leadId);
     }
   } catch (error) {
-    console.warn('[avancarLead] Fallback:', error);
+    console.error('[avancarLead] Fallback:', error);
     return emptyLead(leadId);
   }
 }
@@ -250,16 +250,16 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
         .select()
         .single();
       if (error || !row) {
-        console.warn('[perderLead] Update failed:', error?.message);
+        console.error('[perderLead] Update failed:', error?.message);
         return { ...emptyLead(leadId), status: 'perdido' };
       }
       return { ...emptyLead(leadId), status: 'perdido' };
     } catch {
-      console.warn('[superadmin-pipeline.perderLead] API not available, returning fallback');
+      console.error('[superadmin-pipeline.perderLead] API not available, returning fallback');
       return { ...emptyLead(leadId), status: 'perdido' };
     }
   } catch (error) {
-    console.warn('[perderLead] Fallback:', error);
+    console.error('[perderLead] Fallback:', error);
     return { ...emptyLead(leadId), status: 'perdido' };
   }
 }
@@ -278,12 +278,12 @@ export async function addLeadNota(leadId: string, nota: string): Promise<void> {
         .update({ notes: nota, updated_at: new Date().toISOString() })
         .eq('id', leadId);
       if (error) {
-        console.warn('[addLeadNota] Update failed:', error.message);
+        console.error('[addLeadNota] Update failed:', error.message);
       }
     } catch {
-      console.warn('[superadmin-pipeline.addLeadNota] API not available, using fallback');
+      console.error('[superadmin-pipeline.addLeadNota] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[addLeadNota] Fallback:', error);
+    console.error('[addLeadNota] Fallback:', error);
   }
 }

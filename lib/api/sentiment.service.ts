@@ -39,12 +39,12 @@ export async function getSentimentTrend(academyId: string): Promise<SentimentTre
       .eq('academy_id', academyId)
       .order('month', { ascending: true });
     if (error) {
-      console.warn('[getSentimentTrend] Supabase error:', error.message);
+      console.error('[getSentimentTrend] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as SentimentTrend[];
   } catch (error) {
-    console.warn('[getSentimentTrend] Fallback:', error);
+    console.error('[getSentimentTrend] Fallback:', error);
     return [];
   }
 }

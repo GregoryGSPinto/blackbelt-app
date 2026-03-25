@@ -164,11 +164,11 @@ export async function getTeenSeasonPass(studentId: string): Promise<TeenSeasonPa
         leaderboard,
       };
     } catch (err) {
-      console.warn('[getTeenSeasonPass] Supabase error, returning fallback:', err);
+      console.error('[getTeenSeasonPass] Supabase error, returning fallback:', err);
       return EMPTY;
     }
   } catch (error) {
-    console.warn('[getTeenSeasonPass] Fallback:', error);
+    console.error('[getTeenSeasonPass] Fallback:', error);
     return { season: { id: '', name: '', theme: '', start_date: '', end_date: '', days_remaining: 0 }, my_progress: { points: 0, rank: 0, tier: 'bronze', next_tier_at: 0, achievements_count: 0 }, rewards: [], leaderboard: [] };
   }
 }
@@ -186,7 +186,7 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
       // Get current user's student ID from auth
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.warn('[claimSeasonReward] No authenticated user');
+        console.error('[claimSeasonReward] No authenticated user');
         return;
       }
 
@@ -199,7 +199,7 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
         .maybeSingle();
 
       if (!student) {
-        console.warn('[claimSeasonReward] No student record found');
+        console.error('[claimSeasonReward] No student record found');
         return;
       }
 
@@ -214,12 +214,12 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
         });
 
       if (error) {
-        console.warn('[claimSeasonReward] Supabase error:', error.message);
+        console.error('[claimSeasonReward] Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[claimSeasonReward] Supabase error, using fallback:', err);
+      console.error('[claimSeasonReward] Supabase error, using fallback:', err);
     }
   } catch (error) {
-    console.warn('[claimSeasonReward] Fallback:', error);
+    console.error('[claimSeasonReward] Fallback:', error);
   }
 }

@@ -43,7 +43,7 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getLeads] error:', error.message);
+      console.error('[getLeads] error:', error.message);
       return [];
     }
     return (data || []).map((row: { id: string; name: string; email: string | null; phone: string | null; modality: string | null; origin: string; status: string; notes: string | null; experimental_date: string | null; created_at: string }) => ({
@@ -60,7 +60,7 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       created_at: row.created_at,
     }));
   } catch (error) {
-    console.warn('[getLeads] Fallback:', error);
+    console.error('[getLeads] Fallback:', error);
     return [];
   }
 }
@@ -80,7 +80,7 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       .eq('academy_id', academyId);
 
     if (error) {
-      console.warn('[getCRMMetrics] error:', error.message);
+      console.error('[getCRMMetrics] error:', error.message);
       return EMPTY_METRICS;
     }
 
@@ -101,7 +101,7 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       conversion_rate: rate,
     };
   } catch (error) {
-    console.warn('[getCRMMetrics] Fallback:', error);
+    console.error('[getCRMMetrics] Fallback:', error);
     return EMPTY_METRICS;
   }
 }
@@ -121,10 +121,10 @@ export async function updateLeadStatus(leadId: string, status: string): Promise<
       .eq('id', leadId);
 
     if (error) {
-      console.warn('[updateLeadStatus] error:', error.message);
+      console.error('[updateLeadStatus] error:', error.message);
     }
   } catch (error) {
-    console.warn('[updateLeadStatus] Fallback:', error);
+    console.error('[updateLeadStatus] Fallback:', error);
   }
 }
 
@@ -144,7 +144,7 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       .single();
 
     if (error) {
-      console.warn('[createLead] error:', error.message);
+      console.error('[createLead] error:', error.message);
       return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
     }
     return {
@@ -161,7 +161,7 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       created_at: row.created_at,
     };
   } catch (error) {
-    console.warn('[createLead] Fallback:', error);
+    console.error('[createLead] Fallback:', error);
     return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
   }
 }

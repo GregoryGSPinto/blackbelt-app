@@ -45,7 +45,7 @@ export async function createAcademy(
       options: { data: { name: admin.name } },
     });
     if (authError || !authData.user) {
-      console.warn('[createAcademy] error:', authError?.message ?? 'User not created');
+      console.error('[createAcademy] error:', authError?.message ?? 'User not created');
       return { academyId: '', slug: '', adminProfileId: '' };
     }
 
@@ -56,7 +56,7 @@ export async function createAcademy(
       .eq('user_id', authData.user.id)
       .limit(1);
     if (profileError) {
-      console.warn('[createAcademy] error fetching profile:', profileError.message);
+      console.error('[createAcademy] error fetching profile:', profileError.message);
     }
     const profileId = profiles?.[0]?.id ?? authData.user.id;
 
@@ -76,7 +76,7 @@ export async function createAcademy(
       .select()
       .single();
     if (academyError || !academyData) {
-      console.warn('[createAcademy] error creating academy:', academyError?.message);
+      console.error('[createAcademy] error creating academy:', academyError?.message);
       return { academyId: '', slug: '', adminProfileId: profileId };
     }
 
@@ -89,7 +89,7 @@ export async function createAcademy(
         address: academy.address,
       });
     if (unitError) {
-      console.warn('[createAcademy] error creating unit:', unitError.message);
+      console.error('[createAcademy] error creating unit:', unitError.message);
     }
 
     // 5. Create admin membership
@@ -102,7 +102,7 @@ export async function createAcademy(
         status: 'active',
       });
     if (memberError) {
-      console.warn('[createAcademy] error creating membership:', memberError.message);
+      console.error('[createAcademy] error creating membership:', memberError.message);
     }
 
     // Set active role cookie
@@ -116,7 +116,7 @@ export async function createAcademy(
       adminProfileId: profileId,
     };
   } catch (error) {
-    console.warn('[createAcademy] Fallback:', error);
+    console.error('[createAcademy] Fallback:', error);
     return { academyId: '', slug: '', adminProfileId: '' };
   }
 }
@@ -147,7 +147,7 @@ export async function getSetupProgress(_academyId: string): Promise<SetupWizardS
       { step: 5, completed: (students.count ?? 0) > 0 }, // Student enrolled
     ];
   } catch (error) {
-    console.warn('[getSetupProgress] Fallback:', error);
+    console.error('[getSetupProgress] Fallback:', error);
     return [];
   }
 }
@@ -160,6 +160,6 @@ export async function completeSetupStep(_academyId: string, _step: number): Prom
     }
     // In real mode, setup progress is derived from actual data, no explicit marking needed
   } catch (error) {
-    console.warn('[completeSetupStep] Fallback:', error);
+    console.error('[completeSetupStep] Fallback:', error);
   }
 }

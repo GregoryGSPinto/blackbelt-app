@@ -47,7 +47,7 @@ export async function listPlugins(): Promise<Plugin[]> {
       config: {},
     })) as unknown as Plugin[];
   } catch (error) {
-    console.warn('[listPlugins] Fallback:', error);
+    console.error('[listPlugins] Fallback:', error);
     return [];
   }
 }
@@ -94,7 +94,7 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       config: configs[pluginId] ?? {},
     } as unknown as Plugin;
   } catch (error) {
-    console.warn('[getPlugin] Fallback:', error);
+    console.error('[getPlugin] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -139,12 +139,12 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
     );
 
     if (error) {
-      console.warn('[installPlugin] Supabase error:', error.message);
+      console.error('[installPlugin] Supabase error:', error.message);
     }
 
     return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config: {} } as unknown as Plugin;
   } catch (error) {
-    console.warn('[installPlugin] Fallback:', error);
+    console.error('[installPlugin] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -185,10 +185,10 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
     );
 
     if (error) {
-      console.warn('[uninstallPlugin] Supabase error:', error.message);
+      console.error('[uninstallPlugin] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[uninstallPlugin] Fallback:', error);
+    console.error('[uninstallPlugin] Fallback:', error);
   }
 }
 
@@ -232,12 +232,12 @@ export async function updatePluginConfig(
     );
 
     if (error) {
-      console.warn('[updatePluginConfig] Supabase error:', error.message);
+      console.error('[updatePluginConfig] Supabase error:', error.message);
     }
 
     return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config } as unknown as Plugin;
   } catch (error) {
-    console.warn('[updatePluginConfig] Fallback:', error);
+    console.error('[updatePluginConfig] Fallback:', error);
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -273,7 +273,7 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
     const allLogs = (settings.plugin_logs ?? {}) as Record<string, PluginLog[]>;
     return allLogs[pluginId] ?? [];
   } catch (error) {
-    console.warn('[getPluginLogs] Fallback:', error);
+    console.error('[getPluginLogs] Fallback:', error);
     return [];
   }
 }

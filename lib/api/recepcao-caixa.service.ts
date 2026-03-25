@@ -62,7 +62,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       .order('created_at', { ascending: false });
 
     if (recError) {
-      console.warn('[getCaixa] error fetching receipts:', recError.message);
+      console.error('[getCaixa] error fetching receipts:', recError.message);
     }
 
     // Fetch bills due today
@@ -73,7 +73,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       .eq('status', 'pending');
 
     if (vencError) {
-      console.warn('[getCaixa] error fetching vencimentos:', vencError.message);
+      console.error('[getCaixa] error fetching vencimentos:', vencError.message);
     }
 
     const recList: Recebimento[] = (recebimentos ?? []).map((r: Record<string, unknown>) => ({
@@ -124,7 +124,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       vencendoHoje,
     };
   } catch (error) {
-    console.warn('[getCaixa] Fallback:', error);
+    console.error('[getCaixa] Fallback:', error);
     return {
       data: new Date().toISOString().slice(0, 10),
       totalRecebido: 0,
@@ -166,13 +166,13 @@ export async function registrarRecebimento(data: {
       .single();
 
     if (error) {
-      console.warn('[registrarRecebimento] error:', error.message);
+      console.error('[registrarRecebimento] error:', error.message);
       return { ok: false, id: '' };
     }
 
     return { ok: true, id: (inserted as Record<string, unknown>).id as string };
   } catch (error) {
-    console.warn('[registrarRecebimento] Fallback:', error);
+    console.error('[registrarRecebimento] Fallback:', error);
     return { ok: false, id: '' };
   }
 }

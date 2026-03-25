@@ -28,12 +28,12 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
       .eq('academy_id', academyId)
       .order('price', { ascending: true });
     if (error || !data) {
-      console.warn('[listPlans] Supabase error:', error?.message);
+      console.error('[listPlans] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as Plan[];
   } catch (error) {
-    console.warn('[listPlans] Fallback:', error);
+    console.error('[listPlans] Fallback:', error);
     return [];
   }
 }
@@ -52,12 +52,12 @@ export async function getPlanById(id: string): Promise<Plan> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getPlanById] Supabase error:', error?.message);
+      console.error('[getPlanById] Supabase error:', error?.message);
       return {} as Plan;
     }
     return data as unknown as Plan;
   } catch (error) {
-    console.warn('[getPlanById] Fallback:', error);
+    console.error('[getPlanById] Fallback:', error);
     return {} as Plan;
   }
 }
@@ -76,12 +76,12 @@ export async function createPlan(academyId: string, data: CreatePlanRequest): Pr
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createPlan] Supabase error:', error?.message);
+      console.error('[createPlan] Supabase error:', error?.message);
       return {} as Plan;
     }
     return row as unknown as Plan;
   } catch (error) {
-    console.warn('[createPlan] Fallback:', error);
+    console.error('[createPlan] Fallback:', error);
     return {} as Plan;
   }
 }
@@ -101,12 +101,12 @@ export async function updatePlan(id: string, data: UpdatePlanRequest): Promise<P
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updatePlan] Supabase error:', error?.message);
+      console.error('[updatePlan] Supabase error:', error?.message);
       return {} as Plan;
     }
     return row as unknown as Plan;
   } catch (error) {
-    console.warn('[updatePlan] Fallback:', error);
+    console.error('[updatePlan] Fallback:', error);
     return {} as Plan;
   }
 }

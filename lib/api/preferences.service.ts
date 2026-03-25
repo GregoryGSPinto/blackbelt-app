@@ -27,12 +27,12 @@ export async function getUserPreferences(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getUserPreferences] Supabase error:', error.message);
+      console.error('[getUserPreferences] Supabase error:', error.message);
     }
 
     return (data?.preferences ?? {}) as UserPreferences;
   } catch (error) {
-    console.warn('[getUserPreferences] Fallback:', error);
+    console.error('[getUserPreferences] Fallback:', error);
     return {} as UserPreferences;
   }
 }
@@ -62,10 +62,10 @@ export async function updateUserPreferences(
     );
 
     if (error) {
-      console.warn('[updateUserPreferences] Supabase error:', error.message);
+      console.error('[updateUserPreferences] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[updateUserPreferences] Fallback:', error);
+    console.error('[updateUserPreferences] Fallback:', error);
   }
 }
 
@@ -92,12 +92,12 @@ export async function getAcademySettings(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getAcademySettings] Supabase error:', error.message);
+      console.error('[getAcademySettings] Supabase error:', error.message);
     }
 
     return (data?.settings ?? {}) as AcademySettings;
   } catch (error) {
-    console.warn('[getAcademySettings] Fallback:', error);
+    console.error('[getAcademySettings] Fallback:', error);
     return {} as AcademySettings;
   }
 }
@@ -127,10 +127,10 @@ export async function updateAcademySettings(
     );
 
     if (error) {
-      console.warn('[updateAcademySettings] Supabase error:', error.message);
+      console.error('[updateAcademySettings] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[updateAcademySettings] Fallback:', error);
+    console.error('[updateAcademySettings] Fallback:', error);
   }
 }
 
@@ -158,10 +158,10 @@ export async function changePassword(
     });
 
     if (!res.ok) {
-      console.warn('[changePassword] API error:', res.status);
+      console.error('[changePassword] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[changePassword] Fallback:', error);
+    console.error('[changePassword] Fallback:', error);
   }
 }
 
@@ -185,12 +185,12 @@ export async function exportUserData(
     });
 
     if (!res.ok) {
-      console.warn('[exportUserData] API error:', res.status);
+      console.error('[exportUserData] API error:', res.status);
       return { url: '' };
     }
     return res.json();
   } catch (error) {
-    console.warn('[exportUserData] Fallback:', error);
+    console.error('[exportUserData] Fallback:', error);
     return { url: '' };
   }
 }
@@ -214,10 +214,10 @@ export async function deleteAccount(
     });
 
     if (!res.ok) {
-      console.warn('[deleteAccount] API error:', res.status);
+      console.error('[deleteAccount] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[deleteAccount] Fallback:', error);
+    console.error('[deleteAccount] Fallback:', error);
   }
 }
 
@@ -235,10 +235,10 @@ export async function deactivateAcademy(academyId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.warn('[deactivateAcademy] API error:', res.status);
+      console.error('[deactivateAcademy] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[deactivateAcademy] Fallback:', error);
+    console.error('[deactivateAcademy] Fallback:', error);
   }
 }
 
@@ -261,10 +261,10 @@ export async function deleteAcademy(
     });
 
     if (!res.ok) {
-      console.warn('[deleteAcademy] API error:', res.status);
+      console.error('[deleteAcademy] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[deleteAcademy] Fallback:', error);
+    console.error('[deleteAcademy] Fallback:', error);
   }
 }
 
@@ -286,10 +286,10 @@ export async function resetTutorial(profileId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.warn('[resetTutorial] API error:', res.status);
+      console.error('[resetTutorial] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[resetTutorial] Fallback:', error);
+    console.error('[resetTutorial] Fallback:', error);
   }
 }
 
@@ -309,10 +309,10 @@ export async function resetChecklist(profileId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.warn('[resetChecklist] API error:', res.status);
+      console.error('[resetChecklist] API error:', res.status);
     }
   } catch (error) {
-    console.warn('[resetChecklist] Fallback:', error);
+    console.error('[resetChecklist] Fallback:', error);
   }
 }
 
@@ -340,13 +340,13 @@ export async function uploadAvatar(
     });
 
     if (!res.ok) {
-      console.warn('[uploadAvatar] API error:', res.status);
+      console.error('[uploadAvatar] API error:', res.status);
       return '';
     }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    console.warn('[uploadAvatar] Fallback:', error);
+    console.error('[uploadAvatar] Fallback:', error);
     return '';
   }
 }
@@ -373,13 +373,13 @@ export async function uploadAcademyLogo(
     });
 
     if (!res.ok) {
-      console.warn('[uploadAcademyLogo] API error:', res.status);
+      console.error('[uploadAcademyLogo] API error:', res.status);
       return '';
     }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    console.warn('[uploadAcademyLogo] Fallback:', error);
+    console.error('[uploadAcademyLogo] Fallback:', error);
     return '';
   }
 }

@@ -16,12 +16,12 @@ export async function getByAcademia(academyId: string): Promise<RankedStudent[]>
       .order('total_xp', { ascending: false })
       .limit(50);
     if (error) {
-      console.warn('[getByAcademia] Supabase error:', error.message);
+      console.error('[getByAcademia] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    console.warn('[getByAcademia] Fallback:', error);
+    console.error('[getByAcademia] Fallback:', error);
     return [];
   }
 }
@@ -41,12 +41,12 @@ export async function getByTurma(classId: string): Promise<RankedStudent[]> {
       .order('total_xp', { ascending: false })
       .limit(50);
     if (error) {
-      console.warn('[getByTurma] Supabase error:', error.message);
+      console.error('[getByTurma] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    console.warn('[getByTurma] Fallback:', error);
+    console.error('[getByTurma] Fallback:', error);
     return [];
   }
 }

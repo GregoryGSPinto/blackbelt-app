@@ -18,13 +18,13 @@ export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
       .order('date', { ascending: true });
 
     if (error || !data) {
-      console.warn('[listEvents] Supabase error:', error?.message);
+      console.error('[listEvents] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as AcademyEvent[];
   } catch (error) {
-    console.warn('[listEvents] Fallback:', error);
+    console.error('[listEvents] Fallback:', error);
     return [];
   }
 }
@@ -45,13 +45,13 @@ export async function getEvent(eventId: string): Promise<AcademyEvent> {
       .single();
 
     if (error || !data) {
-      console.warn('[getEvent] Supabase error:', error?.message);
+      console.error('[getEvent] Supabase error:', error?.message);
       return { id: eventId } as unknown as AcademyEvent;
     }
 
     return data as unknown as AcademyEvent;
   } catch (error) {
-    console.warn('[getEvent] Fallback:', error);
+    console.error('[getEvent] Fallback:', error);
     return { id: eventId } as unknown as AcademyEvent;
   }
 }
@@ -72,13 +72,13 @@ export async function createEvent(academyId: string, data: CreateEventData): Pro
       .single();
 
     if (error || !row) {
-      console.warn('[createEvent] Supabase error:', error?.message);
+      console.error('[createEvent] Supabase error:', error?.message);
       return { id: '', ...data, academy_id: academyId } as unknown as AcademyEvent;
     }
 
     return row as unknown as AcademyEvent;
   } catch (error) {
-    console.warn('[createEvent] Fallback:', error);
+    console.error('[createEvent] Fallback:', error);
     return { id: '', ...data, academy_id: academyId } as unknown as AcademyEvent;
   }
 }
@@ -98,10 +98,10 @@ export async function cancelEvent(eventId: string): Promise<void> {
       .eq('id', eventId);
 
     if (error) {
-      console.warn('[cancelEvent] Supabase error:', error.message);
+      console.error('[cancelEvent] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[cancelEvent] Fallback:', error);
+    console.error('[cancelEvent] Fallback:', error);
   }
 }
 
@@ -119,9 +119,9 @@ export async function enrollInEvent(eventId: string, studentId: string): Promise
       .insert({ event_id: eventId, student_id: studentId });
 
     if (error) {
-      console.warn('[enrollInEvent] Supabase error:', error.message);
+      console.error('[enrollInEvent] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[enrollInEvent] Fallback:', error);
+    console.error('[enrollInEvent] Fallback:', error);
   }
 }

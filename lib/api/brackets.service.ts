@@ -60,13 +60,13 @@ export async function generateBracket(championshipId: string, categoryId: string
       .single();
 
     if (error || !data) {
-      console.warn('[generateBracket] Supabase error:', error?.message);
+      console.error('[generateBracket] Supabase error:', error?.message);
       return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
     }
 
     return { ...(data as unknown as BracketDTO), matches: [] };
   } catch (error) {
-    console.warn('[generateBracket] Fallback:', error);
+    console.error('[generateBracket] Fallback:', error);
     return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
   }
 }
@@ -87,7 +87,7 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       .single();
 
     if (error || !data) {
-      console.warn('[getBracketByCategory] Supabase error:', error?.message);
+      console.error('[getBracketByCategory] Supabase error:', error?.message);
       return { ...EMPTY_BRACKET, category_id: categoryId };
     }
 
@@ -96,7 +96,7 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       matches: ((data as Record<string, unknown>).bracket_matches ?? []) as MatchDTO[],
     };
   } catch (error) {
-    console.warn('[getBracketByCategory] Fallback:', error);
+    console.error('[getBracketByCategory] Fallback:', error);
     return { ...EMPTY_BRACKET, category_id: categoryId };
   }
 }
@@ -125,13 +125,13 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       .single();
 
     if (error || !data) {
-      console.warn('[submitResult] Supabase error:', error?.message);
+      console.error('[submitResult] Supabase error:', error?.message);
       return { ...EMPTY_MATCH, id: matchId };
     }
 
     return data as unknown as MatchDTO;
   } catch (error) {
-    console.warn('[submitResult] Fallback:', error);
+    console.error('[submitResult] Fallback:', error);
     return { ...EMPTY_MATCH, id: matchId };
   }
 }
@@ -152,13 +152,13 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       .single();
 
     if (error || !data) {
-      console.warn('[getMatchDetails] Supabase error:', error?.message);
+      console.error('[getMatchDetails] Supabase error:', error?.message);
       return { ...EMPTY_MATCH, id: matchId };
     }
 
     return data as unknown as MatchDTO;
   } catch (error) {
-    console.warn('[getMatchDetails] Fallback:', error);
+    console.error('[getMatchDetails] Fallback:', error);
     return { ...EMPTY_MATCH, id: matchId };
   }
 }

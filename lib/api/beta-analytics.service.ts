@@ -24,7 +24,7 @@ export async function trackFeatureUsage(feature_name: string, action: string, me
       metadata: metadata || {},
     });
   } catch (e) {
-    console.warn('[Beta Analytics] Track failed:', e);
+    console.error('[Beta Analytics] Track failed:', e);
   }
 }
 
@@ -54,7 +54,7 @@ export async function trackPageVisit(path: string): Promise<void> {
       actions_count: 1,
     });
   } catch (e) {
-    console.warn('[Beta Analytics] Page track failed:', e);
+    console.error('[Beta Analytics] Page track failed:', e);
   }
 }
 

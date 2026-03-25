@@ -200,7 +200,7 @@ export async function getVideoExperience(videoId: string): Promise<VideoExperien
       .eq('id', videoId)
       .single();
     if (error || !data) {
-      console.warn('[getVideoExperience] Query failed:', error?.message);
+      console.error('[getVideoExperience] Query failed:', error?.message);
       return emptyVideoExperience(videoId);
     }
     // Map DB row to VideoExperience shape — partial mapping, full experience requires joins
@@ -226,7 +226,7 @@ export async function getVideoExperience(videoId: string): Promise<VideoExperien
       },
     };
   } catch (error) {
-    console.warn('[getVideoExperience] Fallback:', error);
+    console.error('[getVideoExperience] Fallback:', error);
     return emptyVideoExperience(videoId);
   }
 }
@@ -241,7 +241,7 @@ export async function registrarProgresso(videoId: string, segundos: number): Pro
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[registrarProgresso] No authenticated user');
+      console.error('[registrarProgresso] No authenticated user');
       return;
     }
     const { error } = await supabase
@@ -253,10 +253,10 @@ export async function registrarProgresso(videoId: string, segundos: number): Pro
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.warn('[registrarProgresso] Upsert failed:', error.message);
+      console.error('[registrarProgresso] Upsert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[registrarProgresso] Fallback:', error);
+    console.error('[registrarProgresso] Fallback:', error);
   }
 }
 
@@ -270,7 +270,7 @@ export async function marcarCompleto(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[marcarCompleto] No authenticated user');
+      console.error('[marcarCompleto] No authenticated user');
       return;
     }
     const { error } = await supabase
@@ -283,10 +283,10 @@ export async function marcarCompleto(videoId: string): Promise<void> {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.warn('[marcarCompleto] Upsert failed:', error.message);
+      console.error('[marcarCompleto] Upsert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[marcarCompleto] Fallback:', error);
+    console.error('[marcarCompleto] Fallback:', error);
   }
 }
 
@@ -300,7 +300,7 @@ export async function avaliarVideo(videoId: string, nota: number): Promise<void>
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[avaliarVideo] No authenticated user');
+      console.error('[avaliarVideo] No authenticated user');
       return;
     }
     const { error } = await supabase
@@ -312,10 +312,10 @@ export async function avaliarVideo(videoId: string, nota: number): Promise<void>
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.warn('[avaliarVideo] Upsert failed:', error.message);
+      console.error('[avaliarVideo] Upsert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[avaliarVideo] Fallback:', error);
+    console.error('[avaliarVideo] Fallback:', error);
   }
 }
 
@@ -329,14 +329,14 @@ export async function curtirVideo(videoId: string): Promise<{ curtidas: number }
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[curtirVideo] No authenticated user');
+      console.error('[curtirVideo] No authenticated user');
       return { curtidas: 0 };
     }
     const { error } = await supabase
       .from('video_likes')
       .insert({ video_id: videoId, user_id: user.id });
     if (error) {
-      console.warn('[curtirVideo] Insert failed:', error.message);
+      console.error('[curtirVideo] Insert failed:', error.message);
     }
     const { count } = await supabase
       .from('video_likes')
@@ -344,7 +344,7 @@ export async function curtirVideo(videoId: string): Promise<{ curtidas: number }
       .eq('video_id', videoId);
     return { curtidas: count ?? 0 };
   } catch (error) {
-    console.warn('[curtirVideo] Fallback:', error);
+    console.error('[curtirVideo] Fallback:', error);
     return { curtidas: 0 };
   }
 }
@@ -359,7 +359,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[descurtirVideo] No authenticated user');
+      console.error('[descurtirVideo] No authenticated user');
       return { curtidas: 0 };
     }
     const { error } = await supabase
@@ -368,7 +368,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
       .eq('video_id', videoId)
       .eq('user_id', user.id);
     if (error) {
-      console.warn('[descurtirVideo] Delete failed:', error.message);
+      console.error('[descurtirVideo] Delete failed:', error.message);
     }
     const { count } = await supabase
       .from('video_likes')
@@ -376,7 +376,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
       .eq('video_id', videoId);
     return { curtidas: count ?? 0 };
   } catch (error) {
-    console.warn('[descurtirVideo] Fallback:', error);
+    console.error('[descurtirVideo] Fallback:', error);
     return { curtidas: 0 };
   }
 }
@@ -391,17 +391,17 @@ export async function salvarVideo(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[salvarVideo] No authenticated user');
+      console.error('[salvarVideo] No authenticated user');
       return;
     }
     const { error } = await supabase
       .from('video_saved')
       .insert({ video_id: videoId, user_id: user.id });
     if (error) {
-      console.warn('[salvarVideo] Insert failed:', error.message);
+      console.error('[salvarVideo] Insert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[salvarVideo] Fallback:', error);
+    console.error('[salvarVideo] Fallback:', error);
   }
 }
 
@@ -415,7 +415,7 @@ export async function removerSalvo(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[removerSalvo] No authenticated user');
+      console.error('[removerSalvo] No authenticated user');
       return;
     }
     const { error } = await supabase
@@ -424,10 +424,10 @@ export async function removerSalvo(videoId: string): Promise<void> {
       .eq('video_id', videoId)
       .eq('user_id', user.id);
     if (error) {
-      console.warn('[removerSalvo] Delete failed:', error.message);
+      console.error('[removerSalvo] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[removerSalvo] Fallback:', error);
+    console.error('[removerSalvo] Fallback:', error);
   }
 }
 
@@ -441,17 +441,17 @@ export async function compartilharVideo(videoId: string, canal: string): Promise
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[compartilharVideo] No authenticated user');
+      console.error('[compartilharVideo] No authenticated user');
       return;
     }
     const { error } = await supabase
       .from('video_shares')
       .insert({ video_id: videoId, user_id: user.id, channel: canal });
     if (error) {
-      console.warn('[compartilharVideo] Insert failed:', error.message);
+      console.error('[compartilharVideo] Insert failed:', error.message);
     }
   } catch (error) {
-    console.warn('[compartilharVideo] Fallback:', error);
+    console.error('[compartilharVideo] Fallback:', error);
   }
 }
 
@@ -474,7 +474,7 @@ export async function getComentarios(videoId: string, pagina?: number): Promise<
       .order('created_at', { ascending: false })
       .range(from, to);
     if (error) {
-      console.warn('[getComentarios] Query failed:', error.message);
+      console.error('[getComentarios] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -493,7 +493,7 @@ export async function getComentarios(videoId: string, pagina?: number): Promise<
       timestamp: row.timestamp as number | undefined,
     }));
   } catch (error) {
-    console.warn('[getComentarios] Fallback:', error);
+    console.error('[getComentarios] Fallback:', error);
     return [];
   }
 }
@@ -508,7 +508,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[addComentario] No authenticated user');
+      console.error('[addComentario] No authenticated user');
       return emptyComentario(texto);
     }
     const { data: row, error } = await supabase
@@ -517,7 +517,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
       .select()
       .single();
     if (error || !row) {
-      console.warn('[addComentario] Insert failed:', error?.message);
+      console.error('[addComentario] Insert failed:', error?.message);
       return emptyComentario(texto);
     }
     return {
@@ -536,7 +536,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
       timestamp: row.timestamp as number | undefined,
     };
   } catch (error) {
-    console.warn('[addComentario] Fallback:', error);
+    console.error('[addComentario] Fallback:', error);
     return emptyComentario(texto);
   }
 }
@@ -556,7 +556,7 @@ export async function editarComentario(comentarioId: string, texto: string): Pro
       .select()
       .single();
     if (error || !row) {
-      console.warn('[editarComentario] Update failed:', error?.message);
+      console.error('[editarComentario] Update failed:', error?.message);
       return emptyComentario(texto);
     }
     return {
@@ -574,7 +574,7 @@ export async function editarComentario(comentarioId: string, texto: string): Pro
       ehProfessor: (row.is_professor as boolean) || false,
     };
   } catch (error) {
-    console.warn('[editarComentario] Fallback:', error);
+    console.error('[editarComentario] Fallback:', error);
     return emptyComentario(texto);
   }
 }
@@ -592,10 +592,10 @@ export async function deletarComentario(comentarioId: string): Promise<void> {
       .delete()
       .eq('id', comentarioId);
     if (error) {
-      console.warn('[deletarComentario] Delete failed:', error.message);
+      console.error('[deletarComentario] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deletarComentario] Fallback:', error);
+    console.error('[deletarComentario] Fallback:', error);
   }
 }
 
@@ -614,10 +614,10 @@ export async function curtirComentario(comentarioId: string): Promise<void> {
     // Use RPC for atomic increment if available, otherwise just log
     const { error: rpcError } = await supabase.rpc('increment_comment_likes', { comment_id: comentarioId });
     if (rpcError && error) {
-      console.warn('[curtirComentario] Update failed:', rpcError.message);
+      console.error('[curtirComentario] Update failed:', rpcError.message);
     }
   } catch (error) {
-    console.warn('[curtirComentario] Fallback:', error);
+    console.error('[curtirComentario] Fallback:', error);
   }
 }
 
@@ -631,7 +631,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[responderComentario] No authenticated user');
+      console.error('[responderComentario] No authenticated user');
       return emptyComentario(texto);
     }
     // Get parent comment to know the video_id
@@ -651,7 +651,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
       .select()
       .single();
     if (error || !row) {
-      console.warn('[responderComentario] Insert failed:', error?.message);
+      console.error('[responderComentario] Insert failed:', error?.message);
       return emptyComentario(texto);
     }
     return {
@@ -669,7 +669,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
       ehProfessor: false,
     };
   } catch (error) {
-    console.warn('[responderComentario] Fallback:', error);
+    console.error('[responderComentario] Fallback:', error);
     return emptyComentario(texto);
   }
 }
@@ -687,10 +687,10 @@ export async function fixarComentario(comentarioId: string): Promise<void> {
       .update({ pinned: true })
       .eq('id', comentarioId);
     if (error) {
-      console.warn('[fixarComentario] Update failed:', error.message);
+      console.error('[fixarComentario] Update failed:', error.message);
     }
   } catch (error) {
-    console.warn('[fixarComentario] Fallback:', error);
+    console.error('[fixarComentario] Fallback:', error);
   }
 }
 
@@ -708,7 +708,7 @@ export async function getDuvidas(videoId: string): Promise<Duvida[]> {
       .eq('video_id', videoId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[getDuvidas] Query failed:', error.message);
+      console.error('[getDuvidas] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -729,7 +729,7 @@ export async function getDuvidas(videoId: string): Promise<Duvida[]> {
       criadoEm: (row.created_at as string) || '',
     }));
   } catch (error) {
-    console.warn('[getDuvidas] Fallback:', error);
+    console.error('[getDuvidas] Fallback:', error);
     return [];
   }
 }
@@ -744,7 +744,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[addDuvida] No authenticated user');
+      console.error('[addDuvida] No authenticated user');
       return emptyDuvida(pergunta);
     }
     const { data: row, error } = await supabase
@@ -753,7 +753,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
       .select()
       .single();
     if (error || !row) {
-      console.warn('[addDuvida] Insert failed:', error?.message);
+      console.error('[addDuvida] Insert failed:', error?.message);
       return emptyDuvida(pergunta);
     }
     return {
@@ -769,7 +769,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
       criadoEm: (row.created_at as string) || '',
     };
   } catch (error) {
-    console.warn('[addDuvida] Fallback:', error);
+    console.error('[addDuvida] Fallback:', error);
     return emptyDuvida(pergunta);
   }
 }
@@ -784,10 +784,10 @@ export async function votarDuvida(duvidaId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { error } = await supabase.rpc('increment_question_votes', { question_id: duvidaId });
     if (error) {
-      console.warn('[votarDuvida] RPC failed:', error.message);
+      console.error('[votarDuvida] RPC failed:', error.message);
     }
   } catch (error) {
-    console.warn('[votarDuvida] Fallback:', error);
+    console.error('[votarDuvida] Fallback:', error);
   }
 }
 
@@ -809,10 +809,10 @@ export async function responderDuvida(duvidaId: string, resposta: string): Promi
       })
       .eq('id', duvidaId);
     if (error) {
-      console.warn('[responderDuvida] Update failed:', error.message);
+      console.error('[responderDuvida] Update failed:', error.message);
     }
   } catch (error) {
-    console.warn('[responderDuvida] Fallback:', error);
+    console.error('[responderDuvida] Fallback:', error);
   }
 }
 
@@ -826,7 +826,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[getNotas] No authenticated user');
+      console.error('[getNotas] No authenticated user');
       return [];
     }
     const { data, error } = await supabase
@@ -836,7 +836,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[getNotas] Query failed:', error.message);
+      console.error('[getNotas] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -848,7 +848,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
       atualizadaEm: (row.updated_at as string) || '',
     }));
   } catch (error) {
-    console.warn('[getNotas] Fallback:', error);
+    console.error('[getNotas] Fallback:', error);
     return [];
   }
 }
@@ -863,7 +863,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[addNota] No authenticated user');
+      console.error('[addNota] No authenticated user');
       return emptyNota(videoId, texto);
     }
     const { data: row, error } = await supabase
@@ -872,7 +872,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
       .select()
       .single();
     if (error || !row) {
-      console.warn('[addNota] Insert failed:', error?.message);
+      console.error('[addNota] Insert failed:', error?.message);
       return emptyNota(videoId, texto);
     }
     return {
@@ -884,7 +884,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
       atualizadaEm: (row.updated_at as string) || '',
     };
   } catch (error) {
-    console.warn('[addNota] Fallback:', error);
+    console.error('[addNota] Fallback:', error);
     return emptyNota(videoId, texto);
   }
 }
@@ -904,7 +904,7 @@ export async function editarNota(notaId: string, texto: string): Promise<NotaPes
       .select()
       .single();
     if (error || !row) {
-      console.warn('[editarNota] Update failed:', error?.message);
+      console.error('[editarNota] Update failed:', error?.message);
       return emptyNota('', texto);
     }
     return {
@@ -916,7 +916,7 @@ export async function editarNota(notaId: string, texto: string): Promise<NotaPes
       atualizadaEm: (row.updated_at as string) || '',
     };
   } catch (error) {
-    console.warn('[editarNota] Fallback:', error);
+    console.error('[editarNota] Fallback:', error);
     return emptyNota('', texto);
   }
 }
@@ -934,10 +934,10 @@ export async function deletarNota(notaId: string): Promise<void> {
       .delete()
       .eq('id', notaId);
     if (error) {
-      console.warn('[deletarNota] Delete failed:', error.message);
+      console.error('[deletarNota] Delete failed:', error.message);
     }
   } catch (error) {
-    console.warn('[deletarNota] Fallback:', error);
+    console.error('[deletarNota] Fallback:', error);
   }
 }
 
@@ -955,12 +955,12 @@ export async function getDownloadUrl(videoId: string): Promise<string | null> {
       .eq('id', videoId)
       .single();
     if (error || !data) {
-      console.warn('[getDownloadUrl] Query failed:', error?.message);
+      console.error('[getDownloadUrl] Query failed:', error?.message);
       return null;
     }
     return (data.source_url as string) || null;
   } catch (error) {
-    console.warn('[getDownloadUrl] Fallback:', error);
+    console.error('[getDownloadUrl] Fallback:', error);
     return null;
   }
 }
@@ -979,7 +979,7 @@ export async function getDuvidasPendentes(): Promise<(Duvida & { videoTitulo: st
       .is('answer', null)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[getDuvidasPendentes] Query failed:', error.message);
+      console.error('[getDuvidasPendentes] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -1000,7 +1000,7 @@ export async function getDuvidasPendentes(): Promise<(Duvida & { videoTitulo: st
       };
     });
   } catch (error) {
-    console.warn('[getDuvidasPendentes] Fallback:', error);
+    console.error('[getDuvidasPendentes] Fallback:', error);
     return [];
   }
 }
@@ -1019,7 +1019,7 @@ export async function getDuvidasRespondidas(): Promise<(Duvida & { videoTitulo: 
       .not('answer', 'is', null)
       .order('answered_at', { ascending: false });
     if (error) {
-      console.warn('[getDuvidasRespondidas] Query failed:', error.message);
+      console.error('[getDuvidasRespondidas] Query failed:', error.message);
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -1045,7 +1045,7 @@ export async function getDuvidasRespondidas(): Promise<(Duvida & { videoTitulo: 
       };
     });
   } catch (error) {
-    console.warn('[getDuvidasRespondidas] Fallback:', error);
+    console.error('[getDuvidasRespondidas] Fallback:', error);
     return [];
   }
 }

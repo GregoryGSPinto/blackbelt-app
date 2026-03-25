@@ -27,7 +27,7 @@ export async function generateQR(classId: string, expiresInMinutes: number = 5):
 
     return { qrData, expiresAt };
   } catch (error) {
-    console.warn('[generateQR] Fallback:', error);
+    console.error('[generateQR] Fallback:', error);
     return { qrData: '', expiresAt: '' };
   }
 }
@@ -75,7 +75,7 @@ export async function validateQR(qrData: string, studentId: string): Promise<QRV
 
     return { valid: true, attendance: data as Attendance };
   } catch (error) {
-    console.warn('[validateQR] Fallback:', error);
+    console.error('[validateQR] Fallback:', error);
     return { valid: false, error: 'Erro ao validar QR code' };
   }
 }

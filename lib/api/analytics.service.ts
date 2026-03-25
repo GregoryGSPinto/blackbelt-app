@@ -48,124 +48,108 @@ export interface OccupancyDTO {
 }
 
 export async function getRetentionCohort(academyId: string, months: number): Promise<CohortData[]> {
-  try {
-    if (isMock()) {
-      const { mockGetRetentionCohort } = await import('@/lib/mocks/analytics.mock');
-      return mockGetRetentionCohort(academyId, months);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .rpc('get_retention_cohort', { p_academy_id: academyId, p_months: months });
+  if (isMock()) {
+    const { mockGetRetentionCohort } = await import('@/lib/mocks/analytics.mock');
+    return mockGetRetentionCohort(academyId, months);
+  }
 
-    if (error || !data) {
-      console.warn('[getRetentionCohort] Supabase error:', error?.message);
-      return [];
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .rpc('get_retention_cohort', { p_academy_id: academyId, p_months: months });
 
-    return (data as Record<string, unknown>[]).map((d) => ({
-      cohort_month: (d.cohort_month as string) ?? '',
-      total_students: (d.total_students as number) ?? 0,
-      retention: (d.retention as number[]) ?? [],
-    }));
-  } catch (error) {
-    console.warn('[getRetentionCohort] Fallback:', error);
+  if (error || !data) {
+    console.error('[getRetentionCohort] Supabase error:', error?.message);
     return [];
   }
+
+  return (data as Record<string, unknown>[]).map((d) => ({
+    cohort_month: (d.cohort_month as string) ?? '',
+    total_students: (d.total_students as number) ?? 0,
+    retention: (d.retention as number[]) ?? [],
+  }));
 }
 
 export async function getChurnRisk(academyId: string): Promise<ChurnRiskDTO[]> {
-  try {
-    if (isMock()) {
-      const { mockGetChurnRisk } = await import('@/lib/mocks/analytics.mock');
-      return mockGetChurnRisk(academyId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .rpc('get_churn_risk', { p_academy_id: academyId });
+  if (isMock()) {
+    const { mockGetChurnRisk } = await import('@/lib/mocks/analytics.mock');
+    return mockGetChurnRisk(academyId);
+  }
 
-    if (error || !data) {
-      console.warn('[getChurnRisk] Supabase error:', error?.message);
-      return [];
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .rpc('get_churn_risk', { p_academy_id: academyId });
 
-    return (data as Record<string, unknown>[]).map((d) => ({
-      student_id: (d.student_id as string) ?? '',
-      student_name: (d.student_name as string) ?? '',
-      belt: (d.belt as string) ?? '',
-      days_absent: (d.days_absent as number) ?? 0,
-      frequency_trend: (d.frequency_trend as ChurnRiskDTO['frequency_trend']) ?? 'stable',
-      risk_level: (d.risk_level as ChurnRiskDTO['risk_level']) ?? 'low',
-      last_class_date: (d.last_class_date as string) ?? '',
-    }));
-  } catch (error) {
-    console.warn('[getChurnRisk] Fallback:', error);
+  if (error || !data) {
+    console.error('[getChurnRisk] Supabase error:', error?.message);
     return [];
   }
+
+  return (data as Record<string, unknown>[]).map((d) => ({
+    student_id: (d.student_id as string) ?? '',
+    student_name: (d.student_name as string) ?? '',
+    belt: (d.belt as string) ?? '',
+    days_absent: (d.days_absent as number) ?? 0,
+    frequency_trend: (d.frequency_trend as ChurnRiskDTO['frequency_trend']) ?? 'stable',
+    risk_level: (d.risk_level as ChurnRiskDTO['risk_level']) ?? 'low',
+    last_class_date: (d.last_class_date as string) ?? '',
+  }));
 }
 
 export async function getRevenueForecasting(academyId: string, months: number): Promise<ForecastDTO> {
-  try {
-    if (isMock()) {
-      const { mockGetRevenueForecasting } = await import('@/lib/mocks/analytics.mock');
-      return mockGetRevenueForecasting(academyId, months);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .rpc('get_revenue_forecast', { p_academy_id: academyId, p_months: months });
+  if (isMock()) {
+    const { mockGetRevenueForecasting } = await import('@/lib/mocks/analytics.mock');
+    return mockGetRevenueForecasting(academyId, months);
+  }
 
-    if (error || !data) {
-      console.warn('[getRevenueForecasting] Supabase error:', error?.message);
-      return { current_mrr: 0, projected_mrr: [], churn_rate: 0, growth_rate: 0, months: [] };
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .rpc('get_revenue_forecast', { p_academy_id: academyId, p_months: months });
 
-    const row = Array.isArray(data) ? data[0] : data;
-    return {
-      current_mrr: (row?.current_mrr as number) ?? 0,
-      projected_mrr: (row?.projected_mrr as number[]) ?? [],
-      churn_rate: (row?.churn_rate as number) ?? 0,
-      growth_rate: (row?.growth_rate as number) ?? 0,
-      months: (row?.months as string[]) ?? [],
-    };
-  } catch (error) {
-    console.warn('[getRevenueForecasting] Fallback:', error);
+  if (error || !data) {
+    console.error('[getRevenueForecasting] Supabase error:', error?.message);
     return { current_mrr: 0, projected_mrr: [], churn_rate: 0, growth_rate: 0, months: [] };
   }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    current_mrr: (row?.current_mrr as number) ?? 0,
+    projected_mrr: (row?.projected_mrr as number[]) ?? [],
+    churn_rate: (row?.churn_rate as number) ?? 0,
+    growth_rate: (row?.growth_rate as number) ?? 0,
+    months: (row?.months as string[]) ?? [],
+  };
 }
 
 export async function getProfessorPerformance(academyId: string): Promise<ProfessorMetricsDTO[]> {
-  try {
-    if (isMock()) {
-      const { mockGetProfessorPerformance } = await import('@/lib/mocks/analytics.mock');
-      return mockGetProfessorPerformance(academyId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('professor_metrics')
-      .select('*')
-      .eq('academy_id', academyId);
+  if (isMock()) {
+    const { mockGetProfessorPerformance } = await import('@/lib/mocks/analytics.mock');
+    return mockGetProfessorPerformance(academyId);
+  }
 
-    if (error || !data) {
-      console.warn('[getProfessorPerformance] Supabase error:', error?.message);
-      return [];
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('professor_metrics')
+    .select('*')
+    .eq('academy_id', academyId);
 
-    return (data as Record<string, unknown>[]).map((d) => ({
-      professor_id: (d.professor_id as string) ?? '',
-      professor_name: (d.professor_name as string) ?? '',
-      avg_attendance: (d.avg_attendance as number) ?? 0,
-      retention_rate: (d.retention_rate as number) ?? 0,
-      avg_evaluation: (d.avg_evaluation as number) ?? 0,
-      total_classes: (d.total_classes as number) ?? 0,
-      total_students: (d.total_students as number) ?? 0,
-    }));
-  } catch (error) {
-    console.warn('[getProfessorPerformance] Fallback:', error);
+  if (error || !data) {
+    console.error('[getProfessorPerformance] Supabase error:', error?.message);
     return [];
   }
+
+  return (data as Record<string, unknown>[]).map((d) => ({
+    professor_id: (d.professor_id as string) ?? '',
+    professor_name: (d.professor_name as string) ?? '',
+    avg_attendance: (d.avg_attendance as number) ?? 0,
+    retention_rate: (d.retention_rate as number) ?? 0,
+    avg_evaluation: (d.avg_evaluation as number) ?? 0,
+    total_classes: (d.total_classes as number) ?? 0,
+    total_students: (d.total_students as number) ?? 0,
+  }));
 }
 
 // ── Analytics Overview (P-053) ────────────────────────────────
@@ -188,32 +172,28 @@ export async function getAnalyticsOverview(
     },
   };
 
-  try {
-    if (isMock()) {
-      const { mockAnalyticsOverview } = await import('@/lib/mocks/analytics.mock');
-      return mockAnalyticsOverview(academyId, period);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const params: Record<string, string> = { p_academy_id: academyId };
-    if (period) {
-      params.p_start = period.start;
-      params.p_end = period.end;
-    }
-    const { data, error } = await supabase
-      .rpc('get_analytics_overview', params);
+  if (isMock()) {
+    const { mockAnalyticsOverview } = await import('@/lib/mocks/analytics.mock');
+    return mockAnalyticsOverview(academyId, period);
+  }
 
-    if (error || !data) {
-      console.warn('[getAnalyticsOverview] Supabase error:', error?.message);
-      return emptyOverview;
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const params: Record<string, string> = { p_academy_id: academyId };
+  if (period) {
+    params.p_start = period.start;
+    params.p_end = period.end;
+  }
+  const { data, error } = await supabase
+    .rpc('get_analytics_overview', params);
 
-    const row = Array.isArray(data) ? data[0] : data;
-    return (row as AnalyticsOverview) ?? emptyOverview;
-  } catch (error) {
-    console.warn('[getAnalyticsOverview] Fallback:', error);
+  if (error || !data) {
+    console.error('[getAnalyticsOverview] Supabase error:', error?.message);
     return emptyOverview;
   }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row as AnalyticsOverview) ?? emptyOverview;
 }
 
 // ── Student Analytics (P-055) ─────────────────────────────────
@@ -231,85 +211,73 @@ export async function getStudentAnalytics(studentId: string): Promise<StudentAna
     },
   };
 
-  try {
-    if (isMock()) {
-      const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
-      return mockStudentAnalytics(studentId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .rpc('get_student_analytics', { p_student_id: studentId });
+  if (isMock()) {
+    const { mockStudentAnalytics } = await import('@/lib/mocks/analytics.mock');
+    return mockStudentAnalytics(studentId);
+  }
 
-    if (error || !data) {
-      console.warn('[getStudentAnalytics] Supabase error:', error?.message);
-      return empty;
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .rpc('get_student_analytics', { p_student_id: studentId });
 
-    const row = Array.isArray(data) ? data[0] : data;
-    return (row as StudentAnalytics) ?? empty;
-  } catch (error) {
-    console.warn('[getStudentAnalytics] Fallback:', error);
+  if (error || !data) {
+    console.error('[getStudentAnalytics] Supabase error:', error?.message);
     return empty;
   }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row as StudentAnalytics) ?? empty;
 }
 
 // ── Churn Predictions (P-056) ─────────────────────────────────
 
 export async function getChurnPredictions(academyId: string): Promise<ChurnPrediction[]> {
-  try {
-    if (isMock()) {
-      const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
-      return mockChurnPredictions(academyId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .rpc('get_churn_predictions', { p_academy_id: academyId });
+  if (isMock()) {
+    const { mockChurnPredictions } = await import('@/lib/mocks/analytics.mock');
+    return mockChurnPredictions(academyId);
+  }
 
-    if (error || !data) {
-      console.warn('[getChurnPredictions] Supabase error:', error?.message);
-      return [];
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .rpc('get_churn_predictions', { p_academy_id: academyId });
 
-    return (data as ChurnPrediction[]) ?? [];
-  } catch (error) {
-    console.warn('[getChurnPredictions] Fallback:', error);
+  if (error || !data) {
+    console.error('[getChurnPredictions] Supabase error:', error?.message);
     return [];
   }
+
+  return (data as ChurnPrediction[]) ?? [];
 }
 
 export async function getClassOccupancy(academyId: string): Promise<OccupancyDTO[]> {
-  try {
-    if (isMock()) {
-      const { mockGetClassOccupancy } = await import('@/lib/mocks/analytics.mock');
-      return mockGetClassOccupancy(academyId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('class_occupancy')
-      .select('*')
-      .eq('academy_id', academyId);
+  if (isMock()) {
+    const { mockGetClassOccupancy } = await import('@/lib/mocks/analytics.mock');
+    return mockGetClassOccupancy(academyId);
+  }
 
-    if (error || !data) {
-      console.warn('[getClassOccupancy] Supabase error:', error?.message);
-      return [];
-    }
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('class_occupancy')
+    .select('*')
+    .eq('academy_id', academyId);
 
-    return (data as Record<string, unknown>[]).map((d) => ({
-      class_id: (d.class_id as string) ?? '',
-      class_name: (d.class_name as string) ?? '',
-      modality: (d.modality as string) ?? '',
-      capacity: (d.capacity as number) ?? 0,
-      enrolled: (d.enrolled as number) ?? 0,
-      avg_present: (d.avg_present as number) ?? 0,
-      occupancy_rate: (d.occupancy_rate as number) ?? 0,
-      day_of_week: (d.day_of_week as number) ?? 0,
-      time: (d.time as string) ?? '',
-    }));
-  } catch (error) {
-    console.warn('[getClassOccupancy] Fallback:', error);
+  if (error || !data) {
+    console.error('[getClassOccupancy] Supabase error:', error?.message);
     return [];
   }
+
+  return (data as Record<string, unknown>[]).map((d) => ({
+    class_id: (d.class_id as string) ?? '',
+    class_name: (d.class_name as string) ?? '',
+    modality: (d.modality as string) ?? '',
+    capacity: (d.capacity as number) ?? 0,
+    enrolled: (d.enrolled as number) ?? 0,
+    avg_present: (d.avg_present as number) ?? 0,
+    occupancy_rate: (d.occupancy_rate as number) ?? 0,
+    day_of_week: (d.day_of_week as number) ?? 0,
+    time: (d.time as string) ?? '',
+  }));
 }

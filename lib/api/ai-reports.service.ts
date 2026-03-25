@@ -37,7 +37,7 @@ export async function generateMonthlyNarrative(academyId: string, month: string)
 
     return `Relatório mensal (${month}): ${students} alunos ativos, ${total} presenças registradas, ${invoices} cobranças no período. Configure a IA para narrativas detalhadas.`;
   } catch (error) {
-    console.warn('[generateMonthlyNarrative] Fallback:', error);
+    console.error('[generateMonthlyNarrative] Fallback:', error);
     return '';
   }
 }
@@ -68,7 +68,7 @@ export async function generateStudentReport(studentId: string): Promise<string> 
 
     return `Relatório de ${name}: Faixa ${belt}, ${total} presenças totais. Configure a IA para relatórios detalhados com análise de desempenho.`;
   } catch (error) {
-    console.warn('[generateStudentReport] Fallback:', error);
+    console.error('[generateStudentReport] Fallback:', error);
     return '';
   }
 }
@@ -96,7 +96,7 @@ export async function generateClassReport(classId: string, month: string): Promi
 
     return `Relatório da turma (${month}): ${total} presenças no período. Configure a IA para relatórios narrativos detalhados.`;
   } catch (error) {
-    console.warn('[generateClassReport] Fallback:', error);
+    console.error('[generateClassReport] Fallback:', error);
     return '';
   }
 }

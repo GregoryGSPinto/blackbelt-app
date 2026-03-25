@@ -125,7 +125,7 @@ export async function previewImport(
       suggestedMappings,
     };
   } catch (error) {
-    console.warn('[previewImport] Fallback:', error);
+    console.error('[previewImport] Fallback:', error);
     return { headers: [], totalRows: 0, validRows: 0, invalidRows: 0, rows: [], suggestedMappings: [] };
   }
 }
@@ -198,7 +198,7 @@ export async function executeImport(
 
     return { imported, skipped, errors };
   } catch (error) {
-    console.warn('[executeImport] Fallback:', error);
+    console.error('[executeImport] Fallback:', error);
     return { imported: 0, skipped: 0, errors: [] };
   }
 }

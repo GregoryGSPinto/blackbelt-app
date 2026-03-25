@@ -43,7 +43,7 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       .eq('academy_id', academyId);
 
     if (error || !data) {
-      console.warn('[getEstoque] Supabase error:', error?.message);
+      console.error('[getEstoque] Supabase error:', error?.message);
       return [];
     }
 
@@ -61,7 +61,7 @@ export async function getEstoque(academyId: string): Promise<ProdutoEstoque[]> {
       status: (row.status ?? 'ok') as StatusEstoque,
     }));
   } catch (error) {
-    console.warn('[getEstoque] Fallback:', error);
+    console.error('[getEstoque] Fallback:', error);
     return [];
   }
 }
@@ -82,7 +82,7 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       .single();
 
     if (error || !data) {
-      console.warn('[updateEstoque] Supabase error:', error?.message);
+      console.error('[updateEstoque] Supabase error:', error?.message);
       return { id: '', produtoId, tipo, quantidade, motivo, responsavel: '', data: new Date().toISOString() };
     }
 
@@ -96,7 +96,7 @@ export async function updateEstoque(produtoId: string, quantidade: number, tipo:
       data: String(data.created_at ?? new Date().toISOString()),
     };
   } catch (error) {
-    console.warn('[updateEstoque] Fallback:', error);
+    console.error('[updateEstoque] Fallback:', error);
     return { id: '', produtoId, tipo, quantidade, motivo, responsavel: '', data: new Date().toISOString() };
   }
 }
@@ -117,7 +117,7 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getMovimentacoes] Supabase error:', error?.message);
+      console.error('[getMovimentacoes] Supabase error:', error?.message);
       return [];
     }
 
@@ -131,7 +131,7 @@ export async function getMovimentacoes(produtoId: string): Promise<MovimentacaoE
       data: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.warn('[getMovimentacoes] Fallback:', error);
+    console.error('[getMovimentacoes] Fallback:', error);
     return [];
   }
 }
@@ -152,7 +152,7 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       .in('status', ['baixo', 'zerado']);
 
     if (error || !data) {
-      console.warn('[getAlertasEstoqueBaixo] Supabase error:', error?.message);
+      console.error('[getAlertasEstoqueBaixo] Supabase error:', error?.message);
       return [];
     }
 
@@ -170,7 +170,7 @@ export async function getAlertasEstoqueBaixo(academyId: string): Promise<Produto
       status: (row.status ?? 'baixo') as StatusEstoque,
     }));
   } catch (error) {
-    console.warn('[getAlertasEstoqueBaixo] Fallback:', error);
+    console.error('[getAlertasEstoqueBaixo] Fallback:', error);
     return [];
   }
 }

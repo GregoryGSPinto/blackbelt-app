@@ -41,7 +41,7 @@ export async function getTemplates(): Promise<TemplateMensagem[]> {
       .order('name', { ascending: true });
 
     if (error) {
-      console.warn('[getTemplates] error:', error.message);
+      console.error('[getTemplates] error:', error.message);
       return [];
     }
 
@@ -53,7 +53,7 @@ export async function getTemplates(): Promise<TemplateMensagem[]> {
       variaveis: (t.variables as string[]) ?? [],
     }));
   } catch (error) {
-    console.warn('[getTemplates] Fallback:', error);
+    console.error('[getTemplates] Fallback:', error);
     return [];
   }
 }
@@ -82,13 +82,13 @@ export async function enviarMensagemTemplate(data: {
       });
 
     if (error) {
-      console.warn('[enviarMensagemTemplate] error:', error.message);
+      console.error('[enviarMensagemTemplate] error:', error.message);
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.warn('[enviarMensagemTemplate] Fallback:', error);
+    console.error('[enviarMensagemTemplate] Fallback:', error);
     return { ok: false };
   }
 }
@@ -110,7 +110,7 @@ export async function getHistoricoEnvios(): Promise<EnvioMensagem[]> {
       .limit(50);
 
     if (error) {
-      console.warn('[getHistoricoEnvios] error:', error.message);
+      console.error('[getHistoricoEnvios] error:', error.message);
       return [];
     }
 
@@ -126,7 +126,7 @@ export async function getHistoricoEnvios(): Promise<EnvioMensagem[]> {
       };
     });
   } catch (error) {
-    console.warn('[getHistoricoEnvios] Fallback:', error);
+    console.error('[getHistoricoEnvios] Fallback:', error);
     return [];
   }
 }

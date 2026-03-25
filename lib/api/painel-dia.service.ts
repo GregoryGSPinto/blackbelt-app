@@ -216,11 +216,11 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
         },
       };
     } catch (err) {
-      console.warn('[getDailyBriefing] Supabase error, returning fallback:', err);
+      console.error('[getDailyBriefing] Supabase error, returning fallback:', err);
       return EMPTY;
     }
   } catch (error) {
-    console.warn('[getDailyBriefing] Fallback:', error);
+    console.error('[getDailyBriefing] Fallback:', error);
     return {
       aulasHoje: [],
       aniversariantes: [],

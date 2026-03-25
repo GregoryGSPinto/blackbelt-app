@@ -85,13 +85,13 @@ export async function sendBroadcast(franchiseId: string, data: SendBroadcastData
       .single();
 
     if (error) {
-      console.warn('[sendBroadcast] error:', error.message);
+      console.error('[sendBroadcast] error:', error.message);
       return {} as Broadcast;
     }
 
     return inserted as unknown as Broadcast;
   } catch (error) {
-    console.warn('[sendBroadcast] Fallback:', error);
+    console.error('[sendBroadcast] Fallback:', error);
     return {} as Broadcast;
   }
 }
@@ -113,13 +113,13 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       .order('sent_at', { ascending: false });
 
     if (error) {
-      console.warn('[getBroadcasts] error:', error.message);
+      console.error('[getBroadcasts] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as Broadcast[];
   } catch (error) {
-    console.warn('[getBroadcasts] Fallback:', error);
+    console.error('[getBroadcasts] Fallback:', error);
     return [];
   }
 }
@@ -140,13 +140,13 @@ export async function getReceipts(broadcastId: string): Promise<BroadcastRecipie
       .eq('broadcast_id', broadcastId);
 
     if (error) {
-      console.warn('[getReceipts] error:', error.message);
+      console.error('[getReceipts] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as BroadcastRecipient[];
   } catch (error) {
-    console.warn('[getReceipts] Fallback:', error);
+    console.error('[getReceipts] Fallback:', error);
     return [];
   }
 }
@@ -173,13 +173,13 @@ export async function scheduleTraining(franchiseId: string, data: ScheduleTraini
       .single();
 
     if (error) {
-      console.warn('[scheduleTraining] error:', error.message);
+      console.error('[scheduleTraining] error:', error.message);
       return {} as NetworkTraining;
     }
 
     return inserted as unknown as NetworkTraining;
   } catch (error) {
-    console.warn('[scheduleTraining] Fallback:', error);
+    console.error('[scheduleTraining] Fallback:', error);
     return {} as NetworkTraining;
   }
 }
@@ -201,13 +201,13 @@ export async function getTrainings(franchiseId: string): Promise<NetworkTraining
       .order('date', { ascending: false });
 
     if (error) {
-      console.warn('[getTrainings] error:', error.message);
+      console.error('[getTrainings] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as NetworkTraining[];
   } catch (error) {
-    console.warn('[getTrainings] Fallback:', error);
+    console.error('[getTrainings] Fallback:', error);
     return [];
   }
 }

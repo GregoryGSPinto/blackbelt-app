@@ -50,12 +50,12 @@ export async function getSuggestions(
       .eq('role', role)
       .is('dismissed_until', null);
     if (error) {
-      console.warn('[getSuggestions] Supabase error:', error.message);
+      console.error('[getSuggestions] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as Suggestion[];
   } catch (error) {
-    console.warn('[getSuggestions] Fallback:', error);
+    console.error('[getSuggestions] Fallback:', error);
     return [];
   }
 }
@@ -73,9 +73,9 @@ export async function dismissSuggestion(suggestionId: string): Promise<void> {
       .update({ dismissed_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
       .eq('id', suggestionId);
     if (error) {
-      console.warn('[dismissSuggestion] Supabase error:', error.message);
+      console.error('[dismissSuggestion] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[dismissSuggestion] Fallback:', error);
+    console.error('[dismissSuggestion] Fallback:', error);
   }
 }

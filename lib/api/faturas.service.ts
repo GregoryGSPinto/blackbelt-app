@@ -29,12 +29,12 @@ export async function listInvoices(academyId: string, filters?: InvoiceFilters):
     if (filters?.plan_id) query = query.eq('plan_id', filters.plan_id);
     const { data, error } = await query.order('due_date', { ascending: false });
     if (error || !data) {
-      console.warn('[listInvoices] Supabase error:', error?.message);
+      console.error('[listInvoices] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as InvoiceWithDetails[];
   } catch (error) {
-    console.warn('[listInvoices] Fallback:', error);
+    console.error('[listInvoices] Fallback:', error);
     return [];
   }
 }
@@ -53,12 +53,12 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getInvoiceById] Supabase error:', error?.message);
+      console.error('[getInvoiceById] Supabase error:', error?.message);
       return {} as InvoiceWithDetails;
     }
     return data as unknown as InvoiceWithDetails;
   } catch (error) {
-    console.warn('[getInvoiceById] Fallback:', error);
+    console.error('[getInvoiceById] Fallback:', error);
     return {} as InvoiceWithDetails;
   }
 }
@@ -78,12 +78,12 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       .select()
       .single();
     if (error || !data) {
-      console.warn('[markInvoicePaid] Supabase error:', error?.message);
+      console.error('[markInvoicePaid] Supabase error:', error?.message);
       return {} as Invoice;
     }
     return data as unknown as Invoice;
   } catch (error) {
-    console.warn('[markInvoicePaid] Fallback:', error);
+    console.error('[markInvoicePaid] Fallback:', error);
     return {} as Invoice;
   }
 }
@@ -98,12 +98,12 @@ export async function generateMonthlyInvoices(academyId: string): Promise<Invoic
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('generate_monthly_invoices', { p_academy_id: academyId });
     if (error || !data) {
-      console.warn('[generateMonthlyInvoices] Supabase error:', error?.message);
+      console.error('[generateMonthlyInvoices] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as Invoice[];
   } catch (error) {
-    console.warn('[generateMonthlyInvoices] Fallback:', error);
+    console.error('[generateMonthlyInvoices] Fallback:', error);
     return [];
   }
 }

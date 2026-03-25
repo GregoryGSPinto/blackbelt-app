@@ -34,7 +34,7 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       .single();
 
     if (error || !data) {
-      console.warn('[getXP] Supabase error:', error?.message);
+      console.error('[getXP] Supabase error:', error?.message);
       return { xp: 0, level: 1, nextLevelXP: 100, rank: 0 };
     }
 
@@ -45,7 +45,7 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       rank: data.rank ?? 0,
     };
   } catch (error) {
-    console.warn('[getXP] Fallback:', error);
+    console.error('[getXP] Fallback:', error);
     return { xp: 0, level: 1, nextLevelXP: 100, rank: 0 };
   }
 }
@@ -67,7 +67,7 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       .limit(50);
 
     if (error || !data) {
-      console.warn('[getLeaderboard] Supabase error:', error?.message);
+      console.error('[getLeaderboard] Supabase error:', error?.message);
       return [];
     }
 
@@ -81,7 +81,7 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       rank: Number(row.rank ?? 0),
     }));
   } catch (error) {
-    console.warn('[getLeaderboard] Fallback:', error);
+    console.error('[getLeaderboard] Fallback:', error);
     return [];
   }
 }

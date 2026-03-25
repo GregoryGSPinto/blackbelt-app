@@ -52,7 +52,7 @@ export async function emitNFe(paymentId: string): Promise<NFeDocument> {
       .single();
 
     if (!config) {
-      console.warn('[emitNFe] NFe provider not configured');
+      console.error('[emitNFe] NFe provider not configured');
       return {
         id: '',
         paymentId,
@@ -74,13 +74,13 @@ export async function emitNFe(paymentId: string): Promise<NFeDocument> {
       .single();
 
     if (error) {
-      console.warn('[emitNFe] error:', error.message);
+      console.error('[emitNFe] error:', error.message);
       return { id: '', paymentId, studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null };
     }
 
     return data as unknown as NFeDocument;
   } catch (error) {
-    console.warn('[emitNFe] Fallback:', error);
+    console.error('[emitNFe] Fallback:', error);
     return { id: '', paymentId: '', studentName: '', number: '', value: 0, status: 'pending', pdfUrl: null, emittedAt: null, error: null };
   }
 }
@@ -104,12 +104,12 @@ export async function listNFes(academyId: string): Promise<NFeDocument[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[listNFes] error:', error.message);
+      console.error('[listNFes] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as NFeDocument[];
   } catch (error) {
-    console.warn('[listNFes] Fallback:', error);
+    console.error('[listNFes] Fallback:', error);
     return [];
   }
 }
@@ -136,12 +136,12 @@ export async function getNFeConfig(academyId: string): Promise<NFeConfig> {
       .single();
 
     if (error || !data) {
-      console.warn('[getNFeConfig] error:', error?.message ?? 'not found');
+      console.error('[getNFeConfig] error:', error?.message ?? 'not found');
       return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false };
     }
     return data.value as unknown as NFeConfig;
   } catch (error) {
-    console.warn('[getNFeConfig] Fallback:', error);
+    console.error('[getNFeConfig] Fallback:', error);
     return { cnpj: '', inscricaoMunicipal: '', razaoSocial: '', certificateUploaded: false, autoEmit: false };
   }
 }
@@ -160,9 +160,9 @@ export async function updateNFeConfig(academyId: string, config: Partial<NFeConf
       .upsert({ academy_id: academyId, key: 'nfe_config', value: config }, { onConflict: 'academy_id,key' });
 
     if (error) {
-      console.warn('[updateNFeConfig] error:', error.message);
+      console.error('[updateNFeConfig] error:', error.message);
     }
   } catch (error) {
-    console.warn('[updateNFeConfig] Fallback:', error);
+    console.error('[updateNFeConfig] Fallback:', error);
   }
 }

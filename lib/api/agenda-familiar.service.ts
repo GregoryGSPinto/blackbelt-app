@@ -70,13 +70,13 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       .single();
 
     if (error || !data) {
-      console.warn('[getFamilyCalendar] Supabase error:', error?.message);
+      console.error('[getFamilyCalendar] Supabase error:', error?.message);
       return { profile_id: profileId, week_start: '', week_end: '', events: [] };
     }
 
     return data as unknown as FamilyCalendarDTO;
   } catch (error) {
-    console.warn('[getFamilyCalendar] Fallback:', error);
+    console.error('[getFamilyCalendar] Fallback:', error);
     return { profile_id: profileId, week_start: '', week_end: '', events: [] };
   }
 }
@@ -98,13 +98,13 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       .single();
 
     if (error || !data) {
-      console.warn('[getMonthlyReport] Supabase error:', error?.message);
+      console.error('[getMonthlyReport] Supabase error:', error?.message);
       return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
     }
 
     return data as unknown as MonthlyReportDTO;
   } catch (error) {
-    console.warn('[getMonthlyReport] Fallback:', error);
+    console.error('[getMonthlyReport] Fallback:', error);
     return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
   }
 }

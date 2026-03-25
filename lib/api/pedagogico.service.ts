@@ -369,7 +369,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       .eq('academy_id', academyId);
 
     if (turmasErr) {
-      console.warn('[getPedagogicoDashboard] turmas error:', turmasErr.message);
+      console.error('[getPedagogicoDashboard] turmas error:', turmasErr.message);
       return EMPTY_DASHBOARD;
     }
 
@@ -422,7 +422,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       timeline: [],
     };
   } catch (error) {
-    console.warn('[getPedagogicoDashboard] Fallback:', error);
+    console.error('[getPedagogicoDashboard] Fallback:', error);
     return EMPTY_DASHBOARD;
   }
 }
@@ -446,7 +446,7 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
       .single();
 
     if (profileErr || !profile) {
-      console.warn('[getAnaliseProfessor] profile error:', profileErr?.message);
+      console.error('[getAnaliseProfessor] profile error:', profileErr?.message);
       return EMPTY_ANALISE;
     }
 
@@ -469,7 +469,7 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
       acoesSugeridas: [],
     };
   } catch (error) {
-    console.warn('[getAnaliseProfessor] Fallback:', error);
+    console.error('[getAnaliseProfessor] Fallback:', error);
     return EMPTY_ANALISE;
   }
 }
@@ -492,7 +492,7 @@ export async function getCurriculos(academyId: string): Promise<CurriculoAcademi
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getCurriculos] error:', error.message);
+      console.error('[getCurriculos] error:', error.message);
       return [];
     }
 
@@ -508,7 +508,7 @@ export async function getCurriculos(academyId: string): Promise<CurriculoAcademi
       atualizadoEm: String(row.updated_at ?? ''),
     }));
   } catch (error) {
-    console.warn('[getCurriculos] Fallback:', error);
+    console.error('[getCurriculos] Fallback:', error);
     return [];
   }
 }
@@ -529,7 +529,7 @@ export async function getCurriculo(id: string): Promise<CurriculoAcademia> {
       .single();
 
     if (error || !data) {
-      console.warn('[getCurriculo] error:', error?.message);
+      console.error('[getCurriculo] error:', error?.message);
       return EMPTY_CURRICULO;
     }
 
@@ -546,7 +546,7 @@ export async function getCurriculo(id: string): Promise<CurriculoAcademia> {
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.warn('[getCurriculo] Fallback:', error);
+    console.error('[getCurriculo] Fallback:', error);
     return EMPTY_CURRICULO;
   }
 }
@@ -574,7 +574,7 @@ export async function createCurriculo(data: Partial<CurriculoAcademia>): Promise
       .single();
 
     if (error || !created) {
-      console.warn('[createCurriculo] error:', error?.message);
+      console.error('[createCurriculo] error:', error?.message);
       return EMPTY_CURRICULO;
     }
 
@@ -591,7 +591,7 @@ export async function createCurriculo(data: Partial<CurriculoAcademia>): Promise
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.warn('[createCurriculo] Fallback:', error);
+    console.error('[createCurriculo] Fallback:', error);
     return EMPTY_CURRICULO;
   }
 }
@@ -621,7 +621,7 @@ export async function updateCurriculo(id: string, data: Partial<CurriculoAcademi
       .single();
 
     if (error || !updated) {
-      console.warn('[updateCurriculo] error:', error?.message);
+      console.error('[updateCurriculo] error:', error?.message);
       return EMPTY_CURRICULO;
     }
 
@@ -638,7 +638,7 @@ export async function updateCurriculo(id: string, data: Partial<CurriculoAcademi
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.warn('[updateCurriculo] Fallback:', error);
+    console.error('[updateCurriculo] Fallback:', error);
     return EMPTY_CURRICULO;
   }
 }
@@ -661,7 +661,7 @@ export async function getReunioes(academyId: string): Promise<ReuniaoPedagogica[
       .order('data', { ascending: false });
 
     if (error) {
-      console.warn('[getReunioes] error:', error.message);
+      console.error('[getReunioes] error:', error.message);
       return [];
     }
 
@@ -680,7 +680,7 @@ export async function getReunioes(academyId: string): Promise<ReuniaoPedagogica[
       criadoEm: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.warn('[getReunioes] Fallback:', error);
+    console.error('[getReunioes] Fallback:', error);
     return [];
   }
 }
@@ -712,7 +712,7 @@ export async function createReuniao(data: Partial<ReuniaoPedagogica>): Promise<R
       .single();
 
     if (error || !created) {
-      console.warn('[createReuniao] error:', error?.message);
+      console.error('[createReuniao] error:', error?.message);
       return EMPTY_REUNIAO;
     }
 
@@ -732,7 +732,7 @@ export async function createReuniao(data: Partial<ReuniaoPedagogica>): Promise<R
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.warn('[createReuniao] Fallback:', error);
+    console.error('[createReuniao] Fallback:', error);
     return EMPTY_REUNIAO;
   }
 }
@@ -765,7 +765,7 @@ export async function updateReuniao(id: string, data: Partial<ReuniaoPedagogica>
       .single();
 
     if (error || !updated) {
-      console.warn('[updateReuniao] error:', error?.message);
+      console.error('[updateReuniao] error:', error?.message);
       return EMPTY_REUNIAO;
     }
 
@@ -785,7 +785,7 @@ export async function updateReuniao(id: string, data: Partial<ReuniaoPedagogica>
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.warn('[updateReuniao] Fallback:', error);
+    console.error('[updateReuniao] Fallback:', error);
     return EMPTY_REUNIAO;
   }
 }
@@ -808,7 +808,7 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getOcorrencias] error:', error.message);
+      console.error('[getOcorrencias] error:', error.message);
       return [];
     }
 
@@ -835,7 +835,7 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
       };
     });
   } catch (error) {
-    console.warn('[getOcorrencias] Fallback:', error);
+    console.error('[getOcorrencias] Fallback:', error);
     return [];
   }
 }
@@ -867,7 +867,7 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       .single();
 
     if (error || !created) {
-      console.warn('[createOcorrencia] error:', error?.message);
+      console.error('[createOcorrencia] error:', error?.message);
       return EMPTY_OCORRENCIA;
     }
 
@@ -893,7 +893,7 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.warn('[createOcorrencia] Fallback:', error);
+    console.error('[createOcorrencia] Fallback:', error);
     return EMPTY_OCORRENCIA;
   }
 }
@@ -917,7 +917,7 @@ export async function gerarRelatorioPedagogico(academyId: string, mes: string): 
       .single();
 
     if (error || !data) {
-      console.warn('[gerarRelatorioPedagogico] error:', error?.message);
+      console.error('[gerarRelatorioPedagogico] error:', error?.message);
       return EMPTY_RELATORIO;
     }
 
@@ -935,7 +935,7 @@ export async function gerarRelatorioPedagogico(academyId: string, mes: string): 
       geradoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.warn('[gerarRelatorioPedagogico] Fallback:', error);
+    console.error('[gerarRelatorioPedagogico] Fallback:', error);
     return EMPTY_RELATORIO;
   }
 }

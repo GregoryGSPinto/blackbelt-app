@@ -49,7 +49,7 @@ export async function bulkUpdateStudents(
 
     return { success, failed, errors };
   } catch (error) {
-    console.warn('[bulkUpdateStudents] Fallback:', error);
+    console.error('[bulkUpdateStudents] Fallback:', error);
     return { success: 0, failed: studentIds.length, errors: ['Bulk update failed'] };
   }
 }
@@ -81,13 +81,13 @@ export async function bulkSendCommunication(
       .insert(rows);
 
     if (error) {
-      console.warn('[bulkSendCommunication] insert error:', error.message);
+      console.error('[bulkSendCommunication] insert error:', error.message);
       return { success: 0, failed: studentIds.length, errors: [error.message] };
     }
 
     return { success: count ?? studentIds.length, failed: 0, errors: [] };
   } catch (error) {
-    console.warn('[bulkSendCommunication] Fallback:', error);
+    console.error('[bulkSendCommunication] Fallback:', error);
     return { success: 0, failed: studentIds.length, errors: ['Bulk communication failed'] };
   }
 }
@@ -133,7 +133,7 @@ export async function bulkMarkAttendance(
 
     return { success, failed, errors };
   } catch (error) {
-    console.warn('[bulkMarkAttendance] Fallback:', error);
+    console.error('[bulkMarkAttendance] Fallback:', error);
     return { success: 0, failed: Object.keys(statuses).length, errors: ['Bulk attendance failed'] };
   }
 }
@@ -156,13 +156,13 @@ export async function bulkPublishVideos(videoIds: string[]): Promise<BulkResult>
       .in('id', videoIds);
 
     if (error) {
-      console.warn('[bulkPublishVideos] error:', error.message);
+      console.error('[bulkPublishVideos] error:', error.message);
       return { success: 0, failed: videoIds.length, errors: [error.message] };
     }
 
     return { success: count ?? videoIds.length, failed: 0, errors: [] };
   } catch (error) {
-    console.warn('[bulkPublishVideos] Fallback:', error);
+    console.error('[bulkPublishVideos] Fallback:', error);
     return { success: 0, failed: videoIds.length, errors: ['Bulk publish failed'] };
   }
 }
@@ -185,13 +185,13 @@ export async function bulkUnpublishVideos(videoIds: string[]): Promise<BulkResul
       .in('id', videoIds);
 
     if (error) {
-      console.warn('[bulkUnpublishVideos] error:', error.message);
+      console.error('[bulkUnpublishVideos] error:', error.message);
       return { success: 0, failed: videoIds.length, errors: [error.message] };
     }
 
     return { success: count ?? videoIds.length, failed: 0, errors: [] };
   } catch (error) {
-    console.warn('[bulkUnpublishVideos] Fallback:', error);
+    console.error('[bulkUnpublishVideos] Fallback:', error);
     return { success: 0, failed: videoIds.length, errors: ['Bulk unpublish failed'] };
   }
 }

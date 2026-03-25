@@ -34,13 +34,13 @@ export async function createReview(courseId: string, userId: string, rating: num
       .select()
       .single();
     if (error || !data) {
-      console.warn('[createReview] Supabase error:', error?.message);
+      console.error('[createReview] Supabase error:', error?.message);
       const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
       return mockCreateReview(courseId, userId, rating, text);
     }
     return data as Review;
   } catch (error) {
-    console.warn('[createReview] Fallback:', error);
+    console.error('[createReview] Fallback:', error);
     const { mockCreateReview } = await import('@/lib/mocks/reviews.mock');
     return mockCreateReview(courseId, userId, rating, text);
   }
@@ -65,13 +65,13 @@ export async function getReviews(courseId: string, page?: number): Promise<{ rev
       .order('created_at', { ascending: false })
       .range(from, to);
     if (error) {
-      console.warn('[getReviews] Supabase error:', error.message);
+      console.error('[getReviews] Supabase error:', error.message);
       const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
       return mockGetReviews(courseId, page);
     }
     return { reviews: (data ?? []) as Review[], total: count ?? 0, page: currentPage };
   } catch (error) {
-    console.warn('[getReviews] Fallback:', error);
+    console.error('[getReviews] Fallback:', error);
     const { mockGetReviews } = await import('@/lib/mocks/reviews.mock');
     return mockGetReviews(courseId, page);
   }
@@ -90,7 +90,7 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
       .select('rating')
       .eq('course_id', courseId);
     if (error || !data || data.length === 0) {
-      console.warn('[getAverageRating] Supabase error or no data:', error?.message);
+      console.error('[getAverageRating] Supabase error or no data:', error?.message);
       const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
       return mockGetAverageRating(courseId);
     }
@@ -102,7 +102,7 @@ export async function getAverageRating(courseId: string): Promise<AverageRating>
     }));
     return { average: Math.round(average * 10) / 10, total, distribution };
   } catch (error) {
-    console.warn('[getAverageRating] Fallback:', error);
+    console.error('[getAverageRating] Fallback:', error);
     const { mockGetAverageRating } = await import('@/lib/mocks/reviews.mock');
     return mockGetAverageRating(courseId);
   }
@@ -121,10 +121,10 @@ export async function reportReview(reviewId: string, reason: string): Promise<vo
       .update({ reported: true, report_reason: reason })
       .eq('id', reviewId);
     if (error) {
-      console.warn('[reportReview] Supabase error:', error.message);
+      console.error('[reportReview] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[reportReview] Fallback:', error);
+    console.error('[reportReview] Fallback:', error);
   }
 }
 
@@ -143,13 +143,13 @@ export async function respondToReview(reviewId: string, response: string): Promi
       .select()
       .single();
     if (error || !data) {
-      console.warn('[respondToReview] Supabase error:', error?.message);
+      console.error('[respondToReview] Supabase error:', error?.message);
       const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
       return mockRespondToReview(reviewId, response);
     }
     return data as Review;
   } catch (error) {
-    console.warn('[respondToReview] Fallback:', error);
+    console.error('[respondToReview] Fallback:', error);
     const { mockRespondToReview } = await import('@/lib/mocks/reviews.mock');
     return mockRespondToReview(reviewId, response);
   }

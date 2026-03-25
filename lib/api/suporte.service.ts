@@ -410,12 +410,12 @@ export async function getActiveSessions(): Promise<ActiveSession[]> {
       .select('*')
       .order('last_activity_at', { ascending: false });
     if (error) {
-      console.warn('[getActiveSessions] Supabase error:', error.message);
+      console.error('[getActiveSessions] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as ActiveSession[];
   } catch (error) {
-    console.warn('[getActiveSessions] Fallback:', error);
+    console.error('[getActiveSessions] Fallback:', error);
     return [];
   }
 }
@@ -450,12 +450,12 @@ export async function getSessionHistory(filters?: SessionFilter): Promise<Sessio
     }
     const { data, error } = await query;
     if (error) {
-      console.warn('[getSessionHistory] Supabase error:', error.message);
+      console.error('[getSessionHistory] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as SessionSummary[];
   } catch (error) {
-    console.warn('[getSessionHistory] Fallback:', error);
+    console.error('[getSessionHistory] Fallback:', error);
     return [];
   }
 }
@@ -497,12 +497,12 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
       .eq('id', sessionId)
       .single();
     if (error || !data) {
-      console.warn('[getSessionDetail] Supabase error:', error?.message);
+      console.error('[getSessionDetail] Supabase error:', error?.message);
       return emptyDetail;
     }
     return data as SessionDetail;
   } catch (error) {
-    console.warn('[getSessionDetail] Fallback:', error);
+    console.error('[getSessionDetail] Fallback:', error);
     return emptyDetail;
   }
 }
@@ -537,12 +537,12 @@ export async function getRecentErrors(): Promise<ErrorSummary> {
       .order('last_seen', { ascending: false })
       .limit(100);
     if (error || !data) {
-      console.warn('[getRecentErrors] Supabase error:', error?.message);
+      console.error('[getRecentErrors] Supabase error:', error?.message);
       return emptyErrorSummary;
     }
     return data as unknown as ErrorSummary;
   } catch (error) {
-    console.warn('[getRecentErrors] Fallback:', error);
+    console.error('[getRecentErrors] Fallback:', error);
     return emptyErrorSummary;
   }
 }
@@ -560,12 +560,12 @@ export async function getErrorsByPage(): Promise<PageErrorInfo[]> {
       .select('*')
       .order('total_errors', { ascending: false });
     if (error || !data) {
-      console.warn('[getErrorsByPage] Supabase error:', error?.message);
+      console.error('[getErrorsByPage] Supabase error:', error?.message);
       return [];
     }
     return data as PageErrorInfo[];
   } catch (error) {
-    console.warn('[getErrorsByPage] Fallback:', error);
+    console.error('[getErrorsByPage] Fallback:', error);
     return [];
   }
 }
@@ -583,12 +583,12 @@ export async function getErrorTrend(): Promise<ErrorTrendPoint[]> {
       .select('*')
       .order('hour', { ascending: true });
     if (error || !data) {
-      console.warn('[getErrorTrend] Supabase error:', error?.message);
+      console.error('[getErrorTrend] Supabase error:', error?.message);
       return [];
     }
     return data as ErrorTrendPoint[];
   } catch (error) {
-    console.warn('[getErrorTrend] Fallback:', error);
+    console.error('[getErrorTrend] Fallback:', error);
     return [];
   }
 }
@@ -620,12 +620,12 @@ export async function getPerformanceOverview(): Promise<PerformanceOverview> {
       .select('*')
       .single();
     if (error || !data) {
-      console.warn('[getPerformanceOverview] Supabase error:', error?.message);
+      console.error('[getPerformanceOverview] Supabase error:', error?.message);
       return emptyPerformanceOverview;
     }
     return data as PerformanceOverview;
   } catch (error) {
-    console.warn('[getPerformanceOverview] Fallback:', error);
+    console.error('[getPerformanceOverview] Fallback:', error);
     return emptyPerformanceOverview;
   }
 }
@@ -643,12 +643,12 @@ export async function getPerformanceByPage(): Promise<PagePerformance[]> {
       .select('*')
       .order('load_count', { ascending: false });
     if (error || !data) {
-      console.warn('[getPerformanceByPage] Supabase error:', error?.message);
+      console.error('[getPerformanceByPage] Supabase error:', error?.message);
       return [];
     }
     return data as PagePerformance[];
   } catch (error) {
-    console.warn('[getPerformanceByPage] Fallback:', error);
+    console.error('[getPerformanceByPage] Fallback:', error);
     return [];
   }
 }
@@ -665,12 +665,12 @@ export async function getPerformanceByDevice(): Promise<DevicePerformance[]> {
       .from('performance_by_device')
       .select('*');
     if (error || !data) {
-      console.warn('[getPerformanceByDevice] Supabase error:', error?.message);
+      console.error('[getPerformanceByDevice] Supabase error:', error?.message);
       return [];
     }
     return data as DevicePerformance[];
   } catch (error) {
-    console.warn('[getPerformanceByDevice] Fallback:', error);
+    console.error('[getPerformanceByDevice] Fallback:', error);
     return [];
   }
 }
@@ -688,12 +688,12 @@ export async function getPerformanceTrend(): Promise<PerformanceTrendPoint[]> {
       .select('*')
       .order('date', { ascending: true });
     if (error || !data) {
-      console.warn('[getPerformanceTrend] Supabase error:', error?.message);
+      console.error('[getPerformanceTrend] Supabase error:', error?.message);
       return [];
     }
     return data as PerformanceTrendPoint[];
   } catch (error) {
-    console.warn('[getPerformanceTrend] Fallback:', error);
+    console.error('[getPerformanceTrend] Fallback:', error);
     return [];
   }
 }
@@ -714,12 +714,12 @@ export async function getDeviceBreakdown(): Promise<DeviceBreakdownItem[]> {
       .from('device_breakdown')
       .select('*');
     if (error || !data) {
-      console.warn('[getDeviceBreakdown] Supabase error:', error?.message);
+      console.error('[getDeviceBreakdown] Supabase error:', error?.message);
       return [];
     }
     return data as DeviceBreakdownItem[];
   } catch (error) {
-    console.warn('[getDeviceBreakdown] Fallback:', error);
+    console.error('[getDeviceBreakdown] Fallback:', error);
     return [];
   }
 }
@@ -736,12 +736,12 @@ export async function getOSBreakdown(): Promise<BreakdownItem[]> {
       .from('os_breakdown')
       .select('*');
     if (error || !data) {
-      console.warn('[getOSBreakdown] Supabase error:', error?.message);
+      console.error('[getOSBreakdown] Supabase error:', error?.message);
       return [];
     }
     return data as BreakdownItem[];
   } catch (error) {
-    console.warn('[getOSBreakdown] Fallback:', error);
+    console.error('[getOSBreakdown] Fallback:', error);
     return [];
   }
 }
@@ -758,12 +758,12 @@ export async function getBrowserBreakdown(): Promise<BreakdownItem[]> {
       .from('browser_breakdown')
       .select('*');
     if (error || !data) {
-      console.warn('[getBrowserBreakdown] Supabase error:', error?.message);
+      console.error('[getBrowserBreakdown] Supabase error:', error?.message);
       return [];
     }
     return data as BreakdownItem[];
   } catch (error) {
-    console.warn('[getBrowserBreakdown] Fallback:', error);
+    console.error('[getBrowserBreakdown] Fallback:', error);
     return [];
   }
 }
@@ -781,12 +781,12 @@ export async function getDeviceModels(): Promise<DeviceModelInfo[]> {
       .select('*')
       .order('count', { ascending: false });
     if (error || !data) {
-      console.warn('[getDeviceModels] Supabase error:', error?.message);
+      console.error('[getDeviceModels] Supabase error:', error?.message);
       return [];
     }
     return data as DeviceModelInfo[];
   } catch (error) {
-    console.warn('[getDeviceModels] Fallback:', error);
+    console.error('[getDeviceModels] Fallback:', error);
     return [];
   }
 }
@@ -803,12 +803,12 @@ export async function getConnectionBreakdown(): Promise<ConnectionInfo[]> {
       .from('connection_breakdown')
       .select('*');
     if (error || !data) {
-      console.warn('[getConnectionBreakdown] Supabase error:', error?.message);
+      console.error('[getConnectionBreakdown] Supabase error:', error?.message);
       return [];
     }
     return data as ConnectionInfo[];
   } catch (error) {
-    console.warn('[getConnectionBreakdown] Fallback:', error);
+    console.error('[getConnectionBreakdown] Fallback:', error);
     return [];
   }
 }
@@ -843,12 +843,12 @@ export async function getTickets(filters?: TicketFilter): Promise<SupportTicket[
     }
     const { data, error } = await query;
     if (error || !data) {
-      console.warn('[getTickets] Supabase error:', error?.message);
+      console.error('[getTickets] Supabase error:', error?.message);
       return [];
     }
     return data as SupportTicket[];
   } catch (error) {
-    console.warn('[getTickets] Fallback:', error);
+    console.error('[getTickets] Fallback:', error);
     return [];
   }
 }
@@ -883,12 +883,12 @@ export async function getTicket(id: string): Promise<SupportTicket> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.warn('[getTicket] Supabase error:', error?.message);
+      console.error('[getTicket] Supabase error:', error?.message);
       return emptyTicket;
     }
     return data as SupportTicket;
   } catch (error) {
-    console.warn('[getTicket] Fallback:', error);
+    console.error('[getTicket] Fallback:', error);
     return emptyTicket;
   }
 }
@@ -929,12 +929,12 @@ export async function createTicket(data: CreateTicketDTO): Promise<SupportTicket
       .select('*')
       .single();
     if (error || !ticket) {
-      console.warn('[createTicket] Supabase error:', error?.message);
+      console.error('[createTicket] Supabase error:', error?.message);
       return emptyTicket;
     }
     return ticket as SupportTicket;
   } catch (error) {
-    console.warn('[createTicket] Fallback:', error);
+    console.error('[createTicket] Fallback:', error);
     return emptyTicket;
   }
 }
@@ -977,12 +977,12 @@ export async function updateTicketStatus(id: string, status: string): Promise<Su
       .select('*')
       .single();
     if (error || !data) {
-      console.warn('[updateTicketStatus] Supabase error:', error?.message);
+      console.error('[updateTicketStatus] Supabase error:', error?.message);
       return emptyTicket;
     }
     return data as SupportTicket;
   } catch (error) {
-    console.warn('[updateTicketStatus] Fallback:', error);
+    console.error('[updateTicketStatus] Fallback:', error);
     return emptyTicket;
   }
 }
@@ -1019,7 +1019,7 @@ export async function addTicketMessage(id: string, from: string, text: string): 
         text,
       });
     if (msgError) {
-      console.warn('[addTicketMessage] Supabase error:', msgError.message);
+      console.error('[addTicketMessage] Supabase error:', msgError.message);
       return emptyTicket;
     }
     const { data: ticket, error: fetchError } = await supabase
@@ -1028,12 +1028,12 @@ export async function addTicketMessage(id: string, from: string, text: string): 
       .eq('id', id)
       .single();
     if (fetchError || !ticket) {
-      console.warn('[addTicketMessage] Fetch error:', fetchError?.message);
+      console.error('[addTicketMessage] Fetch error:', fetchError?.message);
       return emptyTicket;
     }
     return ticket as SupportTicket;
   } catch (error) {
-    console.warn('[addTicketMessage] Fallback:', error);
+    console.error('[addTicketMessage] Fallback:', error);
     return emptyTicket;
   }
 }
@@ -1083,7 +1083,7 @@ export async function getTicketMetrics(): Promise<TicketMetrics> {
       totalAll: totalAll ?? 0,
     };
   } catch (error) {
-    console.warn('[getTicketMetrics] Fallback:', error);
+    console.error('[getTicketMetrics] Fallback:', error);
     return emptyMetrics;
   }
 }
@@ -1114,12 +1114,12 @@ export async function getEngagementOverview(): Promise<EngagementOverview> {
       .select('*')
       .single();
     if (error || !data) {
-      console.warn('[getEngagementOverview] Supabase error:', error?.message);
+      console.error('[getEngagementOverview] Supabase error:', error?.message);
       return emptyEngagement;
     }
     return data as EngagementOverview;
   } catch (error) {
-    console.warn('[getEngagementOverview] Fallback:', error);
+    console.error('[getEngagementOverview] Fallback:', error);
     return emptyEngagement;
   }
 }
@@ -1137,12 +1137,12 @@ export async function getPagePopularity(): Promise<PagePopularityItem[]> {
       .select('*')
       .order('views', { ascending: false });
     if (error || !data) {
-      console.warn('[getPagePopularity] Supabase error:', error?.message);
+      console.error('[getPagePopularity] Supabase error:', error?.message);
       return [];
     }
     return data as PagePopularityItem[];
   } catch (error) {
-    console.warn('[getPagePopularity] Fallback:', error);
+    console.error('[getPagePopularity] Fallback:', error);
     return [];
   }
 }
@@ -1160,12 +1160,12 @@ export async function getFeatureUsage(): Promise<FeatureUsageItem[]> {
       .select('*')
       .order('usage_count', { ascending: false });
     if (error || !data) {
-      console.warn('[getFeatureUsage] Supabase error:', error?.message);
+      console.error('[getFeatureUsage] Supabase error:', error?.message);
       return [];
     }
     return data as FeatureUsageItem[];
   } catch (error) {
-    console.warn('[getFeatureUsage] Fallback:', error);
+    console.error('[getFeatureUsage] Fallback:', error);
     return [];
   }
 }
@@ -1183,12 +1183,12 @@ export async function getPeakHours(): Promise<PeakHourItem[]> {
       .select('*')
       .order('hour', { ascending: true });
     if (error || !data) {
-      console.warn('[getPeakHours] Supabase error:', error?.message);
+      console.error('[getPeakHours] Supabase error:', error?.message);
       return [];
     }
     return data as PeakHourItem[];
   } catch (error) {
-    console.warn('[getPeakHours] Fallback:', error);
+    console.error('[getPeakHours] Fallback:', error);
     return [];
   }
 }
@@ -1206,12 +1206,12 @@ export async function getRetention(): Promise<RetentionItem[]> {
       .select('*')
       .order('day', { ascending: true });
     if (error || !data) {
-      console.warn('[getRetention] Supabase error:', error?.message);
+      console.error('[getRetention] Supabase error:', error?.message);
       return [];
     }
     return data as RetentionItem[];
   } catch (error) {
-    console.warn('[getRetention] Fallback:', error);
+    console.error('[getRetention] Fallback:', error);
     return [];
   }
 }
@@ -1230,12 +1230,12 @@ export async function getTopUsers(): Promise<TopUser[]> {
       .order('total_minutes', { ascending: false })
       .limit(20);
     if (error || !data) {
-      console.warn('[getTopUsers] Supabase error:', error?.message);
+      console.error('[getTopUsers] Supabase error:', error?.message);
       return [];
     }
     return data as TopUser[];
   } catch (error) {
-    console.warn('[getTopUsers] Fallback:', error);
+    console.error('[getTopUsers] Fallback:', error);
     return [];
   }
 }

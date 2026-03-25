@@ -35,75 +35,67 @@ export interface NotificationCounts {
 export async function getNotifications(
   profileId: string,
 ): Promise<IntelligentNotification[]> {
-  try {
-    if (isMock()) {
-      const { mockGetNotifications } = await import(
-        '@/lib/mocks/notifications.mock'
-      );
-      return mockGetNotifications(profileId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('profile_id', profileId)
-      .order('created_at', { ascending: false });
-    if (error || !data) {
-      console.warn('[getNotifications] Supabase error:', error?.message);
-      return [];
-    }
-    return data as unknown as IntelligentNotification[];
-  } catch (error) {
-    console.warn('[getNotifications] Fallback:', error);
+  if (isMock()) {
+    const { mockGetNotifications } = await import(
+      '@/lib/mocks/notifications.mock'
+    );
+    return mockGetNotifications(profileId);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('created_at', { ascending: false });
+  if (error || !data) {
+    console.error('[getNotifications] Supabase error:', error?.message);
     return [];
   }
+  return data as unknown as IntelligentNotification[];
 }
 
 export async function markAsRead(notificationId: string): Promise<void> {
-  try {
-    if (isMock()) {
-      const { mockMarkAsRead } = await import(
-        '@/lib/mocks/notifications.mock'
-      );
-      return mockMarkAsRead(notificationId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('id', notificationId);
-    if (error) {
-      console.warn('[markAsRead] Supabase error:', error.message);
-    }
-  } catch (error) {
-    console.warn('[markAsRead] Fallback:', error);
+  if (isMock()) {
+    const { mockMarkAsRead } = await import(
+      '@/lib/mocks/notifications.mock'
+    );
+    return mockMarkAsRead(notificationId);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('id', notificationId);
+  if (error) {
+    console.error('[markAsRead] Supabase error:', error.message);
+    throw new Error(`[markAsRead] ${error.message}`);
   }
 }
 
 export async function markAllNotificationsRead(
   profileId: string,
 ): Promise<void> {
-  try {
-    if (isMock()) {
-      const { mockMarkAllNotificationsRead } = await import(
-        '@/lib/mocks/notifications.mock'
-      );
-      return mockMarkAllNotificationsRead(profileId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('profile_id', profileId)
-      .eq('read', false);
-    if (error) {
-      console.warn('[markAllNotificationsRead] Supabase error:', error.message);
-    }
-  } catch (error) {
-    console.warn('[markAllNotificationsRead] Fallback:', error);
+  if (isMock()) {
+    const { mockMarkAllNotificationsRead } = await import(
+      '@/lib/mocks/notifications.mock'
+    );
+    return mockMarkAllNotificationsRead(profileId);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('profile_id', profileId)
+    .eq('read', false);
+  if (error) {
+    console.error('[markAllNotificationsRead] Supabase error:', error.message);
+    throw new Error(`[markAllNotificationsRead] ${error.message}`);
   }
 }
 

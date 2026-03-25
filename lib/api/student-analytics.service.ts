@@ -146,11 +146,11 @@ export async function getStudentPerformance(studentId: string): Promise<StudentP
         video_suggestions: [],
       };
     } catch (err) {
-      console.warn('[getStudentPerformance] Supabase error, returning fallback:', err);
+      console.error('[getStudentPerformance] Supabase error, returning fallback:', err);
       return EMPTY;
     }
   } catch (error) {
-    console.warn('[getStudentPerformance] Fallback:', error);
+    console.error('[getStudentPerformance] Fallback:', error);
     return { radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, class_avg_radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, monthly_attendance: [], max_streak: 0, total_training_hours: 0, recommendations: [], video_suggestions: [] };
   }
 }

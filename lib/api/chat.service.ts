@@ -18,12 +18,12 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.warn('[listConversations] error:', error.message);
+      console.error('[listConversations] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as ChatConversation[];
   } catch (error) {
-    console.warn('[listConversations] Fallback:', error);
+    console.error('[listConversations] Fallback:', error);
     return [];
   }
 }
@@ -55,12 +55,12 @@ export async function getMessages(
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[getMessages] error:', error.message);
+      console.error('[getMessages] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as ChatMessage[];
   } catch (error) {
-    console.warn('[getMessages] Fallback:', error);
+    console.error('[getMessages] Fallback:', error);
     return [];
   }
 }
@@ -89,12 +89,12 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       .single();
 
     if (error || !data) {
-      console.warn('[sendMessage] error:', error?.message);
+      console.error('[sendMessage] error:', error?.message);
       return { id: '', conversationId: payload.conversationId, senderId: currentUserId, senderName: '', content: payload.content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
     }
     return data as unknown as ChatMessage;
   } catch (error) {
-    console.warn('[sendMessage] Fallback:', error);
+    console.error('[sendMessage] Fallback:', error);
     return { id: '', conversationId: '', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }
@@ -115,10 +115,10 @@ export async function markAsRead(conversationId: string): Promise<void> {
       .is('read_at', null);
 
     if (error) {
-      console.warn('[markAsRead] error:', error.message);
+      console.error('[markAsRead] error:', error.message);
     }
   } catch (error) {
-    console.warn('[markAsRead] Fallback:', error);
+    console.error('[markAsRead] Fallback:', error);
   }
 }
 
@@ -157,12 +157,12 @@ export async function createBroadcast(
       .single();
 
     if (error || !data) {
-      console.warn('[createBroadcast] error:', error?.message);
+      console.error('[createBroadcast] error:', error?.message);
       return { id: '', conversationId: 'broadcast', senderId, senderName: '', content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
     }
     return data as unknown as ChatMessage;
   } catch (error) {
-    console.warn('[createBroadcast] Fallback:', error);
+    console.error('[createBroadcast] Fallback:', error);
     return { id: '', conversationId: 'broadcast', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }

@@ -111,13 +111,13 @@ export async function analyzeMatch(videoId: string): Promise<MatchAnalysis> {
       .maybeSingle();
 
     if (error || !data) {
-      console.warn('[analyzeMatch] Supabase error:', error?.message);
+      console.error('[analyzeMatch] Supabase error:', error?.message);
       return { ...EMPTY_ANALYSIS, video_id: videoId };
     }
 
     return data as unknown as MatchAnalysis;
   } catch (error) {
-    console.warn('[analyzeMatch] Fallback:', error);
+    console.error('[analyzeMatch] Fallback:', error);
     return { ...EMPTY_ANALYSIS, video_id: videoId };
   }
 }
@@ -138,13 +138,13 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       .single();
 
     if (error || !data) {
-      console.warn('[addAnnotation] Supabase error:', error?.message);
+      console.error('[addAnnotation] Supabase error:', error?.message);
       return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
     }
 
     return data as unknown as ManualAnnotation;
   } catch (error) {
-    console.warn('[addAnnotation] Fallback:', error);
+    console.error('[addAnnotation] Fallback:', error);
     return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
   }
 }
@@ -165,13 +165,13 @@ export async function getAnnotations(videoId: string): Promise<ManualAnnotation[
       .order('timestamp_sec', { ascending: true });
 
     if (error || !data) {
-      console.warn('[getAnnotations] Supabase error:', error?.message);
+      console.error('[getAnnotations] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as ManualAnnotation[];
   } catch (error) {
-    console.warn('[getAnnotations] Fallback:', error);
+    console.error('[getAnnotations] Fallback:', error);
     return [];
   }
 }
@@ -190,13 +190,13 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       .insert({ video_id: videoId, student_id: studentId });
 
     if (error) {
-      console.warn('[shareAnalysis] Supabase error:', error.message);
+      console.error('[shareAnalysis] Supabase error:', error.message);
       return { shared: false };
     }
 
     return { shared: true };
   } catch (error) {
-    console.warn('[shareAnalysis] Fallback:', error);
+    console.error('[shareAnalysis] Fallback:', error);
     return { shared: false };
   }
 }

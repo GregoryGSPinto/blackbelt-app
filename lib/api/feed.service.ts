@@ -80,7 +80,7 @@ export async function getFeed(
       }
       const { data, error } = await query;
       if (error) {
-        console.warn('[getFeed] Query failed:', error.message);
+        console.error('[getFeed] Query failed:', error.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -99,11 +99,11 @@ export async function getFeed(
         createdAt: (row.created_at as string) || '',
       }));
     } catch {
-      console.warn('[feed.getFeed] API not available, returning empty');
+      console.error('[feed.getFeed] API not available, returning empty');
       return [];
     }
   } catch (error) {
-    console.warn('[getFeed] Fallback:', error);
+    console.error('[getFeed] Fallback:', error);
     return [];
   }
 }
@@ -119,20 +119,20 @@ export async function likePost(postId: string): Promise<void> {
       const supabase = createBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.warn('[likePost] No authenticated user');
+        console.error('[likePost] No authenticated user');
         return;
       }
       const { error } = await supabase
         .from('feed_likes')
         .upsert({ post_id: postId, user_id: user.id }, { onConflict: 'post_id,user_id' });
       if (error) {
-        console.warn('[likePost] Upsert failed:', error.message);
+        console.error('[likePost] Upsert failed:', error.message);
       }
     } catch {
-      console.warn('[feed.likePost] API not available, using fallback');
+      console.error('[feed.likePost] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[likePost] Fallback:', error);
+    console.error('[likePost] Fallback:', error);
   }
 }
 
@@ -150,7 +150,7 @@ export async function addComment(
       const supabase = createBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.warn('[addComment] No authenticated user');
+        console.error('[addComment] No authenticated user');
         return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
       }
       const { data: row, error } = await supabase
@@ -159,7 +159,7 @@ export async function addComment(
         .select()
         .single();
       if (error || !row) {
-        console.warn('[addComment] Insert failed:', error?.message);
+        console.error('[addComment] Insert failed:', error?.message);
         return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
       }
       return {
@@ -169,11 +169,11 @@ export async function addComment(
         createdAt: (row.created_at as string) || new Date().toISOString(),
       };
     } catch {
-      console.warn('[feed.addComment] API not available, using fallback');
+      console.error('[feed.addComment] API not available, using fallback');
       return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
     }
   } catch (error) {
-    console.warn('[addComment] Fallback:', error);
+    console.error('[addComment] Fallback:', error);
     return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
   }
 }
@@ -196,16 +196,16 @@ export async function getHighlights(
         .eq('key', 'feed_highlights')
         .single();
       if (error || !data) {
-        console.warn('[getHighlights] Query failed:', error?.message);
+        console.error('[getHighlights] Query failed:', error?.message);
         return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
       }
       return (data.value as FeedHighlights) || { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
     } catch {
-      console.warn('[feed.getHighlights] API not available, returning empty');
+      console.error('[feed.getHighlights] API not available, returning empty');
       return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
     }
   } catch (error) {
-    console.warn('[getHighlights] Fallback:', error);
+    console.error('[getHighlights] Fallback:', error);
     return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
   }
 }

@@ -49,7 +49,7 @@ export async function getRecommendations(
         .order('views_count', { ascending: false })
         .limit(limit);
       if (error || !data) {
-        console.warn('[getRecommendations] Query failed:', error?.message);
+        console.error('[getRecommendations] Query failed:', error?.message);
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -62,11 +62,11 @@ export async function getRecommendations(
         duration: row.duration_seconds ? `${Math.floor((row.duration_seconds as number) / 60)}:${String((row.duration_seconds as number) % 60).padStart(2, '0')}` : undefined,
       }));
     } catch {
-      console.warn('[recommendation.getRecommendations] API not available, using fallback');
+      console.error('[recommendation.getRecommendations] API not available, using fallback');
       return [];
     }
   } catch (error) {
-    console.warn('[getRecommendations] Fallback:', error);
+    console.error('[getRecommendations] Fallback:', error);
     return [];
   }
 }
@@ -87,12 +87,12 @@ export async function markRecommendationSeen(
         .from('recommendation_views')
         .insert({ student_id: studentId, content_id: contentId });
       if (error) {
-        console.warn('[markRecommendationSeen] Insert failed:', error.message);
+        console.error('[markRecommendationSeen] Insert failed:', error.message);
       }
     } catch {
-      console.warn('[recommendation.markRecommendationSeen] API not available, using fallback');
+      console.error('[recommendation.markRecommendationSeen] API not available, using fallback');
     }
   } catch (error) {
-    console.warn('[markRecommendationSeen] Fallback:', error);
+    console.error('[markRecommendationSeen] Fallback:', error);
   }
 }

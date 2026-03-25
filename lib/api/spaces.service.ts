@@ -32,12 +32,12 @@ export async function listSpaces(unitId: string): Promise<SpaceDTO[]> {
       .select('*')
       .eq('unit_id', unitId);
     if (error || !data) {
-      console.warn('[listSpaces] Supabase error:', error?.message);
+      console.error('[listSpaces] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as SpaceDTO[];
   } catch (error) {
-    console.warn('[listSpaces] Fallback:', error);
+    console.error('[listSpaces] Fallback:', error);
     return [];
   }
 }
@@ -55,12 +55,12 @@ export async function getSpaceSchedule(unitId: string): Promise<SpaceScheduleSlo
       .select('*')
       .eq('unit_id', unitId);
     if (error || !data) {
-      console.warn('[getSpaceSchedule] Supabase error:', error?.message);
+      console.error('[getSpaceSchedule] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as SpaceScheduleSlot[];
   } catch (error) {
-    console.warn('[getSpaceSchedule] Fallback:', error);
+    console.error('[getSpaceSchedule] Fallback:', error);
     return [];
   }
 }
@@ -79,13 +79,13 @@ export async function createSpace(unitId: string, data: Omit<SpaceDTO, 'id' | 'u
       .select()
       .single();
     if (error || !row) {
-      console.warn('[createSpace] Supabase error:', error?.message);
+      console.error('[createSpace] Supabase error:', error?.message);
       const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
       return mockCreateSpace(unitId, data);
     }
     return row as unknown as SpaceDTO;
   } catch (error) {
-    console.warn('[createSpace] Fallback:', error);
+    console.error('[createSpace] Fallback:', error);
     const { mockCreateSpace } = await import('@/lib/mocks/spaces.mock');
     return mockCreateSpace(unitId, data);
   }

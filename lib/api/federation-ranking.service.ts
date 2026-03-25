@@ -95,7 +95,7 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[getAthleteRanking] Supabase error:', error.message);
+      console.error('[getAthleteRanking] Supabase error:', error.message);
       return [];
     }
 
@@ -115,7 +115,7 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       events_count: row.total_fights ?? 0,
     }));
   } catch (error) {
-    console.warn('[getAthleteRanking] Fallback:', error);
+    console.error('[getAthleteRanking] Fallback:', error);
     return [];
   }
 }
@@ -136,7 +136,7 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       .limit(100);
 
     if (error) {
-      console.warn('[getAcademyRanking] Supabase error:', error.message);
+      console.error('[getAcademyRanking] Supabase error:', error.message);
       return [];
     }
 
@@ -177,7 +177,7 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       bronze: a.bronze,
     }));
   } catch (error) {
-    console.warn('[getAcademyRanking] Fallback:', error);
+    console.error('[getAcademyRanking] Fallback:', error);
     return [];
   }
 }
@@ -199,7 +199,7 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
 
     if (error) {
       if (error.code !== 'PGRST116') {
-        console.warn('[getAthleteProfile] Supabase error:', error.message);
+        console.error('[getAthleteProfile] Supabase error:', error.message);
       }
       return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
     }
@@ -250,7 +250,7 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       history,
     };
   } catch (error) {
-    console.warn('[getAthleteProfile] Fallback:', error);
+    console.error('[getAthleteProfile] Fallback:', error);
     return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
   }
 }

@@ -55,13 +55,13 @@ export async function getKidsProfile(studentId: string): Promise<KidsProfile> {
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[getKidsProfile] Supabase error:', error?.message);
+      console.error('[getKidsProfile] Supabase error:', error?.message);
       const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetKidsProfile(studentId);
     }
     return data as unknown as KidsProfile;
   } catch (error) {
-    console.warn('[getKidsProfile] Fallback:', error);
+    console.error('[getKidsProfile] Fallback:', error);
     const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
     return mockGetKidsProfile(studentId);
   }
@@ -81,12 +81,12 @@ export async function getEstrelasHistorico(studentId: string): Promise<EstrelaHi
       .eq('student_id', studentId)
       .order('data', { ascending: false });
     if (error) {
-      console.warn('[getEstrelasHistorico] Supabase error:', error.message);
+      console.error('[getEstrelasHistorico] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as EstrelaHistorico[];
   } catch (error) {
-    console.warn('[getEstrelasHistorico] Fallback:', error);
+    console.error('[getEstrelasHistorico] Fallback:', error);
     return [];
   }
 }
@@ -104,12 +104,12 @@ export async function getRecompensas(studentId: string): Promise<RecompensaEstre
       .select('*')
       .eq('student_id', studentId);
     if (error) {
-      console.warn('[getRecompensas] Supabase error:', error.message);
+      console.error('[getRecompensas] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as RecompensaEstrela[];
   } catch (error) {
-    console.warn('[getRecompensas] Fallback:', error);
+    console.error('[getRecompensas] Fallback:', error);
     return [];
   }
 }

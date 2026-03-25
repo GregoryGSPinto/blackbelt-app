@@ -111,7 +111,7 @@ export async function predictPerformance(studentId: string, championshipId: stri
       generated_at: new Date().toISOString(),
     };
   } catch (error) {
-    console.warn('[predictPerformance] Fallback:', error);
+    console.error('[predictPerformance] Fallback:', error);
     return emptyPrediction(studentId, championshipId);
   }
 }
@@ -162,7 +162,7 @@ export async function getMatchup(studentId: string, opponentId: string): Promise
       key_vulnerabilities: sAtt < oAtt ? ['Menor frequência de treinos'] : [],
     };
   } catch (error) {
-    console.warn('[getMatchup] Fallback:', error);
+    console.error('[getMatchup] Fallback:', error);
     return emptyMatchup(studentId, opponentId);
   }
 }
@@ -208,7 +208,7 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
       feasibility: 'easy' as const,
     };
   } catch (error) {
-    console.warn('[getOptimalCategory] Fallback:', error);
+    console.error('[getOptimalCategory] Fallback:', error);
     return emptyCategory(studentId, championshipId);
   }
 }

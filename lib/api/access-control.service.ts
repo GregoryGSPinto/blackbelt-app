@@ -64,7 +64,7 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       .single();
 
     if (error || !student) {
-      console.warn('[validateAccess] error:', error?.message ?? 'not found');
+      console.error('[validateAccess] error:', error?.message ?? 'not found');
       return { allowed: false, reason: 'Aluno não encontrado', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
     }
 
@@ -93,7 +93,7 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       membership_active: active,
     };
   } catch (error) {
-    console.warn('[validateAccess] Fallback:', error);
+    console.error('[validateAccess] Fallback:', error);
     return { allowed: false, reason: 'Erro ao validar acesso', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
   }
 }
@@ -121,7 +121,7 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[getAccessLog] error:', error.message);
+      console.error('[getAccessLog] error:', error.message);
       return [];
     }
 
@@ -141,7 +141,7 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
       };
     });
   } catch (error) {
-    console.warn('[getAccessLog] Fallback:', error);
+    console.error('[getAccessLog] Fallback:', error);
     return [];
   }
 }
@@ -162,12 +162,12 @@ export async function configureAccessRules(unitId: string, rules: Partial<Access
       .select();
 
     if (error) {
-      console.warn('[configureAccessRules] error:', error.message);
+      console.error('[configureAccessRules] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as AccessRule[];
   } catch (error) {
-    console.warn('[configureAccessRules] Fallback:', error);
+    console.error('[configureAccessRules] Fallback:', error);
     return [];
   }
 }
@@ -187,12 +187,12 @@ export async function getAccessRules(unitId: string): Promise<AccessRule[]> {
       .eq('unit_id', unitId);
 
     if (error) {
-      console.warn('[getAccessRules] error:', error.message);
+      console.error('[getAccessRules] error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as AccessRule[];
   } catch (error) {
-    console.warn('[getAccessRules] Fallback:', error);
+    console.error('[getAccessRules] Fallback:', error);
     return [];
   }
 }
@@ -213,7 +213,7 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       .single();
 
     if (error || !data) {
-      console.warn('[getStudentCard] error:', error?.message ?? 'not found');
+      console.error('[getStudentCard] error:', error?.message ?? 'not found');
       return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
     }
 
@@ -238,7 +238,7 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       qr_code_expires: new Date(Date.now() + 3600000).toISOString(),
     };
   } catch (error) {
-    console.warn('[getStudentCard] Fallback:', error);
+    console.error('[getStudentCard] Fallback:', error);
     return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
   }
 }

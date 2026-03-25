@@ -85,7 +85,7 @@ export async function uploadTrainingVideo(payload: UploadVideoPayload): Promise<
         .single();
 
       if (error) {
-        console.warn('[uploadTrainingVideo] Supabase error:', error.message);
+        console.error('[uploadTrainingVideo] Supabase error:', error.message);
         const { mockUploadTrainingVideo } = await import('@/lib/mocks/training-video.mock');
         return mockUploadTrainingVideo(payload);
       }
@@ -109,12 +109,12 @@ export async function uploadTrainingVideo(payload: UploadVideoPayload): Promise<
         updated_at: data.updated_at,
       };
     } catch (err) {
-      console.warn('[training-video.uploadTrainingVideo] Supabase not available, using mock fallback', err);
+      console.error('[training-video.uploadTrainingVideo] Supabase not available, using mock fallback', err);
       const { mockUploadTrainingVideo } = await import('@/lib/mocks/training-video.mock');
       return mockUploadTrainingVideo(payload);
     }
   } catch (error) {
-    console.warn('[uploadTrainingVideo] Fallback:', error);
+    console.error('[uploadTrainingVideo] Fallback:', error);
     return { id: '', student_id: '', student_name: '', class_id: '', class_name: '', uploaded_by: '', uploaded_by_name: '', file_url: '', thumbnail_url: '', duration: 0, file_size: 0, status: 'processing', annotations: [], ai_analysis: null, created_at: '', updated_at: '' };
   }
 }
@@ -149,7 +149,7 @@ export async function listTrainingVideos(filters?: { student_id?: string; class_
       const { data, error } = await query;
 
       if (error) {
-        console.warn('[listTrainingVideos] Supabase error:', error.message);
+        console.error('[listTrainingVideos] Supabase error:', error.message);
         return [];
       }
 
@@ -177,11 +177,11 @@ export async function listTrainingVideos(filters?: { student_id?: string; class_
         };
       });
     } catch (err) {
-      console.warn('[training-video.listTrainingVideos] Supabase not available, returning empty', err);
+      console.error('[training-video.listTrainingVideos] Supabase not available, returning empty', err);
       return [];
     }
   } catch (error) {
-    console.warn('[listTrainingVideos] Fallback:', error);
+    console.error('[listTrainingVideos] Fallback:', error);
     return [];
   }
 }
@@ -203,7 +203,7 @@ export async function getTrainingVideoById(videoId: string): Promise<TrainingVid
         .single();
 
       if (error || !data) {
-        console.warn('[getTrainingVideoById] Supabase error:', error?.message);
+        console.error('[getTrainingVideoById] Supabase error:', error?.message);
         const { mockGetTrainingVideoById } = await import('@/lib/mocks/training-video.mock');
         return mockGetTrainingVideoById(videoId);
       }
@@ -250,12 +250,12 @@ export async function getTrainingVideoById(videoId: string): Promise<TrainingVid
         updated_at: data.updated_at,
       };
     } catch (err) {
-      console.warn('[training-video.getTrainingVideoById] Supabase not available, using mock fallback', err);
+      console.error('[training-video.getTrainingVideoById] Supabase not available, using mock fallback', err);
       const { mockGetTrainingVideoById } = await import('@/lib/mocks/training-video.mock');
       return mockGetTrainingVideoById(videoId);
     }
   } catch (error) {
-    console.warn('[getTrainingVideoById] Fallback:', error);
+    console.error('[getTrainingVideoById] Fallback:', error);
     return { id: videoId, student_id: '', student_name: '', class_id: '', class_name: '', uploaded_by: '', uploaded_by_name: '', file_url: '', thumbnail_url: '', duration: 0, file_size: 0, status: 'processing', annotations: [], ai_analysis: null, created_at: '', updated_at: '' };
   }
 }
@@ -276,13 +276,13 @@ export async function deleteTrainingVideo(videoId: string): Promise<void> {
         .eq('id', videoId);
 
       if (error) {
-        console.warn('[deleteTrainingVideo] Supabase error:', error.message);
+        console.error('[deleteTrainingVideo] Supabase error:', error.message);
       }
     } catch (err) {
-      console.warn('[training-video.deleteTrainingVideo] Supabase not available, using fallback', err);
+      console.error('[training-video.deleteTrainingVideo] Supabase not available, using fallback', err);
     }
   } catch (error) {
-    console.warn('[deleteTrainingVideo] Fallback:', error);
+    console.error('[deleteTrainingVideo] Fallback:', error);
   }
 }
 
@@ -313,7 +313,7 @@ export async function addAnnotation(videoId: string, annotation: Omit<VideoAnnot
         .single();
 
       if (error || !data) {
-        console.warn('[addAnnotation] Supabase error:', error?.message);
+        console.error('[addAnnotation] Supabase error:', error?.message);
         const { mockAddAnnotation } = await import('@/lib/mocks/training-video.mock');
         return mockAddAnnotation(videoId, annotation);
       }
@@ -332,12 +332,12 @@ export async function addAnnotation(videoId: string, annotation: Omit<VideoAnnot
         created_at: data.created_at,
       };
     } catch (err) {
-      console.warn('[training-video.addAnnotation] Supabase not available, using mock fallback', err);
+      console.error('[training-video.addAnnotation] Supabase not available, using mock fallback', err);
       const { mockAddAnnotation } = await import('@/lib/mocks/training-video.mock');
       return mockAddAnnotation(videoId, annotation);
     }
   } catch (error) {
-    console.warn('[addAnnotation] Fallback:', error);
+    console.error('[addAnnotation] Fallback:', error);
     return { id: '', video_id: videoId, created_at: new Date().toISOString(), ...annotation };
   }
 }

@@ -49,7 +49,7 @@ export async function getNPSData(academyId: string): Promise<NPSDataDTO> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getNPSData] Supabase error:', error?.message);
+      console.error('[getNPSData] Supabase error:', error?.message);
       return { nps_score: 0, total_responses: 0, promoters_count: 0, passives_count: 0, detractors_count: 0, promoters_pct: 0, passives_pct: 0, detractors_pct: 0, distribution: [], feedback: [], trend: [] };
     }
 
@@ -80,7 +80,7 @@ export async function getNPSData(academyId: string): Promise<NPSDataDTO> {
       trend: [],
     };
   } catch (error) {
-    console.warn('[getNPSData] Fallback:', error);
+    console.error('[getNPSData] Fallback:', error);
     return { nps_score: 0, total_responses: 0, promoters_count: 0, passives_count: 0, detractors_count: 0, promoters_pct: 0, passives_pct: 0, detractors_pct: 0, distribution: [], feedback: [], trend: [] };
   }
 }

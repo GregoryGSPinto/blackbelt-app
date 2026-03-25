@@ -29,7 +29,7 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('[getUnreadNotifications] Supabase error:', error.message);
+      console.error('[getUnreadNotifications] Supabase error:', error.message);
       return [];
     }
 
@@ -45,7 +45,7 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[getUnreadNotifications] Fallback:', msg);
+    console.error('[getUnreadNotifications] Fallback:', msg);
     return [];
   }
 }
@@ -62,11 +62,11 @@ export async function markNotificationRead(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.warn('[markNotificationRead] Supabase error:', error.message);
+      console.error('[markNotificationRead] Supabase error:', error.message);
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[markNotificationRead] Fallback:', msg);
+    console.error('[markNotificationRead] Fallback:', msg);
   }
 }
 
@@ -83,10 +83,10 @@ export async function markAllRead(profileId: string): Promise<void> {
       .is('read_at', null);
 
     if (error) {
-      console.warn('[markAllRead] Supabase error:', error.message);
+      console.error('[markAllRead] Supabase error:', error.message);
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[markAllRead] Fallback:', msg);
+    console.error('[markAllRead] Fallback:', msg);
   }
 }

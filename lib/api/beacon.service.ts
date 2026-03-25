@@ -83,13 +83,13 @@ export async function configureBeacon(unitId: string, beaconId: string, config?:
     );
 
     if (error) {
-      console.warn('[configureBeacon] Supabase error:', error.message);
+      console.error('[configureBeacon] Supabase error:', error.message);
       return emptyBeacon(unitId, beaconId);
     }
 
     return idx >= 0 ? beacons[idx] : newBeacon;
   } catch (error) {
-    console.warn('[configureBeacon] Fallback:', error);
+    console.error('[configureBeacon] Fallback:', error);
     return emptyBeacon(unitId, beaconId);
   }
 }
@@ -131,13 +131,13 @@ export async function configureGeofence(unitId: string, lat: number, lng: number
     );
 
     if (error) {
-      console.warn('[configureGeofence] Supabase error:', error.message);
+      console.error('[configureGeofence] Supabase error:', error.message);
       return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
     }
 
     return newGeo;
   } catch (error) {
-    console.warn('[configureGeofence] Fallback:', error);
+    console.error('[configureGeofence] Fallback:', error);
     return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
   }
 }
@@ -158,7 +158,7 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn('[getProximityConfig] Supabase error:', error.message);
+      console.error('[getProximityConfig] Supabase error:', error.message);
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -170,7 +170,7 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       min_dwell_seconds: (settings.min_dwell_seconds ?? 0) as number,
     };
   } catch (error) {
-    console.warn('[getProximityConfig] Fallback:', error);
+    console.error('[getProximityConfig] Fallback:', error);
     return { unit_id: unitId, beacons: [], geofences: [], auto_checkin_enabled: false, min_dwell_seconds: 0 };
   }
 }
@@ -202,12 +202,12 @@ export async function toggleAutoCheckin(unitId: string, enabled: boolean): Promi
     );
 
     if (error) {
-      console.warn('[toggleAutoCheckin] Supabase error:', error.message);
+      console.error('[toggleAutoCheckin] Supabase error:', error.message);
     }
 
     return { enabled };
   } catch (error) {
-    console.warn('[toggleAutoCheckin] Fallback:', error);
+    console.error('[toggleAutoCheckin] Fallback:', error);
     return { enabled };
   }
 }

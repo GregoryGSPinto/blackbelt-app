@@ -59,13 +59,13 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       .eq('month', month)
       .maybeSingle();
     if (error || !data) {
-      console.warn('[calculateRoyalties] Supabase error:', error?.message);
+      console.error('[calculateRoyalties] Supabase error:', error?.message);
       const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
       return mockCalculateRoyalties(academyId, month);
     }
     return data as RoyaltyCalculation;
   } catch (error) {
-    console.warn('[calculateRoyalties] Fallback:', error);
+    console.error('[calculateRoyalties] Fallback:', error);
     const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
     return mockCalculateRoyalties(academyId, month);
   }
@@ -89,7 +89,7 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
     }
     const { data, error } = await query;
     if (error || !data) {
-      console.warn('[getRoyaltyHistory] Supabase error:', error?.message);
+      console.error('[getRoyaltyHistory] Supabase error:', error?.message);
       const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
       return mockGetRoyaltyHistory(franchiseId, period);
     }
@@ -99,7 +99,7 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
     const total_overdue = calculations.filter(c => c.status === 'atrasado').reduce((s, c) => s + c.total_due, 0);
     return { total_collected, total_pending, total_overdue, calculations };
   } catch (error) {
-    console.warn('[getRoyaltyHistory] Fallback:', error);
+    console.error('[getRoyaltyHistory] Fallback:', error);
     const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
     return mockGetRoyaltyHistory(franchiseId, period);
   }
@@ -119,13 +119,13 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       .select()
       .single();
     if (error || !data) {
-      console.warn('[generateRoyaltyInvoice] Supabase error:', error?.message);
+      console.error('[generateRoyaltyInvoice] Supabase error:', error?.message);
       const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
       return mockGenerateRoyaltyInvoice(academyId, month);
     }
     return data as RoyaltyInvoice;
   } catch (error) {
-    console.warn('[generateRoyaltyInvoice] Fallback:', error);
+    console.error('[generateRoyaltyInvoice] Fallback:', error);
     const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
     return mockGenerateRoyaltyInvoice(academyId, month);
   }
@@ -146,13 +146,13 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       .select()
       .single();
     if (error || !data) {
-      console.warn('[payRoyalty] Supabase error:', error?.message);
+      console.error('[payRoyalty] Supabase error:', error?.message);
       const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
       return mockPayRoyalty(invoiceId);
     }
     return data as RoyaltyCalculation;
   } catch (error) {
-    console.warn('[payRoyalty] Fallback:', error);
+    console.error('[payRoyalty] Fallback:', error);
     const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
     return mockPayRoyalty(invoiceId);
   }

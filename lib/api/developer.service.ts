@@ -46,7 +46,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[getDeveloperProfile] No authenticated user');
+      console.error('[getDeveloperProfile] No authenticated user');
       return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
 
@@ -57,7 +57,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       .single();
 
     if (error) {
-      console.warn('[getDeveloperProfile] Supabase error:', error.message);
+      console.error('[getDeveloperProfile] Supabase error:', error.message);
       return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
 
@@ -74,7 +74,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       createdAt: (dev.createdAt as string) ?? '',
     };
   } catch (error) {
-    console.warn('[getDeveloperProfile] Fallback:', error);
+    console.error('[getDeveloperProfile] Fallback:', error);
     return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
   }
 }
@@ -95,7 +95,7 @@ export async function createDeveloperAccount(data: {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('[createDeveloperAccount] No authenticated user');
+      console.error('[createDeveloperAccount] No authenticated user');
       return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
     }
 
@@ -117,7 +117,7 @@ export async function createDeveloperAccount(data: {
       .eq('id', user.id);
 
     if (error) {
-      console.warn('[createDeveloperAccount] Supabase error:', error.message);
+      console.error('[createDeveloperAccount] Supabase error:', error.message);
     }
 
     return {
@@ -130,7 +130,7 @@ export async function createDeveloperAccount(data: {
       createdAt: now,
     };
   } catch (error) {
-    console.warn('[createDeveloperAccount] Fallback:', error);
+    console.error('[createDeveloperAccount] Fallback:', error);
     return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
   }
 }
@@ -157,7 +157,7 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
     const dev = (meta.developer ?? {}) as Record<string, unknown>;
     return (dev.submitted_apps ?? []) as DeveloperApp[];
   } catch (error) {
-    console.warn('[getSubmittedApps] Fallback:', error);
+    console.error('[getSubmittedApps] Fallback:', error);
     return [];
   }
 }
@@ -198,12 +198,12 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       .eq('id', user.id);
 
     if (error) {
-      console.warn('[submitAppForReview] Supabase error:', error.message);
+      console.error('[submitAppForReview] Supabase error:', error.message);
     }
 
     return idx >= 0 ? apps[idx] : { id: appId, name: '', status: 'in_review' as const, version: '', submittedAt: now, category: '' };
   } catch (error) {
-    console.warn('[submitAppForReview] Fallback:', error);
+    console.error('[submitAppForReview] Fallback:', error);
     return { id: appId, name: '', status: 'draft', version: '', submittedAt: null, category: '' };
   }
 }
@@ -238,7 +238,7 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       activeInstalls: (stats.activeInstalls as number) ?? 0,
     };
   } catch (error) {
-    console.warn('[getDeveloperStats] Fallback:', error);
+    console.error('[getDeveloperStats] Fallback:', error);
     return { totalApps: 0, totalDownloads: 0, totalRevenue: 0, averageRating: 0, activeInstalls: 0 };
   }
 }
@@ -265,7 +265,7 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
     const dev = (meta.developer ?? {}) as Record<string, unknown>;
     return (dev.api_usage ?? []) as APIUsageRecord[];
   } catch (error) {
-    console.warn('[getAPIUsage] Fallback:', error);
+    console.error('[getAPIUsage] Fallback:', error);
     return [];
   }
 }

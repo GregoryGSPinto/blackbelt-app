@@ -67,7 +67,7 @@ export async function checkLimit(
       .single();
 
     if (error || !data) {
-      console.warn('[checkLimit] Supabase error:', error?.message);
+      console.error('[checkLimit] Supabase error:', error?.message);
       return { allowed: true, current: 0, limit: null, plan: 'free', resource };
     }
 
@@ -82,7 +82,7 @@ export async function checkLimit(
       resource,
     };
   } catch (error) {
-    console.warn('[checkLimit] Fallback:', error);
+    console.error('[checkLimit] Fallback:', error);
     return { allowed: true, current: 0, limit: null, plan: 'free', resource };
   }
 }
@@ -103,13 +103,13 @@ export async function getUsage(academyId: string): Promise<UsageData> {
       .single();
 
     if (error || !data) {
-      console.warn('[getUsage] Supabase error:', error?.message);
+      console.error('[getUsage] Supabase error:', error?.message);
       return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
     }
 
     return data as unknown as UsageData;
   } catch (error) {
-    console.warn('[getUsage] Fallback:', error);
+    console.error('[getUsage] Fallback:', error);
     return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
   }
 }

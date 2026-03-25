@@ -74,27 +74,22 @@ export interface GuardianDashboardDTO {
 // ────────────────────────────────────────────────────────────
 
 export async function getGuardianDashboard(profileId: string): Promise<GuardianDashboardDTO> {
-  try {
-    if (isMock()) {
-      const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
-      return mockGetGuardianDashboard(profileId);
-    }
-    const { createBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createBrowserClient();
-    const { data, error } = await supabase
-      .from('guardian_dashboards')
-      .select('*')
-      .eq('profile_id', profileId)
-      .maybeSingle();
-    if (error || !data) {
-      console.warn('[getGuardianDashboard] Supabase error:', error?.message);
-      const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
-      return mockGetGuardianDashboard(profileId);
-    }
-    return data as unknown as GuardianDashboardDTO;
-  } catch (error) {
-    console.warn('[getGuardianDashboard] Fallback:', error);
+  if (isMock()) {
     const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
     return mockGetGuardianDashboard(profileId);
   }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data, error } = await supabase
+    .from('guardian_dashboards')
+    .select('*')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+  if (error || !data) {
+    console.error('[getGuardianDashboard] Supabase error:', error?.message);
+    const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
+    return mockGetGuardianDashboard(profileId);
+  }
+  return data as unknown as GuardianDashboardDTO;
 }

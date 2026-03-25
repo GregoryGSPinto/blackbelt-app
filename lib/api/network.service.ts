@@ -48,7 +48,7 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         .limit(1);
 
       if (netError) {
-        console.warn('[getNetworkDashboard] error fetching network:', netError.message);
+        console.error('[getNetworkDashboard] error fetching network:', netError.message);
       }
 
       const network = networks?.[0];
@@ -63,7 +63,7 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         .eq('franchise_id', network.id);
 
       if (faError) {
-        console.warn('[getNetworkDashboard] error fetching franchise_academies:', faError.message);
+        console.error('[getNetworkDashboard] error fetching franchise_academies:', faError.message);
       }
 
       const faList = franchiseAcademies ?? [];
@@ -153,12 +153,12 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         academies,
       };
     } catch (err) {
-      console.warn('[network.getNetworkDashboard] Supabase query failed, using mock fallback:', err);
+      console.error('[network.getNetworkDashboard] Supabase query failed, using mock fallback:', err);
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkDashboard(ownerId);
     }
   } catch (error) {
-    console.warn('[getNetworkDashboard] Fallback:', error);
+    console.error('[getNetworkDashboard] Fallback:', error);
     return { totalAcademies: 0, totalStudents: 0, totalRevenue: 0, avgAttendance: 0, academies: [] };
   }
 }
@@ -226,12 +226,12 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
 
       return { metric, academies: results };
     } catch (err) {
-      console.warn('[network.getAcademyComparison] Supabase query failed, using mock fallback:', err);
+      console.error('[network.getAcademyComparison] Supabase query failed, using mock fallback:', err);
       const { mockGetAcademyComparison } = await import('@/lib/mocks/network.mock');
       return mockGetAcademyComparison(academyIds, metric);
     }
   } catch (error) {
-    console.warn('[getAcademyComparison] Fallback:', error);
+    console.error('[getAcademyComparison] Fallback:', error);
     return { metric, academies: [] };
   }
 }
@@ -341,12 +341,12 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
 
       return { totalMRR, totalOverdue, byAcademy };
     } catch (err) {
-      console.warn('[network.getNetworkFinancials] Supabase query failed, using mock fallback:', err);
+      console.error('[network.getNetworkFinancials] Supabase query failed, using mock fallback:', err);
       const { mockGetNetworkFinancials } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkFinancials(ownerId);
     }
   } catch (error) {
-    console.warn('[getNetworkFinancials] Fallback:', error);
+    console.error('[getNetworkFinancials] Fallback:', error);
     return { totalMRR: 0, totalOverdue: 0, byAcademy: [] };
   }
 }
@@ -369,7 +369,7 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
         .eq('academy_id', fromAcademy);
 
       if (studentError) {
-        console.warn('[transferStudent] error updating student:', studentError.message);
+        console.error('[transferStudent] error updating student:', studentError.message);
         return;
       }
 
@@ -390,7 +390,7 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
           .eq('academy_id', fromAcademy);
 
         if (deactivateError) {
-          console.warn('[transferStudent] error deactivating old membership:', deactivateError.message);
+          console.error('[transferStudent] error deactivating old membership:', deactivateError.message);
         }
 
         // Upsert new membership for target academy
@@ -407,13 +407,13 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
           );
 
         if (upsertError) {
-          console.warn('[transferStudent] error creating new membership:', upsertError.message);
+          console.error('[transferStudent] error creating new membership:', upsertError.message);
         }
       }
     } catch (err) {
-      console.warn('[network.transferStudent] Supabase query failed:', err);
+      console.error('[network.transferStudent] Supabase query failed:', err);
     }
   } catch (error) {
-    console.warn('[transferStudent] Fallback:', error);
+    console.error('[transferStudent] Fallback:', error);
   }
 }

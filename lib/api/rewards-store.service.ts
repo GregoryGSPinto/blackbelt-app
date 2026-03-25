@@ -46,7 +46,7 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       .eq('status', 'available');
 
     if (error || !data) {
-      console.warn('[getRewardsStore] Supabase error:', error?.message);
+      console.error('[getRewardsStore] Supabase error:', error?.message);
       return { rewards: [], user_points_balance: 0 };
     }
 
@@ -64,7 +64,7 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       user_points_balance: 0,
     };
   } catch (error) {
-    console.warn('[getRewardsStore] Fallback:', error);
+    console.error('[getRewardsStore] Fallback:', error);
     return { rewards: [], user_points_balance: 0 };
   }
 }
@@ -85,7 +85,7 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       .single();
 
     if (error || !data) {
-      console.warn('[redeemReward] Supabase error:', error?.message);
+      console.error('[redeemReward] Supabase error:', error?.message);
       return { success: false, message: error?.message ?? 'Error', redemption: { id: '', reward_id: rewardId, reward_name: '', cost_points: 0, redeemed_at: '', status: 'pending', user_id: userId } };
     }
 
@@ -103,7 +103,7 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       },
     };
   } catch (error) {
-    console.warn('[redeemReward] Fallback:', error);
+    console.error('[redeemReward] Fallback:', error);
     return { success: false, message: 'Error', redemption: { id: '', reward_id: rewardId, reward_name: '', cost_points: 0, redeemed_at: '', status: 'pending', user_id: userId } };
   }
 }
@@ -124,7 +124,7 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       .order('redeemed_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getMyRedemptions] Supabase error:', error?.message);
+      console.error('[getMyRedemptions] Supabase error:', error?.message);
       return [];
     }
 
@@ -139,7 +139,7 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       user_name: row.user_name ? String(row.user_name) : undefined,
     }));
   } catch (error) {
-    console.warn('[getMyRedemptions] Fallback:', error);
+    console.error('[getMyRedemptions] Fallback:', error);
     return [];
   }
 }
@@ -161,7 +161,7 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       .single();
 
     if (error || !row) {
-      console.warn('[createStoreReward] Supabase error:', error?.message);
+      console.error('[createStoreReward] Supabase error:', error?.message);
       return { id: '', ...data, status: 'available' };
     }
 
@@ -176,7 +176,7 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       status: (row.status ?? 'available') as RewardStatus,
     };
   } catch (error) {
-    console.warn('[createStoreReward] Fallback:', error);
+    console.error('[createStoreReward] Fallback:', error);
     return { id: '', ...data, status: 'available' };
   }
 }
@@ -198,7 +198,7 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       .single();
 
     if (error || !row) {
-      console.warn('[updateStoreReward] Supabase error:', error?.message);
+      console.error('[updateStoreReward] Supabase error:', error?.message);
       return { id: rewardId, name: '', description: '', image_url: '', cost_points: 0, category: 'produto', stock: 0, status: 'available', ...data };
     }
 
@@ -213,7 +213,7 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       status: (row.status ?? 'available') as RewardStatus,
     };
   } catch (error) {
-    console.warn('[updateStoreReward] Fallback:', error);
+    console.error('[updateStoreReward] Fallback:', error);
     return { id: rewardId, name: '', description: '', image_url: '', cost_points: 0, category: 'produto', stock: 0, status: 'available', ...data };
   }
 }
@@ -233,10 +233,10 @@ export async function deleteStoreReward(rewardId: string): Promise<void> {
       .eq('id', rewardId);
 
     if (error) {
-      console.warn('[deleteStoreReward] Supabase error:', error.message);
+      console.error('[deleteStoreReward] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteStoreReward] Fallback:', error);
+    console.error('[deleteStoreReward] Fallback:', error);
   }
 }
 
@@ -256,7 +256,7 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       .order('redeemed_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getAllRedemptions] Supabase error:', error?.message);
+      console.error('[getAllRedemptions] Supabase error:', error?.message);
       return [];
     }
 
@@ -271,7 +271,7 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       user_name: row.user_name ? String(row.user_name) : undefined,
     }));
   } catch (error) {
-    console.warn('[getAllRedemptions] Fallback:', error);
+    console.error('[getAllRedemptions] Fallback:', error);
     return [];
   }
 }

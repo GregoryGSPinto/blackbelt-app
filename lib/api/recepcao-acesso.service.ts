@@ -52,7 +52,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       .is('check_out_at', null);
 
     if (insideError) {
-      console.warn('[getAcesso] error fetching inside:', insideError.message);
+      console.error('[getAcesso] error fetching inside:', insideError.message);
     }
 
     // All movements today
@@ -63,7 +63,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       .order('check_in_at', { ascending: false });
 
     if (movError) {
-      console.warn('[getAcesso] error fetching movements:', movError.message);
+      console.error('[getAcesso] error fetching movements:', movError.message);
     }
 
     const pessoasDentro: PessoaDentro[] = (inside ?? []).map((c: Record<string, unknown>) => ({
@@ -102,7 +102,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       movimentacao,
     };
   } catch (error) {
-    console.warn('[getAcesso] Fallback:', error);
+    console.error('[getAcesso] Fallback:', error);
     return { pessoasDentro: [], totalDentro: 0, capacidadeMaxima: 100, movimentacao: [] };
   }
 }
@@ -129,13 +129,13 @@ export async function registrarEntradaManual(data: {
       });
 
     if (error) {
-      console.warn('[registrarEntradaManual] error:', error.message);
+      console.error('[registrarEntradaManual] error:', error.message);
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.warn('[registrarEntradaManual] Fallback:', error);
+    console.error('[registrarEntradaManual] Fallback:', error);
     return { ok: false };
   }
 }
@@ -156,13 +156,13 @@ export async function registrarSaida(pessoaId: string): Promise<{ ok: boolean }>
       .eq('id', pessoaId);
 
     if (error) {
-      console.warn('[registrarSaida] error:', error.message);
+      console.error('[registrarSaida] error:', error.message);
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.warn('[registrarSaida] Fallback:', error);
+    console.error('[registrarSaida] Fallback:', error);
     return { ok: false };
   }
 }

@@ -29,12 +29,12 @@ export async function generateInsights(academyId: string): Promise<Insight[]> {
       .order('created_at', { ascending: false })
       .limit(20);
     if (error) {
-      console.warn('[generateInsights] Supabase error:', error.message);
+      console.error('[generateInsights] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as Insight[];
   } catch (error) {
-    console.warn('[generateInsights] Fallback:', error);
+    console.error('[generateInsights] Fallback:', error);
     return [];
   }
 }

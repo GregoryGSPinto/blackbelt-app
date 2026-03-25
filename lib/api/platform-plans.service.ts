@@ -35,12 +35,12 @@ export async function getCurrentPlan(academyId: string): Promise<PlatformPlan> {
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getCurrentPlan] Supabase error:', error?.message);
+      console.error('[getCurrentPlan] Supabase error:', error?.message);
       return fallback;
     }
     return (data.platform_plans ?? fallback) as unknown as PlatformPlan;
   } catch (error) {
-    console.warn('[getCurrentPlan] Fallback:', error);
+    console.error('[getCurrentPlan] Fallback:', error);
     return fallback;
   }
 }
@@ -60,12 +60,12 @@ export async function getUsage(academyId: string): Promise<UsageDTO> {
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getUsage] Supabase error:', error?.message);
+      console.error('[getUsage] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as UsageDTO;
   } catch (error) {
-    console.warn('[getUsage] Fallback:', error);
+    console.error('[getUsage] Fallback:', error);
     return fallback;
   }
 }
@@ -81,12 +81,12 @@ export async function checkLimit(academyId: string, resource: 'units' | 'student
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('check_platform_limit', { p_academy_id: academyId, p_resource: resource });
     if (error || !data) {
-      console.warn('[checkLimit] Supabase error:', error?.message);
+      console.error('[checkLimit] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as LimitCheck;
   } catch (error) {
-    console.warn('[checkLimit] Fallback:', error);
+    console.error('[checkLimit] Fallback:', error);
     return fallback;
   }
 }

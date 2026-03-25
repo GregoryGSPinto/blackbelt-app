@@ -197,12 +197,12 @@ export async function getFaixas(): Promise<FaixaBase[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_tiers').select('*').order('min_alunos');
     if (error) {
-      console.warn('[getFaixas] Supabase error:', error.message);
+      console.error('[getFaixas] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as FaixaBase[];
   } catch (error) {
-    console.warn('[getFaixas] Fallback:', error);
+    console.error('[getFaixas] Fallback:', error);
     return [];
   }
 }
@@ -218,12 +218,12 @@ export async function getModulos(): Promise<Modulo[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_modules').select('*').order('ordem');
     if (error) {
-      console.warn('[getModulos] Supabase error:', error.message);
+      console.error('[getModulos] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as Modulo[];
   } catch (error) {
-    console.warn('[getModulos] Fallback:', error);
+    console.error('[getModulos] Fallback:', error);
     return [];
   }
 }
@@ -239,12 +239,12 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_packages').select('*');
     if (error) {
-      console.warn('[getPacotes] Supabase error:', error.message);
+      console.error('[getPacotes] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as PacoteSugerido[];
   } catch (error) {
-    console.warn('[getPacotes] Fallback:', error);
+    console.error('[getPacotes] Fallback:', error);
     return [];
   }
 }
@@ -264,11 +264,11 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error) {
-      console.warn('[getAssinatura] Supabase error:', error.message);
+      console.error('[getAssinatura] Supabase error:', error.message);
     }
     return (data ?? { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] }) as unknown as AssinaturaSaaS;
   } catch (error) {
-    console.warn('[getAssinatura] Fallback:', error);
+    console.error('[getAssinatura] Fallback:', error);
     return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as unknown as AssinaturaSaaS;
   }
 }
@@ -286,11 +286,11 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       body: JSON.stringify({ academyId, moduloSlug }),
     });
     if (!res.ok) {
-      console.warn('[ativarModulo] API error:', res.status);
+      console.error('[ativarModulo] API error:', res.status);
     }
     return res.json();
   } catch (error) {
-    console.warn('[ativarModulo] Fallback:', error);
+    console.error('[ativarModulo] Fallback:', error);
     return {} as AssinaturaSaaS;
   }
 }
@@ -308,11 +308,11 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       body: JSON.stringify({ academyId, moduloSlug }),
     });
     if (!res.ok) {
-      console.warn('[desativarModulo] API error:', res.status);
+      console.error('[desativarModulo] API error:', res.status);
     }
     return res.json();
   } catch (error) {
-    console.warn('[desativarModulo] Fallback:', error);
+    console.error('[desativarModulo] Fallback:', error);
     return {} as AssinaturaSaaS;
   }
 }
@@ -332,7 +332,7 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.warn('[getHistoricoCobrancas] Supabase error:', error.message);
+      console.error('[getHistoricoCobrancas] Supabase error:', error.message);
       return [];
     }
     return (data ?? []).map((c: Record<string, unknown>) => ({
@@ -344,7 +344,7 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       metodo: (c.method ?? '') as string,
     }));
   } catch (error) {
-    console.warn('[getHistoricoCobrancas] Fallback:', error);
+    console.error('[getHistoricoCobrancas] Fallback:', error);
     return [];
   }
 }
@@ -363,12 +363,12 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       .select('*')
       .eq('academy_id', academyId);
     if (error) {
-      console.warn('[getUsoDescoberta] Supabase error:', error.message);
+      console.error('[getUsoDescoberta] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as UsoDescoberta[];
   } catch (error) {
-    console.warn('[getUsoDescoberta] Fallback:', error);
+    console.error('[getUsoDescoberta] Fallback:', error);
     return [];
   }
 }
@@ -382,13 +382,13 @@ export async function isModuloAcessivel(academyId: string, moduloSlug: string): 
 
     const res = await fetch(`/api/pricing/module-access?academyId=${encodeURIComponent(academyId)}&module=${encodeURIComponent(moduloSlug)}`);
     if (!res.ok) {
-      console.warn('[isModuloAcessivel] API error:', res.status);
+      console.error('[isModuloAcessivel] API error:', res.status);
       return false;
     }
     const data = await res.json();
     return data.accessible;
   } catch (error) {
-    console.warn('[isModuloAcessivel] Fallback:', error);
+    console.error('[isModuloAcessivel] Fallback:', error);
     return false;
   }
 }
@@ -408,12 +408,12 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       .eq('academy_id', academyId)
       .eq('included_in_plan', false);
     if (error) {
-      console.warn('[getModulosExtrasDescoberta] Supabase error:', error.message);
+      console.error('[getModulosExtrasDescoberta] Supabase error:', error.message);
       return [];
     }
     return (data ?? []) as unknown as ModuloExtra[];
   } catch (error) {
-    console.warn('[getModulosExtrasDescoberta] Fallback:', error);
+    console.error('[getModulosExtrasDescoberta] Fallback:', error);
     return [];
   }
 }
@@ -431,11 +431,11 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       body: JSON.stringify({ academyId, novosModulos }),
     });
     if (!res.ok) {
-      console.warn('[simularUpgrade] API error:', res.status);
+      console.error('[simularUpgrade] API error:', res.status);
     }
     return res.json();
   } catch (error) {
-    console.warn('[simularUpgrade] Fallback:', error);
+    console.error('[simularUpgrade] Fallback:', error);
     return { modulosNovos: [], custoAdicional: 0, totalNovo: 0 };
   }
 }

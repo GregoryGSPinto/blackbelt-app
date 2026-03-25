@@ -25,12 +25,12 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getBranding] Supabase error:', error?.message);
+      console.error('[getBranding] Supabase error:', error?.message);
       return fallback;
     }
     return data as unknown as BrandingDTO;
   } catch (error) {
-    console.warn('[getBranding] Fallback:', error);
+    console.error('[getBranding] Fallback:', error);
     return fallback;
   }
 }
@@ -51,12 +51,12 @@ export async function updateBranding(academyId: string, data: Partial<BrandingDT
       .select()
       .single();
     if (error || !row) {
-      console.warn('[updateBranding] Supabase error:', error?.message);
+      console.error('[updateBranding] Supabase error:', error?.message);
       return fallback;
     }
     return row as unknown as BrandingDTO;
   } catch (error) {
-    console.warn('[updateBranding] Fallback:', error);
+    console.error('[updateBranding] Fallback:', error);
     return fallback;
   }
 }

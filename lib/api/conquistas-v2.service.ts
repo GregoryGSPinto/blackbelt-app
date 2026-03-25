@@ -60,7 +60,7 @@ export async function getAchievements(studentId: string): Promise<AchievementV2D
       .order('rarity', { ascending: false });
 
     if (error) {
-      console.warn('[getAchievements] Supabase error:', error.message);
+      console.error('[getAchievements] Supabase error:', error.message);
       return [];
     }
 
@@ -77,7 +77,7 @@ export async function getAchievements(studentId: string): Promise<AchievementV2D
       progress_label: row.progress_label ? String(row.progress_label) : null,
     }));
   } catch (error) {
-    console.warn('[getAchievements] Fallback:', error);
+    console.error('[getAchievements] Fallback:', error);
     return [];
   }
 }
@@ -98,7 +98,7 @@ export async function getAchievementProgress(studentId: string): Promise<Achieve
       .eq('student_id', studentId);
 
     if (error) {
-      console.warn('[getAchievementProgress] Supabase error:', error.message);
+      console.error('[getAchievementProgress] Supabase error:', error.message);
       return { student_id: studentId, total: 0, earned: 0, percent: 0, most_rare_earned: null };
     }
 
@@ -133,7 +133,7 @@ export async function getAchievementProgress(studentId: string): Promise<Achieve
 
     return { student_id: studentId, total, earned, percent, most_rare_earned: mostRare };
   } catch (error) {
-    console.warn('[getAchievementProgress] Fallback:', error);
+    console.error('[getAchievementProgress] Fallback:', error);
     return { student_id: studentId, total: 0, earned: 0, percent: 0, most_rare_earned: null };
   }
 }

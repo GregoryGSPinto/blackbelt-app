@@ -68,13 +68,13 @@ export async function listProducts(academyId: string, filters?: ProductFilters):
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[listProducts] Supabase error:', error?.message);
+      console.error('[listProducts] Supabase error:', error?.message);
       return [];
     }
 
     return data as unknown as Product[];
   } catch (error) {
-    console.warn('[listProducts] Fallback:', error);
+    console.error('[listProducts] Fallback:', error);
     return [];
   }
 }
@@ -95,13 +95,13 @@ export async function getProduct(id: string): Promise<Product> {
       .single();
 
     if (error || !data) {
-      console.warn('[getProduct] Supabase error:', error?.message);
+      console.error('[getProduct] Supabase error:', error?.message);
       return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
     }
 
     return data as unknown as Product;
   } catch (error) {
-    console.warn('[getProduct] Fallback:', error);
+    console.error('[getProduct] Fallback:', error);
     return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
   }
 }
@@ -122,13 +122,13 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       .single();
 
     if (error || !row) {
-      console.warn('[createProduct] Supabase error:', error?.message);
+      console.error('[createProduct] Supabase error:', error?.message);
       return { id: '', academy_id: '', ...data, stock_total: 0, variants: [], created_at: '', updated_at: '' } as unknown as Product;
     }
 
     return row as unknown as Product;
   } catch (error) {
-    console.warn('[createProduct] Fallback:', error);
+    console.error('[createProduct] Fallback:', error);
     return { id: '', academy_id: '', ...data, stock_total: 0, variants: [], created_at: '', updated_at: '' } as unknown as Product;
   }
 }
@@ -150,13 +150,13 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       .single();
 
     if (error || !row) {
-      console.warn('[updateProduct] Supabase error:', error?.message);
+      console.error('[updateProduct] Supabase error:', error?.message);
       return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
     }
 
     return row as unknown as Product;
   } catch (error) {
-    console.warn('[updateProduct] Fallback:', error);
+    console.error('[updateProduct] Fallback:', error);
     return { id, academy_id: '', name: '', description: '', images: [], category: 'acessorio', price: 0, variants: [], stock_total: 0, low_stock_alert: 0, status: 'draft', featured: false, created_at: '', updated_at: '' };
   }
 }
@@ -176,9 +176,9 @@ export async function deleteProduct(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.warn('[deleteProduct] Supabase error:', error.message);
+      console.error('[deleteProduct] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteProduct] Fallback:', error);
+    console.error('[deleteProduct] Fallback:', error);
   }
 }

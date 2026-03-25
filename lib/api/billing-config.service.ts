@@ -15,12 +15,12 @@ export async function getBillingConfig(academyId: string): Promise<BillingConfig
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[getBillingConfig] Supabase error:', error?.message);
+      console.error('[getBillingConfig] Supabase error:', error?.message);
       return {} as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.warn('[getBillingConfig] Fallback:', error);
+    console.error('[getBillingConfig] Fallback:', error);
     return {} as BillingConfig;
   }
 }
@@ -41,12 +41,12 @@ export async function updateBillingConfig(config: Partial<BillingConfig> & { aca
       .select()
       .single();
     if (error || !data) {
-      console.warn('[updateBillingConfig] Supabase error:', error?.message);
+      console.error('[updateBillingConfig] Supabase error:', error?.message);
       return config as unknown as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.warn('[updateBillingConfig] Fallback:', error);
+    console.error('[updateBillingConfig] Fallback:', error);
     return config as unknown as BillingConfig;
   }
 }
@@ -65,12 +65,12 @@ export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.warn('[getWebhookLogs] Supabase error:', error?.message);
+      console.error('[getWebhookLogs] Supabase error:', error?.message);
       return [];
     }
     return data as unknown as WebhookLog[];
   } catch (error) {
-    console.warn('[getWebhookLogs] Fallback:', error);
+    console.error('[getWebhookLogs] Fallback:', error);
     return [];
   }
 }
@@ -89,12 +89,12 @@ export async function previewNextBilling(academyId: string): Promise<BillingPrev
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.warn('[previewNextBilling] Supabase error:', error?.message);
+      console.error('[previewNextBilling] Supabase error:', error?.message);
       return {} as BillingPreview;
     }
     return data as unknown as BillingPreview;
   } catch (error) {
-    console.warn('[previewNextBilling] Fallback:', error);
+    console.error('[previewNextBilling] Fallback:', error);
     return {} as BillingPreview;
   }
 }

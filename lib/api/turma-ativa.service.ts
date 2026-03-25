@@ -45,7 +45,7 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
       `)
       .eq('professor_id', professorId);
     if (error) {
-      console.warn('[getActiveClass] error:', error.message);
+      console.error('[getActiveClass] error:', error.message);
       return null;
     }
 
@@ -126,7 +126,7 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
       students,
     };
   } catch (error) {
-    console.warn('[getActiveClass] Fallback:', error);
+    console.error('[getActiveClass] Fallback:', error);
     return null;
   }
 }
@@ -165,13 +165,13 @@ export async function saveAttendance(data: SaveAttendanceRequest): Promise<Atten
       .insert(records)
       .select();
     if (error) {
-      console.warn('[saveAttendance] error:', error.message);
+      console.error('[saveAttendance] error:', error.message);
       return [];
     }
 
     return (result ?? []) as Attendance[];
   } catch (error) {
-    console.warn('[saveAttendance] Fallback:', error);
+    console.error('[saveAttendance] Fallback:', error);
     return [];
   }
 }

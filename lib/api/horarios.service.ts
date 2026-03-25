@@ -52,7 +52,7 @@ export async function getGrade(academyId: string, unitId?: string): Promise<Week
 
     const { data, error } = await query;
     if (error) {
-      console.warn('[getGrade] query error:', error.message);
+      console.error('[getGrade] query error:', error.message);
       return { slots: [] };
     }
 
@@ -103,7 +103,7 @@ export async function getGrade(academyId: string, unitId?: string): Promise<Week
 
     return { slots };
   } catch (error) {
-    console.warn('[getGrade] Fallback:', error);
+    console.error('[getGrade] Fallback:', error);
     return { slots: [] };
   }
 }
@@ -124,7 +124,7 @@ export async function checkConflict(professorId: string, schedule: ScheduleSlot[
       .select('id, schedule, modalities(name)')
       .eq('professor_id', professorId);
     if (error) {
-      console.warn('[checkConflict] query error:', error.message);
+      console.error('[checkConflict] query error:', error.message);
       return { has_conflict: false };
     }
 
@@ -152,7 +152,7 @@ export async function checkConflict(professorId: string, schedule: ScheduleSlot[
 
     return { has_conflict: false };
   } catch (error) {
-    console.warn('[checkConflict] Fallback:', error);
+    console.error('[checkConflict] Fallback:', error);
     return { has_conflict: false };
   }
 }

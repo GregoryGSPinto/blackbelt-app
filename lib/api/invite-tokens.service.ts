@@ -40,13 +40,13 @@ export async function listInviteTokens(
     const { data, error } = await query;
 
     if (error) {
-      console.warn('[listInviteTokens] error:', error.message);
+      console.error('[listInviteTokens] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as InviteToken[];
   } catch (error) {
-    console.warn('[listInviteTokens] Fallback:', error);
+    console.error('[listInviteTokens] Fallback:', error);
     return [];
   }
 }
@@ -71,13 +71,13 @@ export async function createInviteToken(
       .single();
 
     if (error) {
-      console.warn('[createInviteToken] error:', error.message);
+      console.error('[createInviteToken] error:', error.message);
       return {} as InviteToken;
     }
 
     return data as unknown as InviteToken;
   } catch (error) {
-    console.warn('[createInviteToken] Fallback:', error);
+    console.error('[createInviteToken] Fallback:', error);
     return {} as InviteToken;
   }
 }
@@ -103,13 +103,13 @@ export async function updateInviteToken(
       .single();
 
     if (error) {
-      console.warn('[updateInviteToken] error:', error.message);
+      console.error('[updateInviteToken] error:', error.message);
       return {} as InviteToken;
     }
 
     return data as unknown as InviteToken;
   } catch (error) {
-    console.warn('[updateInviteToken] Fallback:', error);
+    console.error('[updateInviteToken] Fallback:', error);
     return {} as InviteToken;
   }
 }
@@ -132,13 +132,13 @@ export async function deactivateInviteToken(tokenId: string): Promise<InviteToke
       .single();
 
     if (error) {
-      console.warn('[deactivateInviteToken] error:', error.message);
+      console.error('[deactivateInviteToken] error:', error.message);
       return {} as InviteToken;
     }
 
     return data as unknown as InviteToken;
   } catch (error) {
-    console.warn('[deactivateInviteToken] Fallback:', error);
+    console.error('[deactivateInviteToken] Fallback:', error);
     return {} as InviteToken;
   }
 }
@@ -159,10 +159,10 @@ export async function deleteInviteToken(tokenId: string): Promise<void> {
       .eq('id', tokenId);
 
     if (error) {
-      console.warn('[deleteInviteToken] error:', error.message);
+      console.error('[deleteInviteToken] error:', error.message);
     }
   } catch (error) {
-    console.warn('[deleteInviteToken] Fallback:', error);
+    console.error('[deleteInviteToken] Fallback:', error);
   }
 }
 
@@ -184,7 +184,7 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
       .single();
 
     if (error || !data) {
-      console.warn('[validateInviteToken] error:', error?.message ?? 'Token not found');
+      console.error('[validateInviteToken] error:', error?.message ?? 'Token not found');
       return { valid: false, reason: 'Token inválido ou expirado' } as InviteValidation;
     }
 
@@ -202,7 +202,7 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
 
     return { valid: true, token: data } as unknown as InviteValidation;
   } catch (error) {
-    console.warn('[validateInviteToken] Fallback:', error);
+    console.error('[validateInviteToken] Fallback:', error);
     return { valid: false, reason: 'Erro ao validar token' } as InviteValidation;
   }
 }
@@ -233,7 +233,7 @@ export async function useInviteToken(
       });
 
     if (useError) {
-      console.warn('[useInviteToken] error inserting use:', useError.message);
+      console.error('[useInviteToken] error inserting use:', useError.message);
       return;
     }
 
@@ -243,10 +243,10 @@ export async function useInviteToken(
     });
 
     if (updateError) {
-      console.warn('[useInviteToken] error incrementing uses:', updateError.message);
+      console.error('[useInviteToken] error incrementing uses:', updateError.message);
     }
   } catch (error) {
-    console.warn('[useInviteToken] Fallback:', error);
+    console.error('[useInviteToken] Fallback:', error);
   }
 }
 
@@ -267,13 +267,13 @@ export async function getInviteUses(tokenId: string): Promise<InviteUse[]> {
       .order('used_at', { ascending: false });
 
     if (error) {
-      console.warn('[getInviteUses] error:', error.message);
+      console.error('[getInviteUses] error:', error.message);
       return [];
     }
 
     return (data ?? []) as unknown as InviteUse[];
   } catch (error) {
-    console.warn('[getInviteUses] Fallback:', error);
+    console.error('[getInviteUses] Fallback:', error);
     return [];
   }
 }
@@ -300,7 +300,7 @@ export async function getInviteStats(academyId: string): Promise<InviteStats> {
       totalUses: usesResult.count ?? 0,
     } as unknown as InviteStats;
   } catch (error) {
-    console.warn('[getInviteStats] Fallback:', error);
+    console.error('[getInviteStats] Fallback:', error);
     return { totalTokens: 0, activeTokens: 0, totalUses: 0 } as unknown as InviteStats;
   }
 }

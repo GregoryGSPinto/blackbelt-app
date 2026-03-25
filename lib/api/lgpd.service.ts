@@ -56,10 +56,10 @@ export async function recordConsent(
       });
 
     if (error) {
-      console.warn('[recordConsent] Supabase error:', error.message);
+      console.error('[recordConsent] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[recordConsent] Fallback:', error);
+    console.error('[recordConsent] Fallback:', error);
   }
 }
 
@@ -82,7 +82,7 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getConsentHistory] Supabase error:', error?.message);
+      console.error('[getConsentHistory] Supabase error:', error?.message);
       return [];
     }
 
@@ -95,7 +95,7 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
       ipAddress: (d.ip_address as string) ?? '',
     }));
   } catch (error) {
-    console.warn('[getConsentHistory] Fallback:', error);
+    console.error('[getConsentHistory] Fallback:', error);
     return [];
   }
 }
@@ -133,7 +133,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
       .single();
 
     if (error || !data) {
-      console.warn('[requestDataExport] Supabase error:', error?.message);
+      console.error('[requestDataExport] Supabase error:', error?.message);
       return fallback;
     }
 
@@ -147,7 +147,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
       completedAt: data.completed_at ?? null,
     };
   } catch (error) {
-    console.warn('[requestDataExport] Fallback:', error);
+    console.error('[requestDataExport] Fallback:', error);
     return fallback;
   }
 }
@@ -185,7 +185,7 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
       .single();
 
     if (error || !data) {
-      console.warn('[requestDataDeletion] Supabase error:', error?.message);
+      console.error('[requestDataDeletion] Supabase error:', error?.message);
       return fallback;
     }
 
@@ -198,7 +198,7 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
       completedAt: data.completed_at ?? null,
     };
   } catch (error) {
-    console.warn('[requestDataDeletion] Fallback:', error);
+    console.error('[requestDataDeletion] Fallback:', error);
     return fallback;
   }
 }

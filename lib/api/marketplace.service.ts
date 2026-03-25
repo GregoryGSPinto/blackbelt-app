@@ -83,7 +83,7 @@ export async function listCourses(filters?: MarketplaceFilters): Promise<Marketp
     const { data, error } = await query;
 
     if (error || !data) {
-      console.warn('[listCourses] Supabase error:', error?.message);
+      console.error('[listCourses] Supabase error:', error?.message);
       return [];
     }
 
@@ -107,7 +107,7 @@ export async function listCourses(filters?: MarketplaceFilters): Promise<Marketp
       status: (c.status as CourseStatus) ?? 'published',
     }));
   } catch (error) {
-    console.warn('[listCourses] Fallback:', error);
+    console.error('[listCourses] Fallback:', error);
     return [];
   }
 }
@@ -127,7 +127,7 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       .maybeSingle();
 
     if (error || !data) {
-      console.warn('[getCourse] Supabase error or no data:', error?.message);
+      console.error('[getCourse] Supabase error or no data:', error?.message);
       return { id, creator_id: '', creator_name: '', creator_academy: '', title: '', description: '', thumbnail_url: '', preview_video_url: '', modality: 'bjj', belt_level: 'todas', duration_total: 0, price: 0, rating: 0, reviews_count: 0, students_count: 0, modules: [], status: 'draft' };
     }
 
@@ -151,7 +151,7 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       status: data.status ?? 'draft',
     };
   } catch (error) {
-    console.warn('[getCourse] Fallback:', error);
+    console.error('[getCourse] Fallback:', error);
     return { id, creator_id: '', creator_name: '', creator_academy: '', title: '', description: '', thumbnail_url: '', preview_video_url: '', modality: 'bjj', belt_level: 'todas', duration_total: 0, price: 0, rating: 0, reviews_count: 0, students_count: 0, modules: [], status: 'draft' };
   }
 }
@@ -171,7 +171,7 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       .single();
 
     if (error || !data) {
-      console.warn('[purchaseCourse] Supabase error:', error?.message);
+      console.error('[purchaseCourse] Supabase error:', error?.message);
       return { id: '', course_id: courseId, course_title: '', course_thumbnail: '', creator_name: '', purchased_at: new Date().toISOString(), price: 0, progress: 0 };
     }
 
@@ -187,7 +187,7 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       progress: data.progress ?? 0,
     };
   } catch (error) {
-    console.warn('[purchaseCourse] Fallback:', error);
+    console.error('[purchaseCourse] Fallback:', error);
     return { id: '', course_id: courseId, course_title: '', course_thumbnail: '', creator_name: '', purchased_at: new Date().toISOString(), price: 0, progress: 0 };
   }
 }
@@ -207,7 +207,7 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getMyPurchases] Supabase error:', error?.message);
+      console.error('[getMyPurchases] Supabase error:', error?.message);
       return [];
     }
 
@@ -225,7 +225,7 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       };
     });
   } catch (error) {
-    console.warn('[getMyPurchases] Fallback:', error);
+    console.error('[getMyPurchases] Fallback:', error);
     return [];
   }
 }
@@ -245,7 +245,7 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('[getMySales] Supabase error:', error?.message);
+      console.error('[getMySales] Supabase error:', error?.message);
       return [];
     }
 
@@ -263,7 +263,7 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       };
     });
   } catch (error) {
-    console.warn('[getMySales] Fallback:', error);
+    console.error('[getMySales] Fallback:', error);
     return [];
   }
 }

@@ -36,7 +36,7 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       .eq('professor_id', professorId);
 
     if (error || !data) {
-      console.warn('[getAgenda] Supabase error:', error?.message);
+      console.error('[getAgenda] Supabase error:', error?.message);
       return [];
     }
 
@@ -51,7 +51,7 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       status: row.status as AgendaSlot['status'],
     }));
   } catch (error) {
-    console.warn('[getAgenda] Fallback:', error);
+    console.error('[getAgenda] Fallback:', error);
     return [];
   }
 }
@@ -72,7 +72,7 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       .eq('status', 'pending');
 
     if (error || !data) {
-      console.warn('[getLessonRequests] Supabase error:', error?.message);
+      console.error('[getLessonRequests] Supabase error:', error?.message);
       return [];
     }
 
@@ -86,7 +86,7 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       reason: row.reason ? String(row.reason) : undefined,
     }));
   } catch (error) {
-    console.warn('[getLessonRequests] Fallback:', error);
+    console.error('[getLessonRequests] Fallback:', error);
     return [];
   }
 }
@@ -106,10 +106,10 @@ export async function approveLesson(requestId: string): Promise<void> {
       .eq('id', requestId);
 
     if (error) {
-      console.warn('[approveLesson] Supabase error:', error.message);
+      console.error('[approveLesson] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[approveLesson] Fallback:', error);
+    console.error('[approveLesson] Fallback:', error);
   }
 }
 
@@ -128,9 +128,9 @@ export async function rejectLesson(requestId: string, reason: string): Promise<v
       .eq('id', requestId);
 
     if (error) {
-      console.warn('[rejectLesson] Supabase error:', error.message);
+      console.error('[rejectLesson] Supabase error:', error.message);
     }
   } catch (error) {
-    console.warn('[rejectLesson] Fallback:', error);
+    console.error('[rejectLesson] Fallback:', error);
   }
 }

@@ -136,7 +136,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       streak_days: 0,
     };
   } catch (error) {
-    console.warn('[getPersonalContext] Fallback:', error);
+    console.error('[getPersonalContext] Fallback:', error);
     return emptyContext(studentId);
   }
 }
@@ -148,7 +148,7 @@ export async function chat(studentId: string, message: string, history: ChatMess
       return mockChat(studentId, message, history);
     }
     // AI chat requires API key — return graceful fallback
-    console.warn('[chat] AI API not configured — returning default response');
+    console.error('[chat] AI API not configured — returning default response');
     return {
       message: 'Assistente IA não configurado. Configure a API key em Configurações > Integrações para habilitar o chat.',
       context_used: [],
@@ -157,7 +157,7 @@ export async function chat(studentId: string, message: string, history: ChatMess
       ],
     };
   } catch (error) {
-    console.warn('[chat] Fallback:', error);
+    console.error('[chat] Fallback:', error);
     return { message: '', context_used: [], suggested_actions: [] };
   }
 }
@@ -191,7 +191,7 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       streak_info: '',
     };
   } catch (error) {
-    console.warn('[getDailyBriefing] Fallback:', error);
+    console.error('[getDailyBriefing] Fallback:', error);
     return emptyBriefing;
   }
 }
@@ -203,7 +203,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       return mockGetWeeklyPlan(studentId);
     }
     // AI feature — return empty plan with guidance
-    console.warn('[getWeeklyPlan] AI API not configured — returning default');
+    console.error('[getWeeklyPlan] AI API not configured — returning default');
     return {
       ...emptyWeeklyPlan,
       summary: 'Plano semanal requer configuração da IA. Acesse Configurações > Integrações.',
@@ -212,7 +212,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       recovery_tip: 'Descanse adequadamente entre os treinos.',
     };
   } catch (error) {
-    console.warn('[getWeeklyPlan] Fallback:', error);
+    console.error('[getWeeklyPlan] Fallback:', error);
     return emptyWeeklyPlan;
   }
 }

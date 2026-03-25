@@ -31,12 +31,12 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       .eq('academy_id', academyId)
       .order('achieved_at', { ascending: false });
     if (error) {
-      console.warn('[getHallOfFame] Supabase error:', error.message);
+      console.error('[getHallOfFame] Supabase error:', error.message);
       return { records: [], updatedAt: new Date().toISOString() };
     }
     return { records: (data ?? []) as unknown as RecordDTO[], updatedAt: new Date().toISOString() };
   } catch (error) {
-    console.warn('[getHallOfFame] Fallback:', error);
+    console.error('[getHallOfFame] Fallback:', error);
     return { records: [], updatedAt: new Date().toISOString() };
   }
 }
