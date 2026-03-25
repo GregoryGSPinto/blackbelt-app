@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, type CSSProperties } from 'react';
+import { useState, useEffect, useCallback, useMemo, type CSSProperties } from 'react';
 import {
   listClasses,
   createClass,
@@ -69,11 +69,7 @@ const BELT_OPTIONS = [
   { value: 'black', label: 'Preta' },
 ];
 
-const PROFESSORS = [
-  { id: 'prof-andre', name: 'Andre Santos' },
-  { id: 'prof-fernanda', name: 'Fernanda Oliveira' },
-  { id: 'prof-thiago', name: 'Thiago Nakamura' },
-];
+// Professors derived from class data below (no hardcoded list)
 
 const MODALITIES = ['BJJ', 'Judo', 'Muay Thai', 'Karate', 'MMA'];
 
@@ -203,6 +199,16 @@ export default function AdminTurmasPage() {
   }, [loadClasses]);
 
   // ── Filter ──────────────────────────────────────────────────
+
+  const professors = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const c of classes) {
+      if (c.professor_id && !seen.has(c.professor_id)) {
+        seen.set(c.professor_id, c.professor_name);
+      }
+    }
+    return [...seen.entries()].map(([id, name]) => ({ id, name }));
+  }, [classes]);
 
   const modalities = [...new Set(classes.map((c) => c.modality))].sort();
 
@@ -702,7 +708,7 @@ export default function AdminTurmasPage() {
                 }}
               >
                 <option value="">Selecione...</option>
-                {PROFESSORS.map((p) => (
+                {professors.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
