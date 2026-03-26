@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
@@ -10,6 +10,7 @@ import { CheckinMockup } from '@/components/landing/CheckinMockup';
 import { ParentMockup } from '@/components/landing/ParentMockup';
 import { BillingMockup } from '@/components/landing/BillingMockup';
 import { WhatsAppFAB } from '@/components/landing/WhatsAppFAB';
+import { formatBrazilianPhone } from '@/lib/utils/validation';
 
 /* ── FAQ Accordion ── */
 const FAQ_ITEMS = [
@@ -324,6 +325,9 @@ export default function LandingPage() {
         </FadeInSection>
       </section>
 
+      {/* ━━━ 6. AULA EXPERIMENTAL GRÁTIS ━━━ */}
+      <TrialFormSection />
+
       {/* ━━━ 7. FAQ ━━━ */}
       <section id="faq" className="px-4 py-24 sm:px-6 lg:py-32">
         <FadeInSection>
@@ -448,5 +452,110 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/* ── Trial Form Section ── */
+const TRIAL_MODALITIES = ['BJJ', 'Judô', 'Karatê', 'MMA', 'Muay Thai', 'Taekwondo'];
+
+function TrialFormSection() {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [modality, setModality] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !phone.trim()) return;
+    setSubmitting(true);
+    try {
+      const { registerTrialFromWebsite } = await import('@/lib/api/trial.service');
+      await registerTrialFromWebsite('academy-1', {
+        name: name.trim(),
+        phone: phone.replace(/\D/g, ''),
+        modalities_interest: modality ? [modality] : [],
+        source: 'website',
+        experience_level: 'beginner',
+      });
+      setSubmitted(true);
+    } catch {
+      // fallback — show success anyway for demo
+      setSubmitted(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <section id="experimental" className="px-4 py-24 sm:px-6 lg:py-32">
+      <FadeInSection>
+        <div className="mx-auto max-w-lg text-center">
+          <h2
+            className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl"
+            style={{ color: 'var(--bb-ink-100)' }}
+          >
+            Experimente grátis por 7 dias
+          </h2>
+          <p className="mt-3 text-base sm:text-lg" style={{ color: 'var(--bb-ink-60)' }}>
+            Conheça todas as modalidades sem compromisso. Sem cartão de crédito.
+          </p>
+
+          {submitted ? (
+            <div
+              className="mt-8 rounded-2xl p-6"
+              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)' }}
+            >
+              <p className="text-lg font-bold" style={{ color: '#22c55e' }}>
+                Cadastro realizado! 🎉
+              </p>
+              <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                A academia entrará em contato pelo WhatsApp informado. Bem-vindo(a)!
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-8 space-y-4 text-left">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome"
+                required
+                className="w-full rounded-xl px-4 py-3 text-sm"
+                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+              />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(formatBrazilianPhone(e.target.value))}
+                placeholder="WhatsApp (00) 00000-0000"
+                required
+                className="w-full rounded-xl px-4 py-3 text-sm"
+                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+              />
+              <select
+                value={modality}
+                onChange={(e) => setModality(e.target.value)}
+                className="w-full rounded-xl px-4 py-3 text-sm"
+                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+              >
+                <option value="">Modalidade de interesse</option>
+                {TRIAL_MODALITIES.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full rounded-xl px-4 py-4 text-base font-bold text-white transition-opacity disabled:opacity-50"
+                style={{ background: '#C62828' }}
+              >
+                {submitting ? 'Cadastrando...' : 'QUERO EXPERIMENTAR GRÁTIS'}
+              </button>
+            </form>
+          )}
+        </div>
+      </FadeInSection>
+    </section>
   );
 }

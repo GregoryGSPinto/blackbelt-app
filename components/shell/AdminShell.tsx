@@ -72,7 +72,7 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: 'COMERCIAL',
     items: [
-      { href: '/admin/aula-experimental', label: 'Aula Experimental', icon: UserPlusIcon, id: 'sidebar-link-aula-experimental' },
+      { href: '/admin/experimental', label: 'Experimentais', icon: UserPlusIcon, id: 'sidebar-link-experimental' },
       { href: '/admin/convites', label: 'Convites', icon: LinkIcon, id: 'sidebar-link-convites' },
       { href: '/admin/whatsapp', label: 'WhatsApp', icon: PhoneIcon, id: 'sidebar-link-whatsapp' },
       { href: '/admin/site', label: 'Meu Site', icon: GlobeIcon, id: 'sidebar-link-meu-site' },
