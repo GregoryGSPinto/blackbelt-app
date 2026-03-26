@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAM_ID.app.blackbelt.v2"],
+        "paths": ["/auth/callback", "/redefinir-senha", "/convite/*", "/cadastro/*", "/verificar/*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAM_ID.app.blackbelt.v2"]
+  }
+}
