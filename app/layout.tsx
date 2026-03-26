@@ -47,6 +47,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     type: 'website',
@@ -63,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable} ${playfair.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
-        <link rel="apple-touch-icon" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
