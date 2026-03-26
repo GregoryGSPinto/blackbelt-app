@@ -1,72 +1,78 @@
-# BlackBelt — Store Metadata
+# BlackBelt v2 — Store Metadata
 
 ## App Store (iOS)
 
-- **Nome:** BlackBelt — Gestão de Academias
-- **Subtítulo:** Check-in, turmas e progresso
-- **Descrição Curta:** Gerencie sua academia de artes marciais com check-in por QR Code, controle de turmas, acompanhamento de progresso e muito mais.
-- **Descrição Longa:**
+- **App Name:** BlackBelt — Gestão de Academias
+- **Subtitle:** Check-in, turmas, cobranças e presença
+- **Category:** Business
+- **Secondary Category:** Sports
+- **Age Rating:** 4+
+- **Price:** Free (in-app subscription)
+- **Privacy URL:** https://blackbeltv2.vercel.app/privacidade
+- **Support URL:** https://blackbeltv2.vercel.app/contato
+- **Marketing URL:** https://blackbeltv2.vercel.app
+- **Keywords:** academia,artes marciais,jiu jitsu,bjj,check-in,turmas,presença,cobrança,gestão,karate,judo,mma
 
-BlackBelt é a plataforma completa para gestão de academias de artes marciais. Desenvolvida especificamente para BJJ, Judô, Karatê, MMA e outras modalidades.
+### Description
 
-**Para Donos de Academias:**
-- Dashboard com KPIs em tempo real (alunos ativos, check-ins, receita)
-- Gestão de turmas, horários e professores
-- Controle financeiro: planos, assinaturas e faturas
-- Relatórios de presença, evolução e retenção
+BlackBelt é o sistema de gestão completo para academias de artes marciais. Gerencie alunos, turmas, presença, cobranças e comunicação em um único app.
 
-**Para Professores:**
-- Modo Aula: lista de chamada com check-in em tempo real
-- Geração de QR Code para presença
-- Avaliação e promoção de faixa dos alunos
-- Mensagens diretas com alunos
+- Dashboard com KPIs em tempo real
+- Check-in por QR Code, proximidade ou recepção
+- Gestão de turmas e horários
+- Cobranças via PIX, boleto ou cartão (Asaas)
+- 9 perfis: Admin, Professor, Aluno, Teen, Kids, Responsável e mais
+- Gamificação para alunos teen
+- Relatórios financeiros e de presença
+- Comunicação com responsáveis
+- Loja interna da academia
 
-**Para Alunos:**
-- Check-in rápido via QR Code
-- Acompanhamento de progresso e faixa
-- Conteúdo em vídeo exclusivo
-- Conquistas e ranking gamificado
+### Review Notes
 
-**Para Responsáveis:**
-- Acompanhe a presença dos seus filhos
-- Visualize progresso e avaliações
-- Gerencie pagamentos de forma centralizada
-
-- **Keywords:** academia, artes marciais, bjj, jiu jitsu, judô, karatê, mma, check-in, presença, gestão, turmas, faixa, progresso
-- **Categoria Primária:** Sports
-- **Categoria Secundária:** Education
-- **Privacy Policy URL:** https://blackbelt.app/privacy
-- **Support URL:** https://blackbelt.app/support
+```
+Email: roberto@guerreiros.com
+Password: BlackBelt@2026
+Profile: Admin — Academia "Guerreiros do Tatame"
+The app requires an academy account. Use the credentials above to access the full admin experience.
+```
 
 ## Google Play (Android)
 
-- **Nome:** BlackBelt — Gestão de Academias
-- **Descrição Curta (80 chars):** Gerencie sua academia de artes marciais com check-in, turmas e progresso.
-- **Descrição Longa:** (mesma do iOS acima)
-- **Categoria:** Sports
-- **Feature Graphic:** 1024x500px — Fundo vermelho (#C62828) com logo BlackBelt centralizado
-- **Tags:** academia, artes marciais, bjj, jiu-jitsu, judô, karatê, check-in, gestão
+- **App Name:** BlackBelt — Gestão de Academias
+- **Short Description (80 chars):** Gestão completa para academias de artes marciais. Check-in, turmas e progresso.
+- **Full Description:** (mesma do iOS acima)
+- **Category:** Business
+- **Content Rating:** Everyone
+- **Privacy Policy URL:** https://blackbeltv2.vercel.app/privacidade
+- **Contact Email:** gregoryguimaraes12@gmail.com
+- **Contact Phone:** +55 31 99679-3625
 
-## Screenshots Necessárias
+### Data Safety
 
-### iPhone 6.7" (1290x2796)
-1. Tela de Login
-2. Dashboard do Aluno (progresso de faixa)
-3. Check-in via QR Code
-4. Lista de Turmas
-5. Player de Vídeo
-6. Dashboard do Professor (Modo Aula)
+- Account creation required: Yes
+- Data shared with third parties: No
+- Data collected: Name, email, phone (for account), usage data (analytics)
+- Data encrypted in transit: Yes
+- Data deletion: Users can request via app or https://blackbeltv2.vercel.app/excluir-conta
 
-### iPhone 5.5" (1242x2208)
-- Mesmas 6 telas acima
+## Screenshots
 
-### iPad 12.9" (2048x2732)
-1. Dashboard Admin
-2. Gestão de Turmas
-3. Relatórios Financeiros
+Gerados automaticamente em `docs/screenshots/` via `scripts/take-screenshots.sh`.
 
-### Android Phone (1080x1920)
-- Mesmas 6 telas do iPhone
+| Dispositivo | Resolução | Arquivos |
+|-------------|-----------|----------|
+| iPhone 15 Pro Max | 1290x2796 | iPhone_15_Pro_Max_*.png |
+| iPhone 8 Plus | 1242x2208 | iPhone_8_Plus_*.png |
+| iPad Pro 12.9" | 2048x2732 | iPad_Pro_12.9_*.png |
+| Android Phone | 1080x1920 | Android_Phone_*.png |
+| Android 7" | 1200x1920 | Android_7inch_*.png |
 
-### Android Tablet (1200x1920)
-- Mesmas 3 telas do iPad
+## Configuração Supabase para Testes
+
+Para permitir login sem confirmação de email (ambiente de teste/review):
+
+1. Supabase Dashboard → Authentication → Providers → Email
+2. Desmarcar "Confirm email"
+3. Isso permite que reviewers da Apple/Google façam login com as credenciais de teste
+
+Para produção com clientes reais, reativar confirmação de email.
