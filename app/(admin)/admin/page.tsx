@@ -39,6 +39,7 @@ import { ReportViewer } from '@/components/reports/ReportViewer';
 import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import type { MonthlyReportData } from '@/lib/types/report';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { listStaff } from '@/lib/api/invites.service';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -406,6 +407,8 @@ export default function AdminDashboardPage() {
     () => getPedagogicoDashboard(getActiveAcademyId()),
   );
 
+  const { data: staffList } = useSWRFetch('admin-staff-list', () => listStaff(getActiveAcademyId()));
+  const hasProfessor = (staffList ?? []).some((m) => m.role === 'professor');
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
 
@@ -499,6 +502,28 @@ export default function AdminDashboardPage() {
 
       {/* ═══ SECTION: FIRST STEPS CHECKLIST ═══════════════════════════ */}
       <FirstStepsChecklist variant="admin" />
+
+      {/* ═══ SECTION: WIZARD — CONVIDAR PROFESSOR ═══════════════════ */}
+      {!hasProfessor && staffList && (
+        <section
+          className="rounded-xl p-6 animate-reveal"
+          style={{ background: 'rgba(198,40,40,0.08)', border: '1px solid rgba(198,40,40,0.2)' }}
+        >
+          <h3 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+            Convide seu primeiro professor
+          </h3>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Sua academia precisa de pelo menos 1 professor para criar turmas e registrar presenca.
+          </p>
+          <Link
+            href="/admin/equipe"
+            className="mt-4 inline-flex rounded-lg px-4 py-2 text-sm font-semibold text-white"
+            style={{ background: '#C62828' }}
+          >
+            Convidar Professor
+          </Link>
+        </section>
+      )}
 
       {/* ═══ SECTION: QUICK ACTIONS (TOP) ═════════════════════════════ */}
       <div className="mb-4">

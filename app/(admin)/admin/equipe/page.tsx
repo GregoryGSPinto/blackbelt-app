@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { listStaff, sendInvite, getActiveInvites, cancelInvite, resendInvite, type StaffMember, type InviteDTO } from '@/lib/api/invites.service';
+import { forgotPassword } from '@/lib/api/auth.service';
 import { Role } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -16,6 +17,8 @@ import { ComingSoon } from '@/components/shared/ComingSoon';
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrador',
   professor: 'Professor',
+  recepcao: 'Recepcionista',
+  receptionist: 'Recepcionista',
 };
 
 export default function EquipePage() {
@@ -27,6 +30,9 @@ export default function EquipePage() {
   const [showInvite, setShowInvite] = useState(false);
   const [inviteForm, setInviteForm] = useState({ email: '', role: Role.Professor as Role });
   const [sending, setSending] = useState(false);
+  const [filterRole, setFilterRole] = useState('');
+  const [resetTarget, setResetTarget] = useState<StaffMember | null>(null);
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
@@ -69,14 +75,44 @@ export default function EquipePage() {
     }
   }
 
+  async function handleResetPassword() {
+    if (!resetTarget) return;
+    setResettingPassword(true);
+    try {
+      await forgotPassword(resetTarget.email);
+      toast(`Email de redefinicao enviado para ${resetTarget.email}`, 'success');
+      setResetTarget(null);
+    } catch (err) {
+      toast(translateError(err), 'error');
+    } finally {
+      setResettingPassword(false);
+    }
+  }
+
+  const roles = [...new Set(staff.map((m) => m.role))].sort();
+  const filtered = filterRole ? staff.filter((m) => m.role === filterRole) : staff;
+
   if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold text-bb-black">Equipe</h1>
-        <Button onClick={() => setShowInvite(true)}>Convidar Membro</Button>
+        <div className="flex items-center gap-3">
+          {roles.length > 1 && (
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="rounded-lg px-3 py-2 text-sm"
+              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+            >
+              <option value="">Todos os perfis</option>
+              {roles.map((r) => <option key={r} value={r}>{ROLE_LABEL[r] ?? r}</option>)}
+            </select>
+          )}
+          <Button onClick={() => setShowInvite(true)}>Convidar Membro</Button>
+        </div>
       </div>
 
       {/* Staff Table */}
@@ -89,13 +125,14 @@ export default function EquipePage() {
               <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Unidade(s)</th>
               <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Status</th>
               <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Último Acesso</th>
+              <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Ações</th>
             </tr></thead>
             <tbody>
-              {staff.length === 0 && (
-                <tr><td colSpan={5}>
+              {filtered.length === 0 && (
+                <tr><td colSpan={6}>
                   <EmptyState
                     icon="👥"
-                    title="Nenhum membro na equipe"
+                    title={filterRole ? 'Nenhum membro com esse perfil' : 'Nenhum membro na equipe'}
                     description="Convide professores e administradores para gerenciar sua academia."
                     actionLabel="Convidar Membro"
                     onAction={() => setShowInvite(true)}
@@ -103,7 +140,7 @@ export default function EquipePage() {
                   />
                 </td></tr>
               )}
-              {staff.map((member) => (
+              {filtered.map((member) => (
                 <tr key={member.id} className="border-b border-bb-gray-100">
                   <td className="px-4 py-3">
                     <p className="font-medium text-bb-black">{member.name}</p>
@@ -118,6 +155,15 @@ export default function EquipePage() {
                   </td>
                   <td className="px-4 py-3 text-right text-xs text-bb-gray-500">
                     {member.lastAccessAt ? new Date(member.lastAccessAt).toLocaleDateString('pt-BR') : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => setResetTarget(member)}
+                      className="text-xs hover:underline"
+                      style={{ color: 'var(--bb-brand)' }}
+                    >
+                      Resetar senha
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -173,6 +219,21 @@ export default function EquipePage() {
           <div className="flex gap-2">
             <Button variant="ghost" className="flex-1" onClick={() => setShowInvite(false)}>Cancelar</Button>
             <Button className="flex-1" onClick={handleInvite} loading={sending} disabled={!inviteForm.email}>Enviar Convite</Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={!!resetTarget} onClose={() => setResetTarget(null)} title="Resetar Senha">
+        <div className="space-y-4">
+          <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+            Enviar email de redefinicao de senha para <strong>{resetTarget?.name}</strong> ({resetTarget?.email})?
+          </p>
+          <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+            O membro recebera um link para criar uma nova senha.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="ghost" className="flex-1" onClick={() => setResetTarget(null)}>Cancelar</Button>
+            <Button className="flex-1" onClick={handleResetPassword} loading={resettingPassword}>Enviar Email</Button>
           </div>
         </div>
       </Modal>
