@@ -132,6 +132,17 @@ export default function LandingPage() {
             >
               COMEÇAR GRÁTIS — 7 DIAS
             </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: 'transparent',
+                color: 'var(--bb-ink-100)',
+                border: '1px solid var(--bb-glass-border)',
+              }}
+            >
+              Já tenho conta
+            </Link>
           </div>
           <p className="mt-3 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
             Sem cartão de crédito. Cancele quando quiser.
