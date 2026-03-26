@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { FadeInSection } from '@/components/landing/FadeInSection';
 import { DashboardMockup } from '@/components/landing/DashboardMockup';
@@ -372,7 +372,7 @@ export default function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
-              <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} style={{ filter: 'drop-shadow(0 0 6px rgba(198,40,40,0.4))' }} />
+              <BlackBeltLogo variant="navbar" mode="dark" height={28} />
               <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 Gestão de academias de artes marciais
               </p>

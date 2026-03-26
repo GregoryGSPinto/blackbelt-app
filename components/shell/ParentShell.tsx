@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { usePathname } from 'next/navigation';
 import { BottomNav } from './BottomNav';
 import { Avatar } from '@/components/ui/Avatar';
@@ -197,7 +197,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
               className="flex h-14 flex-col justify-center px-6"
               style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
             >
-              <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+              <BlackBeltLogo variant="navbar" mode="dark" height={28} />
               <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                 Responsável
               </span>
@@ -220,7 +220,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                   className="flex h-14 flex-col justify-center px-6"
                   style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                 >
-                  <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+                  <BlackBeltLogo variant="navbar" mode="dark" height={28} />
                   <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                     Responsável
                   </span>

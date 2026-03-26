@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { usePathname, useRouter } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -197,7 +197,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
           >
             {/* Logo */}
             <div className="flex h-16 items-center gap-3 px-6" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-              <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+              <BlackBeltLogo variant="navbar" mode="dark" height={28} />
               <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: AMBER }}>
                 Platform Admin
               </p>

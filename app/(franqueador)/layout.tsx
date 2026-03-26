@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
@@ -50,12 +51,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
           className="flex h-14 items-center px-6"
           style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
         >
-          <span
-            className="text-lg font-bold"
-            style={{ color: 'var(--bb-brand)' }}
-          >
-            BlackBelt
-          </span>
+          <BlackBeltLogo variant="navbar" mode="dark" height={28} />
           <span className="ml-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
             Franqueador
           </span>

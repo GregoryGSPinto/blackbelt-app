@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { usePathname } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -129,7 +129,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
               className="flex h-14 items-center justify-center gap-2 px-6"
               style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
             >
-              <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+              <BlackBeltLogo variant="navbar" mode="dark" height={28} />
             </div>
             <div className="px-4 py-3 text-center" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
               <span className="text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Kids</span>
@@ -149,7 +149,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                   className="flex h-14 items-center justify-center gap-2 px-6"
                   style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                 >
-                  <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+                  <BlackBeltLogo variant="navbar" mode="dark" height={28} />
                 </div>
                 <div className="px-4 py-3 text-center" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                   <span className="text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Kids</span>

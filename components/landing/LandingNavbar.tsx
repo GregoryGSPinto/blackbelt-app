@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 
 const NAV_LINKS = [
   { href: '#funcionalidades', label: 'Funcionalidades' },
@@ -34,7 +34,7 @@ export function LandingNavbar() {
     >
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
         <Link href="/">
-          <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px rgba(198,40,40,0.4))' }} />
+          <BlackBeltLogo variant="navbar" mode="dark" height={28} />
         </Link>
 
         {/* Desktop links */}

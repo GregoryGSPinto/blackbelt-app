@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Instrument_Sans, JetBrains_Mono, Outfit } from 'next/font/google';
+import { Instrument_Sans, JetBrains_Mono, Outfit, Playfair_Display } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
@@ -29,6 +29,13 @@ const outfit = Outfit({
   display: 'swap',
 });
 
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800', '900'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
 export const viewport: Viewport = {
   themeColor: '#C62828',
 };
@@ -39,7 +46,7 @@ export const metadata: Metadata = {
   keywords: 'gestão academia, artes marciais, jiu jitsu, bjj, check-in, turmas, presença, cobrança',
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.svg',
+    icon: { url: '/favicon.svg', type: 'image/svg+xml' },
     apple: '/app-icons/icon-192.svg',
   },
   openGraph: {
@@ -54,7 +61,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable} ${playfair.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
         <link rel="apple-touch-icon" href="/app-icons/icon-192.svg" />
