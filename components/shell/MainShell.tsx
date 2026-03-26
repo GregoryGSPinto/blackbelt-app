@@ -11,6 +11,7 @@ import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { useCartContext } from '@/lib/contexts/CartContext';
 import {
   LayoutDashboardIcon,
   CalendarIcon,
@@ -99,6 +100,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
   function MainShell({ children }, ref) {
     const pathname = usePathname();
     const { profile, logout } = useAuth();
+    const { cartCount } = useCartContext();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -240,6 +242,17 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
               <div className="flex items-center gap-3">
                 <HeaderHelpButton />
                 <BetaBadge />
+                <Link href="/carrinho" className="relative flex items-center justify-center h-9 w-9" aria-label="Carrinho">
+                  <ShoppingBagIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-60)' }} />
+                  {cartCount > 0 && (
+                    <span
+                      className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                      style={{ background: '#EF4444' }}
+                    >
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </Link>
                 <ThemeToggle />
                 <NotificationBell />
                 <div className="relative">
