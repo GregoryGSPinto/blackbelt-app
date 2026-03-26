@@ -46,7 +46,10 @@ export const metadata: Metadata = {
   keywords: 'gestão academia, artes marciais, jiu jitsu, bjj, check-in, turmas, presença, cobrança',
   manifest: '/manifest.json',
   icons: {
-    icon: { url: '/favicon.svg', type: 'image/svg+xml' },
+    icon: [
+      { url: '/favicon-dark.svg', type: 'image/svg+xml', media: '(prefers-color-scheme: dark)' },
+      { url: '/favicon-light.svg', type: 'image/svg+xml', media: '(prefers-color-scheme: light)' },
+    ],
     apple: '/app-icons/icon-192.svg',
   },
   openGraph: {
