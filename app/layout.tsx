@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   keywords: 'gestão academia, artes marciais, jiu jitsu, bjj, check-in, turmas, presença, cobrança',
   manifest: '/manifest.json',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icons/icon-192x192.png',
+    icon: '/favicon.svg',
+    apple: '/app-icons/icon-192.svg',
   },
   openGraph: {
     type: 'website',
@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/app-icons/icon-192.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>

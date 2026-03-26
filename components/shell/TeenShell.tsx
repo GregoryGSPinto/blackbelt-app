@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -184,12 +185,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
               className="flex h-14 flex-col justify-center px-6"
               style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
             >
-              <span
-                className="font-display text-xl font-extrabold"
-                style={{ color: 'var(--bb-brand)', filter: 'drop-shadow(0 0 6px var(--bb-brand))' }}
-              >
-                BLACKBELT
-              </span>
+              <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
               <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Teen</span>
             </div>
             {/* XP Bar in sidebar */}
@@ -220,12 +216,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                   className="flex h-14 flex-col justify-center px-6"
                   style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
                 >
-                  <span
-                    className="font-display text-xl font-extrabold"
-                    style={{ color: 'var(--bb-brand)', filter: 'drop-shadow(0 0 6px var(--bb-brand))' }}
-                  >
-                    BLACKBELT
-                  </span>
+                  <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
                   <span className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Teen</span>
                 </div>
                 <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { isMock } from '@/lib/env';
@@ -85,9 +86,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10">
-          <h1 className="text-2xl font-black tracking-tight" style={{ color: '#C62828' }}>
-            BLACKBELT
-          </h1>
+          <Image src="/brand/logo-dark.svg" alt="BlackBelt" width={180} height={36} priority style={{ filter: 'drop-shadow(0 0 6px rgba(198,40,40,0.4))' }} />
         </div>
 
         {/* Dashboard Preview */}
@@ -164,9 +163,9 @@ export default function LoginPage() {
 
           {/* Logo (mobile only) */}
           <div className="lg:hidden text-center mb-10">
-            <h1 className="text-3xl font-black tracking-tight" style={{ color: '#C62828' }}>
-              BLACKBELT
-            </h1>
+            <div className="flex justify-center">
+              <Image src="/brand/logo-dark.svg" alt="BlackBelt" width={200} height={40} priority style={{ filter: 'drop-shadow(0 0 6px rgba(198,40,40,0.4))' }} />
+            </div>
             <div className="flex justify-center gap-1 mt-3">
               {['#F8FAFC', '#EAB308', '#F97316', '#22C55E', '#3B82F6', '#8B5CF6', '#92400E', '#1A1A2E'].map(c => (
                 <div key={c} className="w-3 h-1 rounded-full" style={{ background: c, opacity: 0.5 }} />

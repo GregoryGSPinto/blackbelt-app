@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShellHeader } from './ShellHeader';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -217,23 +218,10 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
               style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
             >
               <div className="flex items-center gap-3">
-                <div
-                  className="flex h-8 w-8 items-center justify-center rounded-lg"
-                  style={{ background: 'var(--bb-brand)' }}
-                >
-                  <span className="text-sm font-bold text-white">B</span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                    BlackBelt
-                  </p>
-                  <p
-                    className="text-[10px] font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--bb-brand)' }}
-                  >
-                    Professor
-                  </p>
-                </div>
+                <Image src="/brand/logo-navbar-dark.svg" alt="BlackBelt" width={140} height={28} priority style={{ filter: 'drop-shadow(0 0 6px var(--bb-brand))' }} />
+                <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+                  Professor
+                </p>
               </div>
 
               {/* Notifications */}
