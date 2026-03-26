@@ -40,6 +40,8 @@ import { generateMonthlyReport } from '@/lib/reports/monthly-report';
 import type { MonthlyReportData } from '@/lib/types/report';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { listStaff } from '@/lib/api/invites.service';
+import { getTrialMetrics, listTrialStudents } from '@/lib/api/trial.service';
+import type { TrialMetrics, TrialStudent } from '@/lib/api/trial.service';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -357,6 +359,162 @@ const chartTooltipStyle: React.CSSProperties = {
   fontSize: '12px',
 };
 
+// ── Trial Card ────────────────────────────────────────────────────
+
+function TrialCard() {
+  const [metrics, setMetrics] = useState<TrialMetrics | null>(null);
+  const [trials, setTrials] = useState<TrialStudent[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const academyId = getActiveAcademyId();
+        const [m, t] = await Promise.all([
+          getTrialMetrics(academyId),
+          listTrialStudents(academyId, { status: 'active' }),
+        ]);
+        setMetrics(m);
+        setTrials(t);
+      } catch {
+        // silently fail — card simply won't render
+      } finally {
+        setLoaded(true);
+      }
+    }
+    load();
+  }, []);
+
+  if (!loaded || !metrics || metrics.active_now === 0) return null;
+
+  function daysRemaining(endDate: string) {
+    const diff = Math.ceil(
+      (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    );
+    return Math.max(0, diff);
+  }
+
+  function daysBadgeColor(days: number) {
+    if (days <= 1) return { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' };
+    if (days <= 3) return { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b' };
+    return { bg: 'rgba(34,197,94,0.15)', text: '#22c55e' };
+  }
+
+  return (
+    <section className="animate-reveal space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+          {'\uD83E\uDD4B'} Alunos Experimentais
+        </h2>
+        <div className="flex gap-2">
+          <Link
+            href="/admin/experimental/novo"
+            className="px-3 py-1.5 text-xs font-semibold transition-all hover:brightness-110"
+            style={{
+              background: 'var(--bb-brand)',
+              color: '#fff',
+              borderRadius: 'var(--bb-radius-md)',
+            }}
+          >
+            + Cadastrar
+          </Link>
+          <Link
+            href="/admin/experimental"
+            className="px-3 py-1.5 text-xs font-medium transition-all hover:brightness-110"
+            style={{
+              background: 'var(--bb-depth-3)',
+              border: '1px solid var(--bb-glass-border)',
+              borderRadius: 'var(--bb-radius-md)',
+              color: 'var(--bb-ink-80)',
+            }}
+          >
+            Ver todos
+          </Link>
+        </div>
+      </div>
+
+      {/* Mini KPIs */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Em trial', value: String(metrics.active_now), color: 'var(--bb-brand)' },
+          { label: 'Expiram em 3 dias', value: String(metrics.expiring_in_3_days), color: '#f59e0b' },
+          { label: 'Taxa de conversao', value: `${metrics.conversion_rate}%`, color: '#22c55e' },
+        ].map((kpi) => (
+          <div
+            key={kpi.label}
+            className="p-3 text-center"
+            style={{
+              background: 'var(--bb-depth-2)',
+              border: '1px solid var(--bb-glass-border)',
+              borderRadius: 'var(--bb-radius-md)',
+            }}
+          >
+            <p className="text-xl font-bold" style={{ color: kpi.color }}>
+              {kpi.value}
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
+              {kpi.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Active trials list */}
+      <div
+        className="divide-y overflow-hidden"
+        style={{
+          background: 'var(--bb-depth-2)',
+          border: '1px solid var(--bb-glass-border)',
+          borderRadius: 'var(--bb-radius-lg)',
+          borderColor: 'var(--bb-glass-border)',
+        }}
+      >
+        {trials.slice(0, 5).map((t) => {
+          const days = daysRemaining(t.trial_end_date);
+          const badge = daysBadgeColor(days);
+          const initials = t.name
+            .split(' ')
+            .slice(0, 2)
+            .map((w) => w[0])
+            .join('')
+            .toUpperCase();
+
+          return (
+            <Link
+              key={t.id}
+              href={`/admin/experimental/${t.id}`}
+              className="flex items-center gap-3 px-4 py-3 transition-colors hover:brightness-95"
+              style={{ borderColor: 'var(--bb-glass-border)' }}
+            >
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                style={{ background: 'var(--bb-brand)' }}
+              >
+                {initials}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {t.name}
+                </p>
+                <p className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                  {t.trial_classes_attended} aula{t.trial_classes_attended !== 1 ? 's' : ''} &middot;{' '}
+                  {t.modalities_interest.slice(0, 2).join(', ')}
+                </p>
+              </div>
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                style={{ background: badge.bg, color: badge.text }}
+              >
+                {days}d restante{days !== 1 ? 's' : ''}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 // ── Skeleton loading ───────────────────────────────────────────────
 
 function DashboardSkeleton() {
@@ -557,6 +715,9 @@ export default function AdminDashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* ═══ SECTION: ALUNOS EXPERIMENTAIS ═══════════════════════════ */}
+      <TrialCard />
 
       {/* ═══ SECTION: HOJE (Daily Briefing) ═══════════════════════════ */}
       {briefing && (
