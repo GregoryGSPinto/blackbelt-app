@@ -99,7 +99,7 @@ export default function CheckoutLojaPage() {
 
       {/* Step indicators */}
       <div className="flex items-center gap-2 text-xs text-bb-gray-400">
-        <span className={step === 'address' ? 'font-bold text-bb-primary' : ''}>Endereço</span>
+        <span className={step === 'address' ? 'font-bold text-bb-primary' : ''}>Endereco</span>
         <span>/</span>
         <span className={step === 'shipping' ? 'font-bold text-bb-primary' : ''}>Entrega</span>
         <span>/</span>
@@ -130,7 +130,7 @@ export default function CheckoutLojaPage() {
             {deliveryOption === 'pickup' && (
               <div className="flex justify-between text-sm">
                 <span className="text-bb-gray-500">Retirada na academia</span>
-                <span className="font-bold text-green-600">Grátis</span>
+                <span className="font-bold text-green-600">Gratis</span>
               </div>
             )}
             <div className="flex justify-between border-t border-bb-gray-200 pt-1">
@@ -154,7 +154,7 @@ export default function CheckoutLojaPage() {
               }`}
             >
               <p className="font-medium text-bb-black">Retirar na Academia</p>
-              <p className="mt-1 text-xs text-bb-gray-500">Grátis - Disponível em 1 dia útil</p>
+              <p className="mt-1 text-xs text-bb-gray-500">Gratis - Disponivel em 1 dia util</p>
             </button>
             <button
               onClick={() => setDeliveryOption('shipping')}
@@ -162,14 +162,14 @@ export default function CheckoutLojaPage() {
                 deliveryOption === 'shipping' ? 'border-bb-primary bg-red-50' : 'border-bb-gray-200'
               }`}
             >
-              <p className="font-medium text-bb-black">Enviar para Endereço</p>
+              <p className="font-medium text-bb-black">Enviar para Endereco</p>
               <p className="mt-1 text-xs text-bb-gray-500">Frete calculado pelo CEP</p>
             </button>
           </div>
 
           {deliveryOption === 'shipping' && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-bb-black">Endereço de Entrega</h4>
+              <h4 className="text-sm font-medium text-bb-black">Endereco de Entrega</h4>
               <input
                 placeholder="Nome completo"
                 value={address.name}
@@ -210,7 +210,7 @@ export default function CheckoutLojaPage() {
                   className="col-span-2 rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
                 />
                 <input
-                  placeholder="Número"
+                  placeholder="Numero"
                   value={address.number}
                   onChange={(e) => setAddress({ ...address, number: e.target.value })}
                   className="rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
@@ -252,7 +252,7 @@ export default function CheckoutLojaPage() {
               >
                 <div>
                   <p className="font-medium text-bb-black">{opt.carrier} - {opt.service}</p>
-                  <p className="text-xs text-bb-gray-500">Entrega em até {opt.delivery_days} dias úteis</p>
+                  <p className="text-xs text-bb-gray-500">Entrega em ate {opt.delivery_days} dias uteis</p>
                 </div>
                 <span className="font-bold text-bb-black">{formatBRL(opt.price)}</span>
               </button>
@@ -274,9 +274,10 @@ export default function CheckoutLojaPage() {
         <div className="space-y-4">
           <h3 className="font-bold text-bb-black">Forma de Pagamento</h3>
           {([
-            { id: 'pix' as const, label: 'PIX', desc: 'Confirmação instantânea - 5% de desconto' },
-            { id: 'boleto' as const, label: 'Boleto Bancário', desc: 'Até 3 dias úteis para confirmação' },
-            { id: 'credit_card' as const, label: 'Cartão de Crédito', desc: 'Confirmação imediata - até 12x' },
+            { id: 'pix' as const, label: 'PIX', desc: 'Confirmacao instantanea - 5% de desconto' },
+            { id: 'boleto' as const, label: 'Boleto Bancario', desc: 'Ate 3 dias uteis para confirmacao' },
+            { id: 'credit_card' as const, label: 'Cartao de Credito', desc: 'Confirmacao imediata - ate 12x' },
+            { id: 'academy_payment' as const, label: 'Pagar na Academia', desc: 'Pague diretamente na recepcao da academia' },
           ]).map((opt) => (
             <button
               key={opt.id}
@@ -286,7 +287,7 @@ export default function CheckoutLojaPage() {
               }`}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bb-gray-100 text-lg">
-                {opt.id === 'pix' ? '⚡' : opt.id === 'boleto' ? '📄' : '💳'}
+                {opt.id === 'pix' ? '\u26A1' : opt.id === 'boleto' ? '\uD83D\uDCC4' : opt.id === 'credit_card' ? '\uD83D\uDCB3' : '\uD83C\uDFEB'}
               </div>
               <div>
                 <p className="font-medium text-bb-black">{opt.label}</p>
@@ -314,7 +315,7 @@ export default function CheckoutLojaPage() {
       {step === 'success' && (
         <div className="space-y-4 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl">
-            ✓
+            \u2713
           </div>
           <h3 className="text-xl font-bold text-bb-black">Pedido Confirmado!</h3>
           <p className="text-sm text-bb-gray-500">
@@ -322,17 +323,19 @@ export default function CheckoutLojaPage() {
           </p>
           <p className="text-sm text-bb-gray-500">
             {paymentMethod === 'pix'
-              ? 'Aguarde a confirmação do pagamento via PIX.'
+              ? 'Aguarde a confirmacao do pagamento via PIX.'
               : paymentMethod === 'boleto'
-                ? 'O boleto foi gerado. Pague até a data de vencimento.'
-                : 'O pagamento com cartão de crédito foi aprovado.'}
+                ? 'O boleto foi gerado. Pague ate a data de vencimento.'
+                : paymentMethod === 'academy_payment'
+                  ? 'Efetue o pagamento na recepcao da academia.'
+                  : 'O pagamento com cartao de credito foi aprovado.'}
           </p>
           <div className="flex flex-col gap-2">
             <Button className="w-full" onClick={() => router.push('/loja')}>
               Continuar Comprando
             </Button>
-            <Button variant="ghost" className="w-full" onClick={() => router.push('/pedidos/' + orderId)}>
-              Acompanhar Pedido
+            <Button variant="ghost" className="w-full" onClick={() => router.push('/loja/pedidos')}>
+              Meus Pedidos
             </Button>
           </div>
         </div>

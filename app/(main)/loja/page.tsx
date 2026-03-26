@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { listProducts, type Product, type ProductCategory } from '@/lib/api/store.service';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -10,7 +10,7 @@ import { SearchIcon, ShoppingCartIcon, FilterIcon, XIcon } from '@/components/sh
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
-// ── Constants ──────────────────────────────────────────────────────────
+// -- Constants ---------------------------------------------------------------
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   quimono: 'Quimonos',
@@ -31,17 +31,59 @@ const CATEGORY_TABS: { key: string; label: string }[] = [
   { key: 'suplemento', label: 'Suplementos' },
 ];
 
+type SortOption = 'popular' | 'price_asc' | 'price_desc' | 'newest';
+
+const SORT_OPTIONS: { key: SortOption; label: string }[] = [
+  { key: 'popular', label: 'Popular' },
+  { key: 'price_asc', label: 'Preco menor' },
+  { key: 'price_desc', label: 'Preco maior' },
+  { key: 'newest', label: 'Mais novos' },
+];
+
 function formatBRL(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-// ── Page ───────────────────────────────────────────────────────────────
+function isNewProduct(createdAt: string): boolean {
+  const created = new Date(createdAt);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  return created >= sevenDaysAgo;
+}
+
+/** Renders 1-5 filled/empty stars */
+function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <span className="inline-flex items-center gap-px">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill={star <= Math.round(rating) ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth={star <= Math.round(rating) ? 0 : 1.5}
+          style={{
+            width: size,
+            height: size,
+            color: star <= Math.round(rating) ? '#FBBF24' : 'var(--bb-ink-20)',
+          }}
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+// -- Page --------------------------------------------------------------------
 
 export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
   const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('popular');
   const { cartCount, addItem } = useCart();
   const { toast } = useToast();
 
@@ -52,14 +94,34 @@ export default function LojaPage() {
       .finally(() => setLoading(false));
   }, [toast]);
 
-  const filtered = products.filter((p) => {
-    if (activeCategory && p.category !== activeCategory) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (!p.name.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
+  const filtered = useMemo(() => {
+    let result = products.filter((p) => {
+      if (activeCategory && p.category !== activeCategory) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (!p.name.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    // Sort
+    switch (sortBy) {
+      case 'popular':
+        result = [...result].sort((a, b) => (b.sold_count ?? 0) - (a.sold_count ?? 0));
+        break;
+      case 'price_asc':
+        result = [...result].sort((a, b) => a.price - b.price);
+        break;
+      case 'price_desc':
+        result = [...result].sort((a, b) => b.price - a.price);
+        break;
+      case 'newest':
+        result = [...result].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
     }
-    return true;
-  });
+
+    return result;
+  }, [products, activeCategory, search, sortBy]);
 
   function handleQuickAdd(product: Product) {
     const variant = product.variants[0];
@@ -75,7 +137,7 @@ export default function LojaPage() {
     toast(`${product.name} adicionado ao carrinho`, 'success');
   }
 
-  // ── Skeleton loading ─────────────────────────────────────────────────
+  // -- Skeleton loading ------------------------------------------------------
 
   if (loading) {
     return (
@@ -94,7 +156,7 @@ export default function LojaPage() {
 
   return (
     <div className="min-h-screen space-y-5 p-4 sm:p-6 overflow-x-hidden" data-stagger>
-      {/* ── Header ───────────────────────────────────────────────── */}
+      {/* -- Header --------------------------------------------------------- */}
       <section className="animate-reveal flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
@@ -125,7 +187,7 @@ export default function LojaPage() {
         </Link>
       </section>
 
-      {/* ── Search ───────────────────────────────────────────────── */}
+      {/* -- Search --------------------------------------------------------- */}
       <section className="animate-reveal">
         <div className="relative">
           <SearchIcon
@@ -147,7 +209,7 @@ export default function LojaPage() {
         </div>
       </section>
 
-      {/* ── Category filters ─────────────────────────────────────── */}
+      {/* -- Category filters ----------------------------------------------- */}
       <section className="animate-reveal">
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {CATEGORY_TABS.map((tab) => (
@@ -167,25 +229,43 @@ export default function LojaPage() {
         </div>
       </section>
 
-      {/* ── Results count ────────────────────────────────────────── */}
-      <section className="animate-reveal flex items-center justify-between">
+      {/* -- Sort + results count ------------------------------------------- */}
+      <section className="animate-reveal flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
           {filtered.length} produto{filtered.length !== 1 ? 's' : ''}
         </span>
-        {(activeCategory || search) && (
-          <button
-            type="button"
-            onClick={() => { setActiveCategory(''); setSearch(''); }}
-            className="flex items-center gap-1 text-sm transition-all hover:opacity-80"
-            style={{ color: 'var(--bb-brand)' }}
+
+        <div className="flex items-center gap-2">
+          {(activeCategory || search) && (
+            <button
+              type="button"
+              onClick={() => { setActiveCategory(''); setSearch(''); }}
+              className="flex items-center gap-1 text-sm transition-all hover:opacity-80"
+              style={{ color: 'var(--bb-brand)' }}
+            >
+              <XIcon className="h-3 w-3" />
+              Limpar filtros
+            </button>
+          )}
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="rounded-lg px-3 py-1.5 text-sm outline-none"
+            style={{
+              background: 'var(--bb-depth-3)',
+              border: '1px solid var(--bb-glass-border)',
+              color: 'var(--bb-ink-60)',
+            }}
           >
-            <XIcon className="h-3 w-3" />
-            Limpar filtros
-          </button>
-        )}
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.key} value={opt.key}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
       </section>
 
-      {/* ── Product grid ─────────────────────────────────────────── */}
+      {/* -- Product grid --------------------------------------------------- */}
       {filtered.length === 0 ? (
         <section className="animate-reveal py-12 text-center">
           <FilterIcon className="mx-auto mb-3 h-12 w-12" style={{ color: 'var(--bb-ink-20)' }} />
@@ -231,6 +311,14 @@ export default function LojaPage() {
                     Destaque
                   </span>
                 )}
+                {isNewProduct(product.created_at) && (
+                  <span
+                    className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                    style={{ background: '#6366F1' }}
+                  >
+                    Novo
+                  </span>
+                )}
               </div>
 
               {/* Image placeholder */}
@@ -270,6 +358,16 @@ export default function LojaPage() {
                     {product.name}
                   </h3>
                 </Link>
+
+                {/* Star rating */}
+                {(product.rating_avg ?? 0) > 0 && (
+                  <div className="mt-1 flex items-center gap-1">
+                    <StarRating rating={product.rating_avg ?? 0} size={12} />
+                    <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      {product.rating_avg?.toFixed(1)} ({product.rating_count})
+                    </span>
+                  </div>
+                )}
 
                 <div className="mt-2 flex items-baseline gap-2">
                   <span className="text-base font-extrabold sm:text-lg" style={{ color: 'var(--bb-ink-100)' }}>

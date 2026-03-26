@@ -1,7 +1,7 @@
 import { isMock } from '@/lib/env';
 
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentMethod = 'pix' | 'boleto' | 'credit_card';
+export type PaymentMethod = 'pix' | 'boleto' | 'credit_card' | 'academy_payment';
 
 export interface OrderItem {
   product_id: string;
