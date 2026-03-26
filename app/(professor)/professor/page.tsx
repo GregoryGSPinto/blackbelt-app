@@ -26,6 +26,9 @@ import {
 } from '@/components/shell/icons';
 import { getDuvidasPendentes } from '@/lib/api/video-experience.service';
 import type { Duvida } from '@/lib/api/video-experience.service';
+import { listTrialStudents } from '@/lib/api/trial.service';
+import type { TrialStudent } from '@/lib/api/trial.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -306,6 +309,89 @@ function StatCard({ label, value, icon, accent, inView }: StatCardProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Trial Students Preview ────────────────────────────────────────────
+
+function TrialStudentsPreview() {
+  const [trials, setTrials] = useState<TrialStudent[]>([]);
+
+  useEffect(() => {
+    listTrialStudents(getActiveAcademyId(), { status: 'active' })
+      .then(setTrials)
+      .catch(() => {});
+  }, []);
+
+  if (trials.length === 0) return null;
+
+  return (
+    <section className="animate-reveal" style={{ animationDelay: '0.22s' }}>
+      <div className="mb-3">
+        <h2
+          className="text-base font-semibold"
+          style={{ color: 'var(--bb-ink-100)' }}
+        >
+          {'\uD83E\uDD4B'} Alunos em Periodo Experimental ({trials.length})
+        </h2>
+        <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+          Receba bem — eles estao conhecendo a academia!
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {trials.slice(0, 4).map((t) => {
+          const days = Math.max(
+            0,
+            Math.ceil(
+              (new Date(t.trial_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+            ),
+          );
+          const initials = t.name
+            .split(' ')
+            .slice(0, 2)
+            .map((w) => w[0])
+            .join('')
+            .toUpperCase();
+
+          return (
+            <div
+              key={t.id}
+              className="flex items-center gap-3 p-3"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-md)',
+              }}
+            >
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                style={{ background: 'var(--bb-brand)' }}
+              >
+                {initials}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {t.name}
+                </p>
+                <p className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                  {t.modalities_interest.slice(0, 2).join(', ')} &middot; {t.trial_classes_attended} aula{t.trial_classes_attended !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                style={{
+                  background: days <= 2 ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
+                  color: days <= 2 ? '#ef4444' : '#22c55e',
+                }}
+              >
+                {days}d
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -595,6 +681,9 @@ export default function ProfessorDashboardPage() {
           })}
         </div>
       </section>
+
+      {/* ── ALUNOS EM PERIODO EXPERIMENTAL ─────────────────────────── */}
+      <TrialStudentsPreview />
 
       {/* ── ALUNOS EM DESTAQUE ──────────────────────────────────────── */}
       <section className="animate-reveal" style={{ animationDelay: '0.25s' }}>

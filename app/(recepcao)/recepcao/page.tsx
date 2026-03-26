@@ -115,6 +115,7 @@ export default function RecepcaoDashboardPage() {
             { label: 'Buscar Aluno', href: '/recepcao/busca' },
             { label: 'Cadastro Rapido', href: '/recepcao/cadastro' },
             { label: 'Check-in Manual', href: '/recepcao/caixa' },
+            { label: '\uD83E\uDD4B Experimental', href: '/admin/experimental/novo' },
           ].map((action) => (
             <Link
               key={action.label}
