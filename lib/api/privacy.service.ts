@@ -2,7 +2,7 @@ import { isMock } from '@/lib/env';
 
 export interface ConsentRecord {
   id: string;
-  type: 'terms' | 'privacy' | 'marketing' | 'cookies';
+  type: 'terms' | 'privacy' | 'marketing' | 'data_processing';
   accepted: boolean;
   acceptedAt: string | null;
   version: string;
@@ -23,11 +23,38 @@ export interface DeletionRequest {
   scheduledDeletionAt: string;
 }
 
-export async function getConsents(userId: string): Promise<ConsentRecord[]> {
+async function resolveProfileId(explicitProfileId?: string): Promise<string> {
+  if (explicitProfileId) return explicitProfileId;
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Usuario nao autenticado');
+  }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !profile?.id) {
+    throw new Error('Perfil nao encontrado');
+  }
+
+  return profile.id;
+}
+
+export async function getConsents(userId?: string): Promise<ConsentRecord[]> {
   try {
+    const profileId = await resolveProfileId(userId);
+
     if (isMock()) {
       const { mockGetConsents } = await import('@/lib/mocks/privacy.mock');
-      return mockGetConsents(userId);
+      return mockGetConsents(profileId);
     }
     try {
       const { createBrowserClient } = await import('@/lib/supabase/client');
@@ -36,7 +63,7 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
       const { data, error } = await supabase
         .from('consent_records')
         .select('id, type, accepted, version, created_at, updated_at')
-        .eq('user_id', userId)
+        .eq('user_id', profileId)
         .order('updated_at', { ascending: false });
       if (error) {
         console.error('[getConsents] query error:', error.message);
@@ -59,11 +86,13 @@ export async function getConsents(userId: string): Promise<ConsentRecord[]> {
   }
 }
 
-export async function updateConsent(userId: string, type: ConsentRecord['type'], accepted: boolean): Promise<ConsentRecord> {
+export async function updateConsent(userId: string | undefined, type: ConsentRecord['type'], accepted: boolean): Promise<ConsentRecord> {
   try {
+    const profileId = await resolveProfileId(userId);
+
     if (isMock()) {
       const { mockUpdateConsent } = await import('@/lib/mocks/privacy.mock');
-      return mockUpdateConsent(userId, type, accepted);
+      return mockUpdateConsent(profileId, type, accepted);
     }
     try {
       const { createBrowserClient } = await import('@/lib/supabase/client');
@@ -72,7 +101,7 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
       const { data, error } = await supabase
         .from('consent_records')
         .upsert(
-          { user_id: userId, type, accepted, version: '1.0', updated_at: new Date().toISOString() },
+          { user_id: profileId, type, accepted, version: '1.0', updated_at: new Date().toISOString() },
           { onConflict: 'user_id,type' }
         )
         .select('id, type, accepted, version, updated_at')
@@ -98,36 +127,35 @@ export async function updateConsent(userId: string, type: ConsentRecord['type'],
   }
 }
 
-export async function requestDataExport(userId: string): Promise<DataExportRequest> {
+export async function requestDataExport(userId?: string): Promise<DataExportRequest> {
   try {
+    const profileId = await resolveProfileId(userId);
+
     if (isMock()) {
       const { mockRequestDataExport } = await import('@/lib/mocks/privacy.mock');
-      return mockRequestDataExport(userId);
+      return mockRequestDataExport(profileId);
     }
-    try {
-      const { createBrowserClient } = await import('@/lib/supabase/client');
-      const supabase = createBrowserClient();
 
-      const { data, error } = await supabase
-        .from('data_export_requests')
-        .insert({ user_id: userId, format: 'json', status: 'pending' })
-        .select('id, status, created_at, completed_at, download_url')
-        .single();
-      if (error || !data) {
-        console.error('[requestDataExport] insert error:', error?.message);
-        return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
-      }
-      return {
-        id: data.id,
-        status: data.status as DataExportRequest['status'],
-        requestedAt: data.created_at,
-        completedAt: data.completed_at,
-        downloadUrl: data.download_url,
-      };
-    } catch (err) {
-      console.error('[privacy.requestDataExport] error, using fallback:', err);
+    const res = await fetch('/api/lgpd/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profileId }),
+    });
+
+    if (!res.ok) {
+      console.error('[requestDataExport] route error:', res.status);
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
     }
+
+    const data = await res.json();
+
+    return {
+      id: data.id ?? '',
+      status: (data.status as DataExportRequest['status']) ?? 'pending',
+      requestedAt: data.requestedAt ?? new Date().toISOString(),
+      completedAt: data.completedAt ?? null,
+      downloadUrl: data.downloadUrl ?? null,
+    };
   } catch (error) {
     console.error('[requestDataExport] Fallback:', error);
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
@@ -170,36 +198,34 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
   }
 }
 
-export async function requestAccountDeletion(userId: string): Promise<DeletionRequest> {
+export async function requestAccountDeletion(userId?: string): Promise<DeletionRequest> {
   try {
+    const profileId = await resolveProfileId(userId);
+
     if (isMock()) {
       const { mockRequestDeletion } = await import('@/lib/mocks/privacy.mock');
-      return mockRequestDeletion(userId);
+      return mockRequestDeletion(profileId);
     }
-    try {
-      const { createBrowserClient } = await import('@/lib/supabase/client');
-      const supabase = createBrowserClient();
 
-      const scheduledAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days from now
-      const { data, error } = await supabase
-        .from('data_deletion_requests')
-        .insert({ user_id: userId, status: 'pending', scheduled_at: scheduledAt })
-        .select('id, status, created_at, scheduled_at')
-        .single();
-      if (error || !data) {
-        console.error('[requestAccountDeletion] insert error:', error?.message);
-        return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), scheduledDeletionAt: scheduledAt };
-      }
-      return {
-        id: data.id,
-        status: data.status as DeletionRequest['status'],
-        requestedAt: data.created_at,
-        scheduledDeletionAt: data.scheduled_at ?? scheduledAt,
-      };
-    } catch (err) {
-      console.error('[privacy.requestAccountDeletion] error, using fallback:', err);
+    const res = await fetch('/api/auth/delete-account', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profileId, confirm: 'EXCLUIR' }),
+    });
+
+    if (!res.ok) {
+      console.error('[requestAccountDeletion] route error:', res.status);
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
     }
+
+    const data = await res.json();
+
+    return {
+      id: data.id ?? '',
+      status: (data.status as DeletionRequest['status']) ?? 'pending',
+      requestedAt: data.requestedAt ?? new Date().toISOString(),
+      scheduledDeletionAt: data.scheduledDeletionAt ?? '',
+    };
   } catch (error) {
     console.error('[requestAccountDeletion] Fallback:', error);
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };

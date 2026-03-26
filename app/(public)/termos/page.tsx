@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getSupportEmail } from '@/lib/config/legal';
 
 const SECTIONS = [
   { id: 'aceitacao', label: '1. Aceitacao dos Termos' },
@@ -18,6 +19,7 @@ const SECTIONS = [
 ];
 
 export default function TermosPage() {
+  const supportEmail = getSupportEmail();
   const [activeSection, setActiveSection] = useState('aceitacao');
   const [tocOpen, setTocOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -289,7 +291,7 @@ export default function TermosPage() {
                     3.2. O Usuario e integralmente responsavel pela seguranca e confidencialidade de suas credenciais de acesso (email e senha). A BlackBelt utiliza criptografia bcrypt com salt individual para armazenamento de senhas e tokens JWT em memoria para autenticacao — nenhum token e armazenado em localStorage ou sessionStorage.
                   </p>
                   <p>
-                    3.3. O Usuario deve notificar imediatamente a BlackBelt em caso de uso nao autorizado da sua conta ou qualquer violacao de seguranca, pelo email gregoryguimaraes12@gmail.com.
+                    3.3. O Usuario deve notificar imediatamente a BlackBelt em caso de uso nao autorizado da sua conta ou qualquer violacao de seguranca, pelo email {supportEmail}.
                   </p>
                   <p>
                     3.4. A BlackBelt reserva-se o direito de suspender ou encerrar contas que violem estes Termos, que apresentem comportamento fraudulento ou que permanecam inativas por periodo superior a 12 (doze) meses, sem prejuizo de outras medidas cabiveis.
@@ -384,7 +386,7 @@ export default function TermosPage() {
                     5.2. A BlackBelt podera limitar, suspender ou encerrar o acesso de qualquer Usuario que viole estas disposicoes, sem aviso previo e sem prejuizo de outras medidas legais cabiveis, incluindo responsabilizacao civil e criminal.
                   </p>
                   <p>
-                    5.3. O Usuario que identificar vulnerabilidades de seguranca na Plataforma devera reporta-las imediatamente para gregoryguimaraes12@gmail.com, comprometendo-se a nao explora-las.
+                    5.3. O Usuario que identificar vulnerabilidades de seguranca na Plataforma devera reporta-las imediatamente para {supportEmail}, comprometendo-se a nao explora-las.
                   </p>
                 </div>
               </div>
@@ -509,7 +511,7 @@ export default function TermosPage() {
                     8.4. Os perfis Kids possuem interface simplificada e ludica, sem acesso a funcionalidades financeiras, de comunicacao direta ou conteudos nao adequados a faixa etaria. Os perfis Teen possuem funcionalidades intermediarias com supervisao do Responsavel.
                   </p>
                   <p>
-                    8.5. O Responsavel pode revogar o consentimento e solicitar a exclusao dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para gregoryguimaraes12@gmail.com. A exclusao sera efetivada no prazo de 15 (quinze) dias.
+                    8.5. O Responsavel pode revogar o consentimento e solicitar a exclusao dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para {supportEmail}. A exclusao sera efetivada no prazo de 15 (quinze) dias.
                   </p>
                   <p>
                     8.6. A BlackBelt nao utiliza dados de menores para fins de marketing, publicidade, perfilamento comportamental ou qualquer finalidade alem da prestacao do servico educacional/esportivo contratado.
@@ -686,7 +688,7 @@ export default function TermosPage() {
                   </p>
                   <ul className="list-none space-y-1 pl-0">
                     <li><strong>Responsavel:</strong> Gregory Guimaraes Pinto</li>
-                    <li><strong>Email:</strong> gregoryguimaraes12@gmail.com</li>
+                    <li><strong>Email:</strong> {supportEmail}</li>
                     <li><strong>WhatsApp:</strong> +55 (31) 99679-3625</li>
                     <li><strong>Sede:</strong> Vespasiano - MG, Brasil</li>
                     <li><strong>Site:</strong> https://blackbeltv2.vercel.app</li>

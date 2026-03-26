@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordRules, getPasswordStrength, PASSWORD_RULES } from '@/components/auth/PasswordRules';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
+import { translateError } from '@/lib/utils/error-translator';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 type PageState = 'loading' | 'valid' | 'expired';
 
@@ -28,10 +30,19 @@ export default function RedefinirSenhaPage() {
   // Check session on mount
   useEffect(() => {
     let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
     async function checkSession() {
       try {
         const supabase = createBrowserClient();
+        const { data: authListener } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+          if (cancelled) return;
+          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+            setPageState('valid');
+          }
+        });
+        unsubscribe = () => authListener.subscription.unsubscribe();
+
         const { data } = await supabase.auth.getSession();
 
         if (cancelled) return;
@@ -39,7 +50,15 @@ export default function RedefinirSenhaPage() {
         if (data.session) {
           setPageState('valid');
         } else {
-          setPageState('expired');
+          window.setTimeout(async () => {
+            if (cancelled) return;
+            const retry = await supabase.auth.getSession();
+            if (retry.data.session) {
+              setPageState('valid');
+              return;
+            }
+            setPageState('expired');
+          }, 250);
         }
       } catch {
         if (!cancelled) setPageState('expired');
@@ -49,6 +68,7 @@ export default function RedefinirSenhaPage() {
     checkSession();
     return () => {
       cancelled = true;
+      unsubscribe?.();
     };
   }, []);
 
@@ -65,14 +85,14 @@ export default function RedefinirSenhaPage() {
       });
 
       if (updateError) {
-        setError(updateError.message);
+        setError(translateError(updateError));
         setSubmitting(false);
         return;
       }
 
       router.push('/senha-alterada');
     } catch {
-      setError('Erro ao atualizar senha. Tente novamente.');
+      setError('Nao foi possivel atualizar sua senha. Tente novamente.');
       setSubmitting(false);
     }
   }
@@ -146,7 +166,7 @@ export default function RedefinirSenhaPage() {
             className="mt-2 text-sm"
             style={{ color: 'var(--bb-ink-60)' }}
           >
-            Este link de recuperacao de senha expirou ou ja foi utilizado. Solicite um novo link para continuar.
+            Este link de redefinicao expirou, ja foi usado ou nao pode ser validado. Solicite um novo email para continuar.
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
@@ -175,6 +195,13 @@ export default function RedefinirSenhaPage() {
               }}
             >
               Voltar para o login
+            </Link>
+            <Link
+              href="/"
+              className="text-sm transition-colors"
+              style={{ color: 'var(--bb-ink-60)' }}
+            >
+              Voltar para o site
             </Link>
           </div>
         </div>
@@ -302,7 +329,7 @@ export default function RedefinirSenhaPage() {
               borderRadius: 'var(--bb-radius-md)',
             }}
           >
-            {submitting ? 'Salvando...' : 'SALVAR NOVA SENHA'}
+            {submitting ? 'Salvando...' : 'Salvar nova senha'}
           </Button>
         </form>
 

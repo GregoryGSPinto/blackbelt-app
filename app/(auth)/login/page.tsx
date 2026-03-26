@@ -6,6 +6,9 @@ import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { isMock } from '@/lib/env';
+import { resendEmailConfirmation } from '@/lib/api/auth.service';
+import { translateError } from '@/lib/utils/error-translator';
+import { validateEmail } from '@/lib/utils/validation';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,12 +19,19 @@ export default function LoginPage() {
   const [localError, setLocalError] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  const [resendingConfirmation, setResendingConfirmation] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLocalError('');
+    setConfirmationSent(false);
     if (!email || !password) {
-      setLocalError('Preencha email e senha');
+      setLocalError('Preencha seu email e sua senha para continuar.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setLocalError('Digite um email valido para entrar.');
       return;
     }
     setLoading(true);
@@ -36,8 +46,7 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       console.error('[LoginPage] handleSubmit error:', err);
-      const message = err instanceof Error ? err.message : 'Email ou senha incorretos';
-      setLocalError(message);
+      setLocalError(translateError(err));
     } finally {
       setLoading(false);
     }
@@ -50,6 +59,7 @@ export default function LoginPage() {
     }
     setOauthLoading(provider);
     setLocalError('');
+    setConfirmationSent(false);
     try {
       const profiles = await loginWithOAuth(provider);
       if (profiles.length > 0) {
@@ -61,14 +71,33 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       console.error('[LoginPage] handleOAuth error:', err);
-      const message = err instanceof Error ? err.message : 'Erro ao fazer login social';
-      setLocalError(message);
+      setLocalError(translateError(err));
     } finally {
       setOauthLoading(null);
     }
   };
 
   const isSubmitting = loading || authLoading;
+  const needsEmailConfirmationCta = localError.toLowerCase().includes('confirm');
+
+  async function handleResendConfirmation() {
+    if (!validateEmail(email)) {
+      setLocalError('Digite o email correto para reenviar a confirmacao.');
+      return;
+    }
+
+    setResendingConfirmation(true);
+    setConfirmationSent(false);
+    try {
+      await resendEmailConfirmation(email.trim());
+      setLocalError('');
+      setConfirmationSent(true);
+    } catch (err: unknown) {
+      setLocalError(translateError(err));
+    } finally {
+      setResendingConfirmation(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bb-depth-0)' }}>
@@ -160,6 +189,21 @@ export default function LoginPage() {
       {/* ═══ RIGHT SIDE — FORM ═══ */}
       <div className="w-full lg:w-[45%] flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
+          <div className="mb-6">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-100"
+              style={{
+                color: 'var(--bb-ink-60)',
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                opacity: 0.92,
+              }}
+            >
+              <span aria-hidden="true">←</span>
+              Voltar para a pagina inicial
+            </Link>
+          </div>
 
           {/* Logo (mobile only) */}
           <div className="lg:hidden text-center mb-10">
@@ -179,7 +223,7 @@ export default function LoginPage() {
               Entrar
             </h2>
             <p className="text-sm mt-1" style={{ color: 'var(--bb-ink-40)' }}>
-              Acesse sua academia
+              Entre para acessar sua academia com seguranca.
             </p>
           </div>
 
@@ -305,18 +349,57 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error */}
-            {localError && (
-              <div
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs"
-                style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          {/* Error */}
+          {localError && (
+            <div
+              className="rounded-2xl px-4 py-3 text-sm"
+              role="alert"
+              style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FCA5A5', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+            >
+              <div className="flex items-start gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
                   <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
                 </svg>
-                {localError}
+                <div className="flex-1">
+                  <p className="font-medium">{localError}</p>
+                  {needsEmailConfirmationCta && (
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={handleResendConfirmation}
+                        disabled={resendingConfirmation}
+                        className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
+                        style={{ background: 'var(--bb-brand-gradient)' }}
+                      >
+                        {resendingConfirmation ? 'Reenviando...' : 'Reenviar confirmacao'}
+                      </button>
+                      <Link
+                        href="/"
+                        className="rounded-xl px-4 py-2 text-center text-sm font-medium"
+                        style={{
+                          color: 'var(--bb-ink-80)',
+                          background: 'var(--bb-depth-2)',
+                          border: '1px solid var(--bb-glass-border)',
+                        }}
+                      >
+                        Voltar
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
+          )}
+
+          {confirmationSent && (
+            <div
+              className="rounded-2xl px-4 py-3 text-sm"
+              role="status"
+              style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#86EFAC', border: '1px solid rgba(34, 197, 94, 0.2)' }}
+            >
+              Reenviamos a confirmacao para {email.trim()}. Verifique sua caixa de entrada e o spam.
+            </div>
+          )}
 
             {/* Submit */}
             <button

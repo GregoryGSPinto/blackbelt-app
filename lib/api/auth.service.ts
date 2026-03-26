@@ -1,5 +1,7 @@
 import { isMock } from '@/lib/env';
 import type { Profile } from '@/lib/types';
+import { translateError } from '@/lib/utils/error-translator';
+import { getAuthRedirectUrl } from '@/lib/auth/redirects';
 
 export interface LoginRequest {
   email: string;
@@ -34,6 +36,15 @@ export interface SelectProfileResponse {
   profile: Profile;
 }
 
+function getAuthErrorMessage(message: string, fallbackPrefix?: string): string {
+  const translated = translateError(new Error(message));
+  if (translated !== 'Algo deu errado. Tente novamente.') {
+    return translated;
+  }
+
+  return fallbackPrefix ? `${fallbackPrefix}: ${message}` : message;
+}
+
 export async function login(data: LoginRequest): Promise<LoginResponse> {
   if (isMock()) {
     const { mockLogin } = await import('@/lib/mocks/auth.mock');
@@ -49,11 +60,7 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   });
   if (error) {
     console.error('[auth] signInWithPassword failed:', error.message);
-    throw new Error(
-      error.message === 'Invalid login credentials'
-        ? 'Email ou senha incorretos'
-        : `Erro de autenticação: ${error.message}`,
-    );
+    throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel entrar'));
   }
 
   const { data: profiles, error: profileError } = await supabase
@@ -93,7 +100,7 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
   });
   if (error) {
     console.error('[auth] signUp failed:', error.message);
-    throw new Error(`Erro ao criar conta: ${error.message}`);
+    throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel criar sua conta'));
   }
   if (!authData.user) {
     console.error('[auth] signUp returned no user');
@@ -138,7 +145,7 @@ export async function loginWithOAuth(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
-  let redirectTo = `${window.location.origin}/auth/callback`;
+  let redirectTo = getAuthRedirectUrl('/auth/callback');
   if (options?.inviteToken) {
     redirectTo += `?invite_token=${encodeURIComponent(options.inviteToken)}`;
   }
@@ -150,9 +157,29 @@ export async function loginWithOAuth(
 
   if (error) {
     console.error('[auth] signInWithOAuth failed:', error.message);
-    throw new Error(`Erro ao fazer login com ${provider}: ${error.message}`);
+    throw new Error(getAuthErrorMessage(error.message, `Nao foi possivel entrar com ${provider}`));
   }
   // In real mode, browser redirects away — no return value
+}
+
+export async function resendEmailConfirmation(email: string): Promise<void> {
+  if (isMock()) return;
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: getAuthRedirectUrl('/auth/callback'),
+    },
+  });
+
+  if (error) {
+    console.error('[auth] resend confirmation failed:', error.message);
+    throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel reenviar a confirmacao'));
+  }
 }
 
 export async function refreshToken(_token: string): Promise<RefreshResponse> {
@@ -235,6 +262,8 @@ export async function logout(): Promise<void> {
     console.error('[auth] logout error:', error);
   }
 
+  if (typeof document === 'undefined') return;
+
   // Clear ALL cookies — custom + supabase session cookies (always, even on error)
   document.cookie = 'bb-active-role=;path=/;max-age=0';
   document.cookie = 'bb-academy-id=;path=/;max-age=0';
@@ -278,7 +307,9 @@ export async function forgotPassword(email: string): Promise<void> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: getAuthRedirectUrl('/redefinir-senha'),
+  });
   if (error) {
     console.error('[auth] resetPasswordForEmail failed:', error.message);
     throw new Error(`Erro ao enviar email: ${error.message}`);

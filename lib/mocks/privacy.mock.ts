@@ -8,7 +8,7 @@ export async function mockGetConsents(_userId: string): Promise<ConsentRecord[]>
     { id: 'c1', type: 'terms', accepted: true, acceptedAt: '2025-01-15T10:00:00Z', version: '2.0' },
     { id: 'c2', type: 'privacy', accepted: true, acceptedAt: '2025-01-15T10:00:00Z', version: '2.0' },
     { id: 'c3', type: 'marketing', accepted: false, acceptedAt: null, version: '1.0' },
-    { id: 'c4', type: 'cookies', accepted: true, acceptedAt: '2025-01-15T10:00:00Z', version: '1.0' },
+    { id: 'c4', type: 'data_processing', accepted: true, acceptedAt: '2025-01-15T10:00:00Z', version: '1.0' },
   ];
 }
 

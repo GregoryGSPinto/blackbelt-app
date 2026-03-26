@@ -6,10 +6,11 @@ import { Gift, X } from 'lucide-react';
 
 interface DiscoveryBannerProps {
   daysLeft: number;
+  variant?: 'admin' | 'member';
 }
 
 const DiscoveryBanner = forwardRef<HTMLDivElement, DiscoveryBannerProps>(
-  function DiscoveryBanner({ daysLeft }, ref) {
+  function DiscoveryBanner({ daysLeft, variant = 'member' }, ref) {
     const [dismissed, setDismissed] = useState(false);
 
     if (dismissed) return null;
@@ -48,22 +49,29 @@ const DiscoveryBanner = forwardRef<HTMLDivElement, DiscoveryBannerProps>(
       >
         <Gift className="h-4 w-4 shrink-0" style={{ color: text }} />
         <p className="flex-1 text-xs font-medium" style={{ color: text }}>
-          {daysLeft > 0
-            ? `Periodo de descoberta: ${daysLeft} dias restantes. Todos os modulos estao liberados!`
-            : 'Seu periodo de descoberta expirou. Modulos nao contratados foram desativados.'}
-          {daysLeft > 0 && (
+          {daysLeft > 0 && variant === 'admin' && `Periodo de descoberta: ${daysLeft} dias restantes. Todos os modulos estao liberados!`}
+          {daysLeft > 0 && variant === 'member' && `Sua academia esta em periodo de descoberta por mais ${daysLeft} dias.`}
+          {daysLeft <= 0 && 'Seu periodo de descoberta expirou. Modulos nao contratados foram desativados.'}
+          {daysLeft > 0 && variant === 'admin' && (
             <span style={{ color: 'var(--bb-ink-50)' }}>
               {' '}Escolha seu plano antes que expire.
             </span>
           )}
+          {daysLeft > 0 && variant === 'member' && (
+            <span style={{ color: 'var(--bb-ink-50)' }}>
+              {' '}Se precisar de acesso continuo aos modulos, fale com o administrador da academia.
+            </span>
+          )}
         </p>
-        <Link
-          href="/admin/plano"
-          className="shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: text }}
-        >
-          Ver planos
-        </Link>
+        {variant === 'admin' && (
+          <Link
+            href="/admin/plano"
+            className="shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: text }}
+          >
+            Ver planos
+          </Link>
+        )}
         <button
           onClick={() => setDismissed(true)}
           className="shrink-0 rounded-md p-1 transition-opacity hover:opacity-70"

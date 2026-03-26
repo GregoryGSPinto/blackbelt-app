@@ -1,10 +1,13 @@
 const ERROR_MAP: Record<string, string> = {
   // Supabase Auth
   'Invalid login credentials': 'Email ou senha incorretos.',
-  'Email not confirmed': 'Email nao verificado. Verifique sua caixa de entrada.',
+  'Email not confirmed': 'Seu email ainda nao foi confirmado. Reenvie a confirmacao para continuar.',
   'User already registered': 'Este email ja tem uma conta.',
   'Password should be at least': 'A senha precisa ter pelo menos 8 caracteres.',
   'Token expired': 'Sessao expirada. Faca login novamente.',
+  'Invalid Refresh Token': 'Sua sessao nao e mais valida. Entre novamente.',
+  'Auth session missing!': 'Nao foi possivel validar este link. Solicite um novo email.',
+  'Email rate limit exceeded': 'Voce tentou muitas vezes. Aguarde alguns minutos antes de reenviar.',
 
   // Supabase RLS
   'new row violates row-level security': 'Sem permissao para esta acao.',
@@ -27,9 +30,6 @@ const ERROR_MAP: Record<string, string> = {
 
   // JWT
   'JWT expired': 'Sessao expirada. Faca login novamente.',
-
-  // Email
-  'Email rate limit exceeded': 'Muitos emails enviados. Aguarde alguns minutos.',
 
   // Storage
   'Bucket not found': 'Armazenamento nao configurado.',

@@ -431,7 +431,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
           {/* Main content (desktop) */}
           <div className="flex flex-1 flex-col lg:ml-64">
             {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
-            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
+            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="member" />}
             <main className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               {children}
             </main>
@@ -442,7 +442,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
         <div className="lg:hidden pb-16">
           <ShellHeader title="BlackBelt" subtitle="Professor" rightContent={<div className="flex items-center gap-2"><NotificationBell /><ThemeToggle /></div>} />
           {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
-          {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
+          {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="member" />}
           <main>{children}</main>
 
           {/* Custom Bottom Nav */}

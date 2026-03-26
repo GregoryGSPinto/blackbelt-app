@@ -1,5 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
+const isMobileBuild = process.env.NEXT_PUBLIC_PLATFORM === 'mobile';
+
 const config: CapacitorConfig = {
   appId: 'app.blackbelt.v2',
   appName: 'BlackBelt',
@@ -8,6 +11,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     iosScheme: 'https',
+    ...(isMobileBuild ? { url: publicAppUrl } : {}),
   },
 
   plugins: {

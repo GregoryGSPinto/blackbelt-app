@@ -5,15 +5,13 @@ import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { validateEmail } from '@/lib/utils/validation';
+import { getAuthRedirectUrl } from '@/lib/auth/redirects';
 
 const MAX_ATTEMPTS = 3;
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 const RESEND_COOLDOWN_SECONDS = 60;
 const MAX_RESENDS = 3;
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 export default function EsqueciSenhaPage() {
   const [email, setEmail] = useState('');
@@ -56,6 +54,7 @@ export default function EsqueciSenhaPage() {
       (t) => now - t < RATE_LIMIT_WINDOW_MS,
     );
     if (attemptsRef.current.length >= MAX_ATTEMPTS) {
+      setEmailError('Voce excedeu o limite de tentativas. Aguarde alguns minutos para tentar novamente.');
       setRateLimited(true);
       return false;
     }
@@ -66,7 +65,7 @@ export default function EsqueciSenhaPage() {
   async function sendResetEmail(targetEmail: string): Promise<void> {
     const supabase = createBrowserClient();
     await supabase.auth.resetPasswordForEmail(targetEmail, {
-      redirectTo: `${window.location.origin}/redefinir-senha`,
+      redirectTo: getAuthRedirectUrl('/redefinir-senha'),
     });
   }
 
@@ -76,11 +75,11 @@ export default function EsqueciSenhaPage() {
 
     const trimmed = email.trim();
     if (!trimmed) {
-      setEmailError('Digite seu email.');
+      setEmailError('Digite o email da sua conta.');
       return;
     }
-    if (!isValidEmail(trimmed)) {
-      setEmailError('Email invalido. Verifique o formato.');
+    if (!validateEmail(trimmed)) {
+      setEmailError('Digite um email valido para receber o link de redefinicao.');
       return;
     }
     if (!checkRateLimit()) return;
@@ -183,7 +182,7 @@ export default function EsqueciSenhaPage() {
               className="mt-2 text-sm"
               style={{ color: 'var(--bb-ink-60)' }}
             >
-              Enviamos um link de recuperacao para:
+              Se existir uma conta com este email, enviamos um link de redefinicao para:
             </p>
             <p
               className="mt-1 text-sm font-semibold"
@@ -208,8 +207,8 @@ export default function EsqueciSenhaPage() {
               </p>
               <ul className="flex flex-col gap-1.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                 <li>Verifique a pasta de spam/lixo eletrOnico</li>
-                <li>O email pode levar ate 2 minutos</li>
-                <li>Confirme se o email digitado esta correto</li>
+                <li>O email pode levar ate 2 minutos para chegar</li>
+                <li>Use sempre o link mais recente recebido</li>
                 <li className="mt-1" style={{ color: 'var(--bb-warning)' }}>
                   Gmail: verifique as abas Atualizacoes e Promocoes
                 </li>
@@ -241,19 +240,18 @@ export default function EsqueciSenhaPage() {
               )}
             </div>
 
-            <Link
-              href="/login"
-              className="mt-5 text-sm transition-colors"
-              style={{ color: 'var(--bb-brand)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.textDecoration = 'underline';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.textDecoration = 'none';
-              }}
-            >
-              Voltar para o login
-            </Link>
+            <div className="mt-5 grid w-full gap-2 sm:grid-cols-2">
+              <Link href="/login">
+                <Button variant="ghost" className="w-full">
+                  Voltar para o login
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="secondary" className="w-full">
+                  Voltar para o site
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           /* ===== FORM STATE ===== */
@@ -268,7 +266,7 @@ export default function EsqueciSenhaPage() {
               className="mt-2 text-center text-sm"
               style={{ color: 'var(--bb-ink-60)' }}
             >
-              Digite seu email e enviaremos um link para criar uma nova senha.
+              Digite seu email e enviaremos um link seguro para criar uma nova senha.
             </p>
 
             {rateLimited && (
@@ -279,8 +277,8 @@ export default function EsqueciSenhaPage() {
                   color: 'var(--bb-warning)',
                   border: '1px solid var(--bb-warning)',
                 }}
-              >
-                Aguarde alguns minutos antes de tentar novamente.
+                >
+                Muitas tentativas seguidas. Aguarde alguns minutos antes de tentar novamente.
               </div>
             )}
 
@@ -309,7 +307,7 @@ export default function EsqueciSenhaPage() {
                   ref={emailRef}
                   label="Email"
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder="voce@academia.com"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -337,19 +335,16 @@ export default function EsqueciSenhaPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <Link
-                href="/login"
-                className="text-sm transition-colors"
-                style={{ color: 'var(--bb-ink-60)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--bb-ink-100)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--bb-ink-60)';
-                }}
-              >
-                Voltar para o login
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              <Link href="/login">
+                <Button variant="ghost" className="w-full">
+                  Voltar para o login
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="secondary" className="w-full">
+                  Voltar para o site
+                </Button>
               </Link>
             </div>
           </>

@@ -7,6 +7,19 @@ import { createAcademy } from '@/lib/api/onboarding.service';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import {
+  formatBrazilianPhone,
+  formatCep,
+  formatCnpj,
+  normalizeWebsite,
+  validateAcademyName,
+  validateBrazilianMobilePhone,
+  validateCep,
+  validateCityName,
+  validateCnpj,
+  validateEmail,
+  validateWebsite,
+} from '@/lib/utils/validation';
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -68,6 +81,9 @@ export default function CadastrarAcademiaPage() {
   const { toast } = useToast();
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
+  const [attemptedNext, setAttemptedNext] = useState<Record<number, boolean>>({});
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
 
   // Step 1: Basic academy data
   const [academy, setAcademy] = useState({
@@ -98,29 +114,84 @@ export default function CadastrarAcademiaPage() {
   // Step 4: Plan
   const [plan, setPlan] = useState('blackbelt');
 
+  const academyErrors = {
+    name: !academy.name.trim()
+      ? 'Informe o nome da academia.'
+      : !validateAcademyName(academy.name)
+        ? 'Use apenas letras e espacos. Minimo de 3 caracteres.'
+        : '',
+    cnpj: academy.cnpj && !validateCnpj(academy.cnpj)
+      ? 'Informe um CNPJ valido com 14 digitos.'
+      : '',
+    phone: !academy.phone.trim()
+      ? 'Informe o telefone principal da academia.'
+      : !validateBrazilianMobilePhone(academy.phone)
+        ? 'Use um celular com DDD no formato (00) 00000-0000.'
+        : '',
+    email: academy.email && !validateEmail(academy.email)
+      ? 'Informe um email valido.'
+      : '',
+    website: academy.website && !validateWebsite(academy.website)
+      ? 'Informe um site valido. Ex.: academia.com.br'
+      : '',
+    cep: academy.cep && !validateCep(academy.cep)
+      ? 'Informe um CEP valido com 8 digitos.'
+      : '',
+    city: !academy.city.trim()
+      ? 'Informe a cidade.'
+      : !validateCityName(academy.city)
+        ? 'Informe uma cidade valida.'
+        : '',
+    state: !academy.state.trim()
+      ? 'Selecione o estado.'
+      : '',
+  };
+
+  const adminErrors = {
+    name: !admin.name.trim() ? 'Informe o nome do administrador.' : '',
+    email: !admin.email.trim()
+      ? 'Informe o email do administrador.'
+      : !validateEmail(admin.email)
+        ? 'Informe um email valido.'
+        : '',
+    phone: admin.phone && !validateBrazilianMobilePhone(admin.phone)
+      ? 'Use um celular com DDD no formato (00) 00000-0000.'
+      : '',
+    password: admin.password.length < 8
+      ? 'A senha deve ter pelo menos 8 caracteres.'
+      : '',
+    confirmPassword: !admin.confirmPassword
+      ? 'Confirme a senha.'
+      : admin.password !== admin.confirmPassword
+        ? 'As senhas nao conferem.'
+        : '',
+  };
+
+  const isStep1Valid = Object.values(academyErrors).every((value) => !value);
+  const isStep2Valid = modalidades.length > 0;
+  const isStep3Valid = Object.values(adminErrors).every((value) => !value);
+  const canSubmit = isStep1Valid && isStep2Valid && isStep3Valid && termsAccepted;
+
   function validateStep1(): boolean {
-    if (!academy.name.trim()) { toast('Nome da academia é obrigatório', 'error'); return false; }
-    if (!academy.phone.trim()) { toast('Telefone é obrigatório', 'error'); return false; }
-    if (!academy.city.trim()) { toast('Cidade é obrigatória', 'error'); return false; }
-    if (!academy.state.trim()) { toast('Estado é obrigatório', 'error'); return false; }
+    if (!isStep1Valid) {
+      toast('Revise os campos obrigatorios da academia.', 'error');
+      return false;
+    }
     return true;
   }
 
   function validateStep2(): boolean {
-    if (modalidades.length === 0) { toast('Selecione pelo menos uma modalidade', 'error'); return false; }
+    if (!isStep2Valid) { toast('Selecione pelo menos uma modalidade', 'error'); return false; }
     return true;
   }
 
   function validateStep3(): boolean {
-    if (!admin.name.trim()) { toast('Nome do administrador é obrigatório', 'error'); return false; }
-    if (!admin.email.trim()) { toast('Email é obrigatório', 'error'); return false; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email)) { toast('Email inválido', 'error'); return false; }
-    if (admin.password.length < 6) { toast('Senha deve ter pelo menos 6 caracteres', 'error'); return false; }
-    if (admin.password !== admin.confirmPassword) { toast('Senhas não conferem', 'error'); return false; }
+    if (!isStep3Valid) { toast('Revise os dados do administrador.', 'error'); return false; }
     return true;
   }
 
   function handleNext() {
+    setAttemptedNext((prev) => ({ ...prev, [step]: true }));
     if (step === 1 && validateStep1()) setStep(2);
     else if (step === 2 && validateStep2()) setStep(3);
     else if (step === 3 && validateStep3()) setStep(4);
@@ -128,6 +199,10 @@ export default function CadastrarAcademiaPage() {
   }
 
   async function handleSubmit() {
+    if (!canSubmit) {
+      toast('Revise os dados e confirme o aceite dos documentos para continuar.', 'error');
+      return;
+    }
     setLoading(true);
     try {
       await createAcademy(
@@ -136,7 +211,10 @@ export default function CadastrarAcademiaPage() {
         plan,
       );
       toast('Academia criada com sucesso!', 'success');
-      setTimeout(() => router.push('/admin/setup-wizard'), 2000);
+      setTimeout(() => {
+        router.push('/admin');
+        router.refresh();
+      }, 1200);
     } catch (err) {
       toast(translateError(err), 'error');
     } finally {
@@ -146,6 +224,27 @@ export default function CadastrarAcademiaPage() {
 
   function toggleModalidade(m: string) {
     setModalidades((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+  }
+
+  function updateAcademyField(field: keyof typeof academy, value: string) {
+    let nextValue = value;
+
+    if (field === 'name') nextValue = value.replace(/[^A-Za-zÀ-ÿ\s]/g, '');
+    if (field === 'cnpj') nextValue = formatCnpj(value);
+    if (field === 'phone') nextValue = formatBrazilianPhone(value);
+    if (field === 'cep') nextValue = formatCep(value);
+    if (field === 'email') nextValue = value.trim();
+    if (field === 'website') nextValue = value.trim().toLowerCase();
+    if (field === 'city') nextValue = value.replace(/[^A-Za-zÀ-ÿ\s'.-]/g, '');
+
+    setAcademy((prev) => ({ ...prev, [field]: nextValue }));
+  }
+
+  function updateAdminField(field: keyof typeof admin, value: string) {
+    let nextValue = value;
+    if (field === 'phone') nextValue = formatBrazilianPhone(value);
+    if (field === 'email') nextValue = value.trim();
+    setAdmin((prev) => ({ ...prev, [field]: nextValue }));
   }
 
   // Common input style
@@ -230,33 +329,36 @@ export default function CadastrarAcademiaPage() {
                 <label className={labelCls} style={labelStyle}>Nome da Academia *</label>
                 <input
                   value={academy.name}
-                  onChange={(e) => setAcademy({ ...academy, name: e.target.value })}
+                  onChange={(e) => updateAcademyField('name', e.target.value)}
                   placeholder="Ex: Academia Guerreiros BJJ"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[1] && academyErrors.name && <p className="mt-1 text-xs text-red-400">{academyErrors.name}</p>}
               </div>
 
               <div>
                 <label className={labelCls} style={labelStyle}>CNPJ</label>
                 <input
                   value={academy.cnpj}
-                  onChange={(e) => setAcademy({ ...academy, cnpj: e.target.value })}
+                  onChange={(e) => updateAcademyField('cnpj', e.target.value)}
                   placeholder="00.000.000/0001-00"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[1] && academyErrors.cnpj && <p className="mt-1 text-xs text-red-400">{academyErrors.cnpj}</p>}
               </div>
 
               <div>
                 <label className={labelCls} style={labelStyle}>Telefone *</label>
                 <input
                   value={academy.phone}
-                  onChange={(e) => setAcademy({ ...academy, phone: e.target.value })}
+                  onChange={(e) => updateAcademyField('phone', e.target.value)}
                   placeholder="(11) 99999-9999"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[1] && academyErrors.phone && <p className="mt-1 text-xs text-red-400">{academyErrors.phone}</p>}
               </div>
 
               <div>
@@ -264,22 +366,29 @@ export default function CadastrarAcademiaPage() {
                 <input
                   type="email"
                   value={academy.email}
-                  onChange={(e) => setAcademy({ ...academy, email: e.target.value })}
+                  onChange={(e) => updateAcademyField('email', e.target.value)}
                   placeholder="contato@academia.com"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[1] && academyErrors.email && <p className="mt-1 text-xs text-red-400">{academyErrors.email}</p>}
               </div>
 
               <div>
                 <label className={labelCls} style={labelStyle}>Website</label>
                 <input
                   value={academy.website}
-                  onChange={(e) => setAcademy({ ...academy, website: e.target.value })}
+                  onChange={(e) => updateAcademyField('website', e.target.value)}
+                  onBlur={() => {
+                    if (academy.website && validateWebsite(academy.website)) {
+                      setAcademy((prev) => ({ ...prev, website: normalizeWebsite(prev.website) }));
+                    }
+                  }}
                   placeholder="www.academia.com.br"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[1] && academyErrors.website && <p className="mt-1 text-xs text-red-400">{academyErrors.website}</p>}
               </div>
             </div>
 
@@ -293,11 +402,12 @@ export default function CadastrarAcademiaPage() {
                   <label className={labelCls} style={labelStyle}>CEP</label>
                   <input
                     value={academy.cep}
-                    onChange={(e) => setAcademy({ ...academy, cep: e.target.value })}
+                    onChange={(e) => updateAcademyField('cep', e.target.value)}
                     placeholder="00000-000"
                     className={inputCls}
                     style={inputStyle}
                   />
+                  {attemptedNext[1] && academyErrors.cep && <p className="mt-1 text-xs text-red-400">{academyErrors.cep}</p>}
                 </div>
 
                 <div className="sm:col-span-2">
@@ -348,11 +458,12 @@ export default function CadastrarAcademiaPage() {
                   <label className={labelCls} style={labelStyle}>Cidade *</label>
                   <input
                     value={academy.city}
-                    onChange={(e) => setAcademy({ ...academy, city: e.target.value })}
+                    onChange={(e) => updateAcademyField('city', e.target.value)}
                     placeholder="Belo Horizonte"
                     className={inputCls}
                     style={inputStyle}
                   />
+                  {attemptedNext[1] && academyErrors.city && <p className="mt-1 text-xs text-red-400">{academyErrors.city}</p>}
                 </div>
 
                 <div>
@@ -368,12 +479,13 @@ export default function CadastrarAcademiaPage() {
                       <option key={uf} value={uf}>{uf}</option>
                     ))}
                   </select>
+                  {attemptedNext[1] && academyErrors.state && <p className="mt-1 text-xs text-red-400">{academyErrors.state}</p>}
                 </div>
               </div>
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button onClick={handleNext}>Próximo</Button>
+              <Button onClick={handleNext} disabled={!isStep1Valid}>Próximo</Button>
             </div>
           </div>
         )}
@@ -471,7 +583,7 @@ export default function CadastrarAcademiaPage() {
 
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" onClick={() => setStep(1)}>Voltar</Button>
-              <Button className="flex-1" onClick={handleNext}>Próximo</Button>
+              <Button className="flex-1" onClick={handleNext} disabled={!isStep2Valid}>Próximo</Button>
             </div>
           </div>
         )}
@@ -491,11 +603,12 @@ export default function CadastrarAcademiaPage() {
                 <label className={labelCls} style={labelStyle}>Nome completo *</label>
                 <input
                   value={admin.name}
-                  onChange={(e) => setAdmin({ ...admin, name: e.target.value })}
+                  onChange={(e) => updateAdminField('name', e.target.value)}
                   placeholder="Seu nome completo"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[3] && adminErrors.name && <p className="mt-1 text-xs text-red-400">{adminErrors.name}</p>}
               </div>
 
               <div>
@@ -503,11 +616,12 @@ export default function CadastrarAcademiaPage() {
                 <input
                   type="email"
                   value={admin.email}
-                  onChange={(e) => setAdmin({ ...admin, email: e.target.value })}
+                  onChange={(e) => updateAdminField('email', e.target.value)}
                   placeholder="seu@email.com"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[3] && adminErrors.email && <p className="mt-1 text-xs text-red-400">{adminErrors.email}</p>}
               </div>
 
               <div>
@@ -515,11 +629,12 @@ export default function CadastrarAcademiaPage() {
                 <input
                   type="tel"
                   value={admin.phone}
-                  onChange={(e) => setAdmin({ ...admin, phone: e.target.value })}
+                  onChange={(e) => updateAdminField('phone', e.target.value)}
                   placeholder="(11) 99999-9999"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[3] && adminErrors.phone && <p className="mt-1 text-xs text-red-400">{adminErrors.phone}</p>}
               </div>
 
               <div>
@@ -527,11 +642,12 @@ export default function CadastrarAcademiaPage() {
                 <input
                   type="password"
                   value={admin.password}
-                  onChange={(e) => setAdmin({ ...admin, password: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
+                  onChange={(e) => updateAdminField('password', e.target.value)}
+                  placeholder="Minimo 8 caracteres"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[3] && adminErrors.password && <p className="mt-1 text-xs text-red-400">{adminErrors.password}</p>}
               </div>
 
               <div>
@@ -539,17 +655,18 @@ export default function CadastrarAcademiaPage() {
                 <input
                   type="password"
                   value={admin.confirmPassword}
-                  onChange={(e) => setAdmin({ ...admin, confirmPassword: e.target.value })}
+                  onChange={(e) => updateAdminField('confirmPassword', e.target.value)}
                   placeholder="Repita a senha"
                   className={inputCls}
                   style={inputStyle}
                 />
+                {attemptedNext[3] && adminErrors.confirmPassword && <p className="mt-1 text-xs text-red-400">{adminErrors.confirmPassword}</p>}
               </div>
             </div>
 
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" onClick={() => setStep(2)}>Voltar</Button>
-              <Button className="flex-1" onClick={handleNext}>Próximo</Button>
+              <Button className="flex-1" onClick={handleNext} disabled={!isStep3Valid}>Próximo</Button>
             </div>
           </div>
         )}
@@ -615,6 +732,25 @@ export default function CadastrarAcademiaPage() {
               Revise seus dados antes de finalizar o cadastro.
             </p>
 
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                  Alunos estimados
+                </p>
+                <p className="mt-2 text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+                  {estimatedStudents || 'Nao informado'}
+                </p>
+              </div>
+              <div className="rounded-xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                  Horario da semana
+                </p>
+                <p className="mt-2 text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+                  {horarioFuncionamento || 'A definir'}
+                </p>
+              </div>
+            </div>
+
             {/* Academy summary */}
             <div>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
@@ -626,6 +762,7 @@ export default function CadastrarAcademiaPage() {
                   ...(academy.cnpj ? [{ label: 'CNPJ', value: academy.cnpj }] : []),
                   { label: 'Telefone', value: academy.phone },
                   ...(academy.email ? [{ label: 'Email', value: academy.email }] : []),
+                  ...(academy.website ? [{ label: 'Website', value: normalizeWebsite(academy.website) }] : []),
                   { label: 'Cidade', value: `${academy.city}/${academy.state}` },
                   { label: 'Modalidades', value: modalidades.join(', ') },
                   { label: 'Plano', value: PLATFORM_PLANS.find((p) => p.id === plan)?.name ?? plan },
@@ -667,18 +804,47 @@ export default function CadastrarAcademiaPage() {
 
             {/* Terms */}
             <div
-              className="rounded-lg p-3 text-center text-xs"
-              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-40)' }}
+              className="rounded-xl p-4"
+              style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
             >
-              Ao finalizar, você concorda com os{' '}
-              <Link href="/termos" className="underline" style={{ color: 'var(--bb-brand)' }}>termos de uso</Link>{' '}
-              e{' '}
-              <Link href="/privacidade" className="underline" style={{ color: 'var(--bb-brand)' }}>política de privacidade</Link>.
+              <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                Termos e privacidade
+              </p>
+              <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Leia os documentos e confirme o aceite para concluir o cadastro da academia.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <Link href="/termos" target="_blank" className="text-sm font-medium underline" style={{ color: 'var(--bb-brand)' }}>
+                  Ler Termos de Uso
+                </Link>
+                <Link href="/privacidade" target="_blank" className="text-sm font-medium underline" style={{ color: 'var(--bb-brand)' }}>
+                  Ler Politica de Privacidade
+                </Link>
+              </div>
+              <label className="mt-4 flex items-start gap-3 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => {
+                    setTermsAccepted(e.target.checked);
+                    setTermsAcceptedAt(e.target.checked ? new Date().toISOString() : null);
+                  }}
+                  className="mt-1 h-4 w-4 rounded border"
+                />
+                <span>
+                  Confirmo que li e aceito os Termos de Uso e a Politica de Privacidade.
+                  {termsAcceptedAt && (
+                    <span className="mt-1 block text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                      Aceite registrado nesta sessao em {new Date(termsAcceptedAt).toLocaleString('pt-BR')}.
+                    </span>
+                  )}
+                </span>
+              </label>
             </div>
 
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" onClick={() => setStep(4)}>Voltar</Button>
-              <Button className="flex-1" loading={loading} onClick={handleSubmit}>
+              <Button className="flex-1" loading={loading} onClick={handleSubmit} disabled={!canSubmit}>
                 Criar Minha Academia
               </Button>
             </div>

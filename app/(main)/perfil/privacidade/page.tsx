@@ -8,34 +8,48 @@ import type { ConsentRecord } from '@/lib/api/privacy.service';
 import { getConsents, updateConsent, requestDataExport, requestAccountDeletion } from '@/lib/api/privacy.service';
 import { useToast } from '@/lib/hooks/useToast';
 import { ComingSoon } from '@/components/shared/ComingSoon';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function PrivacyPage() {
+  const { profile, isLoading: authLoading } = useAuth();
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [consents, setConsents] = useState<ConsentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getConsents('current-user').then((c) => { setConsents(c); setLoading(false); });
-  }, []);
+    if (authLoading) return;
+    if (!profile?.id) {
+      setLoading(false);
+      return;
+    }
+
+    getConsents(profile.id).then((c) => { setConsents(c); setLoading(false); });
+  }, [authLoading, profile?.id]);
 
   async function handleToggle(type: ConsentRecord['type'], accepted: boolean) {
-    const updated = await updateConsent('current-user', type, accepted);
+    if (!profile?.id) return;
+    const updated = await updateConsent(profile.id, type, accepted);
     setConsents((prev) => prev.map((c) => (c.type === updated.type ? updated : c)));
   }
 
   async function handleExport() {
+    if (!profile?.id) return;
     setExporting(true);
-    await requestDataExport('current-user');
+    await requestDataExport(profile.id);
     setExporting(false);
     toast('Solicitação enviada! Você receberá um email quando seus dados estiverem prontos.', 'success');
   }
 
   async function handleDeleteRequest() {
-    await requestAccountDeletion('current-user');
+    if (!profile?.id) return;
+    setDeleting(true);
+    await requestAccountDeletion(profile.id);
+    setDeleting(false);
     setShowDeleteConfirm(false);
     toast('Solicitação registrada. Sua conta será excluída em 30 dias. Você pode cancelar entrando em contato com o suporte.', 'success');
   }
@@ -44,7 +58,7 @@ export default function PrivacyPage() {
     terms: { title: 'Termos de Uso', desc: 'Aceite dos termos de uso da plataforma' },
     privacy: { title: 'Política de Privacidade', desc: 'Aceite da política de privacidade e tratamento de dados' },
     marketing: { title: 'Comunicações de Marketing', desc: 'Receber emails promocionais e novidades' },
-    cookies: { title: 'Cookies Analíticos', desc: 'Permitir cookies para análise de uso da plataforma' },
+    data_processing: { title: 'Tratamento de Dados Operacionais', desc: 'Permitir o processamento necessário para operação, segurança e melhoria contínua da plataforma' },
   };
 
   if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
@@ -90,7 +104,7 @@ export default function PrivacyPage() {
           <p className="mb-3 text-sm text-bb-gray-600">
             Conforme a LGPD, você tem direito a solicitar uma cópia de todos os seus dados pessoais armazenados.
           </p>
-          <Button variant="secondary" onClick={handleExport} disabled={exporting}>
+          <Button variant="secondary" onClick={handleExport} disabled={exporting || !profile?.id}>
             {exporting ? 'Solicitando...' : 'Exportar Meus Dados'}
           </Button>
         </div>
@@ -105,11 +119,13 @@ export default function PrivacyPage() {
           {showDeleteConfirm ? (
             <div className="flex items-center gap-3">
               <p className="text-sm font-medium text-bb-red">Tem certeza?</p>
-              <Button variant="danger" onClick={handleDeleteRequest}>Sim, excluir minha conta</Button>
-              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
+              <Button variant="danger" onClick={handleDeleteRequest} disabled={deleting || !profile?.id}>
+                {deleting ? 'Solicitando...' : 'Sim, excluir minha conta'}
+              </Button>
+              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} disabled={deleting}>Cancelar</Button>
             </div>
           ) : (
-            <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
+            <Button variant="danger" onClick={() => setShowDeleteConfirm(true)} disabled={!profile?.id}>
               Solicitar Exclusão da Conta
             </Button>
           )}

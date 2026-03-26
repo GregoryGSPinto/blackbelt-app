@@ -214,6 +214,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {[
                   { href: '/termos', label: 'Termos de Uso' },
                   { href: '/privacidade', label: 'Privacidade' },
+                  { href: '/excluir-conta', label: 'Exclusao de Conta' },
                 ].map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>

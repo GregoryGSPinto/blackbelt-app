@@ -572,7 +572,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
           </header>
           <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
             {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
-            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} />}
+            {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="admin" />}
             <main>{children}</main>
           </div>
         </div>

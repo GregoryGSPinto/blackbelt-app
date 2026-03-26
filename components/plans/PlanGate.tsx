@@ -43,7 +43,7 @@ const PlanGate = forwardRef<HTMLDivElement, PlanGateProps>(
     return (
       <div ref={ref}>
         {isDiscovery && status.reason === 'discovery_active' && (
-          <DiscoveryBanner daysLeft={discoveryDaysLeft} />
+          <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="member" />
         )}
         {children}
       </div>

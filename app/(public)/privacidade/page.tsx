@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getSupportEmail } from '@/lib/config/legal';
 
 const SECTIONS = [
   { id: 'quem-somos', label: '1. Quem Somos' },
@@ -16,6 +17,7 @@ const SECTIONS = [
 ];
 
 export default function PrivacidadePage() {
+  const supportEmail = getSupportEmail();
   const [activeSection, setActiveSection] = useState('quem-somos');
   const [tocOpen, setTocOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -425,7 +427,7 @@ export default function PrivacidadePage() {
                   <ul className="list-disc space-y-1 pl-6">
                     <li>O acesso do menor a Plataforma e vinculado ao perfil do responsavel legal, garantindo supervisao adequada.</li>
                     <li>O responsavel tem acesso completo a todos os dados do menor, incluindo historico de presenca, avaliacoes, evolucao e mensagens (quando aplicavel).</li>
-                    <li>O responsavel pode solicitar a exclusao, correcao ou portabilidade dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para gregoryguimaraes12@gmail.com.</li>
+                    <li>O responsavel pode solicitar a exclusao, correcao ou portabilidade dos dados do menor a qualquer momento, atraves das configuracoes da conta ou por email para {supportEmail}.</li>
                   </ul>
 
                   <h3
@@ -607,7 +609,7 @@ export default function PrivacidadePage() {
                   </p>
                   <ul className="list-disc space-y-1 pl-6">
                     <li>Pela propria Plataforma: acesse Configuracoes {'>'} Privacidade {'>'} Meus Dados.</li>
-                    <li>Por email: envie sua solicitacao para <strong>gregoryguimaraes12@gmail.com</strong>, identificando-se como titular dos dados.</li>
+                    <li>Por email: envie sua solicitacao para <strong>{supportEmail}</strong>, identificando-se como titular dos dados.</li>
                   </ul>
                   <p>
                     As solicitacoes serao respondidas no prazo de 15 (quinze) dias uteis, conforme Art. 18, par. 5 da LGPD. Caso nao esteja satisfeito com a resposta, voce pode apresentar reclamacao perante a Autoridade Nacional de Protecao de Dados (ANPD).
@@ -869,7 +871,7 @@ export default function PrivacidadePage() {
                     <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Responsavel:</strong> Gregory Guimaraes Pinto
                   </p>
                   <p>
-                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Email:</strong> gregoryguimaraes12@gmail.com
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Email:</strong> {supportEmail}
                   </p>
                   <p>
                     <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>WhatsApp:</strong> +55 (31) 99679-3625
