@@ -34,7 +34,7 @@ export function LandingNavbar() {
     >
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
         <Link href="/">
-          <BlackBeltLogo variant="navbar" mode="dark" height={28} />
+          <BlackBeltLogo variant="navbar" height={28} />
         </Link>
 
         {/* Desktop links */}

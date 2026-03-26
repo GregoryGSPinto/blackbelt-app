@@ -115,7 +115,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10">
-          <BlackBeltLogo variant="full" mode="dark" height={40} />
+          <BlackBeltLogo variant="full" height={40} />
         </div>
 
         {/* Dashboard Preview */}
@@ -208,7 +208,7 @@ export default function LoginPage() {
           {/* Logo (mobile only) */}
           <div className="lg:hidden text-center mb-10">
             <div className="flex justify-center">
-              <BlackBeltLogo variant="full" mode="dark" height={44} />
+              <BlackBeltLogo variant="full" height={44} />
             </div>
             <div className="flex justify-center gap-1 mt-3">
               {['#F8FAFC', '#EAB308', '#F97316', '#22C55E', '#3B82F6', '#8B5CF6', '#92400E', '#1A1A2E'].map(c => (

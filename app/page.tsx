@@ -383,7 +383,7 @@ export default function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
-              <BlackBeltLogo variant="navbar" mode="dark" height={28} />
+              <BlackBeltLogo variant="navbar" height={28} />
               <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 Gestão de academias de artes marciais
               </p>
