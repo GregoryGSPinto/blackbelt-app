@@ -43,6 +43,12 @@ Thumbs.db
 # testing
 coverage/
 
+# Playwright
+e2e/report/
+e2e/artifacts/
+e2e/results.json
+e2e/desktop-output.txt
+
 # sentry
 .sentryclirc
 

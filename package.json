@@ -17,7 +17,12 @@
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
     "mobile:ios": "pnpm build:mobile && pnpm cap:sync && pnpm cap:ios",
-    "mobile:android": "pnpm build:mobile && pnpm cap:sync && pnpm cap:android"
+    "mobile:android": "pnpm build:mobile && pnpm cap:sync && pnpm cap:android",
+    "test:e2e": "playwright test",
+    "test:e2e:desktop": "playwright test --project=desktop",
+    "test:e2e:mobile": "playwright test --project=mobile",
+    "test:e2e:report": "playwright show-report e2e/report",
+    "test:e2e:ui": "playwright test --ui"
   },
   "keywords": [],
   "author": "Gregory Goncalves Silveira Pinto",
