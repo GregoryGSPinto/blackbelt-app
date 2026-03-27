@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         const { data: authData, error: authError } =
           await supabase.auth.admin.createUser({
             email: body.email,
-            password: 'BlackBelt@2026',
+            password: 'TEMP_CHANGE_ME_ON_FIRST_LOGIN',
             email_confirm: true,
             user_metadata: { display_name: body.nome },
           });
@@ -252,7 +252,7 @@ export async function POST(req: NextRequest) {
       tipo: body.tipo,
       loginTemporario: {
         email: body.email,
-        senhaTemporaria: 'BlackBelt@2026',
+        senhaTemporaria: 'TEMP_CHANGE_ME_ON_FIRST_LOGIN',
       },
     });
   } catch (error) {

@@ -99,7 +99,7 @@ export default function NovoExperimentalPage() {
 
   function handleCopyCredentials() {
     if (!created) return;
-    const text = `Bem-vindo(a) à academia!\nAcesse o app com:\nEmail: ${created.email || 'N/A'}\nSenha provisória: BlackBelt@2026`;
+    const text = `Bem-vindo(a) à academia!\nAcesse o app com:\nEmail: ${created.email || 'N/A'}\nSenha provisória: (enviada por email)`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -134,7 +134,7 @@ export default function NovoExperimentalPage() {
           <div className="rounded-xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
             <p className="mb-2 text-xs font-semibold uppercase" style={{ color: 'var(--bb-ink-40)' }}>Credenciais de Acesso</p>
             <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>Email: {created.email}</p>
-            <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>Senha: BlackBelt@2026</p>
+            <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>Senha: (enviada por email)</p>
             <button
               onClick={handleCopyCredentials}
               className="mt-2 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"

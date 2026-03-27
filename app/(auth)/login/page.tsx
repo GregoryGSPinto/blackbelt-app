@@ -450,15 +450,15 @@ export default function LoginPage() {
               </p>
               <div className="grid grid-cols-1 gap-1.5">
                 {[
-                  { email: 'super@blackbelt.app', label: 'Super Admin', pw: '@Greg1994', icon: '🛡️' },
-                  { email: 'roberto@guerreiros.com', label: 'Admin', pw: 'BlackBelt@2026', icon: '👑' },
-                  { email: 'andre@guerreiros.com', label: 'Professor', pw: 'BlackBelt@2026', icon: '🥋' },
-                  { email: 'julia@guerreiros.com', label: 'Recepcionista', pw: 'BlackBelt@2026', icon: '📋' },
-                  { email: 'joao@email.com', label: 'Aluno', pw: 'BlackBelt@2026', icon: '💪' },
-                  { email: 'lucas.teen@email.com', label: 'Teen', pw: 'BlackBelt@2026', icon: '🎮' },
-                  { email: 'miguel.kids@email.com', label: 'Kids', pw: 'BlackBelt@2026', icon: '⭐' },
-                  { email: 'maria.resp@email.com', label: 'Responsável', pw: 'BlackBelt@2026', icon: '👨‍👧' },
-                  { email: 'fernando@guerreiros.com', label: 'Franqueador', pw: 'BlackBelt@2026', icon: '🏢' },
+                  { email: 'super@blackbelt.app', label: 'Super Admin', pw: '', icon: '🛡️' },
+                  { email: 'roberto@guerreiros.com', label: 'Admin', pw: '', icon: '👑' },
+                  { email: 'andre@guerreiros.com', label: 'Professor', pw: '', icon: '🥋' },
+                  { email: 'julia@guerreiros.com', label: 'Recepcionista', pw: '', icon: '📋' },
+                  { email: 'joao@email.com', label: 'Aluno', pw: '', icon: '💪' },
+                  { email: 'lucas.teen@email.com', label: 'Teen', pw: '', icon: '🎮' },
+                  { email: 'miguel.kids@email.com', label: 'Kids', pw: '', icon: '⭐' },
+                  { email: 'maria.resp@email.com', label: 'Responsável', pw: '', icon: '👨‍👧' },
+                  { email: 'fernando@guerreiros.com', label: 'Franqueador', pw: '', icon: '🏢' },
                 ].map(demo => (
                   <button
                     key={demo.email}
