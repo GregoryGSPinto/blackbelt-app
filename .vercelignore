@@ -1,0 +1,9 @@
+.git
+node_modules
+ios
+android
+backups
+scripts
+docs/screenshots
+*.md
+!README.md
