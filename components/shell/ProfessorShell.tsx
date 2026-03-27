@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
 import { SidebarHelpSection } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { usePlan } from '@/lib/hooks/usePlan';
@@ -317,6 +318,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                 </div>
               ))}
               <SidebarHelpSection />
+              <SidebarFeedback />
             </nav>
 
             {/* Theme toggle */}

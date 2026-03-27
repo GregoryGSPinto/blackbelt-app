@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { useCartContext } from '@/lib/contexts/CartContext';
 import {
@@ -209,6 +210,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
               <SidebarHelpSection />
+              <SidebarFeedback />
             </nav>
           </aside>
 
@@ -227,6 +229,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
                   <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarFeedback />
                 </nav>
               </aside>
             </div>

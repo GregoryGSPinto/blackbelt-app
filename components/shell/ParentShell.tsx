@@ -9,6 +9,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { HeaderHelpButton, SidebarHelpSection } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
@@ -205,6 +206,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
               <SidebarHelpSection />
+              <SidebarFeedback />
             </nav>
           </aside>
 
@@ -228,6 +230,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
                   <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarFeedback />
                 </nav>
               </aside>
             </div>

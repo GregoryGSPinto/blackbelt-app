@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import {
@@ -257,6 +258,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                 </div>
               ))}
               <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+              <SidebarFeedback />
             </nav>
 
             {/* User card */}

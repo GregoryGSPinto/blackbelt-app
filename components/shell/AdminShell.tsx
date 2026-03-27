@@ -48,6 +48,7 @@ import {
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 
@@ -67,6 +68,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/admin', label: 'Dashboard', icon: HomeIcon, id: 'sidebar-link-dashboard' },
       { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon, id: 'sidebar-link-turmas' },
       { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon, id: 'sidebar-link-alunos' },
+      { href: '/admin/usuarios', label: 'Usuarios', icon: UserPlusIcon, id: 'sidebar-link-usuarios' },
       { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon, id: 'sidebar-link-calendario' },
       { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon, id: 'sidebar-link-graduacoes' },
       { href: '/admin/saude', label: 'Saude', icon: ShieldIcon, id: 'sidebar-link-saude' },
@@ -114,6 +116,7 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'COMUNICACAO',
     items: [
       { href: '/admin/mensagens', label: 'Mensagens', icon: MessageIcon, id: 'sidebar-link-mensagens' },
+      { href: '/admin/feedbacks', label: 'Feedbacks', icon: MessageIcon, id: 'sidebar-link-feedbacks' },
     ],
   },
   {
@@ -319,6 +322,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               </div>
             ))}
             <SidebarHelpSection />
+              <SidebarFeedback />
           </nav>
         </aside>
 
@@ -413,6 +417,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                   </div>
                 ))}
                 <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                <SidebarFeedback />
               </nav>
             </aside>
           </div>

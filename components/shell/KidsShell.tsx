@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
+import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import {
   HomeIcon,
   StarIcon,
@@ -136,6 +137,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
             </div>
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
+              <SidebarFeedback />
               <SidebarHelpSection />
             </nav>
           </aside>
@@ -156,6 +158,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                 </div>
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
+                  <SidebarFeedback />
                   <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
                 </nav>
               </aside>
