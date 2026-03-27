@@ -44,6 +44,7 @@ import {
   LockIcon,
   ShieldIcon,
   CheckSquareIcon,
+  CreditCardIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -140,6 +141,7 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'CONFIGURACAO',
     items: [
       { href: '/admin/plano', label: 'Meu Plano', icon: StarIcon, id: 'sidebar-link-meu-plano' },
+      { href: '/admin/configuracoes/dados-bancarios', label: 'Dados Bancarios', icon: CreditCardIcon, id: 'sidebar-link-dados-bancarios' },
       { href: '/admin/configuracoes', label: 'Configuracoes', icon: SettingsIcon, id: 'sidebar-link-configuracoes' },
     ],
   },

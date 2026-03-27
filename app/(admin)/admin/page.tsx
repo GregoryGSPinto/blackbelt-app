@@ -42,6 +42,8 @@ import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { listStaff } from '@/lib/api/invites.service';
 import { getTrialMetrics, listTrialStudents } from '@/lib/api/trial.service';
 import type { TrialMetrics, TrialStudent } from '@/lib/api/trial.service';
+import { isMock } from '@/lib/env';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -570,7 +572,26 @@ export default function AdminDashboardPage() {
   const [monthlyReportData, setMonthlyReportData] = useState<MonthlyReportData | null>(null);
   const [reportExporting, setReportExporting] = useState(false);
 
+  const [bankConfigured, setBankConfigured] = useState<boolean | null>(null);
+
   useEffect(() => { trackFeatureUsage('dashboard', 'view', { role: 'admin' }); }, []);
+
+  // Check bank account config
+  useEffect(() => {
+    async function checkBank() {
+      if (isMock()) { setBankConfigured(false); return; }
+      try {
+        const supabase = createBrowserClient();
+        const { data } = await supabase
+          .from('academies')
+          .select('bank_account_configured')
+          .eq('id', getActiveAcademyId())
+          .single();
+        setBankConfigured(data?.bank_account_configured ?? false);
+      } catch { setBankConfigured(null); }
+    }
+    checkBank();
+  }, []);
 
   // Intersection observer refs for each section
   const headlinesObs = useInView();
@@ -604,6 +625,31 @@ export default function AdminDashboardPage() {
 
       {/* Onboarding tutorial for first-time admins */}
       <OnboardingModal />
+
+      {/* Bank account setup banner */}
+      {bankConfigured === false && (
+        <section className="animate-reveal">
+          <div
+            className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+            style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}
+          >
+            <CreditCardIcon className="h-6 w-6 flex-shrink-0" style={{ color: 'var(--bb-brand)' }} />
+            <div className="flex-1">
+              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>Configure sua conta bancaria para receber dos alunos</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--bb-ink-60)' }}>
+                Informe seus dados bancarios para gerar cobrancas de mensalidade.
+              </p>
+            </div>
+            <Link
+              href="/admin/configuracoes/dados-bancarios"
+              className="rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium text-white transition-all hover:opacity-80 whitespace-nowrap flex items-center"
+              style={{ background: 'var(--bb-brand)' }}
+            >
+              Configurar agora
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ═══ SECTION 1: GREETING ═══════════════════════════════════════ */}
       <section className="animate-reveal">

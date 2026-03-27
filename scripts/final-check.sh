@@ -178,6 +178,19 @@ check "Instrucoes finais"
 test -f components/trial/TrialBanner.tsx
 check "Trial banner"
 
+# Subconta / Cobranca alunos
+echo ""
+echo "Subconta Asaas..."
+
+test -f app/api/academy/setup-payments/route.ts
+check "Setup payments API"
+
+test -f app/api/academy/charge-student/route.ts
+check "Charge student API"
+
+find app -path "*dados-bancarios*" -name "page.tsx" | grep -q .
+check "Bank account settings page"
+
 # Contato
 find app -path "*contato*" -name "page.tsx" 2>/dev/null | grep -q .
 check "Contato page"
