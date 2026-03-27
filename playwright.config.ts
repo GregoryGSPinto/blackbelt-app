@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './e2e/tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
+  timeout: 60000,
   reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'e2e/report' }],
@@ -22,7 +23,7 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile',
-      use: { ...devices['iPhone 14'] },
+      use: { ...devices['Pixel 7'] },
     },
     {
       name: 'desktop',

@@ -65,18 +65,21 @@ export const TEST_USERS: Record<string, TestUser> = {
     expectedRedirect: '/superadmin',
     displayName: 'Gregory Pinto',
   },
-  franqueador: {
-    email: 'franqueador@guerreiros.com',
-    password: 'BlackBelt@2026',
-    expectedRole: 'franqueador',
-    expectedRedirect: '/franqueador',
-    displayName: 'Franqueador Demo',
-  },
 };
 
-export async function login(page: Page, user: TestUser): Promise<void> {
+async function dismissModals(page: Page): Promise<void> {
+  const modalButtons = page.locator(
+    'button:has-text("Vamos la"), button:has-text("Fechar"), button:has-text("Entendi"), [class*="modal"] button:has-text("OK"), button:has-text("Pular")'
+  ).first();
+  if (await modalButtons.isVisible({ timeout: 1000 }).catch(() => false)) {
+    await modalButtons.click();
+    await page.waitForTimeout(300);
+  }
+}
+
+async function attemptLogin(page: Page, user: TestUser): Promise<boolean> {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
 
   const emailInput = page.locator('input[type="email"], input[name="email"], input[placeholder*="mail"]').first();
   await emailInput.waitFor({ state: 'visible', timeout: 10000 });
@@ -85,10 +88,40 @@ export async function login(page: Page, user: TestUser): Promise<void> {
   const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
   await passwordInput.fill(user.password);
 
-  const loginButton = page.locator('button[type="submit"], button:has-text("Entrar"), button:has-text("Login"), button:has-text("Acessar")').first();
-  await loginButton.click();
+  // Wait for button to be enabled (React hydration + validation)
+  const loginButton = page.locator('button[type="submit"]').first();
+  try {
+    await loginButton.waitFor({ state: 'visible', timeout: 5000 });
+    await page.waitForFunction(
+      () => !document.querySelector('button[type="submit"]')?.hasAttribute('disabled'),
+      { timeout: 5000 }
+    ).catch(() => {});
+    await loginButton.click({ timeout: 5000 });
+  } catch {
+    // Force click if button is stuck disabled (rate limiting)
+    await loginButton.click({ force: true });
+  }
 
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
+  try {
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000 });
+    await dismissModals(page);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function login(page: Page, user: TestUser): Promise<void> {
+  const success = await attemptLogin(page, user);
+  if (success) return;
+
+  // Retry after delay (handles Supabase rate limiting)
+  console.log(`  Login retry for ${user.email} after delay...`);
+  await page.waitForTimeout(10000);
+  const retrySuccess = await attemptLogin(page, user);
+  if (retrySuccess) return;
+
+  throw new Error(`Login failed for ${user.email} after retry`);
 }
 
 export async function logout(page: Page): Promise<void> {

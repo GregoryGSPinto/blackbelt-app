@@ -48,6 +48,11 @@ e2e/report/
 e2e/artifacts/
 e2e/results.json
 e2e/desktop-output.txt
+e2e/.auth/
+e2e/AUDIT_REPORT.txt
+e2e/audit-results.json
+e2e/MEGA_SIMULATION_REPORT.txt
+e2e/mega-results.json
 
 # sentry
 .sentryclirc

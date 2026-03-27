@@ -9,7 +9,7 @@ test.describe('Login de todos os 9 perfis', () => {
     test(`Login como ${profileName} (${user.email})`, async ({ page }) => {
       // 1. Ir para login
       await page.goto('/login');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
 
       // 2. Verificar que a pagina de login carregou
       await assertPageLoaded(page);

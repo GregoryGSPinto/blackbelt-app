@@ -39,6 +39,25 @@ export async function assertSidebarLoaded(page: Page) {
   }
 }
 
+export async function dismissOverlays(page: Page) {
+  // Dismiss tutorial spotlight, welcome modals, or any z-[9999] overlays
+  const overlay = page.locator('[class*="fixed"][class*="inset-0"][class*="z-"]').first();
+  if (await overlay.isVisible({ timeout: 1000 }).catch(() => false)) {
+    // Try clicking dismiss buttons inside the overlay
+    const dismissBtn = page.locator(
+      'button:has-text("Pular"), button:has-text("Fechar"), button:has-text("Entendi"), button:has-text("Vamos la"), button:has-text("OK"), button:has-text("Skip")'
+    ).first();
+    if (await dismissBtn.isVisible({ timeout: 500 }).catch(() => false)) {
+      await dismissBtn.click();
+      await page.waitForTimeout(300);
+    } else {
+      // Click the overlay background to dismiss
+      await overlay.click({ position: { x: 5, y: 5 }, force: true }).catch(() => {});
+      await page.waitForTimeout(300);
+    }
+  }
+}
+
 export async function takeScreenshot(page: Page, name: string) {
   await page.screenshot({ path: `e2e/artifacts/${name}.png`, fullPage: true });
 }

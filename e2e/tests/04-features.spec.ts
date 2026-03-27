@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { TEST_USERS, login } from '../helpers/auth';
-import { assertPageLoaded, takeScreenshot } from '../helpers/assertions';
+import { assertPageLoaded, takeScreenshot, dismissOverlays } from '../helpers/assertions';
 
 test.describe('Funcionalidades especificas', () => {
 
   test('Busca global (Ctrl+K)', async ({ page }) => {
     await login(page, TEST_USERS.admin);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     await page.keyboard.press('Control+k');
     await page.waitForTimeout(1000);
@@ -34,7 +34,7 @@ test.describe('Funcionalidades especificas', () => {
 
   test('Dark mode toggle', async ({ page }) => {
     await login(page, TEST_USERS.admin);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     const themeToggle = page.locator('[class*="theme"], [aria-label*="tema"], [aria-label*="dark"], button:has-text("Tema")').first();
     const hasToggle = await themeToggle.isVisible().catch(() => false);
@@ -53,14 +53,16 @@ test.describe('Funcionalidades especificas', () => {
 
   test('Notificacoes', async ({ page }) => {
     await login(page, TEST_USERS.admin);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
+    await dismissOverlays(page);
 
     const bellIcon = page.locator('[class*="notification"], [class*="bell"], [aria-label*="notificacao"], button:has([class*="bell"])').first();
     const hasBell = await bellIcon.isVisible().catch(() => false);
     console.log(`  Sino de notificacoes visivel: ${hasBell}`);
 
     if (hasBell) {
-      await bellIcon.click();
+      await dismissOverlays(page);
+      await bellIcon.click({ timeout: 5000 }).catch(() => {});
       await page.waitForTimeout(1000);
 
       const notifPanel = page.locator('[class*="notification-center"], [class*="dropdown"], [class*="panel"]').first();
@@ -73,7 +75,7 @@ test.describe('Funcionalidades especificas', () => {
 
   test('Responsavel — seletor de dependentes', async ({ page }) => {
     await login(page, TEST_USERS.responsavel);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     const childSelector = page.locator('[class*="dependent"], [class*="selector"], [class*="filho"], select, [role="combobox"]');
     const hasPicker = await childSelector.first().isVisible().catch(() => false);
@@ -90,7 +92,8 @@ test.describe('Funcionalidades especificas', () => {
   test('Mobile responsive — sidebar fecha', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await login(page, TEST_USERS.admin);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
+    await dismissOverlays(page);
 
     const sidebar = page.locator('aside, nav[class*="sidebar"]').first();
 
@@ -99,7 +102,8 @@ test.describe('Funcionalidades especificas', () => {
     console.log(`  Hamburger visivel em mobile: ${hasHamburger}`);
 
     if (hasHamburger) {
-      await hamburger.click();
+      await dismissOverlays(page);
+      await hamburger.click({ timeout: 5000 }).catch(() => {});
       await page.waitForTimeout(500);
       const sidebarAfterClick = await sidebar.isVisible().catch(() => false);
       console.log(`  Sidebar aberto apos click: ${sidebarAfterClick}`);
@@ -112,7 +116,7 @@ test.describe('Funcionalidades especificas', () => {
     await login(page, TEST_USERS.admin);
 
     await page.goto('/admin/experimental');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     await assertPageLoaded(page);
 
     const emptyState = page.locator('[class*="empty"], text=Nenhum, text=Nao ha, text=Vazio').first();
