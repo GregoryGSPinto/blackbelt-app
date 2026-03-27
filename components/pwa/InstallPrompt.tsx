@@ -13,6 +13,7 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
     if (localStorage.getItem('bb-install-dismissed') === 'true') {
       setDismissed(true);
       return;
@@ -20,7 +21,9 @@ export function InstallPrompt() {
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const prompt = e as BeforeInstallPromptEvent;
+      // Show after 30s of usage for better UX
+      setTimeout(() => setDeferredPrompt(prompt), 30000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
