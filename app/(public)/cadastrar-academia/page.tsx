@@ -7,6 +7,8 @@ import { createAcademy } from '@/lib/api/onboarding.service';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { BillingStep } from '@/components/onboarding/BillingStep';
+import { PLANS, type BillingData } from '@/lib/types/billing';
 import {
   formatBrazilianPhone,
   formatCep,
@@ -35,46 +37,8 @@ const ESTADOS = [
   'SP', 'SE', 'TO',
 ];
 
-const PLATFORM_PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 'R$ 79/mês',
-    color: '#6B7085',
-    features: ['Até 50 alunos', '1 unidade', '2 professores', 'Gestão de alunos', 'Check-in', 'Financeiro básico', 'Agenda', 'Notificações'],
-  },
-  {
-    id: 'essencial',
-    name: 'Essencial',
-    price: 'R$ 149/mês',
-    color: '#3B82F6',
-    features: ['Até 100 alunos', '1 unidade', '5 professores', 'Tudo do Starter', 'Streaming library', 'Certificados digitais', 'Relatórios avançados', 'Comunicação com responsáveis'],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 'R$ 249/mês',
-    color: 'var(--bb-brand)',
-    popular: true,
-    features: ['Até 200 alunos', '2 unidades', 'Professores ilimitados', 'Tudo do Essencial', 'Campeonatos', 'Gamificação teen', 'Currículo técnico', 'Estoque', 'Contratos digitais'],
-  },
-  {
-    id: 'blackbelt',
-    name: 'Black Belt',
-    price: 'R$ 397/mês',
-    color: '#F59E0B',
-    features: ['Alunos ilimitados', 'Unidades ilimitadas', 'Tudo do Pro', 'Painel franqueador', 'White-label', 'API access', 'Suporte prioritário', 'Relatórios multi-unidade'],
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 'Sob consulta',
-    color: '#8B5CF6',
-    features: ['Tudo do Black Belt', 'SLA dedicado', 'Onboarding assistido', 'Customizações', 'Integração com sistemas legados'],
-  },
-];
 
-const STEP_LABELS = ['Academia', 'Detalhes', 'Administrador', 'Plano', 'Confirmação'];
+const STEP_LABELS = ['Academia', 'Detalhes', 'Administrador', 'Plano e Pagamento', 'Confirmação'];
 
 export default function CadastrarAcademiaPage() {
   const router = useRouter();
@@ -111,8 +75,9 @@ export default function CadastrarAcademiaPage() {
   // Step 3: Admin data
   const [admin, setAdmin] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
 
-  // Step 4: Plan
+  // Step 4: Plan + Billing
   const [plan, setPlan] = useState('blackbelt');
+  const [billingData, setBillingData] = useState<Partial<BillingData>>({ billingType: 'pix' });
 
   const academyErrors = {
     name: !academy.name.trim()
@@ -671,53 +636,19 @@ export default function CadastrarAcademiaPage() {
           </div>
         )}
 
-        {/* Step 4: Plan Selection */}
+        {/* Step 4: Plan Selection + Billing */}
         {step === 4 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              Escolha seu Plano
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-              7 dias grátis no plano Black Belt (acesso total). Sem cartão de crédito.
-            </p>
-
-            <div className="space-y-3">
-              {PLATFORM_PLANS.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setPlan(p.id)}
-                  className="relative w-full rounded-xl p-5 text-left transition-all"
-                  style={{
-                    background: plan === p.id ? 'var(--bb-depth-2)' : 'var(--bb-depth-4)',
-                    border: `2px solid ${plan === p.id ? p.color : 'var(--bb-glass-border)'}`,
-                  }}
-                >
-                  {p.popular && (
-                    <span
-                      className="absolute -top-2 right-4 rounded-full px-3 py-0.5 text-[10px] font-bold text-white"
-                      style={{ background: 'var(--bb-brand)' }}
-                    >
-                      MAIS POPULAR
-                    </span>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{p.name}</span>
-                    <span className="text-lg font-bold" style={{ color: p.color }}>{p.price}</span>
-                  </div>
-                  <ul className="mt-3 grid grid-cols-2 gap-1">
-                    {p.features.map((f) => (
-                      <li key={f} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                        <span style={{ color: p.color }}>✓</span> {f}
-                      </li>
-                    ))}
-                  </ul>
-                </button>
-              ))}
-            </div>
+            <BillingStep
+              selectedPlanId={plan}
+              onPlanChange={setPlan}
+              onBillingDataChange={setBillingData}
+              billingData={billingData}
+            />
 
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" onClick={() => setStep(3)}>Voltar</Button>
-              <Button className="flex-1" onClick={handleNext}>Próximo</Button>
+              <Button className="flex-1" onClick={handleNext}>Proximo</Button>
             </div>
           </div>
         )}
@@ -765,7 +696,9 @@ export default function CadastrarAcademiaPage() {
                   ...(academy.website ? [{ label: 'Website', value: normalizeWebsite(academy.website) }] : []),
                   { label: 'Cidade', value: `${academy.city}/${academy.state}` },
                   { label: 'Modalidades', value: modalidades.join(', ') },
-                  { label: 'Plano', value: PLATFORM_PLANS.find((p) => p.id === plan)?.name ?? plan },
+                  { label: 'Plano', value: PLANS.find((p) => p.id === plan)?.name ?? plan },
+                  ...(billingData.name ? [{ label: 'Responsavel financeiro', value: billingData.name }] : []),
+                  ...(billingData.billingType ? [{ label: 'Pagamento', value: billingData.billingType === 'pix' ? 'PIX' : billingData.billingType === 'boleto' ? 'Boleto' : 'Cartao' }] : []),
                 ].map((item) => (
                   <div
                     key={item.label}
