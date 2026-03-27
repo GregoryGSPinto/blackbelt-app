@@ -14,7 +14,7 @@
 
 ## Backend (Supabase)
 - [ ] Supabase em plano adequado (Pro ou superior)
-- [ ] Migrações SQL aplicadas (001-008)
+- [ ] Migrações SQL aplicadas (001-070)
 - [ ] Seed data removido (apenas em staging)
 - [ ] RLS testado com usuários reais
 - [ ] Edge Functions deployed e testadas
