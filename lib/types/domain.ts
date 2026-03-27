@@ -422,3 +422,77 @@ export interface Invoice extends AuditFields {
   status: InvoiceStatus;
   due_date: string;
 }
+
+// ────────────────────────────────────────────────────────────
+// MÓDULO: PESSOA FÍSICA
+// ────────────────────────────────────────────────────────────
+
+/** Pessoa fisica — pode ou nao ter conta Auth (kids nao tem). */
+export interface Person {
+  id: string;
+  accountId?: string | null;
+  fullName: string;
+  cpf?: string | null;
+  birthDate?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  gender?: 'masculino' | 'feminino' | 'outro' | 'nao_informado' | null;
+  avatarUrl?: string | null;
+  medicalNotes?: string | null;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+  createdAt: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// MÓDULO: VÍNCULO FAMILIAR
+// ────────────────────────────────────────────────────────────
+
+export type FamilyRelationship =
+  | 'pai' | 'mae' | 'avo' | 'avo_materna'
+  | 'tio' | 'tia' | 'padrasto' | 'madrasta'
+  | 'responsavel_legal' | 'outro';
+
+/** Vinculo entre responsavel (guardian) e dependente. */
+export interface FamilyLink {
+  id: string;
+  guardianPersonId: string;
+  dependentPersonId: string;
+  relationship: FamilyRelationship;
+  isPrimaryGuardian: boolean;
+  isFinancialResponsible: boolean;
+  canAuthorizeEvents: boolean;
+  receivesNotifications: boolean;
+  receivesBilling: boolean;
+  notes?: string | null;
+}
+
+// ────────────────────────────────────────────────────────────
+// MÓDULO: CICLO DE VIDA DO PERFIL
+// ────────────────────────────────────────────────────────────
+
+export type ProfileLifecycleStatus =
+  | 'draft' | 'pending' | 'invited'
+  | 'active' | 'suspended' | 'archived';
+
+/** Configuracao de controle parental aplicada ao perfil de um teen. */
+export interface ParentalControlConfig {
+  canChangeEmail: boolean;
+  canChangePassword: boolean;
+  canViewFinancial: boolean;
+  canSendMessages: boolean;
+  canSelfCheckin: boolean;
+  isSuspended: boolean;
+  suspendedUntil?: string | null;
+  suspendedReason?: string | null;
+}
+
+/** Autonomia do Teen — configuravel por academia. */
+export interface TeenAutonomyConfig {
+  teenCanViewSchedule: boolean;
+  teenCanSelfCheckin: boolean;
+  teenCanReceiveDirectNotifications: boolean;
+  teenCanViewPayments: boolean;
+  teenCanEditPersonalData: boolean;
+  teenCanParticipateGeneralRanking: boolean;
+}
