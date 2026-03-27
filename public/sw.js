@@ -1,13 +1,13 @@
-// BlackBelt v2 — Service Worker
-const CACHE_NAME = 'blackbelt-v2-cache-v1';
+const CACHE_NAME = 'blackbelt-v1';
 const STATIC_ASSETS = [
   '/',
   '/login',
   '/manifest.json',
-  '/offline.html',
+  '/favicon.svg',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
 ];
 
-// Install: cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -15,61 +15,45 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for assets
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) return;
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-
-  // API calls: network-first
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Static assets: cache-first
-  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|woff2?|ttf)$/)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // HTML pages: network-first with offline fallback
   event.respondWith(
-    fetch(request)
+    fetch(event.request)
       .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        if (response.ok && event.request.method === 'GET') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))
+      .catch(() => caches.match(event.request))
   );
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() ?? { title: 'BlackBelt', body: 'Nova notificacao' };
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icons/icon-192.svg',
+      badge: '/icons/icon-72.svg',
+      data: data.url || '/',
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow(event.notification.data || '/'));
 });

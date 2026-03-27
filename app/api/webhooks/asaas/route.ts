@@ -1,0 +1,93 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { mapAsaasStatus } from '@/lib/payment/asaas';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const event = body.event;
+    const payment = body.payment;
+
+    if (!event || !payment) {
+      return NextResponse.json({ error: 'Webhook invalido' }, { status: 400 });
+    }
+
+    // Validar access token (Asaas envia como query param)
+    const url = new URL(request.url);
+    const token = url.searchParams.get('access_token');
+    if (token !== process.env.ASAAS_WEBHOOK_TOKEN) {
+      return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 });
+    }
+
+    // Log do webhook (auditoria)
+    await supabase.from('webhook_log').insert({
+      source: 'asaas',
+      event_type: event,
+      payload: body,
+      external_id: payment.id,
+      processed: false,
+    });
+
+    // Processar por tipo de evento
+    const newStatus = mapAsaasStatus(payment.status);
+    const externalRef = payment.externalReference;
+
+    if (externalRef) {
+      // Atualizar invoice/fatura no banco
+      const { error } = await supabase
+        .from('invoices')
+        .update({
+          status: newStatus,
+          paid_at: payment.confirmedDate || null,
+          payment_method: payment.billingType?.toLowerCase(),
+          external_payment_id: payment.id,
+          net_value: payment.netValue,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', externalRef);
+
+      if (error) {
+        console.error('Erro ao atualizar invoice:', error);
+      }
+
+      // Atualizar family_invoice se existe
+      await supabase
+        .from('family_invoices')
+        .update({
+          status: newStatus,
+          paid_at: payment.confirmedDate || null,
+          payment_method: payment.billingType?.toLowerCase(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', externalRef);
+
+      // Notificar (se pagamento confirmado)
+      if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
+        // TODO: enviar notificacao push + email de confirmacao
+      }
+
+      // Se overdue, notificar admin
+      if (event === 'PAYMENT_OVERDUE') {
+        // TODO: notificar admin sobre inadimplencia
+      }
+    }
+
+    // Marcar webhook como processado
+    await supabase
+      .from('webhook_log')
+      .update({ processed: true })
+      .eq('external_id', payment.id)
+      .eq('event_type', event);
+
+    // SEMPRE retornar 200 (mesmo se erro interno) para evitar retry infinito do Asaas
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return NextResponse.json({ received: true }); // 200 mesmo com erro
+  }
+}
