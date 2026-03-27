@@ -20,8 +20,12 @@ import type { FinancialReportData } from '@/lib/types/report';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
 import { exportToCSV } from '@/lib/utils/export-csv';
-import { Download } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { isMock } from '@/lib/env';
+import { createBrowserClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import { ChargeStudentModal } from '@/components/finance/ChargeStudentModal';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -30,7 +34,36 @@ const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis), { ssr: fals
 const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 
-type Tab = 'mensalidades' | 'inadimplentes' | 'relatorio';
+type Tab = 'mensalidades' | 'cobrancas' | 'inadimplentes' | 'relatorio';
+
+interface StudentPaymentRow {
+  id: string;
+  student_name: string;
+  description: string;
+  amount_cents: number;
+  due_date: string;
+  status: string;
+  invoice_url: string | null;
+  billing_type: string;
+}
+
+const SP_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendente',
+  CONFIRMED: 'Pago',
+  RECEIVED: 'Pago',
+  OVERDUE: 'Vencido',
+  REFUNDED: 'Devolvido',
+  CANCELLED: 'Cancelado',
+};
+
+const SP_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  PENDING: { bg: 'rgba(234,179,8,0.15)', text: '#EAB308' },
+  CONFIRMED: { bg: 'rgba(34,197,94,0.15)', text: '#22C55E' },
+  RECEIVED: { bg: 'rgba(34,197,94,0.15)', text: '#22C55E' },
+  OVERDUE: { bg: 'rgba(239,68,68,0.15)', text: '#EF4444' },
+  REFUNDED: { bg: 'rgba(107,114,128,0.15)', text: '#6B7280' },
+  CANCELLED: { bg: 'rgba(107,114,128,0.15)', text: '#6B7280' },
+};
 
 const STATUS_LABELS: Record<string, string> = {
   pago: 'Pago',
@@ -70,6 +103,11 @@ export default function AdminFinanceiroPage() {
   const [reportData, setReportData] = useState<FinancialReportData | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
 
+  // Charge modal + bank config
+  const [chargeOpen, setChargeOpen] = useState(false);
+  const [bankConfigured, setBankConfigured] = useState<boolean | null>(null);
+  const [studentPayments, setStudentPayments] = useState<StudentPaymentRow[]>([]);
+
   // Filters — default to current month
   const [filterMonth, setFilterMonth] = useState(() => {
     const now = new Date();
@@ -99,6 +137,51 @@ export default function AdminFinanceiroPage() {
     }
     load();
   }, [filterMonth, filterStatus, filterSearch, toast]);
+
+  // Load bank config + student payments
+  useEffect(() => {
+    async function loadBankAndPayments() {
+      try {
+        if (isMock()) {
+          setBankConfigured(false);
+          setStudentPayments([]);
+          return;
+        }
+        const supabase = createBrowserClient();
+        const academyId = getActiveAcademyId();
+        const [{ data: acad }, { data: payments }] = await Promise.all([
+          supabase
+            .from('academies')
+            .select('bank_account_configured')
+            .eq('id', academyId)
+            .single(),
+          supabase
+            .from('student_payments')
+            .select('id, description, amount_cents, due_date, status, invoice_url, billing_type, student_profile_id')
+            .eq('academy_id', academyId)
+            .order('created_at', { ascending: false })
+            .limit(50),
+        ]);
+        setBankConfigured(acad?.bank_account_configured ?? false);
+        if (payments && payments.length > 0) {
+          // Fetch student names
+          const profileIds = [...new Set(payments.map((p: { student_profile_id: string }) => p.student_profile_id))];
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, display_name')
+            .in('id', profileIds);
+          const nameMap = new Map((profiles || []).map((p: { id: string; display_name: string }) => [p.id, p.display_name]));
+          setStudentPayments(payments.map((p: { id: string; student_profile_id: string; description: string; amount_cents: number; due_date: string; status: string; invoice_url: string | null; billing_type: string }) => ({
+            ...p,
+            student_name: nameMap.get(p.student_profile_id) || 'Aluno',
+          })));
+        }
+      } catch {
+        // silent
+      }
+    }
+    loadBankAndPayments();
+  }, []);
 
   async function handleMarkPaid(id: string) {
     try {
@@ -134,30 +217,62 @@ export default function AdminFinanceiroPage() {
         <section className="animate-reveal">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Financeiro</h1>
-            <button
-              onClick={() =>
-                exportToCSV(
-                  mensalidades.map((m) => ({
-                    Aluno: m.student_name,
-                    Valor: m.amount,
-                    Vencimento: new Date(m.due_date).toLocaleDateString('pt-BR'),
-                    Pagamento: m.payment_method || '',
-                    Status: STATUS_LABELS[m.status] ?? m.status,
-                  })),
-                  'financeiro',
-                )
-              }
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-              style={{
-                background: 'var(--bb-depth-3)',
-                color: 'var(--bb-ink-80)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Exportar
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setChargeOpen(true)}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all hover:opacity-80"
+                style={{ background: 'var(--bb-brand)' }}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Gerar Cobranca
+              </button>
+              <button
+                onClick={() =>
+                  exportToCSV(
+                    mensalidades.map((m) => ({
+                      Aluno: m.student_name,
+                      Valor: m.amount,
+                      Vencimento: new Date(m.due_date).toLocaleDateString('pt-BR'),
+                      Pagamento: m.payment_method || '',
+                      Status: STATUS_LABELS[m.status] ?? m.status,
+                    })),
+                    'financeiro',
+                  )
+                }
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+                style={{
+                  background: 'var(--bb-depth-3)',
+                  color: 'var(--bb-ink-80)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                Exportar
+              </button>
+            </div>
           </div>
+
+          {/* Bank not configured warning */}
+          {bankConfigured === false && (
+            <div
+              className="mb-4 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+              style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)' }}
+            >
+              <div className="flex-1">
+                <p className="text-sm font-medium" style={{ color: '#EAB308' }}>Configure seus dados bancarios para gerar cobrancas</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--bb-ink-60)' }}>
+                  Voce precisa informar sua conta bancaria para receber pagamentos dos alunos.
+                </p>
+              </div>
+              <Link
+                href="/admin/configuracoes/dados-bancarios"
+                className="rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium text-white transition-all hover:opacity-80 whitespace-nowrap flex items-center"
+                style={{ background: 'var(--bb-brand)' }}
+              >
+                Configurar agora
+              </Link>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[
               { label: 'Receita Mês', value: `R$ ${fmt(summary.revenue_this_month)}`, icon: <DollarIcon className="h-4 w-4" />, trend: `${trendPct >= 0 ? '+' : ''}${trendPct}% vs anterior`, trendUp: trendPct >= 0 },
@@ -218,8 +333,9 @@ export default function AdminFinanceiroPage() {
           <div className="flex gap-1 rounded-lg p-1" style={{ background: 'var(--bb-depth-3)' }}>
             {[
               { key: 'mensalidades' as Tab, label: 'Mensalidades' },
+              { key: 'cobrancas' as Tab, label: `Cobrancas (${studentPayments.length})` },
               { key: 'inadimplentes' as Tab, label: `Inadimplentes (${overdue.length})` },
-              { key: 'relatorio' as Tab, label: 'Relatório' },
+              { key: 'relatorio' as Tab, label: 'Relatorio' },
             ].map((t) => (
               <button
                 key={t.key}
@@ -350,6 +466,64 @@ export default function AdminFinanceiroPage() {
           </section>
         )}
 
+        {/* ── Tab: Cobrancas (student_payments) ─────────────────────── */}
+        {tab === 'cobrancas' && (
+          <section className="animate-reveal space-y-3">
+            {studentPayments.length === 0 ? (
+              <EmptyState
+                icon={DollarIcon}
+                title="Nenhuma cobranca gerada"
+                description="Use o botao Gerar Cobranca para criar a primeira."
+              />
+            ) : (
+              studentPayments.map((sp) => {
+                const sc = SP_STATUS_COLORS[sp.status] ?? SP_STATUS_COLORS.PENDING;
+                return (
+                  <div
+                    key={sp.id}
+                    className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg p-3"
+                    style={{
+                      background: 'var(--bb-depth-2)',
+                      border: '1px solid var(--bb-glass-border)',
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>
+                        {sp.student_name}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                        {sp.description} · Venc: {new Date(sp.due_date).toLocaleDateString('pt-BR')} · {sp.billing_type}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                        R$ {fmt(sp.amount_cents / 100)}
+                      </p>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap"
+                        style={{ background: sc.bg, color: sc.text }}
+                      >
+                        {SP_STATUS_LABELS[sp.status] ?? sp.status}
+                      </span>
+                      {sp.invoice_url && (
+                        <a
+                          href={sp.invoice_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80 whitespace-nowrap"
+                          style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+                        >
+                          Ver link
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </section>
+        )}
+
         {/* ── Tab: Inadimplentes ─────────────────────────────────────── */}
         {tab === 'inadimplentes' && (
           <section className="animate-reveal space-y-3">
@@ -462,6 +636,39 @@ export default function AdminFinanceiroPage() {
             )}
           </section>
         )}
+        {/* Charge Modal */}
+        <ChargeStudentModal
+          open={chargeOpen}
+          onClose={() => setChargeOpen(false)}
+          onCreated={() => {
+            // Reload student payments
+            if (!isMock()) {
+              const supabase = createBrowserClient();
+              supabase
+                .from('student_payments')
+                .select('id, description, amount_cents, due_date, status, invoice_url, billing_type, student_profile_id')
+                .eq('academy_id', getActiveAcademyId())
+                .order('created_at', { ascending: false })
+                .limit(50)
+                .then(({ data }: { data: Array<{ id: string; student_profile_id: string; description: string; amount_cents: number; due_date: string; status: string; invoice_url: string | null; billing_type: string }> | null }) => {
+                  if (data) {
+                    const profileIds = [...new Set(data.map((p) => p.student_profile_id))];
+                    supabase
+                      .from('profiles')
+                      .select('id, display_name')
+                      .in('id', profileIds)
+                      .then(({ data: profiles }: { data: Array<{ id: string; display_name: string }> | null }) => {
+                        const nameMap = new Map((profiles || []).map((p) => [p.id, p.display_name]));
+                        setStudentPayments(data.map((p) => ({
+                          ...p,
+                          student_name: nameMap.get(p.student_profile_id) || 'Aluno',
+                        })));
+                      });
+                  }
+                });
+            }
+          }}
+        />
       </div>
     </PlanGate>
   );
