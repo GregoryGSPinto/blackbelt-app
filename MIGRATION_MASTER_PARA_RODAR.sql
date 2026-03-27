@@ -215,10 +215,14 @@ ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_link TEXT;
 ALTER TABLE invoices ADD COLUMN IF NOT EXISTS pix_qr_code TEXT;
 ALTER TABLE invoices ADD COLUMN IF NOT EXISTS pix_payload TEXT;
 
--- ═══ 15. ANNOUNCEMENTS — colunas de segmentação ═══
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS target_config JSONB DEFAULT '{}';
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS recipient_count INTEGER DEFAULT 0;
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS read_count INTEGER DEFAULT 0;
+-- ═══ 15. ANNOUNCEMENTS — colunas de segmentação (só se a tabela existir) ═══
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'announcements') THEN
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS target_config JSONB DEFAULT '{}';
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS recipient_count INTEGER DEFAULT 0;
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS read_count INTEGER DEFAULT 0;
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════
 -- HELPER FUNCTIONS

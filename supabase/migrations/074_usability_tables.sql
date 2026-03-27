@@ -107,10 +107,14 @@ CREATE TABLE IF NOT EXISTS data_health_issues (
 
 CREATE INDEX IF NOT EXISTS idx_data_health_academy ON data_health_issues(academy_id, is_resolved);
 
--- 7. ANNOUNCEMENT_TARGETS (segmentação de comunicados)
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS target_config JSONB DEFAULT '{}';
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS recipient_count INTEGER DEFAULT 0;
-ALTER TABLE announcements ADD COLUMN IF NOT EXISTS read_count INTEGER DEFAULT 0;
+-- 7. ANNOUNCEMENT_TARGETS (segmentação de comunicados — só se a tabela existir)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'announcements') THEN
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS target_config JSONB DEFAULT '{}';
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS recipient_count INTEGER DEFAULT 0;
+    ALTER TABLE announcements ADD COLUMN IF NOT EXISTS read_count INTEGER DEFAULT 0;
+  END IF;
+END $$;
 
 -- 8. FAMILY_INVOICES (faturas agrupadas por família)
 CREATE TABLE IF NOT EXISTS family_invoices (
@@ -157,6 +161,7 @@ CREATE INDEX IF NOT EXISTS idx_timeline_academy ON student_timeline_events(acade
 -- ═══════════════════════════════════════════════════════
 
 -- Buscar responsáveis de um dependente
+DROP FUNCTION IF EXISTS get_guardians(UUID);
 CREATE OR REPLACE FUNCTION get_guardians(p_dependent_id UUID)
 RETURNS TABLE(
   guardian_id UUID,
@@ -182,6 +187,7 @@ RETURNS TABLE(
 $$ LANGUAGE sql STABLE;
 
 -- Buscar dependentes de um responsável
+DROP FUNCTION IF EXISTS get_dependents(UUID);
 CREATE OR REPLACE FUNCTION get_dependents(p_guardian_id UUID)
 RETURNS TABLE(
   dependent_id UUID,
@@ -202,16 +208,19 @@ RETURNS TABLE(
 $$ LANGUAGE sql STABLE;
 
 -- Calcular idade
+DROP FUNCTION IF EXISTS calculate_age(DATE);
 CREATE OR REPLACE FUNCTION calculate_age(p_birth_date DATE)
 RETURNS INTEGER AS $$
   SELECT EXTRACT(YEAR FROM age(CURRENT_DATE, p_birth_date))::INTEGER;
 $$ LANGUAGE sql IMMUTABLE;
 
 -- Detectar inconsistências (chamada periódica)
+DROP FUNCTION IF EXISTS detect_data_health_issues(UUID);
 CREATE OR REPLACE FUNCTION detect_data_health_issues(p_academy_id UUID)
 RETURNS INTEGER AS $$
 DECLARE
   issues_found INTEGER := 0;
+  v_count INTEGER;
 BEGIN
   -- Limpar issues resolvidas antigas (>30 dias)
   DELETE FROM data_health_issues
@@ -222,14 +231,14 @@ BEGIN
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'familia', 'high', 'profile', pr.id,
-    'Aluno ' || pr.display_name || ' é menor de idade mas não tem responsável vinculado',
+    'Aluno ' || COALESCE(pr.display_name, 'sem nome') || ' é menor de idade mas não tem responsável vinculado',
     'Vincular responsável',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   LEFT JOIN people pe ON pe.id = pr.person_id
   WHERE pr.academy_id = p_academy_id
     AND pr.role IN ('aluno_kids', 'aluno_teen')
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND NOT EXISTS (
       SELECT 1 FROM family_links fl WHERE fl.dependent_person_id = pr.person_id
     )
@@ -237,19 +246,20 @@ BEGIN
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.category = 'familia' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Alunos sem turma
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'turma', 'medium', 'profile', pr.id,
-    'Aluno ' || pr.display_name || ' não está matriculado em nenhuma turma',
+    'Aluno ' || COALESCE(pr.display_name, 'sem nome') || ' não está matriculado em nenhuma turma',
     'Definir turma',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   WHERE pr.academy_id = p_academy_id
     AND pr.role IN ('aluno_adulto', 'aluno_teen', 'aluno_kids')
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND NOT EXISTS (
       SELECT 1 FROM class_enrollments ce WHERE ce.student_id = pr.id AND ce.status = 'active'
     )
@@ -257,19 +267,20 @@ BEGIN
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.category = 'turma' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Responsáveis sem dependentes
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'familia', 'medium', 'profile', pr.id,
-    'Responsável ' || pr.display_name || ' não tem nenhum dependente vinculado',
+    'Responsável ' || COALESCE(pr.display_name, 'sem nome') || ' não tem nenhum dependente vinculado',
     'Vincular dependente',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   WHERE pr.academy_id = p_academy_id
     AND pr.role = 'responsavel'
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND pr.person_id IS NOT NULL
     AND NOT EXISTS (
       SELECT 1 FROM family_links fl WHERE fl.guardian_person_id = pr.person_id
@@ -278,37 +289,39 @@ BEGIN
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.category = 'familia' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Teens sem ativação (convite enviado mas não aceito há >7 dias)
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'cadastro', 'medium', 'profile', pr.id,
-    'Teen ' || pr.display_name || ' foi convidado mas não ativou a conta',
+    'Teen ' || COALESCE(pr.display_name, 'sem nome') || ' foi convidado mas não ativou a conta',
     'Reenviar convite',
     '/admin/convites'
   FROM profiles pr
   WHERE pr.academy_id = p_academy_id
     AND pr.role = 'aluno_teen'
-    AND pr.lifecycle_status = 'invited'
+    AND COALESCE(pr.lifecycle_status, 'invited') = 'invited'
     AND pr.created_at < now() - interval '7 days'
     AND NOT EXISTS (
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.category = 'cadastro' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Cobranças sem pagador definido
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'financeiro', 'high', 'profile', pr.id,
-    'Aluno menor ' || pr.display_name || ' não tem pagador financeiro definido',
+    'Aluno menor ' || COALESCE(pr.display_name, 'sem nome') || ' não tem pagador financeiro definido',
     'Definir pagador',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   WHERE pr.academy_id = p_academy_id
     AND pr.role IN ('aluno_kids', 'aluno_teen')
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND pr.person_id IS NOT NULL
     AND NOT EXISTS (
       SELECT 1 FROM family_links fl
@@ -318,47 +331,50 @@ BEGIN
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.category = 'financeiro' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Kids que completaram 13 anos (sugestão de evolução)
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'cadastro', 'low', 'profile', pr.id,
-    pr.display_name || ' completou 13 anos — considere promover para Teen',
+    COALESCE(pr.display_name, 'Aluno') || ' completou 13 anos — considere promover para Teen',
     'Promover para Teen',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   JOIN people pe ON pe.id = pr.person_id
   WHERE pr.academy_id = p_academy_id
     AND pr.role = 'aluno_kids'
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND pe.birth_date IS NOT NULL
     AND calculate_age(pe.birth_date) >= 13
     AND NOT EXISTS (
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.description LIKE '%completou 13%' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   -- Teens que completaram 18 anos
   INSERT INTO data_health_issues (academy_id, category, severity, entity_type, entity_id, description, action_label, action_route)
   SELECT
     p_academy_id, 'cadastro', 'low', 'profile', pr.id,
-    pr.display_name || ' completou 18 anos — considere promover para Adulto',
+    COALESCE(pr.display_name, 'Aluno') || ' completou 18 anos — considere promover para Adulto',
     'Promover para Adulto',
     '/admin/alunos/' || pr.id
   FROM profiles pr
   JOIN people pe ON pe.id = pr.person_id
   WHERE pr.academy_id = p_academy_id
     AND pr.role = 'aluno_teen'
-    AND pr.lifecycle_status = 'active'
+    AND COALESCE(pr.lifecycle_status, 'active') = 'active'
     AND pe.birth_date IS NOT NULL
     AND calculate_age(pe.birth_date) >= 18
     AND NOT EXISTS (
       SELECT 1 FROM data_health_issues dhi
       WHERE dhi.entity_id = pr.id AND dhi.description LIKE '%completou 18%' AND dhi.is_resolved = false
     );
-  GET DIAGNOSTICS issues_found = issues_found + ROW_COUNT;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  issues_found := issues_found + v_count;
 
   RETURN issues_found;
 END;
@@ -433,30 +449,20 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- Academy teen config: admin da academia
+-- Academy teen config: admin da academia (via memberships)
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'teen_config_admin') THEN
     CREATE POLICY "teen_config_admin" ON academy_teen_config FOR ALL USING (
-      EXISTS (
-        SELECT 1 FROM profiles p
-        WHERE p.user_id = auth.uid()
-          AND p.role IN ('admin', 'superadmin')
-          AND (p.academy_id = academy_teen_config.academy_id OR p.role = 'superadmin')
-      )
+      academy_id IN (SELECT public.get_my_academy_ids())
     );
   END IF;
 END $$;
 
--- Data health: admin da academia
+-- Data health: admin da academia (via memberships)
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'data_health_admin') THEN
     CREATE POLICY "data_health_admin" ON data_health_issues FOR ALL USING (
-      EXISTS (
-        SELECT 1 FROM profiles p
-        WHERE p.user_id = auth.uid()
-          AND p.role IN ('admin', 'superadmin')
-          AND (p.academy_id = data_health_issues.academy_id OR p.role = 'superadmin')
-      )
+      academy_id IN (SELECT public.get_my_academy_ids())
     );
   END IF;
 END $$;
@@ -477,17 +483,12 @@ END $$;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'family_invoices_admin') THEN
     CREATE POLICY "family_invoices_admin" ON family_invoices FOR ALL USING (
-      EXISTS (
-        SELECT 1 FROM profiles p
-        WHERE p.user_id = auth.uid()
-          AND p.role IN ('admin', 'superadmin')
-          AND (p.academy_id = family_invoices.academy_id OR p.role = 'superadmin')
-      )
+      academy_id IN (SELECT public.get_my_academy_ids())
     );
   END IF;
 END $$;
 
--- Timeline: aluno vê a própria, professor/admin vê da academia
+-- Timeline: aluno vê a própria, staff vê da academia, responsável vê dependentes
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'timeline_own') THEN
     CREATE POLICY "timeline_own" ON student_timeline_events FOR SELECT USING (
@@ -503,12 +504,7 @@ END $$;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'timeline_staff') THEN
     CREATE POLICY "timeline_staff" ON student_timeline_events FOR ALL USING (
-      EXISTS (
-        SELECT 1 FROM profiles p
-        WHERE p.user_id = auth.uid()
-          AND p.role IN ('admin', 'professor', 'superadmin')
-          AND (p.academy_id = student_timeline_events.academy_id OR p.role = 'superadmin')
-      )
+      academy_id IN (SELECT public.get_my_academy_ids())
     );
   END IF;
 END $$;
