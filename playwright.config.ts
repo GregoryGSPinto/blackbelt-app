@@ -1,27 +1,33 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'https://blackbeltv2.vercel.app';
-
 export default defineConfig({
   testDir: './e2e',
-  timeout: 600000,
-  retries: 0,
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 1 : 0,
   workers: 1,
-  use: {
-    baseURL,
-    headless: true,
-    screenshot: 'only-on-failure',
-    trace: 'retain-on-failure',
-    viewport: { width: 1280, height: 720 },
-  },
   reporter: [
     ['list'],
+    ['html', { open: 'never', outputFolder: 'e2e/report' }],
     ['json', { outputFile: 'e2e/results.json' }],
   ],
+  use: {
+    baseURL: process.env.E2E_BASE_URL || 'https://blackbeltv2.vercel.app',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
+  },
   projects: [
     {
-      name: 'chromium',
+      name: 'mobile',
+      use: { ...devices['iPhone 14'] },
+    },
+    {
+      name: 'desktop',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  outputDir: 'e2e/artifacts',
 });
