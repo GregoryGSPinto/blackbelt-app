@@ -724,6 +724,7 @@ export async function issueSanction(
         severity_level: data.severity_level,
         start_date: data.start_date,
         end_date: data.end_date,
+        is_active: true,
         student_acknowledged: false,
       })
       .select()

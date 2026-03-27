@@ -114,14 +114,7 @@ CREATE TABLE IF NOT EXISTS conduct_sanctions (
 
   start_date     date NOT NULL DEFAULT CURRENT_DATE,
   end_date       date,
-  is_active      boolean GENERATED ALWAYS AS (
-    CASE
-      WHEN sanction_type = 'ban' THEN true
-      WHEN end_date IS NULL THEN true
-      WHEN end_date >= CURRENT_DATE THEN true
-      ELSE false
-    END
-  ) STORED,
+  is_active      boolean NOT NULL DEFAULT true,
 
   student_acknowledged boolean NOT NULL DEFAULT false,
   acknowledged_at      timestamptz,

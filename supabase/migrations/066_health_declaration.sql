@@ -187,14 +187,7 @@ CREATE TABLE IF NOT EXISTS health_training_restrictions (
   start_date         date NOT NULL DEFAULT CURRENT_DATE,
   end_date           date,
   is_permanent       boolean NOT NULL DEFAULT false,
-  is_active          boolean GENERATED ALWAYS AS (
-    CASE
-      WHEN is_permanent THEN true
-      WHEN end_date IS NULL THEN true
-      WHEN end_date >= CURRENT_DATE THEN true
-      ELSE false
-    END
-  ) STORED,
+  is_active          boolean NOT NULL DEFAULT true,
 
   created_by_id      uuid REFERENCES profiles(id),
   approved_by_id     uuid REFERENCES profiles(id),
