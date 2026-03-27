@@ -42,6 +42,7 @@ import {
   TrophyIcon,
   MessageIcon,
   LockIcon,
+  ShieldIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
@@ -67,6 +68,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon, id: 'sidebar-link-alunos' },
       { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon, id: 'sidebar-link-calendario' },
       { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon, id: 'sidebar-link-graduacoes' },
+      { href: '/admin/saude', label: 'Saude', icon: ShieldIcon, id: 'sidebar-link-saude' },
     ],
   },
   {

@@ -1198,6 +1198,17 @@ export async function mockGetTrialFeedbacks(
   }));
 }
 
+// ── Student-facing ──
+
+export async function mockGetMyTrialInfo(academyId: string): Promise<TrialStudent | null> {
+  await delay();
+  // Return the day-4 student (trial-s-2) for a richer dashboard experience
+  const student = TRIAL_STUDENTS.find(
+    (s) => s.id === 'trial-s-2' && s.academy_id === academyId,
+  );
+  return student ? { ...student } : null;
+}
+
 // ── Config ──
 
 export async function mockGetTrialConfig(academyId: string): Promise<TrialConfig> {

@@ -1018,6 +1018,47 @@ export async function seedDefaultConfig(academyId: string): Promise<TrialConfig 
 }
 
 // ────────────────────────────────────────────────────────────
+// STUDENT-FACING: get my own trial info
+// ────────────────────────────────────────────────────────────
+
+export async function getMyTrialInfo(
+  academyId: string,
+): Promise<TrialStudent | null> {
+  try {
+    if (isMock()) {
+      const { mockGetMyTrialInfo } = await import('@/lib/mocks/trial.mock');
+      return mockGetMyTrialInfo(academyId);
+    }
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const sb = createBrowserClient();
+
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await sb
+      .from('trial_students')
+      .select('*')
+      .eq('academy_id', academyId)
+      .eq('profile_id', user.id)
+      .in('status', ['active', 'expired'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error('[getMyTrialInfo]', error?.message);
+      return null;
+    }
+
+    return data as TrialStudent;
+  } catch (error: unknown) {
+    console.error('[getMyTrialInfo]', (error as Error)?.message);
+    return null;
+  }
+}
+
+// ────────────────────────────────────────────────────────────
 // WHATSAPP (synchronous — no DB, no isMock needed)
 // ────────────────────────────────────────────────────────────
 
