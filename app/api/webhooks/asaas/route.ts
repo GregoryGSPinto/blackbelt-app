@@ -77,6 +77,40 @@ export async function POST(request: Request) {
       }
     }
 
+    // --- Subscription payment events ---
+    if (payment.subscription) {
+      const { data: sub } = await supabase
+        .from('academy_subscriptions')
+        .select('academy_id')
+        .eq('asaas_subscription_id', payment.subscription)
+        .single();
+
+      if (sub) {
+        if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
+          await supabase.from('academy_subscriptions').update({
+            status: 'active',
+            updated_at: new Date().toISOString(),
+          }).eq('asaas_subscription_id', payment.subscription);
+
+          await supabase.from('academies').update({
+            subscription_status: 'active',
+            trial_converted: true,
+          }).eq('id', sub.academy_id);
+        }
+
+        if (event === 'PAYMENT_OVERDUE') {
+          await supabase.from('academy_subscriptions').update({
+            status: 'past_due',
+            updated_at: new Date().toISOString(),
+          }).eq('asaas_subscription_id', payment.subscription);
+
+          await supabase.from('academies').update({
+            subscription_status: 'past_due',
+          }).eq('id', sub.academy_id);
+        }
+      }
+    }
+
     // Audit log
     await supabase.from('audit_log').insert({
       action: 'payment',
