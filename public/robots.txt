@@ -2,10 +2,11 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /professor/
-Disallow: /dashboard/
+Disallow: /superadmin/
+Disallow: /api/
+Disallow: /recepcao/
 Disallow: /teen/
 Disallow: /kids/
 Disallow: /parent/
-Disallow: /api/
-
-Sitemap: https://blackbelt.app/sitemap.xml
+Disallow: /selecionar-perfil
+Sitemap: https://blackbeltv2.vercel.app/sitemap.xml
