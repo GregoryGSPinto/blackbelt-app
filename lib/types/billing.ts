@@ -105,3 +105,130 @@ export interface OverageProjection {
     breakeven_overage: number;
   } | null;
 }
+
+// ============================================================
+// Trial & Subscription — Asaas integration
+// ============================================================
+
+export interface AsaasPlan {
+  id: string;
+  name: string;
+  price: number;
+  priceCents: number;
+  maxStudents: number | null;
+  maxUnits: number | null;
+  maxProfessors: number | null;
+  features: string[];
+  popular?: boolean;
+}
+
+export const PLANS: AsaasPlan[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 79,
+    priceCents: 7900,
+    maxStudents: 50,
+    maxUnits: 1,
+    maxProfessors: 2,
+    features: [
+      'Gestão de alunos',
+      'Check-in por QR Code',
+      'Financeiro básico',
+      'Agenda de aulas',
+      'Notificações',
+    ],
+  },
+  {
+    id: 'essencial',
+    name: 'Essencial',
+    price: 149,
+    priceCents: 14900,
+    maxStudents: 100,
+    maxUnits: 1,
+    maxProfessors: 5,
+    features: [
+      'Tudo do Starter',
+      'Biblioteca de vídeos',
+      'Certificados digitais',
+      'Relatórios avançados',
+      'Comunicação com responsáveis',
+      'App do aluno',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 249,
+    priceCents: 24900,
+    maxStudents: 200,
+    maxUnits: 2,
+    maxProfessors: null,
+    popular: true,
+    features: [
+      'Tudo do Essencial',
+      'Módulo Compete (campeonatos)',
+      'Gamificação teen',
+      'Currículo técnico',
+      'Contratos digitais',
+      'Estoque',
+    ],
+  },
+  {
+    id: 'blackbelt',
+    name: 'Black Belt',
+    price: 397,
+    priceCents: 39700,
+    maxStudents: null,
+    maxUnits: null,
+    maxProfessors: null,
+    features: [
+      'Tudo do Pro',
+      'Painel franqueador',
+      'White-label',
+      'API access',
+      'Suporte prioritário',
+      'Relatórios multi-unidade',
+    ],
+  },
+];
+
+export interface BillingData {
+  planId: string;
+  billingType: 'pix' | 'boleto' | 'credit_card';
+  name: string;
+  cpfCnpj: string;
+  email: string;
+  phone: string;
+  address?: {
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+  };
+  cardToken?: string;
+}
+
+export type AsaasSubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'suspended';
+
+export function getPlan(planId: string): AsaasPlan | undefined {
+  return PLANS.find(p => p.id === planId);
+}
+
+export function formatPrice(price: number): string {
+  return `R$ ${price.toFixed(2).replace('.', ',')}`;
+}
+
+export function getTrialDaysRemaining(trialEndsAt: string | Date): number {
+  const end = new Date(trialEndsAt);
+  const now = new Date();
+  const diff = end.getTime() - now.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+export function isTrialExpired(trialEndsAt: string | Date): boolean {
+  return getTrialDaysRemaining(trialEndsAt) === 0;
+}
