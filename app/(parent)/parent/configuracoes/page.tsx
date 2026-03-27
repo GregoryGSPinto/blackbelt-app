@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useToast } from '@/lib/hooks/useToast';
+import { ParentalControlPanel } from '@/components/parent/ParentalControlPanel';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TutorialSettings } from '@/components/shared/TutorialSettings';
 import {
@@ -28,6 +30,7 @@ import { translateError } from '@/lib/utils/error-translator';
 const TABS = [
   { key: 'perfil', label: 'Meu Perfil' },
   { key: 'filhos', label: 'Meus Filhos' },
+  { key: 'controle_parental', label: 'Controle Parental' },
   { key: 'seguranca', label: 'Seguranca' },
   { key: 'notificacoes', label: 'Notificacoes' },
   { key: 'aparencia', label: 'Aparencia' },
@@ -54,6 +57,7 @@ const PLACEHOLDER_PARENT_PHONE = '(11) 96666-0000';
 const MOCK_CHILDREN = [
   { id: 'child-1', name: 'Pedro Silva', age: 8, belt: 'Branca', avatar: null as string | null },
   { id: 'child-2', name: 'Ana Silva', age: 12, belt: 'Amarela', avatar: null as string | null },
+  { id: 'child-3', name: 'Lucas Silva', age: 15, belt: 'Verde', avatar: null as string | null },
 ];
 
 // ── Loading Skeleton ─────────────────────────────────────────────────
@@ -252,6 +256,35 @@ export default function ParentConfiguracoesPage() {
                 />
               </SettingsSection>
             ))}
+            <Link
+              href="/parent/filhos/novo"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-opacity"
+              style={{ background: 'var(--bb-brand)', color: '#fff' }}
+            >
+              + Adicionar Filho
+            </Link>
+          </>
+        )}
+
+        {/* ── Controle Parental ──────────────────────────────────── */}
+        {activeTab === 'controle_parental' && (
+          <>
+            {MOCK_CHILDREN.filter((c) => c.age >= 13 && c.age <= 17).length === 0 ? (
+              <div className="rounded-lg p-6 text-center" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  Controle parental disponivel apenas para filhos adolescentes (13-17 anos).
+                </p>
+              </div>
+            ) : (
+              MOCK_CHILDREN.filter((c) => c.age >= 13 && c.age <= 17).map((child) => (
+                <ParentalControlPanel
+                  key={child.id}
+                  studentName={child.name}
+                  profileId={child.id}
+                  onSave={() => toast('Controle parental atualizado!', 'success')}
+                />
+              ))
+            )}
           </>
         )}
 
