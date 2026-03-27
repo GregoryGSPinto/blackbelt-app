@@ -207,6 +207,17 @@ export default function AdminAlunosPage() {
             Exportar
           </button>
           <Link
+            href="/admin/cadastro-familia"
+            className="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium"
+            style={{
+              background: 'var(--bb-depth-3)',
+              color: 'var(--bb-ink-80)',
+              border: '1px solid var(--bb-glass-border)',
+            }}
+          >
+            Criar Familia
+          </Link>
+          <Link
             href="/admin/convites"
             className="inline-flex items-center rounded-lg px-4 py-2 min-h-[44px] text-sm font-semibold transition-all hover:opacity-90"
             style={{ background: 'var(--bb-brand)', color: '#fff' }}

@@ -73,6 +73,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/admin/graduacoes', label: 'Graduacoes', icon: AwardIcon, id: 'sidebar-link-graduacoes' },
       { href: '/admin/saude', label: 'Saude', icon: ShieldIcon, id: 'sidebar-link-saude' },
       { href: '/admin/conduta', label: 'Conduta', icon: CheckSquareIcon, id: 'sidebar-link-conduta' },
+      { href: '/admin/pendencias', label: 'Pendencias', icon: AlertTriangleIcon, id: 'sidebar-link-pendencias' },
     ],
   },
   {

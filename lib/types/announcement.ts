@@ -54,3 +54,16 @@ export interface CreateAnnouncementPayload {
   scheduled_at?: string;
   attachments?: File[];
 }
+
+// === Segmented Announcement Targeting (S10) ===
+
+export interface AnnouncementTarget {
+  type: 'all' | 'class' | 'modality' | 'belt' | 'age_group' | 'status' | 'custom';
+  classIds?: string[];
+  modalityIds?: string[];
+  beltLevels?: string[];
+  ageGroup?: 'kids' | 'teen' | 'adult';
+  paymentStatus?: 'em_dia' | 'inadimplente';
+  inactivityDays?: number;
+  includeGuardians?: boolean;
+}
