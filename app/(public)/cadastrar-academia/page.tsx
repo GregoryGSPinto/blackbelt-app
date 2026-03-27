@@ -170,11 +170,44 @@ export default function CadastrarAcademiaPage() {
     }
     setLoading(true);
     try {
-      await createAcademy(
+      const result = await createAcademy(
         { name: academy.name, cnpj: academy.cnpj, address: `${academy.address}, ${academy.number}${academy.complement ? ` - ${academy.complement}` : ''}, ${academy.neighborhood}, ${academy.city}/${academy.state}`, phone: academy.phone },
         { name: admin.name, email: admin.email, password: admin.password },
         plan,
       );
+
+      // Create Asaas subscription (non-blocking — academy is already created)
+      if (billingData.cpfCnpj && billingData.name) {
+        const selectedPlan = PLANS.find(p => p.id === plan);
+        if (selectedPlan) {
+          try {
+            const subRes = await fetch('/api/subscriptions/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                academyId: result.academyId,
+                planId: selectedPlan.id,
+                planName: selectedPlan.name,
+                priceCents: selectedPlan.priceCents,
+                billingType: billingData.billingType || 'pix',
+                name: billingData.name,
+                cpfCnpj: billingData.cpfCnpj,
+                email: billingData.email || admin.email,
+                phone: billingData.phone || academy.phone,
+                address: billingData.address,
+              }),
+            });
+            const subResult = await subRes.json();
+            if (!subResult.success) {
+              // Don't block — academy was created successfully
+              toast('Academia criada! Configure o pagamento depois nas configuracoes.', 'warning');
+            }
+          } catch {
+            // Subscription creation failed but academy is OK
+          }
+        }
+      }
+
       toast('Academia criada com sucesso!', 'success');
       setTimeout(() => {
         router.push('/admin');
