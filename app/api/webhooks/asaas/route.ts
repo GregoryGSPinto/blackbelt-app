@@ -77,6 +77,14 @@ export async function POST(request: Request) {
       }
     }
 
+    // Audit log
+    await supabase.from('audit_log').insert({
+      action: 'payment',
+      entity_type: 'webhook',
+      entity_id: payment.id,
+      new_data: { event, status: newStatus, externalRef: externalRef },
+    });
+
     // Marcar webhook como processado
     await supabase
       .from('webhook_log')

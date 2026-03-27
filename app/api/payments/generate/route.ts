@@ -74,6 +74,15 @@ export async function POST(request: Request) {
       { onConflict: 'person_id,academy_id,provider' },
     );
 
+    // Audit log
+    await supabase.from('audit_log').insert({
+      academy_id: body.academyId,
+      action: 'payment',
+      entity_type: 'payment',
+      entity_id: body.invoiceId,
+      new_data: { paymentId: payment.id, billingType: body.billingType, amount: body.amount },
+    });
+
     return NextResponse.json({
       paymentId: payment.id,
       invoiceUrl: payment.invoiceUrl,

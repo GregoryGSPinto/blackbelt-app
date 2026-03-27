@@ -131,6 +131,64 @@ check "Papaparse no package.json"
 grep -q "jspdf" package.json 2>/dev/null
 check "jsPDF no package.json"
 
+# Asaas / Pagamento
+echo ""
+echo "Pagamento..."
+
+test -f lib/payment/asaas.ts
+check "Asaas SDK"
+
+test -f app/api/webhooks/asaas/route.ts
+check "Asaas webhook handler"
+
+test -f app/api/payments/generate/route.ts
+check "Payment generation API"
+
+# Audit
+echo ""
+echo "Audit..."
+
+test -f lib/api/audit.service.ts
+check "Audit service"
+
+grep -q "audit_log" app/api/students/create/route.ts 2>/dev/null
+check "Audit integrado no create student"
+
+# AuthGuard
+test -f components/auth/AuthGuard.tsx
+check "AuthGuard component"
+
+# Migration master
+echo ""
+echo "Ativacao..."
+
+test -f MIGRATION_MASTER_PARA_RODAR.sql
+check "Migration master SQL"
+
+test -f scripts/seed-everything.ts
+check "Seed script"
+
+test -f scripts/verify-everything.ts
+check "Verify script"
+
+test -f INSTRUCOES_FINAIS.md
+check "Instrucoes finais"
+
+# Trial
+test -f components/trial/TrialBanner.tsx
+check "Trial banner"
+
+# Contato
+find app -path "*contato*" -name "page.tsx" 2>/dev/null | grep -q .
+check "Contato page"
+
+# PDF Reports
+test -f lib/reports/attendance-pdf.ts
+check "PDF attendance report"
+
+test -f lib/reports/financial-pdf.ts
+check "PDF financial report"
+
 # Resultado
 echo ""
 echo "================================"

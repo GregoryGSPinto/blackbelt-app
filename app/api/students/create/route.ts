@@ -234,7 +234,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 7. Return result ──────────────────────────────────────
+    // ── 7. Audit log ──────────────────────────────────────────
+    await supabase.from('audit_log').insert({
+      academy_id: body.academyId,
+      action: 'create',
+      entity_type: 'student',
+      entity_id: studentId,
+      new_data: { name: body.nome, email: body.email, role, tipo: body.tipo },
+    }).then(({ error: auditErr }) => {
+      if (auditErr) console.error('[createStudent] Audit error:', auditErr.message);
+    });
+
+    // ── 8. Return result ──────────────────────────────────────
     return NextResponse.json({
       alunoId: studentId,
       profileId,
