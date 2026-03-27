@@ -35,6 +35,7 @@ import {
   BookOpenIcon,
   ShieldIcon,
   FileTextIcon,
+  EditIcon,
 } from './icons';
 
 interface MainShellProps {
@@ -87,6 +88,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/loja', label: 'Loja', icon: ShoppingBagIcon },
       { href: '/dashboard/saude', label: 'Saude', icon: ShieldIcon },
       { href: '/dashboard/conduta', label: 'Conduta', icon: FileTextIcon },
+      { href: '/dashboard/contrato', label: 'Contrato', icon: EditIcon },
       { href: '/perfil', label: 'Perfil', icon: UserIcon },
       { href: '/dashboard/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
     ],
