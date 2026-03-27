@@ -111,6 +111,45 @@ export async function POST(request: Request) {
       }
     }
 
+    // --- Student payment events (externalReference starts with "bb_") ---
+    if (externalRef?.startsWith('bb_')) {
+      const { data: studentPayment } = await supabase
+        .from('student_payments')
+        .select('id, academy_id, student_profile_id')
+        .eq('asaas_payment_id', payment.id)
+        .single();
+
+      if (studentPayment) {
+        const spStatus = (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED')
+          ? 'CONFIRMED'
+          : event === 'PAYMENT_OVERDUE'
+          ? 'OVERDUE'
+          : event === 'PAYMENT_REFUNDED'
+          ? 'REFUNDED'
+          : null;
+
+        if (spStatus) {
+          await supabase.from('student_payments').update({
+            status: spStatus,
+            ...(spStatus === 'CONFIRMED' ? { paid_at: new Date().toISOString() } : {}),
+            updated_at: new Date().toISOString(),
+          }).eq('id', studentPayment.id);
+
+          // Criar timeline event pro aluno (se pagamento confirmado)
+          if (spStatus === 'CONFIRMED') {
+            await supabase.from('student_timeline_events').insert({
+              profile_id: studentPayment.student_profile_id,
+              academy_id: studentPayment.academy_id,
+              event_type: 'pagamento',
+              title: 'Pagamento confirmado',
+              description: `Pagamento de R$${(payment.value || 0).toFixed(2)} confirmado`,
+              event_date: new Date().toISOString(),
+            });
+          }
+        }
+      }
+    }
+
     // Audit log
     await supabase.from('audit_log').insert({
       action: 'payment',
