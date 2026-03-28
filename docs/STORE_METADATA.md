@@ -39,9 +39,35 @@ The app requires an academy account. Use the credentials above to access the ful
 ## Google Play (Android)
 
 - **App Name:** BlackBelt — Gestão de Academias
-- **Short Description (80 chars):** Gestão completa para academias de artes marciais. Check-in, turmas e progresso.
-- **Full Description:** (mesma do iOS acima)
-- **Category:** Business
+- **Short Description (80 chars):** Gestão completa para academias de artes marciais. Alunos, turmas, financeiro.
+- **Full Description:**
+
+BlackBelt é a plataforma mais completa para gestão de academias de artes marciais (BJJ, Judô, Karatê, MMA).
+
+Funcionalidades:
+• Gestão de alunos com perfis detalhados
+• Check-in por QR Code ou lista
+• Controle de turmas e horários
+• Financeiro completo (mensalidades, cobranças, relatórios)
+• Graduações e faixas
+• Comunicação com alunos e responsáveis
+• Área do aluno com progresso
+• Área Kids segura e gamificada
+• Área Teen com XP e conquistas
+• Calendário de eventos e campeonatos
+• Relatórios e analytics
+
+Para donos de academia:
+• Trial gratuito de 7 dias
+• Planos a partir de R$79/mês
+• Sem taxa de adesão, sem contrato
+• Suporte via WhatsApp
+
+Pagamentos processados com segurança pelo Asaas (instituição autorizada pelo Banco Central).
+- **Category:** Negócios / Esportes
+- **Tags:** artes marciais, academia, jiu-jitsu, judô, karatê, MMA, gestão, alunos, check-in
+- **Classificação:** Livre
+- **Site:** https://blackbeltv2.vercel.app
 - **Content Rating:** Everyone
 - **Privacy Policy URL:** https://blackbeltv2.vercel.app/privacidade
 - **Contact Email:** gregoryguimaraes12@gmail.com
