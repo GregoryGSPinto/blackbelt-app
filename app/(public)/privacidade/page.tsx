@@ -9,11 +9,13 @@ const SECTIONS = [
   { id: 'como-usamos', label: '3. Como Usamos Seus Dados' },
   { id: 'menores', label: '4. Dados de Menores (KIDS)' },
   { id: 'compartilhamento', label: '5. Compartilhamento' },
-  { id: 'armazenamento', label: '6. Armazenamento e Seguranca' },
-  { id: 'direitos', label: '7. Seus Direitos (LGPD)' },
-  { id: 'retencao', label: '8. Retencao' },
-  { id: 'cookies', label: '9. Cookies' },
-  { id: 'alteracoes', label: '10. Alteracoes' },
+  { id: 'dados-financeiros', label: '6. Dados Financeiros' },
+  { id: 'compartilhamento-terceiros', label: '7. Compartilhamento com Terceiros' },
+  { id: 'armazenamento', label: '8. Armazenamento e Seguranca' },
+  { id: 'direitos', label: '9. Seus Direitos (LGPD)' },
+  { id: 'retencao', label: '10. Retencao' },
+  { id: 'cookies', label: '11. Cookies' },
+  { id: 'alteracoes', label: '12. Alteracoes' },
 ];
 
 export default function PrivacidadePage() {
@@ -497,7 +499,90 @@ export default function PrivacidadePage() {
               </div>
             </section>
 
-            {/* Section 6 — Armazenamento e Seguranca */}
+            {/* Section 6 — Dados Financeiros */}
+            <section id="dados-financeiros" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  6. Dados Financeiros
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    6.1. Para processamento de pagamentos, coletamos: nome completo, CPF ou CNPJ, e-mail de cobranca, telefone e, quando aplicavel, endereco completo.
+                  </p>
+                  <p>
+                    6.2. Esses dados sao compartilhados exclusivamente com o Asaas Gestao Financeira S.A. (CNPJ 19.540.550/0001-21), nosso processador de pagamentos, para fins de:
+                  </p>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>Criacao de conta de pagamento</li>
+                    <li>Processamento de cobrancas</li>
+                    <li>Emissao de boletos e PIX</li>
+                    <li>Prevencao a fraudes</li>
+                  </ul>
+                  <p>
+                    6.3. Dados de cartao de credito NAO sao armazenados pelo BlackBelt. Sao processados diretamente pelo Asaas em ambiente seguro com certificacao PCI-DSS.
+                  </p>
+                  <p>
+                    6.4. Para a funcionalidade de cobranca de alunos, os dados bancarios informados pelo responsavel da academia (banco, agencia, conta) sao armazenados de forma criptografada e utilizados exclusivamente para criacao e manutencao da subconta de pagamento no Asaas.
+                  </p>
+                  <p>
+                    6.5. Dados financeiros sao retidos pelo periodo exigido pela legislacao fiscal brasileira (5 anos) e pela politica de retencao do Asaas.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 7 — Compartilhamento com Terceiros */}
+            <section id="compartilhamento-terceiros" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  7. Compartilhamento com Terceiros
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    7.1. Compartilhamos dados pessoais apenas com:
+                  </p>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li><strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Asaas Gestao Financeira S.A.</strong> — processamento de pagamentos</li>
+                    <li><strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Resend Inc.</strong> — envio de e-mails transacionais</li>
+                    <li><strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Supabase Inc.</strong> — armazenamento de dados (banco de dados)</li>
+                    <li><strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Vercel Inc.</strong> — hospedagem da aplicacao</li>
+                  </ul>
+                  <p>
+                    7.2. Nenhum dado pessoal e vendido, alugado ou compartilhado com terceiros para fins de marketing ou publicidade.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 8 — Armazenamento e Seguranca */}
             <section id="armazenamento" data-section className="scroll-mt-20">
               <div
                 className="overflow-hidden p-6"
@@ -512,7 +597,7 @@ export default function PrivacidadePage() {
                   className="mb-4 text-lg font-semibold"
                   style={{ color: 'var(--bb-ink-100, #fff)' }}
                 >
-                  6. Armazenamento e Seguranca
+                  8. Armazenamento e Seguranca
                 </h2>
                 <div
                   className="space-y-3 text-sm leading-relaxed"
@@ -551,7 +636,7 @@ export default function PrivacidadePage() {
               </div>
             </section>
 
-            {/* Section 7 — Seus Direitos (LGPD) */}
+            {/* Section 9 — Seus Direitos (LGPD) */}
             <section id="direitos" data-section className="scroll-mt-20">
               <div
                 className="overflow-hidden p-6"
@@ -566,7 +651,7 @@ export default function PrivacidadePage() {
                   className="mb-4 text-lg font-semibold"
                   style={{ color: 'var(--bb-ink-100, #fff)' }}
                 >
-                  7. Seus Direitos (LGPD Art. 18)
+                  9. Seus Direitos (LGPD Art. 18)
                 </h2>
                 <div
                   className="space-y-3 text-sm leading-relaxed"
@@ -618,7 +703,7 @@ export default function PrivacidadePage() {
               </div>
             </section>
 
-            {/* Section 8 — Retencao */}
+            {/* Section 10 — Retencao */}
             <section id="retencao" data-section className="scroll-mt-20">
               <div
                 className="overflow-hidden p-6"
@@ -633,7 +718,7 @@ export default function PrivacidadePage() {
                   className="mb-4 text-lg font-semibold"
                   style={{ color: 'var(--bb-ink-100, #fff)' }}
                 >
-                  8. Retencao
+                  10. Retencao
                 </h2>
                 <div
                   className="space-y-3 text-sm leading-relaxed"
@@ -737,7 +822,7 @@ export default function PrivacidadePage() {
               </div>
             </section>
 
-            {/* Section 9 — Cookies */}
+            {/* Section 11 — Cookies */}
             <section id="cookies" data-section className="scroll-mt-20">
               <div
                 className="overflow-hidden p-6"
@@ -752,7 +837,7 @@ export default function PrivacidadePage() {
                   className="mb-4 text-lg font-semibold"
                   style={{ color: 'var(--bb-ink-100, #fff)' }}
                 >
-                  9. Cookies
+                  11. Cookies
                 </h2>
                 <div
                   className="space-y-3 text-sm leading-relaxed"
@@ -829,7 +914,7 @@ export default function PrivacidadePage() {
               </div>
             </section>
 
-            {/* Section 10 — Alteracoes */}
+            {/* Section 12 — Alteracoes */}
             <section id="alteracoes" data-section className="scroll-mt-20">
               <div
                 className="overflow-hidden p-6"
@@ -844,7 +929,7 @@ export default function PrivacidadePage() {
                   className="mb-4 text-lg font-semibold"
                   style={{ color: 'var(--bb-ink-100, #fff)' }}
                 >
-                  10. Alteracoes
+                  12. Alteracoes
                 </h2>
                 <div
                   className="space-y-3 text-sm leading-relaxed"
