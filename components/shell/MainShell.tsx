@@ -71,6 +71,7 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'CONTEUDO',
     items: [
       { href: '/dashboard/conteudo', label: 'Biblioteca', icon: VideoIcon },
+      { href: '/dashboard/video-aulas', label: 'Video-Aulas', icon: VideoIcon },
       { href: '/academia', label: 'Academia', icon: BookOpenIcon },
       { href: '/torneios', label: 'Torneios', icon: SwordsIcon },
     ],
