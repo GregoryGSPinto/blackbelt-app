@@ -9,6 +9,7 @@ const config: CapacitorConfig = {
   webDir: 'out',
 
   server: {
+    url: 'https://blackbeltv2.vercel.app',
     androidScheme: 'https',
     iosScheme: 'https',
     ...(isMobileBuild ? { url: publicAppUrl } : {}),
