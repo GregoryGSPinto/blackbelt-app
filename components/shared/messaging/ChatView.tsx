@@ -17,6 +17,8 @@ import {
 } from '@/lib/api/mensagens.service';
 import type { ConversationMessage, Contact } from '@/lib/types/messaging';
 import { ChevronLeftIcon, SendIcon } from '@/components/shell/icons';
+import { ReportButton } from '@/components/shared/ReportButton';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ────────────────────────────────────────────────────────────
 // HELPERS
@@ -324,6 +326,15 @@ const ChatView = forwardRef<HTMLDivElement, ChatViewProps>(
                             >
                               {msg.read_at ? '\u2713\u2713' : '\u2713'}
                             </span>
+                          )}
+                          {!isMine && (
+                            <ReportButton
+                              contentType="message"
+                              contentId={msg.id}
+                              reportedUserId={msg.sender_id}
+                              userId={currentProfileId}
+                              academyId={getActiveAcademyId()}
+                            />
                           )}
                         </div>
                       </div>

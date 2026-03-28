@@ -14,9 +14,11 @@ import type {
   AnnouncementStatus,
 } from '@/lib/types/announcement';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { ReportButton } from '@/components/shared/ReportButton';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 const STATUS_LABEL: Record<AnnouncementStatus, string> = {
@@ -40,6 +42,7 @@ const AUDIENCE_LABEL: Record<AnnouncementAudience, string> = {
 };
 
 export default function ComunicadosPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [stats, setStats] = useState<AnnouncementStats | null>(null);
@@ -290,12 +293,21 @@ export default function ComunicadosPage() {
                 >
                   {ann.title}
                 </h3>
-                <span
-                  className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ background: sc.bg, color: sc.text }}
-                >
-                  {STATUS_LABEL[ann.status]}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <ReportButton
+                    contentType="announcement"
+                    contentId={ann.id}
+                    reportedUserId={ann.author_id}
+                    userId={profile?.id}
+                    academyId={getActiveAcademyId()}
+                  />
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                    style={{ background: sc.bg, color: sc.text }}
+                  >
+                    {STATUS_LABEL[ann.status]}
+                  </span>
+                </div>
               </div>
 
               <p
