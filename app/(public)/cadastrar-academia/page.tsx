@@ -798,7 +798,15 @@ export default function CadastrarAcademiaPage() {
                   className="mt-1 h-4 w-4 rounded border"
                 />
                 <span>
-                  Confirmo que li e aceito os Termos de Uso e a Politica de Privacidade.
+                  Li e aceito os{' '}
+                  <Link href="/termos" target="_blank" className="underline font-medium" style={{ color: 'var(--bb-brand)' }}>
+                    Termos de Uso
+                  </Link>{' '}
+                  e a{' '}
+                  <Link href="/privacidade" target="_blank" className="underline font-medium" style={{ color: 'var(--bb-brand)' }}>
+                    Politica de Privacidade
+                  </Link>
+                  , incluindo as condicoes de pagamento, processamento via Asaas e taxas aplicaveis.
                   {termsAcceptedAt && (
                     <span className="mt-1 block text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                       Aceite registrado nesta sessao em {new Date(termsAcceptedAt).toLocaleString('pt-BR')}.
