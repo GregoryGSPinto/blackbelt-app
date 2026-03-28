@@ -1,3 +1,5 @@
+'use client';
+
 // ═══════════════════════════════════════════════════════
 // Platform Detection — Capacitor vs Web
 // ═══════════════════════════════════════════════════════
@@ -16,6 +18,19 @@ try {
   }
 } catch {
   // Not in Capacitor environment
+}
+
+let _capacitor: typeof import('@capacitor/core').Capacitor | null = null;
+
+async function getCapacitor() {
+  if (_capacitor) return _capacitor;
+  try {
+    const mod = await import('@capacitor/core');
+    _capacitor = mod.Capacitor;
+    return _capacitor;
+  } catch {
+    return null;
+  }
 }
 
 export function isNative(): boolean {
@@ -41,3 +56,5 @@ export function isMobileBuild(): boolean {
 export function getPlatform(): string {
   return _platform;
 }
+
+export { getCapacitor };

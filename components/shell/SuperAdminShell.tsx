@@ -288,6 +288,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                 background: 'var(--bb-depth-2)',
                 borderBottom: '1px solid var(--bb-glass-border)',
                 top: impersonating ? '40px' : '0',
+                paddingTop: 'var(--safe-area-top)',
               }}
             >
               {/* Mobile menu toggle */}

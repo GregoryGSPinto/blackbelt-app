@@ -459,6 +459,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               borderTop: '1px solid var(--bb-glass-border)',
+              paddingBottom: 'var(--safe-area-bottom)',
             }}
           >
             <div className="flex items-center justify-around py-2">

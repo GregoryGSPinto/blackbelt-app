@@ -434,6 +434,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             style={{
               background: 'var(--bb-depth-2)',
               borderBottom: '1px solid var(--bb-glass-border)',
+              paddingTop: 'var(--safe-area-top)',
             }}
           >
             <div className="flex items-center gap-3">

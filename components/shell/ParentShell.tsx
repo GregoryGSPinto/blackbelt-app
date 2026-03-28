@@ -244,6 +244,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
               style={{
                 background: 'var(--bb-depth-2)',
                 borderBottom: '1px solid var(--bb-glass-border)',
+                paddingTop: 'var(--safe-area-top)',
               }}
             >
               <div className="flex items-center gap-3">

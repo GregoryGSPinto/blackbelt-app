@@ -124,6 +124,7 @@ const ShellHeader = forwardRef<HTMLElement, ShellHeaderProps>(
         style={{
           background: 'var(--bb-depth-2)',
           borderBottom: '1px solid var(--bb-glass-border)',
+          paddingTop: 'var(--safe-area-top)',
         }}
       >
         <div className="flex items-center justify-between">

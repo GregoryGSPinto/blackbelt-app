@@ -170,7 +170,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
           <div className="flex flex-1 flex-col">
             <header
               className="sticky top-0 z-20 flex h-14 items-center justify-between px-4"
-              style={{ background: 'var(--bb-depth-2)', borderBottom: '1px solid var(--bb-glass-border)' }}
+              style={{ background: 'var(--bb-depth-2)', borderBottom: '1px solid var(--bb-glass-border)', paddingTop: 'var(--safe-area-top)' }}
             >
               <div className="flex items-center gap-3">
                 <button className="lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Abrir menu">
@@ -268,7 +268,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             borderTop: '1px solid var(--bb-glass-border)',
-            paddingBottom: 'env(safe-area-inset-bottom)',
+            paddingBottom: 'var(--safe-area-bottom)',
           }}
         >
           <div className="flex items-center justify-around py-2">
