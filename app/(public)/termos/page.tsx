@@ -15,6 +15,7 @@ const SECTIONS = [
   { id: 'disponibilidade', label: '9. Disponibilidade do Servico' },
   { id: 'rescisao', label: '10. Rescisao' },
   { id: 'responsabilidade', label: '11. Limitacao de Responsabilidade' },
+  { id: 'conteudo-usuario', label: '11-A. Conteudo do Usuario' },
   { id: 'foro', label: '12. Foro' },
   { id: 'planos-assinatura', label: '13. Planos e Assinatura' },
   { id: 'processamento-pagamentos', label: '14. Processamento de Pagamentos' },
@@ -652,6 +653,46 @@ export default function TermosPage() {
                   </ul>
                   <p>
                     11.4. Nenhuma disposicao destes Termos exclui ou limita a responsabilidade da BlackBelt em casos onde a exclusao ou limitacao nao e permitida pela legislacao brasileira aplicavel, incluindo o Codigo de Defesa do Consumidor.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 11-A — Conteudo do Usuario */}
+            <section id="conteudo-usuario" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  11-A. Conteudo Gerado pelo Usuario
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    11-A.1. O BlackBelt permite que Usuarios compartilhem conteudo como mensagens, comunicados e informacoes dentro da Plataforma.
+                  </p>
+                  <p>
+                    11-A.2. E proibido publicar conteudo que contenha: spam, assedio, bullying, discurso de odio, conteudo sexual, violencia, ameacas, informacoes falsas, ou qualquer material que viole a legislacao brasileira.
+                  </p>
+                  <p>
+                    11-A.3. Qualquer Usuario pode denunciar conteudo inadequado atraves do botao de denuncia disponivel em cada mensagem ou publicacao.
+                  </p>
+                  <p>
+                    11-A.4. O BlackBelt reserva-se o direito de remover conteudo e suspender ou encerrar contas que violem estas regras, sem aviso previo.
+                  </p>
+                  <p>
+                    11-A.5. O BlackBelt nao se responsabiliza pelo conteudo publicado por seus Usuarios, mas se compromete a moderar denuncias em ate 48 horas uteis.
                   </p>
                 </div>
               </div>
