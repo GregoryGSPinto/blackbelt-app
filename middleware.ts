@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/', '/login', '/cadastro', '/convite', '/esqueci-senha', '/redefinir-senha', '/senha-alterada', '/selecionar-perfil', '/completar-cadastro', '/status', '/termos', '/privacidade', '/verificar', '/onboarding', '/cadastrar-academia', '/registro-academia', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog', '/comecar', '/g', '/auth/callback', '/compete', '/app-store', '/beta-invite', '/changelog', '/developers', '/marketplace', '/ranking', '/campeonatos', '/.well-known', '/excluir-conta'];
+const PUBLIC_PATHS = ['/', '/login', '/cadastro', '/convite', '/esqueci-senha', '/redefinir-senha', '/senha-alterada', '/selecionar-perfil', '/completar-cadastro', '/status', '/termos', '/privacidade', '/verificar', '/onboarding', '/cadastrar-academia', '/registro-academia', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog', '/comecar', '/g', '/auth/callback', '/compete', '/app-store', '/beta-invite', '/changelog', '/developers', '/marketplace', '/ranking', '/campeonatos', '/.well-known', '/excluir-conta', '/suporte'];
 
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',
