@@ -4,7 +4,7 @@ const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.ver
 const isMobileBuild = process.env.NEXT_PUBLIC_PLATFORM === 'mobile';
 
 const config: CapacitorConfig = {
-  appId: 'app.blackbelt.v2',
+  appId: 'app.blackbelt.academy',
   appName: 'BlackBelt',
   webDir: 'out',
 
