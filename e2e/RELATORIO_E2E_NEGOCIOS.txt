@@ -1,0 +1,18 @@
+=== RELATORIO E2E NEGOCIOS ===
+Data: Sex 27 Mar 2026 21:08:37 -03
+
+Testes 06-10 (negocios): 20 passed, 0 failed
+
+06-onboarding-wizard: 4 passed
+07-bank-account: 3 passed
+08-student-charges: 4 passed
+09-trial-subscription: 6 passed
+10-admin-full-flow: 3 passed
+
+APIs verificadas (nenhuma 404):
+  /api/subscriptions/create — 500 (ok, sem body)
+  /api/academy/setup-payments — 500 (ok, sem body)
+  /api/academy/charge-student — 400 (ok, sem body)
+  /api/webhooks/asaas — 401 (ok, sem token)
+
+Screenshots em: e2e/artifacts/
