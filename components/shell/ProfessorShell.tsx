@@ -74,6 +74,7 @@ const drawerItems: {
   { href: '/professor/calendario', label: 'Calendario', icon: CalendarIcon },
   { href: '/professor/mensagens', label: 'Mensagens', icon: MessageIcon },
   { href: '/professor/conteudo', label: 'Conteudo', icon: VideoIcon },
+  { href: '/professor/video-aulas', label: 'Video-Aulas', icon: VideoIcon },
   { href: '/professor/perfil', label: 'Perfil', icon: UserIcon },
   { href: '/professor/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
 ];
@@ -112,6 +113,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { id: 'sidebar-link-mensagens', href: '/professor/mensagens', label: 'Mensagens', icon: MessageIcon },
       { id: 'sidebar-link-conteudo-prof', href: '/professor/conteudo', label: 'Conteudo', icon: VideoIcon },
+      { id: 'sidebar-link-video-aulas', href: '/professor/video-aulas', label: 'Video-Aulas', icon: VideoIcon },
     ],
   },
   {
