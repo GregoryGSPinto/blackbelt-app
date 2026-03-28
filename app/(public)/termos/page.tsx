@@ -16,6 +16,10 @@ const SECTIONS = [
   { id: 'rescisao', label: '10. Rescisao' },
   { id: 'responsabilidade', label: '11. Limitacao de Responsabilidade' },
   { id: 'foro', label: '12. Foro' },
+  { id: 'planos-assinatura', label: '13. Planos e Assinatura' },
+  { id: 'processamento-pagamentos', label: '14. Processamento de Pagamentos' },
+  { id: 'cobranca-alunos', label: '15. Cobranca de Alunos' },
+  { id: 'reembolso', label: '16. Politica de Reembolso' },
 ];
 
 export default function TermosPage() {
@@ -693,6 +697,177 @@ export default function TermosPage() {
                     <li><strong>Sede:</strong> Vespasiano - MG, Brasil</li>
                     <li><strong>Site:</strong> https://blackbeltv2.vercel.app</li>
                   </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 13 — Planos e Assinatura */}
+            <section id="planos-assinatura" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  13. Planos e Assinatura
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    13.1. O BlackBelt oferece planos de assinatura mensal para academias de artes marciais. Os planos disponiveis, seus valores e funcionalidades estao detalhados na pagina de cadastro e podem ser atualizados a qualquer momento mediante aviso previo de 30 dias.
+                  </p>
+                  <p>
+                    13.2. Todo novo cadastro recebe um periodo de teste gratuito de 7 (sete) dias corridos, com acesso completo a todas as funcionalidades da plataforma.
+                  </p>
+                  <p>
+                    13.3. Ao final do periodo de teste, a cobranca da assinatura sera gerada automaticamente no metodo de pagamento escolhido durante o cadastro (PIX, boleto bancario ou cartao de credito).
+                  </p>
+                  <p>
+                    13.4. O ciclo de cobranca e mensal, contado a partir da data de vencimento do periodo de teste.
+                  </p>
+                  <p>
+                    13.5. O nao pagamento da assinatura por mais de 15 (quinze) dias apos o vencimento podera resultar na suspensao temporaria do acesso a plataforma. Os dados da academia serao mantidos por 90 (noventa) dias apos a suspensao.
+                  </p>
+                  <p>
+                    13.6. O cancelamento da assinatura pode ser solicitado a qualquer momento, sem multa ou taxa de cancelamento. O acesso permanece ativo ate o fim do periodo ja pago.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 14 — Processamento de Pagamentos */}
+            <section id="processamento-pagamentos" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  14. Processamento de Pagamentos
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    14.1. Os pagamentos da assinatura do BlackBelt sao processados pela empresa Asaas Gestao Financeira S.A. (CNPJ 19.540.550/0001-21), instituicao de pagamento autorizada pelo Banco Central do Brasil sob o codigo 461.
+                  </p>
+                  <p>
+                    14.2. O BlackBelt nao armazena dados de cartao de credito. Todas as informacoes financeiras sao processadas diretamente pelo Asaas, em conformidade com os padroes de seguranca PCI-DSS.
+                  </p>
+                  <p>
+                    14.3. Os metodos de pagamento aceitos sao: PIX, boleto bancario e cartao de credito (Visa, Mastercard, Elo, American Express, Discover e Hipercard).
+                  </p>
+                  <p>
+                    14.4. Pagamentos via PIX sao confirmados instantaneamente. Boletos bancarios tem prazo de compensacao de ate 1 (um) dia util apos o pagamento. Pagamentos via cartao de credito sao processados conforme prazos da operadora.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 15 — Cobranca de Alunos */}
+            <section id="cobranca-alunos" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  15. Cobranca de Alunos (Funcionalidade da Plataforma)
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    15.1. O BlackBelt oferece uma funcionalidade que permite a academia gerar cobrancas para seus alunos diretamente pela plataforma (mensalidades, matriculas e outros servicos).
+                  </p>
+                  <p>
+                    15.2. Para utilizar essa funcionalidade, o responsavel pela academia deve configurar seus dados bancarios dentro da plataforma (menu Configuracoes {'>'} Dados Bancarios).
+                  </p>
+                  <p>
+                    15.3. Ao configurar os dados bancarios, sera criada automaticamente uma subconta de pagamento vinculada a academia, processada pelo Asaas. Esta subconta e de titularidade do responsavel pela academia.
+                  </p>
+                  <p>
+                    15.4. As cobrancas geradas pela academia para seus alunos sao processadas pela subconta da academia no Asaas. O valor recebido e depositado diretamente na conta bancaria informada pelo responsavel da academia.
+                  </p>
+                  <p>
+                    15.5. O BlackBelt NAO intermedia, retem ou tem acesso aos valores recebidos pela academia de seus alunos. A relacao financeira entre a academia e seus alunos e de responsabilidade exclusiva da academia.
+                  </p>
+                  <p>
+                    15.6. As taxas cobradas pelo Asaas sobre as transacoes da subconta da academia sao de responsabilidade da academia. As taxas vigentes incluem:
+                  </p>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>PIX: R$ 0,99 por cobranca recebida (primeiros 3 meses), R$ 1,99 apos</li>
+                    <li>Boleto: R$ 0,99 por boleto compensado (primeiros 3 meses), R$ 1,99 apos</li>
+                    <li>Cartao de credito: 1,99% + R$ 0,49 (primeiros 3 meses), 2,99% + R$ 0,49 apos</li>
+                  </ul>
+                  <p>
+                    15.7. O BlackBelt nao cobra taxa adicional sobre as transacoes realizadas pela academia com seus alunos. As unicas taxas aplicaveis sao as do processador de pagamento (Asaas).
+                  </p>
+                  <p>
+                    15.8. O BlackBelt nao se responsabiliza por eventuais disputas, chargebacks, estornos ou inadimplencia entre a academia e seus alunos.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 16 — Politica de Reembolso */}
+            <section id="reembolso" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  16. Politica de Reembolso
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    16.1. Em caso de cobranca indevida da assinatura do BlackBelt, o valor sera estornado integralmente em ate 7 (sete) dias uteis apos a solicitacao.
+                  </p>
+                  <p>
+                    16.2. Nao ha reembolso proporcional para cancelamentos realizados no meio do ciclo de cobranca. O acesso permanece ativo ate o fim do periodo pago.
+                  </p>
+                  <p>
+                    16.3. O periodo de teste gratuito nao gera direito a reembolso, pois nao ha cobranca durante este periodo.
+                  </p>
+                  <p>
+                    16.4. Reembolsos de cobrancas realizadas pela academia a seus alunos devem ser tratados diretamente entre a academia e o aluno, atraves da subconta Asaas da academia.
+                  </p>
                 </div>
               </div>
             </section>
