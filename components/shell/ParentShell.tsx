@@ -10,6 +10,7 @@ import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { HeaderHelpButton, SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
+import { LegalFooter } from './LegalFooter';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
@@ -349,6 +350,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
             </header>
             <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               <main className="pb-20 lg:pb-0">{children}</main>
+              <LegalFooter />
             </div>
           </div>
         </div>

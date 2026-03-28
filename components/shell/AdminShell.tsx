@@ -47,6 +47,7 @@ import {
   CreditCardIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
+import { LegalFooter } from './LegalFooter';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
@@ -586,6 +587,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
             {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="admin" />}
             <main>{children}</main>
+            <LegalFooter />
           </div>
         </div>
 

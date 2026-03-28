@@ -11,6 +11,7 @@ import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
+import { LegalFooter } from './LegalFooter';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import {
   LayoutDashboardIcon,
@@ -292,6 +293,7 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
             </header>
             <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               <main className="pb-20 lg:pb-6">{children}</main>
+              <LegalFooter />
             </div>
           </div>
         </div>

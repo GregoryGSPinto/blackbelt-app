@@ -10,6 +10,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { isImpersonating, getImpersonationInfo, stopImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
+import { LegalFooter } from './LegalFooter';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import {
@@ -386,6 +387,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
             <main className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               {children}
             </main>
+            <LegalFooter />
           </div>
         </div>
       </div>

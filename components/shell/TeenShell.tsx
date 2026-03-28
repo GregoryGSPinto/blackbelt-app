@@ -12,6 +12,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { LegalFooter } from './LegalFooter';
 import {
   LayoutDashboardIcon,
   CalendarIcon,
@@ -350,6 +351,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
             </header>
             <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               <main className="pb-20 lg:pb-6">{children}</main>
+              <LegalFooter />
             </div>
           </div>
         </div>

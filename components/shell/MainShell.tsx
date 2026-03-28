@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
+import { LegalFooter } from './LegalFooter';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { useCartContext } from '@/lib/contexts/CartContext';
@@ -344,6 +345,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
             </header>
             <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               <main className="pb-20 lg:pb-6">{children}</main>
+              <LegalFooter />
             </div>
           </div>
         </div>

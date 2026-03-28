@@ -12,6 +12,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 
 import { SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
+import { LegalFooter } from './LegalFooter';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { usePlan } from '@/lib/hooks/usePlan';
@@ -437,6 +438,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
             <main className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
               {children}
             </main>
+            <LegalFooter />
           </div>
         </div>
 
@@ -446,6 +448,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
           {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
           {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="member" />}
           <main>{children}</main>
+          <LegalFooter />
 
           {/* Custom Bottom Nav */}
           <nav
