@@ -10,7 +10,6 @@ export async function biometricCheckin(): Promise<BiometricResult> {
     return { success: false, method: 'not_native' };
   }
   try {
-    // @ts-expect-error — native-only plugin, installed in Capacitor build
     const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
     await BiometricAuth.authenticate({
       reason: 'Confirme sua identidade para fazer check-in',
@@ -25,7 +24,6 @@ export async function biometricCheckin(): Promise<BiometricResult> {
 export async function isBiometricAvailable(): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) return false;
   try {
-    // @ts-expect-error — native-only plugin, installed in Capacitor build
     const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
     const result = await BiometricAuth.checkBiometry();
     return result.isAvailable;
