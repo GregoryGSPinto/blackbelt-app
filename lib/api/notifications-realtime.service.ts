@@ -2,13 +2,12 @@ import { isMock } from '@/lib/env';
 
 export interface AppNotification {
   id: string;
-  recipient_id: string;
+  user_id: string;
   title: string;
   body: string;
   type: 'checkin' | 'payment' | 'alert' | 'message' | 'graduation' | 'event' | 'system';
-  read_at: string | null;
+  read: boolean;
   created_at: string;
-  link?: string;
 }
 
 export async function getUnreadNotifications(profileId: string): Promise<AppNotification[]> {
@@ -24,8 +23,8 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
-      .eq('recipient_id', profileId)
-      .is('read_at', null)
+      .eq('user_id', profileId)
+      .eq('read', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -35,13 +34,12 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
 
     return (data ?? []).map((row: Record<string, unknown>) => ({
       id: String(row.id ?? ''),
-      recipient_id: String(row.recipient_id ?? ''),
+      user_id: String(row.user_id ?? ''),
       title: String(row.title ?? ''),
       body: String(row.body ?? ''),
       type: (row.type as AppNotification['type']) ?? 'system',
-      read_at: row.read_at ? String(row.read_at) : null,
+      read: Boolean(row.read ?? false),
       created_at: String(row.created_at ?? ''),
-      link: row.link ? String(row.link) : undefined,
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -58,7 +56,7 @@ export async function markNotificationRead(id: string): Promise<void> {
 
     const { error } = await supabase
       .from('notifications')
-      .update({ read_at: new Date().toISOString() })
+      .update({ read: true })
       .eq('id', id);
 
     if (error) {
@@ -78,9 +76,9 @@ export async function markAllRead(profileId: string): Promise<void> {
 
     const { error } = await supabase
       .from('notifications')
-      .update({ read_at: new Date().toISOString() })
-      .eq('recipient_id', profileId)
-      .is('read_at', null);
+      .update({ read: true })
+      .eq('user_id', profileId)
+      .eq('read', false);
 
     if (error) {
       console.error('[markAllRead] Supabase error:', error.message);

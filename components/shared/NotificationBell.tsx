@@ -116,7 +116,7 @@ export function NotificationBell({ profileId }: { profileId?: string }) {
               notifications.map((n) => (
                 <Link
                   key={n.id}
-                  href={n.link ?? '#'}
+                  href="#"
                   onClick={() => handleRead(n)}
                   className="flex gap-3 px-4 py-3 transition-colors"
                   style={{ borderBottom: '1px solid var(--bb-glass-border)' }}

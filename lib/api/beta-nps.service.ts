@@ -31,14 +31,21 @@ export async function submitNps(data: NpsSubmission): Promise<boolean> {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('academy_id, role, full_name')
-    .eq('id', user.id)
+    .select('id, role, display_name')
+    .eq('user_id', user.id)
     .single();
 
+  const { data: membership } = await supabase
+    .from('memberships')
+    .select('academy_id')
+    .eq('profile_id', profile?.id ?? '')
+    .limit(1)
+    .maybeSingle();
+
   const { error } = await supabase.from('beta_nps').insert({
-    academy_id: profile?.academy_id,
+    academy_id: membership?.academy_id,
     user_id: user.id,
-    user_name: profile?.full_name || user.email,
+    user_name: profile?.display_name || user.email,
     user_role: profile?.role,
     score: data.score,
     reason: data.reason,

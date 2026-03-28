@@ -108,7 +108,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name')
+      .select('display_name')
       .eq('id', studentId)
       .single();
 
@@ -117,7 +117,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
 
     return {
       student_id: studentId,
-      name: student?.name ?? profile?.full_name ?? '',
+      name: student?.name ?? profile?.display_name ?? '',
       belt: student?.belt ?? '',
       stripes: student?.stripes ?? 0,
       academy: '',

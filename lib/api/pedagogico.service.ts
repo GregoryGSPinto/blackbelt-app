@@ -365,7 +365,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
     // Fetch turmas with professor info
     const { data: turmas, error: turmasErr } = await supabase
       .from('turmas')
-      .select('id, nome, modalidade, professor_id, profiles:professor_id(full_name)')
+      .select('id, nome, modalidade, professor_id, profiles:professor_id(display_name)')
       .eq('academy_id', academyId);
 
     if (turmasErr) {
@@ -403,7 +403,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       return {
         turmaId: String(t.id ?? ''),
         turmaNome: String(t.nome ?? ''),
-        professorNome: prof ? String(prof.full_name ?? '') : '',
+        professorNome: prof ? String(prof.display_name ?? '') : '',
         modalidade: String(t.modalidade ?? ''),
         alunos: 0,
         presencaMedia: 0,
@@ -441,7 +441,7 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
 
     const { data: profile, error: profileErr } = await supabase
       .from('profiles')
-      .select('id, full_name, belt')
+      .select('id, display_name')
       .eq('id', professorId)
       .single();
 
@@ -452,8 +452,8 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
 
     return {
       professorId: String(profile.id ?? ''),
-      professorNome: String(profile.full_name ?? ''),
-      faixa: String(profile.belt ?? ''),
+      professorNome: String(profile.display_name ?? ''),
+      faixa: '',
       metricas: {
         presencaMedia: 0,
         evolucaoMedia: 0,
@@ -803,7 +803,7 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('ocorrencias')
-      .select('*, aluno:aluno_id(full_name), turma:turma_id(nome), professor:professor_id(full_name)')
+      .select('*, aluno:aluno_id(display_name), turma:turma_id(nome), professor:professor_id(display_name)')
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
 
@@ -820,11 +820,11 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
         id: String(row.id ?? ''),
         academyId: String(row.academy_id ?? ''),
         alunoId: String(row.aluno_id ?? ''),
-        alunoNome: aluno ? String(aluno.full_name ?? '') : '',
+        alunoNome: aluno ? String(aluno.display_name ?? '') : '',
         turmaId: String(row.turma_id ?? ''),
         turmaNome: turma ? String(turma.nome ?? '') : '',
         professorId: String(row.professor_id ?? ''),
-        professorNome: professor ? String(professor.full_name ?? '') : '',
+        professorNome: professor ? String(professor.display_name ?? '') : '',
         tipo: (row.tipo as Ocorrencia['tipo']) ?? 'observacao',
         gravidade: (row.gravidade as Ocorrencia['gravidade']) ?? 'leve',
         descricao: String(row.descricao ?? ''),
@@ -863,7 +863,7 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
         responsavel_notificado: data.responsavelNotificado ?? false,
         data: data.data,
       })
-      .select('*, aluno:aluno_id(full_name), turma:turma_id(nome), professor:professor_id(full_name)')
+      .select('*, aluno:aluno_id(display_name), turma:turma_id(nome), professor:professor_id(display_name)')
       .single();
 
     if (error || !created) {
@@ -879,11 +879,11 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       id: String(row.id ?? ''),
       academyId: String(row.academy_id ?? ''),
       alunoId: String(row.aluno_id ?? ''),
-      alunoNome: aluno ? String(aluno.full_name ?? '') : '',
+      alunoNome: aluno ? String(aluno.display_name ?? '') : '',
       turmaId: String(row.turma_id ?? ''),
       turmaNome: turma ? String(turma.nome ?? '') : '',
       professorId: String(row.professor_id ?? ''),
-      professorNome: professor ? String(professor.full_name ?? '') : '',
+      professorNome: professor ? String(professor.display_name ?? '') : '',
       tipo: (row.tipo as Ocorrencia['tipo']) ?? 'observacao',
       gravidade: (row.gravidade as Ocorrencia['gravidade']) ?? 'leve',
       descricao: String(row.descricao ?? ''),

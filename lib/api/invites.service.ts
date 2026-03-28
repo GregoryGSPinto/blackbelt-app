@@ -32,7 +32,7 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
 
   const { data, error } = await supabase
     .from('memberships')
-    .select('id, role, status, profiles!inner(id, display_name, email, last_sign_in_at)')
+    .select('id, role, status, profiles!inner(id, display_name)')
     .eq('academy_id', academyId)
     .in('role', ['admin', 'professor', 'receptionist']);
 
@@ -46,11 +46,11 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
     return {
       id: m.id as string,
       name: (profile?.display_name as string) ?? '',
-      email: (profile?.email as string) ?? '',
+      email: '',
       role: m.role as Role,
       units: [],
       status: m.status as 'active' | 'inactive',
-      lastAccessAt: (profile?.last_sign_in_at as string) ?? null,
+      lastAccessAt: null,
     };
   });
 }

@@ -114,18 +114,8 @@ export async function getAlerts(academyId: string): Promise<UsageAlert[]> {
     return mockGetAlerts(academyId);
   }
 
-  const { createBrowserClient } = await import('@/lib/supabase/client');
-  const supabase = createBrowserClient();
-  const { data, error } = await supabase
-    .from('billing_alerts')
-    .select('*')
-    .eq('academy_id', academyId)
-    .eq('dismissed', false);
-  if (error || !data) {
-    console.error('[getAlerts] Supabase error:', error?.message);
-    return [];
-  }
-  return data as unknown as UsageAlert[];
+  // billing_alerts table does not exist — return empty
+  return [];
 }
 
 export async function dismissAlert(alertId: string): Promise<void> {
@@ -134,15 +124,8 @@ export async function dismissAlert(alertId: string): Promise<void> {
     return mockDismissAlert(alertId);
   }
 
-  const { createBrowserClient } = await import('@/lib/supabase/client');
-  const supabase = createBrowserClient();
-  const { error } = await supabase
-    .from('billing_alerts')
-    .update({ dismissed: true })
-    .eq('id', alertId);
-  if (error) {
-    console.error('[dismissAlert] Supabase error:', error.message);
-  }
+  // billing_alerts table does not exist — no-op
+  void alertId;
 }
 
 export async function requestUpgrade(

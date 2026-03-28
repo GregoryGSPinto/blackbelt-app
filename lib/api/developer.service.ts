@@ -52,8 +52,8 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email, metadata')
-      .eq('id', user.id)
+      .select('id, display_name')
+      .eq('user_id', user.id)
       .single();
 
     if (error) {
@@ -61,17 +61,14 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
 
-    const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
-    const dev = (meta.developer ?? {}) as Record<string, unknown>;
-
     return {
       id: profile?.id ?? '',
-      name: (dev.name as string) ?? profile?.full_name ?? '',
-      email: (dev.email as string) ?? profile?.email ?? '',
-      company: (dev.company as string) ?? '',
-      website: (dev.website as string) ?? '',
-      verified: (dev.verified as boolean) ?? false,
-      createdAt: (dev.createdAt as string) ?? '',
+      name: profile?.display_name ?? '',
+      email: user.email ?? '',
+      company: '',
+      website: '',
+      verified: false,
+      createdAt: '',
     };
   } catch (error) {
     console.error('[getDeveloperProfile] Fallback:', error);
@@ -104,8 +101,8 @@ export async function createDeveloperAccount(data: {
     // Read current profile metadata
     const { data: profile } = await supabase
       .from('profiles')
-      .select('metadata')
-      .eq('id', user.id)
+      .select('id')
+      .eq('user_id', user.id)
       .single();
 
     const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
@@ -149,8 +146,8 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('metadata')
-      .eq('id', user.id)
+      .select('id')
+      .eq('user_id', user.id)
       .single();
 
     const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
@@ -178,8 +175,8 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('metadata')
-      .eq('id', user.id)
+      .select('id')
+      .eq('user_id', user.id)
       .single();
 
     const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
@@ -222,8 +219,8 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('metadata')
-      .eq('id', user.id)
+      .select('id')
+      .eq('user_id', user.id)
       .single();
 
     const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
@@ -257,8 +254,8 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('metadata')
-      .eq('id', user.id)
+      .select('id')
+      .eq('user_id', user.id)
       .single();
 
     const meta = (profile?.metadata ?? {}) as Record<string, unknown>;
