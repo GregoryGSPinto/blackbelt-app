@@ -260,8 +260,9 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('subscriptions')
-      .select('*, plans(*)')
-      .eq('academy_id', academyId)
+      .select('*, plans!inner(*)')
+      .eq('plans.academy_id', academyId)
+      .limit(1)
       .maybeSingle();
     if (error) {
       console.error('[getAssinatura] Supabase error:', error.message);

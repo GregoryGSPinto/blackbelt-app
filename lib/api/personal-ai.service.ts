@@ -89,7 +89,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
 
     const { data: student } = await supabase
       .from('students')
-      .select('name, belt, stripes, academy_id, weight')
+      .select('belt, academy_id, profile_id')
       .eq('id', studentId)
       .single();
 
@@ -109,7 +109,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
     const { data: profile } = await supabase
       .from('profiles')
       .select('display_name')
-      .eq('id', studentId)
+      .eq('id', student?.profile_id ?? studentId)
       .single();
 
     const total = attendanceCount ?? 0;
@@ -117,15 +117,15 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
 
     return {
       student_id: studentId,
-      name: student?.name ?? profile?.display_name ?? '',
+      name: profile?.display_name ?? '',
       belt: student?.belt ?? '',
-      stripes: student?.stripes ?? 0,
+      stripes: 0,
       academy: '',
       frequency_weekly: weeklyFreq,
       last_class_date: lastAttendance?.[0]?.class_date ?? '',
       next_class_date: '',
       next_class_name: '',
-      current_weight_kg: (student?.weight as number) ?? 0,
+      current_weight_kg: 0,
       target_weight_kg: null,
       upcoming_competition: null,
       strengths: total > 30 ? ['Frequência consistente'] : [],
@@ -173,11 +173,11 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
 
     const { data: student } = await supabase
       .from('students')
-      .select('name, belt')
+      .select('belt, profile_id, profiles(display_name)')
       .eq('id', studentId)
       .single();
 
-    const name = student?.name ?? 'Aluno';
+    const name = ((student?.profiles as Record<string, unknown> | null)?.display_name as string) ?? 'Aluno';
     const hour = new Date().getHours();
     const greeting = hour < 12 ? `Bom dia, ${name}!` : hour < 18 ? `Boa tarde, ${name}!` : `Boa noite, ${name}!`;
 

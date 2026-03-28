@@ -22,7 +22,7 @@ export async function listInvoices(academyId: string, filters?: InvoiceFilters):
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    let query = supabase.from('invoices').select('*, profiles(display_name), plans(name)').eq('academy_id', academyId);
+    let query = supabase.from('invoices').select('*, subscriptions!inner(students(profiles(display_name)), plans!inner(name, academy_id))').eq('subscriptions.plans.academy_id', academyId);
     if (filters?.status) query = query.eq('status', filters.status);
     if (filters?.from) query = query.gte('due_date', filters.from);
     if (filters?.to) query = query.lte('due_date', filters.to);
@@ -49,7 +49,7 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('invoices')
-      .select('*, profiles(display_name), plans(name)')
+      .select('*, subscriptions(students(profiles(display_name)), plans(name))')
       .eq('id', id)
       .single();
     if (error || !data) {

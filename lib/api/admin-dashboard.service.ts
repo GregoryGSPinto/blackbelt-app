@@ -20,8 +20,8 @@ export async function getDashboardData(academyId: string): Promise<DashboardData
   const [studentsRes, classesRes, revenueRes, prevRevenueRes, activityRes, profileRes] = await Promise.all([
     supabase.from('students').select('id, belt', { count: 'exact' }).eq('academy_id', academyId),
     supabase.from('classes').select('id, schedule, capacity, modalities(name), profiles!classes_professor_id_fkey(display_name), units!inner(academy_id), class_enrollments(count)').eq('units.academy_id', academyId),
-    supabase.from('invoices').select('amount').eq('academy_id', academyId).eq('status', 'paid').gte('created_at', startOfMonth),
-    supabase.from('invoices').select('amount').eq('academy_id', academyId).eq('status', 'paid').gte('created_at', startOfPrevMonth).lte('created_at', endOfPrevMonth),
+    supabase.from('invoices').select('amount, subscriptions!inner(plans!inner(academy_id))').eq('subscriptions.plans.academy_id', academyId).eq('status', 'paid').gte('due_date', startOfMonth),
+    supabase.from('invoices').select('amount, subscriptions!inner(plans!inner(academy_id))').eq('subscriptions.plans.academy_id', academyId).eq('status', 'paid').gte('due_date', startOfPrevMonth).lte('due_date', endOfPrevMonth),
     supabase.from('attendance').select('student_id, checked_at, students(profiles(display_name)), classes(modalities(name))').order('checked_at', { ascending: false }).limit(10),
     supabase.from('profiles').select('display_name').eq('id', academyId).maybeSingle(),
   ]);
