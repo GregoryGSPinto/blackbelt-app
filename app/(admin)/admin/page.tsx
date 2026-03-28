@@ -684,10 +684,12 @@ export default function AdminDashboardPage() {
           onClick={async () => {
             setReportExporting(true);
             try {
-              const report = await generateMonthlyReport(getActiveAcademyId(), 'Marco 2026');
+              const now = new Date();
+              const period = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+              const report = await generateMonthlyReport(getActiveAcademyId(), period);
               setMonthlyReportData(report);
-            } catch {
-              // handled
+            } catch (err) {
+              console.error('[ExportPDF]', err);
             } finally {
               setReportExporting(false);
             }

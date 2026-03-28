@@ -41,45 +41,112 @@ const ReportViewer = forwardRef<HTMLDivElement, ReportViewerProps>(
       window.print();
     }, []);
 
-    const handleDownload = useCallback(() => {
-      if (!printRef.current) return;
+    const handleDownload = useCallback(async () => {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
 
-      const html = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Relatorio - ${data.meta.academy_name}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 32px; }
-    h1 { font-size: 24px; margin-bottom: 4px; }
-    h2 { font-size: 16px; margin-top: 24px; margin-bottom: 12px; border-bottom: 2px solid #e5e5e5; padding-bottom: 4px; }
-    .meta { color: #666; font-size: 12px; margin-bottom: 24px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .stat { padding: 12px; border: 1px solid #e5e5e5; border-radius: 8px; }
-    .stat-label { font-size: 11px; text-transform: uppercase; color: #888; }
-    .stat-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-size: 13px; }
-    th { font-weight: 600; background: #f5f5f5; }
-    .text-right { text-align: right; }
-    @media print { body { padding: 0; } }
-  </style>
-</head>
-<body>${printRef.current.innerHTML}</body>
-</html>`;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let y = 20;
 
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${type}-${data.meta.period}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, [type, data.meta]);
+      // Title
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(data.meta.academy_name, pageWidth / 2, y, { align: 'center' });
+      y += 8;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      const titleMap: Record<string, string> = { monthly: 'Relatorio Mensal', attendance: 'Relatorio de Presenca', financial: 'Relatorio Financeiro' };
+      doc.text(`${titleMap[type] ?? 'Relatorio'} — ${data.meta.period}`, pageWidth / 2, y, { align: 'center' });
+      y += 6;
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text(`Gerado em ${new Date(data.meta.generated_at).toLocaleDateString('pt-BR')} por ${data.meta.generated_by}`, pageWidth / 2, y, { align: 'center' });
+      doc.setTextColor(0);
+      y += 10;
+
+      // Helper to add a section title
+      const section = (title: string) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text(title, 14, y);
+        y += 2;
+        doc.setDrawColor(200);
+        doc.line(14, y, pageWidth - 14, y);
+        y += 6;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+      };
+
+      // Helper to add stat row
+      const stat = (label: string, value: string) => {
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.text(label, 16, y);
+        doc.text(value, pageWidth - 16, y, { align: 'right' });
+        y += 6;
+      };
+
+      if (type === 'monthly') {
+        const d = data as import('@/lib/types/report').MonthlyReportData;
+        const s = d.summary;
+        section('Resumo Geral');
+        stat('Total Alunos', String(s.total_students));
+        stat('Novos', `+${s.new_students}`);
+        stat('Cancelados', String(s.churned_students));
+        stat('Presencas', String(s.total_attendance));
+        stat('Taxa Presenca', `${s.attendance_rate.toFixed(1)}%`);
+        stat('Receita', fmtBRL(s.revenue));
+        stat('Receita Anterior', fmtBRL(s.revenue_prev));
+        stat('Inadimplentes', `${s.overdue_count} (${fmtBRL(s.overdue_amount)})`);
+        y += 4;
+        if (d.top_classes.length > 0) {
+          section('Top Turmas');
+          autoTable(doc, {
+            startY: y,
+            head: [['Turma', 'Modalidade', 'Alunos', 'Presenca']],
+            body: d.top_classes.map((c) => [c.class_name, c.modality, String(c.students), `${c.attendance_rate.toFixed(1)}%`]),
+            margin: { left: 14, right: 14 },
+            styles: { fontSize: 9 },
+          });
+          y = ((doc as unknown as Record<string, Record<string, number>>).lastAutoTable?.finalY ?? y + 22) + 8;
+        }
+        if (d.belt_distribution.length > 0) {
+          section('Distribuicao de Faixas');
+          autoTable(doc, {
+            startY: y,
+            head: [['Faixa', 'Quantidade']],
+            body: d.belt_distribution.map((b) => [b.belt, String(b.count)]),
+            margin: { left: 14, right: 14 },
+            styles: { fontSize: 9 },
+          });
+        }
+      } else if (type === 'financial') {
+        const d = data as import('@/lib/types/report').FinancialReportData;
+        const s = d.summary;
+        section('Resumo Financeiro');
+        stat('Receita', fmtBRL(s.revenue));
+        stat('Mes Anterior', fmtBRL(s.revenue_prev));
+        stat('Variacao', `${s.revenue_change_pct >= 0 ? '+' : ''}${s.revenue_change_pct}%`);
+        stat('Ticket Medio', fmtBRL(s.ticket_medio));
+        stat('Pendente', fmtBRL(s.pending));
+        stat('Atrasado', fmtBRL(s.overdue));
+        stat('Pagos', String(s.paid_count));
+        stat('Total', String(s.total_count));
+      } else if (type === 'attendance') {
+        const d = data as import('@/lib/types/report').AttendanceReportData;
+        const s = d.summary;
+        section('Resumo de Presenca');
+        stat('Total Aulas', String(s.total_classes));
+        stat('Total Check-ins', String(s.total_checkins));
+        stat('Media por Aula', s.avg_per_class.toFixed(1));
+        stat('Taxa Presenca', `${s.attendance_rate.toFixed(1)}%`);
+        stat('Melhor Dia', s.best_day);
+        stat('Pior Dia', s.worst_day);
+      }
+
+      doc.save(`relatorio-${type}-${data.meta.period.replace(/\s/g, '_')}.pdf`);
+    }, [type, data]);
 
     return (
       <div ref={ref}>
