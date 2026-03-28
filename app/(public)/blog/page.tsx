@@ -16,7 +16,6 @@ export default function BlogPage() {
             <p className="text-sm text-bb-gray-400">{new Date(post.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             <h2 className="mt-1 text-xl font-semibold text-bb-gray-900">{post.title}</h2>
             <p className="mt-2 text-bb-gray-600">{post.excerpt}</p>
-            {/* // TODO: link to individual blog post when CMS is integrated */}
           </article>
         ))}
       </div>

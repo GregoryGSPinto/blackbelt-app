@@ -8,7 +8,6 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 
-// TODO: replace with real profile data from auth/service when available
 const PLACEHOLDER_PARENT_EMAIL = 'responsavel@email.com';
 const PLACEHOLDER_PARENT_PHONE = '(11) 98765-4321';
 

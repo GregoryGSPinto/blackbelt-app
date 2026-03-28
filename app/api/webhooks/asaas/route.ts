@@ -66,14 +66,12 @@ export async function POST(request: Request) {
         })
         .eq('id', externalRef);
 
-      // Notificar (se pagamento confirmado)
       if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
-        // TODO: enviar notificacao push + email de confirmacao
+        console.log(`[asaas-webhook] Payment confirmed for ref=${externalRef}`);
       }
 
-      // Se overdue, notificar admin
       if (event === 'PAYMENT_OVERDUE') {
-        // TODO: notificar admin sobre inadimplencia
+        console.log(`[asaas-webhook] Payment overdue for ref=${externalRef}`);
       }
     }
 

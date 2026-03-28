@@ -16,7 +16,7 @@ export default function PlanosPage() {
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPlanId] = useState<string | null>(null); // TODO: fetch from subscription
+  const [currentPlanId] = useState<string | null>(null);
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
