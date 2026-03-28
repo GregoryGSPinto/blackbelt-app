@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getVideo, deleteVideo, getEmbedUrl, getThumbnailUrl } from '@/lib/services/bunny-stream';
+import { getVideo, deleteVideo, updateVideo, getEmbedUrl, getThumbnailUrl } from '@/lib/services/bunny-stream';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -14,6 +14,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       thumbnailUrl: getThumbnailUrl(video.guid),
       resolutions: video.availableResolutions,
     });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const { title } = await req.json();
+    if (!title) return NextResponse.json({ error: 'Title required' }, { status: 400 });
+    await updateVideo(params.id, title);
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

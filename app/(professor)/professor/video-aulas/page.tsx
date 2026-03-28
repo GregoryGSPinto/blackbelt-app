@@ -53,7 +53,7 @@ export default function VideoAulasPage() {
       )}
 
       {tab === 'library' && (
-        <VideoLibrary key={refreshKey} canDelete canUpload />
+        <VideoLibrary key={refreshKey} canDelete canUpload onSwitchToUpload={() => setTab('upload')} />
       )}
     </div>
   );

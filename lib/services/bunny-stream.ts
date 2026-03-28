@@ -148,6 +148,16 @@ export async function getVideo(videoId: string): Promise<BunnyVideo> {
   return res.json();
 }
 
+// ═══ UPDATE VIDEO ═══
+export async function updateVideo(videoId: string, title: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/videos/${videoId}`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ title }),
+  });
+  if (!res.ok) throw new Error(`[bunny] Update video failed: ${res.status}`);
+}
+
 // ═══ DELETE VIDEO ═══
 export async function deleteVideo(videoId: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/videos/${videoId}`, {
