@@ -23,25 +23,28 @@ Bundle ID: `app.blackbelt.academy`
    - Tipo: Organizacao (recomendado para SaaS)
    - Precisa de: Conta Google + cartao + DUNS number (para Organization)
 
-### Ferramentas
+### Ferramentas (todas verificadas em 2026-03-29)
 
-| Ferramenta | Versao | Obrigatorio para |
-|------------|--------|------------------|
-| Mac com Xcode 16+ | `xcode-select --version` | iOS |
-| Android Studio | Ultima versao | Android |
-| Java 17+ | `java -version` | Android |
-| CocoaPods | `pod --version` | iOS |
-| pnpm | 10.30.2 | Ambos |
-| Node.js 18+ | `node -v` | Ambos |
+| Ferramenta | Versao verificada | Obrigatorio para |
+|------------|-------------------|------------------|
+| Mac com Xcode 16.2 | ✅ Instalado | iOS |
+| Android Studio | ✅ Instalado | Android |
+| Java 21+ (OpenJDK) | ✅ 21.0.10 via Homebrew | Android (Capacitor 8 requer) |
+| CocoaPods | ✅ 1.16.2 via Homebrew | iOS |
+| pnpm | ✅ 10.30.2 | Ambos |
+| Node.js 18+ | ✅ | Ambos |
+
+**IMPORTANTE:** Java 21 e JAVA_HOME/ANDROID_HOME ja configurados em `~/.zshrc`.
+Abrir novo terminal ou `source ~/.zshrc` para aplicar.
 
 ### Estado atual do projeto
 
 | Item | Status |
 |------|--------|
-| Capacitor CLI | 8.2.0 ✅ |
-| @capacitor/core | 8.2.0 ✅ |
-| @capacitor/ios | 8.3.0 ✅ |
-| @capacitor/android | 8.3.0 ✅ |
+| Capacitor CLI | 7.6.1 ✅ |
+| @capacitor/core | 7.6.1 ✅ |
+| @capacitor/ios | 7.6.1 ✅ |
+| @capacitor/android | 7.6.1 ✅ |
 | Plugins nativos | 18 instalados ✅ |
 | iOS platform | Existe ✅ |
 | Android platform | Existe ✅ |
@@ -53,8 +56,12 @@ Bundle ID: `app.blackbelt.academy`
 | PrivacyInfo.xcprivacy | Existe ✅ |
 | Android icons (mipmap) | Todos os tamanhos ✅ |
 | iOS icon (1024x1024) | AppIcon-512@2x.png ✅ |
-| Android signing config | Configurado no build.gradle ✅ |
-| Android keystore | ❌ PRECISA GERAR (passo manual) |
+| Android signing config | Via signing.gradle (aplicado pelo cap-sync.sh) ✅ |
+| Android debug build | ✅ BUILD SUCCESSFUL (530 tasks) |
+| iOS release build | ✅ BUILD SUCCEEDED (CODE_SIGNING_ALLOWED=NO) |
+| Android local.properties | ✅ SDK path configurado |
+| JAVA_HOME / ANDROID_HOME | ✅ Configurados em ~/.zshrc |
+| Android keystore | ❌ PRECISA GERAR (passo manual — interativo) |
 | Apple Developer Account | ❌ PRECISA CRIAR |
 | Google Play Account | ❌ PRECISA CRIAR |
 
@@ -74,12 +81,14 @@ npx cap sync
 ```
 
 O script `cap-sync.sh` faz automaticamente:
-1. Build Next.js
-2. Prepara assets web para Capacitor
-3. Sincroniza iOS e Android
-4. Aplica patches no Info.plist (permissoes de camera, etc.)
-5. Aplica signing config no build.gradle (Android)
-6. Copia PrivacyInfo.xcprivacy (Apple Privacy Manifest)
+1. Configura Java 21 (JAVA_HOME)
+2. Build Next.js (pule com `SKIP_BUILD=true`)
+3. Prepara assets web para Capacitor
+4. Sincroniza iOS e Android
+5. Aplica patches no Info.plist (permissoes de camera, Face ID, galeria)
+6. Cria local.properties com SDK path (Android)
+7. Aplica signing config via signing.gradle (Android)
+8. Copia PrivacyInfo.xcprivacy (Apple Privacy Manifest)
 
 ---
 
@@ -503,5 +512,6 @@ Documento completo: `docs/store/APPLE_MONETIZATION_JUSTIFICATION.md`
 | Checklist Final | `docs/store/CHECKLIST_FINAL.md` |
 | Relatorio de Readiness | `docs/store/RELATORIO_STORE_READINESS.md` |
 | Signing Template | `android-signing.properties.example` |
+| Signing Gradle | `native-patches/android-signing.gradle` |
 | Cap Sync Script | `scripts/cap-sync.sh` |
 | Privacy Manifest (iOS) | `ios-privacy-manifest/PrivacyInfo.xcprivacy` |

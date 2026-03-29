@@ -1,0 +1,21 @@
+// BlackBelt Android Release Signing Config
+// This file is copied into android/app/ by cap-sync.sh
+// It is applied via: apply from: 'signing.gradle' in build.gradle
+
+android {
+    signingConfigs {
+        release {
+            if (project.hasProperty('RELEASE_STORE_FILE')) {
+                storeFile file(project.property('RELEASE_STORE_FILE'))
+                storePassword project.property('RELEASE_STORE_PASSWORD')
+                keyAlias project.property('RELEASE_KEY_ALIAS')
+                keyPassword project.property('RELEASE_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
