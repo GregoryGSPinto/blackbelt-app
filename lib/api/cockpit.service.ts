@@ -571,21 +571,6 @@ const MOCK_CAMPAIGNS: CampaignItem[] = [
   },
 ];
 
-function getMockDailyMetrics(): Array<{ date: string; active_users: number; checkins: number; new_users: number; revenue_brl: number }> {
-  const today = new Date('2026-03-29');
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - (6 - i));
-    const dateStr = d.toISOString().slice(0, 10);
-    return {
-      date: dateStr,
-      active_users: 30 + Math.floor(Math.random() * 15),
-      checkins: 20 + Math.floor(Math.random() * 25),
-      new_users: Math.floor(Math.random() * 3),
-      revenue_brl: 891,
-    };
-  });
-}
 
 function getMockTableRowCounts(): Array<{ table_name: string; row_count: number }> {
   return [

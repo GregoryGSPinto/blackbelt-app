@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   Eye,
@@ -29,7 +29,6 @@ import { SectionHeader } from '@/components/cockpit/SectionHeader';
 import { StatusBadge } from '@/components/cockpit/StatusBadge';
 import { EmptyState } from '@/components/cockpit/EmptyState';
 import { KpiCard } from '@/components/cockpit/KpiCard';
-import { ConfirmDialog } from '@/components/cockpit/ConfirmDialog';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import {

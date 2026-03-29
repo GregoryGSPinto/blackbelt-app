@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Server,
   Database,
   GitBranch,
   Video,
   ExternalLink,
   Plus,
   Rocket,
-  AlertTriangle,
   Bug,
   Search,
   Shield,

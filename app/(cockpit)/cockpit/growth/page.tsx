@@ -17,9 +17,7 @@ import {
   Mail,
   MessageCircle,
   Megaphone,
-  CalendarDays,
   CheckSquare,
-  BarChart3,
   X,
 } from 'lucide-react';
 import { useToast } from '@/lib/hooks/useToast';
