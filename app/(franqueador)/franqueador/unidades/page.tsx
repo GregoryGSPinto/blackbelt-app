@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { ComingSoon } from '@/components/shared/ComingSoon';
@@ -164,9 +165,12 @@ export default function UnidadesFranqueadorPage() {
 
       {/* Unit Cards */}
       {filtered.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-bb-gray-500">Nenhuma unidade encontrada.</p>
-        </Card>
+        <EmptyState
+          icon="🏢"
+          title={search || filterStatus ? 'Nenhuma unidade encontrada' : 'Nenhuma unidade cadastrada'}
+          description={search || filterStatus ? 'Tente ajustar os filtros para encontrar a unidade desejada.' : 'Cadastre unidades franqueadas para gerenciá-las aqui.'}
+          variant={search || filterStatus ? 'search' : 'first-time'}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((unit) => (

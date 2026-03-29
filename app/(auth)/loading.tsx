@@ -2,14 +2,45 @@ import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function AuthLoading() {
   return (
-    <div className="flex items-center justify-center h-screen" style={{ background: 'var(--bb-depth-1)' }}>
-      <div className="flex flex-col items-center gap-4">
-        <div
-          className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin"
-          style={{ borderColor: 'var(--bb-brand)', borderTopColor: 'transparent' }}
-        />
-        <Skeleton variant="text" className="h-4 w-32" />
-        <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+    <div
+      className="flex min-h-screen items-center justify-center p-4"
+      style={{ background: 'var(--bb-depth-1)' }}
+    >
+      <div className="w-full max-w-sm space-y-6">
+        {/* Logo placeholder */}
+        <div className="flex justify-center">
+          <Skeleton className="h-12 w-40 rounded-lg" />
+        </div>
+
+        {/* Title */}
+        <div className="space-y-2 text-center">
+          <Skeleton className="mx-auto h-7 w-36" />
+          <Skeleton className="mx-auto h-4 w-52" />
+        </div>
+
+        {/* Email field */}
+        <Skeleton className="h-11 w-full rounded-lg" />
+
+        {/* Password field */}
+        <Skeleton className="h-11 w-full rounded-lg" />
+
+        {/* Submit button */}
+        <Skeleton className="h-11 w-full rounded-lg" />
+
+        {/* Divider */}
+        <Skeleton className="mx-auto h-4 w-24" />
+
+        {/* OAuth buttons */}
+        <div className="space-y-3">
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+
+        {/* Footer links */}
+        <div className="flex justify-center gap-4">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-4 w-24" />
+        </div>
       </div>
     </div>
   );

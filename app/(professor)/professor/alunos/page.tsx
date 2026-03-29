@@ -158,9 +158,12 @@ export default function ProfessorAlunosPage() {
 
       {/* Student List */}
       {filteredAlunos.length === 0 ? (
-        <p className="py-8 text-center text-sm text-bb-gray-500">
-          Nenhum aluno encontrado com esses filtros.
-        </p>
+        <EmptyState
+          icon="🔍"
+          title="Nenhum aluno encontrado"
+          description="Nenhum aluno corresponde aos filtros selecionados. Tente ajustar a busca ou o filtro de faixa."
+          variant="search"
+        />
       ) : (
         <div className="space-y-2">
           {filteredAlunos.map((aluno) => {

@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/contexts/ThemeContext';
 import { getGrade } from '@/lib/api/horarios.service';
 import type { WeeklyScheduleSlot } from '@/lib/api/horarios.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -117,8 +118,18 @@ export default function RecepcaoAgendaPage() {
         </div>
       </div>
 
+      {/* Empty state */}
+      {aulas.length === 0 && (
+        <EmptyState
+          icon="📅"
+          title="Nenhuma aula na agenda"
+          description="A grade semanal ainda não possui aulas cadastradas. Cadastre turmas e horários para visualizar a agenda."
+          variant="first-time"
+        />
+      )}
+
       {/* Calendar grid */}
-      <div className="overflow-x-auto">
+      {aulas.length > 0 && <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse">
           <thead>
             <tr>
@@ -161,7 +172,7 @@ export default function RecepcaoAgendaPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </div>}
 
       {/* Slot detail modal */}
       {selectedSlot && (

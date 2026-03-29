@@ -9,6 +9,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { cadastrarRapido, getPlanos, getTurmasDisponiveis } from '@/lib/api/recepcao-cadastro.service';
 import type { CadastroRapido, CadastroResult, PlanoResumo, TurmaResumo } from '@/lib/api/recepcao-cadastro.service';
 import { CheckIcon } from '@/components/shell/icons';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -328,6 +329,14 @@ export default function RecepcaoCadastroPage() {
 
               {/* Turma selection */}
               <p className="mb-2 mt-4 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Turma</p>
+              {turmas.length === 0 && (
+                <EmptyState
+                  icon="🥋"
+                  title="Nenhuma turma disponível"
+                  description="Cadastre turmas antes de realizar uma matrícula."
+                  variant="first-time"
+                />
+              )}
               <div className="space-y-2">
                 {turmas.map((t) => (
                   <button
@@ -347,6 +356,14 @@ export default function RecepcaoCadastroPage() {
 
               {/* Plano selection */}
               <p className="mb-2 mt-4 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Plano</p>
+              {planos.length === 0 && (
+                <EmptyState
+                  icon="📋"
+                  title="Nenhum plano disponível"
+                  description="Cadastre planos antes de realizar uma matrícula."
+                  variant="first-time"
+                />
+              )}
               <div className="grid grid-cols-2 gap-2">
                 {planos.map((p) => (
                   <button

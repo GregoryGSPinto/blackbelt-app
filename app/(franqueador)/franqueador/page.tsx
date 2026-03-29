@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
 import { sendNetworkMessage } from '@/lib/api/franchise.service';
 import { translateError } from '@/lib/utils/error-translator';
@@ -145,6 +146,16 @@ export default function FranqueadorDashboardPage() {
               </tr>
             </thead>
             <tbody>
+              {ranked.length === 0 && (
+                <tr><td colSpan={8}>
+                  <EmptyState
+                    icon="🏢"
+                    title="Nenhuma franquia cadastrada"
+                    description="Cadastre franquias para visualizar o ranking da rede."
+                    variant="first-time"
+                  />
+                </td></tr>
+              )}
               {ranked.map((academy, idx) => (
                 <tr key={academy.id} className="border-b border-bb-gray-100">
                   <td className="px-4 py-3 font-bold text-bb-gray-500">{idx + 1}</td>
@@ -177,6 +188,14 @@ export default function FranqueadorDashboardPage() {
       {/* Revenue Chart - simple bar representation */}
       <Card className="p-4">
         <h2 className="mb-4 font-semibold text-bb-black">Receita por Mes (ultimos 12 meses)</h2>
+        {financials.monthly_data.length === 0 && (
+          <EmptyState
+            icon="📊"
+            title="Nenhum dado de receita disponível"
+            description="Os dados de receita mensal aparecerão aqui conforme as franquias reportarem faturamento."
+            variant="default"
+          />
+        )}
         <div className="space-y-2">
           {financials.monthly_data.slice(-6).map((m) => {
             const maxRevenue = Math.max(...financials.monthly_data.map((d) => d.total));

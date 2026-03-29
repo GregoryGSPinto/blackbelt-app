@@ -9,6 +9,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { getRecepcaoDashboard } from '@/lib/api/recepcao-dashboard.service';
 import type { RecepcaoDashboardDTO } from '@/lib/api/recepcao-dashboard.service';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   UsersIcon,
   CalendarIcon,
@@ -227,7 +228,15 @@ export default function RecepcaoDashboardPage() {
         <h2 className="mb-3 text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
           Agenda do Dia
         </h2>
-        <div className="relative space-y-0">
+        {data.aulasHoje.length === 0 && (
+          <EmptyState
+            icon="📅"
+            title="Nenhuma aula agendada para hoje"
+            description="Não há aulas programadas no dia de hoje."
+            variant="default"
+          />
+        )}
+        {data.aulasHoje.length > 0 && <div className="relative space-y-0">
           <div
             className="absolute left-[19px] top-4 bottom-4"
             style={{ width: '2px', background: 'var(--bb-glass-border)' }}
@@ -280,7 +289,7 @@ export default function RecepcaoDashboardPage() {
               </div>
             );
           })}
-        </div>
+        </div>}
       </section>
 
       {/* ── ULTIMOS CHECK-INS ─────────────────────────────── */}
@@ -288,6 +297,14 @@ export default function RecepcaoDashboardPage() {
         <h2 className="mb-3 text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
           Ultimos Check-ins
         </h2>
+        {data.checkinsHoje.length === 0 && (
+          <EmptyState
+            icon="✅"
+            title="Nenhum check-in hoje"
+            description="Ainda não houve check-ins registrados hoje."
+            variant="default"
+          />
+        )}
         <div className="space-y-2">
           {data.checkinsHoje.slice(0, 5).map((c, i) => (
             <div

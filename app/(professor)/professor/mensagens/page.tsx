@@ -10,6 +10,7 @@ import {
   NewConversationModal,
   BroadcastComposer,
 } from '@/components/shared/messaging';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
 import { PlanGate } from '@/components/plans/PlanGate';
@@ -107,32 +108,14 @@ export default function ProfessorMensagensPage() {
               className="flex h-full flex-col items-center justify-center"
               style={{ background: 'var(--bb-depth-2)' }}
             >
-              <svg
-                className="mb-4 h-16 w-16"
-                style={{ color: 'var(--bb-ink-40)' }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-              <h2
-                className="text-lg font-semibold"
-                style={{ color: 'var(--bb-ink-60)' }}
-              >
-                Selecione uma conversa
-              </h2>
-              <p
-                className="mt-1 text-sm"
-                style={{ color: 'var(--bb-ink-40)' }}
-              >
-                Escolha uma conversa na lista ao lado
-              </p>
+              <EmptyState
+                icon="💬"
+                title="Selecione uma conversa"
+                description="Escolha uma conversa na lista ao lado ou inicie uma nova."
+                actionLabel="Nova Conversa"
+                onAction={handleNewConversation}
+                variant="default"
+              />
             </div>
           )}
         </div>

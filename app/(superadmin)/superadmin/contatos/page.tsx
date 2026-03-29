@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Mail, Clock, CheckCircle, Archive, Eye } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ContactMessage {
   id: string;
@@ -94,13 +95,12 @@ export default function ContatosPage() {
           <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: 'var(--bb-brand)', borderTopColor: 'transparent' }} />
         </div>
       ) : messages.length === 0 ? (
-        <div
-          className="rounded-xl p-12 text-center"
-          style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}
-        >
-          <Mail size={40} className="mx-auto mb-4" style={{ color: 'var(--bb-ink-20)' }} />
-          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Nenhuma mensagem recebida ainda.</p>
-        </div>
+        <EmptyState
+          icon="📬"
+          title="Nenhuma mensagem recebida"
+          description="As mensagens enviadas pelo formulário de contato da landing page aparecerão aqui."
+          variant="first-time"
+        />
       ) : (
         <div
           className="overflow-hidden rounded-xl"

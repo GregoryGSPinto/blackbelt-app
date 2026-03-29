@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { BeltLevel } from '@/lib/types';
 
 // ────────────────────────────────────────────────────────────
@@ -208,6 +209,14 @@ export default function ProfessorTurmasPage() {
         </div>
 
         {/* Class Cards */}
+        {SEED_CLASSES.length === 0 && (
+          <EmptyState
+            icon="🥋"
+            title="Nenhuma turma encontrada"
+            description="Você ainda não possui turmas atribuídas. Entre em contato com a administração."
+            variant="first-time"
+          />
+        )}
         <div className="space-y-4">
           {SEED_CLASSES.map((cls) => {
             const isExpanded = expandedId === cls.id;
