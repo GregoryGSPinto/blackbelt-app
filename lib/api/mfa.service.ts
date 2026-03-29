@@ -168,7 +168,7 @@ export async function disableMFA(userId: string, _code: string): Promise<{ succe
   }
 }
 
-export async function regenerateBackupCodes(userId: string): Promise<{ codes: string[] }> {
+export async function regenerateBackupCodes(_userId: string): Promise<{ codes: string[] }> {
   try {
     if (isMock()) {
       return {
