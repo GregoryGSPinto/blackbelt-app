@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import {
   listProducts, createProduct, updateProduct, deleteProduct, toggleFeatured,
   type Product, type ProductCategory, type ProductStatus, type CreateProductData,
@@ -65,6 +67,7 @@ export default function AdminProdutosPage() {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterModality, setFilterModality] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateProductData & { modality?: string; brand?: string; material?: string }>(EMPTY_FORM);
@@ -86,8 +89,8 @@ export default function AdminProdutosPage() {
     if (filterStatus && p.status !== filterStatus) return false;
     if (filterModality && p.modality !== filterModality) return false;
     if (showLowStock && p.stock_total > p.low_stock_alert) return false;
-    if (search) {
-      const q = search.toLowerCase();
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
       if (
         !p.name.toLowerCase().includes(q) &&
         !(p.brand || '').toLowerCase().includes(q)
@@ -334,7 +337,7 @@ export default function AdminProdutosPage() {
                             style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
                           >
                             {product.images[0] ? (
-                              <img src={product.images[0]} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                              <Image src={product.images[0]} alt="" width={40} height={40} className="h-10 w-10 rounded-lg object-cover" unoptimized />
                             ) : (
                               <Package className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} />
                             )}

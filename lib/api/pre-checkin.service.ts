@@ -133,7 +133,7 @@ export async function listPreCheckins(
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('pre_checkins')
-      .select('*')
+      .select('id, academy_id, student_id, class_id, class_date, status, created_at')
       .eq('academy_id', academyId)
       .eq('class_id', classId)
       .eq('class_date', date)
@@ -164,7 +164,7 @@ export async function myPreCheckins(
     const supabase = createBrowserClient();
     let query = supabase
       .from('pre_checkins')
-      .select('*')
+      .select('id, academy_id, student_id, class_id, class_date, status, created_at')
       .eq('student_id', studentId);
     if (date) {
       query = query.eq('class_date', date);
@@ -218,7 +218,7 @@ export async function getClassExpectedCount(
     const supabase = createBrowserClient();
     const { count, error } = await supabase
       .from('pre_checkins')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('class_id', classId)
       .eq('class_date', date)
       .eq('status', 'confirmed');

@@ -45,7 +45,7 @@ export async function listVideos(academyId: string, filters?: VideoFilters): Pro
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
-  let query = supabase.from('videos').select('*').eq('academy_id', academyId);
+  let query = supabase.from('videos').select('id, title, duration, belt_level, thumbnail_color, professor_name, progress, is_locked, academy_id, modality').eq('academy_id', academyId);
   if (filters?.belt) query = query.eq('belt_level', filters.belt);
   if (filters?.modality) query = query.eq('modality', filters.modality);
   if (filters?.search) query = query.ilike('title', `%${filters.search}%`);
@@ -65,6 +65,7 @@ export async function getVideo(id: string): Promise<VideoDetail> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('videos')
     .select('*')
@@ -87,7 +88,7 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('video_series')
-    .select('*')
+    .select('id, title, video_count, belt_level, thumbnail_color, academy_id')
     .eq('academy_id', academyId);
   if (error || !data) {
     console.error('[getSeries] Supabase error:', error?.message);

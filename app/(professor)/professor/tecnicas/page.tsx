@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, type CSSProperties } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { listTecnicas, createTecnica } from '@/lib/api/banco-tecnicas.service';
 import type { Tecnica, TecnicaFiltros, CreateTecnicaPayload } from '@/lib/api/banco-tecnicas.service';
@@ -77,6 +78,7 @@ export default function BancoTecnicasPage() {
   const [tecnicas, setTecnicas] = useState<Tecnica[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [modalidade, setModalidade] = useState<string>('Todas');
   const [posicao, setPosicao] = useState<string>('');
   const [categoria, setCategoria] = useState<string>('');
@@ -107,7 +109,7 @@ export default function BancoTecnicasPage() {
     if (posicao) filtros.posicao = posicao;
     if (categoria) filtros.categoria = categoria;
     if (faixa !== 'Todas') filtros.faixaMinima = faixa;
-    if (search.trim()) filtros.query = search.trim();
+    if (debouncedSearch.trim()) filtros.query = debouncedSearch.trim();
     try {
       const data = await listTecnicas(filtros);
       setTecnicas(data);
@@ -116,7 +118,7 @@ export default function BancoTecnicasPage() {
     } finally {
       setLoading(false);
     }
-  }, [modalidade, posicao, categoria, faixa, search, toast]);
+  }, [modalidade, posicao, categoria, faixa, debouncedSearch, toast]);
 
   useEffect(() => { loadTecnicas(); }, [loadTecnicas]);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { listTechniques, type TechniqueDTO, type TechniqueModality, type TechniqueCategory, type BeltLevel } from '@/lib/api/techniques.service';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
@@ -32,6 +33,7 @@ export default function TecnicasCatalogPage() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterBelt, setFilterBelt] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [selectedTech, setSelectedTech] = useState<TechniqueDTO | null>(null);
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
@@ -44,8 +46,8 @@ export default function TecnicasCatalogPage() {
     if (activeModality && t.modality !== activeModality) return false;
     if (filterCategory && t.category !== filterCategory) return false;
     if (filterBelt && t.belt_level !== filterBelt) return false;
-    if (search) {
-      const q = search.toLowerCase();
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
       if (!t.name.toLowerCase().includes(q) && !t.tags.some((tag) => tag.toLowerCase().includes(q))) return false;
     }
     return true;

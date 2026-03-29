@@ -133,7 +133,7 @@ export async function getProfessorPerformance(academyId: string): Promise<Profes
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('professor_metrics')
-    .select('*')
+    .select('professor_id, professor_name, avg_attendance, retention_rate, avg_evaluation, total_classes, total_students, academy_id')
     .eq('academy_id', academyId);
 
   if (error || !data) {
@@ -261,7 +261,7 @@ export async function getClassOccupancy(academyId: string): Promise<OccupancyDTO
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('class_occupancy')
-    .select('*')
+    .select('class_id, class_name, modality, capacity, enrolled, avg_present, occupancy_rate, day_of_week, time, academy_id')
     .eq('academy_id', academyId);
 
   if (error || !data) {

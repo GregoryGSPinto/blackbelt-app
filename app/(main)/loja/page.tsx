@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { listProducts, type Product, type ProductCategory } from '@/lib/api/store.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useCart } from '@/lib/hooks/useCart';
@@ -83,6 +84,7 @@ export default function LojaPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [sortBy, setSortBy] = useState<SortOption>('popular');
   const { cartCount, addItem } = useCart();
   const { toast } = useToast();
@@ -97,8 +99,8 @@ export default function LojaPage() {
   const filtered = useMemo(() => {
     let result = products.filter((p) => {
       if (activeCategory && p.category !== activeCategory) return false;
-      if (search) {
-        const q = search.toLowerCase();
+      if (debouncedSearch) {
+        const q = debouncedSearch.toLowerCase();
         if (!p.name.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
       }
       return true;
@@ -121,7 +123,7 @@ export default function LojaPage() {
     }
 
     return result;
-  }, [products, activeCategory, search, sortBy]);
+  }, [products, activeCategory, debouncedSearch, sortBy]);
 
   function handleQuickAdd(product: Product) {
     const variant = product.variants[0];

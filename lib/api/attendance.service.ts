@@ -17,7 +17,7 @@ export async function checkIn(
   const { data, error } = await supabase
     .from('attendance')
     .insert({ student_id: studentId, class_id: classId, method, checked_at: new Date().toISOString() })
-    .select('*, students(profiles(display_name))')
+    .select('id, student_id, class_id, checked_at, method, students(profiles(display_name))')
     .single();
 
   if (error) {
@@ -75,7 +75,7 @@ export async function listAttendanceRecord(classId: string, date: string): Promi
 
   const { data, error } = await supabase
     .from('attendance')
-    .select('*, students(profiles(display_name))')
+    .select('id, student_id, class_id, checked_at, method, students(profiles(display_name))')
     .eq('class_id', classId)
     .gte('checked_at', dayStart.toISOString())
     .lte('checked_at', dayEnd.toISOString());
@@ -106,7 +106,7 @@ export async function getStudentAttendanceRecord(
 
   const { data, error } = await supabase
     .from('attendance')
-    .select('*, classes(modalities(name))')
+    .select('id, student_id, class_id, checked_at, method, classes(modalities(name))')
     .eq('student_id', studentId)
     .order('checked_at', { ascending: false });
 

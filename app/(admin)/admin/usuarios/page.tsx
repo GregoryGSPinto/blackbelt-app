@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import Link from 'next/link';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
@@ -148,6 +149,7 @@ export default function UsuariosPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterRole, setFilterRole] = useState('');
 
   useEffect(() => {
@@ -206,8 +208,8 @@ export default function UsuariosPage() {
 
   const filtered = useMemo(() => {
     let result = users;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (u) =>
           u.display_name.toLowerCase().includes(q) ||
@@ -218,7 +220,7 @@ export default function UsuariosPage() {
       result = result.filter((u) => u.role === filterRole);
     }
     return result;
-  }, [users, search, filterRole]);
+  }, [users, debouncedSearch, filterRole]);
 
   const roleCounts = useMemo(() => {
     const counts: Record<string, number> = {};

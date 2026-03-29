@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import {
   listVideos, listSeries, listTrails, listMaterials,
   getContentStats, createVideo,
@@ -105,6 +106,7 @@ export default function ProfessorConteudoPage() {
 
   // Filters
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterPublished, setFilterPublished] = useState<boolean | undefined>(undefined);
 
   // Modals
@@ -118,7 +120,7 @@ export default function ProfessorConteudoPage() {
     try {
       const [st, v, se, tr, ma] = await Promise.all([
         getContentStats(getActiveAcademyId()),
-        listVideos(getActiveAcademyId(), { search: search || undefined, is_published: filterPublished }),
+        listVideos(getActiveAcademyId(), { search: debouncedSearch || undefined, is_published: filterPublished }),
         listSeries(getActiveAcademyId()),
         listTrails(getActiveAcademyId()),
         listMaterials(getActiveAcademyId()),
@@ -133,7 +135,7 @@ export default function ProfessorConteudoPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, filterPublished]);
+  }, [debouncedSearch, filterPublished]);
 
   useEffect(() => { reload(); }, [reload]);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import {
   listAnnouncements,
   createAnnouncement,
@@ -50,6 +51,7 @@ export default function ComunicadosPage() {
   const [filterStatus, setFilterStatus] = useState<AnnouncementStatus | 'all'>('all');
   const [filterAudience, setFilterAudience] = useState<AnnouncementAudience | 'all'>('all');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedAnn, setSelectedAnn] = useState<Announcement | null>(null);
 
@@ -85,8 +87,8 @@ export default function ComunicadosPage() {
     if (filterAudience !== 'all') {
       result = result.filter((a) => a.target_audience === filterAudience);
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (a) =>
           a.title.toLowerCase().includes(q) ||
@@ -94,7 +96,7 @@ export default function ComunicadosPage() {
       );
     }
     return result;
-  }, [announcements, filterStatus, filterAudience, search]);
+  }, [announcements, filterStatus, filterAudience, debouncedSearch]);
 
   async function handleCreate() {
     if (!formTitle.trim() || !formContent.trim()) return;

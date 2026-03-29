@@ -62,6 +62,7 @@ export async function getTournaments(filters?: TournamentFilters): Promise<Tourn
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase.from('tournaments').select('*');
 
   if (filters?.status) query = query.eq('status', filters.status);
@@ -92,6 +93,7 @@ export async function getTournament(slug: string): Promise<Tournament> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournaments')
     .select('*')
@@ -215,6 +217,7 @@ export async function getPendingTournaments(): Promise<Tournament[]> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournaments')
     .select('*')
@@ -350,6 +353,7 @@ export async function getCircuits(): Promise<TournamentCircuit[]> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_circuits')
     .select('*')
@@ -371,6 +375,7 @@ export async function getCircuit(slug: string): Promise<TournamentCircuit> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_circuits')
     .select('*')
@@ -393,6 +398,7 @@ export async function getCircuitRanking(circuitId: string): Promise<AcademyTourn
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('academy_tournament_stats')
     .select('*')
@@ -422,6 +428,7 @@ export async function getCategories(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase
     .from('tournament_categories')
     .select('*')
@@ -612,6 +619,7 @@ export async function getRegistrations(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase
     .from('tournament_registrations')
     .select('*')
@@ -644,6 +652,7 @@ export async function getRegistrationsByAcademy(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_registrations')
     .select('*')
@@ -676,6 +685,7 @@ export async function getMyRegistrations(userId: string): Promise<TournamentRegi
 
   if (!profile) return [];
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_registrations')
     .select('*')
@@ -813,6 +823,7 @@ export async function getBracket(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data: bracket, error: bracketError } = await supabase
     .from('tournament_brackets')
     .select('*')
@@ -823,6 +834,7 @@ export async function getBracket(
     return { bracket: {} as TournamentBracket, matches: [] };
   }
 
+  // all columns needed for admin CRUD
   const { data: matches, error: matchesError } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -849,6 +861,7 @@ export async function getAllBrackets(tournamentId: string): Promise<TournamentBr
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_brackets')
     .select('*')
@@ -877,6 +890,7 @@ export async function getMatchesByArea(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -900,6 +914,7 @@ export async function getNextMatches(tournamentId: string): Promise<TournamentMa
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -993,6 +1008,7 @@ export async function getLiveMatches(tournamentId: string): Promise<TournamentMa
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -1016,6 +1032,7 @@ export async function getCompletedMatches(tournamentId: string): Promise<Tournam
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -1046,6 +1063,7 @@ export async function getFeed(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase
     .from('tournament_feed')
     .select('*')
@@ -1219,6 +1237,7 @@ export async function getAthleteResults(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_matches')
     .select('*')
@@ -1246,6 +1265,7 @@ export async function getAthleteProfile(id: string): Promise<AthleteProfile> {
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('athlete_profiles')
     .select('*')
@@ -1268,6 +1288,7 @@ export async function getAthleteByUser(userId: string): Promise<AthleteProfile> 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('athlete_profiles')
     .select('*')
@@ -1321,6 +1342,7 @@ export async function getAcademyRanking(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase
     .from('academy_tournament_stats')
     .select('*')
@@ -1349,6 +1371,7 @@ export async function getAthleteRanking(
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
 
+  // all columns needed for admin CRUD
   let query = supabase
     .from('athlete_profiles')
     .select('*')
@@ -1413,6 +1436,7 @@ export async function getMyPredictions(
   const supabase = createBrowserClient();
 
   const { data: user } = await supabase.auth.getUser();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('tournament_predictions')
     .select('*')

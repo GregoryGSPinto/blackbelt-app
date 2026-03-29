@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useToast } from '@/lib/hooks/useToast';
 import type { AcademyFull, PlatformPlan, AcademyStatus, CreateAcademyPayload, OnboardToken } from '@/lib/types';
 import {
@@ -107,6 +108,7 @@ export default function AcademiasPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('todos');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   // Health data
   const [healthOverview, setHealthOverview] = useState<HealthOverview | null>(null);
@@ -208,8 +210,8 @@ export default function AcademiasPage() {
   const filtered = useMemo(() => {
     let list = academies.filter((a) => {
       if (filter !== 'todos' && a.status !== filter) return false;
-      if (search) {
-        const q = search.toLowerCase();
+      if (debouncedSearch) {
+        const q = debouncedSearch.toLowerCase();
         if (
           !a.name.toLowerCase().includes(q) &&
           !(a.city ?? '').toLowerCase().includes(q) &&
@@ -242,7 +244,7 @@ export default function AcademiasPage() {
 
     return list;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [academies, filter, search, healthFilter, healthScores, sortField, sortDir]);
+  }, [academies, filter, debouncedSearch, healthFilter, healthScores, sortField, sortDir]);
 
   // ── Actions ────────────────────────────────────────────────────────
 

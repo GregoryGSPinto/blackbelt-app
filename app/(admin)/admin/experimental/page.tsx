@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
@@ -71,6 +72,7 @@ export default function ExperimentalListPage() {
   const [metrics, setMetrics] = useState<TrialMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterStatus, setFilterStatus] = useState<TrialStatus | ''>('');
   const [filterSource, setFilterSource] = useState<TrialSource | ''>('');
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
@@ -97,8 +99,8 @@ export default function ExperimentalListPage() {
 
   const filtered = useMemo(() => {
     let result = students;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (s) => s.name.toLowerCase().includes(q) || s.phone.includes(q),
       );
@@ -106,7 +108,7 @@ export default function ExperimentalListPage() {
     if (filterStatus) result = result.filter((s) => s.status === filterStatus);
     if (filterSource) result = result.filter((s) => s.source === filterSource);
     return result;
-  }, [students, search, filterStatus, filterSource]);
+  }, [students, debouncedSearch, filterStatus, filterSource]);
 
   async function handleExtend(id: string) {
     try {

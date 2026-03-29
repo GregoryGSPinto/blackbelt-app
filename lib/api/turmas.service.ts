@@ -58,7 +58,7 @@ export async function listClasses(academyId: string, filters?: ClassFilters): Pr
   let query = supabase
     .from('classes')
     .select(`
-      *,
+      id, modality_id, unit_id, professor_id, schedule, capacity,
       modalities!inner(name, academy_id),
       profiles!classes_professor_id_fkey(display_name),
       units!inner(name, academy_id),
@@ -104,7 +104,7 @@ export async function getClassById(id: string): Promise<ClassDetail> {
   const { data: classData, error } = await supabase
     .from('classes')
     .select(`
-      *,
+      id, modality_id, unit_id, professor_id, schedule, capacity,
       modalities(name),
       profiles!classes_professor_id_fkey(display_name),
       units(name)
@@ -245,7 +245,7 @@ export async function getClassesByProfessor(professorId: string): Promise<ClassW
   const { data, error } = await supabase
     .from('classes')
     .select(`
-      *,
+      id, modality_id, unit_id, professor_id, schedule, capacity,
       modalities(name),
       profiles!classes_professor_id_fkey(display_name),
       units(name),

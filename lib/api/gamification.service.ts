@@ -14,7 +14,7 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
   // Fetch player XP data
   const { data: xpData, error: xpError } = await supabase
     .from('gamification_xp')
-    .select('*')
+    .select('user_id, name, role, total_xp, streak, rank')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -38,7 +38,7 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
   // Fetch badges for this user
   const { data: badgeRows } = await supabase
     .from('gamification_badges')
-    .select('*')
+    .select('id, name, description, icon, unlocked, unlocked_at, progress, requirement, current, category')
     .eq('user_id', userId);
 
   const badges: Badge[] = (badgeRows ?? []).map((b: Record<string, unknown>) => ({
@@ -130,7 +130,7 @@ export async function getAllBadges(): Promise<Badge[]> {
 
   const { data, error } = await supabase
     .from('gamification_badge_definitions')
-    .select('*')
+    .select('id, name, description, icon, requirement, category')
     .order('name');
 
   if (error) {

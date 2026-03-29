@@ -24,7 +24,7 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('plans')
-      .select('*')
+      .select('id, academy_id, name, price, interval, features, created_at, updated_at')
       .eq('academy_id', academyId)
       .order('price', { ascending: true });
     if (error || !data) {
@@ -48,7 +48,7 @@ export async function getPlanById(id: string): Promise<Plan> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('plans')
-      .select('*')
+      .select('id, academy_id, name, price, interval, features, created_at, updated_at')
       .eq('id', id)
       .single();
     if (error || !data) {

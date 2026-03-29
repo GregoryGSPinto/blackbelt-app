@@ -71,7 +71,7 @@ export async function getFeed(
       const to = from + limit - 1;
       let query = supabase
         .from('feed_posts')
-        .select('*')
+        .select('id, type, author_id, author_name, author_avatar, author_role, content, image_url, likes, comment_count, created_at, academy_id')
         .eq('academy_id', academyId)
         .order('created_at', { ascending: false })
         .range(from, to);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import {
   getAllFeedback,
   updateFeedbackStatus,
@@ -233,7 +234,7 @@ function FeedbackTab() {
               <p className="text-xs mb-3 line-clamp-2" style={{ color: 'var(--bb-ink-60)' }}>{item.description}</p>
               {item.screenshot_url && (
                 <a href={item.screenshot_url} target="_blank" rel="noopener noreferrer" className="mb-3 inline-block">
-                  <img src={item.screenshot_url} alt="Screenshot" className="h-16 rounded-lg object-cover" />
+                  <Image src={item.screenshot_url} alt="Screenshot" width={0} height={0} sizes="100vw" className="h-16 w-auto rounded-lg object-cover" unoptimized />
                 </a>
               )}
               <div className="flex flex-wrap items-center gap-2">

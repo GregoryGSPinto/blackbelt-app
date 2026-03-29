@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { listAdminVideos, deleteVideo, togglePublish, getAdminStorageStats } from '@/lib/api/admin-content.service';
 import type { AdminVideoDTO, AdminStorageStats } from '@/lib/api/admin-content.service';
 import { Badge } from '@/components/ui/Badge';
@@ -22,6 +23,7 @@ export default function AdminConteudoPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterModality, setFilterModality] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterProfessor, setFilterProfessor] = useState('all');
@@ -52,13 +54,13 @@ export default function AdminConteudoPage() {
 
   const filtered = useMemo(() => {
     return videos.filter((v) => {
-      if (search && !v.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (debouncedSearch && !v.title.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
       if (filterModality !== 'all' && v.modality !== filterModality) return false;
       if (filterStatus !== 'all' && v.status !== filterStatus) return false;
       if (filterProfessor !== 'all' && v.professor_name !== filterProfessor) return false;
       return true;
     });
-  }, [videos, search, filterModality, filterStatus, filterProfessor]);
+  }, [videos, debouncedSearch, filterModality, filterStatus, filterProfessor]);
 
   const stats = useMemo(() => {
     const published = videos.filter((v) => v.status === 'published').length;

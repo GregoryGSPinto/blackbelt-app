@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { getProfessorDashboard } from '@/lib/api/professor.service';
 import type { AlunoResumoDTO } from '@/lib/api/professor.service';
 import { Card } from '@/components/ui/Card';
@@ -56,6 +57,7 @@ export default function ProfessorAlunosPage() {
   const [loading, setLoading] = useState(true);
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterBelt, setFilterBelt] = useState<string>('all');
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
@@ -74,11 +76,11 @@ export default function ProfessorAlunosPage() {
 
   const filteredAlunos = useMemo(() => {
     return alunos.filter((a) => {
-      const matchesSearch = a.display_name.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = a.display_name.toLowerCase().includes(debouncedSearch.toLowerCase());
       const matchesBelt = filterBelt === 'all' || a.belt === filterBelt;
       return matchesSearch && matchesBelt;
     });
-  }, [alunos, search, filterBelt]);
+  }, [alunos, debouncedSearch, filterBelt]);
 
   const beltCounts = useMemo(() => {
     const counts: Record<string, number> = {};

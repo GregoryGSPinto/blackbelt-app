@@ -46,7 +46,7 @@ export async function getNotifications(
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('notifications')
-    .select('*')
+    .select('id, priority, category, title, message, grouped_names, created_at, read, action_url, profile_id')
     .eq('profile_id', profileId)
     .order('created_at', { ascending: false });
   if (error || !data) {

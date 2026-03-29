@@ -25,7 +25,7 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase
       .from('leads')
-      .select('*')
+      .select('id, name, email, phone, interest, source, referral_code, status, created_at, academy_id')
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
 

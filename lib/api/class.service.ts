@@ -23,6 +23,7 @@ export async function listClasses(
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   let query = supabase.from('classes').select('*').eq('academy_id', academyId);
   if (filters?.modality) query = query.eq('modality', filters.modality);
   if (filters?.status) query = query.eq('status', filters.status);
@@ -43,6 +44,7 @@ export async function getClass(id: string): Promise<ClassItem> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('classes')
     .select('*')
@@ -121,7 +123,7 @@ export async function getClassStudents(classId: string): Promise<ClassStudent[]>
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('class_students')
-    .select('*, profiles(*)')
+    .select('id, student_id, class_id, enrolled_at, profiles(id, display_name, avatar, role)')
     .eq('class_id', classId);
   if (error || !data) {
     console.error('[getClassStudents] Supabase error:', error?.message);
@@ -177,6 +179,7 @@ export async function getSchedule(academyId: string): Promise<ScheduleEntry[]> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('class_schedule')
     .select('*')

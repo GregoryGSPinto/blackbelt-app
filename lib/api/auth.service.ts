@@ -65,7 +65,7 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 
   const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('user_id', authData.user.id);
   if (profileError) {
     console.error('[auth] profiles query failed:', profileError.message);
@@ -110,7 +110,7 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
   // The DB trigger auto-creates a profile; fetch it
   const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('user_id', authData.user.id)
     .limit(1);
   if (profileError) {
@@ -216,7 +216,7 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('id', profileId)
     .single();
   if (error || !profile) {
@@ -288,7 +288,7 @@ export async function getMyProfiles(userId: string): Promise<Profile[]> {
 
   const { data: profiles, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('user_id', userId);
   if (error) {
     console.error('[auth] getMyProfiles failed:', error.message);

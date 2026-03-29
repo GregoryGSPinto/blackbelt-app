@@ -87,7 +87,7 @@ export async function getStudentEvaluationTimeline(
 
     const { data, error } = await supabase
       .from('student_evaluations')
-      .select('*')
+      .select('id, student_id, student_name, professor_id, class_id, technique, posture, evolution, behavior, conditioning, theory, discipline, comment, created_at')
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
 

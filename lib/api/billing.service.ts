@@ -16,6 +16,7 @@ export async function getPlans(): Promise<PlanDefinition[]> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase.from('billing_plans').select('*');
   if (error || !data) {
     console.error('[getPlans] Supabase error:', error?.message);
@@ -34,7 +35,7 @@ export async function getCurrentPlan(academyId: string): Promise<PlanDefinition>
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('academy_subscriptions')
-    .select('*, billing_plans(*)')
+    .select('id, academy_id, billing_cycle, billing_plans(id, name, slug, price_monthly, price_yearly, limits, overage, modules, support_level, is_popular, badge_color)')
     .eq('academy_id', academyId)
     .single();
   if (error || !data) {
@@ -55,6 +56,7 @@ export async function getBillingSummary(academyId: string): Promise<BillingSumma
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('billing_summaries')
     .select('*')
@@ -77,7 +79,7 @@ export async function getUsageMetrics(academyId: string): Promise<UsageMetric[]>
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('billing_usage_metrics')
-    .select('*')
+    .select('resource, label, icon, current, limit, percent, status, overage_count, overage_cost_cents, academy_id')
     .eq('academy_id', academyId);
   if (error || !data) {
     console.error('[getUsageMetrics] Supabase error:', error?.message);
@@ -96,7 +98,7 @@ export async function getInvoices(academyId: string, limit?: number): Promise<Bi
   const supabase = createBrowserClient();
   let query = supabase
     .from('billing_invoices')
-    .select('*')
+    .select('id, period, base_cost_cents, overage_details, overage_total_cents, total_cents, status, paid_at, pdf_url, academy_id, created_at')
     .eq('academy_id', academyId)
     .order('created_at', { ascending: false });
   if (limit) query = query.limit(limit);
@@ -200,6 +202,7 @@ export async function getOverageProjection(academyId: string): Promise<OveragePr
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('billing_overage_projections')
     .select('*')

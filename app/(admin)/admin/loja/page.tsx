@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { listProducts } from '@/lib/api/store.service';
 import type { Product } from '@/lib/api/store.service';
@@ -293,7 +294,7 @@ export default function LojaAdminPage() {
                     style={{ background: 'var(--bb-depth-2)' }}
                   >
                     {p.images[0] ? (
-                      <img src={p.images[0]} alt="" className="h-8 w-8 rounded object-cover" />
+                      <Image src={p.images[0]} alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" unoptimized />
                     ) : (
                       <Package className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
                     )}

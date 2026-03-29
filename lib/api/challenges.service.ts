@@ -28,7 +28,7 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
 
     const { data, error } = await supabase
       .from('challenges')
-      .select('*')
+      .select('id, title, description, type, start_date, end_date, target, progress, reward, badge, active, participant_count, academy_id')
       .eq('academy_id', academyId)
       .order('start_date', { ascending: false });
 

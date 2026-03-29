@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import {
   buscarAlunoCheckin,
@@ -23,6 +24,7 @@ export default function RecepcaoCheckinPage() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
   const [resultados, setResultados] = useState<AlunoCheckin[]>([]);
   const [selecionado, setSelecionado] = useState<AlunoCheckin | null>(null);
   const [dentroAgora, setDentroAgora] = useState<PessoaDentro[]>([]);
@@ -46,15 +48,11 @@ export default function RecepcaoCheckinPage() {
 
   useEffect(() => { loadDentro(); }, [loadDentro]);
 
-  // Search debounce
+  // Search with debounce
   useEffect(() => {
-    if (query.length < 2) { setResultados([]); return; }
-    const timer = setTimeout(async () => {
-      const res = await buscarAlunoCheckin(query);
-      setResultados(res);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
+    if (debouncedQuery.length < 2) { setResultados([]); return; }
+    buscarAlunoCheckin(debouncedQuery).then(setResultados);
+  }, [debouncedQuery]);
 
   async function handleEntrada(aluno: AlunoCheckin) {
     setRegistrando(true);

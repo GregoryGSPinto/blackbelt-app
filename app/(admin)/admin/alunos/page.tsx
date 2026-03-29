@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import Link from 'next/link';
 import {
   listStudents,
@@ -83,6 +84,7 @@ export default function AdminAlunosPage() {
   const [stats, setStats] = useState<StudentManagementStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [filterBelt, setFilterBelt] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterTurma, setFilterTurma] = useState('');
@@ -112,8 +114,8 @@ export default function AdminAlunosPage() {
 
   const filtered = useMemo(() => {
     let result = students;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (s) =>
           s.display_name.toLowerCase().includes(q) ||
@@ -124,7 +126,7 @@ export default function AdminAlunosPage() {
     if (filterStatus) result = result.filter((s) => s.status === filterStatus);
     if (filterTurma) result = result.filter((s) => s.turmas.includes(filterTurma));
     return result;
-  }, [students, search, filterBelt, filterStatus, filterTurma]);
+  }, [students, debouncedSearch, filterBelt, filterStatus, filterTurma]);
 
   function handleExportCSV() {
     exportToCSV(

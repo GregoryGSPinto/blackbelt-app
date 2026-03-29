@@ -111,7 +111,7 @@ export async function getConversations(profileId: string): Promise<Conversation[
 
     const { data, error } = await supabase
       .from('conversations')
-      .select('*')
+      .select('id, academy_id, participant_a, participant_b, type, last_message_text, last_message_at, last_message_by, unread_count, is_archived, created_at')
       .or(`participant_a.eq.${profileId},participant_b.eq.${profileId}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -199,7 +199,7 @@ export async function getOrCreateConversation(
     // Try to find existing conversation
     const { data: existing, error: findError } = await supabase
       .from('conversations')
-      .select('*')
+      .select('id, academy_id, participant_a, participant_b, type, last_message_text, last_message_at, last_message_by, unread_count, is_archived, created_at')
       .eq('academy_id', academyId)
       .or(
         `and(participant_a.eq.${profileId},participant_b.eq.${otherProfileId}),and(participant_a.eq.${otherProfileId},participant_b.eq.${profileId})`,
@@ -291,7 +291,7 @@ export async function getMessages(
 
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id, conversation_id, sender_id, text, type, attachment_url, read_at, metadata, created_at, deleted_at')
       .eq('conversation_id', conversationId)
       .is('deleted_at', null)
       .order('created_at', { ascending: true })
@@ -557,7 +557,7 @@ export async function getBroadcasts(profileId: string): Promise<BroadcastMessage
 
     const { data, error } = await supabase
       .from('broadcasts')
-      .select('*')
+      .select('id, academy_id, sender_id, sender_name, target, target_class_id, target_belt, target_profile_ids, subject, text, total_recipients, read_count, created_at')
       .eq('sender_id', profileId)
       .order('created_at', { ascending: false });
 
@@ -691,7 +691,7 @@ export async function searchMessages(
 
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id, conversation_id, sender_id, text, type, attachment_url, read_at, metadata, created_at, deleted_at')
       .in('conversation_id', convoIds)
       .ilike('text', `%${query}%`)
       .is('deleted_at', null)

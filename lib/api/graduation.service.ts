@@ -78,7 +78,7 @@ export async function listPending(academyId: string): Promise<BeltPromotion[]> {
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('belt_promotions').select('*').eq('academy_id', academyId).eq('status', 'pending');
+    const { data, error } = await supabase.from('belt_promotions').select('id, student_id, student_name, from_belt, to_belt, proposed_by, proposed_by_name, approved_by, status, criteria_met, proposed_at, approved_at, academy_id').eq('academy_id', academyId).eq('status', 'pending');
     if (error) {
       console.error('[listPending] error:', error.message);
       return [];
@@ -98,7 +98,7 @@ export async function getStudentHistory(studentId: string): Promise<GraduationHi
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('belt_promotions').select('*').eq('student_id', studentId).order('proposed_at', { ascending: false });
+    const { data, error } = await supabase.from('belt_promotions').select('id, student_id, student_name, from_belt, to_belt, approved_by_name, approved_at, proposed_at, status').eq('student_id', studentId).order('proposed_at', { ascending: false });
     if (error) {
       console.error('[getStudentHistory] error:', error.message);
       return [];
@@ -125,7 +125,7 @@ export async function checkCriteria(
     // Fetch criteria for this belt level
     const { data: criteria } = await supabase
       .from('belt_criteria')
-      .select('*')
+      .select('min_attendance, min_months, min_quiz_avg, to_belt')
       .eq('to_belt', targetBelt)
       .maybeSingle();
 
@@ -172,7 +172,7 @@ export async function getCriteria(
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('belt_criteria').select('*').eq('from_belt', fromBelt).eq('to_belt', toBelt).single();
+    const { data, error } = await supabase.from('belt_criteria').select('from_belt, to_belt, min_attendance, min_months, min_quiz_avg').eq('from_belt', fromBelt).eq('to_belt', toBelt).single();
     if (error) {
       console.error('[getCriteria] error:', error.message);
       return { from_belt: fromBelt, to_belt: toBelt, min_attendance: 0, min_months: 0, min_quiz_avg: 0 } as BeltCriteria;
@@ -194,7 +194,7 @@ export async function listGraduationHistory(
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('belt_promotions').select('*').eq('academy_id', academyId).order('proposed_at', { ascending: false });
+    const { data, error } = await supabase.from('belt_promotions').select('id, student_id, student_name, from_belt, to_belt, approved_by_name, approved_at, proposed_at, status').eq('academy_id', academyId).order('proposed_at', { ascending: false });
     if (error) {
       console.error('[listGraduationHistory] error:', error.message);
       return [];

@@ -30,7 +30,7 @@ export async function listEvents(academyId: string): Promise<EventDTO[]> {
   const supabase = createBrowserClient();
   const { data, error } = await supabase
     .from('events')
-    .select('*')
+    .select('id, name, type, date, start_time, end_time, location, capacity, enrolled_count, price, description, enrollment_open, academy_id')
     .eq('academy_id', academyId)
     .order('date', { ascending: true });
   if (error || !data) {
@@ -86,6 +86,7 @@ export async function listAcademyEvents(academyId: string): Promise<AcademyEvent
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('academy_events')
     .select('*')
@@ -106,6 +107,7 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  // all columns needed for admin CRUD
   const { data, error } = await supabase
     .from('academy_events')
     .select('*')

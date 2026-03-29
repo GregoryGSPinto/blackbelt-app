@@ -53,7 +53,7 @@ export async function getHistory(studentId: string, dateRange?: DateRange): Prom
 
   let query = supabase
     .from('attendance')
-    .select('*')
+    .select('id, student_id, class_id, checked_at, method, created_at, updated_at')
     .eq('student_id', studentId)
     .order('checked_at', { ascending: false });
 
@@ -153,7 +153,7 @@ export async function getTodayByClass(classId: string): Promise<Attendance[]> {
 
   const { data, error } = await supabase
     .from('attendance')
-    .select('*')
+    .select('id, student_id, class_id, checked_at, method, created_at, updated_at')
     .eq('class_id', classId)
     .gte('checked_at', todayStart.toISOString());
   if (error) {

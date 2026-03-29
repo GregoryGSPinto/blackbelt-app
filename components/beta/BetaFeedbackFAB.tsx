@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useState, useRef } from 'react';
+import Image from 'next/image';
 import { submitFeedback, uploadScreenshot, type CreateFeedbackDTO } from '@/lib/api/beta-feedback.service';
 import { useToast } from '@/lib/hooks/useToast';
 
@@ -216,7 +217,7 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
                   </button>
                   {screenshotPreview && (
                     <div className="mt-2">
-                      <img src={screenshotPreview} alt="Preview" className="h-24 rounded-lg object-cover" />
+                      <Image src={screenshotPreview} alt="Preview" width={0} height={0} sizes="100vw" className="h-24 w-auto rounded-lg object-cover" unoptimized />
                     </div>
                   )}
                 </div>
@@ -261,7 +262,7 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
                 {screenshotPreview && (
                   <div className="rounded-lg p-3" style={{ background: 'var(--bb-depth-3)' }}>
                     <p className="text-xs font-semibold uppercase mb-1" style={{ color: 'var(--bb-ink-40)' }}>Screenshot</p>
-                    <img src={screenshotPreview} alt="Screenshot" className="h-20 rounded-lg object-cover" />
+                    <Image src={screenshotPreview} alt="Screenshot" width={0} height={0} sizes="100vw" className="h-20 w-auto rounded-lg object-cover" unoptimized />
                   </div>
                 )}
                 <div className="flex gap-2">
