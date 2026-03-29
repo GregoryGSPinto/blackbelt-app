@@ -32,6 +32,7 @@ import {
   XIcon,
   TrophyIcon,
   FlaskConicalIcon,
+  CrownIcon,
 } from './icons';
 
 interface SuperAdminShellProps {
@@ -50,6 +51,7 @@ const sidebarGroups: SidebarGroup[] = [
     label: 'OVERVIEW',
     items: [
       { href: '/superadmin', label: 'Mission Control', icon: LayoutDashboardIcon, id: 'sidebar-link-mission-control' },
+      { href: '/cockpit', label: 'Cockpit', icon: CrownIcon, id: 'sidebar-link-cockpit' },
     ],
   },
   {

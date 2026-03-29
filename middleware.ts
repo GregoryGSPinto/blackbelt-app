@@ -18,6 +18,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 
 const ROUTE_ROLE: Record<string, string> = {
   '/superadmin': 'superadmin',
+  '/cockpit': 'superadmin',
   '/admin': 'admin',
   '/professor': 'professor',
   '/recepcao': 'recepcao',
