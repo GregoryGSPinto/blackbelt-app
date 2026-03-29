@@ -4,6 +4,15 @@
 -- (user_feedback e campaigns já existem para academias)
 -- ═══════════════════════════════════════════════════════════
 
+-- Helper: set_updated_at trigger function (may already exist)
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- ──────────────────────────────────────────
 -- 1. feature_backlog
 -- ──────────────────────────────────────────
