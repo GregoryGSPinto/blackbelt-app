@@ -23,7 +23,7 @@ import {
 } from '@/lib/security';
 import * as authService from '@/lib/api/auth.service';
 import { useRouter } from 'next/navigation';
-import { identifyUser, resetAnalytics, trackEvent, AnalyticsEvents } from '@/lib/analytics/posthog';
+import { identifyUser, resetAnalytics, trackEvent, AnalyticsEvents, disableAnalyticsForKids, enableAnalytics } from '@/lib/analytics/posthog';
 
 interface AuthState {
   profile: Profile | null;
@@ -128,11 +128,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ? profileList.find((p) => p.role === activeRole) ?? profileList[0] ?? null
             : profileList[0] ?? null;
 
-          if (activeProfile) {
-            identifyUser(activeProfile.id, {
-              role: activeProfile.role,
-              display_name: activeProfile.display_name,
-            });
+          // COPPA/LGPD: disable analytics for kids profiles
+          if (activeProfile?.role === Role.AlunoKids) {
+            disableAnalyticsForKids();
+          } else {
+            enableAnalytics();
+            if (activeProfile) {
+              identifyUser(activeProfile.id, {
+                role: activeProfile.role,
+                display_name: activeProfile.display_name,
+              });
+            }
           }
 
           setState({
@@ -174,10 +180,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (profileList.length > 0) {
             const activeProfile = profileList[0];
-            identifyUser(activeProfile.id, {
-              role: activeProfile.role,
-              display_name: activeProfile.display_name,
-            });
+
+            // COPPA/LGPD: disable analytics for kids profiles
+            if (activeProfile.role === Role.AlunoKids) {
+              disableAnalyticsForKids();
+            } else {
+              enableAnalytics();
+              identifyUser(activeProfile.id, {
+                role: activeProfile.role,
+                display_name: activeProfile.display_name,
+              });
+            }
 
             setState({
               profile: activeProfile,
@@ -263,10 +276,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile: response.profile,
         isAuthenticated: true,
       }));
-      identifyUser(response.profile.id, {
-        role: response.profile.role,
-        display_name: response.profile.display_name,
-      });
+
+      // COPPA/LGPD: disable analytics for kids profiles
+      if (response.profile.role === Role.AlunoKids) {
+        disableAnalyticsForKids();
+      } else {
+        enableAnalytics();
+        identifyUser(response.profile.id, {
+          role: response.profile.role,
+          display_name: response.profile.display_name,
+        });
+      }
 
       const dashboard = ROLE_DASHBOARD[response.profile.role] ?? '/dashboard';
       router.push(dashboard);

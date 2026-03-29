@@ -16,6 +16,7 @@ const SECTIONS = [
   { id: 'retencao', label: '10. Retencao' },
   { id: 'cookies', label: '11. Cookies' },
   { id: 'alteracoes', label: '12. Alteracoes' },
+  { id: 'encarregado', label: '13. Encarregado de Dados (DPO)' },
 ];
 
 export default function PrivacidadePage() {
@@ -976,6 +977,67 @@ export default function PrivacidadePage() {
                       www.gov.br/anpd
                     </a>
                     .
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 13 — Encarregado de Dados (DPO) */}
+            <section id="encarregado" data-section className="scroll-mt-20">
+              <div
+                className="overflow-hidden p-6"
+                style={{
+                  background: 'var(--bb-depth-3, #1e1e2e)',
+                  border:
+                    '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                  borderRadius: 'var(--bb-radius-lg, 12px)',
+                }}
+              >
+                <h2
+                  className="mb-4 text-lg font-semibold"
+                  style={{ color: 'var(--bb-ink-100, #fff)' }}
+                >
+                  13. Encarregado de Dados (DPO)
+                </h2>
+                <div
+                  className="space-y-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--bb-ink-60, #999)' }}
+                >
+                  <p>
+                    Em conformidade com o Art. 41 da Lei Geral de Protecao de Dados Pessoais (LGPD), a BlackBelt designou um Encarregado pelo Tratamento de Dados Pessoais (Data Protection Officer — DPO), responsavel por:
+                  </p>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>Aceitar reclamacoes e comunicacoes dos titulares de dados e prestar esclarecimentos;</li>
+                    <li>Receber comunicacoes da Autoridade Nacional de Protecao de Dados (ANPD) e adotar providencias;</li>
+                    <li>Orientar funcionarios e contratados sobre as praticas de protecao de dados pessoais;</li>
+                    <li>Executar as demais atribuicoes determinadas pelo controlador ou estabelecidas em normas complementares.</li>
+                  </ul>
+                  <div
+                    className="mt-4 rounded-lg p-4"
+                    style={{
+                      background: 'var(--bb-depth-2, #151520)',
+                      border: '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))',
+                    }}
+                  >
+                    <p>
+                      <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Nome:</strong> Gregory Guimaraes Pinto
+                    </p>
+                    <p className="mt-1">
+                      <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Email:</strong>{' '}
+                      <a
+                        href="mailto:privacidade@blackbelt.app"
+                        className="underline"
+                        style={{ color: 'var(--bb-brand, #ef4444)' }}
+                      >
+                        privacidade@blackbelt.app
+                      </a>
+                    </p>
+                    <p className="mt-1">
+                      <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Endereco:</strong> Vespasiano - MG, Brasil
+                    </p>
+                  </div>
+                  <p>
+                    Para exercer qualquer direito previsto na LGPD ou em caso de duvidas sobre o tratamento dos seus dados pessoais, entre em contato com nosso Encarregado de Dados pelo email acima. Respostas serao fornecidas dentro do prazo legal de 15 (quinze) dias.
                   </p>
                 </div>
               </div>

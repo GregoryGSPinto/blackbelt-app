@@ -10,5 +10,14 @@ if (dsn) {
     replaysOnErrorSampleRate: 1.0,
     environment: process.env.NODE_ENV,
     enabled: process.env.NODE_ENV === 'production',
+    // COPPA/LGPD: suppress Sentry events for aluno_kids profiles.
+    // The global flag is set by disableAnalyticsForKids() in posthog.ts
+    // which is called from AuthContext when a kids profile is active.
+    beforeSend(event) {
+      if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>).__bb_analytics_disabled === true) {
+        return null;
+      }
+      return event;
+    },
   });
 }

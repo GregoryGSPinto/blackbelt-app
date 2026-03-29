@@ -2,7 +2,38 @@ import posthog from 'posthog-js';
 
 let initialized = false;
 
+/**
+ * When true, analytics is completely suppressed for the current session.
+ * Set by `disableAnalyticsForKids()` when the active profile is aluno_kids
+ * to comply with COPPA / LGPD Art. 14 (no analytics for children).
+ */
+let analyticsDisabled = false;
+
+export function disableAnalyticsForKids(): void {
+  analyticsDisabled = true;
+  // Set window-level flag so Sentry beforeSend can also check it
+  if (typeof window !== 'undefined') {
+    (window as unknown as Record<string, unknown>).__bb_analytics_disabled = true;
+  }
+  // If PostHog was already running, opt the user out and reset
+  if (initialized && typeof window !== 'undefined') {
+    posthog.opt_out_capturing();
+    posthog.reset();
+    initialized = false;
+  }
+}
+
+export function enableAnalytics(): void {
+  analyticsDisabled = false;
+  if (typeof window !== 'undefined') {
+    (window as unknown as Record<string, unknown>).__bb_analytics_disabled = false;
+    posthog.opt_in_capturing();
+  }
+}
+
 export function initAnalytics(): void {
+  if (analyticsDisabled) return;
+
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
@@ -21,6 +52,7 @@ export function initAnalytics(): void {
 }
 
 export function trackEvent(name: string, properties?: Record<string, unknown>): void {
+  if (analyticsDisabled) return;
   if (!initialized && typeof window !== 'undefined') {
     initAnalytics();
   }
@@ -30,6 +62,7 @@ export function trackEvent(name: string, properties?: Record<string, unknown>): 
 }
 
 export function identifyUser(userId: string, traits?: Record<string, unknown>): void {
+  if (analyticsDisabled) return;
   if (!initialized && typeof window !== 'undefined') {
     initAnalytics();
   }
