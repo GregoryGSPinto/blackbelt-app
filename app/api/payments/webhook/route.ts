@@ -4,13 +4,15 @@ import { getAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify webhook token if configured
+    // Verify webhook token (required)
     const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
-    if (webhookToken) {
-      const token = request.headers.get('asaas-access-token');
-      if (token !== webhookToken) {
-        return NextResponse.json({ error: 'Invalid webhook token' }, { status: 401 });
-      }
+    if (!webhookToken) {
+      console.error('[webhook] ASAAS_WEBHOOK_TOKEN not configured');
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 });
+    }
+    const token = request.headers.get('asaas-access-token');
+    if (token !== webhookToken) {
+      return NextResponse.json({ error: 'Invalid webhook token' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -61,7 +63,7 @@ export async function POST(request: NextRequest) {
 
       // Send payment confirmed email (fire-and-forget)
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
-      const internalToken = process.env.ASAAS_WEBHOOK_TOKEN ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+      const internalToken = process.env.ASAAS_WEBHOOK_TOKEN ?? '';
       fetch(`${appUrl}/api/emails/payment-confirmed`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-internal-token': internalToken },

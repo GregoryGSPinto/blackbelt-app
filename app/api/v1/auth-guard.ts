@@ -74,14 +74,28 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
     return { error: errorResponse('X-Academy-Id header is required when using API key authentication.', 400) };
   }
 
-  // In production, validate the API key against a stored keys table.
-  // For now, accept any API key but require academy context.
+  // Validate API key against stored keys
+  const supabase = createServerClient(supabaseUrl!, supabaseAnonKey!, {
+    cookies: { get() { return undefined; }, set() {}, remove() {} },
+  });
+  const { data: keyRecord } = await supabase
+    .from('api_keys')
+    .select('id, academy_id, role, profile_id, revoked_at')
+    .eq('key_hash', apiKey)
+    .eq('academy_id', academyId)
+    .is('revoked_at', null)
+    .single();
+
+  if (!keyRecord) {
+    return { error: errorResponse('Invalid API key or academy mismatch.', 401) };
+  }
+
   return {
     auth: {
-      userId: 'api-key-user',
-      academyId,
-      role: 'admin',
-      profileId: 'api-key-profile',
+      userId: keyRecord.id,
+      academyId: keyRecord.academy_id,
+      role: keyRecord.role ?? 'viewer',
+      profileId: keyRecord.profile_id ?? keyRecord.id,
     },
   };
 }
