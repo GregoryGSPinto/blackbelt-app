@@ -37,6 +37,35 @@ export interface UpdateEvent {
   payload: LiveMatchDTO;
 }
 
+interface MatchRow {
+  id: string;
+  mat_number: number | null;
+  category_id: string;
+  fighter_a_id?: string | null;
+  fighter_a_name: string | null;
+  fighter_a_academy?: string | null;
+  fighter_b_id?: string | null;
+  fighter_b_name: string | null;
+  fighter_b_academy?: string | null;
+  score_a: number | null;
+  score_b: number | null;
+  duration_seconds: number | null;
+  status: string;
+  winner_id?: string | null;
+  winner_name: string | null;
+  method: string | null;
+  round?: number | null;
+  tournament_categories: { id?: string; name: string; modality?: string } | null;
+}
+
+interface MedalRow {
+  academy_id: string;
+  academy_name: string;
+  gold: number | null;
+  silver: number | null;
+  bronze: number | null;
+}
+
 export async function getLiveMatches(championshipId: string): Promise<LiveMatchDTO[]> {
   try {
     if (isMock()) {
@@ -70,20 +99,22 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       return [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((m: any) => ({
-      match_id: m.id,
-      mat_number: m.mat_number ?? 0,
-      category_label: (m.tournament_categories as unknown as { name: string })?.name ?? '',
-      fighter_a_name: m.fighter_a_name ?? '',
-      fighter_b_name: m.fighter_b_name ?? '',
-      score_a: m.score_a ?? 0,
-      score_b: m.score_b ?? 0,
-      elapsed_seconds: m.duration_seconds ?? 0,
+    return (data ?? []).map((m: unknown) => {
+      const row = m as MatchRow;
+      return {
+      match_id: row.id,
+      mat_number: row.mat_number ?? 0,
+      category_label: (row.tournament_categories as { name: string } | null)?.name ?? '',
+      fighter_a_name: row.fighter_a_name ?? '',
+      fighter_b_name: row.fighter_b_name ?? '',
+      score_a: row.score_a ?? 0,
+      score_b: row.score_b ?? 0,
+      elapsed_seconds: row.duration_seconds ?? 0,
       status: 'in_progress' as const,
-      winner_name: m.winner_name ?? null,
-      method: m.method ?? null,
-    }));
+      winner_name: row.winner_name ?? null,
+      method: row.method ?? null,
+    };
+    });
   } catch (error) {
     console.error('[getLiveMatches] Fallback:', error);
     return [];
@@ -134,22 +165,20 @@ export async function getResults(championshipId: string, categoryId?: string): P
     }
 
     // Group by category and determine medalists (final round = gold/silver, semifinal losers = bronze)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const categoryMap = new Map<string, { cat: { id: string; name: string; modality: string }; matches: any[] }>();
+    const categoryMap = new Map<string, { cat: { id: string; name: string; modality: string }; matches: MatchRow[] }>();
     for (const m of data ?? []) {
-      const cat = m.tournament_categories as unknown as { id: string; name: string; modality: string };
+      const row = m as unknown as MatchRow;
+      const cat = row.tournament_categories as { id: string; name: string; modality: string };
       if (!categoryMap.has(cat.id)) {
         categoryMap.set(cat.id, { cat, matches: [] });
       }
-      categoryMap.get(cat.id)!.matches.push(m);
+      categoryMap.get(cat.id)!.matches.push(row);
     }
 
     const results: CategoryResultDTO[] = [];
     for (const [, { cat, matches }] of categoryMap) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const maxRound = Math.max(...matches.map((m: any) => m.round ?? 0));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const finalMatch = matches.find((m: any) => m.round === maxRound);
+      const maxRound = Math.max(...matches.map((m) => m.round ?? 0));
+      const finalMatch = matches.find((m) => m.round === maxRound);
       const emptyAthlete = { athlete_id: '', athlete_name: '', academy: '' };
 
       const gold = finalMatch?.winner_id
@@ -199,15 +228,17 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       return [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((row: any) => ({
-      academy_id: row.academy_id,
-      academy_name: row.academy_name,
-      gold: row.gold ?? 0,
-      silver: row.silver ?? 0,
-      bronze: row.bronze ?? 0,
-      total: (row.gold ?? 0) + (row.silver ?? 0) + (row.bronze ?? 0),
-    }));
+    return (data ?? []).map((r: unknown) => {
+      const row = r as MedalRow;
+      return {
+        academy_id: row.academy_id,
+        academy_name: row.academy_name,
+        gold: row.gold ?? 0,
+        silver: row.silver ?? 0,
+        bronze: row.bronze ?? 0,
+        total: (row.gold ?? 0) + (row.silver ?? 0) + (row.bronze ?? 0),
+      };
+    });
   } catch (error) {
     console.error('[getMedalTable] Fallback:', error);
     return [];

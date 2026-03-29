@@ -23,7 +23,7 @@ export interface NpsResult {
 }
 
 export async function submitNps(data: NpsSubmission): Promise<boolean> {
-  if (isMock()) { console.log('[MOCK] NPS submitted:', data); return true; }
+  if (isMock()) { return true; }
 
   const supabase = createBrowserClient();
   const { data: { user } } = await supabase.auth.getUser();

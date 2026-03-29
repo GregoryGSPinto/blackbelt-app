@@ -67,7 +67,6 @@ export async function preCheckin(
       status: 'confirmed',
       created_at: new Date().toISOString(),
     };
-    console.log('[MOCK] preCheckin created', mock);
     return mock;
   }
   try {
@@ -96,7 +95,6 @@ export async function preCheckin(
 
 export async function cancelPreCheckin(preCheckinId: string): Promise<boolean> {
   if (isMock()) {
-    console.log('[MOCK] cancelPreCheckin', preCheckinId);
     return true;
   }
   try {
@@ -184,7 +182,6 @@ export async function myPreCheckins(
 
 export async function convertToAttendance(preCheckinId: string): Promise<boolean> {
   if (isMock()) {
-    console.log('[MOCK] convertToAttendance', preCheckinId);
     return true;
   }
   try {

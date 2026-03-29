@@ -57,7 +57,6 @@ export async function sendPushNotification(
   _academyId?: string,
 ): Promise<boolean> {
   if (isMock()) {
-    console.log(`[MOCK] Push: ${template} -> ${profileId}`, variables);
     return true;
   }
   try {

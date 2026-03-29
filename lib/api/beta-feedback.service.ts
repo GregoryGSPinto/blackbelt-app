@@ -45,7 +45,6 @@ function getDeviceInfo() {
 
 export async function submitFeedback(data: CreateFeedbackDTO): Promise<{ success: boolean; id?: string }> {
   if (isMock()) {
-    console.log('[MOCK] Beta feedback submitted:', data);
     return { success: true, id: 'mock-feedback-id' };
   }
 

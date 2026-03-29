@@ -66,6 +66,26 @@ export interface RankingFilters {
   region?: string;
 }
 
+interface AthleteRow {
+  user_id: string;
+  full_name: string;
+  academy_name: string | null;
+  belt: string | null;
+  weight_class: string | null;
+  ranking_points: number | null;
+  gold_medals: number | null;
+  silver_medals: number | null;
+  bronze_medals: number | null;
+  total_fights: number | null;
+}
+
+interface RegistrationRow {
+  tournament_id: string;
+  status: string;
+  tournaments: { name: string; event_date: string } | null;
+  tournament_categories: { name: string } | null;
+}
+
 // Points: Gold=9, Silver=3, Bronze=1, multiplied by importance (local=1x, estadual=2x, nacional=3x). Rolling 12 months.
 export function calculatePoints(result: 'gold' | 'silver' | 'bronze' | 'eliminated', importance: 'local' | 'estadual' | 'nacional'): number {
   const base: Record<string, number> = { gold: 9, silver: 3, bronze: 1, eliminated: 0 };
@@ -99,21 +119,23 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       return [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((row: any, idx: number) => ({
-      position: idx + 1,
-      athlete_id: row.user_id,
-      athlete_name: row.full_name,
-      academy: row.academy_name ?? '',
-      belt: row.belt ?? '',
-      weight_class: row.weight_class ?? '',
-      region: '',
-      points: row.ranking_points ?? 0,
-      gold: row.gold_medals ?? 0,
-      silver: row.silver_medals ?? 0,
-      bronze: row.bronze_medals ?? 0,
-      events_count: row.total_fights ?? 0,
-    }));
+    return (data ?? []).map((r: unknown, idx: number) => {
+      const row = r as AthleteRow;
+      return {
+        position: idx + 1,
+        athlete_id: row.user_id,
+        athlete_name: row.full_name,
+        academy: row.academy_name ?? '',
+        belt: row.belt ?? '',
+        weight_class: row.weight_class ?? '',
+        region: '',
+        points: row.ranking_points ?? 0,
+        gold: row.gold_medals ?? 0,
+        silver: row.silver_medals ?? 0,
+        bronze: row.bronze_medals ?? 0,
+        events_count: row.total_fights ?? 0,
+      };
+    });
   } catch (error) {
     console.error('[getAthleteRanking] Fallback:', error);
     return [];
@@ -217,16 +239,18 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       .order('created_at', { ascending: false })
       .limit(20);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const history: AthleteCompetitionHistory[] = (regs ?? []).map((r: any) => ({
-      championship_id: r.tournament_id,
-      championship_name: (r.tournaments as unknown as { name: string })?.name ?? '',
-      date: (r.tournaments as unknown as { event_date: string })?.event_date ?? '',
-      category: (r.tournament_categories as unknown as { name: string })?.name ?? '',
+    const history: AthleteCompetitionHistory[] = (regs ?? []).map((r: unknown) => {
+      const reg = r as RegistrationRow;
+      return {
+      championship_id: reg.tournament_id,
+      championship_name: (reg.tournaments as { name: string } | null)?.name ?? '',
+      date: (reg.tournaments as { event_date: string } | null)?.event_date ?? '',
+      category: (reg.tournament_categories as { name: string } | null)?.name ?? '',
       result: 'eliminated' as const,
       points_earned: 0,
       importance: 'local' as const,
-    }));
+    };
+    });
 
     return {
       athlete_id: athleteId,
