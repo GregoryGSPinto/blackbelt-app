@@ -66,7 +66,7 @@ export default function AuditLogPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <PageHeader title="Audit Log" subtitle="Registro de todas as ações sensíveis no sistema" />
+      <PageHeader title="Log de Auditoria" subtitle="Registro de todas as ações sensíveis no sistema" />
 
       <div className="flex flex-wrap items-center gap-3">
         <select value={filterAction} onChange={(e) => setFilterAction(e.target.value as AuditAction | '')} className="rounded-lg border border-bb-gray-200 px-3 py-2 text-sm">

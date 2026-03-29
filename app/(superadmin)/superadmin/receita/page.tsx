@@ -185,7 +185,7 @@ export default function ReceitaPage() {
                 formatter={(value, name) => [fmtBRL(Number(value)), String(name)]}
               />
               <Legend wrapperStyle={{ fontSize: 11, color: 'var(--bb-ink-60)' }} />
-              <Bar dataKey="mrr" stackId="positive" name="Base MRR" fill="#166534" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="mrr" stackId="positive" name="MRR Base" fill="#166534" radius={[0, 0, 0, 0]} />
               <Bar dataKey="novoMrr" stackId="positive" name="Novo MRR" fill="#4ade80" radius={[0, 0, 0, 0]} />
               <Bar dataKey="expansaoMrr" stackId="positive" name="Expansao" fill="#3b82f6" radius={[0, 0, 0, 0]} />
               <Bar dataKey="churnMrr" stackId="negative" name="Churn" fill="#ef4444" radius={[0, 0, 0, 0]} />

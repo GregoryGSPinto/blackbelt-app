@@ -754,7 +754,7 @@ function TabErros() {
                 <Tooltip contentStyle={tooltipStyle} />
                 <Area type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} fill="url(#criticalGrad)" name="Critico" />
                 <Area type="monotone" dataKey="error" stroke="#f59e0b" strokeWidth={2} fill="url(#errorGrad)" name="Erro" />
-                <Area type="monotone" dataKey="warning" stroke="#6b7280" strokeWidth={1} fill="transparent" name="Warning" />
+                <Area type="monotone" dataKey="warning" stroke="#6b7280" strokeWidth={1} fill="transparent" name="Aviso" />
                 <Legend />
               </AreaChart>
             </ResponsiveContainer>
@@ -977,7 +977,7 @@ function TabPerformance() {
                   width={120}
                 />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${Number(value).toFixed(2)}s`, 'LCP']} />
-                <Bar dataKey="avgLCP" fill="#ef4444" name="Avg LCP" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="avgLCP" fill="#ef4444" name="LCP Medio" radius={[0, 4, 4, 0]}>
                   {[...byPage].sort((a, b) => a.avgLCP - b.avgLCP).map((entry, idx) => (
                     <Cell key={idx} fill={vitalColor(lcpStatus(entry.avgLCP))} />
                   ))}
@@ -1739,7 +1739,7 @@ function TabEngajamento() {
                 <YAxis tick={{ fontSize: 10, fill: 'var(--bb-ink-40)' }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Area type="monotone" dataKey="sessions" stroke="#8b5cf6" strokeWidth={2} fill="url(#peakGradEng)" name="Sessoes" />
-                <Area type="monotone" dataKey="pageViews" stroke="#3b82f6" strokeWidth={1} fill="transparent" name="Page Views" />
+                <Area type="monotone" dataKey="pageViews" stroke="#3b82f6" strokeWidth={1} fill="transparent" name="Visualizacoes" />
                 <Legend />
               </AreaChart>
             </ResponsiveContainer>

@@ -271,7 +271,7 @@ function TabEvolucao({ data }: { data: EvolutionDataDTO }) {
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: '#737373' }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
               <Radar
-                name="Score"
+                name="Pontuacao"
                 dataKey="score"
                 stroke="#DC2626"
                 fill="#DC2626"

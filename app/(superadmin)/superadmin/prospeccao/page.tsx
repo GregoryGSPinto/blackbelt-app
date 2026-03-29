@@ -1615,7 +1615,7 @@ function TabAnalytics({ dashboard }: TabAnalyticsProps) {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <SummaryCard label="Total Prospects" value={String(dashboard.totalProspects)} icon={Users} color="#3b82f6" />
+        <SummaryCard label="Total de Prospects" value={String(dashboard.totalProspects)} icon={Users} color="#3b82f6" />
         <SummaryCard
           label="Pipeline Ativo"
           value={String(
