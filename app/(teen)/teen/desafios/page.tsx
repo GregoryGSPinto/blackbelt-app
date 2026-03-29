@@ -13,10 +13,10 @@ import { PlanGate } from '@/components/plans/PlanGate';
 type TabFilter = 'ativos' | 'concluidos';
 
 const TYPE_BADGE: Record<DesafioTeen['type'], { label: string; classes: string }> = {
-  diario: { label: 'Diario', classes: 'bg-blue-500/20 text-blue-400' },
+  diario: { label: 'Diario', classes: 'bg-[color-mix(in_srgb,var(--bb-brand)_20%,transparent)] text-[var(--bb-brand)]' },
   semanal: { label: 'Semanal', classes: 'bg-purple-500/20 text-purple-400' },
-  mensal: { label: 'Mensal', classes: 'bg-yellow-500/20 text-yellow-400' },
-  especial: { label: 'Especial', classes: 'bg-red-500/20 text-red-400' },
+  mensal: { label: 'Mensal', classes: 'bg-[color-mix(in_srgb,var(--bb-warning)_20%,transparent)] text-[var(--bb-warning)]' },
+  especial: { label: 'Especial', classes: 'bg-[color-mix(in_srgb,var(--bb-danger)_20%,transparent)] text-[var(--bb-danger)]' },
 };
 
 const TYPE_GRADIENT: Record<DesafioTeen['type'], string> = {
@@ -134,7 +134,7 @@ export default function TeenDesafiosPage() {
         {/* XP Summary */}
         <section className="flex gap-3">
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 p-4 text-center ring-1 ring-yellow-500/20">
-            <p className="text-2xl font-extrabold text-yellow-400">
+            <p className="text-2xl font-extrabold text-[var(--bb-warning)]">
               {data.total_xp_earned.toLocaleString('pt-BR')}
             </p>
             <p className="text-xs text-[var(--bb-ink-60)]">XP Ganho</p>
@@ -163,9 +163,10 @@ export default function TeenDesafiosPage() {
             onClick={() => setTab('concluidos')}
             className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-colors ${
               tab === 'concluidos'
-                ? 'bg-green-600 text-white shadow-lg'
+                ? 'text-white shadow-lg'
                 : 'text-[var(--bb-ink-60)] hover:text-[var(--bb-ink-80)]'
             }`}
+            style={tab === 'concluidos' ? { background: 'var(--bb-success)' } : undefined}
           >
             Concluidos ({data.completed.length})
           </button>
@@ -189,10 +190,10 @@ export default function TeenDesafiosPage() {
               >
                 {/* Feedback overlay */}
                 {feedback && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-green-500/20 backdrop-blur-sm">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl backdrop-blur-sm" style={{ background: 'color-mix(in srgb, var(--bb-success) 20%, transparent)' }}>
                     <div className="text-center">
                       <span className="text-3xl">🎉</span>
-                      <p className="mt-1 text-lg font-extrabold text-green-400">+{feedback.xp} XP</p>
+                      <p className="mt-1 text-lg font-extrabold text-[var(--bb-success)]">+{feedback.xp} XP</p>
                     </div>
                   </div>
                 )}
@@ -236,7 +237,7 @@ export default function TeenDesafiosPage() {
 
                     {/* Bottom row: XP badge + claim button */}
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="rounded-full bg-yellow-500/20 px-2.5 py-0.5 text-[10px] font-bold text-yellow-400">
+                      <span className="rounded-full bg-yellow-500/20 px-2.5 py-0.5 text-[10px] font-bold text-[var(--bb-warning)]">
                         +{challenge.xp_reward} XP
                       </span>
 
@@ -244,18 +245,19 @@ export default function TeenDesafiosPage() {
                         <button
                           onClick={() => handleClaim(challenge.id)}
                           disabled={isClaiming}
-                          className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-green-500 active:scale-95 disabled:opacity-50"
+                          className="rounded-lg px-3 py-1.5 text-xs font-bold text-white shadow-lg transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+                          style={{ background: 'var(--bb-success)' }}
                         >
                           {isClaiming ? 'Resgatando...' : 'Resgatar'}
                         </button>
                       )}
 
                       {justClaimed && !feedback && (
-                        <span className="text-xs font-bold text-green-400">Resgatado!</span>
+                        <span className="text-xs font-bold text-[var(--bb-success)]">Resgatado!</span>
                       )}
 
                       {challenge.completed_at && (
-                        <span className="text-[10px] text-green-400">
+                        <span className="text-[10px] text-[var(--bb-success)]">
                           {new Date(challenge.completed_at).toLocaleDateString('pt-BR', {
                             day: '2-digit',
                             month: 'short',

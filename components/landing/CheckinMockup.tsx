@@ -9,9 +9,9 @@ export function CheckinMockup() {
         className="flex items-center gap-2 px-4 py-3"
         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
       >
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <div className="w-3 h-3 rounded-full bg-green-500" />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-danger)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-warning)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-success)' }} />
         <span className="text-xs ml-2" style={{ color: 'var(--bb-ink-40)' }}>
           BlackBelt — Check-in
         </span>
@@ -37,7 +37,7 @@ export function CheckinMockup() {
         </p>
         <div
           className="w-full py-3.5 rounded-xl text-center text-sm font-bold text-white"
-          style={{ background: '#C62828' }}
+          style={{ background: 'var(--bb-brand-deep)' }}
         >
           FAZER CHECK-IN
         </div>
@@ -47,7 +47,7 @@ export function CheckinMockup() {
             <p className="text-xs font-medium" style={{ color: 'var(--bb-ink-100)' }}>Último check-in</p>
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Hoje, 18:32 — Turma Adulto</p>
           </div>
-          <span className="text-xs font-medium" style={{ color: '#22C55E' }}>✓</span>
+          <span className="text-xs font-medium" style={{ color: 'var(--bb-success)' }}>✓</span>
         </div>
       </div>
     </div>

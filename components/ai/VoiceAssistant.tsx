@@ -107,7 +107,7 @@ const VoiceAssistant = forwardRef<HTMLDivElement, object>(function VoiceAssistan
 
       {/* Panel */}
       {isOpen && (
-        <div className="fixed bottom-24 left-6 z-50 flex w-[340px] flex-col rounded-xl border border-bb-gray-200 bg-white shadow-2xl sm:w-[380px]">
+        <div className="fixed bottom-24 left-6 z-50 flex w-[340px] flex-col rounded-xl border border-bb-gray-200 shadow-2xl sm:w-[380px]" style={{ background: 'var(--bb-depth-1)' }}>
           {/* Header */}
           <div className="flex items-center justify-between rounded-t-xl bg-bb-primary px-4 py-3">
             <div className="flex items-center gap-2">
@@ -131,16 +131,16 @@ const VoiceAssistant = forwardRef<HTMLDivElement, object>(function VoiceAssistan
                 <>
                   <div
                     ref={pulseRef}
-                    className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-30"
-                    style={{ animationDuration: '1.5s' }}
+                    className="absolute inset-0 animate-ping rounded-full opacity-30"
+                    style={{ animationDuration: '1.5s', background: 'var(--bb-danger)' }}
                   />
                   <div
-                    className="absolute -inset-2 animate-pulse rounded-full bg-red-300 opacity-20"
-                    style={{ animationDuration: '1s' }}
+                    className="absolute -inset-2 animate-pulse rounded-full opacity-20"
+                    style={{ animationDuration: '1s', background: 'var(--bb-danger)' }}
                   />
                   <div
-                    className="absolute -inset-4 animate-pulse rounded-full bg-red-200 opacity-10"
-                    style={{ animationDuration: '2s' }}
+                    className="absolute -inset-4 animate-pulse rounded-full opacity-10"
+                    style={{ animationDuration: '2s', background: 'var(--bb-danger)' }}
                   />
                 </>
               )}
@@ -149,11 +149,12 @@ const VoiceAssistant = forwardRef<HTMLDivElement, object>(function VoiceAssistan
                 disabled={processing}
                 className={`relative z-10 flex h-16 w-16 items-center justify-center rounded-full transition-all ${
                   isListening
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                    ? 'text-white shadow-lg'
                     : processing
                     ? 'bg-bb-gray-300 text-bb-gray-500'
                     : 'bg-bb-primary text-white hover:bg-bb-primary/90'
                 }`}
+                style={isListening ? { background: 'var(--bb-danger)', boxShadow: '0 10px 15px -3px color-mix(in srgb, var(--bb-danger) 30%, transparent)' } : undefined}
               >
                 {processing ? (
                   <svg className="h-6 w-6 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -186,7 +187,7 @@ const VoiceAssistant = forwardRef<HTMLDivElement, object>(function VoiceAssistan
 
           {/* Response */}
           {response && (
-            <div className="mx-4 mb-3 rounded-lg border border-bb-gray-200 bg-white p-3">
+            <div className="mx-4 mb-3 rounded-lg border border-bb-gray-200 p-3" style={{ background: 'var(--bb-depth-1)' }}>
               <div className="flex items-start gap-2">
                 <span className="text-lg">{COMMAND_ICON[response.command_type]}</span>
                 <div>

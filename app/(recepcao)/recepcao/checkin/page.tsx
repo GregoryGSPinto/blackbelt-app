@@ -165,13 +165,13 @@ export default function RecepcaoCheckinPage() {
                   <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{aluno.turma} · Faixa {aluno.faixa}</p>
                 </div>
                 {aluno.statusFinanceiro === 'em_dia' && (
-                  <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Em dia</span>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--bb-success) 20%, transparent)', color: 'var(--bb-success)' }}>Em dia</span>
                 )}
                 {aluno.statusFinanceiro === 'atrasado' && (
-                  <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-400">{aluno.diasAtraso}d atraso</span>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--bb-warning) 20%, transparent)', color: 'var(--bb-warning)' }}>{aluno.diasAtraso}d atraso</span>
                 )}
                 {aluno.statusFinanceiro === 'inadimplente' && (
-                  <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">Inadimplente</span>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--bb-danger) 20%, transparent)', color: 'var(--bb-danger)' }}>Inadimplente</span>
                 )}
               </button>
             ))}

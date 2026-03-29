@@ -130,9 +130,9 @@ export default function LoginPage() {
                 className="flex items-center gap-2 px-4 py-3"
                 style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
               >
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#EF4444' }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#EAB308' }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#22C55E' }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-danger)' }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-warning)' }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-success)' }} />
                 <span className="text-[10px] ml-2" style={{ color: 'var(--bb-ink-40)' }}>
                   Dashboard — Guerreiros do Tatame
                 </span>
@@ -140,9 +140,9 @@ export default function LoginPage() {
               {/* KPIs */}
               <div className="grid grid-cols-3 gap-2 p-3">
                 {[
-                  { label: 'Alunos', value: '45', color: '#3B82F6' },
-                  { label: 'Presença', value: '87%', color: '#22C55E' },
-                  { label: 'Receita', value: 'R$ 15.8k', color: '#F97316' },
+                  { label: 'Alunos', value: '45', color: 'var(--bb-brand)' },
+                  { label: 'Presença', value: '87%', color: 'var(--bb-success)' },
+                  { label: 'Receita', value: 'R$ 15.8k', color: 'var(--bb-warning)' },
                 ].map(kpi => (
                   <div key={kpi.label} className="rounded-lg p-2.5 text-center" style={{ background: 'var(--bb-depth-3)' }}>
                     <div className="text-[10px] mb-0.5" style={{ color: 'var(--bb-ink-40)' }}>{kpi.label}</div>
@@ -297,7 +297,7 @@ export default function LoginPage() {
                   background: 'var(--bb-depth-2)',
                   color: 'var(--bb-ink-100)',
                   border: '1px solid var(--bb-glass-border)',
-                  '--tw-ring-color': '#C62828',
+                  '--tw-ring-color': 'var(--bb-brand-deep)',
                 } as React.CSSProperties}
               />
             </div>
@@ -308,7 +308,7 @@ export default function LoginPage() {
                 <label className="text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
                   Senha
                 </label>
-                <Link href="/esqueci-senha" className="text-xs hover:underline" style={{ color: '#C62828' }}>
+                <Link href="/esqueci-senha" className="text-xs hover:underline" style={{ color: 'var(--bb-brand-deep)' }}>
                   Esqueceu?
                 </Link>
               </div>
@@ -324,7 +324,7 @@ export default function LoginPage() {
                     background: 'var(--bb-depth-2)',
                     color: 'var(--bb-ink-100)',
                     border: '1px solid var(--bb-glass-border)',
-                    '--tw-ring-color': '#C62828',
+                    '--tw-ring-color': 'var(--bb-brand-deep)',
                   } as React.CSSProperties}
                 />
                 <button
@@ -354,7 +354,7 @@ export default function LoginPage() {
             <div
               className="rounded-2xl px-4 py-3 text-sm"
               role="alert"
-              style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#FCA5A5', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+              style={{ background: 'color-mix(in srgb, var(--bb-danger) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-danger) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-danger) 20%, transparent)' }}
             >
               <div className="flex items-start gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
@@ -395,7 +395,7 @@ export default function LoginPage() {
             <div
               className="rounded-2xl px-4 py-3 text-sm"
               role="status"
-              style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#86EFAC', border: '1px solid rgba(34, 197, 94, 0.2)' }}
+              style={{ background: 'color-mix(in srgb, var(--bb-success) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-success) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-success) 20%, transparent)' }}
             >
               Reenviamos a confirmacao para {email.trim()}. Verifique sua caixa de entrada e o spam.
             </div>
@@ -406,7 +406,7 @@ export default function LoginPage() {
               type="submit"
               disabled={isSubmitting}
               className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
-              style={{ background: '#C62828' }}
+              style={{ background: 'var(--bb-brand-deep)' }}
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">

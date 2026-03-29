@@ -90,20 +90,21 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(function Bracke
                         onClick={() => onMatchClick?.(match)}
                         className={`flex-1 rounded-lg border transition-all ${
                           isComplete
-                            ? 'border-bb-gray-200 bg-white'
+                            ? 'border-bb-gray-200'
                             : 'border-bb-gray-200 bg-bb-gray-50'
                         } hover:border-bb-primary/40 hover:shadow-sm`}
-                        style={{ minHeight: `${matchHeight}px` }}
+                        style={{ minHeight: `${matchHeight}px`, ...(isComplete ? { background: 'var(--bb-depth-1)' } : {}) }}
                       >
                         {/* Fighter A */}
                         <div
                           className={`flex items-center justify-between border-b border-bb-gray-100 px-3 py-2 ${
                             aIsWinner
-                              ? 'bg-green-50 font-semibold text-green-700'
+                              ? 'font-semibold'
                               : isComplete && !aIsWinner
                                 ? 'text-bb-gray-400'
                                 : 'text-bb-black'
                           }`}
+                          style={aIsWinner ? { background: 'color-mix(in srgb, var(--bb-success) 8%, transparent)', color: 'var(--bb-success)' } : undefined}
                         >
                           <span className="truncate text-xs">
                             {match.fighter_a_name ?? 'A definir'}
@@ -119,11 +120,12 @@ const BracketView = forwardRef<HTMLDivElement, BracketViewProps>(function Bracke
                         <div
                           className={`flex items-center justify-between px-3 py-2 ${
                             bIsWinner
-                              ? 'bg-green-50 font-semibold text-green-700'
+                              ? 'font-semibold'
                               : isComplete && !bIsWinner
                                 ? 'text-bb-gray-400'
                                 : 'text-bb-black'
                           }`}
+                          style={bIsWinner ? { background: 'color-mix(in srgb, var(--bb-success) 8%, transparent)', color: 'var(--bb-success)' } : undefined}
                         >
                           <span className="truncate text-xs">
                             {match.fighter_b_name ?? 'A definir'}

@@ -73,11 +73,11 @@ export default function TorneiosAdminPage() {
                 <p className="text-xs font-bold text-bb-gray-500">Round {round}</p>
                 {bracket.filter((m) => m.round === round).map((match) => (
                   <div key={match.id} className="rounded-lg border border-bb-gray-200 p-2 text-xs">
-                    <div className={`py-1 ${match.winner === match.player1 ? 'font-bold text-green-700' : 'text-bb-gray-500'}`}>
+                    <div className={`py-1 ${match.winner === match.player1 ? 'font-bold' : 'text-bb-gray-500'}`} style={match.winner === match.player1 ? { color: 'var(--bb-success)' } : undefined}>
                       {match.player1 ?? 'TBD'}
                     </div>
                     <hr className="border-bb-gray-200" />
-                    <div className={`py-1 ${match.winner === match.player2 ? 'font-bold text-green-700' : 'text-bb-gray-500'}`}>
+                    <div className={`py-1 ${match.winner === match.player2 ? 'font-bold' : 'text-bb-gray-500'}`} style={match.winner === match.player2 ? { color: 'var(--bb-success)' } : undefined}>
                       {match.player2 ?? 'TBD'}
                     </div>
                     {match.method && <p className="mt-1 text-[10px] text-bb-gray-400">{match.method}</p>}

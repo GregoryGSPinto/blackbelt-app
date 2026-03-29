@@ -28,7 +28,7 @@ const UpgradeModal = forwardRef<HTMLDivElement, UpgradeModalProps>(
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div ref={ref} className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+        <div ref={ref} className="w-full max-w-lg rounded-xl p-6 shadow-xl" style={{ background: 'var(--bb-depth-1)' }}>
           <div className="text-center">
             <h2 className="text-xl font-bold text-bb-gray-900">Upgrade necessário</h2>
             <p className="mt-2 text-sm text-bb-gray-500">

@@ -22,7 +22,7 @@ export function DiscoveryBanner({ diasRestantes, onDismiss }: DiscoveryBannerPro
       className="fixed left-0 right-0 top-0 z-[60] flex items-center justify-center px-4"
       style={{
         height: '36px',
-        background: 'linear-gradient(90deg, #F59E0B, #EA580C)',
+        background: 'linear-gradient(90deg, var(--bb-warning), color-mix(in srgb, var(--bb-warning) 70%, var(--bb-danger)))',
       }}
     >
       <div className="flex items-center gap-3">

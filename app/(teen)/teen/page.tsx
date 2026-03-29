@@ -179,7 +179,7 @@ export default function TeenDashboardPage() {
                     >
                       {isMe ? 'VOCÊ' : entry.display_name}
                     </span>
-                    <span className="text-sm font-bold text-yellow-400">
+                    <span className="text-sm font-bold text-[var(--bb-warning)]">
                       {entry.xp.toLocaleString('pt-BR')}
                     </span>
                   </div>

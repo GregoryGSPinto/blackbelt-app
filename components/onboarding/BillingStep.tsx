@@ -231,7 +231,7 @@ export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange,
             <div className="text-right">
               <p className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>R${selectedPlan.price}/mes</p>
               {billingType === 'pix' && (
-                <p className="text-xs" style={{ color: 'var(--bb-success, #22c55e)' }}>
+                <p className="text-xs" style={{ color: 'var(--bb-success)' }}>
                   Com PIX: R${Math.round(selectedPlan.price * 0.95)}/mes (5% off)
                 </p>
               )}

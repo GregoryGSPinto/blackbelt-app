@@ -16,31 +16,31 @@ import { BellIcon } from './icons';
 
 const PRIORITY_CONFIG: Record<
   NotificationPriority,
-  { icon: string; label: string; dotColor: string; bgColor: string }
+  { icon: string; label: string; dotStyle: React.CSSProperties; bgStyle: React.CSSProperties }
 > = {
   urgent: {
     icon: '🔴',
     label: 'Urgente',
-    dotColor: 'bg-red-500',
-    bgColor: 'bg-red-50',
+    dotStyle: { background: 'var(--bb-danger)' },
+    bgStyle: { background: 'color-mix(in srgb, var(--bb-danger) 10%, transparent)' },
   },
   important: {
     icon: '🟡',
     label: 'Importante',
-    dotColor: 'bg-yellow-500',
-    bgColor: 'bg-yellow-50',
+    dotStyle: { background: 'var(--bb-warning)' },
+    bgStyle: { background: 'color-mix(in srgb, var(--bb-warning) 10%, transparent)' },
   },
   info: {
     icon: '🟢',
     label: 'Info',
-    dotColor: 'bg-green-500',
-    bgColor: 'bg-green-50',
+    dotStyle: { background: 'var(--bb-success)' },
+    bgStyle: { background: 'color-mix(in srgb, var(--bb-success) 10%, transparent)' },
   },
   silent: {
     icon: '⚪',
     label: 'Silencioso',
-    dotColor: 'bg-gray-300',
-    bgColor: 'bg-bb-gray-100',
+    dotStyle: { background: 'var(--bb-depth-3)' },
+    bgStyle: { background: 'var(--bb-depth-2)' },
   },
 };
 
@@ -245,15 +245,15 @@ const NotificationCenter = forwardRef<HTMLDivElement, Record<string, never>>(
                     return (
                       <div
                         key={n.id}
-                        className={`border-b border-bb-gray-100 px-4 py-3 transition-colors ${
-                          !n.read ? config.bgColor : ''
-                        }`}
+                        className="border-b border-bb-gray-100 px-4 py-3 transition-colors"
+                        style={!n.read ? config.bgStyle : undefined}
                       >
                         <div className="flex items-start gap-3">
                           {/* Priority indicator */}
                           <div className="mt-1.5 flex shrink-0 flex-col items-center">
                             <span
-                              className={`h-2 w-2 rounded-full ${config.dotColor}`}
+                              className="h-2 w-2 rounded-full"
+                              style={config.dotStyle}
                             />
                           </div>
 

@@ -19,7 +19,7 @@ export default function AnalyticsCharts({ type, forecast, professors, occupancy 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Card className="p-4"><p className="text-xs text-bb-gray-500">MRR Atual</p><p className="mt-1 text-2xl font-bold text-bb-black">R$ {forecast.current_mrr.toLocaleString('pt-BR')}</p></Card>
           <Card className="p-4"><p className="text-xs text-bb-gray-500">MRR Projetado (3m)</p><p className="mt-1 text-2xl font-bold text-bb-black">R$ {forecast.projected_mrr[2]?.toLocaleString('pt-BR')}</p></Card>
-          <Card className="p-4"><p className="text-xs text-bb-gray-500">Growth Rate</p><p className="mt-1 text-2xl font-bold text-green-600">{forecast.growth_rate}%</p></Card>
+          <Card className="p-4"><p className="text-xs text-bb-gray-500">Growth Rate</p><p className="mt-1 text-2xl font-bold" style={{ color: 'var(--bb-success)' }}>{forecast.growth_rate}%</p></Card>
           <Card className="p-4"><p className="text-xs text-bb-gray-500">Churn Rate</p><p className="mt-1 text-2xl font-bold text-bb-error">{forecast.churn_rate}%</p></Card>
         </div>
         <Card className="p-4">
@@ -77,13 +77,13 @@ export default function AnalyticsCharts({ type, forecast, professors, occupancy 
             <th className="px-4 py-3 text-right font-medium text-bb-gray-500">Ocupação</th>
           </tr></thead>
           <tbody>{occupancy.map((o) => (
-            <tr key={o.class_id} className={`border-b border-bb-gray-100 ${o.occupancy_rate < 50 ? 'bg-yellow-50' : ''}`}>
+            <tr key={o.class_id} className="border-b border-bb-gray-100" style={o.occupancy_rate < 50 ? { background: 'color-mix(in srgb, var(--bb-warning) 8%, transparent)' } : undefined}>
               <td className="px-4 py-3 font-medium text-bb-black">{o.class_name}</td>
               <td className="px-4 py-3 text-center text-bb-gray-500">{DAYS[o.day_of_week]}</td>
               <td className="px-4 py-3 text-center text-bb-gray-500">{o.time}</td>
               <td className="px-4 py-3 text-right text-bb-gray-500">{o.enrolled}</td>
               <td className="px-4 py-3 text-right text-bb-gray-500">{o.capacity}</td>
-              <td className="px-4 py-3 text-right"><span className={`font-medium ${o.occupancy_rate >= 90 ? 'text-green-600' : o.occupancy_rate < 50 ? 'text-bb-error' : 'text-bb-gray-500'}`}>{o.occupancy_rate}%</span></td>
+              <td className="px-4 py-3 text-right"><span className="font-medium" style={{ color: o.occupancy_rate >= 90 ? 'var(--bb-success)' : o.occupancy_rate < 50 ? 'var(--bb-danger)' : 'var(--bb-ink-3)' }}>{o.occupancy_rate}%</span></td>
             </tr>
           ))}</tbody>
         </table>

@@ -107,7 +107,7 @@ export default function TeenAcademiaPage() {
               <span className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">quiz aprovado</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-[var(--bb-depth-3)]/40 p-3">
-              <span className="text-lg font-extrabold text-yellow-400">+{XP_PER_CERTIFICADO}</span>
+              <span className="text-lg font-extrabold text-[var(--bb-warning)]">+{XP_PER_CERTIFICADO}</span>
               <span className="mt-0.5 text-[10px] text-[var(--bb-ink-40)]">certificado</span>
             </div>
           </div>
@@ -149,11 +149,11 @@ export default function TeenAcademiaPage() {
             {/* Stats row */}
             <div className="mt-3 grid grid-cols-3 gap-2">
               <div className="rounded-lg bg-[var(--bb-depth-1)] p-2 text-center">
-                <p className="text-sm font-bold text-green-400">{progresso.completados}</p>
+                <p className="text-sm font-bold text-[var(--bb-success)]">{progresso.completados}</p>
                 <p className="text-[10px] text-[var(--bb-ink-40)]">completos</p>
               </div>
               <div className="rounded-lg bg-[var(--bb-depth-1)] p-2 text-center">
-                <p className="text-sm font-bold text-yellow-400">{progresso.emProgresso}</p>
+                <p className="text-sm font-bold text-[var(--bb-warning)]">{progresso.emProgresso}</p>
                 <p className="text-[10px] text-[var(--bb-ink-40)]">em andamento</p>
               </div>
               <div className="rounded-lg bg-[var(--bb-depth-1)] p-2 text-center">
@@ -203,7 +203,7 @@ export default function TeenAcademiaPage() {
                           {modulo.titulo}
                         </h3>
                         {isComplete && (
-                          <span className="flex-shrink-0 text-green-400">&#10003;</span>
+                          <span className="flex-shrink-0 text-[var(--bb-success)]">&#10003;</span>
                         )}
                       </div>
                       <p className="mt-0.5 text-xs text-[var(--bb-ink-40)]">
@@ -237,7 +237,7 @@ export default function TeenAcademiaPage() {
                           <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400">
                             +{XP_PER_QUIZ} XP quiz
                           </span>
-                          <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] font-medium text-yellow-400">
+                          <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] font-medium text-[var(--bb-warning)]">
                             +{XP_PER_CERTIFICADO} XP cert
                           </span>
                         </div>
@@ -259,7 +259,7 @@ export default function TeenAcademiaPage() {
                       <span className="text-xs text-[var(--bb-ink-40)]">Bloqueado</span>
                     )}
                     {isComplete && (
-                      <span className="text-xs font-bold text-green-400">Completo!</span>
+                      <span className="text-xs font-bold text-[var(--bb-success)]">Completo!</span>
                     )}
                   </div>
                 </div>

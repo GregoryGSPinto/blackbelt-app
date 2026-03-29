@@ -35,10 +35,10 @@ const SEVERITY_COLOR: Record<string, string> = {
   high: '#ef4444',
 };
 
-const SEVERITY_BG: Record<string, string> = {
-  low: 'bg-green-100 text-green-700 border-green-300',
-  medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  high: 'bg-red-100 text-red-700 border-red-300',
+const SEVERITY_STYLE: Record<string, React.CSSProperties> = {
+  low: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)', borderColor: 'var(--bb-success)' },
+  medium: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)', borderColor: 'var(--bb-warning)' },
+  high: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)', borderColor: 'var(--bb-danger)' },
 };
 
 const SEVERITY_LABEL: Record<string, string> = {
@@ -54,10 +54,10 @@ const TYPE_LABEL: Record<string, string> = {
   position: 'Posição',
 };
 
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-yellow-600';
-  return 'text-red-600';
+function getScoreStyle(score: number): React.CSSProperties {
+  if (score >= 80) return { color: 'var(--bb-success)' };
+  if (score >= 60) return { color: 'var(--bb-warning)' };
+  return { color: 'var(--bb-danger)' };
 }
 
 function getScoreRingColor(score: number): string {
@@ -183,7 +183,7 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Camera / Canvas Preview */}
         <div className="relative flex-1">
-          <div className="relative overflow-hidden rounded-xl border-2 border-bb-gray-200 bg-gray-900">
+          <div className="relative overflow-hidden rounded-xl border-2 border-bb-gray-200" style={{ background: 'var(--bb-ink-1)' }}>
             {showCamera && !result && (
               <div className="flex h-[400px] items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
                 <div className="text-center">
@@ -209,7 +209,7 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
             {result && (
               <div className="absolute left-3 top-3 rounded-lg bg-black/60 px-3 py-2 backdrop-blur-sm">
                 <p className="text-xs text-white/70">Score</p>
-                <p className={`text-2xl font-bold ${getScoreColor(result.overall_score)}`}>
+                <p className="text-2xl font-bold" style={getScoreStyle(result.overall_score)}>
                   {result.overall_score}
                 </p>
               </div>
@@ -239,7 +239,7 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
         <div className="w-full space-y-3 lg:w-80">
           {/* Score Display */}
           {result && (
-            <div className="flex items-center gap-4 rounded-xl border border-bb-gray-200 bg-white p-4">
+            <div className="flex items-center gap-4 rounded-xl border border-bb-gray-200 p-4" style={{ background: 'var(--bb-depth-1)' }}>
               <div className="relative h-20 w-20 flex-shrink-0">
                 <svg viewBox="0 0 36 36" className="h-20 w-20 -rotate-90">
                   <path
@@ -258,7 +258,7 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className={`text-xl font-bold ${getScoreColor(result.overall_score)}`}>
+                  <span className="text-xl font-bold" style={getScoreStyle(result.overall_score)}>
                     {result.overall_score}
                   </span>
                 </div>
@@ -290,7 +290,8 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
             {result?.issues.map((issue, idx) => (
               <div
                 key={idx}
-                className={`rounded-lg border p-3 ${SEVERITY_BG[issue.severity]}`}
+                className="rounded-lg border p-3"
+                style={SEVERITY_STYLE[issue.severity]}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -313,11 +314,11 @@ const PostureCamera = forwardRef<HTMLDivElement, object>(function PostureCamera(
 
           {/* Legend */}
           {result && (
-            <div className="rounded-lg border border-bb-gray-200 bg-white p-3">
+            <div className="rounded-lg border border-bb-gray-200 p-3" style={{ background: 'var(--bb-depth-1)' }}>
               <p className="mb-2 text-xs font-semibold text-bb-gray-500">Legenda</p>
               <div className="flex flex-wrap gap-3">
                 <div className="flex items-center gap-1">
-                  <span className="h-3 w-3 rounded-full bg-green-500" />
+                  <span className="h-3 w-3 rounded-full" style={{ background: 'var(--bb-success)' }} />
                   <span className="text-xs text-bb-gray-500">Correto</span>
                 </div>
                 <div className="flex items-center gap-1">

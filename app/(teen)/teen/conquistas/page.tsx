@@ -37,9 +37,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const CATEGORY_BADGE: Record<string, string> = {
-  treino: 'bg-green-500/20 text-green-400',
+  treino: 'bg-[color-mix(in_srgb,var(--bb-success)_20%,transparent)] text-[var(--bb-success)]',
   faixa: 'bg-amber-500/20 text-amber-400',
-  social: 'bg-blue-500/20 text-blue-400',
+  social: 'bg-[color-mix(in_srgb,var(--bb-brand)_20%,transparent)] text-[var(--bb-brand)]',
   streak: 'bg-orange-500/20 text-orange-400',
   competicao: 'bg-purple-500/20 text-purple-400',
 };
@@ -141,7 +141,7 @@ export default function TeenConquistasPage() {
         {/* Stats bar */}
         <section className="flex gap-3">
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 p-4 text-center ring-1 ring-yellow-500/20">
-            <p className="text-2xl font-extrabold text-yellow-400">{unlockedCount}</p>
+            <p className="text-2xl font-extrabold text-[var(--bb-warning)]">{unlockedCount}</p>
             <p className="text-xs text-[var(--bb-ink-60)]">Conquistas</p>
           </div>
           <div className="flex-1 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 p-4 text-center ring-1 ring-cyan-500/20">
@@ -266,7 +266,7 @@ export default function TeenConquistasPage() {
               </span>
               <p className="mt-3 text-sm text-[var(--bb-ink-60)]">{selectedAch.description}</p>
               <div className="mt-4 flex items-center justify-center gap-4 text-sm">
-                <span className="font-bold text-yellow-400">+{selectedAch.xp_reward} XP</span>
+                <span className="font-bold text-[var(--bb-warning)]">+{selectedAch.xp_reward} XP</span>
                 {selectedAch.unlocked && selectedAch.unlocked_at && (
                   <span className="text-[var(--bb-ink-40)]">
                     {new Date(selectedAch.unlocked_at).toLocaleDateString('pt-BR', {

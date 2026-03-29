@@ -86,7 +86,7 @@ function ToggleSwitch({
         className="inline-block h-5 w-5 transform transition-transform duration-200"
         style={{
           borderRadius: '50%',
-          background: '#fff',
+          background: 'var(--bb-depth-1)',
           transform: enabled ? 'translateX(24px)' : 'translateX(4px)',
         }}
       />
@@ -262,10 +262,10 @@ export default function AdminPagamentoConfigPage() {
                 <span
                   className="inline-block h-3 w-3 rounded-full"
                   style={{
-                    background: status?.connected ? '#22C55E' : '#EF4444',
+                    background: status?.connected ? 'var(--bb-success)' : 'var(--bb-danger)',
                     boxShadow: status?.connected
-                      ? '0 0 8px rgba(34,197,94,0.4)'
-                      : '0 0 8px rgba(239,68,68,0.4)',
+                      ? '0 0 8px color-mix(in srgb, var(--bb-success) 40%, transparent)'
+                      : '0 0 8px color-mix(in srgb, var(--bb-danger) 40%, transparent)',
                   }}
                 />
                 <div>
@@ -392,12 +392,12 @@ export default function AdminPagamentoConfigPage() {
                 </button>
               </div>
               {environment === 'sandbox' && (
-                <p className="mt-2 text-xs" style={{ color: '#EAB308' }}>
+                <p className="mt-2 text-xs" style={{ color: 'var(--bb-warning)' }}>
                   Modo sandbox ativo — nenhuma cobranca real sera gerada
                 </p>
               )}
               {environment === 'production' && (
-                <p className="mt-2 text-xs" style={{ color: '#22C55E' }}>
+                <p className="mt-2 text-xs" style={{ color: 'var(--bb-success)' }}>
                   Modo producao — cobrancas reais serao processadas
                 </p>
               )}
@@ -457,7 +457,7 @@ export default function AdminPagamentoConfigPage() {
                   Importa e sincroniza alunos com o gateway de pagamento
                 </p>
                 {lastSyncCount !== null && (
-                  <p className="mt-1 text-xs font-medium" style={{ color: '#22C55E' }}>
+                  <p className="mt-1 text-xs font-medium" style={{ color: 'var(--bb-success)' }}>
                     {lastSyncCount} clientes sincronizados
                   </p>
                 )}

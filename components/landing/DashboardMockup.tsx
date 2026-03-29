@@ -9,9 +9,9 @@ export function DashboardMockup() {
         className="flex items-center gap-2 px-4 py-3"
         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
       >
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <div className="w-3 h-3 rounded-full bg-green-500" />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-danger)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-warning)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-success)' }} />
         <span className="text-xs ml-2" style={{ color: 'var(--bb-ink-40)' }}>
           BlackBelt — Dashboard
         </span>
@@ -46,7 +46,7 @@ function KPICard({ label, value, trend, icon }: { label: string; value: string; 
         <span>{icon}</span>
       </div>
       <div className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{value}</div>
-      <div className="text-xs mt-1" style={{ color: '#22C55E' }}>{trend}</div>
+      <div className="text-xs mt-1" style={{ color: 'var(--bb-success)' }}>{trend}</div>
     </div>
   );
 }

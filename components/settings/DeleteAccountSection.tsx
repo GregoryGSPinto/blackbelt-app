@@ -117,15 +117,15 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
         {/* Separator */}
         <div
           className="my-8 h-px"
-          style={{ background: 'color-mix(in srgb, #EF4444 30%, transparent)' }}
+          style={{ background: 'color-mix(in srgb, var(--bb-danger) 30%, transparent)' }}
         />
 
         {/* Danger Zone */}
         <div
           className="rounded-xl border p-6"
-          style={{ borderColor: 'color-mix(in srgb, #EF4444 40%, transparent)' }}
+          style={{ borderColor: 'color-mix(in srgb, var(--bb-danger) 40%, transparent)' }}
         >
-          <h3 className="text-lg font-semibold" style={{ color: '#EF4444' }}>
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--bb-danger)' }}>
             Zona de Perigo
           </h3>
           <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
@@ -140,7 +140,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
           <button
             onClick={handleOpenModal}
             className="mt-4 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#EF4444' }}
+            style={{ backgroundColor: 'var(--bb-danger)' }}
           >
             Excluir Minha Conta
           </button>
@@ -167,7 +167,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
             >
               {soloAdminBlocked ? (
                 <>
-                  <h3 className="text-lg font-semibold" style={{ color: '#EF4444' }}>
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--bb-danger)' }}>
                     Exclusao bloqueada
                   </h3>
                   <p className="mt-3 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
@@ -189,7 +189,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                 </>
               ) : (
                 <>
-                  <h3 className="text-lg font-semibold" style={{ color: '#EF4444' }}>
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--bb-danger)' }}>
                     Excluir conta
                   </h3>
                   <div className="mt-3 space-y-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
@@ -233,7 +233,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                       onClick={handleDelete}
                       disabled={confirmationText !== 'EXCLUIR MINHA CONTA' || isDeleting}
                       className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
-                      style={{ backgroundColor: '#EF4444' }}
+                      style={{ backgroundColor: 'var(--bb-danger)' }}
                     >
                       {isDeleting ? 'Excluindo...' : 'Confirmar Exclusao'}
                     </button>

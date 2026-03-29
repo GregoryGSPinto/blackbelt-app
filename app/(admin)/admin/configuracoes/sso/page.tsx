@@ -111,8 +111,8 @@ export default function SSOConfigPage() {
       </div>
 
       {testResult && (
-        <div className={`rounded-xl border p-4 ${testResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-          <p className={testResult.success ? 'text-green-800' : 'text-red-800'}>
+        <div className="rounded-xl border p-4" style={{ borderColor: testResult.success ? 'var(--bb-success)' : 'var(--bb-danger)', background: testResult.success ? 'color-mix(in srgb, var(--bb-success) 8%, transparent)' : 'color-mix(in srgb, var(--bb-danger) 8%, transparent)' }}>
+          <p style={{ color: testResult.success ? 'var(--bb-success)' : 'var(--bb-danger)' }}>
             {testResult.success ? 'Conexão SSO funcionando!' : `Erro: ${testResult.error}`}
           </p>
         </div>

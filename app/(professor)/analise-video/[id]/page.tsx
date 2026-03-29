@@ -91,10 +91,10 @@ export default function AnaliseVideoPage() {
     toast('Relatório exportado em PDF', 'success');
   }, [toast]);
 
-  const scoreColor = (score: number) => {
-    if (score >= 85) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+  const scoreStyle = (score: number): React.CSSProperties => {
+    if (score >= 85) return { color: 'var(--bb-success)' };
+    if (score >= 70) return { color: 'var(--bb-warning)' };
+    return { color: 'var(--bb-danger)' };
   };
 
   if (loading) {
@@ -188,7 +188,7 @@ export default function AnaliseVideoPage() {
                     {video.annotations.map((ann) => (
                       <div key={ann.id} className="rounded-lg bg-bb-gray-800 p-3">
                         <div className="flex items-center gap-2">
-                          <span className={`h-2 w-2 rounded-full ${ann.color === 'green' ? 'bg-green-500' : ann.color === 'red' ? 'bg-red-500' : 'bg-yellow-500'}`} />
+                          <span className="h-2 w-2 rounded-full" style={{ background: ann.color === 'green' ? 'var(--bb-success)' : ann.color === 'red' ? 'var(--bb-danger)' : 'var(--bb-warning)' }} />
                           <span className="text-xs font-medium text-bb-gray-300">
                             {Math.floor(ann.timestamp_sec / 60)}:{(ann.timestamp_sec % 60).toString().padStart(2, '0')}
                           </span>
@@ -256,19 +256,19 @@ export default function AnaliseVideoPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                             <p className="text-xs text-bb-gray-500">Geral</p>
-                            <p className={`text-2xl font-bold ${scoreColor(analysis.overall_score)}`}>{analysis.overall_score}</p>
+                            <p className="text-2xl font-bold" style={scoreStyle(analysis.overall_score)}>{analysis.overall_score}</p>
                           </div>
                           <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                             <p className="text-xs text-bb-gray-500">Postura</p>
-                            <p className={`text-2xl font-bold ${scoreColor(analysis.posture_score)}`}>{analysis.posture_score}</p>
+                            <p className="text-2xl font-bold" style={scoreStyle(analysis.posture_score)}>{analysis.posture_score}</p>
                           </div>
                           <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                             <p className="text-xs text-bb-gray-500">Equilíbrio</p>
-                            <p className={`text-2xl font-bold ${scoreColor(analysis.balance_score)}`}>{analysis.balance_score}</p>
+                            <p className="text-2xl font-bold" style={scoreStyle(analysis.balance_score)}>{analysis.balance_score}</p>
                           </div>
                           <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                             <p className="text-xs text-bb-gray-500">Técnica</p>
-                            <p className={`text-2xl font-bold ${scoreColor(analysis.technique_score)}`}>{analysis.technique_score}</p>
+                            <p className="text-2xl font-bold" style={scoreStyle(analysis.technique_score)}>{analysis.technique_score}</p>
                           </div>
                         </div>
 
@@ -280,11 +280,11 @@ export default function AnaliseVideoPage() {
 
                         {/* Highlights */}
                         <div>
-                          <h4 className="text-sm font-bold text-green-400">Pontos Fortes</h4>
+                          <h4 className="text-sm font-bold" style={{ color: 'var(--bb-success)' }}>Pontos Fortes</h4>
                           <ul className="mt-1 space-y-1">
                             {analysis.highlights.map((h, i) => (
                               <li key={i} className="flex items-start gap-2 text-sm text-bb-gray-400">
-                                <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500" />
+                                <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: 'var(--bb-success)' }} />
                                 {h}
                               </li>
                             ))}
@@ -293,11 +293,11 @@ export default function AnaliseVideoPage() {
 
                         {/* Corrections */}
                         <div>
-                          <h4 className="text-sm font-bold text-red-400">Correções</h4>
+                          <h4 className="text-sm font-bold" style={{ color: 'var(--bb-danger)' }}>Correções</h4>
                           <ul className="mt-1 space-y-1">
                             {analysis.corrections.map((c, i) => (
                               <li key={i} className="flex items-start gap-2 text-sm text-bb-gray-400">
-                                <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-red-500" />
+                                <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: 'var(--bb-danger)' }} />
                                 {c}
                               </li>
                             ))}
@@ -326,17 +326,17 @@ export default function AnaliseVideoPage() {
                     {/* Similarity score */}
                     <div className="rounded-lg bg-bb-gray-800 p-4 text-center">
                       <p className="text-xs text-bb-gray-500">Similaridade com Referência</p>
-                      <p className={`text-3xl font-bold ${scoreColor(comparison.similarity_score)}`}>{comparison.similarity_score}%</p>
+                      <p className="text-3xl font-bold" style={scoreStyle(comparison.similarity_score)}>{comparison.similarity_score}%</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                         <p className="text-xs text-bb-gray-500">Dif. Postura</p>
-                        <p className="text-lg font-bold text-yellow-500">{comparison.posture_diff}%</p>
+                        <p className="text-lg font-bold text-[var(--bb-warning)]">{comparison.posture_diff}%</p>
                       </div>
                       <div className="rounded-lg bg-bb-gray-800 p-3 text-center">
                         <p className="text-xs text-bb-gray-500">Dif. Timing</p>
-                        <p className="text-lg font-bold text-yellow-500">{comparison.timing_diff}%</p>
+                        <p className="text-lg font-bold text-[var(--bb-warning)]">{comparison.timing_diff}%</p>
                       </div>
                     </div>
 
@@ -346,7 +346,7 @@ export default function AnaliseVideoPage() {
                       <ul className="mt-1 space-y-1">
                         {comparison.key_differences.map((d, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-bb-gray-400">
-                            <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-yellow-500" />
+                            <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--bb-warning)]" />
                             {d}
                           </li>
                         ))}

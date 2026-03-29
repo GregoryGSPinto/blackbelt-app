@@ -238,13 +238,13 @@ export default function OnboardingPage() {
       <div className="mb-6 flex items-center gap-3">
         <div
           className="flex h-10 w-10 items-center justify-center rounded-xl"
-          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+          style={{ background: 'linear-gradient(135deg, var(--bb-warning), color-mix(in srgb, var(--bb-warning) 80%, black))' }}
         >
           <span className="text-lg font-bold text-white">B</span>
         </div>
         <div>
           <p className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>BlackBelt</p>
-          <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#f59e0b' }}>
+          <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-warning)' }}>
             Onboarding
           </p>
         </div>
@@ -256,7 +256,7 @@ export default function OnboardingPage() {
           className="mb-4 w-full max-w-lg rounded-lg p-3 text-center"
           style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}
         >
-          <p className="text-sm font-semibold" style={{ color: '#f59e0b' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--bb-warning)' }}>
             {tokenData.academy_name}
           </p>
           <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
@@ -272,9 +272,9 @@ export default function OnboardingPage() {
             <div
               className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold"
               style={{
-                background: i <= currentIdx ? '#f59e0b' : 'var(--bb-depth-3)',
+                background: i <= currentIdx ? 'var(--bb-warning)' : 'var(--bb-depth-3)',
                 color: i <= currentIdx ? '#fff' : 'var(--bb-ink-40)',
-                border: `2px solid ${i <= currentIdx ? '#f59e0b' : 'var(--bb-glass-border)'}`,
+                border: `2px solid ${i <= currentIdx ? 'var(--bb-warning)' : 'var(--bb-glass-border)'}`,
               }}
             >
               {i < currentIdx ? '✓' : i + 1}
@@ -288,7 +288,7 @@ export default function OnboardingPage() {
             {i < activeSteps.length - 1 && (
               <div
                 className="h-px w-8"
-                style={{ background: i < currentIdx ? '#f59e0b' : 'var(--bb-glass-border)' }}
+                style={{ background: i < currentIdx ? 'var(--bb-warning)' : 'var(--bb-glass-border)' }}
               />
             )}
           </div>

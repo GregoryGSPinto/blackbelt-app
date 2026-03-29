@@ -42,19 +42,19 @@ const DEVICE_TYPE_ICONS: Record<string, string> = {
   sensor: '🌡️',
 };
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  online: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
-  offline: { bg: 'bg-bb-gray-100', text: 'text-bb-gray-600', dot: 'bg-bb-gray-400' },
-  error: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
+const STATUS_STYLES: Record<string, { bg: React.CSSProperties; text: React.CSSProperties; dot: React.CSSProperties }> = {
+  online: { bg: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)' }, text: { color: 'var(--bb-success)' }, dot: { background: 'var(--bb-success)' } },
+  offline: { bg: { background: 'var(--bb-depth-2)' }, text: { color: 'var(--bb-ink-2)' }, dot: { background: 'var(--bb-ink-3)' } },
+  error: { bg: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)' }, text: { color: 'var(--bb-danger)' }, dot: { background: 'var(--bb-danger)' } },
 };
 
 function getHourColor(count: number, max: number): string {
   const ratio = count / max;
-  if (ratio >= 0.8) return '#ef4444';
-  if (ratio >= 0.6) return '#f97316';
-  if (ratio >= 0.4) return '#facc15';
-  if (ratio >= 0.2) return '#22c55e';
-  return '#94a3b8';
+  if (ratio >= 0.8) return 'var(--bb-danger)';
+  if (ratio >= 0.6) return 'var(--bb-warning)';
+  if (ratio >= 0.4) return 'var(--bb-warning)';
+  if (ratio >= 0.2) return 'var(--bb-success)';
+  return 'var(--bb-ink-3)';
 }
 
 export default function IoTPage() {
@@ -98,15 +98,15 @@ export default function IoTPage() {
 
       {/* Alerts */}
       {alerts.filter((a) => !a.resolved).length > 0 && (
-        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-          <h3 className="text-sm font-semibold text-yellow-800">Alertas ({alerts.filter((a) => !a.resolved).length})</h3>
+        <div className="rounded-xl border p-4" style={{ borderColor: 'var(--bb-warning)', background: 'color-mix(in srgb, var(--bb-warning) 8%, transparent)' }}>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--bb-warning)' }}>Alertas ({alerts.filter((a) => !a.resolved).length})</h3>
           <div className="mt-2 space-y-2">
             {alerts.filter((a) => !a.resolved).map((alert) => (
               <div key={alert.id} className="flex items-start gap-2 text-xs">
-                <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${alert.type === 'error' || alert.type === 'offline' ? 'bg-red-500' : 'bg-yellow-500'}`} />
+                <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full" style={{ background: alert.type === 'error' || alert.type === 'offline' ? 'var(--bb-danger)' : 'var(--bb-warning)' }} />
                 <div>
-                  <p className="font-medium text-yellow-900">{alert.device_name}: {alert.message}</p>
-                  <p className="text-[10px] text-yellow-600">{new Date(alert.timestamp).toLocaleString('pt-BR')}</p>
+                  <p className="font-medium" style={{ color: 'var(--bb-warning)' }}>{alert.device_name}: {alert.message}</p>
+                  <p className="text-[10px]" style={{ color: 'color-mix(in srgb, var(--bb-warning) 70%, var(--bb-ink-1))' }}>{new Date(alert.timestamp).toLocaleString('pt-BR')}</p>
                 </div>
               </div>
             ))}
@@ -121,7 +121,7 @@ export default function IoTPage() {
           <p className="text-xs text-bb-gray-500">Dispositivos</p>
         </div>
         <div className="rounded-xl border border-bb-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">{onlineCount}</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--bb-success)' }}>{onlineCount}</p>
           <p className="text-xs text-bb-gray-500">Online</p>
         </div>
         <div className="rounded-xl border border-bb-gray-200 p-4 text-center">
@@ -162,7 +162,7 @@ export default function IoTPage() {
             />
           )}
           {devices.map((device) => {
-            const status = STATUS_COLORS[device.status];
+            const status = STATUS_STYLES[device.status];
             return (
               <div key={device.id} className="rounded-xl border border-bb-gray-200 p-4">
                 <div className="flex items-center justify-between">
@@ -174,8 +174,8 @@ export default function IoTPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${status.bg} ${status.text}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium" style={{ ...status.bg, ...status.text }}>
+                      <span className="h-1.5 w-1.5 rounded-full" style={status.dot} />
                       {device.status === 'online' ? 'Online' : device.status === 'offline' ? 'Offline' : 'Erro'}
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export default function IoTPage() {
           <div className="flex items-center justify-between border-b border-bb-gray-200 p-4">
             <h3 className="font-medium text-bb-gray-900">Feed de Acessos</h3>
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+              <div className="h-2 w-2 animate-pulse rounded-full" style={{ background: 'var(--bb-success)' }} />
               <span className="text-xs text-bb-gray-500">Ao vivo</span>
             </div>
           </div>
@@ -248,8 +248,8 @@ export default function IoTPage() {
               <div className="flex-1">
                 <div className="h-4 overflow-hidden rounded-full bg-bb-gray-100">
                   <div
-                    className={`h-full rounded-full transition-all ${occupancy.percentage >= 80 ? 'bg-red-500' : occupancy.percentage >= 60 ? 'bg-yellow-500' : 'bg-green-500'}`}
-                    style={{ width: `${occupancy.percentage}%` }}
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${occupancy.percentage}%`, background: occupancy.percentage >= 80 ? 'var(--bb-danger)' : occupancy.percentage >= 60 ? 'var(--bb-warning)' : 'var(--bb-success)' }}
                   />
                 </div>
               </div>
@@ -333,7 +333,7 @@ export default function IoTPage() {
                     <p className="text-sm text-bb-gray-900">{item.label}</p>
                     <p className="text-xs text-bb-gray-500">{item.desc}</p>
                   </div>
-                  <div className="relative h-6 w-11 rounded-full bg-green-500">
+                  <div className="relative h-6 w-11 rounded-full" style={{ background: 'var(--bb-success)' }}>
                     <div className="absolute right-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm" />
                   </div>
                 </div>

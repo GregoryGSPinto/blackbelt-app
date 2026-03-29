@@ -156,7 +156,7 @@ export default function TeenRankingPage() {
               <p className="mt-1 max-w-[5rem] truncate text-center text-xs font-semibold text-[var(--bb-ink-60)]">
                 {top3[1].is_current_user ? 'VOCE' : top3[1].display_name.split(' ')[0]}
               </p>
-              <p className="text-xs font-bold text-yellow-400">
+              <p className="text-xs font-bold text-[var(--bb-warning)]">
                 {tab === 'xp'
                   ? `${top3[1].xp.toLocaleString('pt-BR')} XP`
                   : `${top3[1].streak_days}d`}
@@ -177,7 +177,7 @@ export default function TeenRankingPage() {
               <p className="mt-1 max-w-[6rem] truncate text-center text-sm font-bold text-[var(--bb-ink-100)]">
                 {top3[0].is_current_user ? 'VOCE' : top3[0].display_name.split(' ')[0]}
               </p>
-              <p className="text-sm font-bold text-yellow-400">
+              <p className="text-sm font-bold text-[var(--bb-warning)]">
                 {tab === 'xp'
                   ? `${top3[0].xp.toLocaleString('pt-BR')} XP`
                   : `${top3[0].streak_days}d`}
@@ -195,7 +195,7 @@ export default function TeenRankingPage() {
               <p className="mt-1 max-w-[5rem] truncate text-center text-xs font-semibold text-[var(--bb-ink-60)]">
                 {top3[2].is_current_user ? 'VOCE' : top3[2].display_name.split(' ')[0]}
               </p>
-              <p className="text-xs font-bold text-yellow-400">
+              <p className="text-xs font-bold text-[var(--bb-warning)]">
                 {tab === 'xp'
                   ? `${top3[2].xp.toLocaleString('pt-BR')} XP`
                   : `${top3[2].streak_days}d`}
@@ -241,7 +241,7 @@ export default function TeenRankingPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-yellow-400">
+                  <p className="text-sm font-bold text-[var(--bb-warning)]">
                     {tab === 'xp'
                       ? `${entry.xp.toLocaleString('pt-BR')}`
                       : `${entry.streak_days}d`}

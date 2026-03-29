@@ -392,7 +392,7 @@ export default function CompletarCadastroPage() {
                     className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--bb-brand)]/30"
                     style={{
                       background: 'var(--bb-depth-3)',
-                      border: `1px solid ${inviteError ? '#ef4444' : 'var(--bb-glass-border)'}`,
+                      border: `1px solid ${inviteError ? 'var(--bb-danger)' : 'var(--bb-glass-border)'}`,
                       color: 'var(--bb-ink-100)',
                     }}
                   />
@@ -414,7 +414,7 @@ export default function CompletarCadastroPage() {
                 </div>
 
                 {inviteError && (
-                  <p className="text-xs" style={{ color: '#ef4444' }}>
+                  <p className="text-xs" style={{ color: 'var(--bb-danger)' }}>
                     {inviteError}
                   </p>
                 )}
@@ -431,7 +431,7 @@ export default function CompletarCadastroPage() {
                       <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
                         {inviteResult.academyName}
                       </p>
-                      <p className="text-xs" style={{ color: '#22c55e' }}>
+                      <p className="text-xs" style={{ color: 'var(--bb-success)' }}>
                         Codigo valido
                       </p>
                     </div>

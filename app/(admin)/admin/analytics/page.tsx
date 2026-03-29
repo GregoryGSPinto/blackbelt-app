@@ -87,7 +87,7 @@ export default function AdminAnalyticsPage() {
                 <td className="px-4 py-3 text-center capitalize text-bb-gray-500">{s.belt}</td>
                 <td className="px-4 py-3 text-right text-bb-gray-500">{s.days_absent}</td>
                 <td className="px-4 py-3 text-center">{s.frequency_trend === 'declining' ? '📉' : s.frequency_trend === 'improving' ? '📈' : '➡️'}</td>
-                <td className="px-4 py-3 text-center"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.risk_level === 'high' ? 'bg-red-100 text-red-700' : s.risk_level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>{s.risk_level === 'high' ? 'Alto' : s.risk_level === 'medium' ? 'Médio' : 'Baixo'}</span></td>
+                <td className="px-4 py-3 text-center"><span className="rounded-full px-2 py-0.5 text-xs font-medium" style={s.risk_level === 'high' ? { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' } : s.risk_level === 'medium' ? { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' } : { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' }}>{s.risk_level === 'high' ? 'Alto' : s.risk_level === 'medium' ? 'Médio' : 'Baixo'}</span></td>
               </tr>
             ))}</tbody>
           </table>

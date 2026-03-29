@@ -42,7 +42,7 @@ export default function PlanoPlataformaPage() {
               </p>
               {item.limit < 9999 && (
                 <div className="mt-2 h-1.5 rounded-full bg-bb-gray-200">
-                  <div className={`h-full rounded-full ${pct > 80 ? 'bg-red-500' : pct > 50 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+                  <div className="h-full rounded-full" style={{ width: `${Math.min(pct, 100)}%`, background: pct > 80 ? 'var(--bb-danger)' : pct > 50 ? 'var(--bb-warning)' : 'var(--bb-success)' }} />
                 </div>
               )}
             </Card>

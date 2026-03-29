@@ -49,7 +49,7 @@ const NotificationBell = forwardRef<HTMLDivElement, Record<string, never>>(
           </button>
 
           {open && (
-            <div className="absolute right-0 top-full mt-2 w-80 rounded-lg bg-white shadow-xl border border-bb-gray-300 z-50">
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-lg shadow-xl border border-bb-gray-300 z-50" style={{ background: 'var(--bb-depth-1)' }}>
               <div className="flex items-center justify-between border-b border-bb-gray-300 px-4 py-3">
                 <h3 className="font-semibold text-bb-black">Notificações</h3>
                 {unreadCount > 0 && (

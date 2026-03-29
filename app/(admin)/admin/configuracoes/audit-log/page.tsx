@@ -17,9 +17,13 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   content_view: 'Visualização', report_export: 'Export Relatório', data_export: 'Export Dados',
 };
 
-const ACTION_COLORS: Record<string, string> = {
-  create: 'bg-green-100 text-green-700', update: 'bg-blue-100 text-blue-700', delete: 'bg-red-100 text-red-700',
-  payment: 'bg-emerald-100 text-emerald-700', login: 'bg-gray-100 text-gray-700', config_change: 'bg-yellow-100 text-yellow-700',
+const ACTION_STYLES: Record<string, React.CSSProperties> = {
+  create: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  update: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' },
+  delete: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' },
+  payment: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  login: { background: 'var(--bb-depth-2)', color: 'var(--bb-ink-2)' },
+  config_change: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' },
 };
 
 export default function AuditLogPage() {
@@ -87,7 +91,7 @@ export default function AuditLogPage() {
           {logs.map((log) => (
             <div key={log.id} className="rounded-xl border border-bb-gray-200">
               <button onClick={() => setExpandedId(expandedId === log.id ? null : log.id)} className="flex w-full items-center gap-3 p-4 text-left">
-                <span className={`rounded px-2 py-0.5 text-xs font-medium ${ACTION_COLORS[log.action] ?? 'bg-gray-100 text-gray-700'}`}>
+                <span className="rounded px-2 py-0.5 text-xs font-medium" style={ACTION_STYLES[log.action] ?? { background: 'var(--bb-depth-2)', color: 'var(--bb-ink-2)' }}>
                   {ACTION_LABELS[log.action] ?? log.action}
                 </span>
                 <span className="text-sm text-bb-gray-700">{log.actorName}</span>
@@ -105,14 +109,14 @@ export default function AuditLogPage() {
                     <div className="grid grid-cols-2 gap-4">
                       {log.oldData && (
                         <div>
-                          <p className="mb-1 text-xs font-medium text-red-600">Antes</p>
-                          <pre className="rounded bg-red-50 p-2 text-xs text-bb-gray-700 overflow-auto">{JSON.stringify(log.oldData, null, 2)}</pre>
+                          <p className="mb-1 text-xs font-medium" style={{ color: 'var(--bb-danger)' }}>Antes</p>
+                          <pre className="rounded p-2 text-xs text-bb-gray-700 overflow-auto" style={{ background: 'color-mix(in srgb, var(--bb-danger) 8%, transparent)' }}>{JSON.stringify(log.oldData, null, 2)}</pre>
                         </div>
                       )}
                       {log.newData && (
                         <div>
-                          <p className="mb-1 text-xs font-medium text-green-600">Depois</p>
-                          <pre className="rounded bg-green-50 p-2 text-xs text-bb-gray-700 overflow-auto">{JSON.stringify(log.newData, null, 2)}</pre>
+                          <p className="mb-1 text-xs font-medium" style={{ color: 'var(--bb-success)' }}>Depois</p>
+                          <pre className="rounded p-2 text-xs text-bb-gray-700 overflow-auto" style={{ background: 'color-mix(in srgb, var(--bb-success) 8%, transparent)' }}>{JSON.stringify(log.newData, null, 2)}</pre>
                         </div>
                       )}
                     </div>

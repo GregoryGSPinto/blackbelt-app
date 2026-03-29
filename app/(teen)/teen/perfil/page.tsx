@@ -153,7 +153,7 @@ export default function TeenPerfilPage() {
         <section className="rounded-[var(--bb-radius-lg)] bg-[var(--bb-depth-3)] p-5 ring-1 ring-[var(--bb-glass-border)]">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[var(--bb-ink-60)]">Progresso de XP</h2>
-            <span className="text-sm font-bold text-yellow-400">Level {level}</span>
+            <span className="text-sm font-bold" style={{ color: 'var(--bb-warning)' }}>Level {level}</span>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs text-[var(--bb-ink-40)]">
@@ -196,7 +196,7 @@ export default function TeenPerfilPage() {
           <h2 className="mb-4 text-sm font-bold text-[var(--bb-ink-60)]">Estatisticas</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 p-3 text-center ring-1 ring-green-500/20">
-              <p className="text-2xl font-extrabold text-green-400">{MOCK_STATS.total_classes}</p>
+              <p className="text-2xl font-extrabold" style={{ color: 'var(--bb-success)' }}>{MOCK_STATS.total_classes}</p>
               <p className="text-[10px] text-[var(--bb-ink-40)]">Aulas totais</p>
             </div>
             <div className="rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 p-3 text-center ring-1 ring-blue-500/20">
@@ -212,7 +212,7 @@ export default function TeenPerfilPage() {
               <p className="text-[10px] text-[var(--bb-ink-40)]">Melhor streak</p>
             </div>
             <div className="rounded-xl bg-gradient-to-br from-yellow-500/10 to-amber-500/5 p-3 text-center ring-1 ring-yellow-500/20">
-              <p className="text-2xl font-extrabold text-yellow-400">{MOCK_STATS.achievements_unlocked}</p>
+              <p className="text-2xl font-extrabold" style={{ color: 'var(--bb-warning)' }}>{MOCK_STATS.achievements_unlocked}</p>
               <p className="text-[10px] text-[var(--bb-ink-40)]">Conquistas</p>
             </div>
             <div className="rounded-xl bg-gradient-to-br from-pink-500/10 to-rose-500/5 p-3 text-center ring-1 ring-pink-500/20">

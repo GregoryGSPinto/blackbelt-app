@@ -291,7 +291,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
 
       {/* Annotation list (non-fullscreen) */}
       {!isFullscreen && annotations.length > 0 && (
-        <div className="mt-4 rounded-lg border border-bb-gray-200 bg-white p-4">
+        <div className="mt-4 rounded-lg border border-bb-gray-200 p-4" style={{ background: 'var(--bb-depth-1)' }}>
           <h3 className="mb-3 text-sm font-bold text-bb-black">Anotações ({annotations.length})</h3>
           <div className="space-y-2">
             {annotations.map((ann) => (

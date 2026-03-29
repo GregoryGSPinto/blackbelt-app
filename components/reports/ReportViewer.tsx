@@ -273,7 +273,7 @@ function MonthlySection({ data }: { data: MonthlyReportData }) {
                   <td className="px-3 py-2" style={{ color: 'var(--bb-ink-100)' }}>{c.class_name}</td>
                   <td className="px-3 py-2" style={{ color: 'var(--bb-ink-60)' }}>{c.modality}</td>
                   <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-ink-100)' }}>{c.students}</td>
-                  <td className="px-3 py-2 text-right" style={{ color: '#22C55E' }}>{fmtPct(c.attendance_rate)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-success)' }}>{fmtPct(c.attendance_rate)}</td>
                 </tr>
               ))}
             </tbody>
@@ -349,7 +349,7 @@ function AttendanceSection({ data }: { data: AttendanceReportData }) {
                   <td className="px-3 py-2" style={{ color: 'var(--bb-ink-100)' }}>{m.modality}</td>
                   <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-ink-100)' }}>{m.classes}</td>
                   <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-ink-100)' }}>{m.avg_attendance.toFixed(1)}</td>
-                  <td className="px-3 py-2 text-right" style={{ color: '#22C55E' }}>{fmtPct(m.rate)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-success)' }}>{fmtPct(m.rate)}</td>
                 </tr>
               ))}
             </tbody>
@@ -381,7 +381,7 @@ function AttendanceSection({ data }: { data: AttendanceReportData }) {
               <div
                 key={a.student_name}
                 className="flex items-center justify-between rounded-lg p-3"
-                style={{ background: 'var(--bb-depth-3)', borderLeft: '4px solid #EF4444' }}
+                style={{ background: 'var(--bb-depth-3)', borderLeft: '4px solid var(--bb-danger)' }}
               >
                 <div>
                   <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{a.student_name}</p>
@@ -389,7 +389,7 @@ function AttendanceSection({ data }: { data: AttendanceReportData }) {
                     Ultimo check-in: {new Date(a.last_attendance).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
-                <span className="text-sm font-bold" style={{ color: '#EF4444' }}>{a.days_absent} dias</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--bb-danger)' }}>{a.days_absent} dias</span>
               </div>
             ))}
           </div>
@@ -439,8 +439,8 @@ function FinancialSection({ data }: { data: FinancialReportData }) {
               {data.revenue_by_month.map((r) => (
                 <tr key={r.month} style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                   <td className="px-3 py-2" style={{ color: 'var(--bb-ink-100)' }}>{r.month}</td>
-                  <td className="px-3 py-2 text-right" style={{ color: '#22C55E' }}>{fmtBRL(r.revenue)}</td>
-                  <td className="px-3 py-2 text-right" style={{ color: '#EF4444' }}>{fmtBRL(r.pending)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-success)' }}>{fmtBRL(r.revenue)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: 'var(--bb-danger)' }}>{fmtBRL(r.pending)}</td>
                 </tr>
               ))}
             </tbody>
@@ -472,7 +472,7 @@ function FinancialSection({ data }: { data: FinancialReportData }) {
               <div
                 key={o.student_name}
                 className="flex items-center justify-between rounded-lg p-3"
-                style={{ background: 'var(--bb-depth-3)', borderLeft: '4px solid #EF4444' }}
+                style={{ background: 'var(--bb-depth-3)', borderLeft: '4px solid var(--bb-danger)' }}
               >
                 <div>
                   <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{o.student_name}</p>
@@ -480,7 +480,7 @@ function FinancialSection({ data }: { data: FinancialReportData }) {
                     Venc: {new Date(o.due_date).toLocaleDateString('pt-BR')} · {o.days_overdue} dias
                   </p>
                 </div>
-                <span className="text-sm font-bold" style={{ color: '#EF4444' }}>{fmtBRL(o.amount)}</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--bb-danger)' }}>{fmtBRL(o.amount)}</span>
               </div>
             ))}
           </div>

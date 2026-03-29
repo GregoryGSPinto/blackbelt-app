@@ -77,10 +77,10 @@ export default function UnidadesPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="font-bold text-bb-black">{unit.name}</h3>
-                {!unit.active && <span className="text-xs text-red-500">Desativada</span>}
+                {!unit.active && <span className="text-xs" style={{ color: 'var(--bb-danger)' }}>Desativada</span>}
               </div>
               {unit.active && (
-                <button onClick={() => handleDeactivate(unit.id)} className="text-xs text-bb-gray-500 hover:text-red-500">Desativar</button>
+                <button onClick={() => handleDeactivate(unit.id)} className="text-xs text-bb-gray-500 hover:opacity-80" style={{ color: 'var(--bb-danger)' }}>Desativar</button>
               )}
             </div>
             <p className="mt-2 text-sm text-bb-gray-500">{unit.address}</p>

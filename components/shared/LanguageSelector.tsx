@@ -62,7 +62,7 @@ const LanguageSelector = forwardRef<HTMLDivElement, { className?: string }>(
         </button>
 
         {open && (
-          <div ref={menuRef} className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-bb-gray-200 bg-white py-1 shadow-lg">
+          <div ref={menuRef} className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-bb-gray-200 py-1 shadow-lg" style={{ background: 'var(--bb-depth-1)' }}>
             {LOCALES.map((locale) => (
               <button
                 key={locale}

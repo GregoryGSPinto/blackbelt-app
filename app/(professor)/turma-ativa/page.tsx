@@ -233,8 +233,8 @@ export default function TurmaAtivaPage() {
         <div className="mt-2 flex items-center gap-3">
           <div className="h-2 flex-1 rounded-full bg-[var(--bb-depth-3)]">
             <div
-              className="h-2 rounded-full bg-green-500 transition-all duration-300"
-              style={{ width: `${presencePct}%` }}
+              className="h-2 rounded-full transition-all duration-300"
+              style={{ width: `${presencePct}%`, background: 'var(--bb-success)' }}
             />
           </div>
           <span className="shrink-0 text-sm font-bold text-bb-white">
@@ -251,17 +251,19 @@ export default function TurmaAtivaPage() {
             onClick={() => togglePresence(student.student_id)}
             className={`flex w-full items-center gap-4 rounded-xl p-4 text-left transition-all duration-200 ${
               student.is_present
-                ? 'bg-green-900/40 ring-2 ring-green-500/50'
+                ? 'ring-2'
                 : 'bg-[var(--bb-depth-3)]/60 hover:bg-[var(--bb-depth-3)]'
             }`}
+            style={student.is_present ? { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', '--tw-ring-color': 'color-mix(in srgb, var(--bb-success) 50%, transparent)' } as React.CSSProperties : undefined}
           >
             {/* Presence indicator */}
             <div
               className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl transition-all ${
                 student.is_present
-                  ? 'bg-green-500 text-white'
+                  ? 'text-white'
                   : 'border-2 border-[var(--bb-glass-border)] text-transparent'
               }`}
+              style={student.is_present ? { background: 'var(--bb-success)' } : undefined}
             >
               {student.is_present && (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -283,7 +285,7 @@ export default function TurmaAtivaPage() {
 
             {/* QR indicator */}
             {student.checked_in_via_qr && (
-              <span className="shrink-0 rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400">
+              <span className="shrink-0 rounded-full px-2 py-1 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--bb-success) 20%, transparent)', color: 'var(--bb-success)' }}>
                 Presente (QR)
               </span>
             )}
@@ -324,7 +326,7 @@ export default function TurmaAtivaPage() {
           {/* Expiry timer */}
           {qrRemainingSeconds > 0 ? (
             <div className="flex items-center gap-2 rounded-full bg-[var(--bb-depth-3)] px-4 py-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+              <div className="h-2 w-2 animate-pulse rounded-full" style={{ background: 'var(--bb-success)' }} />
               <span className="text-sm font-medium text-[var(--bb-ink-60)]">
                 Expira em {Math.floor(qrRemainingSeconds / 60)}:{(qrRemainingSeconds % 60).toString().padStart(2, '0')}
               </span>

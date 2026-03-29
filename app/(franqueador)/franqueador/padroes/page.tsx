@@ -25,19 +25,19 @@ const CATEGORY_LABEL: Record<StandardCategory, string> = {
   qualidade: 'Qualidade',
 };
 
-const CATEGORY_COLOR: Record<StandardCategory, string> = {
-  visual: 'bg-purple-100 text-purple-700',
-  operacional: 'bg-blue-100 text-blue-700',
-  pedagogico: 'bg-green-100 text-green-700',
-  financeiro: 'bg-yellow-100 text-yellow-700',
-  qualidade: 'bg-red-100 text-red-700',
+const CATEGORY_STYLE: Record<StandardCategory, React.CSSProperties> = {
+  visual: { background: 'color-mix(in srgb, #8b5cf6 15%, transparent)', color: '#8b5cf6' },
+  operacional: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' },
+  pedagogico: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  financeiro: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' },
+  qualidade: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' },
 };
 
-const COMPLIANCE_COLOR: Record<string, string> = {
-  conforme: 'bg-green-100 text-green-700',
-  parcial: 'bg-yellow-100 text-yellow-700',
-  nao_conforme: 'bg-red-100 text-red-700',
-  pendente: 'bg-gray-100 text-gray-500',
+const COMPLIANCE_STYLE: Record<string, React.CSSProperties> = {
+  conforme: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  parcial: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' },
+  nao_conforme: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' },
+  pendente: { background: 'var(--bb-depth-2)', color: 'var(--bb-ink-3)' },
 };
 
 const COMPLIANCE_LABEL: Record<string, string> = {
@@ -160,8 +160,9 @@ export default function PadroesPage() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === t.id ? 'bg-white text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
+              tab === t.id ? 'text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
             }`}
+            style={tab === t.id ? { background: 'var(--bb-depth-1)' } : undefined}
           >
             {t.label}
           </button>
@@ -197,14 +198,14 @@ export default function PadroesPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-bb-black">{std.name}</h3>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${CATEGORY_COLOR[std.category]}`}>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={CATEGORY_STYLE[std.category]}>
                         {CATEGORY_LABEL[std.category]}
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-bb-gray-500">{std.description}</p>
                   </div>
                   {std.required && (
-                    <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">Obrigatorio</span>
+                    <span className="rounded px-2 py-0.5 text-[10px] font-bold" style={{ background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' }}>Obrigatorio</span>
                   )}
                 </div>
 
@@ -212,7 +213,7 @@ export default function PadroesPage() {
                 <div className="mt-3 space-y-1">
                   {std.checklist_items.map((item) => (
                     <div key={item.id} className="flex items-center gap-2 text-xs">
-                      <span className={`h-3.5 w-3.5 rounded border ${item.completed ? 'border-green-500 bg-green-500 text-white' : 'border-bb-gray-300'} flex items-center justify-center`}>
+                      <span className={`h-3.5 w-3.5 rounded border ${item.completed ? 'text-white' : 'border-bb-gray-300'} flex items-center justify-center`} style={item.completed ? { borderColor: 'var(--bb-success)', background: 'var(--bb-success)' } : undefined}>
                         {item.completed && <span>&#10003;</span>}
                       </span>
                       <span className={item.completed ? 'text-bb-gray-500 line-through' : 'text-bb-black'}>{item.description}</span>
@@ -228,8 +229,9 @@ export default function PadroesPage() {
                 {/* Progress bar */}
                 <div className="mt-2 h-1.5 rounded-full bg-bb-gray-200">
                   <div
-                    className="h-full rounded-full bg-green-500"
+                    className="h-full rounded-full"
                     style={{
+                      background: 'var(--bb-success)',
                       width: `${std.checklist_items.length > 0 ? (std.checklist_items.filter((c) => c.completed).length / std.checklist_items.length) * 100 : 0}%`,
                     }}
                   />
@@ -278,8 +280,11 @@ export default function PadroesPage() {
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-bb-gray-200">
                   <div
-                    className={`h-full rounded-full ${complianceReport.overall_score >= 80 ? 'bg-green-500' : complianceReport.overall_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                    style={{ width: `${complianceReport.overall_score}%` }}
+                    className="h-full rounded-full"
+                    style={{
+                      background: complianceReport.overall_score >= 80 ? 'var(--bb-success)' : complianceReport.overall_score >= 60 ? 'var(--bb-warning)' : 'var(--bb-danger)',
+                      width: `${complianceReport.overall_score}%`,
+                    }}
                   />
                 </div>
               </Card>
@@ -305,14 +310,14 @@ export default function PadroesPage() {
                         <tr key={r.standard_id} className="border-b border-bb-gray-100">
                           <td className="px-4 py-3 font-medium text-bb-black">{r.standard_name}</td>
                           <td className="px-4 py-3">
-                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${CATEGORY_COLOR[r.category]}`}>
+                            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={CATEGORY_STYLE[r.category]}>
                               {CATEGORY_LABEL[r.category]}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center text-bb-gray-500">{r.completed_items}/{r.total_items}</td>
                           <td className="px-4 py-3 text-center font-bold text-bb-black">{r.score}%</td>
                           <td className="px-4 py-3 text-center">
-                            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${COMPLIANCE_COLOR[r.status]}`}>
+                            <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium" style={COMPLIANCE_STYLE[r.status]}>
                               {COMPLIANCE_LABEL[r.status]}
                             </span>
                           </td>
@@ -366,7 +371,7 @@ export default function PadroesPage() {
                     className="flex-1 rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
                   />
                   {form.checklist_items.length > 1 && (
-                    <button onClick={() => removeChecklistItem(idx)} className="text-xs text-red-500 hover:underline">Remover</button>
+                    <button onClick={() => removeChecklistItem(idx)} className="text-xs hover:underline" style={{ color: 'var(--bb-danger)' }}>Remover</button>
                   )}
                 </div>
               ))}

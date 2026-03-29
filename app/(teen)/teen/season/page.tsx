@@ -267,13 +267,14 @@ export default function TeenSeasonPage() {
                       <button
                         onClick={() => handleClaimReward(reward)}
                         disabled={isClaiming}
-                        className="mt-2 w-full rounded-lg bg-green-600 px-2 py-1 text-[10px] font-bold text-white transition-all hover:bg-green-500 active:scale-95 disabled:opacity-50"
+                        className="mt-2 w-full rounded-lg px-2 py-1 text-[10px] font-bold text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+                        style={{ background: 'var(--bb-success)' }}
                       >
                         {isClaiming ? '...' : 'Resgatar'}
                       </button>
                     )}
                     {isClaimed && (
-                      <span className="mt-2 text-[10px] font-bold text-green-400">Resgatado</span>
+                      <span className="mt-2 text-[10px] font-bold text-[var(--bb-success)]">Resgatado</span>
                     )}
                     {!reward.unlocked && (
                       <span className="mt-2 text-[10px] text-[var(--bb-ink-40)]">Bloqueado</span>

@@ -13,7 +13,7 @@ import { translateError } from '@/lib/utils/error-translator';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<AcademyStatus, string> = { ativa: 'Ativa', inadimplente: 'Inadimplente', suspensa: 'Suspensa', em_setup: 'Em Setup' };
-const STATUS_COLOR: Record<AcademyStatus, string> = { ativa: 'bg-green-100 text-green-700', inadimplente: 'bg-red-100 text-red-700', suspensa: 'bg-yellow-100 text-yellow-700', em_setup: 'bg-blue-100 text-blue-700' };
+const STATUS_STYLE: Record<AcademyStatus, React.CSSProperties> = { ativa: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' }, inadimplente: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' }, suspensa: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' }, em_setup: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' } };
 const ALERT_ICON: Record<string, string> = { high_churn: 'Churn', overdue: 'Atraso', attendance_drop: 'Frequencia', low_nps: 'NPS' };
 
 export default function FranqueadorDashboardPage() {
@@ -92,7 +92,7 @@ export default function FranqueadorDashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Card className="p-4">
           <p className="text-xs text-bb-gray-500">NPS Medio da Rede</p>
-          <p className={`mt-1 text-2xl font-bold ${kpis.avg_nps >= 70 ? 'text-green-600' : 'text-yellow-600'}`}>{kpis.avg_nps}</p>
+          <p className="mt-1 text-2xl font-bold" style={{ color: kpis.avg_nps >= 70 ? 'var(--bb-success)' : 'var(--bb-warning)' }}>{kpis.avg_nps}</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-bb-gray-500">Frequencia Media</p>
@@ -100,7 +100,7 @@ export default function FranqueadorDashboardPage() {
         </Card>
         <Card className="p-4">
           <p className="text-xs text-bb-gray-500">Crescimento</p>
-          <p className={`mt-1 text-2xl font-bold ${financials.growth_pct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className="mt-1 text-2xl font-bold" style={{ color: financials.growth_pct >= 0 ? 'var(--bb-success)' : 'var(--bb-danger)' }}>
             {financials.growth_pct >= 0 ? '+' : ''}{financials.growth_pct}%
           </p>
         </Card>
@@ -112,8 +112,8 @@ export default function FranqueadorDashboardPage() {
           <h2 className="mb-3 font-semibold text-bb-black">Alertas da Rede</h2>
           <div className="space-y-2">
             {alerts.map((alert) => (
-              <div key={alert.id} className={`flex items-start gap-3 rounded-lg p-3 ${alert.severity === 'critical' ? 'bg-red-50' : 'bg-yellow-50'}`}>
-                <span className={`mt-0.5 rounded px-2 py-0.5 text-[10px] font-bold uppercase ${alert.severity === 'critical' ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800'}`}>
+              <div key={alert.id} className="flex items-start gap-3 rounded-lg p-3" style={{ background: alert.severity === 'critical' ? 'color-mix(in srgb, var(--bb-danger) 8%, transparent)' : 'color-mix(in srgb, var(--bb-warning) 8%, transparent)' }}>
+                <span className="mt-0.5 rounded px-2 py-0.5 text-[10px] font-bold uppercase" style={alert.severity === 'critical' ? { background: 'color-mix(in srgb, var(--bb-danger) 25%, transparent)', color: 'var(--bb-danger)' } : { background: 'color-mix(in srgb, var(--bb-warning) 25%, transparent)', color: 'var(--bb-warning)' }}>
                   {ALERT_ICON[alert.type] ?? alert.type}
                 </span>
                 <div className="flex-1">
@@ -164,17 +164,17 @@ export default function FranqueadorDashboardPage() {
                   <td className="px-4 py-3 text-right text-bb-gray-500">{academy.students}</td>
                   <td className="px-4 py-3 text-right text-bb-gray-500">R$ {academy.revenue.toLocaleString('pt-BR')}</td>
                   <td className="px-4 py-3 text-right">
-                    <span className={academy.attendance_rate >= 80 ? 'text-green-600' : academy.attendance_rate >= 70 ? 'text-yellow-600' : 'text-red-600'}>
+                    <span style={{ color: academy.attendance_rate >= 80 ? 'var(--bb-success)' : academy.attendance_rate >= 70 ? 'var(--bb-warning)' : 'var(--bb-danger)' }}>
                       {academy.attendance_rate}%
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className={academy.nps >= 70 ? 'text-green-600' : academy.nps >= 50 ? 'text-yellow-600' : 'text-red-600'}>
+                    <span style={{ color: academy.nps >= 70 ? 'var(--bb-success)' : academy.nps >= 50 ? 'var(--bb-warning)' : 'var(--bb-danger)' }}>
                       {academy.nps}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[academy.status]}`}>
+                    <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium" style={STATUS_STYLE[academy.status]}>
                       {STATUS_LABEL[academy.status]}
                     </span>
                   </td>

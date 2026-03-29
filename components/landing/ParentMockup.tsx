@@ -9,9 +9,9 @@ export function ParentMockup() {
         className="flex items-center gap-2 px-4 py-3"
         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
       >
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <div className="w-3 h-3 rounded-full bg-green-500" />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-danger)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-warning)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-success)' }} />
         <span className="text-xs ml-2" style={{ color: 'var(--bb-ink-40)' }}>
           BlackBelt — Painel do Responsável
         </span>
@@ -23,7 +23,7 @@ export function ParentMockup() {
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-              style={{ background: '#C62828' }}
+              style={{ background: 'var(--bb-brand-deep)' }}
             >
               S
             </div>
@@ -41,7 +41,7 @@ export function ParentMockup() {
               <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Presenças</p>
             </div>
             <div className="rounded-lg p-2 text-center" style={{ background: 'var(--bb-depth-4)' }}>
-              <p className="text-lg font-bold" style={{ color: '#22C55E' }}>92%</p>
+              <p className="text-lg font-bold" style={{ color: 'var(--bb-success)' }}>92%</p>
               <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Frequência</p>
             </div>
             <div className="rounded-lg p-2 text-center" style={{ background: 'var(--bb-depth-4)' }}>
@@ -54,12 +54,12 @@ export function ParentMockup() {
         <div className="text-xs font-semibold mb-2" style={{ color: 'var(--bb-ink-40)' }}>ATIVIDADE RECENTE</div>
         <div className="space-y-2">
           <div className="flex items-center gap-2 py-1.5 px-2 rounded-lg" style={{ background: 'var(--bb-depth-3)' }}>
-            <span className="text-xs" style={{ color: '#22C55E' }}>✓</span>
+            <span className="text-xs" style={{ color: 'var(--bb-success)' }}>✓</span>
             <span className="text-xs flex-1" style={{ color: 'var(--bb-ink-80)' }}>Check-in — Turma Kids</span>
             <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Hoje</span>
           </div>
           <div className="flex items-center gap-2 py-1.5 px-2 rounded-lg" style={{ background: 'var(--bb-depth-3)' }}>
-            <span className="text-xs" style={{ color: '#3B82F6' }}>★</span>
+            <span className="text-xs" style={{ color: 'var(--bb-brand)' }}>★</span>
             <span className="text-xs flex-1" style={{ color: 'var(--bb-ink-80)' }}>Avaliação do professor</span>
             <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Ontem</span>
           </div>

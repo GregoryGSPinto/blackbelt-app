@@ -64,7 +64,7 @@ export default function ReferralPage() {
         </div>
         <div className="rounded-xl border border-bb-gray-200 p-4">
           <p className="text-sm text-bb-gray-500">Convertidas</p>
-          <p className="text-2xl font-bold text-green-600">{stats.convertedReferrals}</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--bb-success)' }}>{stats.convertedReferrals}</p>
         </div>
         <div className="rounded-xl border border-bb-gray-200 p-4">
           <p className="text-sm text-bb-gray-500">Créditos Ganhos</p>
@@ -85,7 +85,7 @@ export default function ReferralPage() {
                 <p className="font-medium text-bb-gray-900">{r.academyName}</p>
                 <p className="text-xs text-bb-gray-400">{new Date(r.createdAt).toLocaleDateString('pt-BR')}</p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${r.status === 'active' ? 'bg-green-100 text-green-700' : r.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+              <span className="rounded-full px-3 py-1 text-xs font-medium" style={r.status === 'active' ? { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' } : r.status === 'pending' ? { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' } : { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' }}>
                 {r.status === 'active' ? 'Ativa' : r.status === 'pending' ? 'Pendente' : 'Cancelada'}
               </span>
             </div>

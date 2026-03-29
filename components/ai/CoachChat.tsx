@@ -53,7 +53,7 @@ const CoachChat = forwardRef<HTMLDivElement>(function CoachChat(_, ref) {
 
       {/* Chat Drawer */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] flex-col rounded-xl border border-bb-gray-200 bg-white shadow-2xl md:h-[560px]">
+        <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] flex-col rounded-xl border border-bb-gray-200 shadow-2xl md:h-[560px]" style={{ background: 'var(--bb-depth-1)' }}>
           {/* Header */}
           <div className="flex items-center justify-between rounded-t-xl bg-bb-primary px-4 py-3">
             <div className="flex items-center gap-2">

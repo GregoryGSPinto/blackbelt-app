@@ -9,9 +9,9 @@ export function BillingMockup() {
         className="flex items-center gap-2 px-4 py-3"
         style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
       >
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <div className="w-3 h-3 rounded-full bg-green-500" />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-danger)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-warning)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--bb-success)' }} />
         <span className="text-xs ml-2" style={{ color: 'var(--bb-ink-40)' }}>
           BlackBelt — Financeiro
         </span>
@@ -21,11 +21,11 @@ export function BillingMockup() {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-xl p-3" style={{ background: 'var(--bb-depth-3)' }}>
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Recebido</p>
-            <p className="text-lg font-bold" style={{ color: '#22C55E' }}>R$ 12.400</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--bb-success)' }}>R$ 12.400</p>
           </div>
           <div className="rounded-xl p-3" style={{ background: 'var(--bb-depth-3)' }}>
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Pendente</p>
-            <p className="text-lg font-bold" style={{ color: '#EAB308' }}>R$ 3.400</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--bb-warning)' }}>R$ 3.400</p>
           </div>
         </div>
         {/* Invoice list */}
@@ -43,9 +43,9 @@ export function BillingMockup() {
 
 function InvoiceRow({ name, amount, status }: { name: string; amount: string; status: 'pago' | 'pendente' | 'vencido' }) {
   const statusConfig = {
-    pago: { label: 'Pago', color: '#22C55E', bg: 'rgba(34,197,94,0.1)' },
-    pendente: { label: 'Pendente', color: '#EAB308', bg: 'rgba(234,179,8,0.1)' },
-    vencido: { label: 'Vencido', color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
+    pago: { label: 'Pago', color: 'var(--bb-success)', bg: 'color-mix(in srgb, var(--bb-success) 10%, transparent)' },
+    pendente: { label: 'Pendente', color: 'var(--bb-warning)', bg: 'color-mix(in srgb, var(--bb-warning) 10%, transparent)' },
+    vencido: { label: 'Vencido', color: 'var(--bb-danger)', bg: 'color-mix(in srgb, var(--bb-danger) 10%, transparent)' },
   };
   const cfg = statusConfig[status];
 
