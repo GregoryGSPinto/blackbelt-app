@@ -646,7 +646,7 @@ export default function ProspeccaoPage() {
           <div className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Regenerar Mensagem</h3>
-              <button onClick={() => setRegenModalOpen(false)} style={{ color: 'var(--bb-ink-40)' }}><X size={20} /></button>
+              <button onClick={() => setRegenModalOpen(false)} aria-label="Fechar" style={{ color: 'var(--bb-ink-40)' }}><X size={20} /></button>
             </div>
             <div className="space-y-3">
               <div>

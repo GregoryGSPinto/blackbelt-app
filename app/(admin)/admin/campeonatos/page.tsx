@@ -357,7 +357,7 @@ export default function CampeonatosAdminPage() {
             <div className="relative z-10 w-full max-w-md space-y-4 p-6" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Criar Campeonato</h2>
-                <button onClick={() => setShowCreateModal(false)}><XIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} /></button>
+                <button onClick={() => setShowCreateModal(false)} aria-label="Fechar"><XIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-40)' }} /></button>
               </div>
               <div className="space-y-3">
                 <ModalInput placeholder="Nome do campeonato" value={newName} onChange={setNewName} />
