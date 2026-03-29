@@ -58,7 +58,7 @@ export function InstallBanner() {
       <div className="flex items-center gap-3">
         <div
           className="flex h-10 w-10 items-center justify-center rounded-lg"
-          style={{ background: '#C62828' }}
+          style={{ background: 'var(--bb-red, #C62828)' }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -78,7 +78,7 @@ export function InstallBanner() {
       <button
         onClick={handleInstall}
         className="mt-3 w-full rounded-lg py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ background: '#C62828' }}
+        style={{ background: 'var(--bb-red, #C62828)' }}
       >
         Instalar App
       </button>
