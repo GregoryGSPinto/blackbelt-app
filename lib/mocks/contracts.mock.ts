@@ -69,7 +69,7 @@ const SOFTWARE_CONTRACTS: SoftwareContract[] = [
     academy_owner_email: 'roberto@guerreiros.com',
     plan_slug: 'pro',
     plan_name: 'Pro',
-    monthly_value_cents: 24900,
+    monthly_value_cents: 34700,
     billing_cycle: 'monthly',
     status: 'active',
     signed_at: '2026-01-15T10:00:00Z',

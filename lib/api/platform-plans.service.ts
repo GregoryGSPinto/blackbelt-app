@@ -93,9 +93,9 @@ export async function checkLimit(academyId: string, resource: 'units' | 'student
 }
 
 export const PLATFORM_PLANS: PlatformPlan[] = [
-  { id: 'starter', name: 'Starter', price: 79, limits: { units: 1, students: 50, classes: 10, reports: false, automations: false, whiteLabel: false, api: false } },
-  { id: 'essencial', name: 'Essencial', price: 149, limits: { units: 1, students: 100, classes: 20, reports: true, automations: false, whiteLabel: false, api: false } },
-  { id: 'pro', name: 'Pro', price: 249, limits: { units: 2, students: 200, classes: 9999, reports: true, automations: true, whiteLabel: false, api: false } },
-  { id: 'blackbelt', name: 'Black Belt', price: 397, limits: { units: 9999, students: 9999, classes: 9999, reports: true, automations: true, whiteLabel: true, api: true } },
+  { id: 'starter', name: 'Starter', price: 97, limits: { units: 1, students: 50, classes: 10, reports: false, automations: false, whiteLabel: false, api: false } },
+  { id: 'essencial', name: 'Essencial', price: 197, limits: { units: 1, students: 100, classes: 20, reports: true, automations: false, whiteLabel: false, api: false } },
+  { id: 'pro', name: 'Pro', price: 347, limits: { units: 2, students: 200, classes: 9999, reports: true, automations: true, whiteLabel: false, api: false } },
+  { id: 'blackbelt', name: 'Black Belt', price: 597, limits: { units: 9999, students: 9999, classes: 9999, reports: true, automations: true, whiteLabel: true, api: true } },
   { id: 'enterprise', name: 'Enterprise', price: 0, limits: { units: 9999, students: 9999, classes: 9999, reports: true, automations: true, whiteLabel: true, api: true } },
 ];

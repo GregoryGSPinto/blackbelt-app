@@ -1,8 +1,9 @@
 'use client';
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Gift, X } from 'lucide-react';
+import { isNative } from '@/lib/platform';
 
 interface DiscoveryBannerProps {
   daysLeft: number;
@@ -12,6 +13,11 @@ interface DiscoveryBannerProps {
 const DiscoveryBanner = forwardRef<HTMLDivElement, DiscoveryBannerProps>(
   function DiscoveryBanner({ daysLeft, variant = 'member' }, ref) {
     const [dismissed, setDismissed] = useState(false);
+    const [native, setNative] = useState(false);
+
+    useEffect(() => {
+      setNative(isNative());
+    }, []);
 
     if (dismissed) return null;
 
@@ -51,10 +57,16 @@ const DiscoveryBanner = forwardRef<HTMLDivElement, DiscoveryBannerProps>(
         <p className="flex-1 text-xs font-medium" style={{ color: text }}>
           {daysLeft > 0 && variant === 'admin' && `Periodo de descoberta: ${daysLeft} dias restantes. Todos os modulos estao liberados!`}
           {daysLeft > 0 && variant === 'member' && `Sua academia esta em periodo de descoberta por mais ${daysLeft} dias.`}
-          {daysLeft <= 0 && 'Seu periodo de descoberta expirou. Modulos nao contratados foram desativados.'}
-          {daysLeft > 0 && variant === 'admin' && (
+          {daysLeft <= 0 && !native && 'Seu periodo de descoberta expirou. Modulos nao contratados foram desativados.'}
+          {daysLeft <= 0 && native && 'Seu periodo de descoberta expirou. Entre em contato para gerenciar seu plano.'}
+          {daysLeft > 0 && variant === 'admin' && !native && (
             <span style={{ color: 'var(--bb-ink-50)' }}>
               {' '}Escolha seu plano antes que expire.
+            </span>
+          )}
+          {daysLeft > 0 && variant === 'admin' && native && (
+            <span style={{ color: 'var(--bb-ink-50)' }}>
+              {' '}Entre em contato para gerenciar seu plano.
             </span>
           )}
           {daysLeft > 0 && variant === 'member' && (
@@ -63,7 +75,7 @@ const DiscoveryBanner = forwardRef<HTMLDivElement, DiscoveryBannerProps>(
             </span>
           )}
         </p>
-        {variant === 'admin' && (
+        {variant === 'admin' && !native && (
           <Link
             href="/admin/plano"
             className="shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90"

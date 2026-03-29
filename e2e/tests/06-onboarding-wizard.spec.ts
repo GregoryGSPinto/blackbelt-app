@@ -59,10 +59,10 @@ test.describe('Wizard de Cadastro de Academia', () => {
       if (await planCard.isVisible().catch(() => false)) {
         console.log(`  Step de planos encontrado no step ${i + 1}`);
 
-        const hasStarter = await page.locator('text=R$79').isVisible().catch(() => false);
-        const hasPro = await page.locator('text=R$249').isVisible().catch(() => false);
-        console.log(`  Starter R$79: ${hasStarter}`);
-        console.log(`  Pro R$249: ${hasPro}`);
+        const hasStarter = await page.locator('text=R$97').isVisible().catch(() => false);
+        const hasPro = await page.locator('text=R$347').isVisible().catch(() => false);
+        console.log(`  Starter R$97: ${hasStarter}`);
+        console.log(`  Pro R$347: ${hasPro}`);
 
         const hasBadge = await page.locator('text=MAIS POPULAR, text=Mais Popular').first().isVisible().catch(() => false);
         console.log(`  Badge mais popular: ${hasBadge}`);

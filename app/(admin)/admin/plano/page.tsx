@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { isNative } from '@/lib/platform';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -175,6 +176,11 @@ export default function AdminPlanoPage() {
   const [loading, setLoading] = useState(true);
   const [activatingSlug, setActivatingSlug] = useState<string | null>(null);
   const [showUsoDetalhado, setShowUsoDetalhado] = useState(false);
+  const [native, setNative] = useState(false);
+
+  useEffect(() => {
+    setNative(isNative());
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -242,6 +248,31 @@ export default function AdminPlanoPage() {
     } finally {
       setActivatingSlug(null);
     }
+  }
+
+  // Apple Guideline 3.1.1: hide pricing in native app
+  if (native) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <span className="text-4xl">🌐</span>
+        <h1
+          className="text-xl font-bold"
+          style={{ color: 'var(--bb-ink-100)' }}
+        >
+          Gerenciamento de Plano
+        </h1>
+        <p
+          className="max-w-md text-sm"
+          style={{ color: 'var(--bb-ink-60)' }}
+        >
+          Para gerenciar sua assinatura, acesse{' '}
+          <span className="font-semibold" style={{ color: 'var(--bb-brand)' }}>
+            blackbeltv2.vercel.app
+          </span>{' '}
+          no navegador.
+        </p>
+      </div>
+    );
   }
 
   if (loading || !assinatura) return <PlanoPageSkeleton />;

@@ -126,8 +126,8 @@ export const PLANS: AsaasPlan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: 79,
-    priceCents: 7900,
+    price: 97,
+    priceCents: 9700,
     maxStudents: 50,
     maxUnits: 1,
     maxProfessors: 2,
@@ -142,8 +142,8 @@ export const PLANS: AsaasPlan[] = [
   {
     id: 'essencial',
     name: 'Essencial',
-    price: 149,
-    priceCents: 14900,
+    price: 197,
+    priceCents: 19700,
     maxStudents: 100,
     maxUnits: 1,
     maxProfessors: 5,
@@ -159,8 +159,8 @@ export const PLANS: AsaasPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 249,
-    priceCents: 24900,
+    price: 347,
+    priceCents: 34700,
     maxStudents: 200,
     maxUnits: 2,
     maxProfessors: null,
@@ -177,8 +177,8 @@ export const PLANS: AsaasPlan[] = [
   {
     id: 'blackbelt',
     name: 'Black Belt',
-    price: 397,
-    priceCents: 39700,
+    price: 597,
+    priceCents: 59700,
     maxStudents: null,
     maxUnits: null,
     maxProfessors: null,

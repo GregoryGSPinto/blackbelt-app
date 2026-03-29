@@ -1,8 +1,9 @@
 'use client';
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sparkles, X } from 'lucide-react';
+import { isNative } from '@/lib/platform';
 
 interface TrialBannerProps {
   daysLeft: number;
@@ -11,6 +12,11 @@ interface TrialBannerProps {
 const TrialBanner = forwardRef<HTMLDivElement, TrialBannerProps>(
   function TrialBanner({ daysLeft }, ref) {
     const [dismissed, setDismissed] = useState(false);
+    const [native, setNative] = useState(false);
+
+    useEffect(() => {
+      setNative(isNative());
+    }, []);
 
     if (dismissed) return null;
 
@@ -46,20 +52,29 @@ const TrialBanner = forwardRef<HTMLDivElement, TrialBannerProps>(
         <p className="flex-1 text-xs font-medium" style={{ color: text }}>
           {daysLeft > 0
             ? `Trial gratuito: ${daysLeft} ${daysLeft === 1 ? 'dia restante' : 'dias restantes'}. Tudo liberado!`
-            : 'Seu trial terminou. Escolha um plano para continuar usando todos os recursos.'}
-          {daysLeft > 0 && (
+            : native
+              ? 'Seu trial terminou. Entre em contato para gerenciar seu plano.'
+              : 'Seu trial terminou. Escolha um plano para continuar usando todos os recursos.'}
+          {daysLeft > 0 && !native && (
             <span style={{ color: 'var(--bb-ink-50)' }}>
               {' '}Gostando? Escolha um plano para continuar.
             </span>
           )}
+          {daysLeft > 0 && native && (
+            <span style={{ color: 'var(--bb-ink-50)' }}>
+              {' '}Entre em contato para gerenciar seu plano.
+            </span>
+          )}
         </p>
-        <Link
-          href="/admin/plano"
-          className="shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: text }}
-        >
-          Ver planos
-        </Link>
+        {!native && (
+          <Link
+            href="/admin/plano"
+            className="shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: text }}
+          >
+            Ver planos
+          </Link>
+        )}
         <button
           onClick={() => setDismissed(true)}
           className="shrink-0 rounded-md p-1 transition-opacity hover:opacity-70"
