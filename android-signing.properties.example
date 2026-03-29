@@ -1,0 +1,21 @@
+# ============================================
+# BlackBelt Android Release Signing
+# ============================================
+# Copie este arquivo para gradle.properties e preencha com seus valores.
+# NUNCA commite gradle.properties com as senhas reais.
+#
+# Para gerar o keystore:
+#   keytool -genkey -v \
+#     -keystore blackbelt-release.keystore \
+#     -alias blackbelt \
+#     -keyalg RSA -keysize 2048 -validity 10000 \
+#     -storepass SUA_SENHA \
+#     -dname "CN=Gregory Pinto, O=BlackBelt, L=Vespasiano, ST=MG, C=BR"
+#
+# GUARDE A SENHA E O KEYSTORE EM LUGAR SEGURO.
+# Se perder, nao consegue mais atualizar o app na Play Store.
+
+RELEASE_STORE_FILE=blackbelt-release.keystore
+RELEASE_STORE_PASSWORD=SUA_SENHA_AQUI
+RELEASE_KEY_ALIAS=blackbelt
+RELEASE_KEY_PASSWORD=SUA_SENHA_AQUI

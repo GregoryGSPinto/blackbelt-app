@@ -57,6 +57,49 @@ if [ -f "$PLIST" ]; then
   echo "    Info.plist patched successfully."
 fi
 
+# Step 3c: Patch Android build.gradle for release signing
+GRADLE="android/app/build.gradle"
+if [ -f "$GRADLE" ]; then
+  if ! grep -q "signingConfigs" "$GRADLE"; then
+    echo "[3c/4] Patching Android build.gradle (release signing)..."
+    # Insert signingConfigs block before buildTypes
+    sed -i '' '/buildTypes {/i\
+    signingConfigs {\
+        release {\
+            if (project.hasProperty('\''RELEASE_STORE_FILE'\'')) {\
+                storeFile file(project.property('\''RELEASE_STORE_FILE'\''))\
+                storePassword project.property('\''RELEASE_STORE_PASSWORD'\'')\
+                keyAlias project.property('\''RELEASE_KEY_ALIAS'\'')\
+                keyPassword project.property('\''RELEASE_KEY_PASSWORD'\'')\
+            }\
+        }\
+    }
+' "$GRADLE"
+    # Add signingConfig to release buildType
+    sed -i '' 's/proguardFiles getDefaultProguardFile.*proguard-rules.pro.*/& \
+            signingConfig signingConfigs.release/' "$GRADLE"
+    echo "    Android signing config patched."
+  else
+    echo "[3c/4] Android signing config already present."
+  fi
+
+  # Copy signing properties if available
+  if [ -f "android-signing.properties.example" ] && [ ! -f "android/app/gradle.properties" ]; then
+    echo "    ⚠️ android/app/gradle.properties not found."
+    echo "    Copy android-signing.properties.example → android/app/gradle.properties"
+    echo "    and fill in your keystore passwords."
+  fi
+fi
+
+# Step 3d: Copy PrivacyInfo.xcprivacy (Apple Privacy Manifest)
+PRIVACY_SRC="ios-privacy-manifest/PrivacyInfo.xcprivacy"
+PRIVACY_DST="ios/App/App/PrivacyInfo.xcprivacy"
+if [ -f "$PRIVACY_SRC" ] && [ -d "ios/App/App" ]; then
+  echo "[3d/4] Copying PrivacyInfo.xcprivacy..."
+  cp "$PRIVACY_SRC" "$PRIVACY_DST"
+  echo "    PrivacyInfo.xcprivacy copied."
+fi
+
 # Step 4: Open IDE (optional)
 if [ "${2:-}" = "--open" ]; then
   if [ "$PLATFORM" = "ios" ]; then

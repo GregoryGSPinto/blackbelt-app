@@ -61,8 +61,14 @@ e2e/mega-results.json
 android/
 ios/
 
+# android signing (NEVER commit passwords or keystores)
+*.keystore
+*.jks
+android-signing.properties
+
 # prompt / spec files
 BLACKBELT_*.md
+PREPARAR_BUILDS_STORES.md
 blackbelt-v2-roadmap-*.pdf
 
 # claude
