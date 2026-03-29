@@ -17,11 +17,11 @@ const LAST_NAMES = [
 ];
 
 const ACADEMIES = [
-  'Gracie Barra Centro', 'Alliance Norte', 'CheckMat Sul', 'Atos JJ Leste',
-  'Nova União Oeste', 'GFTeam Moema', 'Carlson Gracie Jardins', 'Ribeiro JJ Pinheiros',
+  'Academia Tatame Centro', 'Team Kime Norte', 'Escola Ippon Sul', 'Equipe Dragão Leste',
+  'Academia Vitória Oeste', 'Team Bushido Moema', 'Equipe Samurai Jardins', 'Academia Leão Pinheiros',
   'Judô Nippon', 'Budokan SP', 'Kodokan Brasil', 'Fight Club RJ',
-  'Team Alpha', 'Brotherhood BJJ', 'Kioto JJ', 'Dream Art',
-  'Infight JJ', 'Cicero Costha', 'Brasa CTA', 'Zenith BJJ',
+  'Team Alpha', 'Brotherhood BJJ', 'Kioto JJ', 'Escola Templo',
+  'Infight JJ', 'Team Fênix', 'Brasa CTA', 'Zenith BJJ',
 ];
 
 const BELTS = ['Branca', 'Azul', 'Roxa', 'Marrom', 'Preta'];
@@ -99,7 +99,7 @@ function makeHistory(count: number): AthleteCompetitionHistory[] {
 // 3 athlete profiles with full history
 const ATHLETE_PROFILES: AthleteProfileDTO[] = [
   {
-    athlete_id: 'ath-rank-1', athlete_name: 'Lucas Ferreira', academy: 'Gracie Barra Centro',
+    athlete_id: 'ath-rank-1', athlete_name: 'Lucas Ferreira', academy: 'Academia Tatame Centro',
     belt: 'Preta', weight_class: 'Leve (até 76kg)', region: 'São Paulo', age: 28,
     total_points: 270, ranking_position: 1, win_rate: 0.85, submission_rate: 0.62,
     total_fights: 47, total_wins: 40, total_losses: 7, gold: 8, silver: 3, bronze: 2,
@@ -107,7 +107,7 @@ const ATHLETE_PROFILES: AthleteProfileDTO[] = [
     history: makeHistory(9),
   },
   {
-    athlete_id: 'ath-rank-2', athlete_name: 'Rafael Santos', academy: 'Alliance Norte',
+    athlete_id: 'ath-rank-2', athlete_name: 'Rafael Santos', academy: 'Team Kime Norte',
     belt: 'Marrom', weight_class: 'Médio (até 82kg)', region: 'Rio de Janeiro', age: 26,
     total_points: 245, ranking_position: 2, win_rate: 0.78, submission_rate: 0.45,
     total_fights: 36, total_wins: 28, total_losses: 8, gold: 5, silver: 5, bronze: 3,
@@ -115,7 +115,7 @@ const ATHLETE_PROFILES: AthleteProfileDTO[] = [
     history: makeHistory(8),
   },
   {
-    athlete_id: 'ath-rank-3', athlete_name: 'Pedro Oliveira', academy: 'CheckMat Sul',
+    athlete_id: 'ath-rank-3', athlete_name: 'Pedro Oliveira', academy: 'Escola Ippon Sul',
     belt: 'Preta', weight_class: 'Pena (até 70kg)', region: 'Paraná', age: 30,
     total_points: 230, ranking_position: 3, win_rate: 0.82, submission_rate: 0.55,
     total_fights: 52, total_wins: 43, total_losses: 9, gold: 6, silver: 4, bronze: 5,

@@ -17,7 +17,7 @@ interface AcademyResult {
 
 const MOCK_RESULTS: AcademyResult[] = [
   { id: 'a-1', name: 'Guerreiros do Tatame', slug: 'guerreiros', city: 'Belo Horizonte', state: 'MG', logoUrl: null, modalities: ['BJJ', 'Judo', 'Muay Thai'] },
-  { id: 'a-2', name: 'Alliance BH', slug: 'alliance-bh', city: 'Belo Horizonte', state: 'MG', logoUrl: null, modalities: ['BJJ'] },
+  { id: 'a-2', name: 'Team Kime BH', slug: 'team-kime-bh', city: 'Belo Horizonte', state: 'MG', logoUrl: null, modalities: ['BJJ'] },
   { id: 'a-3', name: 'Team Nogueira SP', slug: 'team-nogueira-sp', city: 'Sao Paulo', state: 'SP', logoUrl: null, modalities: ['BJJ', 'MMA', 'Boxing'] },
 ];
 

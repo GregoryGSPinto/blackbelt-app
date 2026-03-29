@@ -98,7 +98,7 @@ export function SpotlightOverlay({ steps, tutorialKey, onComplete }: SpotlightOv
           </span>
           <div className="flex gap-2">
             {currentStep > 0 && (
-              <button onClick={prev} className="rounded px-2 py-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+              <button onClick={prev} aria-label="Passo anterior" className="rounded px-2 py-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>

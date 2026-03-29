@@ -60,7 +60,7 @@ const CoachChat = forwardRef<HTMLDivElement>(function CoachChat(_, ref) {
               <span className="text-lg">🧠</span>
               <span className="font-bold text-white">Coach IA</span>
             </div>
-            <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">✕</button>
+            <button onClick={() => setOpen(false)} aria-label="Fechar coach IA" className="text-white/80 hover:text-white">✕</button>
           </div>
 
           {/* Messages */}

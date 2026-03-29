@@ -3,14 +3,14 @@ import type { LeagueDTO, LeagueAcademy, AcademyLeagueStats } from '@/lib/api/lea
 const delay = () => new Promise((r) => setTimeout(r, 400));
 
 const ACADEMIES: LeagueAcademy[] = [
-  { academy_id: 'ac-1', name: 'Gracie Barra Centro', logo: '/logos/gb-centro.png', total_points: 18450, student_count: 85, per_capita_avg: 217.1, rank: 1 },
-  { academy_id: 'ac-2', name: 'Alliance Norte', logo: '/logos/alliance-norte.png', total_points: 15200, student_count: 72, per_capita_avg: 211.1, rank: 2 },
-  { academy_id: 'ac-3', name: 'CheckMat Sul', logo: '/logos/checkmat-sul.png', total_points: 12800, student_count: 63, per_capita_avg: 203.2, rank: 3 },
-  { academy_id: 'ac-4', name: 'Atos JJ Leste', logo: '/logos/atos-leste.png', total_points: 11300, student_count: 58, per_capita_avg: 194.8, rank: 4 },
-  { academy_id: 'ac-5', name: 'Nova União Oeste', logo: '/logos/nu-oeste.png', total_points: 10100, student_count: 55, per_capita_avg: 183.6, rank: 5 },
-  { academy_id: 'ac-6', name: 'Carlson Gracie Jardins', logo: '/logos/cg-jardins.png', total_points: 8750, student_count: 48, per_capita_avg: 182.3, rank: 6 },
-  { academy_id: 'ac-7', name: 'GFTeam Moema', logo: '/logos/gft-moema.png', total_points: 7200, student_count: 42, per_capita_avg: 171.4, rank: 7 },
-  { academy_id: 'ac-8', name: 'Ribeiro JJ Pinheiros', logo: '/logos/ribeiro-pinheiros.png', total_points: 5900, student_count: 38, per_capita_avg: 155.3, rank: 8 },
+  { academy_id: 'ac-1', name: 'Academia Tatame Centro', logo: '/logos/gb-centro.png', total_points: 18450, student_count: 85, per_capita_avg: 217.1, rank: 1 },
+  { academy_id: 'ac-2', name: 'Team Kime Norte', logo: '/logos/alliance-norte.png', total_points: 15200, student_count: 72, per_capita_avg: 211.1, rank: 2 },
+  { academy_id: 'ac-3', name: 'Escola Ippon Sul', logo: '/logos/checkmat-sul.png', total_points: 12800, student_count: 63, per_capita_avg: 203.2, rank: 3 },
+  { academy_id: 'ac-4', name: 'Equipe Dragão Leste', logo: '/logos/atos-leste.png', total_points: 11300, student_count: 58, per_capita_avg: 194.8, rank: 4 },
+  { academy_id: 'ac-5', name: 'Academia Vitória Oeste', logo: '/logos/nu-oeste.png', total_points: 10100, student_count: 55, per_capita_avg: 183.6, rank: 5 },
+  { academy_id: 'ac-6', name: 'Equipe Samurai Jardins', logo: '/logos/cg-jardins.png', total_points: 8750, student_count: 48, per_capita_avg: 182.3, rank: 6 },
+  { academy_id: 'ac-7', name: 'Team Bushido Moema', logo: '/logos/gft-moema.png', total_points: 7200, student_count: 42, per_capita_avg: 171.4, rank: 7 },
+  { academy_id: 'ac-8', name: 'Academia Leão Pinheiros', logo: '/logos/ribeiro-pinheiros.png', total_points: 5900, student_count: 38, per_capita_avg: 155.3, rank: 8 },
 ];
 
 const LEAGUE: LeagueDTO = {

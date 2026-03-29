@@ -123,7 +123,7 @@ export function ChargeStudentModal({ open, onClose, onCreated }: ChargeStudentMo
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>Gerar Cobranca</h2>
-          <button onClick={onClose} className="text-xl" style={{ color: 'var(--bb-ink-40)' }}>&times;</button>
+          <button onClick={onClose} aria-label="Fechar" className="text-xl" style={{ color: 'var(--bb-ink-40)' }}>&times;</button>
         </div>
 
         {result ? (

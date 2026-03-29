@@ -164,7 +164,7 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
                 {(file.size / (1024 * 1024)).toFixed(1)} MB
               </p>
             </div>
-            <button onClick={reset} style={{ color: 'var(--bb-ink-40)' }}>
+            <button onClick={reset} aria-label="Remover arquivo" style={{ color: 'var(--bb-ink-40)' }}>
               <X size={16} />
             </button>
           </div>

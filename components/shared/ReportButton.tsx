@@ -72,7 +72,7 @@ export function ReportButton({ contentType, contentId, reportedUserId, userId, a
             className="w-full max-w-sm rounded-xl p-6 relative"
             style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))' }}
           >
-            <button onClick={() => setOpen(false)} className="absolute top-4 right-4" style={{ color: 'var(--bb-ink-60)' }}>
+            <button onClick={() => setOpen(false)} aria-label="Fechar" className="absolute top-4 right-4" style={{ color: 'var(--bb-ink-60)' }}>
               <X size={18} />
             </button>
 

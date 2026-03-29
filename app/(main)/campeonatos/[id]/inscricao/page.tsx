@@ -69,7 +69,7 @@ export default function InscricaoPage() {
       const reg = await register(championshipId, selectedCategory.id, {
         athlete_id: 'current-user',
         athlete_name: 'Usuário Logado',
-        academy: 'Gracie Barra Centro',
+        academy: 'Academia Tatame Centro',
         belt,
         weight_declared: Number(weight),
         age: Number(age),

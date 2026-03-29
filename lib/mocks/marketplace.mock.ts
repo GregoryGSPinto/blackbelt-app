@@ -4,7 +4,7 @@ const delay = () => new Promise((r) => setTimeout(r, 300 + Math.random() * 200))
 
 const COURSES: MarketplaceCourse[] = [
   {
-    id: 'mkt-1', creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', creator_academy: 'Alliance BJJ SP',
+    id: 'mkt-1', creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', creator_academy: 'Team Kime SP',
     title: 'Guarda Fechada Completa - Do Básico ao Avançado', description: 'Domine todas as variações de guarda fechada com técnicas testadas em competição. Aprenda sweeps, submissions e controle posicional.',
     thumbnail_url: '/img/course-guard.jpg', preview_video_url: '/video/preview-guard.mp4',
     modality: 'bjj', belt_level: 'branca', duration_total: 480, price: 197.90, rating: 4.8, reviews_count: 142, students_count: 856,
@@ -16,7 +16,7 @@ const COURSES: MarketplaceCourse[] = [
     status: 'published',
   },
   {
-    id: 'mkt-2', creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', creator_academy: 'Gracie Barra RJ',
+    id: 'mkt-2', creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', creator_academy: 'Academia Tatame RJ',
     title: 'Passagem de Guarda - Sistema Completo', description: 'Sistema passo a passo para passar qualquer tipo de guarda. Inclui pressão, velocidade e técnicas modernas.',
     thumbnail_url: '/img/course-pass.jpg', preview_video_url: '/video/preview-pass.mp4',
     modality: 'bjj', belt_level: 'azul', duration_total: 360, price: 247.00, rating: 4.9, reviews_count: 98, students_count: 623,
@@ -49,7 +49,7 @@ const COURSES: MarketplaceCourse[] = [
     status: 'published',
   },
   {
-    id: 'mkt-5', creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', creator_academy: 'Alliance BJJ SP',
+    id: 'mkt-5', creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', creator_academy: 'Team Kime SP',
     title: 'Raspagens Modernas - Jogo por Baixo', description: 'As raspagens mais eficientes do jiu-jitsu moderno. De La Riva, Berimbolo e Single Leg X.',
     thumbnail_url: '/img/course-sweeps.jpg', preview_video_url: '/video/preview-sweeps.mp4',
     modality: 'bjj', belt_level: 'roxa', duration_total: 420, price: 297.00, rating: 4.9, reviews_count: 87, students_count: 445,
@@ -60,7 +60,7 @@ const COURSES: MarketplaceCourse[] = [
     status: 'published',
   },
   {
-    id: 'mkt-6', creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', creator_academy: 'Nova União Feminino',
+    id: 'mkt-6', creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', creator_academy: 'Academia Vitória Feminino',
     title: 'BJJ Feminino - Técnicas para Mulheres', description: 'Adaptações técnicas considerando diferenças físicas. Estratégias inteligentes para competição feminina.',
     thumbnail_url: '/img/course-fem.jpg', preview_video_url: '/video/preview-fem.mp4',
     modality: 'bjj', belt_level: 'branca', duration_total: 350, price: 177.00, rating: 4.8, reviews_count: 112, students_count: 678,
@@ -93,7 +93,7 @@ const COURSES: MarketplaceCourse[] = [
     status: 'published',
   },
   {
-    id: 'mkt-9', creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', creator_academy: 'Gracie Barra RJ',
+    id: 'mkt-9', creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', creator_academy: 'Academia Tatame RJ',
     title: 'Leg Locks - Guia Definitivo', description: 'Ataques de perna modernos: heel hook, toe hold, kneebar e defesas essenciais. IBJJF e ADCC rules.',
     thumbnail_url: '/img/course-legs.jpg', preview_video_url: '/video/preview-legs.mp4',
     modality: 'no_gi', belt_level: 'marrom', duration_total: 380, price: 347.00, rating: 4.9, reviews_count: 134, students_count: 521,
@@ -126,7 +126,7 @@ const COURSES: MarketplaceCourse[] = [
     status: 'published',
   },
   {
-    id: 'mkt-12', creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', creator_academy: 'Nova União Feminino',
+    id: 'mkt-12', creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', creator_academy: 'Academia Vitória Feminino',
     title: 'Competição de BJJ - Preparação Mental e Física', description: 'Prepare-se para sua primeira competição. Periodização, corte de peso saudável e mentalidade competitiva.',
     thumbnail_url: '/img/course-comp.jpg', preview_video_url: '/video/preview-comp.mp4',
     modality: 'bjj', belt_level: 'azul', duration_total: 260, price: 187.00, rating: 4.7, reviews_count: 64, students_count: 398,

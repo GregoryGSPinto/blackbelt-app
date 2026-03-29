@@ -196,7 +196,7 @@ export default function BancoTecnicasPage() {
           <SearchIcon style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: 'var(--bb-ink-40)' }} />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar tecnica..." style={{ ...inputStyle, paddingLeft: 40 }} />
           {search && (
-            <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button onClick={() => setSearch('')} aria-label="Limpar busca" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <XIcon style={{ width: 16, height: 16 }} />
             </button>
           )}
@@ -278,7 +278,7 @@ export default function BancoTecnicasPage() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div onClick={() => setSelectedTecnica(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }} />
           <div style={{ position: 'relative', zIndex: 51, width: '100%', maxWidth: 520, backgroundColor: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)', boxShadow: 'var(--bb-shadow-lg)', padding: 24, maxHeight: '90vh', overflowY: 'auto' }}>
-            <button onClick={() => setSelectedTecnica(null)} style={{ position: 'absolute', top: 12, right: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-60)' }}>
+            <button onClick={() => setSelectedTecnica(null)} aria-label="Fechar detalhes" style={{ position: 'absolute', top: 12, right: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-60)' }}>
               <XIcon style={{ width: 20, height: 20 }} />
             </button>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--bb-ink-100)', margin: '0 0 4px', paddingRight: 40 }}>{selectedTecnica.nome}</h2>
@@ -334,7 +334,7 @@ export default function BancoTecnicasPage() {
           <div style={{ position: 'relative', zIndex: 51, width: '100%', maxWidth: 520, backgroundColor: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)', boxShadow: 'var(--bb-shadow-lg)', padding: 24, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--bb-ink-100)', margin: 0 }}>Nova Tecnica</h2>
-              <button onClick={() => { setShowCreateModal(false); resetForm(); }} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-60)' }}>
+              <button onClick={() => { setShowCreateModal(false); resetForm(); }} aria-label="Fechar formulario" style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-60)' }}>
                 <XIcon style={{ width: 20, height: 20 }} />
               </button>
             </div>
@@ -371,7 +371,7 @@ export default function BancoTecnicasPage() {
                     <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                       <span style={{ fontSize: 12, color: 'var(--bb-ink-40)', width: 20, textAlign: 'right', flexShrink: 0 }}>{i + 1}.</span>
                       <input value={p} onChange={e => handlePassoChange(i, e.target.value)} placeholder={`Passo ${i + 1}`} style={{ ...inputStyle, flex: 1 }} />
-                      {formPassos.length > 1 && <button onClick={() => handleRemovePasso(i)} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', flexShrink: 0 }}><XIcon style={{ width: 14, height: 14 }} /></button>}
+                      {formPassos.length > 1 && <button onClick={() => handleRemovePasso(i)} aria-label={`Remover passo ${i + 1}`} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', flexShrink: 0 }}><XIcon style={{ width: 14, height: 14 }} /></button>}
                     </div>
                   ))}
                   <button onClick={handleAddPasso} style={{ minHeight: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, backgroundColor: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)', border: '1px dashed var(--bb-glass-border)', borderRadius: 'var(--bb-radius-md)', fontSize: 12, cursor: 'pointer' }}>
@@ -384,7 +384,7 @@ export default function BancoTecnicasPage() {
                   {formDicas.map((d, i) => (
                     <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                       <input value={d} onChange={e => handleDicaChange(i, e.target.value)} placeholder={`Dica ${i + 1}`} style={{ ...inputStyle, flex: 1 }} />
-                      {formDicas.length > 1 && <button onClick={() => handleRemoveDica(i)} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', flexShrink: 0 }}><XIcon style={{ width: 14, height: 14 }} /></button>}
+                      {formDicas.length > 1 && <button onClick={() => handleRemoveDica(i)} aria-label={`Remover dica ${i + 1}`} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', flexShrink: 0 }}><XIcon style={{ width: 14, height: 14 }} /></button>}
                     </div>
                   ))}
                   <button onClick={handleAddDica} style={{ minHeight: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, backgroundColor: 'var(--bb-depth-4)', color: 'var(--bb-ink-60)', border: '1px dashed var(--bb-glass-border)', borderRadius: 'var(--bb-radius-md)', fontSize: 12, cursor: 'pointer' }}>
@@ -397,7 +397,7 @@ export default function BancoTecnicasPage() {
                   {formTags.map(tag => (
                     <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, fontSize: 12, backgroundColor: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}>
                       {tag}
-                      <button onClick={() => handleRemoveTag(tag)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', padding: 0, display: 'flex' }}><XIcon style={{ width: 12, height: 12 }} /></button>
+                      <button onClick={() => handleRemoveTag(tag)} aria-label={`Remover tag ${tag}`} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--bb-ink-40)', padding: 0, display: 'flex' }}><XIcon style={{ width: 12, height: 12 }} /></button>
                     </span>
                   ))}
                 </div>

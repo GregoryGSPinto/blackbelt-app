@@ -6,19 +6,19 @@ const CERTIFICATES: Certificate[] = [
   {
     id: 'cert-1', type: 'course', user_name: 'João Silva',
     title: 'Conclusão: Guarda Fechada Completa', description: 'Completou com sucesso o curso "Guarda Fechada Completa - Do Básico ao Avançado" com 480 minutos de conteúdo.',
-    issued_at: '2026-02-28T10:00:00Z', academy_name: 'Alliance BJJ SP', issuer_name: 'Prof. Ricardo Almeida',
+    issued_at: '2026-02-28T10:00:00Z', academy_name: 'Team Kime SP', issuer_name: 'Prof. Ricardo Almeida',
     verification_code: 'BB-CRS-2026-A1B2C3', pdf_url: '/certificates/cert-1.pdf', thumbnail_url: '/certificates/thumb-cert-1.jpg',
   },
   {
     id: 'cert-2', type: 'belt', user_name: 'João Silva',
     title: 'Graduação - Faixa Azul de Jiu-Jitsu', description: 'Graduado à faixa azul de Brazilian Jiu-Jitsu após demonstrar proficiência técnica e dedicação ao treinamento.',
-    issued_at: '2025-12-15T14:00:00Z', academy_name: 'Alliance BJJ SP', issuer_name: 'Mestre Carlos Gracie Jr.',
+    issued_at: '2025-12-15T14:00:00Z', academy_name: 'Team Kime SP', issuer_name: 'Mestre Eduardo Silva',
     verification_code: 'BB-BLT-2025-D4E5F6', pdf_url: '/certificates/cert-2.pdf', thumbnail_url: '/certificates/thumb-cert-2.jpg',
   },
   {
     id: 'cert-3', type: 'event', user_name: 'João Silva',
     title: 'Participação: Seminário de Guarda', description: 'Participou do seminário "Técnicas Avançadas de Guarda" com professor convidado internacional.',
-    issued_at: '2026-01-20T17:00:00Z', academy_name: 'Alliance BJJ SP', issuer_name: 'Prof. Ricardo Almeida',
+    issued_at: '2026-01-20T17:00:00Z', academy_name: 'Team Kime SP', issuer_name: 'Prof. Ricardo Almeida',
     verification_code: 'BB-EVT-2026-G7H8I9', pdf_url: '/certificates/cert-3.pdf', thumbnail_url: '/certificates/thumb-cert-3.jpg',
   },
   {
@@ -52,7 +52,7 @@ export async function mockGenerateBeltCertificate(_userId: string, belt: string,
   const cert: Certificate = {
     id: `cert-${Date.now()}`, type: 'belt', user_name: 'João Silva',
     title: `Graduação - Faixa ${belt}`, description: `Graduado à faixa ${belt} após avaliação técnica.`,
-    issued_at: new Date().toISOString(), academy_name: 'Alliance BJJ SP', issuer_name: 'Mestre Responsável',
+    issued_at: new Date().toISOString(), academy_name: 'Team Kime SP', issuer_name: 'Mestre Responsável',
     verification_code: `BB-BLT-${Date.now()}`, pdf_url: '/certificates/belt-cert.pdf', thumbnail_url: '/certificates/thumb-belt.jpg',
   };
   CERTIFICATES.push(cert);

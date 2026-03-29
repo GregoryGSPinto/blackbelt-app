@@ -188,7 +188,7 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
           {/* ═══ MOBILE SIDEBAR OVERLAY ═══ */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
-              <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+              <div className="fixed inset-0 bg-black/50" role="button" aria-label="Fechar menu" tabIndex={0} onClick={() => setSidebarOpen(false)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSidebarOpen(false); }} />
               <aside className="fixed left-0 top-0 bottom-0 w-64 shadow-xl" style={{ background: 'var(--bb-depth-2)' }}>
                 <div
                   className="flex h-14 flex-col justify-center px-6"
@@ -300,6 +300,7 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
 
         {/* ═══ BOTTOM NAV MOBILE ═══ */}
         <nav
+          aria-label="Navegacao principal"
           className="lg:hidden fixed bottom-0 left-0 right-0 z-30"
           style={{
             background: 'var(--bb-depth-2)',
@@ -330,6 +331,7 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
             })}
             <button
               onClick={() => setSidebarOpen(true)}
+              aria-label="Abrir menu completo"
               className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-all min-w-[48px]"
               style={{ color: 'var(--bb-ink-60)' }}
             >

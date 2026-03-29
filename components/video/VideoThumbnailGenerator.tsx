@@ -146,7 +146,7 @@ const VideoThumbnailGenerator = forwardRef<HTMLDivElement, VideoThumbnailGenerat
           {status === 'ready' && previewUrl && (
             <img
               src={previewUrl}
-              alt="Video thumbnail preview"
+              alt="Pre-visualizacao da thumbnail do video"
               className="h-auto w-full object-cover"
               style={{ maxHeight: '180px' }}
             />

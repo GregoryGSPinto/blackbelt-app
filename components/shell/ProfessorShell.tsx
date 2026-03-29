@@ -526,6 +526,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
               {/* 5th item: "Mais" button */}
               <button
                 onClick={() => setDrawerOpen(true)}
+                aria-label="Abrir menu completo"
                 className="relative flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-all"
                 style={{ color: drawerOpen ? 'var(--bb-brand)' : 'var(--bb-ink-60)' }}
               >
@@ -541,7 +542,11 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
             <div
               className="fixed inset-0 z-40"
               style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+              role="button"
+              aria-label="Fechar menu"
+              tabIndex={0}
               onClick={() => setDrawerOpen(false)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setDrawerOpen(false); }}
             />
           )}
 

@@ -9,7 +9,7 @@ export async function mockGetPersonalContext(_studentId: string): Promise<Person
     name: 'Lucas Silva',
     belt: 'azul',
     stripes: 3,
-    academy: 'Alliance BJJ Centro',
+    academy: 'Team Kime Centro',
     frequency_weekly: 4,
     last_class_date: '2026-03-14',
     next_class_date: '2026-03-16',
@@ -79,7 +79,7 @@ export async function mockChat(_studentId: string, message: string, _history: Ch
   }
 
   return {
-    message: 'Boa pergunta, Lucas! Como faixa azul 3 graus na Alliance, você está em um momento importante da sua evolução. Mantenha a consistência nos treinos (você está com 8 dias de sequência, parabéns!) e foque nos seus objetivos para a Copa Regional. Posso te ajudar com plano de treino, dicas técnicas, controle de peso ou qualquer dúvida sobre sua preparação!',
+    message: 'Boa pergunta, Lucas! Como faixa azul 3 graus na Team Kime, você está em um momento importante da sua evolução. Mantenha a consistência nos treinos (você está com 8 dias de sequência, parabéns!) e foque nos seus objetivos para a Copa Regional. Posso te ajudar com plano de treino, dicas técnicas, controle de peso ou qualquer dúvida sobre sua preparação!',
     context_used: ['perfil geral', 'streak', 'objetivos'],
     suggested_actions: [
       { label: 'Meu plano semanal', action: 'weekly-plan' },

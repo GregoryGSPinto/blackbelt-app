@@ -44,11 +44,11 @@ const DATA: ProductAnalytics = {
       { id: 'ac-e3', nome: 'BlackBelt HQ', plano: 'Black Belt', temAcesso: true },
       { id: 'ac-e4', nome: 'Coliseu Fight', plano: 'Black Belt', temAcesso: true },
       { id: 'ac-e5', nome: 'Guerreiro Nômade', plano: 'Black Belt', temAcesso: true },
-      { id: 'ac-e8', nome: 'Gracie Barra', plano: 'Pro', temAcesso: false },
+      { id: 'ac-e8', nome: 'Academia Tatame', plano: 'Pro', temAcesso: false },
       { id: 'ac-e9', nome: 'Força Bruta', plano: 'Pro', temAcesso: false },
       { id: 'ac-e10', nome: 'Tiger Muay Thai', plano: 'Pro', temAcesso: false },
       { id: 'ac-e11', nome: 'Top Team BR', plano: 'Enterprise', temAcesso: true },
-      { id: 'ac-e12', nome: 'Alliance BJJ', plano: 'Enterprise', temAcesso: true },
+      { id: 'ac-e12', nome: 'Team Kime', plano: 'Enterprise', temAcesso: true },
     ] },
     { feature: 'Streaming', slug: 'streaming', academias: [
       { id: 'ac-s2', nome: 'Iron Fist Academy', plano: 'Pro', temAcesso: true },

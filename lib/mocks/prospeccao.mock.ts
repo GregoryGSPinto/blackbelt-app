@@ -85,7 +85,7 @@ function make(
 
 export const MOCK_ACADEMIAS_PROSPECTADAS: AcademiaProspectada[] = [
   // ═══ QUENTES (8) — Score 70-90 ═══
-  make('p01', 'Gracie Barra BH', 'Funcionários', '(31) 98765-4321', 4.8, 342, ['BJJ', 'No-Gi'], 85, 'quente', 'novo', {
+  make('p01', 'Academia Tatame BH', 'Funcionários', '(31) 98765-4321', 4.8, 342, ['BJJ', 'No-Gi'], 85, 'quente', 'novo', {
     website: 'https://graciebarra-bh.com.br',
     reviews: [
       { autor: 'Rafael M.', nota: 5, texto: 'Melhor academia de BJJ de BH. Professores excelentes, ambiente top!', data: '2026-03-01T10:00:00Z', plataforma: 'Google' },
@@ -94,21 +94,21 @@ export const MOCK_ACADEMIAS_PROSPECTADAS: AcademiaProspectada[] = [
       { autor: 'Ana R.', nota: 5, texto: 'Meu filho treina aqui e ama. Professores cuidadosos com as crianças.', data: '2025-12-10T16:00:00Z', plataforma: 'Google' },
     ],
     analise: {
-      pontosFortes: ['Marca forte (Gracie Barra)', '342 avaliações', 'Localização premium'],
+      pontosFortes: ['Marca forte (Academia Tatame)', '342 avaliações', 'Localização premium'],
       pontosFracos: ['Sem check-in digital', 'Horários mudam sem avisar', 'Gestão manual'],
       oportunidades: ['Muitos alunos para converter', 'Marca facilita marketing'],
       ameacas: ['Franquia pode impor sistema próprio'],
     },
     abordagem: {
       canal: 'instagram',
-      mensagemSugerida: 'Olá! Vi que a Gracie Barra BH tem 342 avaliações no Google — impressionante! Sou o Gregory do BlackBelt, uma plataforma de gestão para academias. Ajudamos a controlar presença, financeiro e comunicação com alunos pelo app. Posso mostrar em 10 min? 🥋',
+      mensagemSugerida: 'Olá! Vi que a Academia Tatame BH tem 342 avaliações no Google — impressionante! Sou o Gregory do BlackBelt, uma plataforma de gestão para academias. Ajudamos a controlar presença, financeiro e comunicação com alunos pelo app. Posso mostrar em 10 min? 🥋',
       melhorHorario: 'Terça-feira, 14h-16h (entre aulas)',
       argumentos: ['Check-in por QR elimina chamada manual', 'App pro aluno com evolução e presença', 'Dashboard financeiro automático'],
       objecoesPrevistas: ['Franquia pode ter sistema próprio', 'Já funciona assim há anos'],
     },
   }),
 
-  make('p02', 'Alliance Jiu-Jitsu BH', 'Savassi', '(31) 99876-5432', 4.7, 280, ['BJJ', 'Muay Thai'], 82, 'quente', 'contactado', {
+  make('p02', 'Team Kime BH', 'Savassi', '(31) 99876-5432', 4.7, 280, ['BJJ', 'Muay Thai'], 82, 'quente', 'contactado', {
     website: 'https://alliance-bh.com.br',
     reviews: [
       { autor: 'Pedro H.', nota: 5, texto: 'Estrutura impecável, professores de altíssimo nível. Referência!', data: '2026-02-20T10:00:00Z', plataforma: 'Google' },
@@ -117,7 +117,7 @@ export const MOCK_ACADEMIAS_PROSPECTADAS: AcademiaProspectada[] = [
     ],
     abordagem: {
       canal: 'whatsapp',
-      mensagemSugerida: 'Fala! Vi que a Alliance BH tem nota 4.7 no Google com 280 avaliações — referência na Savassi! Sou o Gregory do BlackBelt. Nosso app resolve aquela confusão de cobrança que alguns alunos mencionam. Posso mostrar em 10 min? 🥋',
+      mensagemSugerida: 'Fala! Vi que a Team Kime BH tem nota 4.7 no Google com 280 avaliações — referência na Savassi! Sou o Gregory do BlackBelt. Nosso app resolve aquela confusão de cobrança que alguns alunos mencionam. Posso mostrar em 10 min? 🥋',
       melhorHorario: 'Quarta, 15h',
       argumentos: ['Controle de cobrança automático', 'Notificação de vencimento pro aluno', 'Relatórios financeiros'],
       objecoesPrevistas: ['Já tem pessoa que cuida do financeiro', 'Preço'],
@@ -157,10 +157,10 @@ export const MOCK_ACADEMIAS_PROSPECTADAS: AcademiaProspectada[] = [
     },
   }),
 
-  make('p04', 'Nova União BH', 'Buritis', '(31) 96543-2109', 4.5, 220, ['BJJ', 'MMA'], 76, 'quente', 'demo_agendada', {
+  make('p04', 'Academia Vitória BH', 'Buritis', '(31) 96543-2109', 4.5, 220, ['BJJ', 'MMA'], 76, 'quente', 'demo_agendada', {
     abordagem: {
       canal: 'whatsapp',
-      mensagemSugerida: 'Olá! A Nova União BH com 220 avaliações é uma das maiores do Buritis! Sou o Gregory do BlackBelt. Tenho um sistema completo de gestão — check-in, financeiro, app. Demo agendada! 🥋',
+      mensagemSugerida: 'Olá! A Academia Vitória BH com 220 avaliações é uma das maiores do Buritis! Sou o Gregory do BlackBelt. Tenho um sistema completo de gestão — check-in, financeiro, app. Demo agendada! 🥋',
       melhorHorario: 'Sexta, 10h',
       argumentos: ['Sistema completo tudo-em-um', 'Preço competitivo', 'Suporte dedicado'],
       objecoesPrevistas: ['Quer ver antes de decidir', 'Precisa consultar sócios'],
@@ -349,10 +349,10 @@ export const MOCK_ACADEMIAS_PROSPECTADAS: AcademiaProspectada[] = [
     analise: { pontosFortes: ['Rede grande', 'Sistema próprio'], pontosFracos: [], oportunidades: [], ameacas: ['Usa sistema corporativo, impossível migrar'] },
     abordagem: { canal: 'whatsapp', mensagemSugerida: 'Smart Fit Fight já usa sistema corporativo — skip.', melhorHorario: '-', argumentos: [], objecoesPrevistas: ['Sistema corporativo obrigatório'] },
   }),
-  make('p42', 'Gracie Humaitá BH', 'Funcionários', '(31) 98544-7733', 4.6, 200, ['BJJ'], 30, 'frio', 'novo', {
-    website: 'https://graciehumaita-bh.com.br',
+  make('p42', 'Tatame Real BH', 'Funcionários', '(31) 98544-7733', 4.6, 200, ['BJJ'], 30, 'frio', 'novo', {
+    website: 'https://tatamereal-bh.com.br',
     analise: { pontosFortes: ['Franquia forte', 'Sistema da franquia'], pontosFracos: [], oportunidades: [], ameacas: ['Franquia impõe sistema próprio'] },
-    abordagem: { canal: 'whatsapp', mensagemSugerida: 'Gracie Humaitá usa sistema da franquia — difícil conversão.', melhorHorario: '-', argumentos: [], objecoesPrevistas: ['Obrigado a usar sistema da franquia'] },
+    abordagem: { canal: 'whatsapp', mensagemSugerida: 'Tatame Real usa sistema da franquia — difícil conversão.', melhorHorario: '-', argumentos: [], objecoesPrevistas: ['Obrigado a usar sistema da franquia'] },
   }),
   make('p43', 'CrossFight Academy', 'Buritis', '(31) 97433-6622', 4.3, 150, ['CrossFit Fight', 'MMA'], 28, 'frio', 'novo', {
     website: 'https://crossfight.com.br',
@@ -393,10 +393,10 @@ export const MOCK_DASHBOARD: ProspeccaoDashboard = {
     { query: 'karate judo BH', resultados: 4, data: '2026-03-13T16:00:00Z' },
   ],
   proximosContatos: [
-    { academia: 'Alliance Jiu-Jitsu BH', data: '2026-03-19T10:00:00Z', canal: 'WhatsApp' },
+    { academia: 'Team Kime BH', data: '2026-03-19T10:00:00Z', canal: 'WhatsApp' },
     { academia: 'Titans MMA Academy', data: '2026-03-19T14:00:00Z', canal: 'Presencial' },
     { academia: 'Atos Team Minas', data: '2026-03-20T14:00:00Z', canal: 'WhatsApp' },
-    { academia: 'Nova União BH', data: '2026-03-21T10:00:00Z', canal: 'WhatsApp' },
+    { academia: 'Academia Vitória BH', data: '2026-03-21T10:00:00Z', canal: 'WhatsApp' },
     { academia: 'Black Belt Academy BH', data: '2026-03-22T10:00:00Z', canal: 'WhatsApp' },
   ],
   regioes: [

@@ -140,7 +140,7 @@ export function AvatarUploader({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={value}
-            alt="Avatar preview"
+            alt="Pre-visualizacao do avatar"
             style={{
               width: '100%',
               height: '100%',

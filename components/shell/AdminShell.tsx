@@ -53,6 +53,7 @@ import { SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { isNative } from '@/lib/platform';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -162,6 +163,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const [billingAlertCount, setBillingAlertCount] = useState(0);
     const [impersonating, setImpersonating] = useState(false);
     const [impersonateAcademia, setImpersonateAcademia] = useState('');
+    const [native, setNative] = useState(false);
 
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -171,6 +173,11 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
       getAlerts('academy-1')
         .then((alerts) => setBillingAlertCount(alerts.length))
         .catch(() => {});
+    }, []);
+
+    // ── Native platform check ─────────────────────────────────────────
+    useEffect(() => {
+      setNative(isNative());
     }, []);
 
     // ── Impersonation check ──────────────────────────────────────────
@@ -210,6 +217,14 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
 
     const userName = profile?.display_name ?? 'Admin';
     const userRole = profile?.role ?? 'admin';
+
+    // ── Filter sidebar groups: hide "Meu Plano" in native (Apple 3.1.1) ──
+    const filteredSidebarGroups = native
+      ? sidebarGroups.map((group) => ({
+          ...group,
+          items: group.items.filter((item) => item.href !== '/admin/plano'),
+        })).filter((group) => group.items.length > 0)
+      : sidebarGroups;
 
     async function handleStopImpersonation() {
       await stopImpersonation();
@@ -255,7 +270,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             </span>
           </div>
           <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
-            {sidebarGroups.map((group, gi) => (
+            {filteredSidebarGroups.map((group, gi) => (
               <div key={group.label}>
                 <p
                   className="uppercase tracking-widest font-semibold"
@@ -334,7 +349,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-40 lg:hidden">
-            <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed inset-0 bg-black/50" role="button" aria-label="Fechar menu" tabIndex={0} onClick={() => setSidebarOpen(false)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSidebarOpen(false); }} />
             <aside
               className="fixed left-0 top-0 bottom-0 w-64 shadow-xl"
               style={{ background: 'var(--bb-depth-2)' }}
@@ -349,7 +364,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                 </span>
               </div>
               <nav aria-label="Menu principal" className="overflow-y-auto p-3">
-                {sidebarGroups.map((group, gi) => (
+                {filteredSidebarGroups.map((group, gi) => (
                   <div key={group.label}>
                     <p
                       className="uppercase tracking-widest font-semibold"
@@ -522,21 +537,23 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         <UserIcon className="h-4 w-4" />
                         Meu perfil
                       </Link>
-                      <Link
-                        href="/admin/plano"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
-                        style={{ color: 'var(--bb-ink-80)' }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-100)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = 'var(--bb-ink-80)';
-                        }}
-                      >
-                        <StarIcon className="h-4 w-4" />
-                        Meu Plano
-                      </Link>
+                      {!native && (
+                        <Link
+                          href="/admin/plano"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bb-depth-4)]"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = 'var(--bb-ink-100)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = 'var(--bb-ink-80)';
+                          }}
+                        >
+                          <StarIcon className="h-4 w-4" />
+                          Meu Plano
+                        </Link>
+                      )}
                       <Link
                         href="/admin/configuracoes"
                         onClick={() => setUserMenuOpen(false)}

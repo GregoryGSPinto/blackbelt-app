@@ -15,7 +15,7 @@ const PROFESSOR: VideoExperience['professor'] = {
   avatar: '/mock/avatars/prof-nakamura.jpg',
   faixa: 'preta',
   graus: 3,
-  bio: 'Faixa preta 3° grau com mais de 20 anos de experiência em Jiu-Jitsu Brasileiro. Formado pela Alliance, competidor internacional e referência no ensino de fundamentos. Especialista em guarda fechada e jogo por cima.',
+  bio: 'Faixa preta 3° grau com mais de 20 anos de experiência em Jiu-Jitsu Brasileiro. Formado pela Team Kime, competidor internacional e referência no ensino de fundamentos. Especialista em guarda fechada e jogo por cima.',
   totalVideos: 45,
   totalAlunos: 180,
 };

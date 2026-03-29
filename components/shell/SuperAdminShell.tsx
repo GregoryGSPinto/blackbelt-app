@@ -183,7 +183,11 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
           {sidebarOpen && (
             <div
               className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+              role="button"
+              aria-label="Fechar menu"
+              tabIndex={0}
               onClick={() => setSidebarOpen(false)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSidebarOpen(false); }}
             />
           )}
 

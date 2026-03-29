@@ -16,7 +16,7 @@ export async function mockGetReferralStats(_academyId: string): Promise<Referral
     creditsEarned: 3,
     creditsUsed: 2,
     referrals: [
-      { academyName: 'Gracie Barra Moema', status: 'active', createdAt: '2025-06-15T10:00:00Z' },
+      { academyName: 'Academia Tatame Moema', status: 'active', createdAt: '2025-06-15T10:00:00Z' },
       { academyName: 'Team Alpha MMA', status: 'active', createdAt: '2025-05-20T14:00:00Z' },
       { academyName: 'Oss Dojo', status: 'active', createdAt: '2025-04-10T08:00:00Z' },
       { academyName: 'Fight Club SP', status: 'pending', createdAt: '2025-07-01T12:00:00Z' },

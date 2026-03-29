@@ -61,9 +61,9 @@ export async function mockGetWithdrawalHistory(_creatorId: string): Promise<With
 export async function mockGetTopCreators(): Promise<TopCreator[]> {
   await delay();
   return [
-    { creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', academy: 'Alliance BJJ SP', courses_count: 3, total_sales: 1301, total_revenue: 301528.40 },
-    { creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', academy: 'Gracie Barra RJ', courses_count: 2, total_sales: 1144, total_revenue: 462353.00 },
-    { creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', academy: 'Nova União Feminino', courses_count: 2, total_sales: 1076, total_revenue: 194460.00 },
+    { creator_id: 'prof-1', creator_name: 'Prof. Ricardo Almeida', academy: 'Team Kime SP', courses_count: 3, total_sales: 1301, total_revenue: 301528.40 },
+    { creator_id: 'prof-2', creator_name: 'Prof. Marcos Souza', academy: 'Academia Tatame RJ', courses_count: 2, total_sales: 1144, total_revenue: 462353.00 },
+    { creator_id: 'prof-5', creator_name: 'Prof. Kátia Fernandes', academy: 'Academia Vitória Feminino', courses_count: 2, total_sales: 1076, total_revenue: 194460.00 },
     { creator_id: 'prof-7', creator_name: 'Prof. Diego Brandão', academy: 'Chute Boxe Academy', courses_count: 2, total_sales: 955, total_revenue: 173457.50 },
     { creator_id: 'prof-3', creator_name: 'Sensei Takeshi Yamamoto', academy: 'Judô Clube Paulista', courses_count: 2, total_sales: 657, total_revenue: 102028.50 },
     { creator_id: 'prof-8', creator_name: 'Prof. Roberto Cyborg', academy: 'Fight Sports Brasil', courses_count: 2, total_sales: 843, total_revenue: 210174.00 },
