@@ -3,12 +3,12 @@
     "apps": [],
     "details": [
       {
-        "appIDs": ["TEAM_ID.app.blackbelt.v2"],
+        "appIDs": ["REPLACE_WITH_APPLE_TEAM_ID.app.blackbelt.academy"],
         "paths": ["/auth/callback", "/redefinir-senha", "/convite/*", "/cadastro/*", "/verificar/*"]
       }
     ]
   },
   "webcredentials": {
-    "apps": ["TEAM_ID.app.blackbelt.v2"]
+    "apps": ["REPLACE_WITH_APPLE_TEAM_ID.app.blackbelt.academy"]
   }
 }

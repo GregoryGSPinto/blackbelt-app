@@ -6,3 +6,4 @@ export { initDeepLinks } from './deep-links';
 export { configureStatusBar, hideStatusBar, showStatusBar } from './status-bar';
 export { openSubscriptionPage, openManagePlan, openExternalUrl } from './payment-redirect';
 export { scanQRCode, requestCameraPermission } from './camera-scanner';
+export { initBackButton } from './back-button';

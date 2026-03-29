@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { initDeepLinks } from '@/lib/native/deep-links';
+import { initBackButton } from '@/lib/native/back-button';
 
 export function NativeBridge() {
   const router = useRouter();
@@ -13,6 +14,10 @@ export function NativeBridge() {
       router.push(path);
     });
   }, [router]);
+
+  useEffect(() => {
+    return initBackButton();
+  }, []);
 
   return null;
 }

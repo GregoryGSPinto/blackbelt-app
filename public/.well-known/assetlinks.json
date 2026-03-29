@@ -3,8 +3,8 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "app.blackbelt.v2",
-      "sha256_cert_fingerprints": ["TO_BE_FILLED_AFTER_SIGNING"]
+      "package_name": "app.blackbelt.academy",
+      "sha256_cert_fingerprints": ["REPLACE_WITH_SHA256_FINGERPRINT"]
     }
   }
 ]
