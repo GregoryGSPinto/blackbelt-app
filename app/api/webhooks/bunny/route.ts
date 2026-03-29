@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate webhook token
+    const expectedToken = process.env.BUNNY_WEBHOOK_TOKEN;
+    if (expectedToken) {
+      const receivedToken = req.headers.get('x-webhook-token') ?? req.nextUrl.searchParams.get('token');
+      if (receivedToken !== expectedToken) {
+        return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+      }
+    }
+
     const body = await req.json();
     const { VideoGuid, Status } = body;
 

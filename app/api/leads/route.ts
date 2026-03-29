@@ -1,11 +1,19 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { isMock } from '@/lib/env';
+import { rateLimit } from '@/lib/utils/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 10 tentativas por minuto por IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const rateLimitResult = rateLimit(`leads:${ip}`, { limit: 10, windowMs: 60_000 });
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: 'Muitas tentativas. Aguarde um momento.' }, { status: 429 });
+    }
+
     const body = await request.json();
 
     const { nomeAcademia, contatoNome, contatoEmail, contatoTelefone, cidade, estado, modalidades, quantidadeAlunos } = body;

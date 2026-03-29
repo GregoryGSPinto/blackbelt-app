@@ -1,11 +1,20 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { isMock } from '@/lib/env';
+import { rateLimit } from '@/lib/utils/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 10 tentativas por minuto por IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const rateLimitResult = rateLimit(`contato:${ip}`, { limit: 10, windowMs: 60_000 });
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: 'Muitas tentativas. Aguarde um momento.' }, { status: 429 });
+    }
+
     const body = await request.json();
 
     const { nome, email, telefone, assunto, mensagem } = body;
@@ -65,8 +74,19 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Auth check — listing messages requires authentication
+    const supabaseAuth = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get(name: string) { return request.cookies.get(name)?.value; }, set() {}, remove() {} } },
+    );
+    const { data: { user } } = await supabaseAuth.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     if (isMock()) {
       return NextResponse.json({
         data: [

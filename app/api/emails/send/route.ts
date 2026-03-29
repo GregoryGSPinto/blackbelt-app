@@ -4,7 +4,8 @@
 // Recebe { type, data }, seleciona template, envia via Resend.
 // ============================================================
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { sendEmail } from '@/lib/email/resend';
 import { welcomeEmail } from '@/lib/email/templates/welcome';
 import { inviteEmail } from '@/lib/email/templates/invite';
@@ -37,8 +38,19 @@ function getTemplate(type: EmailType, data: Record<string, unknown>): { subject:
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Auth check
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get(name: string) { return request.cookies.get(name)?.value; }, set() {}, remove() {} } },
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Rate limiting: 20 emails por minuto por IP
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown';

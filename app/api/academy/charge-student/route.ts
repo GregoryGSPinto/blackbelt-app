@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 const ASAAS_BASE_URL = process.env.ASAAS_SANDBOX === 'true'
@@ -7,6 +8,17 @@ const ASAAS_BASE_URL = process.env.ASAAS_SANDBOX === 'true'
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth check
+    const supabaseAuth = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get(name: string) { return req.cookies.get(name)?.value; }, set() {}, remove() {} } },
+    );
+    const { data: { user } } = await supabaseAuth.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       academyId, studentProfileId, guardianPersonId,

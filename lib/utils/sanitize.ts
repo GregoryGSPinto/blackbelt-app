@@ -7,15 +7,31 @@
  * Sanitiza texto generico:
  * - Trim whitespace
  * - Remove tags HTML (prevencao XSS)
- * - Remove caracteres perigosos
+ * - Escapa caracteres perigosos em entidades HTML
  * - Limita tamanho
  */
 export function sanitizeInput(input: string, maxLength = 1000): string {
   return input
-    .trim()
     .replace(/<[^>]*>/g, '') // remover HTML tags
-    .replace(/[<>'"]/g, '')  // remover caracteres perigosos
+    .replace(/[<>"'&]/g, (char) => {
+      const entities: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '&': '&amp;' };
+      return entities[char] || char;
+    })
+    .trim()
     .slice(0, maxLength);
+}
+
+/**
+ * Sanitiza todos os campos string de um objeto.
+ */
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
+  const sanitized = { ...obj };
+  for (const key in sanitized) {
+    if (typeof sanitized[key] === 'string') {
+      (sanitized as Record<string, unknown>)[key] = sanitizeInput(sanitized[key] as string);
+    }
+  }
+  return sanitized;
 }
 
 /**
