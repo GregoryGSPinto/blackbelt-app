@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type SearchResultGroup = 'alunos' | 'turmas' | 'videos' | 'leads' | 'comunicados' | 'paginas';
 
@@ -58,7 +59,7 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.error('[globalSearch] students search error:', err);
+      logServiceError(err, 'search');
     }
 
     // Search classes by name
@@ -80,7 +81,7 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.error('[globalSearch] classes search error:', err);
+      logServiceError(err, 'search');
     }
 
     // Search profiles (professors, etc.) by display_name
@@ -103,12 +104,12 @@ export async function globalSearch(
         });
       }
     } catch (err) {
-      console.error('[globalSearch] profiles search error:', err);
+      logServiceError(err, 'search');
     }
 
     return { results, total: results.length };
   } catch (error) {
-    console.error('[globalSearch] Fallback:', error);
+    logServiceError(error, 'search');
     return { results: [], total: 0 };
   }
 }

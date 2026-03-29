@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type CertificateType = 'course' | 'belt' | 'event';
 
@@ -26,7 +27,7 @@ export async function generateCourseCertificate(userId: string, courseId: string
   const supabase = createBrowserClient();
   const { data, error } = await supabase.rpc('generate_course_certificate', { p_user_id: userId, p_course_id: courseId });
   if (error || !data) {
-    console.error('[generateCourseCertificate] Supabase error:', error?.message);
+    logServiceError(error, 'certificates');
     throw new Error(`[generateCourseCertificate] ${error?.message ?? 'No data returned'}`);
   }
   return data as unknown as Certificate;
@@ -42,7 +43,7 @@ export async function generateBeltCertificate(userId: string, belt: string, acad
   const supabase = createBrowserClient();
   const { data, error } = await supabase.rpc('generate_belt_certificate', { p_user_id: userId, p_belt: belt, p_academy_id: academyId });
   if (error || !data) {
-    console.error('[generateBeltCertificate] Supabase error:', error?.message);
+    logServiceError(error, 'certificates');
     throw new Error(`[generateBeltCertificate] ${error?.message ?? 'No data returned'}`);
   }
   return data as unknown as Certificate;
@@ -58,7 +59,7 @@ export async function generateEventCertificate(userId: string, eventId: string):
   const supabase = createBrowserClient();
   const { data, error } = await supabase.rpc('generate_event_certificate', { p_user_id: userId, p_event_id: eventId });
   if (error || !data) {
-    console.error('[generateEventCertificate] Supabase error:', error?.message);
+    logServiceError(error, 'certificates');
     throw new Error(`[generateEventCertificate] ${error?.message ?? 'No data returned'}`);
   }
   return data as unknown as Certificate;
@@ -78,7 +79,7 @@ export async function verifyCertificate(code: string): Promise<Certificate | nul
     .eq('verification_code', code)
     .single();
   if (error || !data) {
-    console.error('[verifyCertificate] Supabase error:', error?.message);
+    logServiceError(error, 'certificates');
     return null;
   }
   return data as unknown as Certificate;
@@ -98,7 +99,7 @@ export async function getMyCertificates(userId: string): Promise<Certificate[]> 
     .eq('user_id', userId)
     .order('issued_at', { ascending: false });
   if (error || !data) {
-    console.error('[getMyCertificates] Supabase error:', error?.message);
+    logServiceError(error, 'certificates');
     return [];
   }
   return data as unknown as Certificate[];

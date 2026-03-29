@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Product } from '@/lib/api/store.service';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface WishlistItem {
   id: string;
@@ -25,13 +26,13 @@ export async function addToWishlist(userId: string, productId: string): Promise<
       .single();
 
     if (error || !data) {
-      console.error('[addToWishlist] Supabase error:', error?.message);
+      logServiceError(error, 'wishlist');
       return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
     }
 
     return data as unknown as WishlistItem;
   } catch (error) {
-    console.error('[addToWishlist] Fallback:', error);
+    logServiceError(error, 'wishlist');
     return { id: '', user_id: userId, product_id: productId, product: {} as Product, added_at: '' };
   }
 }
@@ -52,10 +53,10 @@ export async function removeFromWishlist(userId: string, productId: string): Pro
       .eq('product_id', productId);
 
     if (error) {
-      console.error('[removeFromWishlist] Supabase error:', error.message);
+      logServiceError(error, 'wishlist');
     }
   } catch (error) {
-    console.error('[removeFromWishlist] Fallback:', error);
+    logServiceError(error, 'wishlist');
   }
 }
 
@@ -75,13 +76,13 @@ export async function getWishlist(userId: string): Promise<WishlistItem[]> {
       .order('added_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getWishlist] Supabase error:', error?.message);
+      logServiceError(error, 'wishlist');
       return [];
     }
 
     return data as unknown as WishlistItem[];
   } catch (error) {
-    console.error('[getWishlist] Fallback:', error);
+    logServiceError(error, 'wishlist');
     return [];
   }
 }

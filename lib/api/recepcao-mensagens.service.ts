@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -41,7 +42,7 @@ export async function getTemplates(): Promise<TemplateMensagem[]> {
       .order('name', { ascending: true });
 
     if (error) {
-      console.error('[getTemplates] error:', error.message);
+      logServiceError(error, 'recepcao-mensagens');
       return [];
     }
 
@@ -53,7 +54,7 @@ export async function getTemplates(): Promise<TemplateMensagem[]> {
       variaveis: (t.variables as string[]) ?? [],
     }));
   } catch (error) {
-    console.error('[getTemplates] Fallback:', error);
+    logServiceError(error, 'recepcao-mensagens');
     return [];
   }
 }
@@ -82,13 +83,13 @@ export async function enviarMensagemTemplate(data: {
       });
 
     if (error) {
-      console.error('[enviarMensagemTemplate] error:', error.message);
+      logServiceError(error, 'recepcao-mensagens');
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.error('[enviarMensagemTemplate] Fallback:', error);
+    logServiceError(error, 'recepcao-mensagens');
     return { ok: false };
   }
 }
@@ -110,7 +111,7 @@ export async function getHistoricoEnvios(): Promise<EnvioMensagem[]> {
       .limit(50);
 
     if (error) {
-      console.error('[getHistoricoEnvios] error:', error.message);
+      logServiceError(error, 'recepcao-mensagens');
       return [];
     }
 
@@ -126,7 +127,7 @@ export async function getHistoricoEnvios(): Promise<EnvioMensagem[]> {
       };
     });
   } catch (error) {
-    console.error('[getHistoricoEnvios] Fallback:', error);
+    logServiceError(error, 'recepcao-mensagens');
     return [];
   }
 }

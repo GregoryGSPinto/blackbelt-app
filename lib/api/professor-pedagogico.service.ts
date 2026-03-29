@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel, EvaluationCriteria, Evaluation, Progression } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ProgressoDTO {
   student_id: string;
@@ -50,12 +51,12 @@ export async function getProgressoAluno(studentId: string): Promise<ProgressoDTO
       .eq('student_id', studentId)
       .single();
     if (error || !data) {
-      console.error('[getProgressoAluno] Supabase error:', error?.message);
+      logServiceError(error, 'professor-pedagogico');
       return {} as ProgressoDTO;
     }
     return data as unknown as ProgressoDTO;
   } catch (error) {
-    console.error('[getProgressoAluno] Fallback:', error);
+    logServiceError(error, 'professor-pedagogico');
     return {} as ProgressoDTO;
   }
 }
@@ -74,12 +75,12 @@ export async function avaliar(studentId: string, classId: string, criteria: Eval
       .select()
       .single();
     if (error || !data) {
-      console.error('[avaliar] Supabase error:', error?.message);
+      logServiceError(error, 'professor-pedagogico');
       return {} as Evaluation;
     }
     return data as unknown as Evaluation;
   } catch (error) {
-    console.error('[avaliar] Fallback:', error);
+    logServiceError(error, 'professor-pedagogico');
     return {} as Evaluation;
   }
 }
@@ -98,12 +99,12 @@ export async function promoverFaixa(studentId: string, toBelt: BeltLevel): Promi
       .select()
       .single();
     if (error || !data) {
-      console.error('[promoverFaixa] Supabase error:', error?.message);
+      logServiceError(error, 'professor-pedagogico');
       return {} as Progression;
     }
     return data as unknown as Progression;
   } catch (error) {
-    console.error('[promoverFaixa] Fallback:', error);
+    logServiceError(error, 'professor-pedagogico');
     return {} as Progression;
   }
 }
@@ -121,12 +122,12 @@ export async function getAlunosDaTurma(classId: string): Promise<StudentWithProg
       .select('*, profiles(display_name, avatar, belt)')
       .eq('class_id', classId);
     if (error || !data) {
-      console.error('[getAlunosDaTurma] Supabase error:', error?.message);
+      logServiceError(error, 'professor-pedagogico');
       return [];
     }
     return data as unknown as StudentWithProgress[];
   } catch (error) {
-    console.error('[getAlunosDaTurma] Fallback:', error);
+    logServiceError(error, 'professor-pedagogico');
     return [];
   }
 }

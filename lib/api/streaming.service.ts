@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   StreamingLibrary,
   SeriesDetail,
@@ -26,7 +27,7 @@ export async function getLibrary(profileId: string, role: string, belt: string):
     .eq('profile_id', profileId)
     .maybeSingle();
   if (error || !data) {
-    console.error('[getLibrary] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockGetLibrary } = await import('@/lib/mocks/streaming.mock');
     return mockGetLibrary(profileId, role, belt);
   }
@@ -47,7 +48,7 @@ export async function getSeriesDetail(seriesId: string): Promise<SeriesDetail> {
     .eq('id', seriesId)
     .single();
   if (error || !data) {
-    console.error('[getSeriesDetail] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockGetSeriesDetail } = await import('@/lib/mocks/streaming.mock');
     return mockGetSeriesDetail(seriesId);
   }
@@ -68,7 +69,7 @@ export async function getEpisode(episodeId: string): Promise<StreamingVideo> {
     .eq('id', episodeId)
     .single();
   if (error || !data) {
-    console.error('[getEpisode] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockGetEpisode } = await import('@/lib/mocks/streaming.mock');
     return mockGetEpisode(episodeId);
   }
@@ -90,7 +91,7 @@ export async function getContinueWatching(studentId: string): Promise<WatchProgr
     .lt('progress_pct', 100)
     .order('updated_at', { ascending: false });
   if (error) {
-    console.error('[getContinueWatching] Supabase error:', error.message);
+    logServiceError(error, 'streaming');
     return [];
   }
   return (data ?? []) as unknown as WatchProgress[];
@@ -110,7 +111,7 @@ export async function getRecommended(studentId: string): Promise<StreamingSeries
     .eq('recommended', true)
     .limit(10);
   if (error) {
-    console.error('[getRecommended] Supabase error:', error.message);
+    logServiceError(error, 'streaming');
     const { mockGetRecommended } = await import('@/lib/mocks/streaming.mock');
     return mockGetRecommended(studentId);
   }
@@ -129,7 +130,7 @@ export async function trackProgress(studentId: string, episodeId: string, progre
     .from('streaming_watch_progress')
     .upsert({ student_id: studentId, episode_id: episodeId, progress_seconds: progressSeconds, updated_at: new Date().toISOString() });
   if (error) {
-    console.error('[trackProgress] Supabase error:', error.message);
+    logServiceError(error, 'streaming');
   }
 }
 
@@ -146,7 +147,7 @@ export async function completeEpisode(studentId: string, episodeId: string): Pro
     p_episode_id: episodeId,
   });
   if (error || !data) {
-    console.error('[completeEpisode] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockCompleteEpisode } = await import('@/lib/mocks/streaming.mock');
     return mockCompleteEpisode(studentId, episodeId);
   }
@@ -167,7 +168,7 @@ export async function submitQuiz(studentId: string, episodeId: string, answers: 
     p_answers: answers,
   });
   if (error || !data) {
-    console.error('[submitQuiz] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockSubmitQuiz } = await import('@/lib/mocks/streaming.mock');
     return mockSubmitQuiz(studentId, episodeId, answers);
   }
@@ -191,7 +192,7 @@ export async function getTrails(academyId: string, belt?: string): Promise<Strea
   }
   const { data, error } = await query;
   if (error) {
-    console.error('[getTrails] Supabase error:', error.message);
+    logServiceError(error, 'streaming');
     return [];
   }
   return (data ?? []) as unknown as StreamingTrail[];
@@ -212,7 +213,7 @@ export async function getTrailProgress(studentId: string, trailId: string): Prom
     .eq('trail_id', trailId)
     .maybeSingle();
   if (error || !data) {
-    console.error('[getTrailProgress] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockGetTrailProgress } = await import('@/lib/mocks/streaming.mock');
     return mockGetTrailProgress(studentId, trailId);
   }
@@ -233,7 +234,7 @@ export async function generateCertificate(studentId: string, trailId: string): P
     .select()
     .single();
   if (error || !data) {
-    console.error('[generateCertificate] Supabase error:', error?.message);
+    logServiceError(error, 'streaming');
     const { mockGenerateCertificate } = await import('@/lib/mocks/streaming.mock');
     return mockGenerateCertificate(studentId, trailId);
   }

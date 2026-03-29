@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type RegistrationStatus = 'inscrito' | 'pesagem' | 'competindo' | 'resultado';
 
@@ -56,13 +57,13 @@ export async function register(championshipId: string, categoryId: string, data:
       .single();
 
     if (error || !row) {
-      console.error('[register] Supabase error:', error?.message);
+      logServiceError(error, 'championship-registration');
       return { ...EMPTY_REG, championship_id: championshipId, category_id: categoryId };
     }
 
     return row as unknown as RegistrationDTO;
   } catch (error) {
-    console.error('[register] Fallback:', error);
+    logServiceError(error, 'championship-registration');
     return { ...EMPTY_REG, championship_id: championshipId, category_id: categoryId };
   }
 }
@@ -83,13 +84,13 @@ export async function getMyRegistrations(userId: string): Promise<RegistrationDT
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getMyRegistrations] Supabase error:', error?.message);
+      logServiceError(error, 'championship-registration');
       return [];
     }
 
     return data as unknown as RegistrationDTO[];
   } catch (error) {
-    console.error('[getMyRegistrations] Fallback:', error);
+    logServiceError(error, 'championship-registration');
     return [];
   }
 }
@@ -111,13 +112,13 @@ export async function confirmWeighIn(registrationId: string, actualWeight: numbe
       .single();
 
     if (error || !data) {
-      console.error('[confirmWeighIn] Supabase error:', error?.message);
+      logServiceError(error, 'championship-registration');
       return { ...EMPTY_REG, id: registrationId };
     }
 
     return data as unknown as RegistrationDTO;
   } catch (error) {
-    console.error('[confirmWeighIn] Fallback:', error);
+    logServiceError(error, 'championship-registration');
     return { ...EMPTY_REG, id: registrationId };
   }
 }
@@ -139,13 +140,13 @@ export async function changeCategory(registrationId: string, newCategoryId: stri
       .single();
 
     if (error || !data) {
-      console.error('[changeCategory] Supabase error:', error?.message);
+      logServiceError(error, 'championship-registration');
       return { ...EMPTY_REG, id: registrationId };
     }
 
     return data as unknown as RegistrationDTO;
   } catch (error) {
-    console.error('[changeCategory] Fallback:', error);
+    logServiceError(error, 'championship-registration');
     return { ...EMPTY_REG, id: registrationId };
   }
 }
@@ -165,13 +166,13 @@ export async function getRegistrationsByChampionship(championshipId: string): Pr
       .eq('championship_id', championshipId);
 
     if (error || !data) {
-      console.error('[getRegistrationsByChampionship] Supabase error:', error?.message);
+      logServiceError(error, 'championship-registration');
       return [];
     }
 
     return data as unknown as RegistrationDTO[];
   } catch (error) {
-    console.error('[getRegistrationsByChampionship] Fallback:', error);
+    logServiceError(error, 'championship-registration');
     return [];
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
         .eq('key', 'white_label')
         .single();
       if (error || !data) {
-        console.error('[getWhiteLabelConfig] Query failed:', error?.message);
+        logServiceError(error, 'white-label');
         return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
       }
       const value = (data.value as Record<string, unknown>) || {};
@@ -63,12 +64,12 @@ export async function getWhiteLabelConfig(academyId: string): Promise<WhiteLabel
         emailFromAddress: (value.emailFromAddress as string) || '',
         hidePoweredBy: (value.hidePoweredBy as boolean) || false,
       };
-    } catch {
-      console.error('[white-label.getWhiteLabelConfig] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'white-label');
       return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
     }
   } catch (error) {
-    console.error('[getWhiteLabelConfig] Fallback:', error);
+    logServiceError(error, 'white-label');
     return { academyId, brandName: '', primaryColor: '#EF4444', primaryColorDeep: '#B91C1C', primaryColorLight: '#FCA5A5', logoUrl: null, faviconUrl: null, customDomain: null, emailFromName: '', emailFromAddress: '', hidePoweredBy: false };
   }
 }
@@ -93,13 +94,13 @@ export async function updateWhiteLabelConfig(
           updated_at: new Date().toISOString(),
         }, { onConflict: 'academy_id,key' });
       if (error) {
-        console.error('[updateWhiteLabelConfig] Upsert failed:', error.message);
+        logServiceError(error, 'white-label');
       }
-    } catch {
-      console.error('[white-label.updateWhiteLabelConfig] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'white-label');
     }
   } catch (error) {
-    console.error('[updateWhiteLabelConfig] Fallback:', error);
+    logServiceError(error, 'white-label');
   }
 }
 

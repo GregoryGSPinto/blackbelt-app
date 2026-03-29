@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -56,12 +57,12 @@ export async function listTecnicas(filtros?: TecnicaFiltros): Promise<Tecnica[]>
     if (filtros?.query) query = query.ilike('nome', `%${filtros.query}%`);
     const { data, error } = await query;
     if (error) {
-      console.error('[listTecnicas] error:', error.message);
+      logServiceError(error, 'banco-tecnicas');
       return [];
     }
     return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    console.error('[listTecnicas] Fallback:', error);
+    logServiceError(error, 'banco-tecnicas');
     return [];
   }
 }
@@ -76,12 +77,12 @@ export async function getTecnica(id: string): Promise<Tecnica> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').select('*').eq('id', id).single();
     if (error) {
-      console.error('[getTecnica] error:', error.message);
+      logServiceError(error, 'banco-tecnicas');
       return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
     }
     return data as unknown as Tecnica;
   } catch (error) {
-    console.error('[getTecnica] Fallback:', error);
+    logServiceError(error, 'banco-tecnicas');
     return { id, nome: '', posicao: '', categoria: '', modalidade: '', faixaMinima: '', descricao: '', criadoPor: '', tags: [] } as Tecnica;
   }
 }
@@ -96,12 +97,12 @@ export async function createTecnica(dados: CreateTecnicaPayload): Promise<Tecnic
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').insert(dados).select().single();
     if (error) {
-      console.error('[createTecnica] error:', error.message);
+      logServiceError(error, 'banco-tecnicas');
       return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
     }
     return data as unknown as Tecnica;
   } catch (error) {
-    console.error('[createTecnica] Fallback:', error);
+    logServiceError(error, 'banco-tecnicas');
     return { id: '', nome: dados.nome, posicao: dados.posicao, categoria: dados.categoria, modalidade: dados.modalidade, faixaMinima: dados.faixaMinima, descricao: dados.descricao, criadoPor: '', tags: dados.tags } as Tecnica;
   }
 }
@@ -116,12 +117,12 @@ export async function searchTecnicas(query: string): Promise<Tecnica[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('tecnicas').select('*').ilike('nome', `%${query}%`);
     if (error) {
-      console.error('[searchTecnicas] error:', error.message);
+      logServiceError(error, 'banco-tecnicas');
       return [];
     }
     return (data ?? []) as unknown as Tecnica[];
   } catch (error) {
-    console.error('[searchTecnicas] Fallback:', error);
+    logServiceError(error, 'banco-tecnicas');
     return [];
   }
 }

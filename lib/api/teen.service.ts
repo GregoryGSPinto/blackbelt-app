@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types/domain';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -157,7 +158,7 @@ export async function getTeenDashboard(studentId: string): Promise<TeenDashboard
   ]);
 
   if (studentRes.error || !studentRes.data) {
-    console.error('[getTeenDashboard] student not found:', studentRes.error?.message);
+    logServiceError(studentRes.error, 'teen');
     return EMPTY;
   }
 

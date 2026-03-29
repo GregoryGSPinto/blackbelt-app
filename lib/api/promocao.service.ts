@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -62,12 +63,12 @@ export async function getPromotionCandidate(studentId: string): Promise<Promotio
       .eq('student_id', studentId)
       .single();
     if (error || !data) {
-      console.error('[getPromotionCandidate] Supabase error:', error?.message);
+      logServiceError(error, 'promocao');
       return {} as PromotionCandidateDTO;
     }
     return data as unknown as PromotionCandidateDTO;
   } catch (error) {
-    console.error('[getPromotionCandidate] Fallback:', error);
+    logServiceError(error, 'promocao');
     return {} as PromotionCandidateDTO;
   }
 }
@@ -90,12 +91,12 @@ export async function executePromotion(data: ExecutePromotionPayload): Promise<P
       p_promoted_by: data.promoted_by,
     });
     if (error || !result) {
-      console.error('[executePromotion] Supabase error:', error?.message);
+      logServiceError(error, 'promocao');
       return fallback;
     }
     return result as unknown as PromotionResult;
   } catch (error) {
-    console.error('[executePromotion] Fallback:', error);
+    logServiceError(error, 'promocao');
     return fallback;
   }
 }

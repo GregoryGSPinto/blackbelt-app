@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface SubstitutionDTO {
   id: string;
@@ -47,13 +48,13 @@ export async function getSubstitutions(academyId: string): Promise<SubstitutionD
       .order('date', { ascending: false });
 
     if (error || !data) {
-      console.error('[getSubstitutions] Supabase error:', error?.message);
+      logServiceError(error, 'substituicao');
       return [];
     }
 
     return data as unknown as SubstitutionDTO[];
   } catch (error) {
-    console.error('[getSubstitutions] Fallback:', error);
+    logServiceError(error, 'substituicao');
     return [];
   }
 }
@@ -81,13 +82,13 @@ export async function createSubstitution(data: CreateSubstitutionData): Promise<
       .single();
 
     if (error || !row) {
-      console.error('[createSubstitution] Supabase error:', error?.message);
+      logServiceError(error, 'substituicao');
       return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
     }
 
     return row as unknown as SubstitutionDTO;
   } catch (error) {
-    console.error('[createSubstitution] Fallback:', error);
+    logServiceError(error, 'substituicao');
     return { id: '', ...data, className: '', originalTeacherName: '', substituteTeacherName: '', notifiedStudents: 0, createdAt: '' };
   }
 }
@@ -107,7 +108,7 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       .eq('active', true);
 
     if (error || !data) {
-      console.error('[getAvailableTeachers] Supabase error:', error?.message);
+      logServiceError(error, 'substituicao');
       return [];
     }
 
@@ -121,7 +122,7 @@ export async function getAvailableTeachers(date: string, timeSlot: string): Prom
       available: true,
     }));
   } catch (error) {
-    console.error('[getAvailableTeachers] Fallback:', error);
+    logServiceError(error, 'substituicao');
     return [];
   }
 }

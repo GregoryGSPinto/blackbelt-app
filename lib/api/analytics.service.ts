@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AnalyticsOverview, StudentAnalytics, ChurnPrediction } from '@/lib/types/analytics';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface CohortData {
   cohort_month: string;
@@ -59,7 +60,7 @@ export async function getRetentionCohort(academyId: string, months: number): Pro
     .rpc('get_retention_cohort', { p_academy_id: academyId, p_months: months });
 
   if (error || !data) {
-    console.error('[getRetentionCohort] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return [];
   }
 
@@ -82,7 +83,7 @@ export async function getChurnRisk(academyId: string): Promise<ChurnRiskDTO[]> {
     .rpc('get_churn_risk', { p_academy_id: academyId });
 
   if (error || !data) {
-    console.error('[getChurnRisk] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return [];
   }
 
@@ -109,7 +110,7 @@ export async function getRevenueForecasting(academyId: string, months: number): 
     .rpc('get_revenue_forecast', { p_academy_id: academyId, p_months: months });
 
   if (error || !data) {
-    console.error('[getRevenueForecasting] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return { current_mrr: 0, projected_mrr: [], churn_rate: 0, growth_rate: 0, months: [] };
   }
 
@@ -137,7 +138,7 @@ export async function getProfessorPerformance(academyId: string): Promise<Profes
     .eq('academy_id', academyId);
 
   if (error || !data) {
-    console.error('[getProfessorPerformance] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return [];
   }
 
@@ -188,7 +189,7 @@ export async function getAnalyticsOverview(
     .rpc('get_analytics_overview', params);
 
   if (error || !data) {
-    console.error('[getAnalyticsOverview] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return emptyOverview;
   }
 
@@ -222,7 +223,7 @@ export async function getStudentAnalytics(studentId: string): Promise<StudentAna
     .rpc('get_student_analytics', { p_student_id: studentId });
 
   if (error || !data) {
-    console.error('[getStudentAnalytics] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return empty;
   }
 
@@ -244,7 +245,7 @@ export async function getChurnPredictions(academyId: string): Promise<ChurnPredi
     .rpc('get_churn_predictions', { p_academy_id: academyId });
 
   if (error || !data) {
-    console.error('[getChurnPredictions] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return [];
   }
 
@@ -265,7 +266,7 @@ export async function getClassOccupancy(academyId: string): Promise<OccupancyDTO
     .eq('academy_id', academyId);
 
   if (error || !data) {
-    console.error('[getClassOccupancy] Supabase error:', error?.message);
+    logServiceError(error, 'analytics');
     return [];
   }
 

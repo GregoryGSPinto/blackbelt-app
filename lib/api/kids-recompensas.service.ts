@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RecompensaKids {
   id: string;
@@ -36,12 +37,12 @@ export async function getRecompensasKids(studentId: string): Promise<RecompensaK
       .select('*')
       .eq('student_id', studentId);
     if (error || !data) {
-      console.error('[getRecompensasKids] Supabase error:', error?.message);
+      logServiceError(error, 'kids-recompensas');
       return [];
     }
     return data as unknown as RecompensaKids[];
   } catch (error) {
-    console.error('[getRecompensasKids] Fallback:', error);
+    logServiceError(error, 'kids-recompensas');
     return [];
   }
 }
@@ -60,12 +61,12 @@ export async function getHistoricoResgates(studentId: string): Promise<Historico
       .eq('student_id', studentId)
       .order('data', { ascending: false });
     if (error || !data) {
-      console.error('[getHistoricoResgates] Supabase error:', error?.message);
+      logServiceError(error, 'kids-recompensas');
       return [];
     }
     return data as unknown as HistoricoResgate[];
   } catch (error) {
-    console.error('[getHistoricoResgates] Fallback:', error);
+    logServiceError(error, 'kids-recompensas');
     return [];
   }
 }
@@ -80,12 +81,12 @@ export async function resgatarRecompensa(studentId: string, recompensaId: string
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('resgatar_recompensa_kids', { p_student_id: studentId, p_recompensa_id: recompensaId });
     if (error || !data) {
-      console.error('[resgatarRecompensa] Supabase error:', error?.message);
+      logServiceError(error, 'kids-recompensas');
       return {} as HistoricoResgate;
     }
     return data as unknown as HistoricoResgate;
   } catch (error) {
-    console.error('[resgatarRecompensa] Fallback:', error);
+    logServiceError(error, 'kids-recompensas');
     return {} as HistoricoResgate;
   }
 }

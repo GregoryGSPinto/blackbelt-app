@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type ChallengeType = 'presenca' | 'streak' | 'social' | 'conteudo' | 'avaliacao';
 
@@ -33,7 +34,7 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       .order('start_date', { ascending: false });
 
     if (error || !data) {
-      console.error('[listChallenges] Supabase error:', error?.message);
+      logServiceError(error, 'challenges');
       return [];
     }
 
@@ -52,7 +53,7 @@ export async function listChallenges(academyId: string): Promise<ChallengeDTO[]>
       participantCount: Number(row.participant_count ?? 0),
     }));
   } catch (error) {
-    console.error('[listChallenges] Fallback:', error);
+    logServiceError(error, 'challenges');
     return [];
   }
 }
@@ -84,7 +85,7 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       .single();
 
     if (error || !row) {
-      console.error('[createChallenge] Supabase error:', error?.message);
+      logServiceError(error, 'challenges');
       return { id: '', ...data, progress: 0, participantCount: 0 };
     }
 
@@ -103,7 +104,7 @@ export async function createChallenge(academyId: string, data: Omit<ChallengeDTO
       participantCount: 0,
     };
   } catch (error) {
-    console.error('[createChallenge] Fallback:', error);
+    logServiceError(error, 'challenges');
     return { id: '', ...data, progress: 0, participantCount: 0 };
   }
 }

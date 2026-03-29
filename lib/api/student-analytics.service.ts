@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RadarMetrics {
   technique: number;
@@ -146,11 +147,11 @@ export async function getStudentPerformance(studentId: string): Promise<StudentP
         video_suggestions: [],
       };
     } catch (err) {
-      console.error('[getStudentPerformance] Supabase error, returning fallback:', err);
+      logServiceError(err, 'student-analytics');
       return EMPTY;
     }
   } catch (error) {
-    console.error('[getStudentPerformance] Fallback:', error);
+    logServiceError(error, 'student-analytics');
     return { radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, class_avg_radar: { technique: 0, discipline: 0, attendance: 0, evolution: 0 }, monthly_attendance: [], max_streak: 0, total_training_hours: 0, recommendations: [], video_suggestions: [] };
   }
 }

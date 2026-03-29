@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
 import type { ChatConversation, ChatMessage, SendMessagePayload } from '@/lib/types/chat';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listConversations(userId: string): Promise<ChatConversation[]> {
   try {
@@ -18,12 +19,12 @@ export async function listConversations(userId: string): Promise<ChatConversatio
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('[listConversations] error:', error.message);
+      logServiceError(error, 'chat');
       return [];
     }
     return (data ?? []) as unknown as ChatConversation[];
   } catch (error) {
-    console.error('[listConversations] Fallback:', error);
+    logServiceError(error, 'chat');
     return [];
   }
 }
@@ -55,12 +56,12 @@ export async function getMessages(
     const { data, error } = await query;
 
     if (error) {
-      console.error('[getMessages] error:', error.message);
+      logServiceError(error, 'chat');
       return [];
     }
     return (data ?? []) as unknown as ChatMessage[];
   } catch (error) {
-    console.error('[getMessages] Fallback:', error);
+    logServiceError(error, 'chat');
     return [];
   }
 }
@@ -89,12 +90,12 @@ export async function sendMessage(payload: SendMessagePayload): Promise<ChatMess
       .single();
 
     if (error || !data) {
-      console.error('[sendMessage] error:', error?.message);
+      logServiceError(error, 'chat');
       return { id: '', conversationId: payload.conversationId, senderId: currentUserId, senderName: '', content: payload.content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
     }
     return data as unknown as ChatMessage;
   } catch (error) {
-    console.error('[sendMessage] Fallback:', error);
+    logServiceError(error, 'chat');
     return { id: '', conversationId: '', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }
@@ -115,10 +116,10 @@ export async function markAsRead(conversationId: string): Promise<void> {
       .is('read_at', null);
 
     if (error) {
-      console.error('[markAsRead] error:', error.message);
+      logServiceError(error, 'chat');
     }
   } catch (error) {
-    console.error('[markAsRead] Fallback:', error);
+    logServiceError(error, 'chat');
   }
 }
 
@@ -157,12 +158,12 @@ export async function createBroadcast(
       .single();
 
     if (error || !data) {
-      console.error('[createBroadcast] error:', error?.message);
+      logServiceError(error, 'chat');
       return { id: '', conversationId: 'broadcast', senderId, senderName: '', content, sentAt: new Date().toISOString(), readAt: null, type: 'text' } as unknown as ChatMessage;
     }
     return data as unknown as ChatMessage;
   } catch (error) {
-    console.error('[createBroadcast] Fallback:', error);
+    logServiceError(error, 'chat');
     return { id: '', conversationId: 'broadcast', senderId: '', senderName: '', content: '', sentAt: '', readAt: null, type: 'text' } as unknown as ChatMessage;
   }
 }

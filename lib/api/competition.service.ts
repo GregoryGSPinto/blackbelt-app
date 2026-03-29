@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
         .eq('academy_id', academyId)
         .order('date', { ascending: false });
       if (error || !data) {
-        console.error('[listCompetitions] Query failed:', error?.message);
+        logServiceError(error, 'competition');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -97,12 +98,12 @@ export async function listCompetitions(academyId: string): Promise<Competition[]
         categories: [],
         totalParticipants: (row.total_participants as number) || 0,
       }));
-    } catch {
-      console.error('[competition.listCompetitions] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'competition');
       return [];
     }
   } catch (error) {
-    console.error('[listCompetitions] Fallback:', error);
+    logServiceError(error, 'competition');
     return [];
   }
 }
@@ -131,7 +132,7 @@ export async function createCompetition(
         .select()
         .single();
       if (error || !row) {
-        console.error('[createCompetition] Insert failed:', error?.message);
+        logServiceError(error, 'competition');
         return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
       }
       return {
@@ -143,12 +144,12 @@ export async function createCompetition(
         categories: [],
         totalParticipants: 0,
       };
-    } catch {
-      console.error('[competition.createCompetition] API not available, returning fallback');
+    } catch (error) {
+      logServiceError(error, 'competition');
       return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
     }
   } catch (error) {
-    console.error('[createCompetition] Fallback:', error);
+    logServiceError(error, 'competition');
     return { id: '', ...data, status: 'draft', categories: [], totalParticipants: 0 };
   }
 }
@@ -173,16 +174,16 @@ export async function generateBracket(
         body: JSON.stringify({ categoryId, eliminationType }),
       });
       if (!res.ok) {
-        console.error('[generateBracket] API error:', res.status);
+        logServiceError(new Error(`API error: ${res.status}`), 'competition');
         return [];
       }
       return res.json();
-    } catch {
-      console.error('[competition.generateBracket] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'competition');
       return [];
     }
   } catch (error) {
-    console.error('[generateBracket] Fallback:', error);
+    logServiceError(error, 'competition');
     return [];
   }
 }
@@ -206,12 +207,12 @@ export async function recordMatchResult(
         body: JSON.stringify({ winnerId, score1, score2, method }),
       });
       if (!res.ok) {
-        console.error('[recordMatchResult] API error:', res.status);
+        logServiceError(new Error(`API error: ${res.status}`), 'competition');
       }
-    } catch {
-      console.error('[competition.recordMatchResult] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'competition');
     }
   } catch (error) {
-    console.error('[recordMatchResult] Fallback:', error);
+    logServiceError(error, 'competition');
   }
 }

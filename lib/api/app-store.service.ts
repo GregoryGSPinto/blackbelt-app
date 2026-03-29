@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AppStoreItem {
   id: string;
@@ -50,7 +51,7 @@ export async function listApps(params?: { category?: string; search?: string }):
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[listApps] Supabase error:', error.message);
+      logServiceError(error, 'app-store');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -66,7 +67,7 @@ export async function listApps(params?: { category?: string; search?: string }):
 
     return apps;
   } catch (error) {
-    console.error('[listApps] Fallback:', error);
+    logServiceError(error, 'app-store');
     return [];
   }
 }
@@ -87,7 +88,7 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getApp] Supabase error:', error.message);
+      logServiceError(error, 'app-store');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -98,7 +99,7 @@ export async function getApp(appId: string): Promise<AppStoreItem> {
 
     return { id: appId, name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false };
   } catch (error) {
-    console.error('[getApp] Fallback:', error);
+    logServiceError(error, 'app-store');
     return { id: '', name: '', description: '', longDescription: '', author: '', category: '', price: 0, currency: 'BRL', rating: 0, reviewCount: 0, downloads: 0, screenshots: [], version: '', compatibility: '', features: [], featured: false };
   }
 }
@@ -119,14 +120,14 @@ export async function getAppReviews(appId: string): Promise<AppReview[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getAppReviews] Supabase error:', error.message);
+      logServiceError(error, 'app-store');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     const reviews = (settings.app_store_reviews ?? []) as AppReview[];
     return reviews.filter((r) => r.appId === appId);
   } catch (error) {
-    console.error('[getAppReviews] Fallback:', error);
+    logServiceError(error, 'app-store');
     return [];
   }
 }
@@ -165,12 +166,12 @@ export async function submitApp(data: Omit<AppStoreItem, 'id' | 'rating' | 'revi
     );
 
     if (error) {
-      console.error('[submitApp] Supabase error:', error.message);
+      logServiceError(error, 'app-store');
     }
 
     return newApp;
   } catch (error) {
-    console.error('[submitApp] Fallback:', error);
+    logServiceError(error, 'app-store');
     return { ...data, id: '', rating: 0, reviewCount: 0, downloads: 0, featured: false };
   }
 }
@@ -193,7 +194,7 @@ export async function getCategories(): Promise<AppCategory[]> {
       { id: 'integration', name: 'Integrações', count: 0 },
     ];
   } catch (error) {
-    console.error('[getCategories] Fallback:', error);
+    logServiceError(error, 'app-store');
     return [];
   }
 }
@@ -214,14 +215,14 @@ export async function getFeatured(): Promise<AppStoreItem[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getFeatured] Supabase error:', error.message);
+      logServiceError(error, 'app-store');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
     const apps = (settings.app_store_apps ?? []) as AppStoreItem[];
     return apps.filter((a) => a.featured);
   } catch (error) {
-    console.error('[getFeatured] Fallback:', error);
+    logServiceError(error, 'app-store');
     return [];
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type CourseModality = 'bjj' | 'judo' | 'mma' | 'muay_thai' | 'wrestling' | 'no_gi';
 export type BeltLevel = 'branca' | 'cinza' | 'amarela' | 'laranja' | 'verde' | 'azul' | 'roxa' | 'marrom' | 'preta' | 'todas';
@@ -83,7 +84,7 @@ export async function listCourses(filters?: MarketplaceFilters): Promise<Marketp
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listCourses] Supabase error:', error?.message);
+      logServiceError(error, 'marketplace');
       return [];
     }
 
@@ -107,7 +108,7 @@ export async function listCourses(filters?: MarketplaceFilters): Promise<Marketp
       status: (c.status as CourseStatus) ?? 'published',
     }));
   } catch (error) {
-    console.error('[listCourses] Fallback:', error);
+    logServiceError(error, 'marketplace');
     return [];
   }
 }
@@ -127,7 +128,7 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       .maybeSingle();
 
     if (error || !data) {
-      console.error('[getCourse] Supabase error or no data:', error?.message);
+      logServiceError(error, 'marketplace');
       return { id, creator_id: '', creator_name: '', creator_academy: '', title: '', description: '', thumbnail_url: '', preview_video_url: '', modality: 'bjj', belt_level: 'todas', duration_total: 0, price: 0, rating: 0, reviews_count: 0, students_count: 0, modules: [], status: 'draft' };
     }
 
@@ -151,7 +152,7 @@ export async function getCourse(id: string): Promise<MarketplaceCourse> {
       status: data.status ?? 'draft',
     };
   } catch (error) {
-    console.error('[getCourse] Fallback:', error);
+    logServiceError(error, 'marketplace');
     return { id, creator_id: '', creator_name: '', creator_academy: '', title: '', description: '', thumbnail_url: '', preview_video_url: '', modality: 'bjj', belt_level: 'todas', duration_total: 0, price: 0, rating: 0, reviews_count: 0, students_count: 0, modules: [], status: 'draft' };
   }
 }
@@ -171,7 +172,7 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       .single();
 
     if (error || !data) {
-      console.error('[purchaseCourse] Supabase error:', error?.message);
+      logServiceError(error, 'marketplace');
       return { id: '', course_id: courseId, course_title: '', course_thumbnail: '', creator_name: '', purchased_at: new Date().toISOString(), price: 0, progress: 0 };
     }
 
@@ -187,7 +188,7 @@ export async function purchaseCourse(courseId: string, userId: string): Promise<
       progress: data.progress ?? 0,
     };
   } catch (error) {
-    console.error('[purchaseCourse] Fallback:', error);
+    logServiceError(error, 'marketplace');
     return { id: '', course_id: courseId, course_title: '', course_thumbnail: '', creator_name: '', purchased_at: new Date().toISOString(), price: 0, progress: 0 };
   }
 }
@@ -207,7 +208,7 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getMyPurchases] Supabase error:', error?.message);
+      logServiceError(error, 'marketplace');
       return [];
     }
 
@@ -225,7 +226,7 @@ export async function getMyPurchases(userId: string): Promise<CoursePurchase[]> 
       };
     });
   } catch (error) {
-    console.error('[getMyPurchases] Fallback:', error);
+    logServiceError(error, 'marketplace');
     return [];
   }
 }
@@ -245,7 +246,7 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getMySales] Supabase error:', error?.message);
+      logServiceError(error, 'marketplace');
       return [];
     }
 
@@ -263,7 +264,7 @@ export async function getMySales(creatorId: string): Promise<CoursePurchase[]> {
       };
     });
   } catch (error) {
-    console.error('[getMySales] Fallback:', error);
+    logServiceError(error, 'marketplace');
     return [];
   }
 }

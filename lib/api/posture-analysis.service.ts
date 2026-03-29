@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type IssueSeverity = 'low' | 'medium' | 'high';
 export type IssueType = 'base' | 'guard' | 'posture' | 'position';
@@ -50,7 +51,7 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
     }).then(() => {}, () => {});
 
     // Vision API not configured — return graceful default
-    console.error('[analyzePosture] Vision API not configured — returning default');
+    logServiceError(new Error('Vision API not configured — returning default'), 'posture-analysis');
     return {
       ...emptyPostureResult,
       analyzed_at: new Date().toISOString(),
@@ -63,7 +64,7 @@ export async function analyzePosture(imageBase64: string): Promise<PostureResult
       }],
     };
   } catch (error) {
-    console.error('[analyzePosture] Fallback:', error);
+    logServiceError(error, 'posture-analysis');
     return { ...emptyPostureResult, analyzed_at: new Date().toISOString() };
   }
 }
@@ -79,7 +80,7 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
     canvas.height = videoRef.videoHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      console.error('[captureAndAnalyze] Cannot get canvas context');
+      logServiceError(new Error('Cannot get canvas context'), 'posture-analysis');
       return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
     }
     ctx.drawImage(videoRef, 0, 0);
@@ -91,7 +92,7 @@ export async function captureAndAnalyze(videoRef: HTMLVideoElement): Promise<Cap
       captured_at: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('[captureAndAnalyze] Fallback:', error);
+    logServiceError(error, 'posture-analysis');
     return { frame_id: `frame-${Date.now()}`, result: emptyPostureResult, captured_at: new Date().toISOString() };
   }
 }

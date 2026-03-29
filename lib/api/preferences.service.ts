@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Re-export types ──────────────────────────────────────────────────
 export type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
@@ -27,12 +28,12 @@ export async function getUserPreferences(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getUserPreferences] Supabase error:', error.message);
+      logServiceError(error, 'preferences');
     }
 
     return (data?.preferences ?? {}) as UserPreferences;
   } catch (error) {
-    console.error('[getUserPreferences] Fallback:', error);
+    logServiceError(error, 'preferences');
     return {} as UserPreferences;
   }
 }
@@ -62,10 +63,10 @@ export async function updateUserPreferences(
     );
 
     if (error) {
-      console.error('[updateUserPreferences] Supabase error:', error.message);
+      logServiceError(error, 'preferences');
     }
   } catch (error) {
-    console.error('[updateUserPreferences] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -92,12 +93,12 @@ export async function getAcademySettings(
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getAcademySettings] Supabase error:', error.message);
+      logServiceError(error, 'preferences');
     }
 
     return (data?.settings ?? {}) as AcademySettings;
   } catch (error) {
-    console.error('[getAcademySettings] Fallback:', error);
+    logServiceError(error, 'preferences');
     return {} as AcademySettings;
   }
 }
@@ -127,10 +128,10 @@ export async function updateAcademySettings(
     );
 
     if (error) {
-      console.error('[updateAcademySettings] Supabase error:', error.message);
+      logServiceError(error, 'preferences');
     }
   } catch (error) {
-    console.error('[updateAcademySettings] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -158,10 +159,10 @@ export async function changePassword(
     });
 
     if (!res.ok) {
-      console.error('[changePassword] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[changePassword] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -185,12 +186,12 @@ export async function exportUserData(
     });
 
     if (!res.ok) {
-      console.error('[exportUserData] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
       return { url: '' };
     }
     return res.json();
   } catch (error) {
-    console.error('[exportUserData] Fallback:', error);
+    logServiceError(error, 'preferences');
     return { url: '' };
   }
 }
@@ -214,10 +215,10 @@ export async function deleteAccount(
     });
 
     if (!res.ok) {
-      console.error('[deleteAccount] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[deleteAccount] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -235,10 +236,10 @@ export async function deactivateAcademy(academyId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.error('[deactivateAcademy] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[deactivateAcademy] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -261,10 +262,10 @@ export async function deleteAcademy(
     });
 
     if (!res.ok) {
-      console.error('[deleteAcademy] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[deleteAcademy] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -286,10 +287,10 @@ export async function resetTutorial(profileId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.error('[resetTutorial] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[resetTutorial] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -309,10 +310,10 @@ export async function resetChecklist(profileId: string): Promise<void> {
     });
 
     if (!res.ok) {
-      console.error('[resetChecklist] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
     }
   } catch (error) {
-    console.error('[resetChecklist] Fallback:', error);
+    logServiceError(error, 'preferences');
   }
 }
 
@@ -340,13 +341,13 @@ export async function uploadAvatar(
     });
 
     if (!res.ok) {
-      console.error('[uploadAvatar] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
       return '';
     }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    console.error('[uploadAvatar] Fallback:', error);
+    logServiceError(error, 'preferences');
     return '';
   }
 }
@@ -373,13 +374,13 @@ export async function uploadAcademyLogo(
     });
 
     if (!res.ok) {
-      console.error('[uploadAcademyLogo] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'preferences');
       return '';
     }
     const result = await res.json();
     return result.url as string;
   } catch (error) {
-    console.error('[uploadAcademyLogo] Fallback:', error);
+    logServiceError(error, 'preferences');
     return '';
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ──────────────────────────────────────────────────────────────
 // TYPES — Sessions
@@ -410,12 +411,12 @@ export async function getActiveSessions(): Promise<ActiveSession[]> {
       .select('*')
       .order('last_activity_at', { ascending: false });
     if (error) {
-      console.error('[getActiveSessions] Supabase error:', error.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return (data ?? []) as ActiveSession[];
   } catch (error) {
-    console.error('[getActiveSessions] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -450,12 +451,12 @@ export async function getSessionHistory(filters?: SessionFilter): Promise<Sessio
     }
     const { data, error } = await query;
     if (error) {
-      console.error('[getSessionHistory] Supabase error:', error.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return (data ?? []) as SessionSummary[];
   } catch (error) {
-    console.error('[getSessionHistory] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -497,12 +498,12 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
       .eq('id', sessionId)
       .single();
     if (error || !data) {
-      console.error('[getSessionDetail] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyDetail;
     }
     return data as SessionDetail;
   } catch (error) {
-    console.error('[getSessionDetail] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyDetail;
   }
 }
@@ -537,12 +538,12 @@ export async function getRecentErrors(): Promise<ErrorSummary> {
       .order('last_seen', { ascending: false })
       .limit(100);
     if (error || !data) {
-      console.error('[getRecentErrors] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyErrorSummary;
     }
     return data as unknown as ErrorSummary;
   } catch (error) {
-    console.error('[getRecentErrors] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyErrorSummary;
   }
 }
@@ -560,12 +561,12 @@ export async function getErrorsByPage(): Promise<PageErrorInfo[]> {
       .select('*')
       .order('total_errors', { ascending: false });
     if (error || !data) {
-      console.error('[getErrorsByPage] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as PageErrorInfo[];
   } catch (error) {
-    console.error('[getErrorsByPage] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -583,12 +584,12 @@ export async function getErrorTrend(): Promise<ErrorTrendPoint[]> {
       .select('*')
       .order('hour', { ascending: true });
     if (error || !data) {
-      console.error('[getErrorTrend] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as ErrorTrendPoint[];
   } catch (error) {
-    console.error('[getErrorTrend] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -620,12 +621,12 @@ export async function getPerformanceOverview(): Promise<PerformanceOverview> {
       .select('*')
       .single();
     if (error || !data) {
-      console.error('[getPerformanceOverview] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyPerformanceOverview;
     }
     return data as PerformanceOverview;
   } catch (error) {
-    console.error('[getPerformanceOverview] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyPerformanceOverview;
   }
 }
@@ -643,12 +644,12 @@ export async function getPerformanceByPage(): Promise<PagePerformance[]> {
       .select('*')
       .order('load_count', { ascending: false });
     if (error || !data) {
-      console.error('[getPerformanceByPage] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as PagePerformance[];
   } catch (error) {
-    console.error('[getPerformanceByPage] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -665,12 +666,12 @@ export async function getPerformanceByDevice(): Promise<DevicePerformance[]> {
       .from('performance_by_device')
       .select('*');
     if (error || !data) {
-      console.error('[getPerformanceByDevice] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as DevicePerformance[];
   } catch (error) {
-    console.error('[getPerformanceByDevice] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -688,12 +689,12 @@ export async function getPerformanceTrend(): Promise<PerformanceTrendPoint[]> {
       .select('*')
       .order('date', { ascending: true });
     if (error || !data) {
-      console.error('[getPerformanceTrend] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as PerformanceTrendPoint[];
   } catch (error) {
-    console.error('[getPerformanceTrend] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -714,12 +715,12 @@ export async function getDeviceBreakdown(): Promise<DeviceBreakdownItem[]> {
       .from('device_breakdown')
       .select('*');
     if (error || !data) {
-      console.error('[getDeviceBreakdown] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as DeviceBreakdownItem[];
   } catch (error) {
-    console.error('[getDeviceBreakdown] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -736,12 +737,12 @@ export async function getOSBreakdown(): Promise<BreakdownItem[]> {
       .from('os_breakdown')
       .select('*');
     if (error || !data) {
-      console.error('[getOSBreakdown] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as BreakdownItem[];
   } catch (error) {
-    console.error('[getOSBreakdown] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -758,12 +759,12 @@ export async function getBrowserBreakdown(): Promise<BreakdownItem[]> {
       .from('browser_breakdown')
       .select('*');
     if (error || !data) {
-      console.error('[getBrowserBreakdown] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as BreakdownItem[];
   } catch (error) {
-    console.error('[getBrowserBreakdown] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -781,12 +782,12 @@ export async function getDeviceModels(): Promise<DeviceModelInfo[]> {
       .select('*')
       .order('count', { ascending: false });
     if (error || !data) {
-      console.error('[getDeviceModels] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as DeviceModelInfo[];
   } catch (error) {
-    console.error('[getDeviceModels] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -803,12 +804,12 @@ export async function getConnectionBreakdown(): Promise<ConnectionInfo[]> {
       .from('connection_breakdown')
       .select('*');
     if (error || !data) {
-      console.error('[getConnectionBreakdown] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as ConnectionInfo[];
   } catch (error) {
-    console.error('[getConnectionBreakdown] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -843,12 +844,12 @@ export async function getTickets(filters?: TicketFilter): Promise<SupportTicket[
     }
     const { data, error } = await query;
     if (error || !data) {
-      console.error('[getTickets] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as SupportTicket[];
   } catch (error) {
-    console.error('[getTickets] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -883,12 +884,12 @@ export async function getTicket(id: string): Promise<SupportTicket> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getTicket] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyTicket;
     }
     return data as SupportTicket;
   } catch (error) {
-    console.error('[getTicket] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyTicket;
   }
 }
@@ -929,12 +930,12 @@ export async function createTicket(data: CreateTicketDTO): Promise<SupportTicket
       .select('*')
       .single();
     if (error || !ticket) {
-      console.error('[createTicket] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyTicket;
     }
     return ticket as SupportTicket;
   } catch (error) {
-    console.error('[createTicket] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyTicket;
   }
 }
@@ -977,12 +978,12 @@ export async function updateTicketStatus(id: string, status: string): Promise<Su
       .select('*')
       .single();
     if (error || !data) {
-      console.error('[updateTicketStatus] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyTicket;
     }
     return data as SupportTicket;
   } catch (error) {
-    console.error('[updateTicketStatus] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyTicket;
   }
 }
@@ -1019,7 +1020,7 @@ export async function addTicketMessage(id: string, from: string, text: string): 
         text,
       });
     if (msgError) {
-      console.error('[addTicketMessage] Supabase error:', msgError.message);
+      logServiceError(msgError, 'suporte');
       return emptyTicket;
     }
     const { data: ticket, error: fetchError } = await supabase
@@ -1028,12 +1029,12 @@ export async function addTicketMessage(id: string, from: string, text: string): 
       .eq('id', id)
       .single();
     if (fetchError || !ticket) {
-      console.error('[addTicketMessage] Fetch error:', fetchError?.message);
+      logServiceError(fetchError, 'suporte');
       return emptyTicket;
     }
     return ticket as SupportTicket;
   } catch (error) {
-    console.error('[addTicketMessage] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyTicket;
   }
 }
@@ -1083,7 +1084,7 @@ export async function getTicketMetrics(): Promise<TicketMetrics> {
       totalAll: totalAll ?? 0,
     };
   } catch (error) {
-    console.error('[getTicketMetrics] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyMetrics;
   }
 }
@@ -1114,12 +1115,12 @@ export async function getEngagementOverview(): Promise<EngagementOverview> {
       .select('*')
       .single();
     if (error || !data) {
-      console.error('[getEngagementOverview] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return emptyEngagement;
     }
     return data as EngagementOverview;
   } catch (error) {
-    console.error('[getEngagementOverview] Fallback:', error);
+    logServiceError(error, 'suporte');
     return emptyEngagement;
   }
 }
@@ -1137,12 +1138,12 @@ export async function getPagePopularity(): Promise<PagePopularityItem[]> {
       .select('*')
       .order('views', { ascending: false });
     if (error || !data) {
-      console.error('[getPagePopularity] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as PagePopularityItem[];
   } catch (error) {
-    console.error('[getPagePopularity] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -1160,12 +1161,12 @@ export async function getFeatureUsage(): Promise<FeatureUsageItem[]> {
       .select('*')
       .order('usage_count', { ascending: false });
     if (error || !data) {
-      console.error('[getFeatureUsage] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as FeatureUsageItem[];
   } catch (error) {
-    console.error('[getFeatureUsage] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -1183,12 +1184,12 @@ export async function getPeakHours(): Promise<PeakHourItem[]> {
       .select('*')
       .order('hour', { ascending: true });
     if (error || !data) {
-      console.error('[getPeakHours] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as PeakHourItem[];
   } catch (error) {
-    console.error('[getPeakHours] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -1206,12 +1207,12 @@ export async function getRetention(): Promise<RetentionItem[]> {
       .select('*')
       .order('day', { ascending: true });
     if (error || !data) {
-      console.error('[getRetention] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as RetentionItem[];
   } catch (error) {
-    console.error('[getRetention] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }
@@ -1230,12 +1231,12 @@ export async function getTopUsers(): Promise<TopUser[]> {
       .order('total_minutes', { ascending: false })
       .limit(20);
     if (error || !data) {
-      console.error('[getTopUsers] Supabase error:', error?.message);
+      logServiceError(error, 'suporte');
       return [];
     }
     return data as TopUser[];
   } catch (error) {
-    console.error('[getTopUsers] Fallback:', error);
+    logServiceError(error, 'suporte');
     return [];
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel, Video } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface VideoFilters {
   belt?: BeltLevel;
@@ -51,7 +52,7 @@ export async function listVideos(academyId: string, filters?: VideoFilters): Pro
   if (filters?.search) query = query.ilike('title', `%${filters.search}%`);
   const { data, error } = await query;
   if (error || !data) {
-    console.error('[listVideos] Supabase error:', error?.message);
+    logServiceError(error, 'content');
     return [];
   }
   return data as unknown as VideoCardDTO[];
@@ -72,7 +73,7 @@ export async function getVideo(id: string): Promise<VideoDetail> {
     .eq('id', id)
     .single();
   if (error || !data) {
-    console.error('[getVideo] Supabase error:', error?.message);
+    logServiceError(error, 'content');
     return {} as VideoDetail;
   }
   return data as unknown as VideoDetail;
@@ -91,7 +92,7 @@ export async function getSeries(academyId: string): Promise<SeriesDTO[]> {
     .select('id, title, video_count, belt_level, thumbnail_color, academy_id')
     .eq('academy_id', academyId);
   if (error || !data) {
-    console.error('[getSeries] Supabase error:', error?.message);
+    logServiceError(error, 'content');
     return [];
   }
   return data as unknown as SeriesDTO[];

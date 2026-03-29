@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Person, FamilyLink, FamilyRelationship } from '@/lib/types/domain';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Helpers (DB → TS mapping)
@@ -94,7 +95,7 @@ export async function createPerson(data: CreatePersonInput): Promise<Person> {
     .single();
 
   if (error) {
-    console.error('[createPerson] error:', error.message);
+    logServiceError(error, 'family');
     throw new Error(error.message);
   }
   return mapPersonFromDb(person);
@@ -112,7 +113,7 @@ export async function getPersonByAccountId(accountId: string): Promise<Person | 
     .maybeSingle();
 
   if (error) {
-    console.error('[getPersonByAccountId] error:', error.message);
+    logServiceError(error, 'family');
     return null;
   }
   return data ? mapPersonFromDb(data) : null;
@@ -130,7 +131,7 @@ export async function getPersonById(personId: string): Promise<Person | null> {
     .maybeSingle();
 
   if (error) {
-    console.error('[getPersonById] error:', error.message);
+    logServiceError(error, 'family');
     return null;
   }
   return data ? mapPersonFromDb(data) : null;
@@ -185,7 +186,7 @@ export async function createFamilyLink(data: CreateFamilyLinkInput): Promise<Fam
     .single();
 
   if (error) {
-    console.error('[createFamilyLink] error:', error.message);
+    logServiceError(error, 'family');
     throw new Error(error.message);
   }
   return mapFamilyLinkFromDb(link);
@@ -223,7 +224,7 @@ export async function getGuardians(dependentPersonId: string): Promise<GuardianI
   const { data, error } = await supabase.rpc('get_guardians', { p_dependent_id: dependentPersonId });
 
   if (error) {
-    console.error('[getGuardians] error:', error.message);
+    logServiceError(error, 'family');
     return [];
   }
 
@@ -291,7 +292,7 @@ export async function getDependents(guardianPersonId: string): Promise<Dependent
   const { data, error } = await supabase.rpc('get_dependents', { p_guardian_id: guardianPersonId });
 
   if (error) {
-    console.error('[getDependents] error:', error.message);
+    logServiceError(error, 'family');
     return [];
   }
 
@@ -341,7 +342,7 @@ export async function evolveProfile(data: {
     .eq('id', data.profileId);
 
   if (error) {
-    console.error('[evolveProfile] error:', error.message);
+    logServiceError(error, 'family');
     throw new Error(error.message);
   }
 
@@ -384,7 +385,7 @@ export async function resolveRecipients(data: {
     .eq('academy_id', data.academyId);
 
   if (error) {
-    console.error('[resolveRecipients] error:', error.message);
+    logServiceError(error, 'family');
     return [];
   }
 

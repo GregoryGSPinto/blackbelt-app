@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ParentDashboardDTO {
   filhos: FilhoResumoDTO[];
@@ -42,7 +43,7 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
     .eq('guardian_id', parentId);
 
   if (childrenError) {
-    console.error('[getParentDashboard] error fetching children:', childrenError.message);
+    logServiceError(childrenError, 'parent');
     return { filhos: [], notificacoes: [] };
   }
 
@@ -75,7 +76,7 @@ export async function getParentDashboard(parentId: string): Promise<ParentDashbo
     .limit(20);
 
   if (notifError) {
-    console.error('[getParentDashboard] error fetching notifications:', notifError.message);
+    logServiceError(notifError, 'parent');
   }
 
   const notificacoes: NotificacaoParentDTO[] = (notifications ?? []).map((n: Record<string, unknown>) => ({

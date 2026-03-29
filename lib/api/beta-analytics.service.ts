@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function trackFeatureUsage(feature_name: string, action: string, metadata?: Record<string, unknown>): Promise<void> {
   if (isMock()) return;
@@ -24,7 +25,7 @@ export async function trackFeatureUsage(feature_name: string, action: string, me
       metadata: metadata || {},
     });
   } catch (e) {
-    console.error('[Beta Analytics] Track failed:', e);
+    logServiceError(e, 'beta-analytics');
   }
 }
 
@@ -54,7 +55,7 @@ export async function trackPageVisit(path: string): Promise<void> {
       actions_count: 1,
     });
   } catch (e) {
-    console.error('[Beta Analytics] Page track failed:', e);
+    logServiceError(e, 'beta-analytics');
   }
 }
 

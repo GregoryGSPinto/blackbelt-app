@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -70,13 +71,13 @@ export async function getFamilyCalendar(profileId: string): Promise<FamilyCalend
       .single();
 
     if (error || !data) {
-      console.error('[getFamilyCalendar] Supabase error:', error?.message);
+      logServiceError(error, 'agenda-familiar');
       return { profile_id: profileId, week_start: '', week_end: '', events: [] };
     }
 
     return data as unknown as FamilyCalendarDTO;
   } catch (error) {
-    console.error('[getFamilyCalendar] Fallback:', error);
+    logServiceError(error, 'agenda-familiar');
     return { profile_id: profileId, week_start: '', week_end: '', events: [] };
   }
 }
@@ -98,13 +99,13 @@ export async function getMonthlyReport(profileId: string, month: string): Promis
       .single();
 
     if (error || !data) {
-      console.error('[getMonthlyReport] Supabase error:', error?.message);
+      logServiceError(error, 'agenda-familiar');
       return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
     }
 
     return data as unknown as MonthlyReportDTO;
   } catch (error) {
-    console.error('[getMonthlyReport] Fallback:', error);
+    logServiceError(error, 'agenda-familiar');
     return { profile_id: profileId, month_label: '', month, children: [], payments: [], total_paid: 0 };
   }
 }

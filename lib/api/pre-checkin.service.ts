@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type PreCheckinStatus = 'confirmed' | 'cancelled' | 'attended' | 'no_show';
 
@@ -84,11 +85,12 @@ export async function preCheckin(
       .select()
       .single();
     if (error) {
-      console.error('[preCheckin]', error.message);
+      logServiceError(error, 'pre-checkin');
       return null;
     }
     return data as PreCheckin;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return null;
   }
 }
@@ -105,11 +107,12 @@ export async function cancelPreCheckin(preCheckinId: string): Promise<boolean> {
       .update({ status: 'cancelled' })
       .eq('id', preCheckinId);
     if (error) {
-      console.error('[cancelPreCheckin]', error.message);
+      logServiceError(error, 'pre-checkin');
       return false;
     }
     return true;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return false;
   }
 }
@@ -139,11 +142,12 @@ export async function listPreCheckins(
       .eq('class_date', date)
       .eq('status', 'confirmed');
     if (error) {
-      console.error('[listPreCheckins]', error.message);
+      logServiceError(error, 'pre-checkin');
       return [];
     }
     return (data ?? []) as PreCheckin[];
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return [];
   }
 }
@@ -171,11 +175,12 @@ export async function myPreCheckins(
     }
     const { data, error } = await query;
     if (error) {
-      console.error('[myPreCheckins]', error.message);
+      logServiceError(error, 'pre-checkin');
       return [];
     }
     return (data ?? []) as PreCheckin[];
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return [];
   }
 }
@@ -192,11 +197,12 @@ export async function convertToAttendance(preCheckinId: string): Promise<boolean
       .update({ status: 'attended' })
       .eq('id', preCheckinId);
     if (error) {
-      console.error('[convertToAttendance]', error.message);
+      logServiceError(error, 'pre-checkin');
       return false;
     }
     return true;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return false;
   }
 }
@@ -223,11 +229,12 @@ export async function getClassExpectedCount(
       .eq('class_date', date)
       .eq('status', 'confirmed');
     if (error) {
-      console.error('[getClassExpectedCount]', error.message);
+      logServiceError(error, 'pre-checkin');
       return 0;
     }
     return count ?? 0;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'pre-checkin');
     return 0;
   }
 }

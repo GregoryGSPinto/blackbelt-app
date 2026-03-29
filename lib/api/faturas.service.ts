@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface InvoiceFilters {
   status?: InvoiceStatus;
@@ -29,12 +30,12 @@ export async function listInvoices(academyId: string, filters?: InvoiceFilters):
     if (filters?.plan_id) query = query.eq('plan_id', filters.plan_id);
     const { data, error } = await query.order('due_date', { ascending: false });
     if (error || !data) {
-      console.error('[listInvoices] Supabase error:', error?.message);
+      logServiceError(error, 'faturas');
       return [];
     }
     return data as unknown as InvoiceWithDetails[];
   } catch (error) {
-    console.error('[listInvoices] Fallback:', error);
+    logServiceError(error, 'faturas');
     return [];
   }
 }
@@ -53,12 +54,12 @@ export async function getInvoiceById(id: string): Promise<InvoiceWithDetails> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getInvoiceById] Supabase error:', error?.message);
+      logServiceError(error, 'faturas');
       return {} as InvoiceWithDetails;
     }
     return data as unknown as InvoiceWithDetails;
   } catch (error) {
-    console.error('[getInvoiceById] Fallback:', error);
+    logServiceError(error, 'faturas');
     return {} as InvoiceWithDetails;
   }
 }
@@ -78,12 +79,12 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
       .select()
       .single();
     if (error || !data) {
-      console.error('[markInvoicePaid] Supabase error:', error?.message);
+      logServiceError(error, 'faturas');
       return {} as Invoice;
     }
     return data as unknown as Invoice;
   } catch (error) {
-    console.error('[markInvoicePaid] Fallback:', error);
+    logServiceError(error, 'faturas');
     return {} as Invoice;
   }
 }
@@ -98,12 +99,12 @@ export async function generateMonthlyInvoices(academyId: string): Promise<Invoic
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('generate_monthly_invoices', { p_academy_id: academyId });
     if (error || !data) {
-      console.error('[generateMonthlyInvoices] Supabase error:', error?.message);
+      logServiceError(error, 'faturas');
       return [];
     }
     return data as unknown as Invoice[];
   } catch (error) {
-    console.error('[generateMonthlyInvoices] Fallback:', error);
+    logServiceError(error, 'faturas');
     return [];
   }
 }

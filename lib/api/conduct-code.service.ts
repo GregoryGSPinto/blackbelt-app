@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- Types (matching migration 067) ---
 
@@ -103,13 +104,13 @@ export async function getActiveTemplate(academyId: string): Promise<ConductTempl
       .single();
 
     if (error || !data) {
-      console.error('[getActiveTemplate]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductTemplate;
   } catch (error) {
-    console.error('[getActiveTemplate]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -130,13 +131,13 @@ export async function getTemplateHistory(academyId: string): Promise<ConductTemp
       .order('version', { ascending: false });
 
     if (error || !data) {
-      console.error('[getTemplateHistory]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return [];
     }
 
     return data as unknown as ConductTemplate[];
   } catch (error) {
-    console.error('[getTemplateHistory]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return [];
   }
 }
@@ -175,13 +176,13 @@ export async function createTemplate(academyId: string, content: string, title?:
       .single();
 
     if (error || !data) {
-      console.error('[createTemplate]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductTemplate;
   } catch (error) {
-    console.error('[createTemplate]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -206,13 +207,13 @@ export async function updateTemplate(id: string, data: Partial<ConductTemplate>)
       .single();
 
     if (error || !row) {
-      console.error('[updateTemplate]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return row as unknown as ConductTemplate;
   } catch (error) {
-    console.error('[updateTemplate]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -234,7 +235,7 @@ export async function publishTemplate(id: string): Promise<ConductTemplate | nul
       .single();
 
     if (!tpl) {
-      console.error('[publishTemplate] Template not found');
+      logServiceError(new Error('Template not found'), 'conduct-code');
       return null;
     }
 
@@ -253,13 +254,13 @@ export async function publishTemplate(id: string): Promise<ConductTemplate | nul
       .single();
 
     if (error || !data) {
-      console.error('[publishTemplate]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductTemplate;
   } catch (error) {
-    console.error('[publishTemplate]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -363,13 +364,13 @@ export async function seedDefaultTemplate(academyId: string): Promise<ConductTem
       .single();
 
     if (error || !data) {
-      console.error('[seedDefaultTemplate]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductTemplate;
   } catch (error) {
-    console.error('[seedDefaultTemplate]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -403,13 +404,13 @@ export async function acceptConductCode(
       .single();
 
     if (error || !data) {
-      console.error('[acceptConductCode]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductAcceptance;
   } catch (error) {
-    console.error('[acceptConductCode]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -448,7 +449,7 @@ export async function hasAcceptedLatest(academyId: string, profileId: string): P
 
     return !!acceptance;
   } catch (error) {
-    console.error('[hasAcceptedLatest]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return false;
   }
 }
@@ -477,13 +478,13 @@ export async function getAcceptances(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[getAcceptances]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return [];
     }
 
     return data as unknown as ConductAcceptance[];
   } catch (error) {
-    console.error('[getAcceptances]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return [];
   }
 }
@@ -537,7 +538,7 @@ export async function getAcceptanceStats(
       pending: total - accepted,
     };
   } catch (error) {
-    console.error('[getAcceptanceStats]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return { total_students: 0, accepted: 0, pending: 0 };
   }
 }
@@ -584,13 +585,13 @@ export async function reportIncident(
       .single();
 
     if (error || !row) {
-      console.error('[reportIncident]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return row as unknown as ConductIncident;
   } catch (error) {
-    console.error('[reportIncident]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -620,13 +621,13 @@ export async function listIncidents(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listIncidents]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return [];
     }
 
     return data as unknown as ConductIncident[];
   } catch (error) {
-    console.error('[listIncidents]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return [];
   }
 }
@@ -647,13 +648,13 @@ export async function getIncident(id: string): Promise<ConductIncident | null> {
       .single();
 
     if (error || !data) {
-      console.error('[getIncident]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductIncident;
   } catch (error) {
-    console.error('[getIncident]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -678,13 +679,13 @@ export async function updateIncident(id: string, data: Partial<ConductIncident>)
       .single();
 
     if (error || !row) {
-      console.error('[updateIncident]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return row as unknown as ConductIncident;
   } catch (error) {
-    console.error('[updateIncident]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -731,13 +732,13 @@ export async function issueSanction(
       .single();
 
     if (error || !row) {
-      console.error('[issueSanction]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return row as unknown as ConductSanction;
   } catch (error) {
-    console.error('[issueSanction]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -767,13 +768,13 @@ export async function listSanctions(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listSanctions]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return [];
     }
 
     return data as unknown as ConductSanction[];
   } catch (error) {
-    console.error('[listSanctions]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return [];
   }
 }
@@ -810,7 +811,7 @@ export async function getStudentDisciplinaryRecord(
       sanctions: (sanctionsResult.data ?? []) as unknown as ConductSanction[],
     };
   } catch (error) {
-    console.error('[getStudentDisciplinaryRecord]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return { incidents: [], sanctions: [] };
   }
 }
@@ -835,13 +836,13 @@ export async function acknowledgeSanction(sanctionId: string): Promise<ConductSa
       .single();
 
     if (error || !data) {
-      console.error('[acknowledgeSanction]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductSanction;
   } catch (error) {
-    console.error('[acknowledgeSanction]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -866,13 +867,13 @@ export async function appealSanction(sanctionId: string, notes: string): Promise
       .single();
 
     if (error || !data) {
-      console.error('[appealSanction]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductSanction;
   } catch (error) {
-    console.error('[appealSanction]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -895,13 +896,13 @@ export async function getConductConfig(academyId: string): Promise<ConductConfig
       .single();
 
     if (error || !data) {
-      console.error('[getConductConfig]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductConfig;
   } catch (error) {
-    console.error('[getConductConfig]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -929,13 +930,13 @@ export async function updateConductConfig(
       .single();
 
     if (error || !row) {
-      console.error('[updateConductConfig]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return row as unknown as ConductConfig;
   } catch (error) {
-    console.error('[updateConductConfig]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }
@@ -976,13 +977,13 @@ export async function seedDefaultConductConfig(academyId: string): Promise<Condu
       .single();
 
     if (error || !data) {
-      console.error('[seedDefaultConductConfig]', (error as Error)?.message);
+      logServiceError(error, 'conduct-code');
       return null;
     }
 
     return data as unknown as ConductConfig;
   } catch (error) {
-    console.error('[seedDefaultConductConfig]', (error as Error).message);
+    logServiceError(error, 'conduct-code');
     return null;
   }
 }

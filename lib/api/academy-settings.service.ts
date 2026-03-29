@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { TeenAutonomyConfig } from '@/lib/types/domain';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Defaults
@@ -33,7 +34,7 @@ export async function getTeenConfig(academyId: string): Promise<TeenAutonomyConf
       .maybeSingle();
 
     if (error) {
-      console.error('[getTeenConfig] error:', error.message);
+      logServiceError(error, 'academy-settings');
       return { ...DEFAULT_TEEN_CONFIG };
     }
 
@@ -49,7 +50,7 @@ export async function getTeenConfig(academyId: string): Promise<TeenAutonomyConf
       teenCanParticipateGeneralRanking: (raw.teenCanParticipateGeneralRanking as boolean) ?? DEFAULT_TEEN_CONFIG.teenCanParticipateGeneralRanking,
     };
   } catch (err) {
-    console.error('[getTeenConfig] fallback:', err);
+    logServiceError(err, 'academy-settings');
     return { ...DEFAULT_TEEN_CONFIG };
   }
 }
@@ -73,12 +74,12 @@ export async function updateTeenConfig(
       .upsert({ academy_id: academyId, teen_config: merged }, { onConflict: 'academy_id' });
 
     if (error) {
-      console.error('[updateTeenConfig] error:', error.message);
+      logServiceError(error, 'academy-settings');
       throw new Error(error.message);
     }
     return merged;
   } catch (err) {
-    console.error('[updateTeenConfig] fallback:', err);
+    logServiceError(err, 'academy-settings');
     throw err;
   }
 }

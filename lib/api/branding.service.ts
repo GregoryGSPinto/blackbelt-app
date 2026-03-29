@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface BrandingDTO {
   logoUrl: string | null;
@@ -25,12 +26,12 @@ export async function getBranding(academyId: string): Promise<BrandingDTO> {
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[getBranding] Supabase error:', error?.message);
+      logServiceError(error, 'branding');
       return fallback;
     }
     return data as unknown as BrandingDTO;
   } catch (error) {
-    console.error('[getBranding] Fallback:', error);
+    logServiceError(error, 'branding');
     return fallback;
   }
 }
@@ -51,12 +52,12 @@ export async function updateBranding(academyId: string, data: Partial<BrandingDT
       .select()
       .single();
     if (error || !row) {
-      console.error('[updateBranding] Supabase error:', error?.message);
+      logServiceError(error, 'branding');
       return fallback;
     }
     return row as unknown as BrandingDTO;
   } catch (error) {
-    console.error('[updateBranding] Fallback:', error);
+    logServiceError(error, 'branding');
     return fallback;
   }
 }

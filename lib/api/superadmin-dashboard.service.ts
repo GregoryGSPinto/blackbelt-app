@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface MissionControlKPIs {
   mrr: number;
@@ -105,12 +106,12 @@ export async function getMissionControl(): Promise<MissionControlDTO> {
           academiasAtivas: academiasAtivas ?? 0,
         },
       };
-    } catch {
-      console.error('[superadmin-dashboard.getMissionControl] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-dashboard');
       return emptyMissionControl;
     }
   } catch (error) {
-    console.error('[getMissionControl] Fallback:', error);
+    logServiceError(error, 'superadmin-dashboard');
     return emptyMissionControl;
   }
 }
@@ -129,12 +130,12 @@ export async function resolverAlerta(alertaId: string): Promise<void> {
         .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq('id', alertaId);
       if (error) {
-        console.error('[resolverAlerta] Update failed:', error.message);
+        logServiceError(error, 'superadmin-dashboard');
       }
-    } catch {
-      console.error('[superadmin-dashboard.resolverAlerta] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-dashboard');
     }
   } catch (error) {
-    console.error('[resolverAlerta] Fallback:', error);
+    logServiceError(error, 'superadmin-dashboard');
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type CampaignStatus = 'draft' | 'active' | 'completed';
 export type CampaignTemplate = 'volte_treinar' | 'traga_amigo' | 'upgrade_premium' | 'familia' | 'competicao';
@@ -66,12 +67,12 @@ export async function getCampaigns(academyId: string): Promise<CampaignDTO[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.error('[getCampaigns] Supabase error:', error?.message);
+      logServiceError(error, 'campanhas');
       return [];
     }
     return data as unknown as CampaignDTO[];
   } catch (error) {
-    console.error('[getCampaigns] Fallback:', error);
+    logServiceError(error, 'campanhas');
     return [];
   }
 }
@@ -90,12 +91,12 @@ export async function createCampaign(data: CreateCampaignInput): Promise<Campaig
       .select()
       .single();
     if (error || !row) {
-      console.error('[createCampaign] Supabase error:', error?.message);
+      logServiceError(error, 'campanhas');
       return {} as CampaignDTO;
     }
     return row as unknown as CampaignDTO;
   } catch (error) {
-    console.error('[createCampaign] Fallback:', error);
+    logServiceError(error, 'campanhas');
     return {} as CampaignDTO;
   }
 }
@@ -115,12 +116,12 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
       .eq('campaign_id', campaignId)
       .single();
     if (error || !data) {
-      console.error('[getCampaignMetrics] Supabase error:', error?.message);
+      logServiceError(error, 'campanhas');
       return fallback;
     }
     return data as unknown as CampaignMetricsDTO;
   } catch (error) {
-    console.error('[getCampaignMetrics] Fallback:', error);
+    logServiceError(error, 'campanhas');
     return fallback;
   }
 }

@@ -16,6 +16,7 @@ export type {
   UploadProgress,
 } from '@/lib/types/video-storage';
 
+import { logServiceError } from '@/lib/api/errors';
 import type {
   StorageProvider,
   StorageConfig,
@@ -47,7 +48,7 @@ export async function getStorageConfig(): Promise<StorageConfig> {
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] getStorageConfig: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockGetStorageConfig } = await import('@/lib/mocks/video-storage.mock');
         return mockGetStorageConfig();
       }
@@ -63,12 +64,12 @@ export async function getStorageConfig(): Promise<StorageConfig> {
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] getStorageConfig: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockGetStorageConfig } = await import('@/lib/mocks/video-storage.mock');
       return mockGetStorageConfig();
     }
-  } catch {
-    console.error('[video-storage] getStorageConfig: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockGetStorageConfig } = await import('@/lib/mocks/video-storage.mock');
     return mockGetStorageConfig();
   }
@@ -109,7 +110,7 @@ export async function updateStorageConfig(
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] updateStorageConfig: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockUpdateStorageConfig } = await import('@/lib/mocks/video-storage.mock');
         return mockUpdateStorageConfig(config);
       }
@@ -125,12 +126,12 @@ export async function updateStorageConfig(
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] updateStorageConfig: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockUpdateStorageConfig } = await import('@/lib/mocks/video-storage.mock');
       return mockUpdateStorageConfig(config);
     }
-  } catch {
-    console.error('[video-storage] updateStorageConfig: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockUpdateStorageConfig } = await import('@/lib/mocks/video-storage.mock');
     return mockUpdateStorageConfig(config);
   }
@@ -175,12 +176,12 @@ export async function testConnection(
         provider_info: providerConfig ? { provider } : null,
       };
     } catch (err) {
-      console.error('[video-storage] testConnection: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockTestConnection } = await import('@/lib/mocks/video-storage.mock');
       return mockTestConnection(provider);
     }
-  } catch {
-    console.error('[video-storage] testConnection: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockTestConnection } = await import('@/lib/mocks/video-storage.mock');
     return mockTestConnection(provider);
   }
@@ -238,12 +239,12 @@ export async function getStorageStats(): Promise<StorageStats> {
         cost_estimate_brl: Math.round(costBrl * 100) / 100,
       };
     } catch (err) {
-      console.error('[video-storage] getStorageStats: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockGetStorageStats } = await import('@/lib/mocks/video-storage.mock');
       return mockGetStorageStats();
     }
-  } catch {
-    console.error('[video-storage] getStorageStats: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockGetStorageStats } = await import('@/lib/mocks/video-storage.mock');
     return mockGetStorageStats();
   }
@@ -276,7 +277,7 @@ export async function uploadVideo(
         .upload(filePath, file, { upsert: false });
 
       if (uploadError) {
-        console.error('[video-storage] uploadVideo: storage upload failed:', uploadError.message);
+        logServiceError(uploadError, 'video-storage');
         // Fall through to insert record without storage
       }
 
@@ -311,7 +312,7 @@ export async function uploadVideo(
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] uploadVideo: Supabase insert error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockUploadVideo } = await import('@/lib/mocks/video-storage.mock');
         return mockUploadVideo(file, metadata, onProgress);
       }
@@ -348,12 +349,12 @@ export async function uploadVideo(
         duration: data.duration || null,
       };
     } catch (err) {
-      console.error('[video-storage] uploadVideo: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockUploadVideo } = await import('@/lib/mocks/video-storage.mock');
       return mockUploadVideo(file, metadata, onProgress);
     }
-  } catch {
-    console.error('[video-storage] uploadVideo: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockUploadVideo } = await import('@/lib/mocks/video-storage.mock');
     return mockUploadVideo(file, metadata, onProgress);
   }
@@ -407,12 +408,12 @@ export async function getVideoPlayerInfo(video: {
         poster_url: video.thumbnail_url || null,
       };
     } catch (err) {
-      console.error('[video-storage] getVideoPlayerInfo: error composing info, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockGetVideoPlayerInfo } = await import('@/lib/mocks/video-storage.mock');
       return mockGetVideoPlayerInfo(video);
     }
-  } catch {
-    console.error('[video-storage] getVideoPlayerInfo: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockGetVideoPlayerInfo } = await import('@/lib/mocks/video-storage.mock');
     return mockGetVideoPlayerInfo(video);
   }
@@ -454,7 +455,7 @@ export async function configureYouTube(code: string): Promise<StorageConfig> {
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] configureYouTube: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockConfigureYouTube } = await import('@/lib/mocks/video-storage.mock');
         return mockConfigureYouTube(code);
       }
@@ -470,12 +471,12 @@ export async function configureYouTube(code: string): Promise<StorageConfig> {
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] configureYouTube: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockConfigureYouTube } = await import('@/lib/mocks/video-storage.mock');
       return mockConfigureYouTube(code);
     }
-  } catch {
-    console.error('[video-storage] configureYouTube: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockConfigureYouTube } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureYouTube(code);
   }
@@ -514,7 +515,7 @@ export async function configureVimeo(apiToken: string): Promise<StorageConfig> {
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] configureVimeo: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockConfigureVimeo } = await import('@/lib/mocks/video-storage.mock');
         return mockConfigureVimeo(apiToken);
       }
@@ -530,12 +531,12 @@ export async function configureVimeo(apiToken: string): Promise<StorageConfig> {
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] configureVimeo: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockConfigureVimeo } = await import('@/lib/mocks/video-storage.mock');
       return mockConfigureVimeo(apiToken);
     }
-  } catch {
-    console.error('[video-storage] configureVimeo: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockConfigureVimeo } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureVimeo(apiToken);
   }
@@ -574,7 +575,7 @@ export async function configureGoogleDrive(code: string): Promise<StorageConfig>
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] configureGoogleDrive: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockConfigureGoogleDrive } = await import('@/lib/mocks/video-storage.mock');
         return mockConfigureGoogleDrive(code);
       }
@@ -590,12 +591,12 @@ export async function configureGoogleDrive(code: string): Promise<StorageConfig>
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] configureGoogleDrive: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockConfigureGoogleDrive } = await import('@/lib/mocks/video-storage.mock');
       return mockConfigureGoogleDrive(code);
     }
-  } catch {
-    console.error('[video-storage] configureGoogleDrive: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockConfigureGoogleDrive } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureGoogleDrive(code);
   }
@@ -641,7 +642,7 @@ export async function configureS3(config: {
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] configureS3: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockConfigureS3 } = await import('@/lib/mocks/video-storage.mock');
         return mockConfigureS3(config);
       }
@@ -657,12 +658,12 @@ export async function configureS3(config: {
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] configureS3: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockConfigureS3 } = await import('@/lib/mocks/video-storage.mock');
       return mockConfigureS3(config);
     }
-  } catch {
-    console.error('[video-storage] configureS3: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockConfigureS3 } = await import('@/lib/mocks/video-storage.mock');
     return mockConfigureS3(config);
   }
@@ -705,7 +706,7 @@ export async function disconnectProvider(
         .single();
 
       if (error || !data) {
-        console.error('[video-storage] disconnectProvider: Supabase error:', error?.message);
+        logServiceError(error, 'video-storage');
         const { mockDisconnectProvider } = await import('@/lib/mocks/video-storage.mock');
         return mockDisconnectProvider(provider);
       }
@@ -721,12 +722,12 @@ export async function disconnectProvider(
         updated_by: (data.updated_by as string) || null,
       };
     } catch (err) {
-      console.error('[video-storage] disconnectProvider: Supabase not available, using mock', err);
+      logServiceError(err, 'video-storage');
       const { mockDisconnectProvider } = await import('@/lib/mocks/video-storage.mock');
       return mockDisconnectProvider(provider);
     }
-  } catch {
-    console.error('[video-storage] disconnectProvider: API not available, using mock');
+  } catch (error) {
+    logServiceError(error, 'video-storage');
     const { mockDisconnectProvider } = await import('@/lib/mocks/video-storage.mock');
     return mockDisconnectProvider(provider);
   }

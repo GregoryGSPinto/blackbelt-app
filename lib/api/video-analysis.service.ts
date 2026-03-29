@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface FrameAnalysis {
   timestamp_sec: number;
@@ -60,7 +61,7 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
 
       // AI analysis not available without API key — return graceful fallback
       // In production, this would call the AI API and cache results
-      console.error('[analyzeFrame] AI analysis not configured, returning fallback');
+      logServiceError(new Error('AI analysis not configured, returning fallback'), 'video-analysis');
 
       const fallback: FrameAnalysis = {
         timestamp_sec: timestampSec,
@@ -81,12 +82,12 @@ export async function analyzeFrame(videoId: string, timestampSec: number): Promi
 
       return fallback;
     } catch (err) {
-      console.error('[video-analysis.analyzeFrame] Supabase not available, using mock fallback', err);
+      logServiceError(err, 'video-analysis');
       const { mockAnalyzeFrame } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeFrame(videoId, timestampSec);
     }
   } catch (error) {
-    console.error('[analyzeFrame] Fallback:', error);
+    logServiceError(error, 'video-analysis');
     return { timestamp_sec: timestampSec, posture_score: 0, balance_score: 0, technique_notes: [], corrections: [] };
   }
 }
@@ -115,7 +116,7 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
       }
 
       // AI analysis not available — save request and return graceful fallback
-      console.error('[analyzeVideo] AI analysis not configured, returning fallback');
+      logServiceError(new Error('AI analysis not configured, returning fallback'), 'video-analysis');
 
       const fallback: VideoAnalysis = {
         id: '',
@@ -141,12 +142,12 @@ export async function analyzeVideo(videoId: string): Promise<VideoAnalysis> {
 
       return fallback;
     } catch (err) {
-      console.error('[video-analysis.analyzeVideo] Supabase not available, using mock fallback', err);
+      logServiceError(err, 'video-analysis');
       const { mockAnalyzeVideo } = await import('@/lib/mocks/video-analysis.mock');
       return mockAnalyzeVideo(videoId);
     }
   } catch (error) {
-    console.error('[analyzeVideo] Fallback:', error);
+    logServiceError(error, 'video-analysis');
     return { id: '', video_id: videoId, overall_score: 0, posture_score: 0, balance_score: 0, technique_score: 0, highlights: [], corrections: [], summary: '', frame_analyses: [], analyzed_at: '' };
   }
 }
@@ -176,7 +177,7 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
       }
 
       // AI comparison not available — save request and return graceful fallback
-      console.error('[compareExecution] AI analysis not configured, returning fallback');
+      logServiceError(new Error('AI analysis not configured, returning fallback'), 'video-analysis');
 
       const fallback: ComparisonResult = {
         id: '',
@@ -205,12 +206,12 @@ export async function compareExecution(referenceVideoId: string, studentVideoId:
 
       return fallback;
     } catch (err) {
-      console.error('[video-analysis.compareExecution] Supabase not available, using mock fallback', err);
+      logServiceError(err, 'video-analysis');
       const { mockCompareExecution } = await import('@/lib/mocks/video-analysis.mock');
       return mockCompareExecution(referenceVideoId, studentVideoId);
     }
   } catch (error) {
-    console.error('[compareExecution] Fallback:', error);
+    logServiceError(error, 'video-analysis');
     return { id: '', reference_video_id: referenceVideoId, student_video_id: studentVideoId, similarity_score: 0, posture_diff: 0, timing_diff: 0, key_differences: [], recommendations: [], compared_at: '' };
   }
 }

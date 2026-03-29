@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { InAppNotification } from '@/lib/types/notification';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listNotifications(
   userId: string,
@@ -24,17 +25,17 @@ export async function listNotifications(
       }
       const { data, error } = await query.order('created_at', { ascending: false });
       if (error) {
-        console.error('[listNotifications] Supabase error:', error.message);
+        logServiceError(error, 'in-app-notification');
         return [];
       }
       return (data ?? []) as InAppNotification[];
     } catch (err) {
-      console.error('[in-app-notification.listNotifications] query failed, using mock fallback', err);
+      logServiceError(err, 'in-app-notification');
       const { mockListNotifications } = await import('@/lib/mocks/in-app-notification.mock');
       return mockListNotifications(userId, unreadOnly);
     }
   } catch (error) {
-    console.error('[listNotifications] Fallback:', error);
+    logServiceError(error, 'in-app-notification');
     return [];
   }
 }
@@ -55,13 +56,13 @@ export async function markAsRead(id: string): Promise<void> {
         .update({ read: true })
         .eq('id', id);
       if (error) {
-        console.error('[markAsRead] Supabase error:', error.message);
+        logServiceError(error, 'in-app-notification');
       }
     } catch (err) {
-      console.error('[in-app-notification.markAsRead] query failed, using fallback', err);
+      logServiceError(err, 'in-app-notification');
     }
   } catch (error) {
-    console.error('[markAsRead] Fallback:', error);
+    logServiceError(error, 'in-app-notification');
   }
 }
 
@@ -82,13 +83,13 @@ export async function markAllRead(userId: string): Promise<void> {
         .eq('profile_id', userId)
         .eq('read', false);
       if (error) {
-        console.error('[markAllRead] Supabase error:', error.message);
+        logServiceError(error, 'in-app-notification');
       }
     } catch (err) {
-      console.error('[in-app-notification.markAllRead] query failed, using fallback', err);
+      logServiceError(err, 'in-app-notification');
     }
   } catch (error) {
-    console.error('[markAllRead] Fallback:', error);
+    logServiceError(error, 'in-app-notification');
   }
 }
 
@@ -108,13 +109,13 @@ export async function dismiss(id: string): Promise<void> {
         .delete()
         .eq('id', id);
       if (error) {
-        console.error('[dismiss] Supabase error:', error.message);
+        logServiceError(error, 'in-app-notification');
       }
     } catch (err) {
-      console.error('[in-app-notification.dismiss] query failed, using fallback', err);
+      logServiceError(err, 'in-app-notification');
     }
   } catch (error) {
-    console.error('[dismiss] Fallback:', error);
+    logServiceError(error, 'in-app-notification');
   }
 }
 
@@ -135,16 +136,16 @@ export async function getUnreadCount(userId: string): Promise<number> {
         .eq('profile_id', userId)
         .eq('read', false);
       if (error) {
-        console.error('[getUnreadCount] Supabase error:', error.message);
+        logServiceError(error, 'in-app-notification');
         return 0;
       }
       return count ?? 0;
     } catch (err) {
-      console.error('[in-app-notification.getUnreadCount] query failed, using fallback', err);
+      logServiceError(err, 'in-app-notification');
       return 0;
     }
   } catch (error) {
-    console.error('[getUnreadCount] Fallback:', error);
+    logServiceError(error, 'in-app-notification');
     return 0;
   }
 }

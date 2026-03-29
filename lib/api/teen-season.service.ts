@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -164,11 +165,11 @@ export async function getTeenSeasonPass(studentId: string): Promise<TeenSeasonPa
         leaderboard,
       };
     } catch (err) {
-      console.error('[getTeenSeasonPass] Supabase error, returning fallback:', err);
+      logServiceError(err, 'teen-season');
       return EMPTY;
     }
   } catch (error) {
-    console.error('[getTeenSeasonPass] Fallback:', error);
+    logServiceError(error, 'teen-season');
     return { season: { id: '', name: '', theme: '', start_date: '', end_date: '', days_remaining: 0 }, my_progress: { points: 0, rank: 0, tier: 'bronze', next_tier_at: 0, achievements_count: 0 }, rewards: [], leaderboard: [] };
   }
 }
@@ -186,7 +187,7 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
       // Get current user's student ID from auth
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.error('[claimSeasonReward] No authenticated user');
+        logServiceError(new Error('No authenticated user'), 'teen-season');
         return;
       }
 
@@ -199,7 +200,7 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
         .maybeSingle();
 
       if (!student) {
-        console.error('[claimSeasonReward] No student record found');
+        logServiceError(new Error('No student record found'), 'teen-season');
         return;
       }
 
@@ -214,12 +215,12 @@ export async function claimSeasonReward(rewardId: string): Promise<void> {
         });
 
       if (error) {
-        console.error('[claimSeasonReward] Supabase error:', error.message);
+        logServiceError(error, 'teen-season');
       }
     } catch (err) {
-      console.error('[claimSeasonReward] Supabase error, using fallback:', err);
+      logServiceError(err, 'teen-season');
     }
   } catch (error) {
-    console.error('[claimSeasonReward] Fallback:', error);
+    logServiceError(error, 'teen-season');
   }
 }

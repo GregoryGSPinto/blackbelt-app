@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface SimilarAthlete {
   id: string;
@@ -111,7 +112,7 @@ export async function predictPerformance(studentId: string, championshipId: stri
       generated_at: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('[predictPerformance] Fallback:', error);
+    logServiceError(error, 'competition-predictor');
     return emptyPrediction(studentId, championshipId);
   }
 }
@@ -162,7 +163,7 @@ export async function getMatchup(studentId: string, opponentId: string): Promise
       key_vulnerabilities: sAtt < oAtt ? ['Menor frequência de treinos'] : [],
     };
   } catch (error) {
-    console.error('[getMatchup] Fallback:', error);
+    logServiceError(error, 'competition-predictor');
     return emptyMatchup(studentId, opponentId);
   }
 }
@@ -208,7 +209,7 @@ export async function getOptimalCategory(studentId: string, championshipId: stri
       feasibility: 'easy' as const,
     };
   } catch (error) {
-    console.error('[getOptimalCategory] Fallback:', error);
+    logServiceError(error, 'competition-predictor');
     return emptyCategory(studentId, championshipId);
   }
 }

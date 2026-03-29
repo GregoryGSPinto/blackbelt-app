@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface XPDTO {
   xp: number;
@@ -34,7 +35,7 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       .single();
 
     if (error || !data) {
-      console.error('[getXP] Supabase error:', error?.message);
+      logServiceError(error, 'xp');
       return { xp: 0, level: 1, nextLevelXP: 100, rank: 0 };
     }
 
@@ -45,7 +46,7 @@ export async function getXP(studentId: string): Promise<XPDTO> {
       rank: data.rank ?? 0,
     };
   } catch (error) {
-    console.error('[getXP] Fallback:', error);
+    logServiceError(error, 'xp');
     return { xp: 0, level: 1, nextLevelXP: 100, rank: 0 };
   }
 }
@@ -67,7 +68,7 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       .limit(50);
 
     if (error || !data) {
-      console.error('[getLeaderboard] Supabase error:', error?.message);
+      logServiceError(error, 'xp');
       return [];
     }
 
@@ -81,7 +82,7 @@ export async function getLeaderboard(academyId: string): Promise<RankedStudent[]
       rank: Number(row.rank ?? 0),
     }));
   } catch (error) {
-    console.error('[getLeaderboard] Fallback:', error);
+    logServiceError(error, 'xp');
     return [];
   }
 }

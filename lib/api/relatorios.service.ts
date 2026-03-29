@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type ReportType = 'presenca' | 'evolucao' | 'financeiro' | 'retencao' | 'performance';
 
@@ -42,14 +43,14 @@ export async function getReport(academyId: string, filters: ReportFilters): Prom
       });
 
     if (error || !data) {
-      console.error('[getReport] Supabase error:', error?.message);
+      logServiceError(error, 'relatorios');
       return empty;
     }
 
     const row = Array.isArray(data) ? data[0] : data;
     return (row as ReportResult) ?? empty;
   } catch (error) {
-    console.error('[getReport] Fallback:', error);
+    logServiceError(error, 'relatorios');
     return empty;
   }
 }

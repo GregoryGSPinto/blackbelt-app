@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface Figurinha {
   id: string;
@@ -46,13 +47,13 @@ export async function getAlbum(studentId: string): Promise<AlbumFigurinhas> {
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getAlbum] Supabase error:', error?.message);
+      logServiceError(error, 'kids-figurinhas');
       const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
       return mockGetAlbum(studentId);
     }
     return data as unknown as AlbumFigurinhas;
   } catch (error) {
-    console.error('[getAlbum] Fallback:', error);
+    logServiceError(error, 'kids-figurinhas');
     const { mockGetAlbum } = await import('@/lib/mocks/kids-figurinhas.mock');
     return mockGetAlbum(studentId);
   }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type EventoType =
   | 'graduacao'
@@ -54,7 +55,7 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       .order('date', { ascending: true });
 
     if (error) {
-      console.error('[getEvents] error:', error.message);
+      logServiceError(error, 'eventos');
       return [];
     }
 
@@ -74,7 +75,7 @@ export async function getEvents(academyId: string): Promise<EventoDTO[]> {
       academy_id: String(row.academy_id ?? ''),
     }));
   } catch (error) {
-    console.error('[getEvents] Fallback:', error);
+    logServiceError(error, 'eventos');
     return [];
   }
 }
@@ -102,7 +103,7 @@ export async function registerForEvent(
       .single();
 
     if (error || !data) {
-      console.error('[registerForEvent] error:', error?.message);
+      logServiceError(error, 'eventos');
       return EMPTY_REGISTRATION;
     }
 
@@ -114,7 +115,7 @@ export async function registerForEvent(
       status: (row.status as EventRegistration['status']) ?? 'confirmed',
     };
   } catch (error) {
-    console.error('[registerForEvent] Fallback:', error);
+    logServiceError(error, 'eventos');
     return EMPTY_REGISTRATION;
   }
 }

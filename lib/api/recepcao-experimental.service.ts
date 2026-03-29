@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -46,7 +47,7 @@ export async function listExperimentais(): Promise<{ hoje: ExperimentalRecepcao[
       .select('*')
       .order('data', { ascending: false });
     if (error || !data) {
-      console.error('[listExperimentais] Supabase error:', error?.message);
+      logServiceError(error, 'recepcao-experimental');
       return fallback;
     }
     const all = data as unknown as ExperimentalRecepcao[];
@@ -58,7 +59,7 @@ export async function listExperimentais(): Promise<{ hoje: ExperimentalRecepcao[
     const matricularam = all.filter(e => e.status === 'matriculou').length;
     return { hoje, followUp, historico, funnel: { agendadas, vieram, matricularam, conversao: agendadas > 0 ? matricularam / agendadas : 0 } };
   } catch (error) {
-    console.error('[listExperimentais] Fallback:', error);
+    logServiceError(error, 'recepcao-experimental');
     return fallback;
   }
 }
@@ -76,12 +77,12 @@ export async function marcarChegou(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'chegou' })
       .eq('id', id);
     if (error) {
-      console.error('[marcarChegou] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-experimental');
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.error('[marcarChegou] Fallback:', error);
+    logServiceError(error, 'recepcao-experimental');
     return { ok: false };
   }
 }
@@ -99,12 +100,12 @@ export async function marcarNaoVeio(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'nao_veio' })
       .eq('id', id);
     if (error) {
-      console.error('[marcarNaoVeio] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-experimental');
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.error('[marcarNaoVeio] Fallback:', error);
+    logServiceError(error, 'recepcao-experimental');
     return { ok: false };
   }
 }
@@ -122,12 +123,12 @@ export async function marcarMatriculou(id: string): Promise<{ ok: boolean }> {
       .update({ status: 'matriculou' })
       .eq('id', id);
     if (error) {
-      console.error('[marcarMatriculou] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-experimental');
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.error('[marcarMatriculou] Fallback:', error);
+    logServiceError(error, 'recepcao-experimental');
     return { ok: false };
   }
 }

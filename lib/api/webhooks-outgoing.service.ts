@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type WebhookEvent =
   | 'student.created' | 'student.updated'
@@ -51,12 +52,12 @@ export async function registerWebhook(academyId: string, url: string, events: We
       .single();
 
     if (error || !data) {
-      console.error('[registerWebhook] error:', error?.message);
+      logServiceError(error, 'webhooks-outgoing');
       return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
     }
     return data as unknown as OutgoingWebhook;
   } catch (error) {
-    console.error('[registerWebhook] Fallback:', error);
+    logServiceError(error, 'webhooks-outgoing');
     return { id: '', academyId, url, events, secret: '', active: true, createdAt: new Date().toISOString() };
   }
 }
@@ -77,12 +78,12 @@ export async function listWebhooks(academyId: string): Promise<OutgoingWebhook[]
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[listWebhooks] error:', error.message);
+      logServiceError(error, 'webhooks-outgoing');
       return [];
     }
     return (data ?? []) as unknown as OutgoingWebhook[];
   } catch (error) {
-    console.error('[listWebhooks] Fallback:', error);
+    logServiceError(error, 'webhooks-outgoing');
     return [];
   }
 }
@@ -102,10 +103,10 @@ export async function deleteWebhook(webhookId: string): Promise<void> {
       .eq('id', webhookId);
 
     if (error) {
-      console.error('[deleteWebhook] error:', error.message);
+      logServiceError(error, 'webhooks-outgoing');
     }
   } catch (error) {
-    console.error('[deleteWebhook] Fallback:', error);
+    logServiceError(error, 'webhooks-outgoing');
   }
 }
 
@@ -125,7 +126,7 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       .single();
 
     if (error || !webhook) {
-      console.error('[testWebhook] error:', error?.message ?? 'not found');
+      logServiceError(error, 'webhooks-outgoing');
       return { success: false, responseCode: 0, responseTime: 0, error: 'Webhook not found' };
     }
 
@@ -140,11 +141,11 @@ export async function testWebhook(webhookId: string): Promise<WebhookTestResult>
       return { success: res.ok, responseCode: res.status, responseTime, error: res.ok ? null : `HTTP ${res.status}` };
     } catch (err) {
       const responseTime = Date.now() - start;
-      console.error('[testWebhook] Failed to reach webhook URL');
+      logServiceError(new Error('Failed to reach webhook URL'), 'webhooks-outgoing');
       return { success: false, responseCode: 0, responseTime, error: err instanceof Error ? err.message : 'Connection failed' };
     }
   } catch (error) {
-    console.error('[testWebhook] Fallback:', error);
+    logServiceError(error, 'webhooks-outgoing');
     return { success: false, responseCode: 0, responseTime: 0, error: 'Unknown error' };
   }
 }
@@ -166,12 +167,12 @@ export async function getDeliveryLog(webhookId: string): Promise<WebhookDelivery
       .limit(50);
 
     if (error) {
-      console.error('[getDeliveryLog] error:', error.message);
+      logServiceError(error, 'webhooks-outgoing');
       return [];
     }
     return (data ?? []) as unknown as WebhookDelivery[];
   } catch (error) {
-    console.error('[getDeliveryLog] Fallback:', error);
+    logServiceError(error, 'webhooks-outgoing');
     return [];
   }
 }

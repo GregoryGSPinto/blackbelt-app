@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RecommendedVideo {
   id: string;
@@ -30,7 +31,7 @@ export async function getRecommendations(studentId: string): Promise<Recommended
         .order('views_count', { ascending: false })
         .limit(10);
       if (error || !data) {
-        console.error('[getRecommendations] Query failed:', error?.message);
+        logServiceError(error, 'recommendations');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -40,12 +41,12 @@ export async function getRecommendations(studentId: string): Promise<Recommended
         reason: 'Conteúdo popular',
         score: 100 - idx * 5,
       }));
-    } catch {
-      console.error('[recommendations.getRecommendations] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'recommendations');
       return [];
     }
   } catch (error) {
-    console.error('[getRecommendations] Fallback:', error);
+    logServiceError(error, 'recommendations');
     return [];
   }
 }
@@ -65,7 +66,7 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
         .order('created_at', { ascending: false })
         .limit(20);
       if (error || !data) {
-        console.error('[getPersonalizedFeed] Query failed:', error?.message);
+        logServiceError(error, 'recommendations');
         return { recommended: [], newContent: [], trending: [], completeSeries: [] };
       }
       const vids = (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -81,12 +82,12 @@ export async function getPersonalizedFeed(studentId: string): Promise<ContentFee
         trending: vids.slice(10, 15),
         completeSeries: vids.slice(15, 20),
       };
-    } catch {
-      console.error('[recommendations.getPersonalizedFeed] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'recommendations');
       return { recommended: [], newContent: [], trending: [], completeSeries: [] };
     }
   } catch (error) {
-    console.error('[getPersonalizedFeed] Fallback:', error);
+    logServiceError(error, 'recommendations');
     return { recommended: [], newContent: [], trending: [], completeSeries: [] };
   }
 }

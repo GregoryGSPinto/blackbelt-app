@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function generatePresencaReport(academyId: string, period: string): Promise<Blob> {
   try {
@@ -16,7 +17,7 @@ export async function generatePresencaReport(academyId: string, period: string):
         .select('id, belt, profile:profiles!students_profile_id_fkey(display_name)')
         .eq('academy_id', academyId);
       if (studErr || !students) {
-        console.error('[generatePresencaReport] students query error:', studErr?.message);
+        logServiceError(studErr, 'reports-export');
         return new Blob();
       }
 
@@ -27,7 +28,7 @@ export async function generatePresencaReport(academyId: string, period: string):
         .gte('checked_at', `${period}-01`)
         .order('checked_at', { ascending: true });
       if (attErr) {
-        console.error('[generatePresencaReport] attendance query error:', attErr.message);
+        logServiceError(attErr, 'reports-export');
         return new Blob();
       }
 
@@ -42,11 +43,11 @@ export async function generatePresencaReport(academyId: string, period: string):
       const csv = rows.join('\n');
       return new Blob([csv], { type: 'text/csv;charset=utf-8' });
     } catch (err) {
-      console.error('[reports-export.generatePresencaReport] error, using fallback:', err);
+      logServiceError(err, 'reports-export');
       return new Blob();
     }
   } catch (error) {
-    console.error('[generatePresencaReport] Fallback:', error);
+    logServiceError(error, 'reports-export');
     return new Blob();
   }
 }
@@ -68,7 +69,7 @@ export async function generateFinanceiroReport(academyId: string, period: string
         .gte('due_date', `${period}-01`)
         .order('due_date', { ascending: true });
       if (invErr) {
-        console.error('[generateFinanceiroReport] invoices query error:', invErr.message);
+        logServiceError(invErr, 'reports-export');
         return new Blob();
       }
 
@@ -90,11 +91,11 @@ export async function generateFinanceiroReport(academyId: string, period: string
       const csv = rows.join('\n');
       return new Blob([csv], { type: 'text/csv;charset=utf-8' });
     } catch (err) {
-      console.error('[reports-export.generateFinanceiroReport] error, using fallback:', err);
+      logServiceError(err, 'reports-export');
       return new Blob();
     }
   } catch (error) {
-    console.error('[generateFinanceiroReport] Fallback:', error);
+    logServiceError(error, 'reports-export');
     return new Blob();
   }
 }
@@ -115,7 +116,7 @@ export async function generateAlunoReport(studentId: string): Promise<Blob> {
         .eq('id', studentId)
         .single();
       if (stuErr || !student) {
-        console.error('[generateAlunoReport] student query error:', stuErr?.message);
+        logServiceError(stuErr, 'reports-export');
         return new Blob();
       }
 
@@ -148,11 +149,11 @@ export async function generateAlunoReport(studentId: string): Promise<Blob> {
       ];
       return new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
     } catch (err) {
-      console.error('[reports-export.generateAlunoReport] error, using fallback:', err);
+      logServiceError(err, 'reports-export');
       return new Blob();
     }
   } catch (error) {
-    console.error('[generateAlunoReport] Fallback:', error);
+    logServiceError(error, 'reports-export');
     return new Blob();
   }
 }
@@ -173,7 +174,7 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
         .select('id, belt, profile:profiles!students_profile_id_fkey(display_name)')
         .eq('academy_id', academyId);
       if (stuErr || !students || students.length === 0) {
-        console.error('[generateRankingReport] students query error:', stuErr?.message);
+        logServiceError(stuErr, 'reports-export');
         return new Blob();
       }
 
@@ -183,7 +184,7 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
         .select('student_id, amount')
         .in('student_id', students.map((s: { id: string }) => s.id));
       if (xpErr) {
-        console.error('[generateRankingReport] xp_ledger query error:', xpErr.message);
+        logServiceError(xpErr, 'reports-export');
         return new Blob();
       }
 
@@ -205,11 +206,11 @@ export async function generateRankingReport(academyId: string): Promise<Blob> {
       const csv = rows.join('\n');
       return new Blob([csv], { type: 'text/csv;charset=utf-8' });
     } catch (err) {
-      console.error('[reports-export.generateRankingReport] error, using fallback:', err);
+      logServiceError(err, 'reports-export');
       return new Blob();
     }
   } catch (error) {
-    console.error('[generateRankingReport] Fallback:', error);
+    logServiceError(error, 'reports-export');
     return new Blob();
   }
 }

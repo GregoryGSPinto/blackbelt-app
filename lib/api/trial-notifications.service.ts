@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { TrialStudent, TrialConfig } from '@/lib/api/trial.service';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -248,7 +249,7 @@ export async function processTrialNotifications(
       }
     }
   } catch (err) {
-    console.error('[processTrialNotifications] Error:', err);
+    logServiceError(err, 'trial-notifications');
   }
 
   return summary;

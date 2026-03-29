@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ export async function getRecommendations(
         .order('views_count', { ascending: false })
         .limit(limit);
       if (error || !data) {
-        console.error('[getRecommendations] Query failed:', error?.message);
+        logServiceError(error, 'recommendation');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>, idx: number) => ({
@@ -61,12 +62,12 @@ export async function getRecommendations(
         relevanceScore: 100 - idx * 5,
         duration: row.duration_seconds ? `${Math.floor((row.duration_seconds as number) / 60)}:${String((row.duration_seconds as number) % 60).padStart(2, '0')}` : undefined,
       }));
-    } catch {
-      console.error('[recommendation.getRecommendations] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'recommendation');
       return [];
     }
   } catch (error) {
-    console.error('[getRecommendations] Fallback:', error);
+    logServiceError(error, 'recommendation');
     return [];
   }
 }
@@ -87,12 +88,12 @@ export async function markRecommendationSeen(
         .from('recommendation_views')
         .insert({ student_id: studentId, content_id: contentId });
       if (error) {
-        console.error('[markRecommendationSeen] Insert failed:', error.message);
+        logServiceError(error, 'recommendation');
       }
-    } catch {
-      console.error('[recommendation.markRecommendationSeen] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'recommendation');
     }
   } catch (error) {
-    console.error('[markRecommendationSeen] Fallback:', error);
+    logServiceError(error, 'recommendation');
   }
 }

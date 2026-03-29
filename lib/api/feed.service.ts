@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type PostType =
   | 'promotion'
@@ -80,7 +81,7 @@ export async function getFeed(
       }
       const { data, error } = await query;
       if (error) {
-        console.error('[getFeed] Query failed:', error.message);
+        logServiceError(error, 'feed');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -98,12 +99,12 @@ export async function getFeed(
         comments: [],
         createdAt: (row.created_at as string) || '',
       }));
-    } catch {
-      console.error('[feed.getFeed] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'feed');
       return [];
     }
   } catch (error) {
-    console.error('[getFeed] Fallback:', error);
+    logServiceError(error, 'feed');
     return [];
   }
 }
@@ -119,20 +120,20 @@ export async function likePost(postId: string): Promise<void> {
       const supabase = createBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.error('[likePost] No authenticated user');
+        logServiceError(new Error('No authenticated user'), 'feed');
         return;
       }
       const { error } = await supabase
         .from('feed_likes')
         .upsert({ post_id: postId, user_id: user.id }, { onConflict: 'post_id,user_id' });
       if (error) {
-        console.error('[likePost] Upsert failed:', error.message);
+        logServiceError(error, 'feed');
       }
-    } catch {
-      console.error('[feed.likePost] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'feed');
     }
   } catch (error) {
-    console.error('[likePost] Fallback:', error);
+    logServiceError(error, 'feed');
   }
 }
 
@@ -150,7 +151,7 @@ export async function addComment(
       const supabase = createBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.error('[addComment] No authenticated user');
+        logServiceError(new Error('No authenticated user'), 'feed');
         return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
       }
       const { data: row, error } = await supabase
@@ -159,7 +160,7 @@ export async function addComment(
         .select()
         .single();
       if (error || !row) {
-        console.error('[addComment] Insert failed:', error?.message);
+        logServiceError(error, 'feed');
         return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
       }
       return {
@@ -168,12 +169,12 @@ export async function addComment(
         content: (row.content as string) || content,
         createdAt: (row.created_at as string) || new Date().toISOString(),
       };
-    } catch {
-      console.error('[feed.addComment] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'feed');
       return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
     }
   } catch (error) {
-    console.error('[addComment] Fallback:', error);
+    logServiceError(error, 'feed');
     return { id: '', authorName: '', content, createdAt: new Date().toISOString() };
   }
 }
@@ -196,16 +197,16 @@ export async function getHighlights(
         .eq('key', 'feed_highlights')
         .single();
       if (error || !data) {
-        console.error('[getHighlights] Query failed:', error?.message);
+        logServiceError(error, 'feed');
         return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
       }
       return (data.value as FeedHighlights) || { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
-    } catch {
-      console.error('[feed.getHighlights] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'feed');
       return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
     }
   } catch (error) {
-    console.error('[getHighlights] Fallback:', error);
+    logServiceError(error, 'feed');
     return { studentOfTheWeek: null, classHighlight: null, birthdays: [] };
   }
 }

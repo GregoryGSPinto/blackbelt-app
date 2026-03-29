@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -50,7 +51,7 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       .order('requested_at', { ascending: false });
 
     if (error) {
-      console.error('[getAutorizacoes] error:', error.message);
+      logServiceError(error, 'responsavel-autorizacoes');
       return [];
     }
 
@@ -69,7 +70,7 @@ export async function getAutorizacoes(guardianId: string): Promise<Autorizacao[]
       };
     });
   } catch (error) {
-    console.error('[getAutorizacoes] Fallback:', error);
+    logServiceError(error, 'responsavel-autorizacoes');
     return [];
   }
 }
@@ -95,7 +96,7 @@ export async function respondAutorizacao(
       .single();
 
     if (error) {
-      console.error('[respondAutorizacao] error:', error.message);
+      logServiceError(error, 'responsavel-autorizacoes');
       return {} as Autorizacao;
     }
 
@@ -112,7 +113,7 @@ export async function respondAutorizacao(
       responded_at: data.responded_at,
     } as Autorizacao;
   } catch (error) {
-    console.error('[respondAutorizacao] Fallback:', error);
+    logServiceError(error, 'responsavel-autorizacoes');
     return {} as Autorizacao;
   }
 }
@@ -134,7 +135,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       .single();
 
     if (studentError) {
-      console.error('[getControleParental] error fetching student:', studentError.message);
+      logServiceError(studentError, 'responsavel-autorizacoes');
       return { student_id: studentId, student_name: '', permissions: [] };
     }
 
@@ -144,7 +145,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       .eq('student_id', studentId);
 
     if (permsError) {
-      console.error('[getControleParental] error fetching permissions:', permsError.message);
+      logServiceError(permsError, 'responsavel-autorizacoes');
     }
 
     const permissions: ParentalPermission[] = (perms ?? []).map((p: Record<string, unknown>) => ({
@@ -160,7 +161,7 @@ export async function getControleParental(studentId: string): Promise<ControlePa
       permissions,
     };
   } catch (error) {
-    console.error('[getControleParental] Fallback:', error);
+    logServiceError(error, 'responsavel-autorizacoes');
     return { student_id: studentId, student_name: '', permissions: [] };
   }
 }
@@ -186,9 +187,9 @@ export async function updatePermission(
       .eq('key', key);
 
     if (error) {
-      console.error('[updatePermission] error:', error.message);
+      logServiceError(error, 'responsavel-autorizacoes');
     }
   } catch (error) {
-    console.error('[updatePermission] Fallback:', error);
+    logServiceError(error, 'responsavel-autorizacoes');
   }
 }

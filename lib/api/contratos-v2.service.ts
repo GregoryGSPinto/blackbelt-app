@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type TipoContrato = 'matricula' | 'termo_responsabilidade' | 'codigo_conduta' | 'cancelamento';
 export type StatusContrato = 'rascunho' | 'enviado' | 'visualizado' | 'assinado' | 'expirado';
@@ -46,12 +47,12 @@ export async function listContratosTemplates(academyId: string): Promise<Contrat
       .select('*')
       .eq('academy_id', academyId);
     if (error || !data) {
-      console.error('[listContratosTemplates] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return [];
     }
     return data as unknown as ContratoTemplate[];
   } catch (error) {
-    console.error('[listContratosTemplates] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return [];
   }
 }
@@ -70,12 +71,12 @@ export async function getContratoTemplate(id: string): Promise<ContratoTemplate>
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getContratoTemplate] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return {} as ContratoTemplate;
     }
     return data as unknown as ContratoTemplate;
   } catch (error) {
-    console.error('[getContratoTemplate] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return {} as ContratoTemplate;
   }
 }
@@ -94,12 +95,12 @@ export async function createContratoTemplate(data: Omit<ContratoTemplate, 'id' |
       .select()
       .single();
     if (error || !row) {
-      console.error('[createContratoTemplate] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return {} as ContratoTemplate;
     }
     return row as unknown as ContratoTemplate;
   } catch (error) {
-    console.error('[createContratoTemplate] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return {} as ContratoTemplate;
   }
 }
@@ -118,12 +119,12 @@ export async function gerarContrato(templateId: string, alunoId: string, dados: 
       .select()
       .single();
     if (error || !data) {
-      console.error('[gerarContrato] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return {} as Contrato;
     }
     return data as unknown as Contrato;
   } catch (error) {
-    console.error('[gerarContrato] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return {} as Contrato;
   }
 }
@@ -141,10 +142,10 @@ export async function enviarParaAssinatura(contratoId: string, metodo: 'email' |
       .update({ status: 'enviado', enviado_por: metodo })
       .eq('id', contratoId);
     if (error) {
-      console.error('[enviarParaAssinatura] Supabase error:', error.message);
+      logServiceError(error, 'contratos-v2');
     }
   } catch (error) {
-    console.error('[enviarParaAssinatura] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
   }
 }
 
@@ -163,12 +164,12 @@ export async function assinarContrato(contratoId: string, assinatura: string): P
       .select()
       .single();
     if (error || !data) {
-      console.error('[assinarContrato] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return {} as Contrato;
     }
     return data as unknown as Contrato;
   } catch (error) {
-    console.error('[assinarContrato] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return {} as Contrato;
   }
 }
@@ -185,12 +186,12 @@ export async function listContratos(academyId: string, filters?: { status?: Stat
     if (filters?.status) query = query.eq('status', filters.status);
     const { data, error } = await query;
     if (error || !data) {
-      console.error('[listContratos] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return [];
     }
     return data as unknown as Contrato[];
   } catch (error) {
-    console.error('[listContratos] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return [];
   }
 }
@@ -209,7 +210,7 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
       .select('status')
       .eq('academy_id', academyId);
     if (error || !data) {
-      console.error('[getContratosMetrics] Supabase error:', error?.message);
+      logServiceError(error, 'contratos-v2');
       return fallback;
     }
     const ativos = data.filter((c: { status: string }) => c.status === 'assinado').length;
@@ -217,7 +218,7 @@ export async function getContratosMetrics(academyId: string): Promise<ContratosM
     const total = data.length;
     return { contratosAtivos: ativos, pendentesAssinatura: pendentes, taxaAssinatura: total > 0 ? ativos / total : 0 };
   } catch (error) {
-    console.error('[getContratosMetrics] Fallback:', error);
+    logServiceError(error, 'contratos-v2');
     return fallback;
   }
 }

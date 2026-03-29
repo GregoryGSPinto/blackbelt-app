@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ReferralStatsDTO {
   code: string;
@@ -23,12 +24,12 @@ export async function getReferralCode(academyId: string): Promise<string> {
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getReferralCode] Supabase error:', error?.message);
+      logServiceError(error, 'referral-b2b');
       return '';
     }
     return String(data.code ?? '');
   } catch (error) {
-    console.error('[getReferralCode] Fallback:', error);
+    logServiceError(error, 'referral-b2b');
     return '';
   }
 }
@@ -47,12 +48,12 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getReferralStats] Supabase error:', error?.message);
+      logServiceError(error, 'referral-b2b');
       return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
     }
     return data as unknown as ReferralStatsDTO;
   } catch (error) {
-    console.error('[getReferralStats] Fallback:', error);
+    logServiceError(error, 'referral-b2b');
     return { code: '', totalReferrals: 0, convertedReferrals: 0, creditsEarned: 0, creditsUsed: 0, referrals: [] };
   }
 }
@@ -69,10 +70,10 @@ export async function applyReferralCredit(academyId: string): Promise<void> {
       p_academy_id: academyId,
     });
     if (error) {
-      console.error('[applyReferralCredit] Supabase error:', error.message);
+      logServiceError(error, 'referral-b2b');
     }
   } catch (error) {
-    console.error('[applyReferralCredit] Fallback:', error);
+    logServiceError(error, 'referral-b2b');
   }
 }
 

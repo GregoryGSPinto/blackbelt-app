@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type InsightSeverity = 'info' | 'warning' | 'critical';
 export type InsightType = 'CHURN_ALERT' | 'REVENUE_DROP' | 'CLASS_FULL' | 'CLASS_EMPTY' | 'BELT_READY' | 'PAYMENT_OVERDUE' | 'ATTENDANCE_RECORD' | 'PROFESSOR_HIGHLIGHT';
@@ -29,12 +30,12 @@ export async function generateInsights(academyId: string): Promise<Insight[]> {
       .order('created_at', { ascending: false })
       .limit(20);
     if (error) {
-      console.error('[generateInsights] Supabase error:', error.message);
+      logServiceError(error, 'insights');
       return [];
     }
     return (data ?? []) as unknown as Insight[];
   } catch (error) {
-    console.error('[generateInsights] Fallback:', error);
+    logServiceError(error, 'insights');
     return [];
   }
 }

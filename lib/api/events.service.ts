@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AcademyEvent, CreateEventData } from '@/lib/types/event';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Legacy DTO (backward compat) ──────────────────────────────────────
 
@@ -34,7 +35,7 @@ export async function listEvents(academyId: string): Promise<EventDTO[]> {
     .eq('academy_id', academyId)
     .order('date', { ascending: true });
   if (error || !data) {
-    console.error('[listEvents] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     return [];
   }
   return data as unknown as EventDTO[];
@@ -54,7 +55,7 @@ export async function createEvent(academyId: string, event: Omit<EventDTO, 'id' 
     .select()
     .single();
   if (error || !data) {
-    console.error('[createEvent] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     throw new Error(`[createEvent] Failed: ${error?.message ?? 'no data returned'}`);
   }
   return data as unknown as EventDTO;
@@ -72,7 +73,7 @@ export async function enrollInEvent(eventId: string, studentId: string): Promise
     .from('event_enrollments')
     .insert({ event_id: eventId, student_id: studentId });
   if (error) {
-    console.error('[enrollInEvent] Supabase error:', error.message);
+    logServiceError(error, 'events');
   }
 }
 
@@ -93,7 +94,7 @@ export async function listAcademyEvents(academyId: string): Promise<AcademyEvent
     .eq('academy_id', academyId)
     .order('date', { ascending: true });
   if (error || !data) {
-    console.error('[listAcademyEvents] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     return [];
   }
   return data as unknown as AcademyEvent[];
@@ -114,7 +115,7 @@ export async function getAcademyEvent(eventId: string): Promise<AcademyEvent> {
     .eq('id', eventId)
     .single();
   if (error || !data) {
-    console.error('[getAcademyEvent] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     return {} as AcademyEvent;
   }
   return data as unknown as AcademyEvent;
@@ -134,7 +135,7 @@ export async function createAcademyEvent(academyId: string, data: CreateEventDat
     .select()
     .single();
   if (error || !row) {
-    console.error('[createAcademyEvent] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     throw new Error(`[createAcademyEvent] Failed: ${error?.message ?? 'no data returned'}`);
   }
   return row as unknown as AcademyEvent;
@@ -155,7 +156,7 @@ export async function updateAcademyEvent(eventId: string, data: Partial<CreateEv
     .select()
     .single();
   if (error || !row) {
-    console.error('[updateAcademyEvent] Supabase error:', error?.message);
+    logServiceError(error, 'events');
     throw new Error(`[updateAcademyEvent] Failed: ${error?.message ?? 'no data returned'}`);
   }
   return row as unknown as AcademyEvent;
@@ -171,7 +172,7 @@ export async function deleteAcademyEvent(eventId: string): Promise<void> {
   const supabase = createBrowserClient();
   const { error } = await supabase.from('academy_events').delete().eq('id', eventId);
   if (error) {
-    console.error('[deleteAcademyEvent] Supabase error:', error.message);
+    logServiceError(error, 'events');
     throw new Error(`[deleteAcademyEvent] Failed: ${error.message}`);
   }
 }

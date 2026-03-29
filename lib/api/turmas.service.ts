@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Class, ScheduleSlot, BeltLevel, EnrollmentStatus } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ClassFilters {
   modalityId?: string;
@@ -72,7 +73,7 @@ export async function listClasses(academyId: string, filters?: ClassFilters): Pr
 
   const { data, error } = await query;
   if (error) {
-    console.error('[listClasses] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     return [];
   }
 
@@ -112,7 +113,7 @@ export async function getClassById(id: string): Promise<ClassDetail> {
     .eq('id', id)
     .single();
   if (error) {
-    console.error('[getClassById] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     return { enrolled_students: [], modality_name: '', professor_name: '', unit_name: '', enrolled_count: 0, max_students: 0 } as unknown as ClassDetail;
   }
 
@@ -181,7 +182,7 @@ export async function createClass(data: CreateClassRequest): Promise<Class> {
     .select()
     .single();
   if (error) {
-    console.error('[createClass] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     throw new Error(`[createClass] ${error.message}`);
   }
   trackFeatureUsage('schedule', 'create');
@@ -211,7 +212,7 @@ export async function updateClass(id: string, data: UpdateClassRequest): Promise
     .select()
     .single();
   if (error) {
-    console.error('[updateClass] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     throw new Error(`[updateClass] ${error.message}`);
   }
   return classData as Class;
@@ -228,7 +229,7 @@ export async function deleteClass(id: string): Promise<void> {
 
   const { error } = await supabase.from('classes').delete().eq('id', id);
   if (error) {
-    console.error('[deleteClass] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     throw new Error(`[deleteClass] ${error.message}`);
   }
 }
@@ -253,7 +254,7 @@ export async function getClassesByProfessor(professorId: string): Promise<ClassW
     `)
     .eq('professor_id', professorId);
   if (error) {
-    console.error('[getClassesByProfessor] Supabase error:', error.message);
+    logServiceError(error, 'turmas');
     return [];
   }
 

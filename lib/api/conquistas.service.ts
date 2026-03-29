@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Achievement, AchievementType } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ConquistaDTO {
   id: string;
@@ -26,7 +27,7 @@ export async function listByAluno(studentId: string): Promise<ConquistaDTO[]> {
     .eq('student_id', studentId);
 
   if (error) {
-    console.error('[listByAluno] Supabase error:', error.message);
+    logServiceError(error, 'conquistas');
     return [];
   }
 
@@ -59,7 +60,7 @@ export async function listAvailable(studentId: string): Promise<ConquistaDTO[]> 
     .select('id, name, description, type, icon');
 
   if (defError) {
-    console.error('[listAvailable] Supabase error fetching definitions:', defError.message);
+    logServiceError(defError, 'conquistas');
     return [];
   }
 
@@ -103,7 +104,7 @@ export async function grant(studentId: string, type: AchievementType, granterId:
     .single();
 
   if (error || !data) {
-    console.error('[grant] Supabase error:', error?.message);
+    logServiceError(error, 'conquistas');
     throw new Error(`[grant] ${error?.message ?? 'No data returned'}`);
   }
 

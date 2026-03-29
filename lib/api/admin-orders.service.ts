@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Order, OrderStatus } from '@/lib/api/orders.service';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface OrderFilters {
   status?: OrderStatus;
@@ -39,13 +40,13 @@ export async function listOrders(filters?: OrderFilters): Promise<Order[]> {
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listOrders] Supabase error:', error?.message);
+      logServiceError(error, 'admin-orders');
       return [];
     }
 
     return data as unknown as Order[];
   } catch (error) {
-    console.error('[listOrders] Fallback:', error);
+    logServiceError(error, 'admin-orders');
     return [];
   }
 }
@@ -66,13 +67,13 @@ export async function getOrderDetail(id: string): Promise<Order> {
       .single();
 
     if (error || !data) {
-      console.error('[getOrderDetail] Supabase error:', error?.message);
+      logServiceError(error, 'admin-orders');
       return { ...EMPTY_ORDER, id };
     }
 
     return data as unknown as Order;
   } catch (error) {
-    console.error('[getOrderDetail] Fallback:', error);
+    logServiceError(error, 'admin-orders');
     return { ...EMPTY_ORDER, id };
   }
 }
@@ -97,13 +98,13 @@ export async function updateOrderStatus(id: string, status: OrderStatus, trackin
       .single();
 
     if (error || !data) {
-      console.error('[updateOrderStatus] Supabase error:', error?.message);
+      logServiceError(error, 'admin-orders');
       return { ...EMPTY_ORDER, id, status };
     }
 
     return data as unknown as Order;
   } catch (error) {
-    console.error('[updateOrderStatus] Fallback:', error);
+    logServiceError(error, 'admin-orders');
     return { ...EMPTY_ORDER, id, status };
   }
 }
@@ -126,7 +127,7 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       .gte('created_at', monthStart);
 
     if (error || !data) {
-      console.error('[getStoreDashboard] Supabase error:', error?.message);
+      logServiceError(error, 'admin-orders');
       return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
     }
 
@@ -141,7 +142,7 @@ export async function getStoreDashboard(): Promise<StoreDashboard> {
       top_products: [],
     };
   } catch (error) {
-    console.error('[getStoreDashboard] Fallback:', error);
+    logServiceError(error, 'admin-orders');
     return { orders_month: 0, revenue: 0, avg_ticket: 0, top_products: [] };
   }
 }

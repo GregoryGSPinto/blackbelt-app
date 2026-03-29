@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
       .single();
 
     if (error || !data) {
-      console.error('[getCalendarSyncStatus] No integration found or error:', error?.message);
+      logServiceError(error, 'calendar-sync');
       return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
     }
 
@@ -54,7 +55,7 @@ export async function getCalendarSyncStatus(userId: string): Promise<CalendarSyn
       syncedClasses: data.synced_classes ?? 0,
     };
   } catch (error) {
-    console.error('[getCalendarSyncStatus] Fallback:', error);
+    logServiceError(error, 'calendar-sync');
     return { connected: false, email: null, lastSync: null, syncedClasses: 0 };
   }
 }
@@ -68,10 +69,10 @@ export async function connectGoogleCalendar(): Promise<{ authUrl: string }> {
 
     // Google Calendar API integration requires server-side OAuth flow
     // Return empty until Google API credentials are configured
-    console.error('[connectGoogleCalendar] Google Calendar API not configured yet');
+    logServiceError(new Error('Google Calendar API not configured yet'), 'calendar-sync');
     return { authUrl: '' };
   } catch (error) {
-    console.error('[connectGoogleCalendar] Fallback:', error);
+    logServiceError(error, 'calendar-sync');
     return { authUrl: '' };
   }
 }
@@ -92,10 +93,10 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
       .eq('user_id', userId);
 
     if (error) {
-      console.error('[disconnectGoogleCalendar] error:', error.message);
+      logServiceError(error, 'calendar-sync');
     }
   } catch (error) {
-    console.error('[disconnectGoogleCalendar] Fallback:', error);
+    logServiceError(error, 'calendar-sync');
   }
 }
 
@@ -108,10 +109,10 @@ export async function syncClassesToCalendar(_userId: string): Promise<{ synced: 
 
     // Google Calendar sync requires server-side API integration
     // Return fallback until Google API credentials are configured
-    console.error('[syncClassesToCalendar] Google Calendar API not configured, returning fallback');
+    logServiceError(new Error('Google Calendar API not configured, returning fallback'), 'calendar-sync');
     return { synced: 0 };
   } catch (error) {
-    console.error('[syncClassesToCalendar] Fallback:', error);
+    logServiceError(error, 'calendar-sync');
     return { synced: 0 };
   }
 }

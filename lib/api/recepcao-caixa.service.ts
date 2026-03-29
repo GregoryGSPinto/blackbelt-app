@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -62,7 +63,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       .order('created_at', { ascending: false });
 
     if (recError) {
-      console.error('[getCaixa] error fetching receipts:', recError.message);
+      logServiceError(recError, 'recepcao-caixa');
     }
 
     // Fetch bills due today
@@ -73,7 +74,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       .eq('status', 'pending');
 
     if (vencError) {
-      console.error('[getCaixa] error fetching vencimentos:', vencError.message);
+      logServiceError(vencError, 'recepcao-caixa');
     }
 
     const recList: Recebimento[] = (recebimentos ?? []).map((r: Record<string, unknown>) => ({
@@ -124,7 +125,7 @@ export async function getCaixa(): Promise<CaixaDia> {
       vencendoHoje,
     };
   } catch (error) {
-    console.error('[getCaixa] Fallback:', error);
+    logServiceError(error, 'recepcao-caixa');
     return {
       data: new Date().toISOString().slice(0, 10),
       totalRecebido: 0,
@@ -166,13 +167,13 @@ export async function registrarRecebimento(data: {
       .single();
 
     if (error) {
-      console.error('[registrarRecebimento] error:', error.message);
+      logServiceError(error, 'recepcao-caixa');
       return { ok: false, id: '' };
     }
 
     return { ok: true, id: (inserted as Record<string, unknown>).id as string };
   } catch (error) {
-    console.error('[registrarRecebimento] Fallback:', error);
+    logServiceError(error, 'recepcao-caixa');
     return { ok: false, id: '' };
   }
 }

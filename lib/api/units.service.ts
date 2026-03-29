@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface UnitDTO {
   id: string;
@@ -25,7 +26,7 @@ export async function listUnits(academyId: string): Promise<UnitDTO[]> {
     .eq('academy_id', academyId)
     .eq('active', true);
   if (error) {
-    console.error('[listUnits] Supabase error:', error.message);
+    logServiceError(error, 'units');
     return [];
   }
   return (data ?? []) as unknown as UnitDTO[];
@@ -45,7 +46,7 @@ export async function createUnit(academyId: string, data: Omit<UnitDTO, 'id' | '
     .select()
     .single();
   if (error || !row) {
-    console.error('[createUnit] Supabase error:', error?.message);
+    logServiceError(error, 'units');
     throw new Error(`[createUnit] Failed to create unit: ${error?.message ?? 'no data'}`);
   }
   return row as unknown as UnitDTO;
@@ -66,7 +67,7 @@ export async function updateUnit(unitId: string, data: Partial<UnitDTO>): Promis
     .select()
     .single();
   if (error || !row) {
-    console.error('[updateUnit] Supabase error:', error?.message);
+    logServiceError(error, 'units');
     throw new Error(`[updateUnit] Failed to update unit: ${error?.message ?? 'no data'}`);
   }
   return row as unknown as UnitDTO;
@@ -85,7 +86,7 @@ export async function deactivateUnit(unitId: string): Promise<void> {
     .update({ active: false })
     .eq('id', unitId);
   if (error) {
-    console.error('[deactivateUnit] Supabase error:', error.message);
+    logServiceError(error, 'units');
     throw new Error(`[deactivateUnit] Failed to deactivate unit: ${error.message}`);
   }
 }

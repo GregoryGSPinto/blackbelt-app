@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type PlanStatus = 'active' | 'completed' | 'archived';
 
@@ -60,13 +61,13 @@ export async function createPlan(plan: Omit<TrainingPlanDTO, 'id' | 'created_at'
       .select()
       .single();
     if (error || !data) {
-      console.error('[createPlan] Supabase error:', error?.message);
+      logServiceError(error, 'training-plan');
       const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockCreatePlan(plan);
     }
     return data as unknown as TrainingPlanDTO;
   } catch (error) {
-    console.error('[createPlan] Fallback:', error);
+    logServiceError(error, 'training-plan');
     const { mockCreatePlan } = await import('@/lib/mocks/training-plan.mock');
     return mockCreatePlan(plan);
   }
@@ -89,12 +90,12 @@ export async function getActivePlan(studentId: string): Promise<TrainingPlanDTO 
       .limit(1)
       .maybeSingle();
     if (error) {
-      console.error('[getActivePlan] Supabase error:', error.message);
+      logServiceError(error, 'training-plan');
       return null;
     }
     return (data as unknown as TrainingPlanDTO) ?? null;
   } catch (error) {
-    console.error('[getActivePlan] Fallback:', error);
+    logServiceError(error, 'training-plan');
     return null;
   }
 }
@@ -113,12 +114,12 @@ export async function getPlans(studentId: string): Promise<TrainingPlanDTO[]> {
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getPlans] Supabase error:', error.message);
+      logServiceError(error, 'training-plan');
       return [];
     }
     return (data ?? []) as unknown as TrainingPlanDTO[];
   } catch (error) {
-    console.error('[getPlans] Fallback:', error);
+    logServiceError(error, 'training-plan');
     return [];
   }
 }
@@ -138,13 +139,13 @@ export async function updatePlan(id: string, data: Partial<TrainingPlanDTO>): Pr
       .select()
       .single();
     if (error || !row) {
-      console.error('[updatePlan] Supabase error:', error?.message);
+      logServiceError(error, 'training-plan');
       const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
       return mockUpdatePlan(id, data);
     }
     return row as unknown as TrainingPlanDTO;
   } catch (error) {
-    console.error('[updatePlan] Fallback:', error);
+    logServiceError(error, 'training-plan');
     const { mockUpdatePlan } = await import('@/lib/mocks/training-plan.mock');
     return mockUpdatePlan(id, data);
   }
@@ -162,9 +163,9 @@ export async function logExercise(planId: string, log: ExerciseLog): Promise<voi
       .from('exercise_logs')
       .insert({ plan_id: planId, ...log });
     if (error) {
-      console.error('[logExercise] Supabase error:', error.message);
+      logServiceError(error, 'training-plan');
     }
   } catch (error) {
-    console.error('[logExercise] Fallback:', error);
+    logServiceError(error, 'training-plan');
   }
 }

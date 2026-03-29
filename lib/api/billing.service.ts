@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   PlanDefinition,
   BillingSummary,
@@ -19,7 +20,7 @@ export async function getPlans(): Promise<PlanDefinition[]> {
   // all columns needed for admin CRUD
   const { data, error } = await supabase.from('billing_plans').select('*');
   if (error || !data) {
-    console.error('[getPlans] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return [];
   }
   return data as PlanDefinition[];
@@ -39,7 +40,7 @@ export async function getCurrentPlan(academyId: string): Promise<PlanDefinition>
     .eq('academy_id', academyId)
     .single();
   if (error || !data) {
-    console.error('[getCurrentPlan] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return { id: '', name: '', slug: '', price_monthly: 0, price_yearly: 0, limits: { students: 0, professors: 0, classes: 0, storage_gb: 0 }, overage: { student_cents: 0, professor_cents: 0, class_cents: 0, storage_gb_cents: 0 }, modules: { streaming: false, store: false, financial: false, events: false, multi_branch: false, api: false }, support_level: 'email', is_popular: false, badge_color: '' } as PlanDefinition;
   }
   return data.billing_plans as PlanDefinition;
@@ -63,7 +64,7 @@ export async function getBillingSummary(academyId: string): Promise<BillingSumma
     .eq('academy_id', academyId)
     .single();
   if (error || !data) {
-    console.error('[getBillingSummary] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return fallback;
   }
   return data as unknown as BillingSummary;
@@ -82,7 +83,7 @@ export async function getUsageMetrics(academyId: string): Promise<UsageMetric[]>
     .select('resource, label, icon, current, limit, percent, status, overage_count, overage_cost_cents, academy_id')
     .eq('academy_id', academyId);
   if (error || !data) {
-    console.error('[getUsageMetrics] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return [];
   }
   return data as unknown as UsageMetric[];
@@ -104,7 +105,7 @@ export async function getInvoices(academyId: string, limit?: number): Promise<Bi
   if (limit) query = query.limit(limit);
   const { data, error } = await query;
   if (error || !data) {
-    console.error('[getInvoices] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return [];
   }
   return data as unknown as BillingInvoice[];
@@ -145,7 +146,7 @@ export async function requestUpgrade(
     .from('billing_upgrade_requests')
     .insert({ academy_id: academyId, plan_slug: planSlug, status: 'pending' });
   if (error) {
-    console.error('[requestUpgrade] Supabase error:', error.message);
+    logServiceError(error, 'billing');
     return { success: false };
   }
   return { success: true };
@@ -166,7 +167,7 @@ export async function requestDowngrade(
     .from('billing_downgrade_requests')
     .insert({ academy_id: academyId, plan_slug: planSlug, status: 'pending' });
   if (error) {
-    console.error('[requestDowngrade] Supabase error:', error.message);
+    logServiceError(error, 'billing');
     return { success: false };
   }
   return { success: true };
@@ -188,7 +189,7 @@ export async function toggleBillingCycle(
     .update({ billing_cycle: cycle })
     .eq('academy_id', academyId);
   if (error) {
-    console.error('[toggleBillingCycle] Supabase error:', error.message);
+    logServiceError(error, 'billing');
   }
 }
 
@@ -209,7 +210,7 @@ export async function getOverageProjection(academyId: string): Promise<OveragePr
     .eq('academy_id', academyId)
     .single();
   if (error || !data) {
-    console.error('[getOverageProjection] Supabase error:', error?.message);
+    logServiceError(error, 'billing');
     return fallback;
   }
   return data as unknown as OverageProjection;

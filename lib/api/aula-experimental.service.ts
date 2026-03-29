@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type TrialOrigin = 'site' | 'indicacao' | 'instagram' | 'whatsapp' | 'presencial';
 export type TrialStatus = 'agendada' | 'confirmada' | 'compareceu' | 'nao_compareceu' | 'matriculou' | 'desistiu';
@@ -56,12 +57,12 @@ export async function createTrialClass(academyId: string, data: CreateTrialReque
       .select()
       .single();
     if (error || !row) {
-      console.error('[createTrialClass] Supabase error:', error?.message);
+      logServiceError(error, 'aula-experimental');
       return {} as TrialClass;
     }
     return row as unknown as TrialClass;
   } catch (error) {
-    console.error('[createTrialClass] Fallback:', error);
+    logServiceError(error, 'aula-experimental');
     return {} as TrialClass;
   }
 }
@@ -79,12 +80,12 @@ export async function listTrialClasses(academyId: string, filters?: TrialFilters
     if (filters?.origem) query = query.eq('lead_origem', filters.origem);
     const { data, error } = await query;
     if (error || !data) {
-      console.error('[listTrialClasses] Supabase error:', error?.message);
+      logServiceError(error, 'aula-experimental');
       return [];
     }
     return data as unknown as TrialClass[];
   } catch (error) {
-    console.error('[listTrialClasses] Fallback:', error);
+    logServiceError(error, 'aula-experimental');
     return [];
   }
 }
@@ -104,12 +105,12 @@ export async function updateTrialStatus(id: string, status: TrialStatus): Promis
       .select()
       .single();
     if (error || !data) {
-      console.error('[updateTrialStatus] Supabase error:', error?.message);
+      logServiceError(error, 'aula-experimental');
       return {} as TrialClass;
     }
     return data as unknown as TrialClass;
   } catch (error) {
-    console.error('[updateTrialStatus] Fallback:', error);
+    logServiceError(error, 'aula-experimental');
     return {} as TrialClass;
   }
 }
@@ -128,7 +129,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       .select('status')
       .eq('academy_id', academyId);
     if (error || !data) {
-      console.error('[getTrialMetrics] Supabase error:', error?.message);
+      logServiceError(error, 'aula-experimental');
       return fallback;
     }
     const agendadas = data.length;
@@ -137,7 +138,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
     const matricularam = data.filter((r: { status: string }) => r.status === 'matriculou').length;
     return { agendadas, confirmadas, compareceram, matricularam, taxaConversao: agendadas > 0 ? matricularam / agendadas : 0 };
   } catch (error) {
-    console.error('[getTrialMetrics] Fallback:', error);
+    logServiceError(error, 'aula-experimental');
     return fallback;
   }
 }

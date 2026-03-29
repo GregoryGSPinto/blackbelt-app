@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel, ScheduleSlot } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Base DTOs ──────────────────────────────────────────────────────────
 
@@ -147,7 +148,7 @@ export async function getAlunoDashboard(studentId: string): Promise<AlunoDashboa
     .eq('id', studentId)
     .single();
   if (studentError) {
-    console.error('[getAlunoDashboard] Supabase error:', studentError.message);
+    logServiceError(studentError, 'aluno');
     return {
       student_name: 'Aluno', avatar_url: null, ranking_position: 0, total_academy_students: 0,
       membro_desde: '', proximaAula: null, aulaAgora: false, proximaAulaAmanha: null, proximasAulas: [],

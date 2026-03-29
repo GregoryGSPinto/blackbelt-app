@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel, ScheduleSlot } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ProfessorDashboardDTO {
   proximaAula: ProximaAulaDTO | null;
@@ -71,7 +72,7 @@ export async function getProfessorDashboard(professorId: string): Promise<Profes
     `)
     .eq('professor_id', professorId);
   if (error) {
-    console.error('[getProfessorDashboard] error:', error.message);
+    logServiceError(error, 'professor');
     return { proximaAula: null, aulaAtiva: null, minhasTurmas: [], meusAlunos: [], mensagensRecentes: [] };
   }
 

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type VoiceCommandType =
   | 'start_timer'
@@ -51,7 +52,7 @@ export async function startListening(): Promise<ListeningState> {
     // Web Speech API would be initialized here
     return { is_listening: true, transcript: '', confidence: 0 };
   } catch (error) {
-    console.error('[startListening] Fallback:', error);
+    logServiceError(error, 'voice-assistant');
     return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
@@ -64,7 +65,7 @@ export async function stopListening(): Promise<ListeningState> {
     }
     return { is_listening: false, transcript: '', confidence: 0 };
   } catch (error) {
-    console.error('[stopListening] Fallback:', error);
+    logServiceError(error, 'voice-assistant');
     return { is_listening: false, transcript: '', confidence: 0 };
   }
 }
@@ -104,7 +105,7 @@ export async function processCommand(audioTranscript: string): Promise<VoiceResp
       data: null,
     };
   } catch (error) {
-    console.error('[processCommand] Fallback:', error);
+    logServiceError(error, 'voice-assistant');
     return { command_type: 'unknown', text_response: 'Assistente de voz em desenvolvimento.', action: null, data: null };
   }
 }

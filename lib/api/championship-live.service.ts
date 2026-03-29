@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface LiveMatchDTO {
   match_id: string;
@@ -95,7 +96,7 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
       .eq('status', 'in_progress');
 
     if (error) {
-      console.error('[getLiveMatches] Supabase error:', error.message);
+      logServiceError(error, 'championship-live');
       return [];
     }
 
@@ -116,7 +117,7 @@ export async function getLiveMatches(championshipId: string): Promise<LiveMatchD
     };
     });
   } catch (error) {
-    console.error('[getLiveMatches] Fallback:', error);
+    logServiceError(error, 'championship-live');
     return [];
   }
 }
@@ -160,7 +161,7 @@ export async function getResults(championshipId: string, categoryId?: string): P
     const { data, error } = await query;
 
     if (error) {
-      console.error('[getResults] Supabase error:', error.message);
+      logServiceError(error, 'championship-live');
       return [];
     }
 
@@ -203,7 +204,7 @@ export async function getResults(championshipId: string, categoryId?: string): P
 
     return results;
   } catch (error) {
-    console.error('[getResults] Fallback:', error);
+    logServiceError(error, 'championship-live');
     return [];
   }
 }
@@ -224,7 +225,7 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       .order('gold', { ascending: false });
 
     if (error) {
-      console.error('[getMedalTable] Supabase error:', error.message);
+      logServiceError(error, 'championship-live');
       return [];
     }
 
@@ -240,7 +241,7 @@ export async function getMedalTable(championshipId: string): Promise<MedalTableE
       };
     });
   } catch (error) {
-    console.error('[getMedalTable] Fallback:', error);
+    logServiceError(error, 'championship-live');
     return [];
   }
 }

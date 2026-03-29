@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface NetworkAcademy {
   id: string;
@@ -48,7 +49,7 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         .limit(1);
 
       if (netError) {
-        console.error('[getNetworkDashboard] error fetching network:', netError.message);
+        logServiceError(netError, 'network');
       }
 
       const network = networks?.[0];
@@ -63,7 +64,7 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         .eq('franchise_id', network.id);
 
       if (faError) {
-        console.error('[getNetworkDashboard] error fetching franchise_academies:', faError.message);
+        logServiceError(faError, 'network');
       }
 
       const faList = franchiseAcademies ?? [];
@@ -153,12 +154,12 @@ export async function getNetworkDashboard(ownerId: string): Promise<NetworkDashb
         academies,
       };
     } catch (err) {
-      console.error('[network.getNetworkDashboard] Supabase query failed, using mock fallback:', err);
+      logServiceError(err, 'network');
       const { mockGetNetworkDashboard } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkDashboard(ownerId);
     }
   } catch (error) {
-    console.error('[getNetworkDashboard] Fallback:', error);
+    logServiceError(error, 'network');
     return { totalAcademies: 0, totalStudents: 0, totalRevenue: 0, avgAttendance: 0, academies: [] };
   }
 }
@@ -226,12 +227,12 @@ export async function getAcademyComparison(academyIds: string[], metric: string)
 
       return { metric, academies: results };
     } catch (err) {
-      console.error('[network.getAcademyComparison] Supabase query failed, using mock fallback:', err);
+      logServiceError(err, 'network');
       const { mockGetAcademyComparison } = await import('@/lib/mocks/network.mock');
       return mockGetAcademyComparison(academyIds, metric);
     }
   } catch (error) {
-    console.error('[getAcademyComparison] Fallback:', error);
+    logServiceError(error, 'network');
     return { metric, academies: [] };
   }
 }
@@ -341,12 +342,12 @@ export async function getNetworkFinancials(ownerId: string): Promise<Consolidate
 
       return { totalMRR, totalOverdue, byAcademy };
     } catch (err) {
-      console.error('[network.getNetworkFinancials] Supabase query failed, using mock fallback:', err);
+      logServiceError(err, 'network');
       const { mockGetNetworkFinancials } = await import('@/lib/mocks/network.mock');
       return mockGetNetworkFinancials(ownerId);
     }
   } catch (error) {
-    console.error('[getNetworkFinancials] Fallback:', error);
+    logServiceError(error, 'network');
     return { totalMRR: 0, totalOverdue: 0, byAcademy: [] };
   }
 }
@@ -369,7 +370,7 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
         .eq('academy_id', fromAcademy);
 
       if (studentError) {
-        console.error('[transferStudent] error updating student:', studentError.message);
+        logServiceError(studentError, 'network');
         return;
       }
 
@@ -390,7 +391,7 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
           .eq('academy_id', fromAcademy);
 
         if (deactivateError) {
-          console.error('[transferStudent] error deactivating old membership:', deactivateError.message);
+          logServiceError(deactivateError, 'network');
         }
 
         // Upsert new membership for target academy
@@ -407,13 +408,13 @@ export async function transferStudent(studentId: string, fromAcademy: string, to
           );
 
         if (upsertError) {
-          console.error('[transferStudent] error creating new membership:', upsertError.message);
+          logServiceError(upsertError, 'network');
         }
       }
     } catch (err) {
-      console.error('[network.transferStudent] Supabase query failed:', err);
+      logServiceError(err, 'network');
     }
   } catch (error) {
-    console.error('[transferStudent] Fallback:', error);
+    logServiceError(error, 'network');
   }
 }

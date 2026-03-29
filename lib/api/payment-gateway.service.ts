@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   CreateCustomerData,
   ExternalCustomer,
@@ -106,12 +107,12 @@ export async function getGatewayConfig(academyId: string): Promise<PaymentGatewa
       .single();
 
     if (error || !data) {
-      console.error('[getGatewayConfig] error:', error?.message ?? 'not found');
+      logServiceError(error, 'payment-gateway');
       return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
     }
     return data.value as unknown as PaymentGatewayConfig;
   } catch (error) {
-    console.error('[getGatewayConfig] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { provider: 'mock', environment: 'sandbox', academyId, connected: false };
   }
 }
@@ -129,10 +130,10 @@ export async function saveGatewayConfig(academyId: string, config: Partial<Payme
       .upsert({ academy_id: academyId, key: 'payment_gateway', value: config }, { onConflict: 'academy_id,key' });
 
     if (error) {
-      console.error('[saveGatewayConfig] error:', error.message);
+      logServiceError(error, 'payment-gateway');
     }
   } catch (error) {
-    console.error('[saveGatewayConfig] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
   }
 }
 
@@ -145,7 +146,7 @@ export async function testGatewayConnection(config: Partial<PaymentGatewayConfig
     // Without a real gateway API key, we just return true (manual mode)
     return true;
   } catch (error) {
-    console.error('[testGatewayConnection] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return false;
   }
 }
@@ -171,7 +172,7 @@ export async function getGatewayStatus(academyId: string): Promise<GatewayStatus
     const cfg = data.value as Record<string, unknown>;
     return { connected: (cfg.connected as boolean) ?? false, provider: (cfg.provider as string) ?? 'none', lastSync: cfg.lastSync as string | undefined };
   } catch (error) {
-    console.error('[getGatewayStatus] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { connected: false, provider: 'none' };
   }
 }
@@ -191,12 +192,12 @@ export async function createCharge(academyId: string, customerId: string, value:
       .single();
 
     if (error || !data) {
-      console.error('[createCharge] error:', error?.message ?? 'no data');
+      logServiceError(error, 'payment-gateway');
       return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
     }
     return data as unknown as PaymentCharge;
   } catch (error) {
-    console.error('[createCharge] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { id: '', customerId, customerName: '', description, value, dueDate, status: 'pending', billingType, createdAt: new Date().toISOString() };
   }
 }
@@ -215,12 +216,12 @@ export async function listCharges(academyId: string, filters?: ChargeFilters): P
     const { data, error } = await query;
 
     if (error) {
-      console.error('[listCharges] error:', error.message);
+      logServiceError(error, 'payment-gateway');
       return [];
     }
     return (data ?? []) as unknown as PaymentCharge[];
   } catch (error) {
-    console.error('[listCharges] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return [];
   }
 }
@@ -236,12 +237,12 @@ export async function listSubscriptions(academyId: string): Promise<PaymentSubsc
     const { data, error } = await supabase.from('payment_subscriptions').select('*, payment_customers(name)').eq('academy_id', academyId);
 
     if (error) {
-      console.error('[listSubscriptions] error:', error.message);
+      logServiceError(error, 'payment-gateway');
       return [];
     }
     return (data ?? []) as unknown as PaymentSubscription[];
   } catch (error) {
-    console.error('[listSubscriptions] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return [];
   }
 }
@@ -260,7 +261,7 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       .eq('academy_id', academyId);
 
     if (error || !data) {
-      console.error('[getFinancialSummary] error:', error?.message);
+      logServiceError(error, 'payment-gateway');
       return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
     }
 
@@ -280,7 +281,7 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
     }
     return { received, pending, overdue, refunded, netRevenue: received - refunded, fees: 0, byMethod };
   } catch (error) {
-    console.error('[getFinancialSummary] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { received: 0, pending: 0, overdue: 0, refunded: 0, netRevenue: 0, fees: 0, byMethod: { pix: 0, boleto: 0, creditCard: 0 } };
   }
 }
@@ -292,10 +293,10 @@ export async function generatePixQrCode(chargeId: string): Promise<{ qrCode: str
       return mockGeneratePixQrCode(chargeId);
     }
     // Without gateway API key, Pix QR code generation is not available
-    console.error('[generatePixQrCode] Gateway not configured — PIX QR code not available for charge:', chargeId);
+    logServiceError(new Error('Gateway not configured — PIX QR code not available'), 'payment-gateway');
     return { qrCode: '', copyPaste: '' };
   } catch (error) {
-    console.error('[generatePixQrCode] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { qrCode: '', copyPaste: '' };
   }
 }
@@ -307,10 +308,10 @@ export async function syncCustomers(academyId: string): Promise<{ synced: number
       return mockSyncCustomers(academyId);
     }
     // Without gateway API key, sync is manual
-    console.error('[syncCustomers] Gateway not configured — sync not available for academy:', academyId);
+    logServiceError(new Error('Gateway not configured — sync not available'), 'payment-gateway');
     return { synced: 0 };
   } catch (error) {
-    console.error('[syncCustomers] Fallback:', error);
+    logServiceError(error, 'payment-gateway');
     return { synced: 0 };
   }
 }

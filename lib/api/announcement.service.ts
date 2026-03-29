@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   Announcement,
   AnnouncementStats,
@@ -21,12 +22,12 @@ export async function listAnnouncements(
     if (filters?.audience) query = query.eq('target_audience', filters.audience);
     const { data, error } = await query.order('created_at', { ascending: false });
     if (error) {
-      console.error('[listAnnouncements] error:', error.message);
+      logServiceError(error, 'announcement');
       return [];
     }
     return (data ?? []) as unknown as Announcement[];
   } catch (error) {
-    console.error('[listAnnouncements] Fallback:', error);
+    logServiceError(error, 'announcement');
     return [];
   }
 }
@@ -41,12 +42,12 @@ export async function getAnnouncement(id: string): Promise<Announcement | null> 
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('announcements').select('*').eq('id', id).single();
     if (error) {
-      console.error('[getAnnouncement] error:', error.message);
+      logServiceError(error, 'announcement');
       return null;
     }
     return data as unknown as Announcement;
   } catch (error) {
-    console.error('[getAnnouncement] Fallback:', error);
+    logServiceError(error, 'announcement');
     return null;
   }
 }
@@ -64,12 +65,12 @@ export async function createAnnouncement(
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('announcements').insert({ academy_id: academyId, ...payload }).select().single();
     if (error) {
-      console.error('[createAnnouncement] error:', error.message);
+      logServiceError(error, 'announcement');
       return { id: '', academy_id: academyId, title: payload.title, content: payload.content, author_id: '', author_name: '', status: 'draft', target_audience: payload.target_audience, target_class_id: null, target_class_name: null, scheduled_at: null, published_at: null, created_at: new Date().toISOString(), attachments: [], read_count: 0, total_recipients: 0 } as Announcement;
     }
     return data as unknown as Announcement;
   } catch (error) {
-    console.error('[createAnnouncement] Fallback:', error);
+    logServiceError(error, 'announcement');
     return { id: '', academy_id: academyId, title: payload.title, content: payload.content, author_id: '', author_name: '', status: 'draft', target_audience: payload.target_audience, target_class_id: null, target_class_name: null, scheduled_at: null, published_at: null, created_at: new Date().toISOString(), attachments: [], read_count: 0, total_recipients: 0 } as Announcement;
   }
 }
@@ -84,12 +85,12 @@ export async function publishAnnouncement(id: string): Promise<Announcement> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('announcements').update({ status: 'published', published_at: new Date().toISOString() }).eq('id', id).select().single();
     if (error) {
-      console.error('[publishAnnouncement] error:', error.message);
+      logServiceError(error, 'announcement');
       return { id, academy_id: '', title: '', content: '', author_id: '', author_name: '', status: 'published', target_audience: 'all', target_class_id: null, target_class_name: null, scheduled_at: null, published_at: new Date().toISOString(), created_at: '', attachments: [], read_count: 0, total_recipients: 0 } as Announcement;
     }
     return data as unknown as Announcement;
   } catch (error) {
-    console.error('[publishAnnouncement] Fallback:', error);
+    logServiceError(error, 'announcement');
     return { id, academy_id: '', title: '', content: '', author_id: '', author_name: '', status: 'published', target_audience: 'all', target_class_id: null, target_class_name: null, scheduled_at: null, published_at: new Date().toISOString(), created_at: '', attachments: [], read_count: 0, total_recipients: 0 } as Announcement;
   }
 }
@@ -104,7 +105,7 @@ export async function getAnnouncementStats(academyId: string): Promise<Announcem
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('announcements').select('status').eq('academy_id', academyId);
     if (error || !data) {
-      console.error('[getAnnouncementStats] error:', error?.message ?? 'no data');
+      logServiceError(error, 'announcement');
       return { total: 0, published: 0, scheduled: 0, drafts: 0, avg_read_rate: 0 } as AnnouncementStats;
     }
     const total = data.length;
@@ -113,7 +114,7 @@ export async function getAnnouncementStats(academyId: string): Promise<Announcem
     const drafts = data.filter((d: { status: string }) => d.status === 'draft').length;
     return { total, published, scheduled, drafts, avg_read_rate: 0 } as AnnouncementStats;
   } catch (error) {
-    console.error('[getAnnouncementStats] Fallback:', error);
+    logServiceError(error, 'announcement');
     return { total: 0, published: 0, scheduled: 0, drafts: 0, avg_read_rate: 0 } as AnnouncementStats;
   }
 }
@@ -128,11 +129,11 @@ export async function markAnnouncementAsRead(id: string): Promise<void> {
     const supabase = createBrowserClient();
     const { error } = await supabase.from('announcement_reads').insert({ announcement_id: id });
     if (error) {
-      console.error('[markAnnouncementAsRead] error:', error.message);
+      logServiceError(error, 'announcement');
     }
     return;
   } catch (error) {
-    console.error('[markAnnouncementAsRead] Fallback:', error);
+    logServiceError(error, 'announcement');
     return;
   }
 }

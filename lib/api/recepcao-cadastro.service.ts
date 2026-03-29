@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -84,7 +85,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
     const result = await res.json();
 
     if (!res.ok) {
-      console.error('[cadastrarRapido] API error:', result.error);
+      logServiceError(new Error('API error'), 'recepcao-cadastro');
       return { alunoId: '', tipo: data.tipo };
     }
 
@@ -96,7 +97,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
       loginTemporario: result.loginTemporario as CadastroResult['loginTemporario'],
     };
   } catch (error) {
-    console.error('[cadastrarRapido] Fallback:', error);
+    logServiceError(error, 'recepcao-cadastro');
     return { alunoId: '', tipo: data.tipo };
   }
 }
@@ -114,12 +115,12 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       .select('id, name, price, features')
       .eq('active', true);
     if (error || !data) {
-      console.error('[getPlanos] Supabase error:', error?.message);
+      logServiceError(error, 'recepcao-cadastro');
       return [];
     }
     return data.map((p: { id: string; name: string; price: number; features: string[] | null }) => ({ id: p.id, nome: p.name, valor: p.price, beneficios: p.features ?? [] })) as PlanoResumo[];
   } catch (error) {
-    console.error('[getPlanos] Fallback:', error);
+    logServiceError(error, 'recepcao-cadastro');
     return [];
   }
 }
@@ -136,7 +137,7 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       .from('classes')
       .select('id, schedule, modalities(name), profiles!classes_professor_id_fkey(display_name)');
     if (error || !data) {
-      console.error('[getTurmasDisponiveis] Supabase error:', error?.message);
+      logServiceError(error, 'recepcao-cadastro');
       return [];
     }
     return data.map((c: Record<string, unknown>) => {
@@ -151,7 +152,7 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       };
     });
   } catch (error) {
-    console.error('[getTurmasDisponiveis] Fallback:', error);
+    logServiceError(error, 'recepcao-cadastro');
     return [];
   }
 }

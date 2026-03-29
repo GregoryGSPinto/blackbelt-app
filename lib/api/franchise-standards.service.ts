@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -81,13 +82,13 @@ export async function getStandards(franchiseId: string): Promise<Standard[]> {
       .order('category', { ascending: true });
 
     if (error) {
-      console.error('[getStandards] error:', error.message);
+      logServiceError(error, 'franchise-standards');
       return [];
     }
 
     return (data ?? []) as unknown as Standard[];
   } catch (error) {
-    console.error('[getStandards] Fallback:', error);
+    logServiceError(error, 'franchise-standards');
     return [];
   }
 }
@@ -123,13 +124,13 @@ export async function createStandard(data: CreateStandardData): Promise<Standard
       .single();
 
     if (error) {
-      console.error('[createStandard] error:', error.message);
+      logServiceError(error, 'franchise-standards');
       return {} as Standard;
     }
 
     return inserted as unknown as Standard;
   } catch (error) {
-    console.error('[createStandard] Fallback:', error);
+    logServiceError(error, 'franchise-standards');
     return {} as Standard;
   }
 }
@@ -153,13 +154,13 @@ export async function checkCompliance(academyId: string): Promise<ComplianceRepo
       .single();
 
     if (error) {
-      console.error('[checkCompliance] error:', error.message);
+      logServiceError(error, 'franchise-standards');
       return { academy_id: academyId, academy_name: '', overall_score: 0, results: [], checked_at: '' };
     }
 
     return data as unknown as ComplianceReport;
   } catch (error) {
-    console.error('[checkCompliance] Fallback:', error);
+    logServiceError(error, 'franchise-standards');
     return { academy_id: academyId, academy_name: '', overall_score: 0, results: [], checked_at: '' };
   }
 }
@@ -181,13 +182,13 @@ export async function getComplianceHistory(academyId: string): Promise<Complianc
       .order('checked_at', { ascending: false });
 
     if (error) {
-      console.error('[getComplianceHistory] error:', error.message);
+      logServiceError(error, 'franchise-standards');
       return [];
     }
 
     return (data ?? []) as unknown as ComplianceHistoryEntry[];
   } catch (error) {
-    console.error('[getComplianceHistory] Fallback:', error);
+    logServiceError(error, 'franchise-standards');
     return [];
   }
 }

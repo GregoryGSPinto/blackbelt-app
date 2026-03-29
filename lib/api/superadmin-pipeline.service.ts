@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface PipelineStage {
   nome: string;
@@ -81,7 +82,7 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
         .from('prospects')
         .select('status');
       if (error || !data) {
-        console.error('[getPipelineMetrics] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-pipeline');
         return emptyMetrics;
       }
       const counts: Record<string, number> = {};
@@ -91,12 +92,12 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       }
       const funil = Object.entries(counts).map(([nome, quantidade]) => ({ nome, quantidade, valor: 0 }));
       return { ...emptyMetrics, funil, leadsEsteMes: data.length };
-    } catch {
-      console.error('[superadmin-pipeline.getPipelineMetrics] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
       return emptyMetrics;
     }
   } catch (error) {
-    console.error('[getPipelineMetrics] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
     return emptyMetrics;
   }
 }
@@ -119,7 +120,7 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
       }
       const { data, error } = await query;
       if (error || !data) {
-        console.error('[listLeads] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-pipeline');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -142,12 +143,12 @@ export async function listLeads(status?: LeadStatus): Promise<LeadAcademia[]> {
         criadoEm: (row.created_at as string) || '',
         atualizadoEm: (row.updated_at as string) || '',
       }));
-    } catch {
-      console.error('[superadmin-pipeline.listLeads] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
       return [];
     }
   } catch (error) {
-    console.error('[listLeads] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
     return [];
   }
 }
@@ -181,17 +182,17 @@ export async function createLead(data: CreateLeadPayload): Promise<LeadAcademia>
         .select()
         .single();
       if (error || !row) {
-        console.error('[createLead] Insert failed:', error?.message);
+        logServiceError(error, 'superadmin-pipeline');
         return emptyLead();
       }
       return { ...emptyLead((row.id as string) || ''), nomeAcademia: data.nomeAcademia, contatoNome: data.contatoNome, contatoEmail: data.contatoEmail, criadoEm: (row.created_at as string) || '' };
-    } catch {
-      console.error('[superadmin-pipeline.createLead] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
       const { mockCreateLead } = await import('@/lib/mocks/superadmin-pipeline.mock');
       return mockCreateLead(data);
     }
   } catch (error) {
-    console.error('[createLead] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
     return emptyLead();
   }
 }
@@ -220,16 +221,16 @@ export async function avancarLead(leadId: string): Promise<LeadAcademia> {
         .select()
         .single();
       if (error || !row) {
-        console.error('[avancarLead] Update failed:', error?.message);
+        logServiceError(error, 'superadmin-pipeline');
         return emptyLead(leadId);
       }
       return { ...emptyLead(leadId), status: nextStatus };
-    } catch {
-      console.error('[superadmin-pipeline.avancarLead] API not available, returning fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
       return emptyLead(leadId);
     }
   } catch (error) {
-    console.error('[avancarLead] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
     return emptyLead(leadId);
   }
 }
@@ -250,16 +251,16 @@ export async function perderLead(leadId: string): Promise<LeadAcademia> {
         .select()
         .single();
       if (error || !row) {
-        console.error('[perderLead] Update failed:', error?.message);
+        logServiceError(error, 'superadmin-pipeline');
         return { ...emptyLead(leadId), status: 'perdido' };
       }
       return { ...emptyLead(leadId), status: 'perdido' };
-    } catch {
-      console.error('[superadmin-pipeline.perderLead] API not available, returning fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
       return { ...emptyLead(leadId), status: 'perdido' };
     }
   } catch (error) {
-    console.error('[perderLead] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
     return { ...emptyLead(leadId), status: 'perdido' };
   }
 }
@@ -278,12 +279,12 @@ export async function addLeadNota(leadId: string, nota: string): Promise<void> {
         .update({ notes: nota, updated_at: new Date().toISOString() })
         .eq('id', leadId);
       if (error) {
-        console.error('[addLeadNota] Update failed:', error.message);
+        logServiceError(error, 'superadmin-pipeline');
       }
-    } catch {
-      console.error('[superadmin-pipeline.addLeadNota] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-pipeline');
     }
   } catch (error) {
-    console.error('[addLeadNota] Fallback:', error);
+    logServiceError(error, 'superadmin-pipeline');
   }
 }

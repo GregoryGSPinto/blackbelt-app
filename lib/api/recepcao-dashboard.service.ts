@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -96,8 +97,8 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       supabase.from('checkins').select('id, profile_name, belt, check_in_at, person_type, class_name').gte('check_in_at', todayISO),
     ]);
 
-    if (classesRes.error) console.error('[getRecepcaoDashboard] classes error:', classesRes.error.message);
-    if (checkinsRes.error) console.error('[getRecepcaoDashboard] checkins error:', checkinsRes.error.message);
+    if (classesRes.error) logServiceError(classesRes.error, 'recepcao-dashboard');
+    if (checkinsRes.error) logServiceError(checkinsRes.error, 'recepcao-dashboard');
 
     const checkins = checkinsRes.data ?? [];
     const checkinsHoje: CheckinResumo[] = checkins.map((c: Record<string, unknown>) => ({
@@ -120,7 +121,7 @@ export async function getRecepcaoDashboard(): Promise<RecepcaoDashboardDTO> {
       },
     };
   } catch (error) {
-    console.error('[getRecepcaoDashboard] Fallback:', error);
+    logServiceError(error, 'recepcao-dashboard');
     return EMPTY_DASHBOARD;
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -50,7 +51,7 @@ export async function getChildrenBills(parentId: string): Promise<ChildBill[]> {
       .order('due_date', { ascending: false });
 
     if (error) {
-      console.error('[getChildrenBills] error:', error.message);
+      logServiceError(error, 'parent-payment');
       return [];
     }
 
@@ -68,7 +69,7 @@ export async function getChildrenBills(parentId: string): Promise<ChildBill[]> {
       };
     });
   } catch (error) {
-    console.error('[getChildrenBills] Fallback:', error);
+    logServiceError(error, 'parent-payment');
     return [];
   }
 }
@@ -97,7 +98,7 @@ export async function initiatePayment(
       .single();
 
     if (error) {
-      console.error('[initiatePayment] error:', error.message);
+      logServiceError(error, 'parent-payment');
       return { paymentUrl: '' };
     }
 
@@ -107,7 +108,7 @@ export async function initiatePayment(
       boletoCode: method === 'boleto' ? ((data as Record<string, unknown>).boleto_code as string) : undefined,
     };
   } catch (error) {
-    console.error('[initiatePayment] Fallback:', error);
+    logServiceError(error, 'parent-payment');
     return { paymentUrl: '' };
   }
 }
@@ -132,7 +133,7 @@ export async function getPaymentHistory(parentId: string): Promise<PaymentReceip
       .order('paid_at', { ascending: false });
 
     if (error) {
-      console.error('[getPaymentHistory] error:', error.message);
+      logServiceError(error, 'parent-payment');
       return [];
     }
 
@@ -145,7 +146,7 @@ export async function getPaymentHistory(parentId: string): Promise<PaymentReceip
       receiptUrl: (p.receipt_url as string) ?? '',
     }));
   } catch (error) {
-    console.error('[getPaymentHistory] Fallback:', error);
+    logServiceError(error, 'parent-payment');
     return [];
   }
 }

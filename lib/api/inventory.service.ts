@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type InventoryCategory = 'quimono' | 'faixa' | 'equipamento' | 'material';
 
@@ -38,7 +39,7 @@ export async function listInventory(academyId: string): Promise<InventoryItem[]>
     .eq('academy_id', academyId);
 
   if (error || !data) {
-    console.error('[listInventory] Supabase error:', error?.message);
+    logServiceError(error, 'inventory');
     return [];
   }
 
@@ -70,7 +71,7 @@ export async function createInventoryItem(academyId: string, item: Omit<Inventor
     .single();
 
   if (error || !data) {
-    console.error('[createInventoryItem] Supabase error:', error?.message);
+    logServiceError(error, 'inventory');
     throw new Error(`[createInventoryItem] Failed to create inventory item: ${error?.message ?? 'no data'}`);
   }
 
@@ -102,7 +103,7 @@ export async function addStockMovement(itemId: string, movement: Omit<StockMovem
     .single();
 
   if (error || !data) {
-    console.error('[addStockMovement] Supabase error:', error?.message);
+    logServiceError(error, 'inventory');
     throw new Error(`[addStockMovement] Failed to add stock movement: ${error?.message ?? 'no data'}`);
   }
 

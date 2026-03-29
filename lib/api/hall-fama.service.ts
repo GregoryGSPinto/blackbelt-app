@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RecordDTO {
   id: string;
@@ -31,12 +32,12 @@ export async function getHallOfFame(academyId: string): Promise<HallOfFameDTO> {
       .eq('academy_id', academyId)
       .order('achieved_at', { ascending: false });
     if (error) {
-      console.error('[getHallOfFame] Supabase error:', error.message);
+      logServiceError(error, 'hall-fama');
       return { records: [], updatedAt: new Date().toISOString() };
     }
     return { records: (data ?? []) as unknown as RecordDTO[], updatedAt: new Date().toISOString() };
   } catch (error) {
-    console.error('[getHallOfFame] Fallback:', error);
+    logServiceError(error, 'hall-fama');
     return { records: [], updatedAt: new Date().toISOString() };
   }
 }

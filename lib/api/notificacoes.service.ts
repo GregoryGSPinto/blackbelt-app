@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type NotificationType = 'nova_mensagem' | 'aula_em_breve' | 'promocao_faixa' | 'conquista' | 'pagamento_vencido' | 'avaliacao_recebida';
 
@@ -35,7 +36,7 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       .limit(50);
 
     if (error || !data) {
-      console.error('[listNotifications] Supabase error:', error?.message);
+      logServiceError(error, 'notificacoes');
       return [];
     }
 
@@ -49,7 +50,7 @@ export async function listNotifications(userId: string): Promise<NotificationDTO
       link: row.link ? String(row.link) : undefined,
     }));
   } catch (error) {
-    console.error('[listNotifications] Fallback:', error);
+    logServiceError(error, 'notificacoes');
     return [];
   }
 }
@@ -69,10 +70,10 @@ export async function markNotificationsRead(ids: string[]): Promise<void> {
       .in('id', ids);
 
     if (error) {
-      console.error('[markNotificationsRead] Supabase error:', error.message);
+      logServiceError(error, 'notificacoes');
     }
   } catch (error) {
-    console.error('[markNotificationsRead] Fallback:', error);
+    logServiceError(error, 'notificacoes');
   }
 }
 
@@ -95,10 +96,10 @@ export async function markAllRead(): Promise<void> {
       .eq('read', false);
 
     if (error) {
-      console.error('[markAllRead] Supabase error:', error.message);
+      logServiceError(error, 'notificacoes');
     }
   } catch (error) {
-    console.error('[markAllRead] Fallback:', error);
+    logServiceError(error, 'notificacoes');
   }
 }
 
@@ -118,13 +119,13 @@ export async function getPreferences(userId: string): Promise<NotificationPrefs>
       .single();
 
     if (error || !data) {
-      console.error('[getPreferences] Supabase error:', error?.message);
+      logServiceError(error, 'notificacoes');
       return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
     }
 
     return data as unknown as NotificationPrefs;
   } catch (error) {
-    console.error('[getPreferences] Fallback:', error);
+    logServiceError(error, 'notificacoes');
     return { push_enabled: false, email_enabled: false, types: {} as Record<NotificationType, boolean> };
   }
 }
@@ -143,9 +144,9 @@ export async function updatePreferences(userId: string, prefs: NotificationPrefs
       .upsert({ user_id: userId, ...prefs });
 
     if (error) {
-      console.error('[updatePreferences] Supabase error:', error.message);
+      logServiceError(error, 'notificacoes');
     }
   } catch (error) {
-    console.error('[updatePreferences] Fallback:', error);
+    logServiceError(error, 'notificacoes');
   }
 }

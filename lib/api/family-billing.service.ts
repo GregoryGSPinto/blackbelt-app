@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -118,7 +119,7 @@ export async function getFamilyBilling(guardianPersonId: string): Promise<Family
       invoices: [],
     };
   } catch (err) {
-    console.error('[getFamilyBilling] error:', err);
+    logServiceError(err, 'family-billing');
     // Fallback to mock
     return getFamilyBilling(guardianPersonId);
   }

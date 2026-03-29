@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type StatusCobranca = 'pendente' | 'contatado' | 'negociando' | 'promessa' | 'perdido';
 export type ContatoTipo = 'ligacao' | 'whatsapp' | 'email' | 'presencial';
@@ -51,7 +52,7 @@ export async function getDevedores(academyId: string): Promise<Devedor[]> {
       .order('dias_atraso', { ascending: false });
 
     if (error || !data) {
-      console.error('[getDevedores] Supabase error:', error?.message);
+      logServiceError(error, 'inadimplencia');
       return [];
     }
 
@@ -70,7 +71,7 @@ export async function getDevedores(academyId: string): Promise<Devedor[]> {
       statusCobranca: (row.status_cobranca ?? 'pendente') as StatusCobranca,
     }));
   } catch (error) {
-    console.error('[getDevedores] Fallback:', error);
+    logServiceError(error, 'inadimplencia');
     return [];
   }
 }
@@ -90,7 +91,7 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
       .eq('academy_id', academyId);
 
     if (error || !data) {
-      console.error('[getInadimplenciaMetrics] Supabase error:', error?.message);
+      logServiceError(error, 'inadimplencia');
       return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 };
     }
 
@@ -101,7 +102,7 @@ export async function getInadimplenciaMetrics(academyId: string): Promise<Inadim
 
     return { totalDevedores: total, valorTotalDevido: valorTotal, mediaAtraso, recuperadoMes: 0 };
   } catch (error) {
-    console.error('[getInadimplenciaMetrics] Fallback:', error);
+    logServiceError(error, 'inadimplencia');
     return { totalDevedores: 0, valorTotalDevido: 0, mediaAtraso: 0, recuperadoMes: 0 };
   }
 }
@@ -122,7 +123,7 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       .single();
 
     if (error || !data) {
-      console.error('[registrarContato] Supabase error:', error?.message);
+      logServiceError(error, 'inadimplencia');
       return { id: '', devedorId, tipo, resultado, observacao, data: new Date().toISOString() };
     }
 
@@ -135,7 +136,7 @@ export async function registrarContato(devedorId: string, tipo: ContatoTipo, res
       data: String(data.created_at ?? new Date().toISOString()),
     };
   } catch (error) {
-    console.error('[registrarContato] Fallback:', error);
+    logServiceError(error, 'inadimplencia');
     return { id: '', devedorId, tipo, resultado, observacao, data: new Date().toISOString() };
   }
 }
@@ -156,7 +157,7 @@ export async function getHistoricoContatos(devedorId: string): Promise<ContatoRe
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getHistoricoContatos] Supabase error:', error?.message);
+      logServiceError(error, 'inadimplencia');
       return [];
     }
 
@@ -169,7 +170,7 @@ export async function getHistoricoContatos(devedorId: string): Promise<ContatoRe
       data: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.error('[getHistoricoContatos] Fallback:', error);
+    logServiceError(error, 'inadimplencia');
     return [];
   }
 }

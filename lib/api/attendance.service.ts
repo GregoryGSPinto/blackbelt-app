@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AttendanceRecord, AttendanceSummary, HeatmapDay } from '@/lib/types/attendance';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function checkIn(
   studentId: string,
@@ -21,7 +22,7 @@ export async function checkIn(
     .single();
 
   if (error) {
-    console.error('[checkIn] Supabase error:', error.message);
+    logServiceError(error, 'attendance');
     throw new Error(`[checkIn] ${error.message}`);
   }
 
@@ -54,7 +55,7 @@ export async function markAbsent(studentId: string, classId: string, date: strin
     .lte('checked_at', dayEnd.toISOString());
 
   if (error) {
-    console.error('[markAbsent] Supabase error:', error.message);
+    logServiceError(error, 'attendance');
   }
   return { id: '', student_id: studentId, student_name: '', class_id: classId, date, status: 'absent', checked_in_at: null, method: 'manual' } as AttendanceRecord;
 }
@@ -81,7 +82,7 @@ export async function listAttendanceRecord(classId: string, date: string): Promi
     .lte('checked_at', dayEnd.toISOString());
 
   if (error) {
-    console.error('[listAttendanceRecord] Supabase error:', error.message);
+    logServiceError(error, 'attendance');
     return [];
   }
 
@@ -111,7 +112,7 @@ export async function getStudentAttendanceRecord(
     .order('checked_at', { ascending: false });
 
   if (error) {
-    console.error('[getStudentAttendanceRecord] Supabase error:', error.message);
+    logServiceError(error, 'attendance');
     return [];
   }
 
@@ -165,7 +166,7 @@ export async function getHeatmap(studentId: string): Promise<HeatmapDay[]> {
     .gte('checked_at', oneYearAgo);
 
   if (error) {
-    console.error('[getHeatmap] Supabase error:', error.message);
+    logServiceError(error, 'attendance');
     return [];
   }
 

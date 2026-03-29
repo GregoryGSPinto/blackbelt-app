@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AccessResult {
   allowed: boolean;
@@ -64,7 +65,7 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       .single();
 
     if (error || !student) {
-      console.error('[validateAccess] error:', error?.message ?? 'not found');
+      logServiceError(error, 'access-control');
       return { allowed: false, reason: 'Aluno não encontrado', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
     }
 
@@ -93,7 +94,7 @@ export async function validateAccess(studentId: string, unitId: string): Promise
       membership_active: active,
     };
   } catch (error) {
-    console.error('[validateAccess] Fallback:', error);
+    logServiceError(error, 'access-control');
     return { allowed: false, reason: 'Erro ao validar acesso', student_name: '', photo_url: '', belt: '', academy: '', membership_active: false };
   }
 }
@@ -121,7 +122,7 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
     const { data, error } = await query;
 
     if (error) {
-      console.error('[getAccessLog] error:', error.message);
+      logServiceError(error, 'access-control');
       return [];
     }
 
@@ -141,7 +142,7 @@ export async function getAccessLog(unitId: string, date?: string): Promise<Acces
       };
     });
   } catch (error) {
-    console.error('[getAccessLog] Fallback:', error);
+    logServiceError(error, 'access-control');
     return [];
   }
 }
@@ -162,12 +163,12 @@ export async function configureAccessRules(unitId: string, rules: Partial<Access
       .select();
 
     if (error) {
-      console.error('[configureAccessRules] error:', error.message);
+      logServiceError(error, 'access-control');
       return [];
     }
     return (data ?? []) as unknown as AccessRule[];
   } catch (error) {
-    console.error('[configureAccessRules] Fallback:', error);
+    logServiceError(error, 'access-control');
     return [];
   }
 }
@@ -187,12 +188,12 @@ export async function getAccessRules(unitId: string): Promise<AccessRule[]> {
       .eq('unit_id', unitId);
 
     if (error) {
-      console.error('[getAccessRules] error:', error.message);
+      logServiceError(error, 'access-control');
       return [];
     }
     return (data ?? []) as unknown as AccessRule[];
   } catch (error) {
-    console.error('[getAccessRules] Fallback:', error);
+    logServiceError(error, 'access-control');
     return [];
   }
 }
@@ -213,7 +214,7 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       .single();
 
     if (error || !data) {
-      console.error('[getStudentCard] error:', error?.message ?? 'not found');
+      logServiceError(error, 'access-control');
       return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
     }
 
@@ -238,7 +239,7 @@ export async function getStudentCard(studentId: string): Promise<StudentCard> {
       qr_code_expires: new Date(Date.now() + 3600000).toISOString(),
     };
   } catch (error) {
-    console.error('[getStudentCard] Fallback:', error);
+    logServiceError(error, 'access-control');
     return { student_id: studentId, student_name: '', photo_url: '', belt: '', academy: '', unit: '', modalities: [], member_since: '', membership_active: false, membership_expires: '', qr_code_token: '', qr_code_expires: '' };
   }
 }

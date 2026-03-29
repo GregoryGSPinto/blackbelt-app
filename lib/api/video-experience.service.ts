@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -200,7 +201,7 @@ export async function getVideoExperience(videoId: string): Promise<VideoExperien
       .eq('id', videoId)
       .single();
     if (error || !data) {
-      console.error('[getVideoExperience] Query failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyVideoExperience(videoId);
     }
     // Map DB row to VideoExperience shape — partial mapping, full experience requires joins
@@ -226,7 +227,7 @@ export async function getVideoExperience(videoId: string): Promise<VideoExperien
       },
     };
   } catch (error) {
-    console.error('[getVideoExperience] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyVideoExperience(videoId);
   }
 }
@@ -241,7 +242,7 @@ export async function registrarProgresso(videoId: string, segundos: number): Pro
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[registrarProgresso] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
@@ -253,10 +254,10 @@ export async function registrarProgresso(videoId: string, segundos: number): Pro
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.error('[registrarProgresso] Upsert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[registrarProgresso] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -270,7 +271,7 @@ export async function marcarCompleto(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[marcarCompleto] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
@@ -283,10 +284,10 @@ export async function marcarCompleto(videoId: string): Promise<void> {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.error('[marcarCompleto] Upsert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[marcarCompleto] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -300,7 +301,7 @@ export async function avaliarVideo(videoId: string, nota: number): Promise<void>
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[avaliarVideo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
@@ -312,10 +313,10 @@ export async function avaliarVideo(videoId: string, nota: number): Promise<void>
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id,user_id' });
     if (error) {
-      console.error('[avaliarVideo] Upsert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[avaliarVideo] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -329,14 +330,14 @@ export async function curtirVideo(videoId: string): Promise<{ curtidas: number }
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[curtirVideo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return { curtidas: 0 };
     }
     const { error } = await supabase
       .from('video_likes')
       .insert({ video_id: videoId, user_id: user.id });
     if (error) {
-      console.error('[curtirVideo] Insert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
     const { count } = await supabase
       .from('video_likes')
@@ -344,7 +345,7 @@ export async function curtirVideo(videoId: string): Promise<{ curtidas: number }
       .eq('video_id', videoId);
     return { curtidas: count ?? 0 };
   } catch (error) {
-    console.error('[curtirVideo] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return { curtidas: 0 };
   }
 }
@@ -359,7 +360,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[descurtirVideo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return { curtidas: 0 };
     }
     const { error } = await supabase
@@ -368,7 +369,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
       .eq('video_id', videoId)
       .eq('user_id', user.id);
     if (error) {
-      console.error('[descurtirVideo] Delete failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
     const { count } = await supabase
       .from('video_likes')
@@ -376,7 +377,7 @@ export async function descurtirVideo(videoId: string): Promise<{ curtidas: numbe
       .eq('video_id', videoId);
     return { curtidas: count ?? 0 };
   } catch (error) {
-    console.error('[descurtirVideo] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return { curtidas: 0 };
   }
 }
@@ -391,17 +392,17 @@ export async function salvarVideo(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[salvarVideo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
       .from('video_saved')
       .insert({ video_id: videoId, user_id: user.id });
     if (error) {
-      console.error('[salvarVideo] Insert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[salvarVideo] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -415,7 +416,7 @@ export async function removerSalvo(videoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[removerSalvo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
@@ -424,10 +425,10 @@ export async function removerSalvo(videoId: string): Promise<void> {
       .eq('video_id', videoId)
       .eq('user_id', user.id);
     if (error) {
-      console.error('[removerSalvo] Delete failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[removerSalvo] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -441,17 +442,17 @@ export async function compartilharVideo(videoId: string, canal: string): Promise
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[compartilharVideo] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return;
     }
     const { error } = await supabase
       .from('video_shares')
       .insert({ video_id: videoId, user_id: user.id, channel: canal });
     if (error) {
-      console.error('[compartilharVideo] Insert failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[compartilharVideo] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -474,7 +475,7 @@ export async function getComentarios(videoId: string, pagina?: number): Promise<
       .order('created_at', { ascending: false })
       .range(from, to);
     if (error) {
-      console.error('[getComentarios] Query failed:', error.message);
+      logServiceError(error, 'video-experience');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -493,7 +494,7 @@ export async function getComentarios(videoId: string, pagina?: number): Promise<
       timestamp: row.timestamp as number | undefined,
     }));
   } catch (error) {
-    console.error('[getComentarios] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return [];
   }
 }
@@ -508,7 +509,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[addComentario] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return emptyComentario(texto);
     }
     const { data: row, error } = await supabase
@@ -517,7 +518,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
       .select()
       .single();
     if (error || !row) {
-      console.error('[addComentario] Insert failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyComentario(texto);
     }
     return {
@@ -536,7 +537,7 @@ export async function addComentario(videoId: string, texto: string, timestamp?: 
       timestamp: row.timestamp as number | undefined,
     };
   } catch (error) {
-    console.error('[addComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyComentario(texto);
   }
 }
@@ -556,7 +557,7 @@ export async function editarComentario(comentarioId: string, texto: string): Pro
       .select()
       .single();
     if (error || !row) {
-      console.error('[editarComentario] Update failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyComentario(texto);
     }
     return {
@@ -574,7 +575,7 @@ export async function editarComentario(comentarioId: string, texto: string): Pro
       ehProfessor: (row.is_professor as boolean) || false,
     };
   } catch (error) {
-    console.error('[editarComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyComentario(texto);
   }
 }
@@ -592,10 +593,10 @@ export async function deletarComentario(comentarioId: string): Promise<void> {
       .delete()
       .eq('id', comentarioId);
     if (error) {
-      console.error('[deletarComentario] Delete failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[deletarComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -614,10 +615,10 @@ export async function curtirComentario(comentarioId: string): Promise<void> {
     // Use RPC for atomic increment if available, otherwise just log
     const { error: rpcError } = await supabase.rpc('increment_comment_likes', { comment_id: comentarioId });
     if (rpcError && error) {
-      console.error('[curtirComentario] Update failed:', rpcError.message);
+      logServiceError(rpcError, 'video-experience');
     }
   } catch (error) {
-    console.error('[curtirComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -631,7 +632,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[responderComentario] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return emptyComentario(texto);
     }
     // Get parent comment to know the video_id
@@ -651,7 +652,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
       .select()
       .single();
     if (error || !row) {
-      console.error('[responderComentario] Insert failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyComentario(texto);
     }
     return {
@@ -669,7 +670,7 @@ export async function responderComentario(comentarioId: string, texto: string): 
       ehProfessor: false,
     };
   } catch (error) {
-    console.error('[responderComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyComentario(texto);
   }
 }
@@ -687,10 +688,10 @@ export async function fixarComentario(comentarioId: string): Promise<void> {
       .update({ pinned: true })
       .eq('id', comentarioId);
     if (error) {
-      console.error('[fixarComentario] Update failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[fixarComentario] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -708,7 +709,7 @@ export async function getDuvidas(videoId: string): Promise<Duvida[]> {
       .eq('video_id', videoId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getDuvidas] Query failed:', error.message);
+      logServiceError(error, 'video-experience');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -729,7 +730,7 @@ export async function getDuvidas(videoId: string): Promise<Duvida[]> {
       criadoEm: (row.created_at as string) || '',
     }));
   } catch (error) {
-    console.error('[getDuvidas] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return [];
   }
 }
@@ -744,7 +745,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[addDuvida] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return emptyDuvida(pergunta);
     }
     const { data: row, error } = await supabase
@@ -753,7 +754,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
       .select()
       .single();
     if (error || !row) {
-      console.error('[addDuvida] Insert failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyDuvida(pergunta);
     }
     return {
@@ -769,7 +770,7 @@ export async function addDuvida(videoId: string, pergunta: string, timestamp?: n
       criadoEm: (row.created_at as string) || '',
     };
   } catch (error) {
-    console.error('[addDuvida] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyDuvida(pergunta);
   }
 }
@@ -784,10 +785,10 @@ export async function votarDuvida(duvidaId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { error } = await supabase.rpc('increment_question_votes', { question_id: duvidaId });
     if (error) {
-      console.error('[votarDuvida] RPC failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[votarDuvida] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -809,10 +810,10 @@ export async function responderDuvida(duvidaId: string, resposta: string): Promi
       })
       .eq('id', duvidaId);
     if (error) {
-      console.error('[responderDuvida] Update failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[responderDuvida] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -826,7 +827,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[getNotas] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return [];
     }
     const { data, error } = await supabase
@@ -836,7 +837,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getNotas] Query failed:', error.message);
+      logServiceError(error, 'video-experience');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -848,7 +849,7 @@ export async function getNotas(videoId: string): Promise<NotaPessoal[]> {
       atualizadaEm: (row.updated_at as string) || '',
     }));
   } catch (error) {
-    console.error('[getNotas] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return [];
   }
 }
@@ -863,7 +864,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[addNota] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'video-experience');
       return emptyNota(videoId, texto);
     }
     const { data: row, error } = await supabase
@@ -872,7 +873,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
       .select()
       .single();
     if (error || !row) {
-      console.error('[addNota] Insert failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyNota(videoId, texto);
     }
     return {
@@ -884,7 +885,7 @@ export async function addNota(videoId: string, texto: string, timestamp?: number
       atualizadaEm: (row.updated_at as string) || '',
     };
   } catch (error) {
-    console.error('[addNota] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyNota(videoId, texto);
   }
 }
@@ -904,7 +905,7 @@ export async function editarNota(notaId: string, texto: string): Promise<NotaPes
       .select()
       .single();
     if (error || !row) {
-      console.error('[editarNota] Update failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return emptyNota('', texto);
     }
     return {
@@ -916,7 +917,7 @@ export async function editarNota(notaId: string, texto: string): Promise<NotaPes
       atualizadaEm: (row.updated_at as string) || '',
     };
   } catch (error) {
-    console.error('[editarNota] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return emptyNota('', texto);
   }
 }
@@ -934,10 +935,10 @@ export async function deletarNota(notaId: string): Promise<void> {
       .delete()
       .eq('id', notaId);
     if (error) {
-      console.error('[deletarNota] Delete failed:', error.message);
+      logServiceError(error, 'video-experience');
     }
   } catch (error) {
-    console.error('[deletarNota] Fallback:', error);
+    logServiceError(error, 'video-experience');
   }
 }
 
@@ -955,12 +956,12 @@ export async function getDownloadUrl(videoId: string): Promise<string | null> {
       .eq('id', videoId)
       .single();
     if (error || !data) {
-      console.error('[getDownloadUrl] Query failed:', error?.message);
+      logServiceError(error, 'video-experience');
       return null;
     }
     return (data.source_url as string) || null;
   } catch (error) {
-    console.error('[getDownloadUrl] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return null;
   }
 }
@@ -979,7 +980,7 @@ export async function getDuvidasPendentes(): Promise<(Duvida & { videoTitulo: st
       .is('answer', null)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getDuvidasPendentes] Query failed:', error.message);
+      logServiceError(error, 'video-experience');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -1000,7 +1001,7 @@ export async function getDuvidasPendentes(): Promise<(Duvida & { videoTitulo: st
       };
     });
   } catch (error) {
-    console.error('[getDuvidasPendentes] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return [];
   }
 }
@@ -1019,7 +1020,7 @@ export async function getDuvidasRespondidas(): Promise<(Duvida & { videoTitulo: 
       .not('answer', 'is', null)
       .order('answered_at', { ascending: false });
     if (error) {
-      console.error('[getDuvidasRespondidas] Query failed:', error.message);
+      logServiceError(error, 'video-experience');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -1045,7 +1046,7 @@ export async function getDuvidasRespondidas(): Promise<(Duvida & { videoTitulo: 
       };
     });
   } catch (error) {
-    console.error('[getDuvidasRespondidas] Fallback:', error);
+    logServiceError(error, 'video-experience');
     return [];
   }
 }

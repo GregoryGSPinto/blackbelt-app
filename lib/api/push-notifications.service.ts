@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export const NOTIFICATION_TEMPLATES = {
   class_reminder: {
@@ -78,11 +79,12 @@ export async function sendPushNotification(
       body,
     });
     if (error) {
-      console.error('[sendPushNotification]', error.message);
+      logServiceError(error, 'push-notifications');
       return false;
     }
     return true;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'push-notifications');
     return false;
   }
 }
@@ -106,11 +108,12 @@ export async function registerDeviceToken(
       { onConflict: 'profile_id,platform' },
     );
     if (error) {
-      console.error('[registerDeviceToken]', error.message);
+      logServiceError(error, 'push-notifications');
       return false;
     }
     return true;
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'push-notifications');
     return false;
   }
 }

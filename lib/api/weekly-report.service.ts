@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -165,7 +166,7 @@ export async function generateWeeklyReport(academyId: string): Promise<WeeklyRep
       topClass: { name: topClassName, attendance: topClassCount },
     };
   } catch (error) {
-    console.error('[generateWeeklyReport] Fallback:', error);
+    logServiceError(error, 'weekly-report');
     return {
       academyName: '',
       period: { start: '', end: '' },
@@ -205,13 +206,13 @@ export async function sendWeeklyReport(
       });
 
     if (error) {
-      console.error('[sendWeeklyReport] error:', error.message);
+      logServiceError(error, 'weekly-report');
       return { sent: 0 };
     }
 
     return { sent: recipients.length };
   } catch (error) {
-    console.error('[sendWeeklyReport] Fallback:', error);
+    logServiceError(error, 'weekly-report');
     return { sent: 0 };
   }
 }

@@ -2,6 +2,7 @@
 // Handles software contracts, academy templates, and student contracts.
 
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ---------------------------------------------------------------------------
 // Types — Software Contract
@@ -190,7 +191,7 @@ export async function getSoftwareContractTemplate(): Promise<SoftwareContractTem
     .single();
 
   if (error || !data) {
-    console.error('[getSoftwareContractTemplate]', error?.message);
+    logServiceError(error, 'contracts');
     return null;
   }
   return data as unknown as SoftwareContractTemplate;
@@ -222,7 +223,7 @@ export async function updateSoftwareContractTemplate(
     .single();
 
   if (error || !data) {
-    console.error('[updateSoftwareContractTemplate]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to update software contract template: ${error?.message ?? 'no data'}`);
   }
   return data as unknown as SoftwareContractTemplate;
@@ -248,7 +249,7 @@ export async function getSoftwareContract(academyId: string): Promise<SoftwareCo
     .single();
 
   if (error || !data) {
-    console.error('[getSoftwareContract]', error?.message);
+    logServiceError(error, 'contracts');
     return null;
   }
   return data as unknown as SoftwareContract;
@@ -284,7 +285,7 @@ export async function generateSoftwareContract(
     .single();
 
   if (academyError || !academy) {
-    console.error('[generateSoftwareContract] academy lookup failed:', academyError?.message);
+    logServiceError(academyError, 'contracts');
     throw new Error(`Academy not found: ${academyError?.message ?? 'no data'}`);
   }
 
@@ -333,7 +334,7 @@ export async function generateSoftwareContract(
     .single();
 
   if (error || !data) {
-    console.error('[generateSoftwareContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to generate software contract: ${error?.message ?? 'no data'}`);
   }
   return data as unknown as SoftwareContract;
@@ -382,7 +383,7 @@ export async function signSoftwareContract(
     .single();
 
   if (error || !data) {
-    console.error('[signSoftwareContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to sign software contract: ${error?.message ?? 'no data'}`);
   }
 
@@ -420,7 +421,7 @@ export async function listAcademyTemplates(
     .order('updated_at', { ascending: false });
 
   if (error || !data) {
-    console.error('[listAcademyTemplates]', error?.message);
+    logServiceError(error, 'contracts');
     return [];
   }
   return data as unknown as AcademyContractTemplate[];
@@ -442,7 +443,7 @@ export async function getAcademyTemplate(
     .single();
 
   if (error || !data) {
-    console.error('[getAcademyTemplate]', error?.message);
+    logServiceError(error, 'contracts');
     return null;
   }
   return data as unknown as AcademyContractTemplate;
@@ -497,7 +498,7 @@ export async function createAcademyTemplate(
     .single();
 
   if (error || !data) {
-    console.error('[createAcademyTemplate]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to create academy template: ${error?.message ?? 'no data'}`);
   }
   return data as unknown as AcademyContractTemplate;
@@ -524,7 +525,7 @@ export async function updateAcademyTemplate(
     .single();
 
   if (error || !data) {
-    console.error('[updateAcademyTemplate]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to update academy template: ${error?.message ?? 'no data'}`);
   }
   return data as unknown as AcademyContractTemplate;
@@ -562,7 +563,7 @@ export async function setDefaultTemplate(templateId: string): Promise<void> {
     .eq('id', templateId);
 
   if (error) {
-    console.error('[setDefaultTemplate]', error.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to set default template: ${error.message}`);
   }
 }
@@ -731,7 +732,7 @@ export async function generateStudentContract(
     .single();
 
   if (error || !data) {
-    console.error('[generateStudentContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to generate student contract: ${error?.message ?? 'no data'}`);
   }
   return data as unknown as StudentContract;
@@ -753,7 +754,7 @@ export async function getStudentContract(
     .single();
 
   if (error || !data) {
-    console.error('[getStudentContract]', error?.message);
+    logServiceError(error, 'contracts');
     return null;
   }
   return data as unknown as StudentContract;
@@ -787,7 +788,7 @@ export async function listStudentContracts(
   const { data, error } = await query;
 
   if (error || !data) {
-    console.error('[listStudentContracts]', error?.message);
+    logServiceError(error, 'contracts');
     return [];
   }
   return data as unknown as StudentContract[];
@@ -809,7 +810,7 @@ export async function getMyContracts(
     .order('created_at', { ascending: false });
 
   if (error || !data) {
-    console.error('[getMyContracts]', error?.message);
+    logServiceError(error, 'contracts');
     return [];
   }
   return data as unknown as StudentContract[];
@@ -830,7 +831,7 @@ export async function sendForSignature(contractId: string): Promise<void> {
     .eq('id', contractId);
 
   if (error) {
-    console.error('[sendForSignature]', error.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to send for signature: ${error.message}`);
   }
 
@@ -895,7 +896,7 @@ export async function signStudentContract(
     .single();
 
   if (error || !data) {
-    console.error('[signStudentContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to sign student contract: ${error?.message ?? 'no data'}`);
   }
 
@@ -937,7 +938,7 @@ export async function cancelStudentContract(
     .single();
 
   if (error || !data) {
-    console.error('[cancelStudentContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to cancel student contract: ${error?.message ?? 'no data'}`);
   }
 
@@ -1015,7 +1016,7 @@ export async function renewStudentContract(
     .single();
 
   if (error || !data) {
-    console.error('[renewStudentContract]', error?.message);
+    logServiceError(error, 'contracts');
     throw new Error(`Failed to renew student contract: ${error?.message ?? 'no data'}`);
   }
 
@@ -1052,7 +1053,7 @@ export async function getContractMetrics(
     .eq('academy_id', academyId);
 
   if (error || !data) {
-    console.error('[getContractMetrics]', error?.message);
+    logServiceError(error, 'contracts');
     return fallback;
   }
 
@@ -1082,7 +1083,7 @@ export async function getContractHistory(
     .order('created_at', { ascending: false });
 
   if (error || !data) {
-    console.error('[getContractHistory]', error?.message);
+    logServiceError(error, 'contracts');
     return [];
   }
   return data as unknown as ContractHistoryEntry[];

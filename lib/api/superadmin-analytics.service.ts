@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface FeatureRanking {
   feature: string;
@@ -57,16 +58,16 @@ export async function getProductAnalytics(): Promise<ProductAnalytics> {
         .eq('key', 'product_analytics')
         .single();
       if (error || !data) {
-        console.error('[getProductAnalytics] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-analytics');
         return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
       }
       return (data.value as ProductAnalytics) || { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
-    } catch {
-      console.error('[superadmin-analytics.getProductAnalytics] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-analytics');
       return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
     }
   } catch (error) {
-    console.error('[getProductAnalytics] Fallback:', error);
+    logServiceError(error, 'superadmin-analytics');
     return { featureRanking: [], engajamento: { dau: 0, wau: 0, mau: 0, dauMauRatio: 0, sessoesMediaDia: 0, tempoMedioSessao: 0 }, nuncaUsaram: [], horariosPico: [], dispositivos: [] };
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AgendaSlot {
   id: string;
@@ -36,7 +37,7 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       .eq('professor_id', professorId);
 
     if (error || !data) {
-      console.error('[getAgenda] Supabase error:', error?.message);
+      logServiceError(error, 'professor-agenda');
       return [];
     }
 
@@ -51,7 +52,7 @@ export async function getAgenda(professorId: string, _week: string): Promise<Age
       status: row.status as AgendaSlot['status'],
     }));
   } catch (error) {
-    console.error('[getAgenda] Fallback:', error);
+    logServiceError(error, 'professor-agenda');
     return [];
   }
 }
@@ -72,7 +73,7 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       .eq('status', 'pending');
 
     if (error || !data) {
-      console.error('[getLessonRequests] Supabase error:', error?.message);
+      logServiceError(error, 'professor-agenda');
       return [];
     }
 
@@ -86,7 +87,7 @@ export async function getLessonRequests(professorId: string): Promise<LessonRequ
       reason: row.reason ? String(row.reason) : undefined,
     }));
   } catch (error) {
-    console.error('[getLessonRequests] Fallback:', error);
+    logServiceError(error, 'professor-agenda');
     return [];
   }
 }
@@ -106,10 +107,10 @@ export async function approveLesson(requestId: string): Promise<void> {
       .eq('id', requestId);
 
     if (error) {
-      console.error('[approveLesson] Supabase error:', error.message);
+      logServiceError(error, 'professor-agenda');
     }
   } catch (error) {
-    console.error('[approveLesson] Fallback:', error);
+    logServiceError(error, 'professor-agenda');
   }
 }
 
@@ -128,9 +129,9 @@ export async function rejectLesson(requestId: string, reason: string): Promise<v
       .eq('id', requestId);
 
     if (error) {
-      console.error('[rejectLesson] Supabase error:', error.message);
+      logServiceError(error, 'professor-agenda');
     }
   } catch (error) {
-    console.error('[rejectLesson] Fallback:', error);
+    logServiceError(error, 'professor-agenda');
   }
 }

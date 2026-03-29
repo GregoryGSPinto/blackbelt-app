@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -80,7 +81,7 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       .eq('franchise_id', franchiseId);
 
     if (acadError) {
-      console.error('[getNetworkDashboard] error fetching academies:', acadError.message);
+      logServiceError(acadError, 'franchise');
     }
 
     const academyList: FranchiseAcademy[] = (academies ?? []).map((a: Record<string, unknown>) => ({
@@ -103,7 +104,7 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       .limit(20);
 
     if (alertError) {
-      console.error('[getNetworkDashboard] error fetching alerts:', alertError.message);
+      logServiceError(alertError, 'franchise');
     }
 
     const alertList: NetworkAlert[] = (alerts ?? []).map((a: Record<string, unknown>) => ({
@@ -138,7 +139,7 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       financials: { monthly_data: [], total_revenue: totalRevenue, total_royalties: totalRevenue * 0.1, growth_pct: 0 },
     };
   } catch (error) {
-    console.error('[getNetworkDashboard] Fallback:', error);
+    logServiceError(error, 'franchise');
     return {
       kpis: { total_academies: 0, total_students: 0, total_revenue: 0, total_royalties: 0, avg_nps: 0, avg_attendance: 0 },
       academies: [],
@@ -165,7 +166,7 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       .order('name', { ascending: true });
 
     if (error) {
-      console.error('[getAcademies] error:', error.message);
+      logServiceError(error, 'franchise');
       return [];
     }
 
@@ -180,7 +181,7 @@ export async function getAcademies(franchiseId: string): Promise<FranchiseAcadem
       status: (a.status as AcademyStatus) ?? 'ativa',
     }));
   } catch (error) {
-    console.error('[getAcademies] Fallback:', error);
+    logServiceError(error, 'franchise');
     return [];
   }
 }
@@ -203,7 +204,7 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       .limit(12);
 
     if (error) {
-      console.error('[getFinancials] error:', error.message);
+      logServiceError(error, 'franchise');
       return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 };
     }
 
@@ -216,7 +217,7 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       growth_pct: 0,
     };
   } catch (error) {
-    console.error('[getFinancials] Fallback:', error);
+    logServiceError(error, 'franchise');
     return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 };
   }
 }
@@ -242,13 +243,13 @@ export async function sendNetworkMessage(franchiseId: string, message: NetworkMe
       });
 
     if (error) {
-      console.error('[sendNetworkMessage] error:', error.message);
+      logServiceError(error, 'franchise');
       return { sent: 0 };
     }
 
     return { sent: message.recipients.length };
   } catch (error) {
-    console.error('[sendNetworkMessage] Fallback:', error);
+    logServiceError(error, 'franchise');
     return { sent: 0 };
   }
 }

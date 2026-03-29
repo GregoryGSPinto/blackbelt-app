@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -45,13 +46,13 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       .order('name', { ascending: true });
 
     if (error) {
-      console.error('[getUnidades] error:', error.message);
+      logServiceError(error, 'franqueador-unidades');
       return [];
     }
 
     return (data ?? []) as unknown as UnidadeFranquia[];
   } catch (error) {
-    console.error('[getUnidades] Fallback:', error);
+    logServiceError(error, 'franqueador-unidades');
     return [];
   }
 }
@@ -72,7 +73,7 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       .eq('franchise_id', franchiseId);
 
     if (error) {
-      console.error('[getUnidadesOverview] error:', error.message);
+      logServiceError(error, 'franqueador-unidades');
       return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
     }
 
@@ -90,7 +91,7 @@ export async function getUnidadesOverview(franchiseId: string): Promise<Unidades
       avg_compliance: Math.round(avgCompliance * 10) / 10,
     };
   } catch (error) {
-    console.error('[getUnidadesOverview] Fallback:', error);
+    logServiceError(error, 'franqueador-unidades');
     return { total_units: 0, active_units: 0, total_students: 0, avg_health_score: 0, avg_compliance: 0 };
   }
 }
@@ -112,13 +113,13 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       .single();
 
     if (error) {
-      console.error('[getUnidadeDetail] error:', error.message);
+      logServiceError(error, 'franqueador-unidades');
       return {} as UnidadeFranquia;
     }
 
     return data as unknown as UnidadeFranquia;
   } catch (error) {
-    console.error('[getUnidadeDetail] Fallback:', error);
+    logServiceError(error, 'franqueador-unidades');
     return {} as UnidadeFranquia;
   }
 }
@@ -144,13 +145,13 @@ export async function updateUnidadeStatus(
       .single();
 
     if (error) {
-      console.error('[updateUnidadeStatus] error:', error.message);
+      logServiceError(error, 'franqueador-unidades');
       return {} as UnidadeFranquia;
     }
 
     return data as unknown as UnidadeFranquia;
   } catch (error) {
-    console.error('[updateUnidadeStatus] Fallback:', error);
+    logServiceError(error, 'franqueador-unidades');
     return {} as UnidadeFranquia;
   }
 }

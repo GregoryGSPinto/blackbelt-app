@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface BeaconConfig {
   id: string;
@@ -83,13 +84,13 @@ export async function configureBeacon(unitId: string, beaconId: string, config?:
     );
 
     if (error) {
-      console.error('[configureBeacon] Supabase error:', error.message);
+      logServiceError(error, 'beacon');
       return emptyBeacon(unitId, beaconId);
     }
 
     return idx >= 0 ? beacons[idx] : newBeacon;
   } catch (error) {
-    console.error('[configureBeacon] Fallback:', error);
+    logServiceError(error, 'beacon');
     return emptyBeacon(unitId, beaconId);
   }
 }
@@ -131,13 +132,13 @@ export async function configureGeofence(unitId: string, lat: number, lng: number
     );
 
     if (error) {
-      console.error('[configureGeofence] Supabase error:', error.message);
+      logServiceError(error, 'beacon');
       return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
     }
 
     return newGeo;
   } catch (error) {
-    console.error('[configureGeofence] Fallback:', error);
+    logServiceError(error, 'beacon');
     return { ...emptyGeofence(unitId), latitude: lat, longitude: lng, radius_meters: radius };
   }
 }
@@ -158,7 +159,7 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[getProximityConfig] Supabase error:', error.message);
+      logServiceError(error, 'beacon');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -170,7 +171,7 @@ export async function getProximityConfig(unitId: string): Promise<ProximityConfi
       min_dwell_seconds: (settings.min_dwell_seconds ?? 0) as number,
     };
   } catch (error) {
-    console.error('[getProximityConfig] Fallback:', error);
+    logServiceError(error, 'beacon');
     return { unit_id: unitId, beacons: [], geofences: [], auto_checkin_enabled: false, min_dwell_seconds: 0 };
   }
 }
@@ -202,12 +203,12 @@ export async function toggleAutoCheckin(unitId: string, enabled: boolean): Promi
     );
 
     if (error) {
-      console.error('[toggleAutoCheckin] Supabase error:', error.message);
+      logServiceError(error, 'beacon');
     }
 
     return { enabled };
   } catch (error) {
-    console.error('[toggleAutoCheckin] Fallback:', error);
+    logServiceError(error, 'beacon');
     return { enabled };
   }
 }

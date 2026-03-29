@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ export async function getCalendarEvents(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[getCalendarEvents] Supabase error:', error?.message);
+      logServiceError(error, 'calendar');
       return [];
     }
 
@@ -94,7 +95,7 @@ export async function getCalendarEvents(
       description: row.description ? String(row.description) : null,
     }));
   } catch (error) {
-    console.error('[getCalendarEvents] Fallback:', error);
+    logServiceError(error, 'calendar');
     return [];
   }
 }
@@ -117,7 +118,7 @@ export async function getCalendarEventById(
       .single();
 
     if (error || !data) {
-      console.error('[getCalendarEventById] Supabase error:', error?.message);
+      logServiceError(error, 'calendar');
       return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
     }
 
@@ -138,7 +139,7 @@ export async function getCalendarEventById(
       description: data.description ? String(data.description) : null,
     };
   } catch (error) {
-    console.error('[getCalendarEventById] Fallback:', error);
+    logServiceError(error, 'calendar');
     return { id: eventId, title: '', type: 'class', modality: null, date: '', startTime: '', endTime: '', professorName: null, location: null, enrolledCount: 0, capacity: 0, color: MODALITY_COLORS.default, recurring: false, description: null };
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
+import { logServiceError } from '@/lib/api/errors';
 
 export type LeadStatus = 'novo' | 'contatado' | 'agendado' | 'compareceu' | 'matriculou' | 'desistiu';
 
@@ -30,7 +31,7 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[listLeads] Supabase error:', error?.message);
+      logServiceError(error, 'leads');
       return [];
     }
 
@@ -46,7 +47,7 @@ export async function listLeads(academyId: string): Promise<LeadDTO[]> {
       createdAt: (l.created_at as string) ?? '',
     }));
   } catch (error) {
-    console.error('[listLeads] Fallback:', error);
+    logServiceError(error, 'leads');
     return [];
   }
 }
@@ -74,7 +75,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       .single();
 
     if (error || !row) {
-      console.error('[createLead] Supabase error:', error?.message);
+      logServiceError(error, 'leads');
       return { id: '', name: data.name, email: data.email, phone: data.phone, interest: data.interest, source: data.source, referralCode: data.referralCode, status: 'novo', createdAt: new Date().toISOString() };
     }
 
@@ -91,7 +92,7 @@ export async function createLead(data: Omit<LeadDTO, 'id' | 'status' | 'createdA
       createdAt: row.created_at ?? '',
     };
   } catch (error) {
-    console.error('[createLead] Fallback:', error);
+    logServiceError(error, 'leads');
     return { id: '', name: data.name, email: data.email, phone: data.phone, interest: data.interest, source: data.source, referralCode: data.referralCode, status: 'novo', createdAt: new Date().toISOString() };
   }
 }
@@ -110,9 +111,9 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus): Prom
       .eq('id', leadId);
 
     if (error) {
-      console.error('[updateLeadStatus] Supabase error:', error.message);
+      logServiceError(error, 'leads');
     }
   } catch (error) {
-    console.error('[updateLeadStatus] Fallback:', error);
+    logServiceError(error, 'leads');
   }
 }

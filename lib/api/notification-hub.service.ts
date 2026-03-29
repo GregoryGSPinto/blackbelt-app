@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { NotificationChannel, NotificationTemplate, NotificationResult } from '@/lib/types/notification';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ChannelSender {
   readonly channel: NotificationChannel;
@@ -57,7 +58,7 @@ export async function sendNotification(
             .select('id')
             .single();
           if (error) {
-            console.error('[sendNotification] in_app Supabase error:', error.message);
+            logServiceError(error, 'notification-hub');
             results.push({
               id: '',
               channel: 'in_app',
@@ -73,7 +74,7 @@ export async function sendNotification(
             });
           }
         } catch (err) {
-          console.error('[sendNotification] in_app insert failed:', err);
+          logServiceError(err, 'notification-hub');
           results.push({
             id: '',
             channel: 'in_app',
@@ -87,7 +88,7 @@ export async function sendNotification(
           const result = await sender.send(userId, template, data);
           results.push(result);
         } catch (err) {
-          console.error(`[sendNotification] ${channel} channel failed:`, err);
+          logServiceError(err, 'notification-hub');
           results.push({
             id: '',
             channel,
@@ -99,7 +100,7 @@ export async function sendNotification(
     }
     return results;
   } catch (error) {
-    console.error('[sendNotification] Fallback:', error);
+    logServiceError(error, 'notification-hub');
     return [];
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Interfaces ─────────────────────────────────────────────────────
 
@@ -369,7 +370,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       .eq('academy_id', academyId);
 
     if (turmasErr) {
-      console.error('[getPedagogicoDashboard] turmas error:', turmasErr.message);
+      logServiceError(turmasErr, 'pedagogico');
       return EMPTY_DASHBOARD;
     }
 
@@ -422,7 +423,7 @@ export async function getPedagogicoDashboard(academyId: string): Promise<Pedagog
       timeline: [],
     };
   } catch (error) {
-    console.error('[getPedagogicoDashboard] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_DASHBOARD;
   }
 }
@@ -446,7 +447,7 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
       .single();
 
     if (profileErr || !profile) {
-      console.error('[getAnaliseProfessor] profile error:', profileErr?.message);
+      logServiceError(profileErr, 'pedagogico');
       return EMPTY_ANALISE;
     }
 
@@ -469,7 +470,7 @@ export async function getAnaliseProfessor(professorId: string): Promise<AnaliseP
       acoesSugeridas: [],
     };
   } catch (error) {
-    console.error('[getAnaliseProfessor] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_ANALISE;
   }
 }
@@ -492,7 +493,7 @@ export async function getCurriculos(academyId: string): Promise<CurriculoAcademi
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getCurriculos] error:', error.message);
+      logServiceError(error, 'pedagogico');
       return [];
     }
 
@@ -508,7 +509,7 @@ export async function getCurriculos(academyId: string): Promise<CurriculoAcademi
       atualizadoEm: String(row.updated_at ?? ''),
     }));
   } catch (error) {
-    console.error('[getCurriculos] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return [];
   }
 }
@@ -529,7 +530,7 @@ export async function getCurriculo(id: string): Promise<CurriculoAcademia> {
       .single();
 
     if (error || !data) {
-      console.error('[getCurriculo] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_CURRICULO;
     }
 
@@ -546,7 +547,7 @@ export async function getCurriculo(id: string): Promise<CurriculoAcademia> {
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.error('[getCurriculo] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_CURRICULO;
   }
 }
@@ -574,7 +575,7 @@ export async function createCurriculo(data: Partial<CurriculoAcademia>): Promise
       .single();
 
     if (error || !created) {
-      console.error('[createCurriculo] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_CURRICULO;
     }
 
@@ -591,7 +592,7 @@ export async function createCurriculo(data: Partial<CurriculoAcademia>): Promise
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.error('[createCurriculo] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_CURRICULO;
   }
 }
@@ -621,7 +622,7 @@ export async function updateCurriculo(id: string, data: Partial<CurriculoAcademi
       .single();
 
     if (error || !updated) {
-      console.error('[updateCurriculo] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_CURRICULO;
     }
 
@@ -638,7 +639,7 @@ export async function updateCurriculo(id: string, data: Partial<CurriculoAcademi
       atualizadoEm: String(row.updated_at ?? ''),
     };
   } catch (error) {
-    console.error('[updateCurriculo] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_CURRICULO;
   }
 }
@@ -661,7 +662,7 @@ export async function getReunioes(academyId: string): Promise<ReuniaoPedagogica[
       .order('data', { ascending: false });
 
     if (error) {
-      console.error('[getReunioes] error:', error.message);
+      logServiceError(error, 'pedagogico');
       return [];
     }
 
@@ -680,7 +681,7 @@ export async function getReunioes(academyId: string): Promise<ReuniaoPedagogica[
       criadoEm: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.error('[getReunioes] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return [];
   }
 }
@@ -712,7 +713,7 @@ export async function createReuniao(data: Partial<ReuniaoPedagogica>): Promise<R
       .single();
 
     if (error || !created) {
-      console.error('[createReuniao] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_REUNIAO;
     }
 
@@ -732,7 +733,7 @@ export async function createReuniao(data: Partial<ReuniaoPedagogica>): Promise<R
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.error('[createReuniao] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_REUNIAO;
   }
 }
@@ -765,7 +766,7 @@ export async function updateReuniao(id: string, data: Partial<ReuniaoPedagogica>
       .single();
 
     if (error || !updated) {
-      console.error('[updateReuniao] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_REUNIAO;
     }
 
@@ -785,7 +786,7 @@ export async function updateReuniao(id: string, data: Partial<ReuniaoPedagogica>
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.error('[updateReuniao] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_REUNIAO;
   }
 }
@@ -808,7 +809,7 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getOcorrencias] error:', error.message);
+      logServiceError(error, 'pedagogico');
       return [];
     }
 
@@ -835,7 +836,7 @@ export async function getOcorrencias(academyId: string): Promise<Ocorrencia[]> {
       };
     });
   } catch (error) {
-    console.error('[getOcorrencias] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return [];
   }
 }
@@ -867,7 +868,7 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       .single();
 
     if (error || !created) {
-      console.error('[createOcorrencia] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_OCORRENCIA;
     }
 
@@ -893,7 +894,7 @@ export async function createOcorrencia(data: Partial<Ocorrencia>): Promise<Ocorr
       criadoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.error('[createOcorrencia] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_OCORRENCIA;
   }
 }
@@ -917,7 +918,7 @@ export async function gerarRelatorioPedagogico(academyId: string, mes: string): 
       .single();
 
     if (error || !data) {
-      console.error('[gerarRelatorioPedagogico] error:', error?.message);
+      logServiceError(error, 'pedagogico');
       return EMPTY_RELATORIO;
     }
 
@@ -935,7 +936,7 @@ export async function gerarRelatorioPedagogico(academyId: string, mes: string): 
       geradoEm: String(row.created_at ?? ''),
     };
   } catch (error) {
-    console.error('[gerarRelatorioPedagogico] Fallback:', error);
+    logServiceError(error, 'pedagogico');
     return EMPTY_RELATORIO;
   }
 }

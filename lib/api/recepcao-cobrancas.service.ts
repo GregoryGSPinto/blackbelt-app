@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -58,7 +59,8 @@ export async function getInadimplentes(): Promise<{ inadimplentes: Inadimplente[
     }));
     const totalInadimplente = inadimplentes.reduce((sum: number, i: Inadimplente) => sum + i.valor, 0);
     return { inadimplentes, resumo: { totalInadimplente, quantidadeInadimplentes: inadimplentes.length } };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-cobrancas');
     return fallback;
   }
 }
@@ -74,7 +76,8 @@ export async function registrarPagamento(alunoId: string, valor: number, forma: 
     const { error } = await supabase.from('pagamentos').insert({ aluno_id: alunoId, valor, forma, created_at: new Date().toISOString() });
     if (error) return { success: false };
     return { success: true };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-cobrancas');
     return { success: false };
   }
 }
@@ -90,7 +93,8 @@ export async function getHistoricoPagamentos(alunoId: string): Promise<Pagamento
     const { data, error } = await supabase.from('pagamentos').select('*').eq('aluno_id', alunoId).order('created_at', { ascending: false });
     if (error || !data) return [];
     return data as unknown as Pagamento[];
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-cobrancas');
     return [];
   }
 }

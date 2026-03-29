@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BillingConfig, BillingPreview, WebhookLog } from '@/lib/types/payment';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function getBillingConfig(academyId: string): Promise<BillingConfig> {
   try {
@@ -15,12 +16,12 @@ export async function getBillingConfig(academyId: string): Promise<BillingConfig
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[getBillingConfig] Supabase error:', error?.message);
+      logServiceError(error, 'billing-config');
       return {} as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.error('[getBillingConfig] Fallback:', error);
+    logServiceError(error, 'billing-config');
     return {} as BillingConfig;
   }
 }
@@ -41,12 +42,12 @@ export async function updateBillingConfig(config: Partial<BillingConfig> & { aca
       .select()
       .single();
     if (error || !data) {
-      console.error('[updateBillingConfig] Supabase error:', error?.message);
+      logServiceError(error, 'billing-config');
       return config as unknown as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.error('[updateBillingConfig] Fallback:', error);
+    logServiceError(error, 'billing-config');
     return config as unknown as BillingConfig;
   }
 }
@@ -65,12 +66,12 @@ export async function getWebhookLogs(academyId: string): Promise<WebhookLog[]> {
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.error('[getWebhookLogs] Supabase error:', error?.message);
+      logServiceError(error, 'billing-config');
       return [];
     }
     return data as unknown as WebhookLog[];
   } catch (error) {
-    console.error('[getWebhookLogs] Fallback:', error);
+    logServiceError(error, 'billing-config');
     return [];
   }
 }
@@ -89,12 +90,12 @@ export async function previewNextBilling(academyId: string): Promise<BillingPrev
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[previewNextBilling] Supabase error:', error?.message);
+      logServiceError(error, 'billing-config');
       return {} as BillingPreview;
     }
     return data as unknown as BillingPreview;
   } catch (error) {
-    console.error('[previewNextBilling] Fallback:', error);
+    logServiceError(error, 'billing-config');
     return {} as BillingPreview;
   }
 }

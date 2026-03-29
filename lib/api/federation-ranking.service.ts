@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RankedAthleteDTO {
   position: number;
@@ -115,7 +116,7 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
     const { data, error } = await query;
 
     if (error) {
-      console.error('[getAthleteRanking] Supabase error:', error.message);
+      logServiceError(error, 'federation-ranking');
       return [];
     }
 
@@ -137,7 +138,7 @@ export async function getAthleteRanking(filters?: RankingFilters): Promise<Ranke
       };
     });
   } catch (error) {
-    console.error('[getAthleteRanking] Fallback:', error);
+    logServiceError(error, 'federation-ranking');
     return [];
   }
 }
@@ -158,7 +159,7 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       .limit(100);
 
     if (error) {
-      console.error('[getAcademyRanking] Supabase error:', error.message);
+      logServiceError(error, 'federation-ranking');
       return [];
     }
 
@@ -199,7 +200,7 @@ export async function getAcademyRanking(filters?: { modality?: string; region?: 
       bronze: a.bronze,
     }));
   } catch (error) {
-    console.error('[getAcademyRanking] Fallback:', error);
+    logServiceError(error, 'federation-ranking');
     return [];
   }
 }
@@ -221,7 +222,7 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
 
     if (error) {
       if (error.code !== 'PGRST116') {
-        console.error('[getAthleteProfile] Supabase error:', error.message);
+        logServiceError(error, 'federation-ranking');
       }
       return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
     }
@@ -274,7 +275,7 @@ export async function getAthleteProfile(athleteId: string): Promise<AthleteProfi
       history,
     };
   } catch (error) {
-    console.error('[getAthleteProfile] Fallback:', error);
+    logServiceError(error, 'federation-ranking');
     return { athlete_id: athleteId, athlete_name: '', academy: '', belt: '', weight_class: '', region: '', age: 0, total_points: 0, ranking_position: 0, win_rate: 0, submission_rate: 0, total_fights: 0, total_wins: 0, total_losses: 0, gold: 0, silver: 0, bronze: 0, achievements: [], history: [] };
   }
 }

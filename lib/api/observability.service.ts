@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface SystemStatus {
   uptime: number;
@@ -31,7 +32,7 @@ export async function getSystemStatus(): Promise<SystemStatus> {
         .order('created_at', { ascending: false })
         .limit(50);
       if (evErr) {
-        console.error('[getSystemStatus] telemetry_events query error:', evErr.message);
+        logServiceError(evErr, 'observability');
       }
 
       // Count total events in last 24h for error rate
@@ -79,11 +80,11 @@ export async function getSystemStatus(): Promise<SystemStatus> {
         uptimeHistory: [],
       };
     } catch (err) {
-      console.error('[observability.getSystemStatus] error, using fallback:', err);
+      logServiceError(err, 'observability');
       return { uptime: 0, version: '', healthStatus: 'unhealthy' as const, avgResponseTime: 0, errorRate: 0, activeUsers: 0, recentErrors: [], uptimeHistory: [] };
     }
   } catch (error) {
-    console.error('[getSystemStatus] Fallback:', error);
+    logServiceError(error, 'observability');
     return { uptime: 0, version: '', healthStatus: 'unhealthy', avgResponseTime: 0, errorRate: 0, activeUsers: 0, recentErrors: [], uptimeHistory: [] };
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type SeasonStatus = 'upcoming' | 'active' | 'ended';
 export type SeasonTier = 'bronze' | 'silver' | 'gold' | 'diamond';
@@ -60,7 +61,7 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       .single();
 
     if (error || !data) {
-      console.error('[getCurrentSeason] Supabase error:', error?.message);
+      logServiceError(error, 'seasons');
       return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
     }
 
@@ -75,7 +76,7 @@ export async function getCurrentSeason(academyId: string): Promise<SeasonDTO> {
       rewards: (data.rewards ?? []) as SeasonRewardTier[],
     };
   } catch (error) {
-    console.error('[getCurrentSeason] Fallback:', error);
+    logServiceError(error, 'seasons');
     return { id: '', academy_id: academyId, name: '', start_date: '', end_date: '', status: 'upcoming', theme: '', rewards: [] };
   }
 }
@@ -101,7 +102,7 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[getSeasonLeaderboard] Supabase error:', error?.message);
+      logServiceError(error, 'seasons');
       return [];
     }
 
@@ -114,7 +115,7 @@ export async function getSeasonLeaderboard(seasonId: string, category?: string):
       tier: (row.tier ?? 'bronze') as SeasonTier,
     }));
   } catch (error) {
-    console.error('[getSeasonLeaderboard] Fallback:', error);
+    logServiceError(error, 'seasons');
     return [];
   }
 }
@@ -135,13 +136,13 @@ export async function getSeasonRewards(seasonId: string): Promise<SeasonRewardTi
       .single();
 
     if (error || !data) {
-      console.error('[getSeasonRewards] Supabase error:', error?.message);
+      logServiceError(error, 'seasons');
       return [];
     }
 
     return (data.rewards ?? []) as SeasonRewardTier[];
   } catch (error) {
-    console.error('[getSeasonRewards] Fallback:', error);
+    logServiceError(error, 'seasons');
     return [];
   }
 }
@@ -163,7 +164,7 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       .single();
 
     if (error || !data) {
-      console.error('[getMySeasonProgress] Supabase error:', error?.message);
+      logServiceError(error, 'seasons');
       return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
     }
 
@@ -178,7 +179,7 @@ export async function getMySeasonProgress(studentId: string, seasonId: string): 
       classes_attended_this_season: Number(data.classes_attended_this_season ?? 0),
     };
   } catch (error) {
-    console.error('[getMySeasonProgress] Fallback:', error);
+    logServiceError(error, 'seasons');
     return { season_id: seasonId, student_id: studentId, season_points: 0, rank: 0, tier: 'bronze', achievements_this_season: [], streak_this_season: 0, classes_attended_this_season: 0 };
   }
 }

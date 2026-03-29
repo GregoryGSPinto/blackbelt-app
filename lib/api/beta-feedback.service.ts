@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface BetaFeedback {
   id: string;
@@ -83,7 +84,7 @@ export async function submitFeedback(data: CreateFeedbackDTO): Promise<{ success
     .single();
 
   if (error) {
-    console.error('Error submitting feedback:', error);
+    logServiceError(error, 'beta-feedback');
     return { success: false };
   }
 
@@ -101,7 +102,7 @@ export async function uploadScreenshot(file: File): Promise<string | null> {
     .upload(fileName, file);
 
   if (error) {
-    console.error('Error uploading screenshot:', error);
+    logServiceError(error, 'beta-feedback');
     return null;
   }
 
@@ -134,7 +135,7 @@ export async function getAllFeedback(filters?: {
   if (filters?.priority) query = query.eq('priority', filters.priority);
 
   const { data, error } = await query;
-  if (error) { console.error('Error fetching feedback:', error); return []; }
+  if (error) { logServiceError(error, 'beta-feedback'); return []; }
   return (data as BetaFeedback[]) || [];
 }
 

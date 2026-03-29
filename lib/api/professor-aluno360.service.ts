@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -76,12 +77,12 @@ export async function getAluno360(alunoId: string): Promise<Aluno360> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('students').select('*').eq('id', alunoId).single();
     if (error) {
-      console.error('[getAluno360] error:', error.message);
+      logServiceError(error, 'professor-aluno360');
       return { id: alunoId, nome: '', email: '', telefone: '', dataNascimento: '', idade: 0, faixaAtual: '', graus: 0, dataPromocao: '', tempoNaFaixaAtual: '', historicoFaixas: [], presencaTotal: 0, presencaUltimos30Dias: 0, presencaMedia: 0, sequenciaAtual: 0, maiorSequencia: 0, frequenciaSemanal: [], ultimoCheckin: '', diasDesdeUltimoTreino: 0, evolucaoMedia: [], restricoesMedicas: [], lesoes: [], turmasInscritas: [], notasProfessores: [], competicoes: [], situacaoFinanceira: 'em_dia', plano: '', planoPeriodo: '' } as Aluno360;
     }
     return data as unknown as Aluno360;
   } catch (error) {
-    console.error('[getAluno360] Fallback:', error);
+    logServiceError(error, 'professor-aluno360');
     return { id: alunoId, nome: '', email: '', telefone: '', dataNascimento: '', idade: 0, faixaAtual: '', graus: 0, dataPromocao: '', tempoNaFaixaAtual: '', historicoFaixas: [], presencaTotal: 0, presencaUltimos30Dias: 0, presencaMedia: 0, sequenciaAtual: 0, maiorSequencia: 0, frequenciaSemanal: [], ultimoCheckin: '', diasDesdeUltimoTreino: 0, evolucaoMedia: [], restricoesMedicas: [], lesoes: [], turmasInscritas: [], notasProfessores: [], competicoes: [], situacaoFinanceira: 'em_dia', plano: '', planoPeriodo: '' } as Aluno360;
   }
 }
@@ -99,12 +100,12 @@ export async function addNotaAluno(
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('notas_aluno').insert({ aluno_id: alunoId, texto: nota.texto, tipo: nota.tipo }).select().single();
     if (error) {
-      console.error('[addNotaAluno] error:', error.message);
+      logServiceError(error, 'professor-aluno360');
       return { id: '', alunoId, professorId: '', professorNome: '', data: new Date().toISOString(), texto: nota.texto, tipo: nota.tipo } as NotaAluno;
     }
     return data as unknown as NotaAluno;
   } catch (error) {
-    console.error('[addNotaAluno] Fallback:', error);
+    logServiceError(error, 'professor-aluno360');
     return { id: '', alunoId, professorId: '', professorNome: '', data: new Date().toISOString(), texto: nota.texto, tipo: nota.tipo } as NotaAluno;
   }
 }

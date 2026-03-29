@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -42,13 +43,13 @@ export async function getJornadaDependente(studentId: string): Promise<JornadaDe
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getJornadaDependente] Supabase error:', error?.message);
+      logServiceError(error, 'responsavel-jornada');
       const { mockGetJornadaDependente } = await import('@/lib/mocks/responsavel-jornada.mock');
       return mockGetJornadaDependente(studentId);
     }
     return data as unknown as JornadaDependente;
   } catch (error) {
-    console.error('[getJornadaDependente] Fallback:', error);
+    logServiceError(error, 'responsavel-jornada');
     const { mockGetJornadaDependente } = await import('@/lib/mocks/responsavel-jornada.mock');
     return mockGetJornadaDependente(studentId);
   }

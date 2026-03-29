@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { ScheduleSlot } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface WeeklyScheduleSlot {
   class_id: string;
@@ -52,7 +53,7 @@ export async function getGrade(academyId: string, unitId?: string): Promise<Week
 
     const { data, error } = await query;
     if (error) {
-      console.error('[getGrade] query error:', error.message);
+      logServiceError(error, 'horarios');
       return { slots: [] };
     }
 
@@ -103,7 +104,7 @@ export async function getGrade(academyId: string, unitId?: string): Promise<Week
 
     return { slots };
   } catch (error) {
-    console.error('[getGrade] Fallback:', error);
+    logServiceError(error, 'horarios');
     return { slots: [] };
   }
 }
@@ -124,7 +125,7 @@ export async function checkConflict(professorId: string, schedule: ScheduleSlot[
       .select('id, schedule, modalities(name)')
       .eq('professor_id', professorId);
     if (error) {
-      console.error('[checkConflict] query error:', error.message);
+      logServiceError(error, 'horarios');
       return { has_conflict: false };
     }
 
@@ -152,7 +153,7 @@ export async function checkConflict(professorId: string, schedule: ScheduleSlot[
 
     return { has_conflict: false };
   } catch (error) {
-    console.error('[checkConflict] Fallback:', error);
+    logServiceError(error, 'horarios');
     return { has_conflict: false };
   }
 }

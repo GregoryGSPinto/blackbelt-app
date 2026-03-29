@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -85,13 +86,13 @@ export async function sendBroadcast(franchiseId: string, data: SendBroadcastData
       .single();
 
     if (error) {
-      console.error('[sendBroadcast] error:', error.message);
+      logServiceError(error, 'franchise-communication');
       return {} as Broadcast;
     }
 
     return inserted as unknown as Broadcast;
   } catch (error) {
-    console.error('[sendBroadcast] Fallback:', error);
+    logServiceError(error, 'franchise-communication');
     return {} as Broadcast;
   }
 }
@@ -113,13 +114,13 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       .order('sent_at', { ascending: false });
 
     if (error) {
-      console.error('[getBroadcasts] error:', error.message);
+      logServiceError(error, 'franchise-communication');
       return [];
     }
 
     return (data ?? []) as unknown as Broadcast[];
   } catch (error) {
-    console.error('[getBroadcasts] Fallback:', error);
+    logServiceError(error, 'franchise-communication');
     return [];
   }
 }
@@ -140,13 +141,13 @@ export async function getReceipts(broadcastId: string): Promise<BroadcastRecipie
       .eq('broadcast_id', broadcastId);
 
     if (error) {
-      console.error('[getReceipts] error:', error.message);
+      logServiceError(error, 'franchise-communication');
       return [];
     }
 
     return (data ?? []) as unknown as BroadcastRecipient[];
   } catch (error) {
-    console.error('[getReceipts] Fallback:', error);
+    logServiceError(error, 'franchise-communication');
     return [];
   }
 }
@@ -173,13 +174,13 @@ export async function scheduleTraining(franchiseId: string, data: ScheduleTraini
       .single();
 
     if (error) {
-      console.error('[scheduleTraining] error:', error.message);
+      logServiceError(error, 'franchise-communication');
       return {} as NetworkTraining;
     }
 
     return inserted as unknown as NetworkTraining;
   } catch (error) {
-    console.error('[scheduleTraining] Fallback:', error);
+    logServiceError(error, 'franchise-communication');
     return {} as NetworkTraining;
   }
 }
@@ -201,13 +202,13 @@ export async function getTrainings(franchiseId: string): Promise<NetworkTraining
       .order('date', { ascending: false });
 
     if (error) {
-      console.error('[getTrainings] error:', error.message);
+      logServiceError(error, 'franchise-communication');
       return [];
     }
 
     return (data ?? []) as unknown as NetworkTraining[];
   } catch (error) {
-    console.error('[getTrainings] Fallback:', error);
+    logServiceError(error, 'franchise-communication');
     return [];
   }
 }

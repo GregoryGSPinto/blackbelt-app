@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -48,13 +49,13 @@ export async function submitFeedback(
       .single();
 
     if (error) {
-      console.error('[submitFeedback] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return null;
     }
 
     return row as UserFeedback;
   } catch (err) {
-    console.error('[submitFeedback] Fallback:', err);
+    logServiceError(err, 'feedback');
     return null;
   }
 }
@@ -90,13 +91,13 @@ export async function listFeedback(
     const { data, error } = await query;
 
     if (error) {
-      console.error('[listFeedback] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return [];
     }
 
     return (data ?? []) as UserFeedback[];
   } catch (err) {
-    console.error('[listFeedback] Fallback:', err);
+    logServiceError(err, 'feedback');
     return [];
   }
 }
@@ -128,13 +129,13 @@ export async function getFeedbackCount(
     const { count, error } = await query;
 
     if (error) {
-      console.error('[getFeedbackCount] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return 0;
     }
 
     return count ?? 0;
   } catch (err) {
-    console.error('[getFeedbackCount] Fallback:', err);
+    logServiceError(err, 'feedback');
     return 0;
   }
 }
@@ -159,13 +160,13 @@ export async function markAsRead(feedbackId: string): Promise<UserFeedback | nul
       .single();
 
     if (error) {
-      console.error('[markAsRead] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return null;
     }
 
     return data as UserFeedback;
   } catch (err) {
-    console.error('[markAsRead] Fallback:', err);
+    logServiceError(err, 'feedback');
     return null;
   }
 }
@@ -193,13 +194,13 @@ export async function replyToFeedback(
       .single();
 
     if (error) {
-      console.error('[replyToFeedback] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return null;
     }
 
     return data as UserFeedback;
   } catch (err) {
-    console.error('[replyToFeedback] Fallback:', err);
+    logServiceError(err, 'feedback');
     return null;
   }
 }
@@ -224,13 +225,13 @@ export async function resolveFeedback(feedbackId: string): Promise<UserFeedback 
       .single();
 
     if (error) {
-      console.error('[resolveFeedback] Supabase error:', error.message);
+      logServiceError(error, 'feedback');
       return null;
     }
 
     return data as UserFeedback;
   } catch (err) {
-    console.error('[resolveFeedback] Fallback:', err);
+    logServiceError(err, 'feedback');
     return null;
   }
 }

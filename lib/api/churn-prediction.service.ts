@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ export async function getAlunosEmRisco(academyId: string): Promise<AlunoRisco[]>
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('churn_predictions').select('*').eq('academy_id', academyId).in('risk_level', ['alto', 'medio']).order('score', { ascending: false });
     if (error) {
-      console.error('[getAlunosEmRisco] error:', error.message);
+      logServiceError(error, 'churn-prediction');
       return [];
     }
     return (data ?? []).map((d: Record<string, unknown>) => ({
@@ -80,7 +81,7 @@ export async function getAlunosEmRisco(academyId: string): Promise<AlunoRisco[]>
       statusAcao: d.status_acao as 'pendente' | 'acao_tomada' | 'recuperado' | 'cancelou',
     }));
   } catch (error) {
-    console.error('[getAlunosEmRisco] Fallback:', error);
+    logServiceError(error, 'churn-prediction');
     return [];
   }
 }
@@ -95,7 +96,7 @@ export async function getChurnMetrics(academyId: string): Promise<ChurnMetrics> 
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('churn_predictions').select('risk_level, status_acao').eq('academy_id', academyId);
     if (error) {
-      console.error('[getChurnMetrics] error:', error.message);
+      logServiceError(error, 'churn-prediction');
       return { totalRisco: 0, alto: 0, medio: 0, recuperados: 0, cancelados: 0, taxaRecuperacao: 0 };
     }
     const all = data ?? [];
@@ -105,7 +106,7 @@ export async function getChurnMetrics(academyId: string): Promise<ChurnMetrics> 
     const cancelados = all.filter((d: Record<string, string>) => d.status_acao === 'cancelou').length;
     return { totalRisco: alto + medio, alto, medio, recuperados, cancelados, taxaRecuperacao: recuperados > 0 ? Math.round((recuperados / (recuperados + cancelados)) * 100) : 0 };
   } catch (error) {
-    console.error('[getChurnMetrics] Fallback:', error);
+    logServiceError(error, 'churn-prediction');
     return { totalRisco: 0, alto: 0, medio: 0, recuperados: 0, cancelados: 0, taxaRecuperacao: 0 };
   }
 }
@@ -124,12 +125,12 @@ export async function getChurnTrend(academyId: string): Promise<ChurnTrendPoint[
       .eq('academy_id', academyId)
       .order('mes', { ascending: true });
     if (error) {
-      console.error('[getChurnTrend] error:', error.message);
+      logServiceError(error, 'churn-prediction');
       return [];
     }
     return (data ?? []) as ChurnTrendPoint[];
   } catch (error) {
-    console.error('[getChurnTrend] Fallback:', error);
+    logServiceError(error, 'churn-prediction');
     return [];
   }
 }
@@ -144,10 +145,10 @@ export async function marcarAcaoTomada(studentId: string, _acao: string): Promis
     const supabase = createBrowserClient();
     const { error } = await supabase.from('churn_predictions').update({ status_acao: 'acao_tomada', ultimo_contato: new Date().toISOString() }).eq('id', studentId);
     if (error) {
-      console.error('[marcarAcaoTomada] error:', error.message);
+      logServiceError(error, 'churn-prediction');
     }
   } catch (error) {
-    console.error('[marcarAcaoTomada] Fallback:', error);
+    logServiceError(error, 'churn-prediction');
   }
 }
 
@@ -161,9 +162,9 @@ export async function marcarRecuperado(studentId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { error } = await supabase.from('churn_predictions').update({ status_acao: 'recuperado' }).eq('id', studentId);
     if (error) {
-      console.error('[marcarRecuperado] error:', error.message);
+      logServiceError(error, 'churn-prediction');
     }
   } catch (error) {
-    console.error('[marcarRecuperado] Fallback:', error);
+    logServiceError(error, 'churn-prediction');
   }
 }

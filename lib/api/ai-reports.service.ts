@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function generateMonthlyNarrative(academyId: string, month: string): Promise<string> {
   try {
@@ -37,7 +38,7 @@ export async function generateMonthlyNarrative(academyId: string, month: string)
 
     return `Relatório mensal (${month}): ${students} alunos ativos, ${total} presenças registradas, ${invoices} cobranças no período. Configure a IA para narrativas detalhadas.`;
   } catch (error) {
-    console.error('[generateMonthlyNarrative] Fallback:', error);
+    logServiceError(error, 'ai-reports');
     return '';
   }
 }
@@ -68,7 +69,7 @@ export async function generateStudentReport(studentId: string): Promise<string> 
 
     return `Relatório de ${name}: Faixa ${belt}, ${total} presenças totais. Configure a IA para relatórios detalhados com análise de desempenho.`;
   } catch (error) {
-    console.error('[generateStudentReport] Fallback:', error);
+    logServiceError(error, 'ai-reports');
     return '';
   }
 }
@@ -96,7 +97,7 @@ export async function generateClassReport(classId: string, month: string): Promi
 
     return `Relatório da turma (${month}): ${total} presenças no período. Configure a IA para relatórios narrativos detalhados.`;
   } catch (error) {
-    console.error('[generateClassReport] Fallback:', error);
+    logServiceError(error, 'ai-reports');
     return '';
   }
 }

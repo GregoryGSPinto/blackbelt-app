@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type NotificationPriority = 'urgent' | 'important' | 'info' | 'silent';
 
@@ -50,7 +51,7 @@ export async function getNotifications(
     .eq('profile_id', profileId)
     .order('created_at', { ascending: false });
   if (error || !data) {
-    console.error('[getNotifications] Supabase error:', error?.message);
+    logServiceError(error, 'notifications');
     return [];
   }
   return data as unknown as IntelligentNotification[];
@@ -71,7 +72,7 @@ export async function markAsRead(notificationId: string): Promise<void> {
     .update({ read: true })
     .eq('id', notificationId);
   if (error) {
-    console.error('[markAsRead] Supabase error:', error.message);
+    logServiceError(error, 'notifications');
     throw new Error(`[markAsRead] ${error.message}`);
   }
 }
@@ -94,7 +95,7 @@ export async function markAllNotificationsRead(
     .eq('profile_id', profileId)
     .eq('read', false);
   if (error) {
-    console.error('[markAllNotificationsRead] Supabase error:', error.message);
+    logServiceError(error, 'notifications');
     throw new Error(`[markAllNotificationsRead] ${error.message}`);
   }
 }

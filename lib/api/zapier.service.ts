@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -108,13 +109,13 @@ export async function getZapierApiKey(academyId: string): Promise<{ apiKey: stri
       .single();
 
     if (error || !data) {
-      console.error('[getZapierApiKey] error:', error?.message ?? 'not found');
+      logServiceError(error, 'zapier');
       return { apiKey: '', createdAt: '' };
     }
     const config = data.value as Record<string, unknown>;
     return { apiKey: (config.apiKey as string) ?? '', createdAt: (config.createdAt as string) ?? '' };
   } catch (error) {
-    console.error('[getZapierApiKey] Fallback:', error);
+    logServiceError(error, 'zapier');
     return { apiKey: '', createdAt: '' };
   }
 }
@@ -134,12 +135,12 @@ export async function regenerateZapierApiKey(academyId: string): Promise<{ apiKe
       .upsert({ academy_id: academyId, key: 'zapier', value: { apiKey: newKey, createdAt: new Date().toISOString(), connected: true } }, { onConflict: 'academy_id,key' });
 
     if (error) {
-      console.error('[regenerateZapierApiKey] error:', error.message);
+      logServiceError(error, 'zapier');
       return { apiKey: '' };
     }
     return { apiKey: newKey };
   } catch (error) {
-    console.error('[regenerateZapierApiKey] Fallback:', error);
+    logServiceError(error, 'zapier');
     return { apiKey: '' };
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -49,13 +50,13 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       .order('modality', { ascending: true });
 
     if (error) {
-      console.error('[getCurriculos] error:', error.message);
+      logServiceError(error, 'franqueador-curriculo');
       return [];
     }
 
     return (data ?? []) as unknown as CurriculoRede[];
   } catch (error) {
-    console.error('[getCurriculos] Fallback:', error);
+    logServiceError(error, 'franqueador-curriculo');
     return [];
   }
 }
@@ -76,7 +77,7 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       .eq('franchise_id', franchiseId);
 
     if (error) {
-      console.error('[getCurriculoOverview] error:', error.message);
+      logServiceError(error, 'franqueador-curriculo');
       return { modalities: [], total_curriculos: 0, total_techniques: 0 };
     }
 
@@ -96,7 +97,7 @@ export async function getCurriculoOverview(franchiseId: string): Promise<Curricu
       total_techniques: totalTechniques,
     };
   } catch (error) {
-    console.error('[getCurriculoOverview] Fallback:', error);
+    logServiceError(error, 'franqueador-curriculo');
     return { modalities: [], total_curriculos: 0, total_techniques: 0 };
   }
 }
@@ -118,13 +119,13 @@ export async function getCurriculoDetail(curriculoId: string): Promise<Curriculo
       .single();
 
     if (error) {
-      console.error('[getCurriculoDetail] error:', error.message);
+      logServiceError(error, 'franqueador-curriculo');
       return {} as CurriculoRede;
     }
 
     return data as unknown as CurriculoRede;
   } catch (error) {
-    console.error('[getCurriculoDetail] Fallback:', error);
+    logServiceError(error, 'franqueador-curriculo');
     return {} as CurriculoRede;
   }
 }

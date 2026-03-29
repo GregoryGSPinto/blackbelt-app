@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface PerformanceAnalysis {
   summary: string;
@@ -91,7 +92,7 @@ export async function getTrainingSuggestion(studentId: string): Promise<string> 
       return `Excelente dedicação (${total} aulas)! Faixa ${belt} — refine seu jogo ofensivo e prepare-se para competições.`;
     }
   } catch (error) {
-    console.error('[getTrainingSuggestion] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return '';
   }
 }
@@ -150,7 +151,7 @@ export async function analyzePerformance(studentId: string): Promise<Performance
         : 'Priorize frequência regular para consolidar a base técnica.',
     };
   } catch (error) {
-    console.error('[analyzePerformance] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { summary: '', strengths: [], improvements: [], recommendation: '' };
   }
 }
@@ -170,7 +171,7 @@ export async function generateClassPlan(professorId: string, classId: string): P
       cooldown: 'Alongamento estático + respiração (5 min)',
     };
   } catch (error) {
-    console.error('[generateClassPlan] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { warmup: '', technique: '', drills: [], sparring: '', cooldown: '' };
   }
 }
@@ -182,10 +183,10 @@ export async function answerQuestion(studentId: string, question: string): Promi
       return mockAnswerQuestion(studentId, question);
     }
     // AI feature — requires API key to answer questions
-    console.error('[answerQuestion] AI API not configured — returning default');
+    logServiceError(new Error('AI API not configured — returning default'), 'ai-coach');
     return 'Assistente IA não configurado. Configure a API key em Configurações > Integrações.';
   } catch (error) {
-    console.error('[answerQuestion] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return '';
   }
 }
@@ -215,7 +216,7 @@ export async function generateTrainingPlan(studentId: string, goal: string, week
       reasoning: 'Plano básico gerado automaticamente. Configure a IA para planos personalizados.',
     };
   } catch (error) {
-    console.error('[generateTrainingPlan] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { name: '', goal, duration_weeks: weeks, weeks: [], reasoning: '' };
   }
 }
@@ -227,14 +228,14 @@ export async function adjustPlan(planId: string, feedback: string): Promise<Plan
       return mockAdjustPlan(planId, feedback);
     }
     // AI feature — return acknowledgment without actual adjustment
-    console.error('[adjustPlan] AI API not configured — returning default');
+    logServiceError(new Error('AI API not configured — returning default'), 'ai-coach');
     return {
       changes: [{ week: 1, description: 'Feedback registrado. Configure a IA para ajustes automáticos.' }],
       reasoning: 'Ajuste automático requer configuração da API de IA.',
       updated_plan_id: planId,
     };
   } catch (error) {
-    console.error('[adjustPlan] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { changes: [], reasoning: '', updated_plan_id: planId };
   }
 }
@@ -265,7 +266,7 @@ export async function generatePeriodization(studentId: string, competitionDate: 
       reasoning: 'Periodização básica gerada automaticamente. Configure a IA para personalização avançada.',
     };
   } catch (error) {
-    console.error('[generatePeriodization] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { competition_name: '', competition_date: competitionDate, phases: [], reasoning: '' };
   }
 }
@@ -277,7 +278,7 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
       return mockWeeklyCheckIn(planId);
     }
     // AI feature — return default weekly check-in
-    console.error('[weeklyCheckIn] AI API not configured — returning default');
+    logServiceError(new Error('AI API not configured — returning default'), 'ai-coach');
     return {
       summary: 'Check-in semanal registrado. Configure a IA para análises detalhadas.',
       adherence_pct: 0,
@@ -286,7 +287,7 @@ export async function weeklyCheckIn(planId: string): Promise<WeeklyCheckInResult
       motivation: 'A consistência é a chave do progresso. Oss!',
     };
   } catch (error) {
-    console.error('[weeklyCheckIn] Fallback:', error);
+    logServiceError(error, 'ai-coach');
     return { summary: '', adherence_pct: 0, highlights: [], adjustments: [], motivation: '' };
   }
 }

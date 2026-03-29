@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface Lead {
   id: string;
@@ -43,7 +44,7 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getLeads] error:', error.message);
+      logServiceError(error, 'crm');
       return [];
     }
     return (data || []).map((row: { id: string; name: string; email: string | null; phone: string | null; modality: string | null; origin: string; status: string; notes: string | null; experimental_date: string | null; created_at: string }) => ({
@@ -60,7 +61,7 @@ export async function getLeads(academyId: string): Promise<Lead[]> {
       created_at: row.created_at,
     }));
   } catch (error) {
-    console.error('[getLeads] Fallback:', error);
+    logServiceError(error, 'crm');
     return [];
   }
 }
@@ -80,7 +81,7 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       .eq('academy_id', academyId);
 
     if (error) {
-      console.error('[getCRMMetrics] error:', error.message);
+      logServiceError(error, 'crm');
       return EMPTY_METRICS;
     }
 
@@ -101,7 +102,7 @@ export async function getCRMMetrics(academyId: string): Promise<CRMMetrics> {
       conversion_rate: rate,
     };
   } catch (error) {
-    console.error('[getCRMMetrics] Fallback:', error);
+    logServiceError(error, 'crm');
     return EMPTY_METRICS;
   }
 }
@@ -121,10 +122,10 @@ export async function updateLeadStatus(leadId: string, status: string): Promise<
       .eq('id', leadId);
 
     if (error) {
-      console.error('[updateLeadStatus] error:', error.message);
+      logServiceError(error, 'crm');
     }
   } catch (error) {
-    console.error('[updateLeadStatus] Fallback:', error);
+    logServiceError(error, 'crm');
   }
 }
 
@@ -144,7 +145,7 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       .single();
 
     if (error) {
-      console.error('[createLead] error:', error.message);
+      logServiceError(error, 'crm');
       return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
     }
     return {
@@ -161,7 +162,7 @@ export async function createLead(data: Omit<Lead, 'id' | 'created_at' | 'referre
       created_at: row.created_at,
     };
   } catch (error) {
-    console.error('[createLead] Fallback:', error);
+    logServiceError(error, 'crm');
     return { ...EMPTY_LEAD, ...data, id: crypto.randomUUID(), created_at: new Date().toISOString(), referred_by_name: null };
   }
 }

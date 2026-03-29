@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -34,13 +35,13 @@ export async function getNotificacoes(guardianId: string): Promise<NotificacaoRe
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getNotificacoes] Supabase error:', error?.message);
+      logServiceError(error, 'responsavel-notificacoes');
       return [];
     }
 
     return data as unknown as NotificacaoResponsavel[];
   } catch (error) {
-    console.error('[getNotificacoes] Fallback:', error);
+    logServiceError(error, 'responsavel-notificacoes');
     return [];
   }
 }
@@ -60,10 +61,10 @@ export async function marcarLida(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[marcarLida] Supabase error:', error.message);
+      logServiceError(error, 'responsavel-notificacoes');
     }
   } catch (error) {
-    console.error('[marcarLida] Fallback:', error);
+    logServiceError(error, 'responsavel-notificacoes');
   }
 }
 
@@ -83,9 +84,9 @@ export async function marcarTodasLidas(guardianId: string): Promise<void> {
       .eq('read', false);
 
     if (error) {
-      console.error('[marcarTodasLidas] Supabase error:', error.message);
+      logServiceError(error, 'responsavel-notificacoes');
     }
   } catch (error) {
-    console.error('[marcarTodasLidas] Fallback:', error);
+    logServiceError(error, 'responsavel-notificacoes');
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BillingConfig, BillingPreview } from '@/lib/types/payment';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface BillingCycleResult {
   invoicesGenerated: number;
@@ -22,12 +23,12 @@ export async function getBillingCycleConfig(academyId: string): Promise<BillingC
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[getBillingCycleConfig] Supabase error:', error?.message);
+      logServiceError(error, 'billing-automation');
       return {} as BillingConfig;
     }
     return data as unknown as BillingConfig;
   } catch (error) {
-    console.error('[getBillingCycleConfig] Fallback:', error);
+    logServiceError(error, 'billing-automation');
     return {} as BillingConfig;
   }
 }
@@ -46,12 +47,12 @@ export async function previewNextBillingCycle(academyId: string): Promise<Billin
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[previewNextBillingCycle] Supabase error:', error?.message);
+      logServiceError(error, 'billing-automation');
       return {} as BillingPreview;
     }
     return data as unknown as BillingPreview;
   } catch (error) {
-    console.error('[previewNextBillingCycle] Fallback:', error);
+    logServiceError(error, 'billing-automation');
     return {} as BillingPreview;
   }
 }
@@ -67,12 +68,12 @@ export async function runBillingCycle(academyId: string): Promise<BillingCycleRe
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('run_billing_cycle', { p_academy_id: academyId });
     if (error || !data) {
-      console.error('[runBillingCycle] Supabase error:', error?.message);
+      logServiceError(error, 'billing-automation');
       return fallback;
     }
     return data as unknown as BillingCycleResult;
   } catch (error) {
-    console.error('[runBillingCycle] Fallback:', error);
+    logServiceError(error, 'billing-automation');
     return fallback;
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -74,12 +75,12 @@ export async function getGoals(studentId: string): Promise<GoalDTO[]> {
       .eq('student_id', studentId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.error('[getGoals] Supabase error:', error?.message);
+      logServiceError(error, 'metas');
       return [];
     }
     return data as unknown as GoalDTO[];
   } catch (error) {
-    console.error('[getGoals] Fallback:', error);
+    logServiceError(error, 'metas');
     return [];
   }
 }
@@ -98,12 +99,12 @@ export async function createGoal(data: CreateGoalPayload): Promise<GoalDTO> {
       .select()
       .single();
     if (error || !row) {
-      console.error('[createGoal] Supabase error:', error?.message);
+      logServiceError(error, 'metas');
       return {} as GoalDTO;
     }
     return row as unknown as GoalDTO;
   } catch (error) {
-    console.error('[createGoal] Fallback:', error);
+    logServiceError(error, 'metas');
     return {} as GoalDTO;
   }
 }
@@ -123,12 +124,12 @@ export async function getDiary(studentId: string, month: string): Promise<DiaryE
       .like('date', `${month}%`)
       .order('date', { ascending: false });
     if (error || !data) {
-      console.error('[getDiary] Supabase error:', error?.message);
+      logServiceError(error, 'metas');
       return [];
     }
     return data as unknown as DiaryEntryDTO[];
   } catch (error) {
-    console.error('[getDiary] Fallback:', error);
+    logServiceError(error, 'metas');
     return [];
   }
 }
@@ -147,12 +148,12 @@ export async function saveDiaryEntry(data: SaveDiaryPayload): Promise<DiaryEntry
       .select()
       .single();
     if (error || !row) {
-      console.error('[saveDiaryEntry] Supabase error:', error?.message);
+      logServiceError(error, 'metas');
       return {} as DiaryEntryDTO;
     }
     return row as unknown as DiaryEntryDTO;
   } catch (error) {
-    console.error('[saveDiaryEntry] Fallback:', error);
+    logServiceError(error, 'metas');
     return {} as DiaryEntryDTO;
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -52,7 +53,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       .is('check_out_at', null);
 
     if (insideError) {
-      console.error('[getAcesso] error fetching inside:', insideError.message);
+      logServiceError(insideError, 'recepcao-acesso');
     }
 
     // All movements today
@@ -63,7 +64,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       .order('check_in_at', { ascending: false });
 
     if (movError) {
-      console.error('[getAcesso] error fetching movements:', movError.message);
+      logServiceError(movError, 'recepcao-acesso');
     }
 
     const pessoasDentro: PessoaDentro[] = (inside ?? []).map((c: Record<string, unknown>) => ({
@@ -102,7 +103,7 @@ export async function getAcesso(): Promise<AcessoAcademia> {
       movimentacao,
     };
   } catch (error) {
-    console.error('[getAcesso] Fallback:', error);
+    logServiceError(error, 'recepcao-acesso');
     return { pessoasDentro: [], totalDentro: 0, capacidadeMaxima: 100, movimentacao: [] };
   }
 }
@@ -129,13 +130,13 @@ export async function registrarEntradaManual(data: {
       });
 
     if (error) {
-      console.error('[registrarEntradaManual] error:', error.message);
+      logServiceError(error, 'recepcao-acesso');
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.error('[registrarEntradaManual] Fallback:', error);
+    logServiceError(error, 'recepcao-acesso');
     return { ok: false };
   }
 }
@@ -156,13 +157,13 @@ export async function registrarSaida(pessoaId: string): Promise<{ ok: boolean }>
       .eq('id', pessoaId);
 
     if (error) {
-      console.error('[registrarSaida] error:', error.message);
+      logServiceError(error, 'recepcao-acesso');
       return { ok: false };
     }
 
     return { ok: true };
   } catch (error) {
-    console.error('[registrarSaida] Fallback:', error);
+    logServiceError(error, 'recepcao-acesso');
     return { ok: false };
   }
 }

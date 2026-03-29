@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -125,7 +126,7 @@ export async function previewImport(
       suggestedMappings,
     };
   } catch (error) {
-    console.error('[previewImport] Fallback:', error);
+    logServiceError(error, 'import');
     return { headers: [], totalRows: 0, validRows: 0, invalidRows: 0, rows: [], suggestedMappings: [] };
   }
 }
@@ -198,7 +199,7 @@ export async function executeImport(
 
     return { imported, skipped, errors };
   } catch (error) {
-    console.error('[executeImport] Fallback:', error);
+    logServiceError(error, 'import');
     return { imported: 0, skipped: 0, errors: [] };
   }
 }

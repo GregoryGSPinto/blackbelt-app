@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   StudentEvaluation,
   EvaluableStudent,
@@ -41,7 +42,7 @@ export async function getEvaluableStudents(
 
     const { data, error } = await query;
     if (error) {
-      console.error('[getEvaluableStudents] Supabase error:', error.message);
+      logServiceError(error, 'evaluation');
       return [];
     }
 
@@ -65,7 +66,7 @@ export async function getEvaluableStudents(
 
     return students;
   } catch (error) {
-    console.error('[getEvaluableStudents] Fallback:', error);
+    logServiceError(error, 'evaluation');
     return [];
   }
 }
@@ -92,7 +93,7 @@ export async function getStudentEvaluationTimeline(
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getStudentEvaluationTimeline] Supabase error:', error.message);
+      logServiceError(error, 'evaluation');
       return { student_id: studentId, student_name: '', evaluations: [] };
     }
 
@@ -119,7 +120,7 @@ export async function getStudentEvaluationTimeline(
       evaluations,
     };
   } catch (error) {
-    console.error('[getStudentEvaluationTimeline] Fallback:', error);
+    logServiceError(error, 'evaluation');
     return { student_id: studentId, student_name: '', evaluations: [] };
   }
 }
@@ -141,7 +142,7 @@ export async function createEvaluation(
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[createEvaluation] Not authenticated');
+      logServiceError(new Error('Not authenticated'), 'evaluation');
       return {} as StudentEvaluation;
     }
 
@@ -168,7 +169,7 @@ export async function createEvaluation(
       .single();
 
     if (error || !data) {
-      console.error('[createEvaluation] Supabase error:', error?.message ?? 'No data');
+      logServiceError(error, 'evaluation');
       return {} as StudentEvaluation;
     }
 
@@ -189,7 +190,7 @@ export async function createEvaluation(
       created_at: data.created_at as string,
     };
   } catch (error) {
-    console.error('[createEvaluation] Fallback:', error);
+    logServiceError(error, 'evaluation');
     return {} as StudentEvaluation;
   }
 }
@@ -215,7 +216,7 @@ export async function getProfessorClasses(
       .eq('professor_id', professorId);
 
     if (error) {
-      console.error('[getProfessorClasses] Supabase error:', error.message);
+      logServiceError(error, 'evaluation');
       return [];
     }
 
@@ -227,7 +228,7 @@ export async function getProfessorClasses(
       };
     });
   } catch (error) {
-    console.error('[getProfessorClasses] Fallback:', error);
+    logServiceError(error, 'evaluation');
     return [];
   }
 }

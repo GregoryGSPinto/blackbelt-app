@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Role } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface InviteDTO {
   id: string;
@@ -37,7 +38,7 @@ export async function listStaff(academyId: string): Promise<StaffMember[]> {
     .in('role', ['admin', 'professor', 'receptionist']);
 
   if (error) {
-    console.error('[listStaff] error:', error.message);
+    logServiceError(error, 'invites');
     return [];
   }
 
@@ -71,7 +72,7 @@ export async function sendInvite(email: string, role: Role, unitIds: string[]): 
     .single();
 
   if (error) {
-    console.error('[sendInvite] error:', error.message);
+    logServiceError(error, 'invites');
     throw new Error(`[sendInvite] ${error.message}`);
   }
 
@@ -95,7 +96,7 @@ export async function getActiveInvites(academyId: string): Promise<InviteDTO[]> 
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('[getActiveInvites] error:', error.message);
+    logServiceError(error, 'invites');
     return [];
   }
 
@@ -117,7 +118,7 @@ export async function cancelInvite(inviteId: string): Promise<void> {
     .eq('id', inviteId);
 
   if (error) {
-    console.error('[cancelInvite] error:', error.message);
+    logServiceError(error, 'invites');
     throw new Error(`[cancelInvite] ${error.message}`);
   }
 }
@@ -137,7 +138,7 @@ export async function resendInvite(inviteId: string): Promise<void> {
     .eq('id', inviteId);
 
   if (error) {
-    console.error('[resendInvite] error:', error.message);
+    logServiceError(error, 'invites');
     throw new Error(`[resendInvite] ${error.message}`);
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface MascoteOption {
   id: string;
@@ -57,12 +58,12 @@ export async function getPersonalizacao(studentId: string): Promise<Personalizac
       .eq('student_id', studentId)
       .single();
     if (error || !data) {
-      console.error('[getPersonalizacao] Supabase error:', error?.message);
+      logServiceError(error, 'kids-personalizacao');
       return fallback;
     }
     return data as unknown as PersonalizacaoKids;
   } catch (error) {
-    console.error('[getPersonalizacao] Fallback:', error);
+    logServiceError(error, 'kids-personalizacao');
     return fallback;
   }
 }
@@ -80,12 +81,12 @@ export async function setMascoteKids(studentId: string, mascoteId: string): Prom
       .update({ mascote_atual: mascoteId })
       .eq('student_id', studentId);
     if (error) {
-      console.error('[setMascoteKids] Supabase error:', error.message);
+      logServiceError(error, 'kids-personalizacao');
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.error('[setMascoteKids] Fallback:', error);
+    logServiceError(error, 'kids-personalizacao');
     return { sucesso: false };
   }
 }
@@ -103,12 +104,12 @@ export async function setCorKids(studentId: string, corId: string): Promise<{ su
       .update({ cor_atual: corId })
       .eq('student_id', studentId);
     if (error) {
-      console.error('[setCorKids] Supabase error:', error.message);
+      logServiceError(error, 'kids-personalizacao');
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.error('[setCorKids] Fallback:', error);
+    logServiceError(error, 'kids-personalizacao');
     return { sucesso: false };
   }
 }
@@ -126,12 +127,12 @@ export async function setTituloKids(studentId: string, titulo: string): Promise<
       .update({ titulo_atual: titulo })
       .eq('student_id', studentId);
     if (error) {
-      console.error('[setTituloKids] Supabase error:', error.message);
+      logServiceError(error, 'kids-personalizacao');
       return { sucesso: false };
     }
     return { sucesso: true };
   } catch (error) {
-    console.error('[setTituloKids] Fallback:', error);
+    logServiceError(error, 'kids-personalizacao');
     return { sucesso: false };
   }
 }

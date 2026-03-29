@@ -21,3 +21,13 @@ export function handleServiceError(error: unknown, service: string): never {
   logger.error(message, { service });
   throw new ServiceError(500, service, message);
 }
+
+/** Non-throwing variant — logs the error via structured logger and returns void. */
+export function logServiceError(error: unknown, service: string): void {
+  if (error instanceof ServiceError) {
+    logger.error(error.message, { service, statusCode: error.statusCode });
+    return;
+  }
+  const message = error instanceof Error ? error.message : 'Unknown error';
+  logger.error(message, { service });
+}

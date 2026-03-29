@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Tipos ──────────────────────────────────────────────────────────
 
@@ -157,12 +158,12 @@ export async function getModulos(modalidade?: string, faixa?: string): Promise<M
 
     const { data, error } = await query;
     if (error) {
-      console.error('[getModulos] Query failed:', error.message);
+      logServiceError(error, 'academia-teorica');
       return [];
     }
     return (data ?? []) as unknown as ModuloTeorico[];
   } catch (error) {
-    console.error('[getModulos] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return [];
   }
 }
@@ -181,7 +182,7 @@ export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: L
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getModulo] Query failed:', error?.message);
+      logServiceError(error, 'academia-teorica');
       return emptyModulo();
     }
     const licoes = ((data.theoretical_lessons as unknown[]) ?? []) as unknown as Licao[];
@@ -189,7 +190,7 @@ export async function getModulo(id: string): Promise<ModuloTeorico & { licoes: L
     const { theoretical_lessons: _lessons, ...modulo } = data;
     return { ...(modulo as unknown as ModuloTeorico), licoes };
   } catch (error) {
-    console.error('[getModulo] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return emptyModulo();
   }
 }
@@ -208,12 +209,12 @@ export async function getLicao(id: string): Promise<Licao> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getLicao] Query failed:', error?.message);
+      logServiceError(error, 'academia-teorica');
       return emptyLicao();
     }
     return data as unknown as Licao;
   } catch (error) {
-    console.error('[getLicao] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return emptyLicao();
   }
 }
@@ -228,7 +229,7 @@ export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[marcarLicaoConcluida] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'academia-teorica');
       return;
     }
     const { error } = await supabase
@@ -240,10 +241,10 @@ export async function marcarLicaoConcluida(licaoId: string): Promise<void> {
         completed_at: new Date().toISOString(),
       }, { onConflict: 'lesson_id,user_id' });
     if (error) {
-      console.error('[marcarLicaoConcluida] Upsert failed:', error.message);
+      logServiceError(error, 'academia-teorica');
     }
   } catch (error) {
-    console.error('[marcarLicaoConcluida] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
   }
 }
 
@@ -257,7 +258,7 @@ export async function getProgressoGeral(): Promise<ProgressoGeral> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[getProgressoGeral] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'academia-teorica');
       return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
     }
     const [modulosRes, certRes] = await Promise.all([
@@ -274,7 +275,7 @@ export async function getProgressoGeral(): Promise<ProgressoGeral> {
       percentual: totalModulos > 0 ? Math.round((certificados / totalModulos) * 100) : 0,
     };
   } catch (error) {
-    console.error('[getProgressoGeral] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return { totalModulos: 0, completados: 0, emProgresso: 0, certificados: 0, percentual: 0 };
   }
 }
@@ -295,12 +296,12 @@ export async function getQuiz(moduloId: string): Promise<QuizModulo> {
       .eq('module_id', moduloId)
       .single();
     if (error || !data) {
-      console.error('[getQuiz] Query failed:', error?.message);
+      logServiceError(error, 'academia-teorica');
       return emptyQuizModulo(moduloId);
     }
     return data as unknown as QuizModulo;
   } catch (error) {
-    console.error('[getQuiz] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return emptyQuizModulo(moduloId);
   }
 }
@@ -318,7 +319,7 @@ export async function submeterQuiz(
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[submeterQuiz] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'academia-teorica');
       return emptyResultadoQuiz();
     }
     // Get quiz questions to evaluate
@@ -328,7 +329,7 @@ export async function submeterQuiz(
       .eq('module_id', moduloId)
       .single();
     if (!quiz) {
-      console.error('[submeterQuiz] Quiz not found for module:', moduloId);
+      logServiceError(new Error('Quiz not found for module'), 'academia-teorica');
       return emptyResultadoQuiz();
     }
     const perguntas = ((quiz.perguntas ?? quiz.questions) as QuizPergunta[]) || [];
@@ -355,7 +356,7 @@ export async function submeterQuiz(
     });
     return { nota, aprovado, total, acertos, explicacoes };
   } catch (error) {
-    console.error('[submeterQuiz] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return emptyResultadoQuiz();
   }
 }
@@ -385,12 +386,12 @@ export async function getTermos(
 
     const { data, error } = await query;
     if (error) {
-      console.error('[getTermos] Query failed:', error.message);
+      logServiceError(error, 'academia-teorica');
       return [];
     }
     return (data ?? []) as unknown as TermoArtesMarciais[];
   } catch (error) {
-    console.error('[getTermos] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return [];
   }
 }
@@ -409,12 +410,12 @@ export async function buscarTermo(query: string): Promise<TermoArtesMarciais[]> 
       .or(`original.ilike.%${query}%,traducao.ilike.%${query}%,descricao.ilike.%${query}%`)
       .order('original', { ascending: true });
     if (error) {
-      console.error('[buscarTermo] Query failed:', error.message);
+      logServiceError(error, 'academia-teorica');
       return [];
     }
     return (data ?? []) as unknown as TermoArtesMarciais[];
   } catch (error) {
-    console.error('[buscarTermo] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return [];
   }
 }
@@ -431,7 +432,7 @@ export async function getCertificados(): Promise<CertificadoTeorico[]> {
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[getCertificados] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'academia-teorica');
       return [];
     }
     const { data, error } = await supabase
@@ -440,12 +441,12 @@ export async function getCertificados(): Promise<CertificadoTeorico[]> {
       .eq('user_id', user.id)
       .order('emitido_em', { ascending: false });
     if (error) {
-      console.error('[getCertificados] Query failed:', error.message);
+      logServiceError(error, 'academia-teorica');
       return [];
     }
     return (data ?? []) as unknown as CertificadoTeorico[];
   } catch (error) {
-    console.error('[getCertificados] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return [];
   }
 }
@@ -460,7 +461,7 @@ export async function emitirCertificado(moduloId: string): Promise<CertificadoTe
     const supabase = createBrowserClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[emitirCertificado] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'academia-teorica');
       return emptyCertificado();
     }
     const codigoVerificacao = crypto.randomUUID().slice(0, 8).toUpperCase();
@@ -475,12 +476,12 @@ export async function emitirCertificado(moduloId: string): Promise<CertificadoTe
       .select()
       .single();
     if (error || !row) {
-      console.error('[emitirCertificado] Insert failed:', error?.message);
+      logServiceError(error, 'academia-teorica');
       return emptyCertificado();
     }
     return row as unknown as CertificadoTeorico;
   } catch (error) {
-    console.error('[emitirCertificado] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return emptyCertificado();
   }
 }
@@ -499,12 +500,12 @@ export async function validarCertificado(code: string): Promise<CertificadoTeori
       .eq('codigo_verificacao', code)
       .maybeSingle();
     if (error || !data) {
-      console.error('[validarCertificado] Not found or error:', error?.message);
+      logServiceError(error, 'academia-teorica');
       return null;
     }
     return data as unknown as CertificadoTeorico;
   } catch (error) {
-    console.error('[validarCertificado] Fallback:', error);
+    logServiceError(error, 'academia-teorica');
     return null;
   }
 }

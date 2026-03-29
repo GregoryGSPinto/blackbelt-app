@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ReceitaPorPlano {
   plano: string;
@@ -63,16 +64,16 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
         .eq('key', 'revenue_metrics')
         .single();
       if (error || !data) {
-        console.error('[getRevenueMetrics] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-revenue');
         return emptyRevenue;
       }
       return (data.value as RevenueMetrics) || emptyRevenue;
-    } catch {
-      console.error('[superadmin-revenue.getRevenueMetrics] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-revenue');
       return emptyRevenue;
     }
   } catch (error) {
-    console.error('[getRevenueMetrics] Fallback:', error);
+    logServiceError(error, 'superadmin-revenue');
     return emptyRevenue;
   }
 }

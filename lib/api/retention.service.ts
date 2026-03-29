@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -88,7 +89,7 @@ export async function getRetentionData(
         .select('id, belt, started_at, profile:profiles!students_profile_id_fkey(display_name, avatar)')
         .eq('academy_id', academyId);
       if (stuErr || !students) {
-        console.error('[getRetentionData] students query error:', stuErr?.message);
+        logServiceError(stuErr, 'retention');
         return emptyResult;
       }
 
@@ -103,7 +104,7 @@ export async function getRetentionData(
         .gte('checked_at', periodStartISO)
         .order('checked_at', { ascending: false });
       if (attErr) {
-        console.error('[getRetentionData] attendance query error:', attErr.message);
+        logServiceError(attErr, 'retention');
         return emptyResult;
       }
 
@@ -209,11 +210,11 @@ export async function getRetentionData(
         atRiskStudents: atRiskStudents.sort((a, b) => b.daysWithoutTraining - a.daysWithoutTraining),
       };
     } catch (err) {
-      console.error('[retention.getRetentionData] error, using fallback:', err);
+      logServiceError(err, 'retention');
       return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
     }
   } catch (error) {
-    console.error('[getRetentionData] Fallback:', error);
+    logServiceError(error, 'retention');
     return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
   }
 }
@@ -239,7 +240,7 @@ export async function markStudentContacted(
 
       const userId = (student?.profile as { user_id: string } | null)?.user_id;
       if (!userId) {
-        console.error('[markStudentContacted] could not resolve user_id for student', studentId);
+        logServiceError(new Error('Could not resolve user_id for student'), 'retention');
         return;
       }
 
@@ -253,12 +254,12 @@ export async function markStudentContacted(
           read: false,
         });
       if (error) {
-        console.error('[markStudentContacted] insert error:', error.message);
+        logServiceError(error, 'retention');
       }
     } catch (err) {
-      console.error('[retention.markStudentContacted] error, using fallback:', err);
+      logServiceError(err, 'retention');
     }
   } catch (error) {
-    console.error('[markStudentContacted] Fallback:', error);
+    logServiceError(error, 'retention');
   }
 }

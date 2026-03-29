@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Branch, CreateBranchPayload, BranchStats } from '@/lib/types/branch';
+import { logServiceError } from '@/lib/api/errors';
 
 const emptyBranch = (id: string = ''): Branch => ({
   id, academyId: '', name: '', address: '', city: '', state: '', phone: '', managerName: '', managerId: '', totalStudents: 0, totalProfessors: 0, totalClasses: 0, active: true, createdAt: '',
@@ -20,7 +21,7 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
         .eq('parent_academy_id', academyId)
         .order('name');
       if (error || !data) {
-        console.error('[listBranches] Query failed:', error?.message);
+        logServiceError(error, 'branch');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>): Branch => ({
@@ -39,12 +40,12 @@ export async function listBranches(academyId: string): Promise<Branch[]> {
         active: (row.status as string) !== 'inactive',
         createdAt: (row.created_at as string) || '',
       }));
-    } catch {
-      console.error('[branch.listBranches] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'branch');
       return [];
     }
   } catch (error) {
-    console.error('[listBranches] Fallback:', error);
+    logServiceError(error, 'branch');
     return [];
   }
 }
@@ -64,7 +65,7 @@ export async function getBranch(branchId: string): Promise<Branch> {
         .eq('id', branchId)
         .single();
       if (error || !data) {
-        console.error('[getBranch] Query failed:', error?.message);
+        logServiceError(error, 'branch');
         return emptyBranch(branchId);
       }
       return {
@@ -83,12 +84,12 @@ export async function getBranch(branchId: string): Promise<Branch> {
         active: (data.status as string) !== 'inactive',
         createdAt: (data.created_at as string) || '',
       };
-    } catch {
-      console.error('[branch.getBranch] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'branch');
       return emptyBranch(branchId);
     }
   } catch (error) {
-    console.error('[getBranch] Fallback:', error);
+    logServiceError(error, 'branch');
     return emptyBranch(branchId);
   }
 }
@@ -119,7 +120,7 @@ export async function createBranch(
         .select()
         .single();
       if (error || !row) {
-        console.error('[createBranch] Insert failed:', error?.message);
+        logServiceError(error, 'branch');
         return { ...emptyBranch(), academyId, name: payload.name };
       }
       return {
@@ -138,13 +139,13 @@ export async function createBranch(
         active: true,
         createdAt: (row.created_at as string) || '',
       };
-    } catch {
-      console.error('[branch.createBranch] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'branch');
       const { mockCreateBranch } = await import('@/lib/mocks/branch.mock');
       return mockCreateBranch(academyId, payload);
     }
   } catch (error) {
-    console.error('[createBranch] Fallback:', error);
+    logServiceError(error, 'branch');
     return emptyBranch();
   }
 }
@@ -163,7 +164,7 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
         .select('id, name, student_count')
         .eq('parent_academy_id', academyId);
       if (error || !data) {
-        console.error('[getBranchStats] Query failed:', error?.message);
+        logServiceError(error, 'branch');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>): BranchStats => ({
@@ -174,12 +175,12 @@ export async function getBranchStats(academyId: string): Promise<BranchStats[]> 
         retention: 0,
         attendance: 0,
       }));
-    } catch {
-      console.error('[branch.getBranchStats] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'branch');
       return [];
     }
   } catch (error) {
-    console.error('[getBranchStats] Fallback:', error);
+    logServiceError(error, 'branch');
     return [];
   }
 }

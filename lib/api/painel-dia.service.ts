@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AulaHoje {
   id: string;
@@ -216,11 +217,11 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
         },
       };
     } catch (err) {
-      console.error('[getDailyBriefing] Supabase error, returning fallback:', err);
+      logServiceError(err, 'painel-dia');
       return EMPTY;
     }
   } catch (error) {
-    console.error('[getDailyBriefing] Fallback:', error);
+    logServiceError(error, 'painel-dia');
     return {
       aulasHoje: [],
       aniversariantes: [],

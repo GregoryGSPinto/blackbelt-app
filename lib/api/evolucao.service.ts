@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface MeuProgressoDTO {
   faixa_atual: BeltLevel;
@@ -40,13 +41,13 @@ export async function getMeuProgresso(studentId: string): Promise<MeuProgressoDT
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getMeuProgresso] Supabase error:', error?.message);
+      logServiceError(error, 'evolucao');
       const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
       return mockGetMeuProgresso(studentId);
     }
     return data as unknown as MeuProgressoDTO;
   } catch (error) {
-    console.error('[getMeuProgresso] Fallback:', error);
+    logServiceError(error, 'evolucao');
     const { mockGetMeuProgresso } = await import('@/lib/mocks/evolucao.mock');
     return mockGetMeuProgresso(studentId);
   }
@@ -66,12 +67,12 @@ export async function getHistoricoFaixas(studentId: string): Promise<HistoricoFa
       .eq('student_id', studentId)
       .order('date', { ascending: true });
     if (error) {
-      console.error('[getHistoricoFaixas] Supabase error:', error.message);
+      logServiceError(error, 'evolucao');
       return [];
     }
     return (data ?? []) as unknown as HistoricoFaixaDTO[];
   } catch (error) {
-    console.error('[getHistoricoFaixas] Fallback:', error);
+    logServiceError(error, 'evolucao');
     return [];
   }
 }
@@ -90,13 +91,13 @@ export async function getRequisitoProximaFaixa(studentId: string): Promise<Requi
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getRequisitoProximaFaixa] Supabase error:', error?.message);
+      logServiceError(error, 'evolucao');
       const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
       return mockGetRequisitoProximaFaixa(studentId);
     }
     return data as unknown as RequisitoProximaFaixaDTO;
   } catch (error) {
-    console.error('[getRequisitoProximaFaixa] Fallback:', error);
+    logServiceError(error, 'evolucao');
     const { mockGetRequisitoProximaFaixa } = await import('@/lib/mocks/evolucao.mock');
     return mockGetRequisitoProximaFaixa(studentId);
   }

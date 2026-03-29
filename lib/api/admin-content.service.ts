@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Video, BeltLevel } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AdminVideoDTO {
   id: string;
@@ -45,12 +46,12 @@ export async function listAdminVideos(academyId: string): Promise<AdminVideoDTO[
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[listAdminVideos] Supabase error:', error.message);
+      logServiceError(error, 'admin-content');
       return [];
     }
     return (data ?? []) as unknown as AdminVideoDTO[];
   } catch (error) {
-    console.error('[listAdminVideos] Fallback:', error);
+    logServiceError(error, 'admin-content');
     return [];
   }
 }
@@ -69,13 +70,13 @@ export async function createVideo(data: CreateVideoRequest): Promise<Video> {
       .select()
       .single();
     if (error || !row) {
-      console.error('[createVideo] Supabase error:', error?.message);
+      logServiceError(error, 'admin-content');
       const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
       return mockCreateVideo(data);
     }
     return row as unknown as Video;
   } catch (error) {
-    console.error('[createVideo] Fallback:', error);
+    logServiceError(error, 'admin-content');
     const { mockCreateVideo } = await import('@/lib/mocks/admin-content.mock');
     return mockCreateVideo(data);
   }
@@ -94,10 +95,10 @@ export async function deleteVideo(id: string): Promise<void> {
       .delete()
       .eq('id', id);
     if (error) {
-      console.error('[deleteVideo] Supabase error:', error.message);
+      logServiceError(error, 'admin-content');
     }
   } catch (error) {
-    console.error('[deleteVideo] Fallback:', error);
+    logServiceError(error, 'admin-content');
   }
 }
 
@@ -114,10 +115,10 @@ export async function togglePublish(id: string, publish: boolean): Promise<void>
       .update({ status: publish ? 'published' : 'draft' })
       .eq('id', id);
     if (error) {
-      console.error('[togglePublish] Supabase error:', error.message);
+      logServiceError(error, 'admin-content');
     }
   } catch (error) {
-    console.error('[togglePublish] Fallback:', error);
+    logServiceError(error, 'admin-content');
   }
 }
 
@@ -135,12 +136,12 @@ export async function getAdminStorageStats(academyId: string): Promise<AdminStor
       .eq('academy_id', academyId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getAdminStorageStats] Supabase error:', error?.message);
+      logServiceError(error, 'admin-content');
       return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
     }
     return data as AdminStorageStats;
   } catch (error) {
-    console.error('[getAdminStorageStats] Fallback:', error);
+    logServiceError(error, 'admin-content');
     return { total_videos: 0, total_size_gb: 0, limit_gb: 50, usage_percent: 0 };
   }
 }

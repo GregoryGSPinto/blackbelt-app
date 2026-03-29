@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ConsentRecord {
   id: string;
@@ -66,7 +67,7 @@ export async function getConsents(userId?: string): Promise<ConsentRecord[]> {
         .eq('user_id', profileId)
         .order('updated_at', { ascending: false });
       if (error) {
-        console.error('[getConsents] query error:', error.message);
+        logServiceError(error, 'privacy');
         return [];
       }
       return (data ?? []).map((r: { id: string; type: string; accepted: boolean; version: string | null; updated_at: string | null }) => ({
@@ -77,11 +78,11 @@ export async function getConsents(userId?: string): Promise<ConsentRecord[]> {
         version: r.version ?? '1.0',
       }));
     } catch (err) {
-      console.error('[privacy.getConsents] error, using fallback:', err);
+      logServiceError(err, 'privacy');
       return [];
     }
   } catch (error) {
-    console.error('[getConsents] Fallback:', error);
+    logServiceError(error, 'privacy');
     return [];
   }
 }
@@ -107,7 +108,7 @@ export async function updateConsent(userId: string | undefined, type: ConsentRec
         .select('id, type, accepted, version, updated_at')
         .single();
       if (error || !data) {
-        console.error('[updateConsent] upsert error:', error?.message);
+        logServiceError(error, 'privacy');
         return { id: '', type, accepted, acceptedAt: null, version: '1.0' };
       }
       return {
@@ -118,11 +119,11 @@ export async function updateConsent(userId: string | undefined, type: ConsentRec
         version: data.version ?? '1.0',
       };
     } catch (err) {
-      console.error('[privacy.updateConsent] error, using fallback:', err);
+      logServiceError(err, 'privacy');
       return { id: '', type, accepted, acceptedAt: null, version: '' };
     }
   } catch (error) {
-    console.error('[updateConsent] Fallback:', error);
+    logServiceError(error, 'privacy');
     return { id: '', type, accepted, acceptedAt: null, version: '' };
   }
 }
@@ -143,7 +144,7 @@ export async function requestDataExport(userId?: string): Promise<DataExportRequ
     });
 
     if (!res.ok) {
-      console.error('[requestDataExport] route error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'privacy');
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
     }
 
@@ -157,7 +158,7 @@ export async function requestDataExport(userId?: string): Promise<DataExportRequ
       downloadUrl: data.downloadUrl ?? null,
     };
   } catch (error) {
-    console.error('[requestDataExport] Fallback:', error);
+    logServiceError(error, 'privacy');
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), completedAt: null, downloadUrl: null };
   }
 }
@@ -178,7 +179,7 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
         .eq('id', requestId)
         .single();
       if (error || !data) {
-        console.error('[getDataExportStatus] query error:', error?.message);
+        logServiceError(error, 'privacy');
         return { id: requestId, status: 'pending' as const, requestedAt: '', completedAt: null, downloadUrl: null };
       }
       return {
@@ -189,11 +190,11 @@ export async function getDataExportStatus(requestId: string): Promise<DataExport
         downloadUrl: data.download_url,
       };
     } catch (err) {
-      console.error('[privacy.getDataExportStatus] error, using fallback:', err);
+      logServiceError(err, 'privacy');
       return { id: requestId, status: 'pending' as const, requestedAt: '', completedAt: null, downloadUrl: null };
     }
   } catch (error) {
-    console.error('[getDataExportStatus] Fallback:', error);
+    logServiceError(error, 'privacy');
     return { id: requestId, status: 'pending', requestedAt: '', completedAt: null, downloadUrl: null };
   }
 }
@@ -214,7 +215,7 @@ export async function requestAccountDeletion(userId?: string): Promise<DeletionR
     });
 
     if (!res.ok) {
-      console.error('[requestAccountDeletion] route error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'privacy');
       return { id: '', status: 'pending' as const, requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
     }
 
@@ -227,7 +228,7 @@ export async function requestAccountDeletion(userId?: string): Promise<DeletionR
       scheduledDeletionAt: data.scheduledDeletionAt ?? '',
     };
   } catch (error) {
-    console.error('[requestAccountDeletion] Fallback:', error);
+    logServiceError(error, 'privacy');
     return { id: '', status: 'pending', requestedAt: new Date().toISOString(), scheduledDeletionAt: '' };
   }
 }

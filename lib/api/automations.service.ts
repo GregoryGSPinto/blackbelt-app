@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AutomationConfig } from '@/lib/types/notification';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listAutomations(academyId: string): Promise<AutomationConfig[]> {
   try {
@@ -17,12 +18,12 @@ export async function listAutomations(academyId: string): Promise<AutomationConf
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[listAutomations] error:', error.message);
+      logServiceError(error, 'automations');
       return [];
     }
     return (data ?? []) as unknown as AutomationConfig[];
   } catch (error) {
-    console.error('[listAutomations] Fallback:', error);
+    logServiceError(error, 'automations');
     return [];
   }
 }
@@ -44,12 +45,12 @@ export async function toggleAutomation(id: string, enabled: boolean): Promise<Au
       .single();
 
     if (error || !data) {
-      console.error('[toggleAutomation] error:', error?.message);
+      logServiceError(error, 'automations');
       return { id, enabled } as unknown as AutomationConfig;
     }
     return data as unknown as AutomationConfig;
   } catch (error) {
-    console.error('[toggleAutomation] Fallback:', error);
+    logServiceError(error, 'automations');
     return { id, enabled } as unknown as AutomationConfig;
   }
 }

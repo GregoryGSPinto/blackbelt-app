@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -94,7 +95,7 @@ export async function getWhatsAppConfig(academyId: string): Promise<WhatsAppConf
       .eq('academy_id', academyId)
       .single();
     if (error) {
-      console.error('[getWhatsAppConfig] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return { ...EMPTY_CONFIG, academyId };
     }
     return {
@@ -108,7 +109,7 @@ export async function getWhatsAppConfig(academyId: string): Promise<WhatsAppConf
       active: data.active,
     };
   } catch (error) {
-    console.error('[getWhatsAppConfig] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return { ...EMPTY_CONFIG, academyId };
   }
 }
@@ -135,10 +136,10 @@ export async function saveWhatsAppConfig(academyId: string, config: Partial<What
         updated_at: new Date().toISOString(),
       }, { onConflict: 'academy_id' });
     if (error) {
-      console.error('[saveWhatsAppConfig] error:', error.message);
+      logServiceError(error, 'whatsapp');
     }
   } catch (error) {
-    console.error('[saveWhatsAppConfig] Fallback:', error);
+    logServiceError(error, 'whatsapp');
   }
 }
 
@@ -157,7 +158,7 @@ export async function getTemplates(academyId: string): Promise<WhatsAppTemplate[
       .order('category')
       .order('name');
     if (error) {
-      console.error('[getTemplates] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return [];
     }
     return (data ?? []).map((t: Record<string, unknown>) => ({
@@ -171,7 +172,7 @@ export async function getTemplates(academyId: string): Promise<WhatsAppTemplate[
       active: t.active as boolean,
     }));
   } catch (error) {
-    console.error('[getTemplates] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return [];
   }
 }
@@ -190,12 +191,12 @@ export async function createCustomTemplate(academyId: string, name: string, slug
       .select()
       .single();
     if (error) {
-      console.error('[createCustomTemplate] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return { id: crypto.randomUUID(), slug, name, text, variables, category, isSystem: false, active: true };
     }
     return { id: data.id, slug: data.slug, name: data.name, text: data.text, variables: data.variables ?? [], category: data.category, isSystem: false, active: true };
   } catch (error) {
-    console.error('[createCustomTemplate] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return { id: crypto.randomUUID(), slug, name, text, variables, category, isSystem: false, active: true };
   }
 }
@@ -214,12 +215,12 @@ export async function sendMessage(academyId: string, to: string, toName: string,
       .select()
       .single();
     if (error) {
-      console.error('[sendMessage] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return { id: crypto.randomUUID(), to, toName, template: templateSlug, variables, status: 'failed', error: error.message, createdAt: new Date().toISOString() };
     }
     return { id: data.id, to: data.to_phone, toName: data.to_name, template: data.template_slug, variables: data.variables, status: data.status, createdAt: data.created_at };
   } catch (error) {
-    console.error('[sendMessage] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return { id: crypto.randomUUID(), to, toName, template: templateSlug, variables, status: 'failed', error: String(error), createdAt: new Date().toISOString() };
   }
 }
@@ -242,14 +243,14 @@ export async function sendBulk(academyId: string, recipients: { phone: string; n
     }));
     const { data, error } = await supabase.from('whatsapp_messages').insert(rows).select();
     if (error) {
-      console.error('[sendBulk] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return [];
     }
     return (data ?? []).map((d: Record<string, unknown>) => ({
       id: d.id as string, to: d.to_phone as string, toName: d.to_name as string, template: d.template_slug as string, variables: d.variables as Record<string, string>, status: d.status as WhatsAppMessage['status'], createdAt: d.created_at as string,
     }));
   } catch (error) {
-    console.error('[sendBulk] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return [];
   }
 }
@@ -269,7 +270,7 @@ export async function getMessageHistory(academyId: string, filters?: WhatsAppMes
     if (filters?.dateTo) query = query.lte('created_at', filters.dateTo);
     const { data, error } = await query;
     if (error) {
-      console.error('[getMessageHistory] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return [];
     }
     return (data ?? []).map((d: Record<string, unknown>) => ({
@@ -277,7 +278,7 @@ export async function getMessageHistory(academyId: string, filters?: WhatsAppMes
       sentAt: d.sent_at as string | undefined, deliveredAt: d.delivered_at as string | undefined, readAt: d.read_at as string | undefined, error: d.error as string | undefined, scheduledFor: d.scheduled_for as string | undefined, createdAt: d.created_at as string,
     }));
   } catch (error) {
-    console.error('[getMessageHistory] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return [];
   }
 }
@@ -292,7 +293,7 @@ export async function getMessageStats(academyId: string): Promise<WhatsAppStats>
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('whatsapp_messages').select('status').eq('academy_id', academyId);
     if (error) {
-      console.error('[getMessageStats] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return EMPTY_STATS;
     }
     const total = data?.length ?? 0;
@@ -302,7 +303,7 @@ export async function getMessageStats(academyId: string): Promise<WhatsAppStats>
     const failed = data?.filter((d: Record<string, unknown>) => d.status === 'failed').length ?? 0;
     return { sent, delivered, read, failed, deliveryRate: total > 0 ? Math.round((delivered / total) * 100) : 0, readRate: total > 0 ? Math.round((read / total) * 100) : 0 };
   } catch (error) {
-    console.error('[getMessageStats] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return EMPTY_STATS;
   }
 }
@@ -317,14 +318,14 @@ export async function getAutomations(academyId: string): Promise<WhatsAppAutomat
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('whatsapp_automations').select('*').eq('academy_id', academyId).order('trigger_name');
     if (error) {
-      console.error('[getAutomations] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return [];
     }
     return (data ?? []).map((a: Record<string, unknown>) => ({
       id: a.id as string, triggerName: a.trigger_name as string, templateSlug: a.template_slug as string, description: a.description as string, active: a.active as boolean, delayHours: a.delay_hours as number,
     }));
   } catch (error) {
-    console.error('[getAutomations] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return [];
   }
 }
@@ -339,10 +340,10 @@ export async function toggleAutomation(automationId: string, active: boolean): P
     const supabase = createBrowserClient();
     const { error } = await supabase.from('whatsapp_automations').update({ active }).eq('id', automationId);
     if (error) {
-      console.error('[toggleAutomation] error:', error.message);
+      logServiceError(error, 'whatsapp');
     }
   } catch (error) {
-    console.error('[toggleAutomation] Fallback:', error);
+    logServiceError(error, 'whatsapp');
   }
 }
 
@@ -360,12 +361,12 @@ export async function scheduleMessage(academyId: string, to: string, toName: str
       .select()
       .single();
     if (error) {
-      console.error('[scheduleMessage] error:', error.message);
+      logServiceError(error, 'whatsapp');
       return { id: crypto.randomUUID(), to, template: templateSlug, variables, sendAt, status: 'scheduled' };
     }
     return { id: data.id, to: data.to_phone, template: data.template_slug, variables: data.variables, sendAt: data.scheduled_for, status: 'scheduled' };
   } catch (error) {
-    console.error('[scheduleMessage] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return { id: crypto.randomUUID(), to, template: templateSlug, variables, sendAt, status: 'scheduled' };
   }
 }
@@ -380,10 +381,10 @@ export async function cancelScheduled(messageId: string): Promise<void> {
     const supabase = createBrowserClient();
     const { error } = await supabase.from('whatsapp_messages').delete().eq('id', messageId).eq('status', 'queued');
     if (error) {
-      console.error('[cancelScheduled] error:', error.message);
+      logServiceError(error, 'whatsapp');
     }
   } catch (error) {
-    console.error('[cancelScheduled] Fallback:', error);
+    logServiceError(error, 'whatsapp');
   }
 }
 
@@ -395,12 +396,12 @@ export async function testConnection(config: Partial<WhatsAppConfig>): Promise<b
     }
     // If no API key configured, return false with message
     if (!config.apiKey) {
-      console.error('[testConnection] No API key configured, cannot test connection');
+      logServiceError(new Error('No API key configured, cannot test connection'), 'whatsapp');
       return false;
     }
     return true;
   } catch (error) {
-    console.error('[testConnection] Fallback:', error);
+    logServiceError(error, 'whatsapp');
     return false;
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type SuggestionPriority = 'high' | 'medium' | 'low';
 
@@ -50,12 +51,12 @@ export async function getSuggestions(
       .eq('role', role)
       .is('dismissed_until', null);
     if (error) {
-      console.error('[getSuggestions] Supabase error:', error.message);
+      logServiceError(error, 'suggestions');
       return [];
     }
     return (data ?? []) as unknown as Suggestion[];
   } catch (error) {
-    console.error('[getSuggestions] Fallback:', error);
+    logServiceError(error, 'suggestions');
     return [];
   }
 }
@@ -73,9 +74,9 @@ export async function dismissSuggestion(suggestionId: string): Promise<void> {
       .update({ dismissed_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
       .eq('id', suggestionId);
     if (error) {
-      console.error('[dismissSuggestion] Supabase error:', error.message);
+      logServiceError(error, 'suggestions');
     }
   } catch (error) {
-    console.error('[dismissSuggestion] Fallback:', error);
+    logServiceError(error, 'suggestions');
   }
 }

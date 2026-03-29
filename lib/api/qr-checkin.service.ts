@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -91,11 +92,11 @@ export async function generateQRCode(classId: string): Promise<QRCheckInCode> {
         qrDataUrl,
       };
     } catch (err) {
-      console.error('[qr-checkin.generateQRCode] error, using fallback:', err);
+      logServiceError(err, 'qr-checkin');
       return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
     }
   } catch (error) {
-    console.error('[generateQRCode] Fallback:', error);
+    logServiceError(error, 'qr-checkin');
     return { classId, className: '', date: '', code: '', expiresAt: '', qrDataUrl: '' };
   }
 }
@@ -176,7 +177,7 @@ export async function validateQRCode(
         if (attErr.code === '23505') {
           return { valid: false, message: 'Check-in já realizado para esta aula hoje.' };
         }
-        console.error('[validateQRCode] insert error:', attErr.message);
+        logServiceError(attErr, 'qr-checkin');
         return { valid: false, message: 'Erro ao registrar presença.' };
       }
 
@@ -189,11 +190,11 @@ export async function validateQRCode(
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      console.error('[qr-checkin.validateQRCode] error, using fallback:', err);
+      logServiceError(err, 'qr-checkin');
       return { valid: false, message: 'Erro ao validar QR code' };
     }
   } catch (error) {
-    console.error('[validateQRCode] Fallback:', error);
+    logServiceError(error, 'qr-checkin');
     return { valid: false, message: 'Erro ao validar QR code' };
   }
 }
@@ -259,11 +260,11 @@ export async function getActiveQRCodes(academyId: string): Promise<QRCheckInCode
         qrDataUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(q.code)}`,
       }));
     } catch (err) {
-      console.error('[qr-checkin.getActiveQRCodes] error, using fallback:', err);
+      logServiceError(err, 'qr-checkin');
       return [];
     }
   } catch (error) {
-    console.error('[getActiveQRCodes] Fallback:', error);
+    logServiceError(error, 'qr-checkin');
     return [];
   }
 }

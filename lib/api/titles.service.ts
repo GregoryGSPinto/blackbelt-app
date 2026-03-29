@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type TitleRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
@@ -28,12 +29,12 @@ export async function getAvailableTitles(userId: string): Promise<TitleDTO[]> {
       .select('*')
       .order('rarity');
     if (error) {
-      console.error('[getAvailableTitles] Supabase error:', error.message);
+      logServiceError(error, 'titles');
       return [];
     }
     return (data ?? []) as TitleDTO[];
   } catch (error) {
-    console.error('[getAvailableTitles] Fallback:', error);
+    logServiceError(error, 'titles');
     return [];
   }
 }
@@ -51,12 +52,12 @@ export async function getMyTitles(userId: string): Promise<TitleDTO[]> {
       .select('*, titles(*)')
       .eq('user_id', userId);
     if (error) {
-      console.error('[getMyTitles] Supabase error:', error.message);
+      logServiceError(error, 'titles');
       return [];
     }
     return (data ?? []) as unknown as TitleDTO[];
   } catch (error) {
-    console.error('[getMyTitles] Fallback:', error);
+    logServiceError(error, 'titles');
     return [];
   }
 }
@@ -81,12 +82,12 @@ export async function equipTitle(userId: string, titleId: string): Promise<{ suc
       .eq('user_id', userId)
       .eq('title_id', titleId);
     if (error) {
-      console.error('[equipTitle] Supabase error:', error.message);
+      logServiceError(error, 'titles');
       return { success: false };
     }
     return { success: true };
   } catch (error) {
-    console.error('[equipTitle] Fallback:', error);
+    logServiceError(error, 'titles');
     return { success: false };
   }
 }
@@ -104,12 +105,12 @@ export async function unequipTitle(userId: string): Promise<{ success: boolean }
       .update({ is_equipped: false })
       .eq('user_id', userId);
     if (error) {
-      console.error('[unequipTitle] Supabase error:', error.message);
+      logServiceError(error, 'titles');
       return { success: false };
     }
     return { success: true };
   } catch (error) {
-    console.error('[unequipTitle] Fallback:', error);
+    logServiceError(error, 'titles');
     return { success: false };
   }
 }

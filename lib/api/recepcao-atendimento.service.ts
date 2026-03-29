@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -41,12 +42,12 @@ export async function buscarAlunoAtendimento(query: string): Promise<AlunoAtendi
       .or(`nome.ilike.%${query}%,email.ilike.%${query}%,telefone.ilike.%${query}%`)
       .limit(20);
     if (error) {
-      console.error('[buscarAlunoAtendimento] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-atendimento');
       return [];
     }
     return (data ?? []) as unknown as AlunoAtendimento[];
   } catch (error) {
-    console.error('[buscarAlunoAtendimento] Fallback:', error);
+    logServiceError(error, 'recepcao-atendimento');
     return [];
   }
 }
@@ -63,12 +64,12 @@ export async function checkinManual(alunoId: string, turmaId: string): Promise<{
       .from('checkins')
       .insert({ student_id: alunoId, class_id: turmaId, checked_in_at: new Date().toISOString(), method: 'manual' });
     if (error) {
-      console.error('[checkinManual] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-atendimento');
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.error('[checkinManual] Fallback:', error);
+    logServiceError(error, 'recepcao-atendimento');
     return { ok: false };
   }
 }
@@ -96,12 +97,12 @@ export async function registrarPagamento(data: {
         paid_at: new Date().toISOString(),
       });
     if (error) {
-      console.error('[registrarPagamento] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-atendimento');
       return { ok: false };
     }
     return { ok: true };
   } catch (error) {
-    console.error('[registrarPagamento] Fallback:', error);
+    logServiceError(error, 'recepcao-atendimento');
     return { ok: false };
   }
 }

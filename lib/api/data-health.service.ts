@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -99,7 +100,7 @@ export async function getDataHealthReport(academyId: string): Promise<DataHealth
       categories: issues,
     };
   } catch (err) {
-    console.error('[getDataHealthReport] error:', err);
+    logServiceError(err, 'data-health');
     return { totalIssues: 0, resolvedIssues: 0, categories: [] };
   }
 }

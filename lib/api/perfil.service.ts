@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel, EvaluationCriteria, InvoiceStatus, PlanInterval } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Profile DTOs ───────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ export async function getStudentProfile(studentId: string): Promise<StudentProfi
     .single();
 
   if (error || !student) {
-    console.error('[getStudentProfile] Supabase error:', error?.message);
+    logServiceError(error, 'perfil');
     return { id: studentId, display_name: '', avatar_url: null, belt: 'white' as BeltLevel, academy_id: '', academy_name: '', started_at: new Date().toISOString(), total_classes: 0, months_training: 0, streak: 0, ranking_position: 0, total_students: 0 };
   }
 
@@ -322,7 +323,7 @@ export async function getEvolutionData(studentId: string): Promise<EvolutionData
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('[getEvolutionData] Supabase error:', error.message);
+    logServiceError(error, 'perfil');
     return { current_scores: [], history: [] };
   }
 
@@ -512,7 +513,7 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
     .single();
 
   if (!student) {
-    console.error('[getEvaluationHistory] Student not found');
+    logServiceError(new Error('Student not found'), 'perfil');
     return [];
   }
 
@@ -529,7 +530,7 @@ export async function getEvaluationHistory(studentId: string): Promise<Evaluatio
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('[getEvaluationHistory] Supabase error:', error.message);
+    logServiceError(error, 'perfil');
     return [];
   }
 
@@ -587,7 +588,7 @@ export async function getContentProgress(studentId: string): Promise<ContentProg
     .single();
 
   if (!student) {
-    console.error('[getContentProgress] Student not found');
+    logServiceError(new Error('Student not found'), 'perfil');
     return { total_watched_minutes: 0, total_completed: 0, trails: [] };
   }
 
@@ -597,7 +598,7 @@ export async function getContentProgress(studentId: string): Promise<ContentProg
     .eq('student_id', studentId);
 
   if (error) {
-    console.error('[getContentProgress] Supabase error:', error.message);
+    logServiceError(error, 'perfil');
     return { total_watched_minutes: 0, total_completed: 0, trails: [] };
   }
 

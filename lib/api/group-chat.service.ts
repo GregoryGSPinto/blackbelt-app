@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface GroupMessage {
   id: string;
@@ -26,7 +27,7 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       .limit(50);
 
     if (error) {
-      console.error('[getGroupMessages] error:', error.message);
+      logServiceError(error, 'group-chat');
       return [];
     }
     return (data ?? []).map((row: Record<string, unknown>) => {
@@ -41,7 +42,7 @@ export async function getGroupMessages(classId: string, _page: number): Promise<
       };
     });
   } catch (error) {
-    console.error('[getGroupMessages] Fallback:', error);
+    logServiceError(error, 'group-chat');
     return [];
   }
 }
@@ -65,7 +66,7 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       .single();
 
     if (error || !data) {
-      console.error('[sendGroupMessage] error:', error?.message);
+      logServiceError(error, 'group-chat');
       return { id: '', classId, authorId: userId, authorName: '', content, createdAt: new Date().toISOString() };
     }
 
@@ -80,7 +81,7 @@ export async function sendGroupMessage(classId: string, content: string): Promis
       createdAt: row.created_at as string,
     };
   } catch (error) {
-    console.error('[sendGroupMessage] Fallback:', error);
+    logServiceError(error, 'group-chat');
     return { id: '', classId, authorId: '', authorName: '', content, createdAt: new Date().toISOString() };
   }
 }

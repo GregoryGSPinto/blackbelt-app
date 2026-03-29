@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface SendEmailParams {
   to: string;
@@ -32,7 +33,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
 
     // ── Graceful fallback when API key not set ──
     if (!EMAIL_API_KEY) {
-      console.error('[email.service] EMAIL_API_KEY not set — skipping send, logging attempt');
+      logServiceError(new Error('EMAIL_API_KEY not set — skipping send, logging attempt'), 'email');
       await logToNotificationLogs(params, { success: false, error: 'API key not configured' });
       return { success: false, error: 'Email API key not configured' };
     }
@@ -63,7 +64,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
     return result;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[email.service] Unexpected error:', message);
+    logServiceError(new Error(message), 'email');
 
     // Attempt to log even on failure
     try {
@@ -98,6 +99,6 @@ async function logToNotificationLogs(
       sent_at: new Date().toISOString(),
     });
   } catch (logError) {
-    console.error('[email.service] Failed to log to notification_logs:', logError);
+    logServiceError(logError, 'email');
   }
 }

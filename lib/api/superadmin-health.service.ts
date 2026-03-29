@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface HealthFator {
   nome: string;
@@ -46,16 +47,16 @@ export async function getHealthOverview(): Promise<HealthOverview> {
         .eq('key', 'health_overview')
         .single();
       if (error || !data) {
-        console.error('[getHealthOverview] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-health');
         return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
       }
       return (data.value as HealthOverview) || { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
-    } catch {
-      console.error('[superadmin-health.getHealthOverview] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-health');
       return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
     }
   } catch (error) {
-    console.error('[getHealthOverview] Fallback:', error);
+    logServiceError(error, 'superadmin-health');
     return { mediaGeral: 0, distribuicao: [], academiasEmRisco: 0, academiasSaudaveis: 0, evolucaoMedia: [] };
   }
 }
@@ -78,7 +79,7 @@ export async function listAcademiaHealthScores(filtro?: string): Promise<Academi
       }
       const { data, error } = await query;
       if (error || !data) {
-        console.error('[listAcademiaHealthScores] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-health');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -96,12 +97,12 @@ export async function listAcademiaHealthScores(filtro?: string): Promise<Academi
         mesesNaPlataforma: 0,
         recomendacao: '',
       }));
-    } catch {
-      console.error('[superadmin-health.listAcademiaHealthScores] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-health');
       return [];
     }
   } catch (error) {
-    console.error('[listAcademiaHealthScores] Fallback:', error);
+    logServiceError(error, 'superadmin-health');
     return [];
   }
 }
@@ -121,7 +122,7 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
         .eq('id', academiaId)
         .single();
       if (error || !data) {
-        console.error('[getAcademiaHealth] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-health');
         return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
       }
       return {
@@ -139,12 +140,12 @@ export async function getAcademiaHealth(academiaId: string): Promise<AcademiaHea
         mesesNaPlataforma: 0,
         recomendacao: '',
       };
-    } catch {
-      console.error('[superadmin-health.getAcademiaHealth] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-health');
       return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
     }
   } catch (error) {
-    console.error('[getAcademiaHealth] Fallback:', error);
+    logServiceError(error, 'superadmin-health');
     return { academiaId, academiaNome: '', plano: '', score: 0, tendencia: 'estavel', fatores: [], ultimoLoginAdmin: '', alunosAtivos: 0, alunosTotal: 0, inadimplencia: 0, featuresUsadas: [], mesesNaPlataforma: 0, recomendacao: '' };
   }
 }

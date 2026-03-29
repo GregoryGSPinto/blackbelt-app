@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type TechniqueModality = 'bjj' | 'muay-thai' | 'judo' | 'wrestling' | 'mma';
 export type TechniqueCategory = 'finaliza\u00e7\u00e3o' | 'passagem' | 'raspagem' | 'queda' | 'defesa' | 'posi\u00e7\u00e3o' | 'transi\u00e7\u00e3o' | 'striking';
@@ -34,12 +35,12 @@ export async function listTechniques(filters?: { modality?: TechniqueModality; c
     if (filters?.search) query = query.ilike('name', `%${filters.search}%`);
     const { data, error } = await query.order('name');
     if (error) {
-      console.error('[listTechniques] Supabase error:', error.message);
+      logServiceError(error, 'techniques');
       return [];
     }
     return (data ?? []) as TechniqueDTO[];
   } catch (error) {
-    console.error('[listTechniques] Fallback:', error);
+    logServiceError(error, 'techniques');
     return [];
   }
 }
@@ -58,13 +59,13 @@ export async function getTechniqueById(techniqueId: string): Promise<TechniqueDT
       .eq('id', techniqueId)
       .single();
     if (error || !data) {
-      console.error('[getTechniqueById] Supabase error:', error?.message);
+      logServiceError(error, 'techniques');
       const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
       return mockGetTechniqueById(techniqueId);
     }
     return data as TechniqueDTO;
   } catch (error) {
-    console.error('[getTechniqueById] Fallback:', error);
+    logServiceError(error, 'techniques');
     const { mockGetTechniqueById } = await import('@/lib/mocks/techniques.mock');
     return mockGetTechniqueById(techniqueId);
   }
@@ -84,13 +85,13 @@ export async function createTechnique(technique: Omit<TechniqueDTO, 'id' | 'crea
       .select()
       .single();
     if (error || !data) {
-      console.error('[createTechnique] Supabase error:', error?.message);
+      logServiceError(error, 'techniques');
       const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
       return mockCreateTechnique(technique);
     }
     return data as TechniqueDTO;
   } catch (error) {
-    console.error('[createTechnique] Fallback:', error);
+    logServiceError(error, 'techniques');
     const { mockCreateTechnique } = await import('@/lib/mocks/techniques.mock');
     return mockCreateTechnique(technique);
   }
@@ -110,12 +111,12 @@ export async function getByModality(modality: TechniqueModality): Promise<Techni
       .eq('modality', modality)
       .order('name');
     if (error) {
-      console.error('[getByModality] Supabase error:', error.message);
+      logServiceError(error, 'techniques');
       return [];
     }
     return (data ?? []) as TechniqueDTO[];
   } catch (error) {
-    console.error('[getByModality] Fallback:', error);
+    logServiceError(error, 'techniques');
     return [];
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface DeveloperProfile {
   id: string;
@@ -46,7 +47,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[getDeveloperProfile] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'developer');
       return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
 
@@ -57,7 +58,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       .single();
 
     if (error) {
-      console.error('[getDeveloperProfile] Supabase error:', error.message);
+      logServiceError(error, 'developer');
       return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
     }
 
@@ -71,7 +72,7 @@ export async function getDeveloperProfile(): Promise<DeveloperProfile> {
       createdAt: '',
     };
   } catch (error) {
-    console.error('[getDeveloperProfile] Fallback:', error);
+    logServiceError(error, 'developer');
     return { id: '', name: '', email: '', company: '', website: '', verified: false, createdAt: '' };
   }
 }
@@ -92,7 +93,7 @@ export async function createDeveloperAccount(data: {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[createDeveloperAccount] No authenticated user');
+      logServiceError(new Error('No authenticated user'), 'developer');
       return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
     }
 
@@ -114,7 +115,7 @@ export async function createDeveloperAccount(data: {
       .eq('id', user.id);
 
     if (error) {
-      console.error('[createDeveloperAccount] Supabase error:', error.message);
+      logServiceError(error, 'developer');
     }
 
     return {
@@ -127,7 +128,7 @@ export async function createDeveloperAccount(data: {
       createdAt: now,
     };
   } catch (error) {
-    console.error('[createDeveloperAccount] Fallback:', error);
+    logServiceError(error, 'developer');
     return { id: '', name: data.name, email: data.email, company: data.company, website: data.website, verified: false, createdAt: '' };
   }
 }
@@ -154,7 +155,7 @@ export async function getSubmittedApps(): Promise<DeveloperApp[]> {
     const dev = (meta.developer ?? {}) as Record<string, unknown>;
     return (dev.submitted_apps ?? []) as DeveloperApp[];
   } catch (error) {
-    console.error('[getSubmittedApps] Fallback:', error);
+    logServiceError(error, 'developer');
     return [];
   }
 }
@@ -195,12 +196,12 @@ export async function submitAppForReview(appId: string): Promise<DeveloperApp> {
       .eq('id', user.id);
 
     if (error) {
-      console.error('[submitAppForReview] Supabase error:', error.message);
+      logServiceError(error, 'developer');
     }
 
     return idx >= 0 ? apps[idx] : { id: appId, name: '', status: 'in_review' as const, version: '', submittedAt: now, category: '' };
   } catch (error) {
-    console.error('[submitAppForReview] Fallback:', error);
+    logServiceError(error, 'developer');
     return { id: appId, name: '', status: 'draft', version: '', submittedAt: null, category: '' };
   }
 }
@@ -235,7 +236,7 @@ export async function getDeveloperStats(): Promise<DeveloperStats> {
       activeInstalls: (stats.activeInstalls as number) ?? 0,
     };
   } catch (error) {
-    console.error('[getDeveloperStats] Fallback:', error);
+    logServiceError(error, 'developer');
     return { totalApps: 0, totalDownloads: 0, totalRevenue: 0, averageRating: 0, activeInstalls: 0 };
   }
 }
@@ -262,7 +263,7 @@ export async function getAPIUsage(days?: number): Promise<APIUsageRecord[]> {
     const dev = (meta.developer ?? {}) as Record<string, unknown>;
     return (dev.api_usage ?? []) as APIUsageRecord[];
   } catch (error) {
-    console.error('[getAPIUsage] Fallback:', error);
+    logServiceError(error, 'developer');
     return [];
   }
 }

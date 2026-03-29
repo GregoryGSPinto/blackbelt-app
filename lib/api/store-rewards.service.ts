@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type RewardTransactionType = 'checkin' | 'purchase' | 'redemption' | 'bonus';
 
@@ -31,12 +32,12 @@ export async function getBalance(userId: string): Promise<RewardBalance> {
       .eq('user_id', userId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getBalance] Supabase error:', error?.message);
+      logServiceError(error, 'store-rewards');
       return { points: 0, value_brl: 0 };
     }
     return data as RewardBalance;
   } catch (error) {
-    console.error('[getBalance] Fallback:', error);
+    logServiceError(error, 'store-rewards');
     return { points: 0, value_brl: 0 };
   }
 }
@@ -55,12 +56,12 @@ export async function getHistory(userId: string): Promise<RewardTransaction[]> {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getHistory] Supabase error:', error.message);
+      logServiceError(error, 'store-rewards');
       return [];
     }
     return (data ?? []) as RewardTransaction[];
   } catch (error) {
-    console.error('[getHistory] Fallback:', error);
+    logServiceError(error, 'store-rewards');
     return [];
   }
 }
@@ -79,13 +80,13 @@ export async function redeemPoints(userId: string, amount: number, orderId: stri
       .select()
       .single();
     if (error || !data) {
-      console.error('[redeemPoints] Supabase error:', error?.message);
+      logServiceError(error, 'store-rewards');
       const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
       return mockRedeemPoints(userId, amount, orderId);
     }
     return data as RewardTransaction;
   } catch (error) {
-    console.error('[redeemPoints] Fallback:', error);
+    logServiceError(error, 'store-rewards');
     const { mockRedeemPoints } = await import('@/lib/mocks/store-rewards.mock');
     return mockRedeemPoints(userId, amount, orderId);
   }

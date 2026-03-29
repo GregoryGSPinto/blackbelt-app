@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ApiKey {
   id: string;
@@ -61,13 +62,13 @@ export async function generateApiKey(academyId: string, name: string): Promise<A
     );
 
     if (error) {
-      console.error('[generateApiKey] Supabase error:', error.message);
+      logServiceError(error, 'api-keys');
       return { key: '', secret: '', apiKey: { ...newApiKey, id: '' } };
     }
 
     return { key: keyValue, secret: secretValue, apiKey: newApiKey };
   } catch (error) {
-    console.error('[generateApiKey] Fallback:', error);
+    logServiceError(error, 'api-keys');
     return { key: '', secret: '', apiKey: { id: '', academyId, name, keyPrefix: '', permissions: [], createdAt: '', lastUsedAt: null, revokedAt: null } };
   }
 }
@@ -88,7 +89,7 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[listApiKeys] Supabase error:', error.message);
+      logServiceError(error, 'api-keys');
     }
 
     const settings = (data?.settings ?? {}) as Record<string, unknown>;
@@ -96,7 +97,7 @@ export async function listApiKeys(academyId: string): Promise<ApiKey[]> {
     // Only return non-revoked keys
     return keys.filter((k) => !k.revokedAt);
   } catch (error) {
-    console.error('[listApiKeys] Fallback:', error);
+    logServiceError(error, 'api-keys');
     return [];
   }
 }
@@ -124,12 +125,12 @@ export async function revokeApiKey(keyId: string): Promise<void> {
         const { error } = await supabase.from('academy_settings').update(
           { settings: { ...settings, api_keys: keys }, updated_at: new Date().toISOString() },
         ).eq('academy_id', row.academy_id);
-        if (error) console.error('[revokeApiKey] Supabase error:', error.message);
+        if (error) logServiceError(error, 'api-keys');
         return;
       }
     }
   } catch (error) {
-    console.error('[revokeApiKey] Fallback:', error);
+    logServiceError(error, 'api-keys');
   }
 }
 
@@ -159,7 +160,7 @@ export async function validateApiKey(key: string): Promise<{ academyId: string; 
 
     return null;
   } catch (error) {
-    console.error('[validateApiKey] Fallback:', error);
+    logServiceError(error, 'api-keys');
     return null;
   }
 }

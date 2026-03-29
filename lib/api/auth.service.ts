@@ -2,6 +2,7 @@ import { isMock } from '@/lib/env';
 import type { Profile } from '@/lib/types';
 import { translateError } from '@/lib/utils/error-translator';
 import { getAuthRedirectUrl } from '@/lib/auth/redirects';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface LoginRequest {
   email: string;
@@ -59,7 +60,7 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
     password: data.password,
   });
   if (error) {
-    console.error('[auth] signInWithPassword failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel entrar'));
   }
 
@@ -68,12 +69,12 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
     .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('user_id', authData.user.id);
   if (profileError) {
-    console.error('[auth] profiles query failed:', profileError.message);
+    logServiceError(profileError, 'auth');
     throw new Error(`Erro ao carregar perfis: ${profileError.message}`);
   }
 
   if (!profiles || profiles.length === 0) {
-    console.error('[auth] No profiles found for user:', authData.user.id);
+    logServiceError(new Error('No profiles found for user'), 'auth');
     throw new Error('Nenhum perfil encontrado. Contate o administrador.');
   }
 
@@ -99,11 +100,11 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
     options: { data: { name: data.name } },
   });
   if (error) {
-    console.error('[auth] signUp failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel criar sua conta'));
   }
   if (!authData.user) {
-    console.error('[auth] signUp returned no user');
+    logServiceError(new Error('signUp returned no user'), 'auth');
     throw new Error('Erro ao criar conta. Tente novamente.');
   }
 
@@ -114,7 +115,7 @@ export async function register(data: RegisterRequest): Promise<RegisterResponse>
     .eq('user_id', authData.user.id)
     .limit(1);
   if (profileError) {
-    console.error('[auth] register profiles fetch error:', profileError.message);
+    logServiceError(profileError, 'auth');
   }
 
   const profile = (profiles?.[0] ?? {
@@ -156,7 +157,7 @@ export async function loginWithOAuth(
   });
 
   if (error) {
-    console.error('[auth] signInWithOAuth failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(getAuthErrorMessage(error.message, `Nao foi possivel entrar com ${provider}`));
   }
   // In real mode, browser redirects away — no return value
@@ -177,7 +178,7 @@ export async function resendEmailConfirmation(email: string): Promise<void> {
   });
 
   if (error) {
-    console.error('[auth] resend confirmation failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(getAuthErrorMessage(error.message, 'Nao foi possivel reenviar a confirmacao'));
   }
 }
@@ -193,7 +194,7 @@ export async function refreshToken(_token: string): Promise<RefreshResponse> {
 
   const { data, error } = await supabase.auth.refreshSession();
   if (error) {
-    console.error('[auth] refreshSession failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(`Sessão expirada: ${error.message}`);
   }
 
@@ -220,7 +221,7 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
     .eq('id', profileId)
     .single();
   if (error || !profile) {
-    console.error('[auth] selectProfile failed:', error?.message);
+    logServiceError(error, 'auth');
     throw new Error(`Erro ao selecionar perfil: ${error?.message ?? 'Perfil não encontrado'}`);
   }
 
@@ -259,7 +260,7 @@ export async function logout(): Promise<void> {
       await supabase.auth.signOut();
     }
   } catch (error) {
-    console.error('[auth] logout error:', error);
+    logServiceError(error, 'auth');
   }
 
   if (typeof document === 'undefined') return;
@@ -291,7 +292,7 @@ export async function getMyProfiles(userId: string): Promise<Profile[]> {
     .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('user_id', userId);
   if (error) {
-    console.error('[auth] getMyProfiles failed:', error.message);
+    logServiceError(error, 'auth');
     return [];
   }
 
@@ -311,7 +312,7 @@ export async function forgotPassword(email: string): Promise<void> {
     redirectTo: getAuthRedirectUrl('/redefinir-senha'),
   });
   if (error) {
-    console.error('[auth] resetPasswordForEmail failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(`Erro ao enviar email: ${error.message}`);
   }
 }
@@ -327,7 +328,7 @@ export async function resetPassword(_token: string, newPassword: string): Promis
 
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) {
-    console.error('[auth] updateUser password failed:', error.message);
+    logServiceError(error, 'auth');
     throw new Error(`Erro ao redefinir senha: ${error.message}`);
   }
 }

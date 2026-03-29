@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -42,7 +43,7 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
       .select('*')
       .eq('student_id', studentId);
     if (error || !data) {
-      console.error('[getDesafios] Supabase error:', error?.message);
+      logServiceError(error, 'teen-desafios');
       const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
       return mockGetDesafios(studentId);
     }
@@ -52,7 +53,7 @@ export async function getDesafios(studentId: string): Promise<DesafiosOverview> 
     const total_xp_earned = completed.reduce((s, d) => s + d.xp_reward, 0);
     return { active, completed, total_xp_earned, streak_bonus: 0 };
   } catch (error) {
-    console.error('[getDesafios] Fallback:', error);
+    logServiceError(error, 'teen-desafios');
     const { mockGetDesafios } = await import('@/lib/mocks/teen-desafios.mock');
     return mockGetDesafios(studentId);
   }
@@ -73,12 +74,12 @@ export async function claimReward(desafioId: string): Promise<{ xp_earned: numbe
       .select('xp_reward')
       .single();
     if (error || !data) {
-      console.error('[claimReward] Supabase error:', error?.message);
+      logServiceError(error, 'teen-desafios');
       return { xp_earned: 0 };
     }
     return { xp_earned: Number(data.xp_reward ?? 0) };
   } catch (error) {
-    console.error('[claimReward] Fallback:', error);
+    logServiceError(error, 'teen-desafios');
     return { xp_earned: 0 };
   }
 }

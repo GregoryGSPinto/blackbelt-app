@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- DTOs ---
 
@@ -72,13 +73,13 @@ export async function createLead(data: CreateLeadData): Promise<FranchiseLead> {
       .single();
 
     if (error) {
-      console.error('[createLead] error:', error.message);
+      logServiceError(error, 'franchise-expansion');
       return {} as FranchiseLead;
     }
 
     return inserted as unknown as FranchiseLead;
   } catch (error) {
-    console.error('[createLead] Fallback:', error);
+    logServiceError(error, 'franchise-expansion');
     return {} as FranchiseLead;
   }
 }
@@ -100,13 +101,13 @@ export async function getLeads(franchiseId: string): Promise<FranchiseLead[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getLeads] error:', error.message);
+      logServiceError(error, 'franchise-expansion');
       return [];
     }
 
     return (data ?? []) as unknown as FranchiseLead[];
   } catch (error) {
-    console.error('[getLeads] Fallback:', error);
+    logServiceError(error, 'franchise-expansion');
     return [];
   }
 }
@@ -129,13 +130,13 @@ export async function updateLeadStatus(leadId: string, stage: PipelineStage): Pr
       .single();
 
     if (error) {
-      console.error('[updateLeadStatus] error:', error.message);
+      logServiceError(error, 'franchise-expansion');
       return {} as FranchiseLead;
     }
 
     return data as unknown as FranchiseLead;
   } catch (error) {
-    console.error('[updateLeadStatus] Fallback:', error);
+    logServiceError(error, 'franchise-expansion');
     return {} as FranchiseLead;
   }
 }
@@ -154,7 +155,7 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       .rpc('analyze_franchise_viability', { p_location: location });
 
     if (error) {
-      console.error('[analyzeViability] error:', error.message);
+      logServiceError(error, 'franchise-expansion');
       return {
         location,
         population: 0,
@@ -176,7 +177,7 @@ export async function analyzeViability(location: string): Promise<ViabilityAnaly
       factors: [],
     };
   } catch (error) {
-    console.error('[analyzeViability] Fallback:', error);
+    logServiceError(error, 'franchise-expansion');
     return {
       location,
       population: 0,
@@ -207,13 +208,13 @@ export async function setupFranchise(leadId: string): Promise<FranchiseLead> {
       .single();
 
     if (error) {
-      console.error('[setupFranchise] error:', error.message);
+      logServiceError(error, 'franchise-expansion');
       return {} as FranchiseLead;
     }
 
     return data as unknown as FranchiseLead;
   } catch (error) {
-    console.error('[setupFranchise] Fallback:', error);
+    logServiceError(error, 'franchise-expansion');
     return {} as FranchiseLead;
   }
 }

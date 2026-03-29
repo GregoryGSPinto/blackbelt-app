@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type CategoriaFeature = 'core' | 'premium' | 'beta' | 'experimental';
 
@@ -48,7 +49,7 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
         .eq('type', 'feature_flag')
         .order('created_at', { ascending: false });
       if (error || !data || data.length === 0) {
-        console.error('[listFeatureFlags] Query failed or empty:', error?.message);
+        logServiceError(error, 'superadmin-features');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => {
@@ -73,12 +74,12 @@ export async function listFeatureFlags(): Promise<FeatureWithStats[]> {
           },
         };
       });
-    } catch {
-      console.error('[superadmin-features.listFeatureFlags] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-features');
       return [];
     }
   } catch (error) {
-    console.error('[listFeatureFlags] Fallback:', error);
+    logServiceError(error, 'superadmin-features');
     return [];
   }
 }
@@ -105,7 +106,7 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
         .select()
         .single();
       if (error || !row) {
-        console.error('[toggleFeatureGlobal] Update failed:', error?.message);
+        logServiceError(error, 'superadmin-features');
         return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: enabled, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
       }
       const value = (row.value as Record<string, unknown>) || {};
@@ -121,13 +122,13 @@ export async function toggleFeatureGlobal(featureId: string, enabled: boolean): 
         criadoEm: (row.created_at as string) || '',
         atualizadoEm: (row.updated_at as string) || '',
       };
-    } catch {
-      console.error('[superadmin-features.toggleFeatureGlobal] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-features');
       const { mockToggleFeatureGlobal } = await import('@/lib/mocks/superadmin-features.mock');
       return mockToggleFeatureGlobal(featureId, enabled);
     }
   } catch (error) {
-    console.error('[toggleFeatureGlobal] Fallback:', error);
+    logServiceError(error, 'superadmin-features');
     return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: enabled, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
   }
 }
@@ -154,7 +155,7 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
         .select()
         .single();
       if (error || !row) {
-        console.error('[updateFeatureFlag] Update failed:', error?.message);
+        logServiceError(error, 'superadmin-features');
         return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
       }
       const value = (row.value as Record<string, unknown>) || {};
@@ -170,13 +171,13 @@ export async function updateFeatureFlag(featureId: string, data: Partial<Feature
         criadoEm: (row.created_at as string) || '',
         atualizadoEm: (row.updated_at as string) || '',
       };
-    } catch {
-      console.error('[superadmin-features.updateFeatureFlag] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-features');
       const { mockUpdateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockUpdateFeatureFlag(featureId, data);
     }
   } catch (error) {
-    console.error('[updateFeatureFlag] Fallback:', error);
+    logServiceError(error, 'superadmin-features');
     return { id: featureId, nome: '', slug: '', descricao: '', categoria: 'core', statusGlobal: false, regras: { planos: [], academiasIncluidas: [], academiasExcluidas: [] }, rolloutPercentual: 0, criadoEm: '', atualizadoEm: '' };
   }
 }
@@ -200,7 +201,7 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
         .select()
         .single();
       if (error || !row) {
-        console.error('[createFeatureFlag] Insert failed:', error?.message);
+        logServiceError(error, 'superadmin-features');
         return { ...data, id: '', criadoEm: '', atualizadoEm: '' };
       }
       return {
@@ -209,13 +210,13 @@ export async function createFeatureFlag(data: Omit<FeatureFlag, 'id' | 'criadoEm
         criadoEm: (row.created_at as string) || '',
         atualizadoEm: (row.updated_at as string) || '',
       };
-    } catch {
-      console.error('[superadmin-features.createFeatureFlag] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-features');
       const { mockCreateFeatureFlag } = await import('@/lib/mocks/superadmin-features.mock');
       return mockCreateFeatureFlag(data);
     }
   } catch (error) {
-    console.error('[createFeatureFlag] Fallback:', error);
+    logServiceError(error, 'superadmin-features');
     return { ...data, id: '', criadoEm: '', atualizadoEm: '' };
   }
 }

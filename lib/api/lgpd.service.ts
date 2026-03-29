@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -56,10 +57,10 @@ export async function recordConsent(
       });
 
     if (error) {
-      console.error('[recordConsent] Supabase error:', error.message);
+      logServiceError(error, 'lgpd');
     }
   } catch (error) {
-    console.error('[recordConsent] Fallback:', error);
+    logServiceError(error, 'lgpd');
   }
 }
 
@@ -82,7 +83,7 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getConsentHistory] Supabase error:', error?.message);
+      logServiceError(error, 'lgpd');
       return [];
     }
 
@@ -95,7 +96,7 @@ export async function getConsentHistory(userId: string): Promise<ConsentRecord[]
       ipAddress: (d.ip_address as string) ?? '',
     }));
   } catch (error) {
-    console.error('[getConsentHistory] Fallback:', error);
+    logServiceError(error, 'lgpd');
     return [];
   }
 }
@@ -133,7 +134,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
       .single();
 
     if (error || !data) {
-      console.error('[requestDataExport] Supabase error:', error?.message);
+      logServiceError(error, 'lgpd');
       return fallback;
     }
 
@@ -147,7 +148,7 @@ export async function requestDataExport(userId: string, format: 'json' | 'pdf' =
       completedAt: data.completed_at ?? null,
     };
   } catch (error) {
-    console.error('[requestDataExport] Fallback:', error);
+    logServiceError(error, 'lgpd');
     return fallback;
   }
 }
@@ -185,7 +186,7 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
       .single();
 
     if (error || !data) {
-      console.error('[requestDataDeletion] Supabase error:', error?.message);
+      logServiceError(error, 'lgpd');
       return fallback;
     }
 
@@ -198,7 +199,7 @@ export async function requestDataDeletion(userId: string): Promise<DataDeletionR
       completedAt: data.completed_at ?? null,
     };
   } catch (error) {
-    console.error('[requestDataDeletion] Fallback:', error);
+    logServiceError(error, 'lgpd');
     return fallback;
   }
 }

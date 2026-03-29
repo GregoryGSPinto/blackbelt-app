@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type PlanTier = 'free' | 'pro' | 'enterprise';
 
@@ -67,7 +68,7 @@ export async function checkLimit(
       .single();
 
     if (error || !data) {
-      console.error('[checkLimit] Supabase error:', error?.message);
+      logServiceError(error, 'plan-enforcement');
       return { allowed: true, current: 0, limit: null, plan: 'free', resource };
     }
 
@@ -82,7 +83,7 @@ export async function checkLimit(
       resource,
     };
   } catch (error) {
-    console.error('[checkLimit] Fallback:', error);
+    logServiceError(error, 'plan-enforcement');
     return { allowed: true, current: 0, limit: null, plan: 'free', resource };
   }
 }
@@ -103,13 +104,13 @@ export async function getUsage(academyId: string): Promise<UsageData> {
       .single();
 
     if (error || !data) {
-      console.error('[getUsage] Supabase error:', error?.message);
+      logServiceError(error, 'plan-enforcement');
       return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
     }
 
     return data as unknown as UsageData;
   } catch (error) {
-    console.error('[getUsage] Fallback:', error);
+    logServiceError(error, 'plan-enforcement');
     return { plan: 'free', students_active: 0, units: 0, classes: 0, usage_percent: 0 };
   }
 }

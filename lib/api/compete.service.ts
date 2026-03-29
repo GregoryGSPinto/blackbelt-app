@@ -6,6 +6,7 @@
 
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types/domain';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   Tournament,
   TournamentCircuit,
@@ -77,7 +78,7 @@ export async function getTournaments(filters?: TournamentFilters): Promise<Tourn
 
   const { data, error } = await query.order('start_date', { ascending: false });
   if (error) {
-    console.error('[getTournaments] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -100,7 +101,7 @@ export async function getTournament(slug: string): Promise<Tournament> {
     .eq('slug', slug)
     .single();
   if (error) {
-    console.error('[getTournament] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as Tournament;
   }
 
@@ -224,7 +225,7 @@ export async function getPendingTournaments(): Promise<Tournament[]> {
     .eq('status', 'aguardando_aprovacao')
     .order('created_at', { ascending: true });
   if (error) {
-    console.error('[getPendingTournaments] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -333,7 +334,7 @@ export async function getTournamentStats(id: string): Promise<TournamentStats> {
   const { data, error } = await supabase
     .rpc('get_tournament_stats', { p_tournament_id: id });
   if (error) {
-    console.error('[getTournamentStats] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as TournamentStats;
   }
 
@@ -359,7 +360,7 @@ export async function getCircuits(): Promise<TournamentCircuit[]> {
     .select('*')
     .order('season', { ascending: false });
   if (error) {
-    console.error('[getCircuits] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -382,7 +383,7 @@ export async function getCircuit(slug: string): Promise<TournamentCircuit> {
     .eq('slug', slug)
     .single();
   if (error) {
-    console.error('[getCircuit] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as TournamentCircuit;
   }
 
@@ -405,7 +406,7 @@ export async function getCircuitRanking(circuitId: string): Promise<AcademyTourn
     .eq('circuit_id', circuitId)
     .order('total_points', { ascending: false });
   if (error) {
-    console.error('[getCircuitRanking] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -440,7 +441,7 @@ export async function getCategories(
 
   const { data, error } = await query.order('name');
   if (error) {
-    console.error('[getCategories] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -519,7 +520,7 @@ export async function suggestCategory(
       p_belt: belt,
     });
   if (error) {
-    console.error('[suggestCategory] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as TournamentCategory;
   }
 
@@ -633,7 +634,7 @@ export async function getRegistrations(
 
   const { data, error } = await query.order('created_at', { ascending: false });
   if (error) {
-    console.error('[getRegistrations] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -660,7 +661,7 @@ export async function getRegistrationsByAcademy(
     .eq('academy_id', academyId)
     .order('athlete_name');
   if (error) {
-    console.error('[getRegistrationsByAcademy] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -692,7 +693,7 @@ export async function getMyRegistrations(userId: string): Promise<TournamentRegi
     .eq('athlete_profile_id', profile.id)
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('[getMyRegistrations] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -783,7 +784,7 @@ export async function weighInAthlete(
       p_weight: weight,
     });
   if (error) {
-    console.error('[weighInAthlete] error:', error.message);
+    logServiceError(error, 'compete');
     return { passed: false, category: {} as TournamentCategory };
   }
 
@@ -830,7 +831,7 @@ export async function getBracket(
     .eq('category_id', categoryId)
     .single();
   if (bracketError) {
-    console.error('[getBracket] error:', bracketError.message);
+    logServiceError(bracketError, 'compete');
     return { bracket: {} as TournamentBracket, matches: [] };
   }
 
@@ -842,7 +843,7 @@ export async function getBracket(
     .order('round')
     .order('match_number');
   if (matchesError) {
-    console.error('[getBracket] matches error:', matchesError.message);
+    logServiceError(matchesError, 'compete');
     return { bracket: bracket as TournamentBracket, matches: [] };
   }
 
@@ -867,7 +868,7 @@ export async function getAllBrackets(tournamentId: string): Promise<TournamentBr
     .select('*')
     .eq('tournament_id', tournamentId);
   if (error) {
-    console.error('[getAllBrackets] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -898,7 +899,7 @@ export async function getMatchesByArea(
     .eq('area', area)
     .order('scheduled_time');
   if (error) {
-    console.error('[getMatchesByArea] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -923,7 +924,7 @@ export async function getNextMatches(tournamentId: string): Promise<TournamentMa
     .order('scheduled_time')
     .limit(20);
   if (error) {
-    console.error('[getNextMatches] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1016,7 +1017,7 @@ export async function getLiveMatches(tournamentId: string): Promise<TournamentMa
     .eq('status', 'in_progress')
     .order('area');
   if (error) {
-    console.error('[getLiveMatches] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1040,7 +1041,7 @@ export async function getCompletedMatches(tournamentId: string): Promise<Tournam
     .eq('status', 'completed')
     .order('completed_at', { ascending: false });
   if (error) {
-    console.error('[getCompletedMatches] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1074,7 +1075,7 @@ export async function getFeed(
 
   const { data, error } = await query;
   if (error) {
-    console.error('[getFeed] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1159,7 +1160,7 @@ export async function getResults(
   const { data, error } = await supabase
     .rpc('get_tournament_results', { p_tournament_id: tournamentId });
   if (error) {
-    console.error('[getResults] error:', error.message);
+    logServiceError(error, 'compete');
     return { categories: [] };
   }
 
@@ -1180,7 +1181,7 @@ export async function getResultsByAcademy(
   const { data, error } = await supabase
     .rpc('get_tournament_results_by_academy', { p_tournament_id: tournamentId });
   if (error) {
-    console.error('[getResultsByAcademy] error:', error.message);
+    logServiceError(error, 'compete');
     return { academies: [] };
   }
 
@@ -1199,7 +1200,7 @@ export async function getMedalTable(tournamentId: string): Promise<MedalTable[]>
   const { data, error } = await supabase
     .rpc('get_medal_table', { p_tournament_id: tournamentId });
   if (error) {
-    console.error('[getMedalTable] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1245,7 +1246,7 @@ export async function getAthleteResults(
     .eq('status', 'completed')
     .order('completed_at', { ascending: false });
   if (error) {
-    console.error('[getAthleteResults] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1272,7 +1273,7 @@ export async function getAthleteProfile(id: string): Promise<AthleteProfile> {
     .eq('id', id)
     .single();
   if (error) {
-    console.error('[getAthleteProfile] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as AthleteProfile;
   }
 
@@ -1295,7 +1296,7 @@ export async function getAthleteByUser(userId: string): Promise<AthleteProfile> 
     .eq('user_id', userId)
     .single();
   if (error) {
-    console.error('[getAthleteByUser] error:', error.message);
+    logServiceError(error, 'compete');
     return {} as AthleteProfile;
   }
 
@@ -1352,7 +1353,7 @@ export async function getAcademyRanking(
 
   const { data, error } = await query;
   if (error) {
-    console.error('[getAcademyRanking] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1382,7 +1383,7 @@ export async function getAthleteRanking(
 
   const { data, error } = await query;
   if (error) {
-    console.error('[getAthleteRanking] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1444,7 +1445,7 @@ export async function getMyPredictions(
     .eq('user_id', user.user?.id ?? '')
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('[getMyPredictions] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 
@@ -1465,7 +1466,7 @@ export async function getPredictionLeaderboard(
   const { data, error } = await supabase
     .rpc('get_prediction_leaderboard', { p_tournament_id: tournamentId });
   if (error) {
-    console.error('[getPredictionLeaderboard] error:', error.message);
+    logServiceError(error, 'compete');
     return [];
   }
 

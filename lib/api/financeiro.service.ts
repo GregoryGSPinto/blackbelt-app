@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ export async function getFinanceiroData(academyId: string): Promise<FinanceiroDa
     .gte('due_date', startOfMonth)
     .lte('due_date', endOfMonth);
   if (invErr) {
-    console.error('[getFinanceiroData] Supabase error:', invErr.message);
+    logServiceError(invErr, 'financeiro');
     return { receitaMes: 0, receitaMesAnterior: 0, metaMes: 0, mrr: 0, ticketMedio: 0, inadimplenciaPct: 0, previsaoProximoMes: 0, debtors: [], recentPayments: [], planAnalysis: [], monthlyRevenue: [] };
   }
 

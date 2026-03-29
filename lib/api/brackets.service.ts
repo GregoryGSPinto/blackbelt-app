@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type BracketMethod = 'single_elimination' | 'double_elimination' | 'round_robin';
 export type MatchResultMethod = 'submission' | 'points' | 'dq' | 'walkover';
@@ -60,13 +61,13 @@ export async function generateBracket(championshipId: string, categoryId: string
       .single();
 
     if (error || !data) {
-      console.error('[generateBracket] Supabase error:', error?.message);
+      logServiceError(error, 'brackets');
       return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
     }
 
     return { ...(data as unknown as BracketDTO), matches: [] };
   } catch (error) {
-    console.error('[generateBracket] Fallback:', error);
+    logServiceError(error, 'brackets');
     return { ...EMPTY_BRACKET, championship_id: championshipId, category_id: categoryId, method };
   }
 }
@@ -87,7 +88,7 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       .single();
 
     if (error || !data) {
-      console.error('[getBracketByCategory] Supabase error:', error?.message);
+      logServiceError(error, 'brackets');
       return { ...EMPTY_BRACKET, category_id: categoryId };
     }
 
@@ -96,7 +97,7 @@ export async function getBracketByCategory(categoryId: string): Promise<BracketD
       matches: ((data as Record<string, unknown>).bracket_matches ?? []) as MatchDTO[],
     };
   } catch (error) {
-    console.error('[getBracketByCategory] Fallback:', error);
+    logServiceError(error, 'brackets');
     return { ...EMPTY_BRACKET, category_id: categoryId };
   }
 }
@@ -125,13 +126,13 @@ export async function submitResult(matchId: string, result: SubmitResultPayload)
       .single();
 
     if (error || !data) {
-      console.error('[submitResult] Supabase error:', error?.message);
+      logServiceError(error, 'brackets');
       return { ...EMPTY_MATCH, id: matchId };
     }
 
     return data as unknown as MatchDTO;
   } catch (error) {
-    console.error('[submitResult] Fallback:', error);
+    logServiceError(error, 'brackets');
     return { ...EMPTY_MATCH, id: matchId };
   }
 }
@@ -152,13 +153,13 @@ export async function getMatchDetails(matchId: string): Promise<MatchDTO> {
       .single();
 
     if (error || !data) {
-      console.error('[getMatchDetails] Supabase error:', error?.message);
+      logServiceError(error, 'brackets');
       return { ...EMPTY_MATCH, id: matchId };
     }
 
     return data as unknown as MatchDTO;
   } catch (error) {
-    console.error('[getMatchDetails] Fallback:', error);
+    logServiceError(error, 'brackets');
     return { ...EMPTY_MATCH, id: matchId };
   }
 }

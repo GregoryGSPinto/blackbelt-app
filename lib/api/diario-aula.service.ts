@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -56,12 +57,12 @@ export async function createDiario(payload: CreateDiarioPayload): Promise<Diario
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('diarios_aula').insert(payload).select().single();
     if (error) {
-      console.error('[createDiario] error:', error.message);
+      logServiceError(error, 'diario-aula');
       return { id: '', turmaId: payload.turmaId, turmaNome: '', data: payload.data, professorId: '', professorNome: '', tecnicasEnsinadas: payload.tecnicasEnsinadas, temaGeral: payload.temaGeral, observacoesGerais: payload.observacoesGerais, alunosDestaque: payload.alunosDestaque, alunosDificuldade: payload.alunosDificuldade, totalPresentes: payload.totalPresentes, totalMatriculados: payload.totalMatriculados, duracaoMinutos: payload.duracaoMinutos, intensidade: payload.intensidade, tipo: payload.tipo, criadoEm: new Date().toISOString() } as DiarioAula;
     }
     return data as unknown as DiarioAula;
   } catch (error) {
-    console.error('[createDiario] Fallback:', error);
+    logServiceError(error, 'diario-aula');
     return { id: '', turmaId: payload.turmaId, turmaNome: '', data: payload.data, professorId: '', professorNome: '', tecnicasEnsinadas: payload.tecnicasEnsinadas, temaGeral: payload.temaGeral, observacoesGerais: payload.observacoesGerais, alunosDestaque: payload.alunosDestaque, alunosDificuldade: payload.alunosDificuldade, totalPresentes: payload.totalPresentes, totalMatriculados: payload.totalMatriculados, duracaoMinutos: payload.duracaoMinutos, intensidade: payload.intensidade, tipo: payload.tipo, criadoEm: new Date().toISOString() } as DiarioAula;
   }
 }
@@ -76,12 +77,12 @@ export async function updateDiario(id: string, dados: Partial<CreateDiarioPayloa
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('diarios_aula').update(dados).eq('id', id).select().single();
     if (error) {
-      console.error('[updateDiario] error:', error.message);
+      logServiceError(error, 'diario-aula');
       return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
     }
     return data as unknown as DiarioAula;
   } catch (error) {
-    console.error('[updateDiario] Fallback:', error);
+    logServiceError(error, 'diario-aula');
     return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
   }
 }
@@ -96,12 +97,12 @@ export async function getDiario(id: string): Promise<DiarioAula> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('diarios_aula').select('*').eq('id', id).single();
     if (error) {
-      console.error('[getDiario] error:', error.message);
+      logServiceError(error, 'diario-aula');
       return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
     }
     return data as unknown as DiarioAula;
   } catch (error) {
-    console.error('[getDiario] Fallback:', error);
+    logServiceError(error, 'diario-aula');
     return { id, turmaId: '', turmaNome: '', data: '', professorId: '', professorNome: '', tecnicasEnsinadas: [], temaGeral: '', observacoesGerais: '', alunosDestaque: [], alunosDificuldade: [], totalPresentes: 0, totalMatriculados: 0, duracaoMinutos: 0, intensidade: 'leve', tipo: 'tecnica', criadoEm: '' } as DiarioAula;
   }
 }
@@ -118,12 +119,12 @@ export async function listDiarios(professorId: string, filtros?: { turmaId?: str
     if (filtros?.turmaId) query = query.eq('turma_id', filtros.turmaId);
     const { data, error } = await query.order('data', { ascending: false });
     if (error) {
-      console.error('[listDiarios] error:', error.message);
+      logServiceError(error, 'diario-aula');
       return [];
     }
     return (data ?? []) as unknown as DiarioAula[];
   } catch (error) {
-    console.error('[listDiarios] Fallback:', error);
+    logServiceError(error, 'diario-aula');
     return [];
   }
 }

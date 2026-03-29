@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   InviteToken,
   InviteUse,
@@ -39,7 +40,7 @@ export async function listInviteTokens(
   const { data, error } = await query;
 
   if (error) {
-    console.error('[listInviteTokens] error:', error.message);
+    logServiceError(error, 'invite-tokens');
     return [];
   }
 
@@ -156,7 +157,7 @@ export async function validateInviteToken(token: string): Promise<InviteValidati
     .single();
 
   if (error || !data) {
-    console.error('[validateInviteToken] error:', error?.message ?? 'Token not found');
+    logServiceError(error, 'invite-tokens');
     return { valid: false, reason: 'Token inválido ou expirado' } as InviteValidation;
   }
 
@@ -229,7 +230,7 @@ export async function getInviteUses(tokenId: string): Promise<InviteUse[]> {
     .order('used_at', { ascending: false });
 
   if (error) {
-    console.error('[getInviteUses] error:', error.message);
+    logServiceError(error, 'invite-tokens');
     return [];
   }
 

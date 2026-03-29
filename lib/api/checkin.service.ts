@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Attendance, AttendanceMethod } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AttendanceStats {
   total: number;
@@ -35,7 +36,7 @@ export async function doCheckin(studentId: string, classId: string, method: Atte
     .select()
     .single();
   if (error) {
-    console.error('[doCheckin] Supabase error:', error.message);
+    logServiceError(error, 'checkin');
     throw new Error(`[doCheckin] Failed: ${error.message}`);
   }
   trackFeatureUsage('checkin', 'create', { method });
@@ -62,7 +63,7 @@ export async function getHistory(studentId: string, dateRange?: DateRange): Prom
 
   const { data, error } = await query;
   if (error) {
-    console.error('[getHistory] Supabase error:', error.message);
+    logServiceError(error, 'checkin');
     return [];
   }
   return (data ?? []) as Attendance[];
@@ -157,7 +158,7 @@ export async function getTodayByClass(classId: string): Promise<Attendance[]> {
     .eq('class_id', classId)
     .gte('checked_at', todayStart.toISOString());
   if (error) {
-    console.error('[getTodayByClass] Supabase error:', error.message);
+    logServiceError(error, 'checkin');
     return [];
   }
   return (data ?? []) as Attendance[];

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
 export type PaymentMethod = 'pix' | 'boleto' | 'credit_card' | 'academy_payment';
@@ -66,12 +67,12 @@ export async function createOrder(userId: string, data: CreateOrderData): Promis
       .select()
       .single();
     if (error || !row) {
-      console.error('[createOrder] Supabase error:', error?.message);
+      logServiceError(error, 'orders');
       return emptyOrder;
     }
     return row as unknown as Order;
   } catch (error) {
-    console.error('[createOrder] Fallback:', error);
+    logServiceError(error, 'orders');
     return emptyOrder;
   }
 }
@@ -90,12 +91,12 @@ export async function getMyOrders(userId: string): Promise<Order[]> {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error || !data) {
-      console.error('[getMyOrders] Supabase error:', error?.message);
+      logServiceError(error, 'orders');
       return [];
     }
     return data as unknown as Order[];
   } catch (error) {
-    console.error('[getMyOrders] Fallback:', error);
+    logServiceError(error, 'orders');
     return [];
   }
 }
@@ -114,12 +115,12 @@ export async function getOrderById(id: string): Promise<Order> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getOrderById] Supabase error:', error?.message);
+      logServiceError(error, 'orders');
       return emptyOrder;
     }
     return data as unknown as Order;
   } catch (error) {
-    console.error('[getOrderById] Fallback:', error);
+    logServiceError(error, 'orders');
     return emptyOrder;
   }
 }
@@ -139,12 +140,12 @@ export async function cancelOrder(id: string): Promise<Order> {
       .select()
       .single();
     if (error || !data) {
-      console.error('[cancelOrder] Supabase error:', error?.message);
+      logServiceError(error, 'orders');
       return emptyOrder;
     }
     return data as unknown as Order;
   } catch (error) {
-    console.error('[cancelOrder] Fallback:', error);
+    logServiceError(error, 'orders');
     return emptyOrder;
   }
 }

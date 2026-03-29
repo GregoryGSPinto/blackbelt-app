@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ export async function getReferralCode(academyId: string): Promise<ReferralCode> 
       .maybeSingle();
 
     if (error || !data) {
-      console.error('[getReferralCode] Supabase error or no data:', error?.message);
+      logServiceError(error, 'referral');
       return { code: '', referrerId: '', referrerName: '', academyId, discount: 0, rewardMonths: 0, usageCount: 0, maxUses: null, active: false, createdAt: '' };
     }
 
@@ -76,7 +77,7 @@ export async function getReferralCode(academyId: string): Promise<ReferralCode> 
       createdAt: data.created_at ?? '',
     };
   } catch (error) {
-    console.error('[getReferralCode] Fallback:', error);
+    logServiceError(error, 'referral');
     return { code: '', referrerId: '', referrerName: '', academyId, discount: 0, rewardMonths: 0, usageCount: 0, maxUses: null, active: false, createdAt: '' };
   }
 }
@@ -99,7 +100,7 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       .eq('academy_id', academyId);
 
     if (error || !data) {
-      console.error('[getReferralStats] Supabase error:', error?.message);
+      logServiceError(error, 'referral');
       return { totalReferrals: 0, convertedReferrals: 0, rewardMonthsEarned: 0, pendingRewards: 0 };
     }
 
@@ -114,7 +115,7 @@ export async function getReferralStats(academyId: string): Promise<ReferralStats
       pendingRewards: pending,
     };
   } catch (error) {
-    console.error('[getReferralStats] Fallback:', error);
+    logServiceError(error, 'referral');
     return { totalReferrals: 0, convertedReferrals: 0, rewardMonthsEarned: 0, pendingRewards: 0 };
   }
 }
@@ -139,7 +140,7 @@ export async function listReferrals(academyId: string): Promise<Referral[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[listReferrals] Supabase error:', error?.message);
+      logServiceError(error, 'referral');
       return [];
     }
 
@@ -152,7 +153,7 @@ export async function listReferrals(academyId: string): Promise<Referral[]> {
       convertedAt: (r.converted_at as string | null) ?? null,
     }));
   } catch (error) {
-    console.error('[listReferrals] Fallback:', error);
+    logServiceError(error, 'referral');
     return [];
   }
 }

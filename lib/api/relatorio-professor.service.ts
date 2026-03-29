@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface RelatorioProfessor {
   professorId: string;
@@ -46,12 +47,12 @@ export async function getRelatorioProfessores(academyId: string, periodo?: strin
     if (periodo) query = query.eq('periodo', periodo);
     const { data, error } = await query;
     if (error || !data) {
-      console.error('[getRelatorioProfessores] Supabase error:', error?.message);
+      logServiceError(error, 'relatorio-professor');
       return [];
     }
     return data as unknown as RelatorioProfessor[];
   } catch (error) {
-    console.error('[getRelatorioProfessores] Fallback:', error);
+    logServiceError(error, 'relatorio-professor');
     return [];
   }
 }
@@ -71,12 +72,12 @@ export async function getDetalheProfessor(professorId: string, periodo?: string)
     if (periodo) query = query.eq('periodo', periodo);
     const { data, error } = await query.single();
     if (error || !data) {
-      console.error('[getDetalheProfessor] Supabase error:', error?.message);
+      logServiceError(error, 'relatorio-professor');
       return {} as DetalheProfessor;
     }
     return data as unknown as DetalheProfessor;
   } catch (error) {
-    console.error('[getDetalheProfessor] Fallback:', error);
+    logServiceError(error, 'relatorio-professor');
     return {} as DetalheProfessor;
   }
 }

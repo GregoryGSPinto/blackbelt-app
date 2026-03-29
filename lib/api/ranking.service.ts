@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { RankedStudent } from '@/lib/api/xp.service';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function getByAcademia(academyId: string): Promise<RankedStudent[]> {
   try {
@@ -16,12 +17,12 @@ export async function getByAcademia(academyId: string): Promise<RankedStudent[]>
       .order('total_xp', { ascending: false })
       .limit(50);
     if (error) {
-      console.error('[getByAcademia] Supabase error:', error.message);
+      logServiceError(error, 'ranking');
       return [];
     }
     return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    console.error('[getByAcademia] Fallback:', error);
+    logServiceError(error, 'ranking');
     return [];
   }
 }
@@ -41,12 +42,12 @@ export async function getByTurma(classId: string): Promise<RankedStudent[]> {
       .order('total_xp', { ascending: false })
       .limit(50);
     if (error) {
-      console.error('[getByTurma] Supabase error:', error.message);
+      logServiceError(error, 'ranking');
       return [];
     }
     return (data ?? []) as unknown as RankedStudent[];
   } catch (error) {
-    console.error('[getByTurma] Fallback:', error);
+    logServiceError(error, 'ranking');
     return [];
   }
 }

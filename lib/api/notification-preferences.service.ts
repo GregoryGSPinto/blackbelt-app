@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { NotificationPreferences } from '@/lib/types/notification';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
   try {
@@ -17,13 +18,13 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
       .single();
 
     if (error || !data) {
-      console.error('[getNotificationPreferences] Supabase error:', error?.message);
+      logServiceError(error, 'notification-preferences');
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
     return data as unknown as NotificationPreferences;
   } catch (error) {
-    console.error('[getNotificationPreferences] Fallback:', error);
+    logServiceError(error, 'notification-preferences');
     return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
   }
 }
@@ -47,13 +48,13 @@ export async function updateNotificationPreferences(
       .single();
 
     if (error || !data) {
-      console.error('[updateNotificationPreferences] Supabase error:', error?.message);
+      logServiceError(error, 'notification-preferences');
       return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
     }
 
     return data as unknown as NotificationPreferences;
   } catch (error) {
-    console.error('[updateNotificationPreferences] Fallback:', error);
+    logServiceError(error, 'notification-preferences');
     return { userId: '', muteAll: false, quietHoursStart: '22:00', quietHoursEnd: '07:00', channels: {} as Record<string, string[]> } as unknown as NotificationPreferences;
   }
 }

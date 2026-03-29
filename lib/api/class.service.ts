@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   ClassItem,
   ClassStudent,
@@ -30,7 +31,7 @@ export async function listClasses(
   if (filters?.professor_id) query = query.eq('professor_id', filters.professor_id);
   const { data, error } = await query;
   if (error || !data) {
-    console.error('[listClasses] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     return [];
   }
   return data as unknown as ClassItem[];
@@ -51,7 +52,7 @@ export async function getClass(id: string): Promise<ClassItem> {
     .eq('id', id)
     .single();
   if (error || !data) {
-    console.error('[getClass] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     return {} as ClassItem;
   }
   return data as unknown as ClassItem;
@@ -71,7 +72,7 @@ export async function createClass(data: CreateClassDTO): Promise<ClassItem> {
     .select()
     .single();
   if (error || !row) {
-    console.error('[createClass] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     throw new Error(`[createClass] ${error?.message}`);
   }
   return row as unknown as ClassItem;
@@ -92,7 +93,7 @@ export async function updateClass(id: string, data: UpdateClassDTO): Promise<Cla
     .select()
     .single();
   if (error || !row) {
-    console.error('[updateClass] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     throw new Error(`[updateClass] ${error?.message}`);
   }
   return row as unknown as ClassItem;
@@ -108,7 +109,7 @@ export async function deleteClass(id: string): Promise<void> {
   const supabase = createBrowserClient();
   const { error } = await supabase.from('classes').delete().eq('id', id);
   if (error) {
-    console.error('[deleteClass] Supabase error:', error.message);
+    logServiceError(error, 'class');
     throw new Error(`[deleteClass] ${error.message}`);
   }
 }
@@ -126,7 +127,7 @@ export async function getClassStudents(classId: string): Promise<ClassStudent[]>
     .select('id, student_id, class_id, enrolled_at, profiles(id, display_name, avatar, role)')
     .eq('class_id', classId);
   if (error || !data) {
-    console.error('[getClassStudents] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     return [];
   }
   return data as unknown as ClassStudent[];
@@ -146,7 +147,7 @@ export async function addStudent(classId: string, studentId: string): Promise<Cl
     .select()
     .single();
   if (error || !data) {
-    console.error('[addStudent] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     throw new Error(`[addStudent] ${error?.message}`);
   }
   return data as unknown as ClassStudent;
@@ -166,7 +167,7 @@ export async function removeStudent(classId: string, studentId: string): Promise
     .eq('class_id', classId)
     .eq('student_id', studentId);
   if (error) {
-    console.error('[removeStudent] Supabase error:', error.message);
+    logServiceError(error, 'class');
     throw new Error(`[removeStudent] ${error.message}`);
   }
 }
@@ -185,7 +186,7 @@ export async function getSchedule(academyId: string): Promise<ScheduleEntry[]> {
     .select('*')
     .eq('academy_id', academyId);
   if (error || !data) {
-    console.error('[getSchedule] Supabase error:', error?.message);
+    logServiceError(error, 'class');
     return [];
   }
   return data as unknown as ScheduleEntry[];

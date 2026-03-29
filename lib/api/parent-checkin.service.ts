@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Attendance, AttendanceMethod } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -93,12 +94,12 @@ export async function getTodayClasses(guardianId: string): Promise<ParentChildCl
       .gte('class_date', todayStart.toISOString());
 
     if (error) {
-      console.error('[getTodayClasses] Supabase error:', error.message);
+      logServiceError(error, 'parent-checkin');
       return MOCK_TODAY_CLASSES;
     }
     return (data ?? []) as unknown as ParentChildClass[];
   } catch (error) {
-    console.error('[getTodayClasses] Fallback:', error);
+    logServiceError(error, 'parent-checkin');
     return MOCK_TODAY_CLASSES;
   }
 }
@@ -142,13 +143,13 @@ export async function doParentCheckin(
       .single();
 
     if (error) {
-      console.error('[doParentCheckin] Supabase error:', error.message);
+      logServiceError(error, 'parent-checkin');
       throw new Error(error.message);
     }
     return data as Attendance;
   } catch (error) {
     if (error instanceof Error) throw error;
-    console.error('[doParentCheckin] Fallback:', error);
+    logServiceError(error, 'parent-checkin');
     throw new Error('Erro ao realizar check-in.');
   }
 }
@@ -171,12 +172,12 @@ export async function getCheckinHistory(guardianId: string): Promise<ParentCheck
       .limit(30);
 
     if (error) {
-      console.error('[getCheckinHistory] Supabase error:', error.message);
+      logServiceError(error, 'parent-checkin');
       return MOCK_HISTORY;
     }
     return (data ?? []) as unknown as ParentCheckinHistory[];
   } catch (error) {
-    console.error('[getCheckinHistory] Fallback:', error);
+    logServiceError(error, 'parent-checkin');
     return MOCK_HISTORY;
   }
 }

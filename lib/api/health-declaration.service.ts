@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Type aliases ────────────────────────────────────────────────
 
@@ -396,13 +397,13 @@ export async function submitParqResponse(
       .single();
 
     if (error || !data) {
-      console.error('[submitParqResponse] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapParqRow(data as Record<string, unknown>);
   } catch (error) {
-    console.error('[submitParqResponse]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -429,13 +430,13 @@ export async function getLatestParqResponse(
       .maybeSingle();
 
     if (error) {
-      console.error('[getLatestParqResponse] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapParqRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getLatestParqResponse]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -465,13 +466,13 @@ export async function getParqResponses(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[getParqResponses] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapParqRow(row));
   } catch (error) {
-    console.error('[getParqResponses]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -530,13 +531,13 @@ export async function saveMedicalHistory(
       .single();
 
     if (error || !row) {
-      console.error('[saveMedicalHistory] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapMedicalHistoryRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[saveMedicalHistory]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -561,13 +562,13 @@ export async function getMedicalHistory(
       .maybeSingle();
 
     if (error) {
-      console.error('[getMedicalHistory] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapMedicalHistoryRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getMedicalHistory]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -614,13 +615,13 @@ export async function reportInjury(
       .single();
 
     if (error || !row) {
-      console.error('[reportInjury] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapInjuryRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[reportInjury]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -656,13 +657,13 @@ export async function listInjuries(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listInjuries] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapInjuryRow(row));
   } catch (error) {
-    console.error('[listInjuries]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -683,13 +684,13 @@ export async function getInjury(id: string): Promise<HealthInjury | null> {
       .maybeSingle();
 
     if (error) {
-      console.error('[getInjury] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapInjuryRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getInjury]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -727,13 +728,13 @@ export async function updateInjury(
       .single();
 
     if (error || !row) {
-      console.error('[updateInjury] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapInjuryRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[updateInjury]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -766,13 +767,13 @@ export async function clearInjuryReturn(
       .single();
 
     if (error || !data) {
-      console.error('[clearInjuryReturn] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapInjuryRow(data as Record<string, unknown>);
   } catch (error) {
-    console.error('[clearInjuryReturn]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -814,13 +815,13 @@ export async function addRestriction(
       .single();
 
     if (error || !row) {
-      console.error('[addRestriction] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapRestrictionRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[addRestriction]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -853,13 +854,13 @@ export async function listRestrictions(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listRestrictions] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapRestrictionRow(row));
   } catch (error) {
-    console.error('[listRestrictions]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -885,13 +886,13 @@ export async function getActiveRestrictions(
       .order('start_date', { ascending: false });
 
     if (error || !data) {
-      console.error('[getActiveRestrictions] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapRestrictionRow(row));
   } catch (error) {
-    console.error('[getActiveRestrictions]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -911,13 +912,13 @@ export async function removeRestriction(id: string): Promise<boolean> {
       .eq('id', id);
 
     if (error) {
-      console.error('[removeRestriction] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('[removeRestriction]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return false;
   }
 }
@@ -959,13 +960,13 @@ export async function requestClearance(
       .single();
 
     if (error || !row) {
-      console.error('[requestClearance] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapClearanceRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[requestClearance]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -998,13 +999,13 @@ export async function listClearances(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listClearances] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapClearanceRow(row));
   } catch (error) {
-    console.error('[listClearances]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -1042,13 +1043,13 @@ export async function reviewClearance(
       .single();
 
     if (error || !data) {
-      console.error('[reviewClearance] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapClearanceRow(data as Record<string, unknown>);
   } catch (error) {
-    console.error('[reviewClearance]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1079,13 +1080,13 @@ export async function getActiveClearance(
       .maybeSingle();
 
     if (error) {
-      console.error('[getActiveClearance] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapClearanceRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getActiveClearance]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1128,13 +1129,13 @@ export async function submitPretrainingCheck(
       .single();
 
     if (error || !row) {
-      console.error('[submitPretrainingCheck] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapPretrainingCheckRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[submitPretrainingCheck]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1164,13 +1165,13 @@ export async function getTodaysPretrainingCheck(
       .maybeSingle();
 
     if (error) {
-      console.error('[getTodaysPretrainingCheck] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapPretrainingCheckRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getTodaysPretrainingCheck]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1203,13 +1204,13 @@ export async function listPretrainingChecks(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listPretrainingChecks] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapPretrainingCheckRow(row));
   } catch (error) {
-    console.error('[listPretrainingChecks]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return [];
   }
 }
@@ -1234,13 +1235,13 @@ export async function getHealthConfig(academyId: string): Promise<HealthConfig |
       .maybeSingle();
 
     if (error) {
-      console.error('[getHealthConfig] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return data ? mapHealthConfigRow(data as Record<string, unknown>) : null;
   } catch (error) {
-    console.error('[getHealthConfig]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1279,13 +1280,13 @@ export async function updateHealthConfig(
       .single();
 
     if (error || !row) {
-      console.error('[updateHealthConfig] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapHealthConfigRow(row as Record<string, unknown>);
   } catch (error) {
-    console.error('[updateHealthConfig]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1318,13 +1319,13 @@ export async function seedDefaultHealthConfig(academyId: string): Promise<Health
       .single();
 
     if (error || !data) {
-      console.error('[seedDefaultHealthConfig] Supabase error:', error?.message);
+      logServiceError(error, 'health-declaration');
       return null;
     }
 
     return mapHealthConfigRow(data as Record<string, unknown>);
   } catch (error) {
-    console.error('[seedDefaultHealthConfig]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return null;
   }
 }
@@ -1393,7 +1394,7 @@ export async function getMyHealthSummary(academyId: string): Promise<HealthSumma
       clearance: clearanceRes.data ? mapClearanceRow(clearanceRes.data as Record<string, unknown>) : null,
     };
   } catch (error) {
-    console.error('[getMyHealthSummary]', (error as Error).message);
+    logServiceError(error, 'health-declaration');
     return {
       parq: null,
       history: null,

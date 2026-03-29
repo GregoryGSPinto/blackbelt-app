@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AuditEntry, AuditEntryFilters } from '@/lib/types/audit';
+import { logServiceError } from '@/lib/api/errors';
 
 export type AuditAction =
   | 'login' | 'logout' | 'password_change' | 'mfa_enable'
@@ -49,7 +50,7 @@ export async function logAudit(
       .from('audit_logs')
       .insert({ action, entity_type: entityType, entity_id: entityId, old_data: oldData ?? null, new_data: newData ?? null })
       .then(({ error: err }: { error: { message: string } | null }) => {
-        if (err) console.error('[logAudit] Supabase error:', err.message);
+        if (err) logServiceError(err, 'audit');
       });
   } catch { /* fire-and-forget */ }
 }
@@ -79,7 +80,7 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[searchAuditLogs] Supabase error:', error?.message);
+      logServiceError(error, 'audit');
       return { logs: [], nextCursor: null };
     }
 
@@ -101,7 +102,7 @@ export async function searchAuditLogs(academyId: string, filters: AuditFilters =
     const nextCursor = logs.length > 0 ? logs[logs.length - 1].createdAt : null;
     return { logs, nextCursor };
   } catch (error) {
-    console.error('[searchAuditLogs] Fallback:', error);
+    logServiceError(error, 'audit');
     return { logs: [], nextCursor: null };
   }
 }
@@ -122,7 +123,7 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getEntityHistory] Supabase error:', error?.message);
+      logServiceError(error, 'audit');
       return [];
     }
 
@@ -141,7 +142,7 @@ export async function getEntityHistory(entityType: string, entityId: string): Pr
       createdAt: (d.created_at as string) ?? '',
     }));
   } catch (error) {
-    console.error('[getEntityHistory] Fallback:', error);
+    logServiceError(error, 'audit');
     return [];
   }
 }
@@ -166,7 +167,7 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[exportAuditLogs] Supabase error:', error?.message);
+      logServiceError(error, 'audit');
       return new Blob();
     }
 
@@ -179,7 +180,7 @@ export async function exportAuditLogs(academyId: string, filters: AuditFilters =
 
     return new Blob([csv], { type: 'text/csv' });
   } catch (error) {
-    console.error('[exportAuditLogs] Fallback:', error);
+    logServiceError(error, 'audit');
     return new Blob();
   }
 }
@@ -214,13 +215,13 @@ export async function listAuditEntries(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listAuditEntries] Supabase error:', error?.message);
+      logServiceError(error, 'audit');
       return [];
     }
 
     return data as unknown as AuditEntry[];
   } catch (error) {
-    console.error('[listAuditEntries] Fallback:', error);
+    logServiceError(error, 'audit');
     return [];
   }
 }
@@ -244,13 +245,13 @@ export async function createAuditEntry(
       .single();
 
     if (error || !data) {
-      console.error('[createAuditEntry] Supabase error:', error?.message);
+      logServiceError(error, 'audit');
       return fallback;
     }
 
     return data as unknown as AuditEntry;
   } catch (error) {
-    console.error('[createAuditEntry] Fallback:', error);
+    logServiceError(error, 'audit');
     return fallback;
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Plugin, PluginLog } from '@/lib/types/plugins';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listPlugins(): Promise<Plugin[]> {
   try {
@@ -47,7 +48,7 @@ export async function listPlugins(): Promise<Plugin[]> {
       config: {},
     })) as unknown as Plugin[];
   } catch (error) {
-    console.error('[listPlugins] Fallback:', error);
+    logServiceError(error, 'plugins');
     return [];
   }
 }
@@ -94,7 +95,7 @@ export async function getPlugin(pluginId: string): Promise<Plugin> {
       config: configs[pluginId] ?? {},
     } as unknown as Plugin;
   } catch (error) {
-    console.error('[getPlugin] Fallback:', error);
+    logServiceError(error, 'plugins');
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -139,12 +140,12 @@ export async function installPlugin(pluginId: string): Promise<Plugin> {
     );
 
     if (error) {
-      console.error('[installPlugin] Supabase error:', error.message);
+      logServiceError(error, 'plugins');
     }
 
     return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config: {} } as unknown as Plugin;
   } catch (error) {
-    console.error('[installPlugin] Fallback:', error);
+    logServiceError(error, 'plugins');
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -185,10 +186,10 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
     );
 
     if (error) {
-      console.error('[uninstallPlugin] Supabase error:', error.message);
+      logServiceError(error, 'plugins');
     }
   } catch (error) {
-    console.error('[uninstallPlugin] Fallback:', error);
+    logServiceError(error, 'plugins');
   }
 }
 
@@ -232,12 +233,12 @@ export async function updatePluginConfig(
     );
 
     if (error) {
-      console.error('[updatePluginConfig] Supabase error:', error.message);
+      logServiceError(error, 'plugins');
     }
 
     return { id: pluginId, name: pluginId, description: '', version: '1.0.0', author: '', enabled: true, installed: true, config } as unknown as Plugin;
   } catch (error) {
-    console.error('[updatePluginConfig] Fallback:', error);
+    logServiceError(error, 'plugins');
     return { id: "", name: "", description: "", version: "", author: "", enabled: false, installed: false, config: {} } as unknown as Plugin;
   }
 }
@@ -273,7 +274,7 @@ export async function getPluginLogs(pluginId: string): Promise<PluginLog[]> {
     const allLogs = (settings.plugin_logs ?? {}) as Record<string, PluginLog[]>;
     return allLogs[pluginId] ?? [];
   } catch (error) {
-    console.error('[getPluginLogs] Fallback:', error);
+    logServiceError(error, 'plugins');
     return [];
   }
 }

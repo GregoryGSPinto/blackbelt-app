@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -152,7 +153,7 @@ export async function registerTrialStudent(
       .single();
 
     if (error || !student) {
-      console.error('[registerTrialStudent]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
@@ -166,7 +167,7 @@ export async function registerTrialStudent(
 
     return student as TrialStudent;
   } catch (error: unknown) {
-    console.error('[registerTrialStudent]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -222,13 +223,13 @@ export async function listTrialStudents(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listTrialStudents]', error?.message);
+      logServiceError(error, 'trial');
       return [];
     }
 
     return data as TrialStudent[];
   } catch (error: unknown) {
-    console.error('[listTrialStudents]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return [];
   }
 }
@@ -250,13 +251,13 @@ export async function getTrialStudent(trialId: string): Promise<TrialStudent | n
       .single();
 
     if (error || !data) {
-      console.error('[getTrialStudent]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return data as TrialStudent;
   } catch (error: unknown) {
-    console.error('[getTrialStudent]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -288,7 +289,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       .eq('academy_id', academyId);
 
     if (error || !data || data.length === 0) {
-      console.error('[getTrialMetrics]', error?.message);
+      logServiceError(error, 'trial');
       return fallback;
     }
 
@@ -334,7 +335,7 @@ export async function getTrialMetrics(academyId: string): Promise<TrialMetrics> 
       expiring_in_3_days: expiringIn3.length,
     };
   } catch (error: unknown) {
-    console.error('[getTrialMetrics]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return fallback;
   }
 }
@@ -366,13 +367,13 @@ export async function getExpiringTrials(
       .order('trial_end_date', { ascending: true });
 
     if (error || !data) {
-      console.error('[getExpiringTrials]', error?.message);
+      logServiceError(error, 'trial');
       return [];
     }
 
     return data as TrialStudent[];
   } catch (error: unknown) {
-    console.error('[getExpiringTrials]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return [];
   }
 }
@@ -394,13 +395,13 @@ export async function getTrialActivity(trialId: string): Promise<TrialActivity[]
       .order('created_at', { ascending: true });
 
     if (error || !data) {
-      console.error('[getTrialActivity]', error?.message);
+      logServiceError(error, 'trial');
       return [];
     }
 
     return data as TrialActivity[];
   } catch (error: unknown) {
-    console.error('[getTrialActivity]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return [];
   }
 }
@@ -430,13 +431,13 @@ export async function updateTrialStudent(
       .single();
 
     if (error || !updated) {
-      console.error('[updateTrialStudent]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return updated as TrialStudent;
   } catch (error: unknown) {
-    console.error('[updateTrialStudent]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -457,10 +458,10 @@ export async function assignProfessor(trialId: string, professorId: string): Pro
       .eq('id', trialId);
 
     if (error) {
-      console.error('[assignProfessor]', error?.message);
+      logServiceError(error, 'trial');
     }
   } catch (error: unknown) {
-    console.error('[assignProfessor]', (error as Error)?.message);
+    logServiceError(error, 'trial');
   }
 }
 
@@ -480,10 +481,10 @@ export async function scheduleFollowUp(trialId: string, date: string): Promise<v
       .eq('id', trialId);
 
     if (error) {
-      console.error('[scheduleFollowUp]', error?.message);
+      logServiceError(error, 'trial');
     }
   } catch (error: unknown) {
-    console.error('[scheduleFollowUp]', (error as Error)?.message);
+    logServiceError(error, 'trial');
   }
 }
 
@@ -511,10 +512,10 @@ export async function markFollowUpDone(trialId: string, notes?: string): Promise
       .eq('id', trialId);
 
     if (error) {
-      console.error('[markFollowUpDone]', error?.message);
+      logServiceError(error, 'trial');
     }
   } catch (error: unknown) {
-    console.error('[markFollowUpDone]', (error as Error)?.message);
+    logServiceError(error, 'trial');
   }
 }
 
@@ -539,7 +540,7 @@ export async function extendTrial(
       .single();
 
     if (fetchError || !current) {
-      console.error('[extendTrial]', fetchError?.message);
+      logServiceError(fetchError, 'trial');
       return null;
     }
 
@@ -555,13 +556,13 @@ export async function extendTrial(
       .single();
 
     if (error || !updated) {
-      console.error('[extendTrial]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return updated as TrialStudent;
   } catch (error: unknown) {
-    console.error('[extendTrial]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -595,13 +596,13 @@ export async function cancelTrial(
       .single();
 
     if (error || !updated) {
-      console.error('[cancelTrial]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return updated as TrialStudent;
   } catch (error: unknown) {
-    console.error('[cancelTrial]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -627,7 +628,7 @@ export async function recordClassAttendance(
       .single();
 
     if (fetchError || !current) {
-      console.error('[recordClassAttendance]', fetchError?.message);
+      logServiceError(fetchError, 'trial');
       return null;
     }
 
@@ -641,7 +642,7 @@ export async function recordClassAttendance(
       .eq('id', trialId);
 
     if (updateError) {
-      console.error('[recordClassAttendance]', updateError?.message);
+      logServiceError(updateError, 'trial');
     }
 
     // Insert activity
@@ -657,13 +658,13 @@ export async function recordClassAttendance(
       .single();
 
     if (activityError || !activity) {
-      console.error('[recordClassAttendance]', activityError?.message);
+      logServiceError(activityError, 'trial');
       return null;
     }
 
     return activity as TrialActivity;
   } catch (error: unknown) {
-    console.error('[recordClassAttendance]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -692,7 +693,7 @@ export async function startConversion(
       .single();
 
     if (fetchError || !student) {
-      console.error('[startConversion]', fetchError?.message);
+      logServiceError(fetchError, 'trial');
       return null;
     }
 
@@ -717,7 +718,7 @@ export async function startConversion(
       redirect_url: `/matricula?${params.toString()}`,
     };
   } catch (error: unknown) {
-    console.error('[startConversion]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -750,7 +751,7 @@ export async function convertTrial(
       .single();
 
     if (error || !updated) {
-      console.error('[convertTrial]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
@@ -764,7 +765,7 @@ export async function convertTrial(
 
     return updated as TrialStudent;
   } catch (error: unknown) {
-    console.error('[convertTrial]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -789,7 +790,7 @@ export async function getConversionOffer(
       .single();
 
     if (studentError || !student) {
-      console.error('[getConversionOffer]', studentError?.message);
+      logServiceError(studentError, 'trial');
       return null;
     }
 
@@ -801,7 +802,7 @@ export async function getConversionOffer(
       .single();
 
     if (configError || !config) {
-      console.error('[getConversionOffer]', configError?.message);
+      logServiceError(configError, 'trial');
       return null;
     }
 
@@ -817,7 +818,7 @@ export async function getConversionOffer(
       valid_until: endDate.toISOString().split('T')[0],
     };
   } catch (error: unknown) {
-    console.error('[getConversionOffer]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -854,7 +855,7 @@ export async function submitTrialFeedback(
       .single();
 
     if (error || !updated) {
-      console.error('[submitTrialFeedback]', error?.message);
+      logServiceError(error, 'trial');
       return;
     }
 
@@ -866,7 +867,7 @@ export async function submitTrialFeedback(
       details: { rating, would_recommend: wouldRecommend },
     });
   } catch (error: unknown) {
-    console.error('[submitTrialFeedback]', (error as Error)?.message);
+    logServiceError(error, 'trial');
   }
 }
 
@@ -890,7 +891,7 @@ export async function getTrialFeedbacks(
       .order('updated_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getTrialFeedbacks]', error?.message);
+      logServiceError(error, 'trial');
       return [];
     }
 
@@ -900,7 +901,7 @@ export async function getTrialFeedbacks(
       feedback: student.feedback ?? '',
     }));
   } catch (error: unknown) {
-    console.error('[getTrialFeedbacks]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return [];
   }
 }
@@ -926,13 +927,13 @@ export async function getTrialConfig(academyId: string): Promise<TrialConfig | n
       .single();
 
     if (error || !data) {
-      console.error('[getTrialConfig]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return data as TrialConfig;
   } catch (error: unknown) {
-    console.error('[getTrialConfig]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -958,13 +959,13 @@ export async function updateTrialConfig(
       .single();
 
     if (error || !updated) {
-      console.error('[updateTrialConfig]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return updated as TrialConfig;
   } catch (error: unknown) {
-    console.error('[updateTrialConfig]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -1006,13 +1007,13 @@ export async function seedDefaultConfig(academyId: string): Promise<TrialConfig 
       .single();
 
     if (error || !data) {
-      console.error('[seedDefaultConfig]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return data as TrialConfig;
   } catch (error: unknown) {
-    console.error('[seedDefaultConfig]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }
@@ -1047,13 +1048,13 @@ export async function getMyTrialInfo(
       .maybeSingle();
 
     if (error || !data) {
-      console.error('[getMyTrialInfo]', error?.message);
+      logServiceError(error, 'trial');
       return null;
     }
 
     return data as TrialStudent;
   } catch (error: unknown) {
-    console.error('[getMyTrialInfo]', (error as Error)?.message);
+    logServiceError(error, 'trial');
     return null;
   }
 }

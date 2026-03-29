@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
 import type { PlayerProfile, LeaderboardEntry, Badge } from '@/lib/types/gamification';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
   if (isMock()) {
@@ -19,7 +20,7 @@ export async function getPlayerProfile(userId: string): Promise<PlayerProfile> {
     .maybeSingle();
 
   if (xpError || !xpData) {
-    console.error('[getPlayerProfile] No XP data found, returning defaults');
+    logServiceError(new Error('No XP data found, returning defaults'), 'gamification');
     return {
       userId,
       name: '',
@@ -98,7 +99,7 @@ export async function getLeaderboard(
   const { data, error } = await query;
 
   if (error) {
-    console.error('[getLeaderboard] Supabase error:', error.message);
+    logServiceError(error, 'gamification');
     return [];
   }
 
@@ -134,7 +135,7 @@ export async function getAllBadges(): Promise<Badge[]> {
     .order('name');
 
   if (error) {
-    console.error('[getAllBadges] Supabase error:', error.message);
+    logServiceError(error, 'gamification');
     return [];
   }
 
@@ -173,7 +174,7 @@ export async function awardXP(
   });
 
   if (error || !data) {
-    console.error('[awardXP] Supabase RPC error:', error?.message);
+    logServiceError(error, 'gamification');
     throw new Error(`[awardXP] Failed: ${error?.message ?? 'no data returned'}`);
   }
 

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface TournamentDTO {
   id: string;
@@ -34,12 +35,12 @@ export async function listTournaments(academyId: string): Promise<TournamentDTO[
       .eq('academy_id', academyId)
       .order('date', { ascending: false });
     if (error) {
-      console.error('[listTournaments] Supabase error:', error.message);
+      logServiceError(error, 'tournaments');
       return [];
     }
     return (data ?? []) as unknown as TournamentDTO[];
   } catch (error) {
-    console.error('[listTournaments] Fallback:', error);
+    logServiceError(error, 'tournaments');
     return [];
   }
 }
@@ -58,13 +59,13 @@ export async function createTournament(academyId: string, data: Omit<TournamentD
       .select()
       .single();
     if (error || !row) {
-      console.error('[createTournament] Supabase error:', error?.message);
+      logServiceError(error, 'tournaments');
       const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
       return mockCreateTournament(academyId, data);
     }
     return row as unknown as TournamentDTO;
   } catch (error) {
-    console.error('[createTournament] Fallback:', error);
+    logServiceError(error, 'tournaments');
     const { mockCreateTournament } = await import('@/lib/mocks/tournaments.mock');
     return mockCreateTournament(academyId, data);
   }
@@ -85,12 +86,12 @@ export async function getBracket(tournamentId: string, _categoryId: string): Pro
       .order('round')
       .order('position');
     if (error) {
-      console.error('[getBracket] Supabase error:', error.message);
+      logServiceError(error, 'tournaments');
       return [];
     }
     return (data ?? []) as unknown as BracketMatch[];
   } catch (error) {
-    console.error('[getBracket] Fallback:', error);
+    logServiceError(error, 'tournaments');
     return [];
   }
 }
@@ -104,9 +105,9 @@ export async function enrollTournament(tournamentId: string, _studentId: string)
       .from('tournament_enrollments')
       .insert({ tournament_id: tournamentId, student_id: _studentId });
     if (error) {
-      console.error('[enrollTournament] Supabase error:', error.message);
+      logServiceError(error, 'tournaments');
     }
   } catch (error) {
-    console.error('[enrollTournament] Fallback:', error);
+    logServiceError(error, 'tournaments');
   }
 }

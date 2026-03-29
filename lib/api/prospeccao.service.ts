@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // --- Domain Types ---
 
@@ -333,7 +334,7 @@ export async function buscarAcademias(params: BuscaProspeccao): Promise<Resultad
 
     const { data, error } = await query;
     if (error) {
-      console.error('[buscarAcademias] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return { ...EMPTY_RESULTADO_BUSCA, buscaRealizada: params.query ?? 'todos' };
     }
 
@@ -348,7 +349,7 @@ export async function buscarAcademias(params: BuscaProspeccao): Promise<Resultad
       filtrosAplicados,
     };
   } catch (error) {
-    console.error('[buscarAcademias] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return { ...EMPTY_RESULTADO_BUSCA, buscaRealizada: params.query ?? 'todos' };
   }
 }
@@ -395,13 +396,13 @@ export async function getProspects(filters?: BuscaProspeccao): Promise<AcademiaP
 
     const { data, error } = await query;
     if (error) {
-      console.error('[getProspects] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapRowToProspect(row));
   } catch (error) {
-    console.error('[getProspects] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return [];
   }
 }
@@ -414,7 +415,7 @@ export async function getProspect(id: string): Promise<AcademiaProspectada> {
 
       const prospect = MOCK_ACADEMIAS_PROSPECTADAS.find((a) => a.id === id);
       if (!prospect) {
-        console.error('[getProspect] Prospect não encontrado:', id);
+        logServiceError(new Error('Prospect não encontrado'), 'prospeccao');
         return { ...EMPTY_PROSPECT, id };
       }
       return prospect;
@@ -425,13 +426,13 @@ export async function getProspect(id: string): Promise<AcademiaProspectada> {
 
     const { data, error } = await supabase.from('prospects').select('*').eq('id', id).single();
     if (error) {
-      console.error('[getProspect] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return { ...EMPTY_PROSPECT, id };
     }
 
     return mapRowToProspect(data);
   } catch (error) {
-    console.error('[getProspect] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return { ...EMPTY_PROSPECT, id };
   }
 }
@@ -453,10 +454,10 @@ export async function updateStatus(id: string, status: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[updateStatus] error:', error.message);
+      logServiceError(error, 'prospeccao');
     }
   } catch (error) {
-    console.error('[updateStatus] Fallback:', error);
+    logServiceError(error, 'prospeccao');
   }
 }
 
@@ -476,10 +477,10 @@ export async function addContato(id: string, contato: ContatoInput): Promise<voi
       .insert({ prospect_id: id, data: contato.data, canal: contato.canal, resumo: contato.resumo, resultado: contato.resultado });
 
     if (error) {
-      console.error('[addContato] error:', error.message);
+      logServiceError(error, 'prospeccao');
     }
   } catch (error) {
-    console.error('[addContato] Fallback:', error);
+    logServiceError(error, 'prospeccao');
   }
 }
 
@@ -499,10 +500,10 @@ export async function addObservacao(id: string, texto: string): Promise<void> {
       .insert({ prospect_id: id, texto });
 
     if (error) {
-      console.error('[addObservacao] error:', error.message);
+      logServiceError(error, 'prospeccao');
     }
   } catch (error) {
-    console.error('[addObservacao] Fallback:', error);
+    logServiceError(error, 'prospeccao');
   }
 }
 
@@ -523,10 +524,10 @@ export async function agendarContato(id: string, data: string, canal: string): P
       .eq('id', id);
 
     if (error) {
-      console.error('[agendarContato] error:', error.message);
+      logServiceError(error, 'prospeccao');
     }
   } catch (error) {
-    console.error('[agendarContato] Fallback:', error);
+    logServiceError(error, 'prospeccao');
   }
 }
 
@@ -543,7 +544,7 @@ export async function getProspeccaoDashboard(): Promise<ProspeccaoDashboard> {
 
     const { data, error } = await supabase.from('prospects').select('crm_status, classificacao, cidade, estado, bairro');
     if (error) {
-      console.error('[getProspeccaoDashboard] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return EMPTY_DASHBOARD;
     }
 
@@ -564,7 +565,7 @@ export async function getProspeccaoDashboard(): Promise<ProspeccaoDashboard> {
       taxaConversao,
     };
   } catch (error) {
-    console.error('[getProspeccaoDashboard] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return EMPTY_DASHBOARD;
   }
 }
@@ -615,7 +616,7 @@ export async function exportarCSV(filters?: BuscaProspeccao): Promise<string> {
 
     const { data, error } = await query;
     if (error) {
-      console.error('[exportarCSV] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return 'nome,telefone,instagram,bairro,score,classificacao,status';
     }
 
@@ -628,7 +629,7 @@ export async function exportarCSV(filters?: BuscaProspeccao): Promise<string> {
 
     return [header, ...csvRows].join('\n');
   } catch (error) {
-    console.error('[exportarCSV] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return 'nome,telefone,instagram,bairro,score,classificacao,status';
   }
 }
@@ -640,7 +641,7 @@ export async function enriquecerAcademia(prospectId: string): Promise<AcademiaPr
       await delay(500);
       const prospect = MOCK_ACADEMIAS_PROSPECTADAS.find((a) => a.id === prospectId);
       if (!prospect) {
-        console.error('[enriquecerAcademia] Prospect não encontrado:', prospectId);
+        logServiceError(new Error('Prospect não encontrado'), 'prospeccao');
         return { ...EMPTY_PROSPECT, id: prospectId };
       }
       return prospect;
@@ -651,13 +652,13 @@ export async function enriquecerAcademia(prospectId: string): Promise<AcademiaPr
 
     const { data, error } = await supabase.from('prospects').select('*').eq('id', prospectId).single();
     if (error) {
-      console.error('[enriquecerAcademia] error:', error.message);
+      logServiceError(error, 'prospeccao');
       return { ...EMPTY_PROSPECT, id: prospectId };
     }
 
     return mapRowToProspect(data);
   } catch (error) {
-    console.error('[enriquecerAcademia] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return { ...EMPTY_PROSPECT, id: prospectId };
   }
 }
@@ -689,7 +690,7 @@ export async function regenerarMensagem(prospectId: string, canal: string, _cont
 
     return fallbackMsgs[canal.toLowerCase()] ?? fallbackMsgs.whatsapp;
   } catch (error) {
-    console.error('[regenerarMensagem] Fallback:', error);
+    logServiceError(error, 'prospeccao');
     return `Ola! Sou da BlackBelt, plataforma de gestao para academias. Gostaria de mostrar como podemos ajudar sua academia a crescer. Podemos conversar?`;
   }
 }

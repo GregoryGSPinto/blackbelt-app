@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { logger } from '@/lib/monitoring/logger';
 import type { AcademyEvent, CreateEventData } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
   try {
@@ -18,13 +19,13 @@ export async function listEvents(academyId: string): Promise<AcademyEvent[]> {
       .order('date', { ascending: true });
 
     if (error || !data) {
-      console.error('[listEvents] Supabase error:', error?.message);
+      logServiceError(error, 'event');
       return [];
     }
 
     return data as unknown as AcademyEvent[];
   } catch (error) {
-    console.error('[listEvents] Fallback:', error);
+    logServiceError(error, 'event');
     return [];
   }
 }
@@ -45,13 +46,13 @@ export async function getEvent(eventId: string): Promise<AcademyEvent> {
       .single();
 
     if (error || !data) {
-      console.error('[getEvent] Supabase error:', error?.message);
+      logServiceError(error, 'event');
       return { id: eventId } as unknown as AcademyEvent;
     }
 
     return data as unknown as AcademyEvent;
   } catch (error) {
-    console.error('[getEvent] Fallback:', error);
+    logServiceError(error, 'event');
     return { id: eventId } as unknown as AcademyEvent;
   }
 }
@@ -72,13 +73,13 @@ export async function createEvent(academyId: string, data: CreateEventData): Pro
       .single();
 
     if (error || !row) {
-      console.error('[createEvent] Supabase error:', error?.message);
+      logServiceError(error, 'event');
       return { id: '', ...data, academy_id: academyId } as unknown as AcademyEvent;
     }
 
     return row as unknown as AcademyEvent;
   } catch (error) {
-    console.error('[createEvent] Fallback:', error);
+    logServiceError(error, 'event');
     return { id: '', ...data, academy_id: academyId } as unknown as AcademyEvent;
   }
 }
@@ -98,10 +99,10 @@ export async function cancelEvent(eventId: string): Promise<void> {
       .eq('id', eventId);
 
     if (error) {
-      console.error('[cancelEvent] Supabase error:', error.message);
+      logServiceError(error, 'event');
     }
   } catch (error) {
-    console.error('[cancelEvent] Fallback:', error);
+    logServiceError(error, 'event');
   }
 }
 
@@ -119,9 +120,9 @@ export async function enrollInEvent(eventId: string, studentId: string): Promise
       .insert({ event_id: eventId, student_id: studentId });
 
     if (error) {
-      console.error('[enrollInEvent] Supabase error:', error.message);
+      logServiceError(error, 'event');
     }
   } catch (error) {
-    console.error('[enrollInEvent] Fallback:', error);
+    logServiceError(error, 'event');
   }
 }

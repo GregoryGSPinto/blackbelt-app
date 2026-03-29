@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface HeartRateZones {
   rest_minutes: number;
@@ -59,7 +60,7 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
       .single();
 
     if (!membership) {
-      console.error('[syncHealthData] No academy membership found');
+      logServiceError(new Error('No academy membership found'), 'wearable');
       return { synced: 0 };
     }
 
@@ -91,13 +92,13 @@ export async function syncHealthData(userId: string, data: Partial<HealthDataPoi
     );
 
     if (error) {
-      console.error('[syncHealthData] Supabase error:', error.message);
+      logServiceError(error, 'wearable');
       return { synced: 0 };
     }
 
     return { synced: newPoints.length };
   } catch (error) {
-    console.error('[syncHealthData] Fallback:', error);
+    logServiceError(error, 'wearable');
     return { synced: 0 };
   }
 }
@@ -137,7 +138,7 @@ export async function getHealthHistory(userId: string, period: '7d' | '30d' | '9
 
     return userHealth.filter((h) => h.timestamp >= cutoff);
   } catch (error) {
-    console.error('[getHealthHistory] Fallback:', error);
+    logServiceError(error, 'wearable');
     return [];
   }
 }
@@ -185,7 +186,7 @@ export async function getRealtimeMetrics(userId: string): Promise<RealtimeMetric
       battery_pct: 0,
     };
   } catch (error) {
-    console.error('[getRealtimeMetrics] Fallback:', error);
+    logServiceError(error, 'wearable');
     return emptyRealtime;
   }
 }
@@ -217,7 +218,7 @@ export async function getTrainingSession(userId: string): Promise<WearableSessio
     const settings = (settingsRow?.settings ?? {}) as Record<string, unknown>;
     return (settings.wearable_sessions?.[userId as keyof typeof settings.wearable_sessions] ?? []) as unknown as WearableSession[];
   } catch (error) {
-    console.error('[getTrainingSession] Fallback:', error);
+    logServiceError(error, 'wearable');
     return [];
   }
 }

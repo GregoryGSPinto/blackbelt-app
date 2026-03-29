@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ export async function getAlertas(professorId: string): Promise<AlertaProfessor[]
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getAlertas] Supabase error:', error?.message);
+      logServiceError(error, 'professor-alertas');
       return [];
     }
 
@@ -57,7 +58,7 @@ export async function getAlertas(professorId: string): Promise<AlertaProfessor[]
       criadoEm: String(row.created_at ?? ''),
     }));
   } catch (error) {
-    console.error('[getAlertas] Fallback:', error);
+    logServiceError(error, 'professor-alertas');
     return [];
   }
 }
@@ -78,13 +79,13 @@ export async function getAlertasCount(professorId: string): Promise<number> {
       .eq('lido', false);
 
     if (error) {
-      console.error('[getAlertasCount] Supabase error:', error.message);
+      logServiceError(error, 'professor-alertas');
       return 0;
     }
 
     return count ?? 0;
   } catch (error) {
-    console.error('[getAlertasCount] Fallback:', error);
+    logServiceError(error, 'professor-alertas');
     return 0;
   }
 }
@@ -104,10 +105,10 @@ export async function marcarLido(alertaId: string): Promise<void> {
       .eq('id', alertaId);
 
     if (error) {
-      console.error('[marcarLido] Supabase error:', error.message);
+      logServiceError(error, 'professor-alertas');
     }
   } catch (error) {
-    console.error('[marcarLido] Fallback:', error);
+    logServiceError(error, 'professor-alertas');
   }
 }
 
@@ -127,9 +128,9 @@ export async function marcarTodosLidos(professorId: string): Promise<void> {
       .eq('lido', false);
 
     if (error) {
-      console.error('[marcarTodosLidos] Supabase error:', error.message);
+      logServiceError(error, 'professor-alertas');
     }
   } catch (error) {
-    console.error('[marcarTodosLidos] Fallback:', error);
+    logServiceError(error, 'professor-alertas');
   }
 }

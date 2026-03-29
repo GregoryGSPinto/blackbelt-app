@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ShippingItem {
   product_id: string;
@@ -47,13 +48,13 @@ export async function calculateShipping(cep: string, items: ShippingItem[]): Pro
       body: { cep, items },
     });
     if (error || !data) {
-      console.error('[calculateShipping] Supabase error:', error?.message);
+      logServiceError(error, 'shipping');
       const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
       return mockCalculateShipping(cep, items);
     }
     return data as ShippingOption[];
   } catch (error) {
-    console.error('[calculateShipping] Fallback:', error);
+    logServiceError(error, 'shipping');
     const { mockCalculateShipping } = await import('@/lib/mocks/shipping.mock');
     return mockCalculateShipping(cep, items);
   }
@@ -73,13 +74,13 @@ export async function createShipment(orderId: string, carrier: string): Promise<
       .select()
       .single();
     if (error || !data) {
-      console.error('[createShipment] Supabase error:', error?.message);
+      logServiceError(error, 'shipping');
       const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
       return mockCreateShipment(orderId, carrier);
     }
     return data as Shipment;
   } catch (error) {
-    console.error('[createShipment] Fallback:', error);
+    logServiceError(error, 'shipping');
     const { mockCreateShipment } = await import('@/lib/mocks/shipping.mock');
     return mockCreateShipment(orderId, carrier);
   }
@@ -99,13 +100,13 @@ export async function trackShipment(trackingCode: string): Promise<Shipment> {
       .eq('tracking_code', trackingCode)
       .single();
     if (error || !data) {
-      console.error('[trackShipment] Supabase error:', error?.message);
+      logServiceError(error, 'shipping');
       const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
       return mockTrackShipment(trackingCode);
     }
     return data as Shipment;
   } catch (error) {
-    console.error('[trackShipment] Fallback:', error);
+    logServiceError(error, 'shipping');
     const { mockTrackShipment } = await import('@/lib/mocks/shipping.mock');
     return mockTrackShipment(trackingCode);
   }
@@ -127,13 +128,13 @@ export async function getShipmentStatus(orderId: string): Promise<Shipment> {
       .limit(1)
       .single();
     if (error || !data) {
-      console.error('[getShipmentStatus] Supabase error:', error?.message);
+      logServiceError(error, 'shipping');
       const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
       return mockGetShipmentStatus(orderId);
     }
     return data as Shipment;
   } catch (error) {
-    console.error('[getShipmentStatus] Fallback:', error);
+    logServiceError(error, 'shipping');
     const { mockGetShipmentStatus } = await import('@/lib/mocks/shipping.mock');
     return mockGetShipmentStatus(orderId);
   }

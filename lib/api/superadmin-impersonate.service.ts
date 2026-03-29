@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ImpersonateSession {
   originalUserId: string;
@@ -45,13 +46,13 @@ export async function startImpersonation(academiaId: string): Promise<Impersonat
         sessionStorage.setItem('bb_impersonate_session', JSON.stringify(session));
       }
       return session;
-    } catch {
-      console.error('[superadmin-impersonate.startImpersonation] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-impersonate');
       const { mockStartImpersonation } = await import('@/lib/mocks/superadmin-impersonate.mock');
       return mockStartImpersonation(academiaId);
     }
   } catch (error) {
-    console.error('[startImpersonation] Fallback:', error);
+    logServiceError(error, 'superadmin-impersonate');
     return { originalUserId: '', impersonatedUserId: '', academiaId, academiaNome: '', role: 'admin', iniciadoEm: new Date().toISOString() };
   }
 }
@@ -67,7 +68,7 @@ export async function stopImpersonation(): Promise<void> {
       sessionStorage.removeItem('bb_impersonate_session');
     }
   } catch (error) {
-    console.error('[stopImpersonation] Fallback:', error);
+    logServiceError(error, 'superadmin-impersonate');
   }
 }
 
@@ -97,7 +98,7 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
         .select('id, name, plan, student_count, health_score')
         .order('name');
       if (error || !data) {
-        console.error('[listImpersonateAcademias] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-impersonate');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -107,12 +108,12 @@ export async function listImpersonateAcademias(): Promise<ImpersonateAcademia[]>
         alunos: (row.student_count as number) || 0,
         healthScore: (row.health_score as number) || 0,
       }));
-    } catch {
-      console.error('[superadmin-impersonate.listImpersonateAcademias] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-impersonate');
       return [];
     }
   } catch (error) {
-    console.error('[listImpersonateAcademias] Fallback:', error);
+    logServiceError(error, 'superadmin-impersonate');
     return [];
   }
 }

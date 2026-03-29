@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -56,7 +57,7 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
       .limit(10);
 
     if (error || !data) {
-      console.error('[buscarAlunoCheckin] Supabase error:', error?.message);
+      logServiceError(error, 'recepcao-checkin');
       return [];
     }
 
@@ -78,7 +79,8 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
         ultimoTreino: '',
       };
     });
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-checkin');
     return [];
   }
 }
@@ -111,11 +113,12 @@ export async function registrarEntrada(alunoId: string): Promise<{ success: bool
     });
 
     if (error) {
-      console.error('[registrarEntrada] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-checkin');
       return { success: false, message: error.message };
     }
     return { success: true, message: 'Entrada registrada!' };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-checkin');
     return { success: false, message: 'Erro ao registrar entrada' };
   }
 }
@@ -160,7 +163,8 @@ export async function registrarSaida(alunoId: string): Promise<{ success: boolea
 
     if (error) return { success: false };
     return { success: true };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-checkin');
     return { success: false };
   }
 }
@@ -206,7 +210,8 @@ export async function getDentroAgora(): Promise<{ pessoas: PessoaDentro[]; capac
         percentual: (pessoas.length / 80) * 100,
       },
     };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-checkin');
     return fallback;
   }
 }
@@ -227,11 +232,12 @@ export async function registrarVisitante(nome: string, motivo: string): Promise<
     });
 
     if (error) {
-      console.error('[registrarVisitante] Supabase error:', error.message);
+      logServiceError(error, 'recepcao-checkin');
       return { success: false };
     }
     return { success: true };
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'recepcao-checkin');
     return { success: false };
   }
 }

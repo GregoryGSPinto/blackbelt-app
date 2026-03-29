@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type MatchEventType =
   | 'takedown'
@@ -111,13 +112,13 @@ export async function analyzeMatch(videoId: string): Promise<MatchAnalysis> {
       .maybeSingle();
 
     if (error || !data) {
-      console.error('[analyzeMatch] Supabase error:', error?.message);
+      logServiceError(error, 'match-analysis');
       return { ...EMPTY_ANALYSIS, video_id: videoId };
     }
 
     return data as unknown as MatchAnalysis;
   } catch (error) {
-    console.error('[analyzeMatch] Fallback:', error);
+    logServiceError(error, 'match-analysis');
     return { ...EMPTY_ANALYSIS, video_id: videoId };
   }
 }
@@ -138,13 +139,13 @@ export async function addAnnotation(videoId: string, timestampSec: number, text:
       .single();
 
     if (error || !data) {
-      console.error('[addAnnotation] Supabase error:', error?.message);
+      logServiceError(error, 'match-analysis');
       return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
     }
 
     return data as unknown as ManualAnnotation;
   } catch (error) {
-    console.error('[addAnnotation] Fallback:', error);
+    logServiceError(error, 'match-analysis');
     return { id: '', video_id: videoId, timestamp_sec: timestampSec, text, author_id: '', created_at: '' };
   }
 }
@@ -165,13 +166,13 @@ export async function getAnnotations(videoId: string): Promise<ManualAnnotation[
       .order('timestamp_sec', { ascending: true });
 
     if (error || !data) {
-      console.error('[getAnnotations] Supabase error:', error?.message);
+      logServiceError(error, 'match-analysis');
       return [];
     }
 
     return data as unknown as ManualAnnotation[];
   } catch (error) {
-    console.error('[getAnnotations] Fallback:', error);
+    logServiceError(error, 'match-analysis');
     return [];
   }
 }
@@ -190,13 +191,13 @@ export async function shareAnalysis(videoId: string, studentId: string): Promise
       .insert({ video_id: videoId, student_id: studentId });
 
     if (error) {
-      console.error('[shareAnalysis] Supabase error:', error.message);
+      logServiceError(error, 'match-analysis');
       return { shared: false };
     }
 
     return { shared: true };
   } catch (error) {
-    console.error('[shareAnalysis] Fallback:', error);
+    logServiceError(error, 'match-analysis');
     return { shared: false };
   }
 }

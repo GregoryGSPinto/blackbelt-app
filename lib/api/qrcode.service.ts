@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Attendance } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface QRCodeData {
   qrData: string;
@@ -27,7 +28,7 @@ export async function generateQR(classId: string, expiresInMinutes: number = 5):
 
     return { qrData, expiresAt };
   } catch (error) {
-    console.error('[generateQR] Fallback:', error);
+    logServiceError(error, 'qrcode');
     return { qrData: '', expiresAt: '' };
   }
 }
@@ -43,7 +44,8 @@ export async function validateQR(qrData: string, studentId: string): Promise<QRV
     let payload: { classId: string; exp: number };
     try {
       payload = JSON.parse(atob(qrData));
-    } catch {
+    } catch (error) {
+      logServiceError(error, 'qrcode');
       return { valid: false, error: 'QR code inválido' };
     }
 
@@ -75,7 +77,7 @@ export async function validateQR(qrData: string, studentId: string): Promise<QRV
 
     return { valid: true, attendance: data as Attendance };
   } catch (error) {
-    console.error('[validateQR] Fallback:', error);
+    logServiceError(error, 'qrcode');
     return { valid: false, error: 'Erro ao validar QR code' };
   }
 }

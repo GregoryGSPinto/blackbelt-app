@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type PhaseName = 'base' | 'build' | 'peak' | 'taper' | 'recovery';
 
@@ -63,7 +64,7 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
         .single();
 
       if (error || !data) {
-        console.error('[createMacrocycle] Supabase error:', error?.message);
+        logServiceError(error, 'periodization');
         return {
           id: '',
           student_id: macrocycle.student_id,
@@ -85,12 +86,12 @@ export async function createMacrocycle(macrocycle: Omit<MacrocycleDTO, 'id' | 'c
         created_by: data.created_by || '',
       };
     } catch (err) {
-      console.error('[periodization.createMacrocycle] Supabase not available, using mock fallback', err);
+      logServiceError(err, 'periodization');
       const { mockCreateMacrocycle } = await import('@/lib/mocks/periodization.mock');
       return mockCreateMacrocycle(macrocycle);
     }
   } catch (error) {
-    console.error('[createMacrocycle] Fallback:', error);
+    logServiceError(error, 'periodization');
     return { id: '', student_id: macrocycle.student_id, competition_name: macrocycle.competition_name, competition_date: macrocycle.competition_date, phases: macrocycle.phases, created_at: new Date().toISOString(), created_by: macrocycle.created_by };
   }
 }
@@ -116,7 +117,7 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
       if (error || !data) {
         // PGRST116 means no rows — that's OK, not an error
         if (error?.code !== 'PGRST116') {
-          console.error('[getMacrocycle] Supabase error:', error?.message);
+          logServiceError(error, 'periodization');
         }
         return null;
       }
@@ -131,11 +132,11 @@ export async function getMacrocycle(studentId: string): Promise<MacrocycleDTO | 
         created_by: data.created_by || '',
       };
     } catch (err) {
-      console.error('[periodization.getMacrocycle] Supabase not available, using fallback', err);
+      logServiceError(err, 'periodization');
       return null;
     }
   } catch (error) {
-    console.error('[getMacrocycle] Fallback:', error);
+    logServiceError(error, 'periodization');
     return null;
   }
 }
@@ -158,7 +159,7 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
         .single();
 
       if (fetchError || !macrocycle) {
-        console.error('[updatePhase] Supabase fetch error:', fetchError?.message);
+        logServiceError(fetchError, 'periodization');
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
@@ -167,7 +168,7 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
       const phaseIndex = phases.findIndex((p) => p.id === phaseId);
 
       if (phaseIndex === -1) {
-        console.error('[updatePhase] Phase not found:', phaseId);
+        logServiceError(new Error('Phase not found'), 'periodization');
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
@@ -181,18 +182,18 @@ export async function updatePhase(macrocycleId: string, phaseId: string, data: P
         .eq('id', macrocycleId);
 
       if (updateError) {
-        console.error('[updatePhase] Supabase update error:', updateError.message);
+        logServiceError(updateError, 'periodization');
         return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
       }
 
       return updatedPhase;
     } catch (err) {
-      console.error('[periodization.updatePhase] Supabase not available, using mock fallback', err);
+      logServiceError(err, 'periodization');
       const { mockUpdatePhase } = await import('@/lib/mocks/periodization.mock');
       return mockUpdatePhase(macrocycleId, phaseId, data);
     }
   } catch (error) {
-    console.error('[updatePhase] Fallback:', error);
+    logServiceError(error, 'periodization');
     return { id: phaseId, name: 'base', start_date: '', end_date: '', weeks: 0, intensity: 0, volume: 0, focus: [] };
   }
 }

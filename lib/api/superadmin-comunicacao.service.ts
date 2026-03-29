@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type TipoComunicado = 'informativo' | 'manutencao' | 'novidade' | 'urgente' | 'promocao';
 export type StatusComunicado = 'rascunho' | 'agendado' | 'enviado';
@@ -59,7 +60,7 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
       }
       const { data, error } = await query;
       if (error || !data) {
-        console.error('[listComunicados] Query failed:', error?.message);
+        logServiceError(error, 'superadmin-comunicacao');
         return [];
       }
       return (data ?? []).map((row: Record<string, unknown>) => ({
@@ -76,12 +77,12 @@ export async function listComunicados(status?: StatusComunicado): Promise<Comuni
         criadoEm: (row.created_at as string) || '',
         criadoPor: (row.created_by as string) || '',
       }));
-    } catch {
-      console.error('[superadmin-comunicacao.listComunicados] API not available, returning empty');
+    } catch (error) {
+      logServiceError(error, 'superadmin-comunicacao');
       return [];
     }
   } catch (error) {
-    console.error('[listComunicados] Fallback:', error);
+    logServiceError(error, 'superadmin-comunicacao');
     return [];
   }
 }
@@ -111,7 +112,7 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
         .select()
         .single();
       if (error || !row) {
-        console.error('[createComunicado] Insert failed:', error?.message);
+        logServiceError(error, 'superadmin-comunicacao');
         return { id: '', titulo: data.titulo, mensagem: data.mensagem, tipo: data.tipo, segmentacao: data.segmentacao, canal: data.canal, status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: new Date().toISOString(), criadoPor: '' };
       }
       return {
@@ -126,13 +127,13 @@ export async function createComunicado(data: CreateComunicadoPayload): Promise<C
         criadoEm: (row.created_at as string) || new Date().toISOString(),
         criadoPor: (row.created_by as string) || '',
       };
-    } catch {
-      console.error('[superadmin-comunicacao.createComunicado] API not available, using mock fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-comunicacao');
       const { mockCreateComunicado } = await import('@/lib/mocks/superadmin-comunicacao.mock');
       return mockCreateComunicado(data);
     }
   } catch (error) {
-    console.error('[createComunicado] Fallback:', error);
+    logServiceError(error, 'superadmin-comunicacao');
     return { id: '', titulo: data.titulo, mensagem: data.mensagem, tipo: data.tipo, segmentacao: data.segmentacao, canal: data.canal, status: 'rascunho', metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: new Date().toISOString(), criadoPor: '' };
   }
 }
@@ -153,7 +154,7 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
         .select()
         .single();
       if (error || !row) {
-        console.error('[enviarComunicado] Update failed:', error?.message);
+        logServiceError(error, 'superadmin-comunicacao');
         return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
       }
       return {
@@ -169,12 +170,12 @@ export async function enviarComunicado(id: string): Promise<ComunicadoSaaS> {
         criadoEm: (row.created_at as string) || '',
         criadoPor: (row.created_by as string) || '',
       };
-    } catch {
-      console.error('[superadmin-comunicacao.enviarComunicado] API not available, returning fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-comunicacao');
       return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
     }
   } catch (error) {
-    console.error('[enviarComunicado] Fallback:', error);
+    logServiceError(error, 'superadmin-comunicacao');
     return { id, titulo: '', mensagem: '', tipo: 'informativo', segmentacao: { tipo: 'todos' }, canal: ['in_app'], status: 'enviado', enviadoEm: new Date().toISOString(), metricas: { totalDestinatarios: 0, entregues: 0, abertos: 0, clicados: 0 }, criadoEm: '', criadoPor: '' };
   }
 }
@@ -193,12 +194,12 @@ export async function deleteComunicado(id: string): Promise<void> {
         .delete()
         .eq('id', id);
       if (error) {
-        console.error('[deleteComunicado] Delete failed:', error.message);
+        logServiceError(error, 'superadmin-comunicacao');
       }
-    } catch {
-      console.error('[superadmin-comunicacao.deleteComunicado] API not available, using fallback');
+    } catch (error) {
+      logServiceError(error, 'superadmin-comunicacao');
     }
   } catch (error) {
-    console.error('[deleteComunicado] Fallback:', error);
+    logServiceError(error, 'superadmin-comunicacao');
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface LeagueAcademy {
   academy_id: string;
@@ -45,12 +46,12 @@ export async function getActiveLeague(): Promise<LeagueDTO> {
       .eq('status', 'active')
       .single();
     if (error || !data) {
-      console.error('[getActiveLeague] Supabase error:', error?.message);
+      logServiceError(error, 'leagues');
       return {} as LeagueDTO;
     }
     return data as unknown as LeagueDTO;
   } catch (error) {
-    console.error('[getActiveLeague] Fallback:', error);
+    logServiceError(error, 'leagues');
     return {} as LeagueDTO;
   }
 }
@@ -68,12 +69,12 @@ export async function getLeagueStandings(): Promise<LeagueAcademy[]> {
       .select('*')
       .order('rank', { ascending: true });
     if (error || !data) {
-      console.error('[getLeagueStandings] Supabase error:', error?.message);
+      logServiceError(error, 'leagues');
       return [];
     }
     return data as unknown as LeagueAcademy[];
   } catch (error) {
-    console.error('[getLeagueStandings] Fallback:', error);
+    logServiceError(error, 'leagues');
     return [];
   }
 }
@@ -93,12 +94,12 @@ export async function getMyAcademyRank(academyId: string): Promise<AcademyLeague
       .eq('academy_id', academyId)
       .single();
     if (error || !data) {
-      console.error('[getMyAcademyRank] Supabase error:', error?.message);
+      logServiceError(error, 'leagues');
       return fallback;
     }
     return data as unknown as AcademyLeagueStats;
   } catch (error) {
-    console.error('[getMyAcademyRank] Fallback:', error);
+    logServiceError(error, 'leagues');
     return fallback;
   }
 }
@@ -113,12 +114,12 @@ export async function contributePoints(studentId: string, action: string): Promi
     const supabase = createBrowserClient();
     const { data, error } = await supabase.rpc('contribute_league_points', { p_student_id: studentId, p_action: action });
     if (error || !data) {
-      console.error('[contributePoints] Supabase error:', error?.message);
+      logServiceError(error, 'leagues');
       return { points_added: 0, total_points: 0 };
     }
     return data as unknown as { points_added: number; total_points: number };
   } catch (error) {
-    console.error('[contributePoints] Fallback:', error);
+    logServiceError(error, 'leagues');
     return { points_added: 0, total_points: 0 };
   }
 }
@@ -136,12 +137,12 @@ export async function toggleOptIn(academyId: string, optIn: boolean): Promise<{ 
       .update({ opted_in: optIn })
       .eq('academy_id', academyId);
     if (error) {
-      console.error('[toggleOptIn] Supabase error:', error.message);
+      logServiceError(error, 'leagues');
       return { success: false };
     }
     return { success: true };
   } catch (error) {
-    console.error('[toggleOptIn] Fallback:', error);
+    logServiceError(error, 'leagues');
     return { success: false };
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type ToneType = 'motivational' | 'technical' | 'casual';
 
@@ -136,7 +137,7 @@ export async function getPersonalContext(studentId: string): Promise<PersonalCon
       streak_days: 0,
     };
   } catch (error) {
-    console.error('[getPersonalContext] Fallback:', error);
+    logServiceError(error, 'personal-ai');
     return emptyContext(studentId);
   }
 }
@@ -148,7 +149,7 @@ export async function chat(studentId: string, message: string, history: ChatMess
       return mockChat(studentId, message, history);
     }
     // AI chat requires API key — return graceful fallback
-    console.error('[chat] AI API not configured — returning default response');
+    logServiceError(new Error('AI API not configured — returning default response'), 'personal-ai');
     return {
       message: 'Assistente IA não configurado. Configure a API key em Configurações > Integrações para habilitar o chat.',
       context_used: [],
@@ -157,7 +158,7 @@ export async function chat(studentId: string, message: string, history: ChatMess
       ],
     };
   } catch (error) {
-    console.error('[chat] Fallback:', error);
+    logServiceError(error, 'personal-ai');
     return { message: '', context_used: [], suggested_actions: [] };
   }
 }
@@ -191,7 +192,7 @@ export async function getDailyBriefing(studentId: string): Promise<DailyBriefing
       streak_info: '',
     };
   } catch (error) {
-    console.error('[getDailyBriefing] Fallback:', error);
+    logServiceError(error, 'personal-ai');
     return emptyBriefing;
   }
 }
@@ -203,7 +204,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       return mockGetWeeklyPlan(studentId);
     }
     // AI feature — return empty plan with guidance
-    console.error('[getWeeklyPlan] AI API not configured — returning default');
+    logServiceError(new Error('AI API not configured — returning default'), 'personal-ai');
     return {
       ...emptyWeeklyPlan,
       summary: 'Plano semanal requer configuração da IA. Acesse Configurações > Integrações.',
@@ -212,7 +213,7 @@ export async function getWeeklyPlan(studentId: string): Promise<WeeklyPlan> {
       recovery_tip: 'Descanse adequadamente entre os treinos.',
     };
   } catch (error) {
-    console.error('[getWeeklyPlan] Fallback:', error);
+    logServiceError(error, 'personal-ai');
     return emptyWeeklyPlan;
   }
 }

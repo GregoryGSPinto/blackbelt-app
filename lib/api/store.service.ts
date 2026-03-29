@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ===========================================================================
 // 1. TYPES
@@ -192,13 +193,13 @@ export async function listCategories(academyId: string): Promise<CategoryDTO[]> 
       .order('sort_order', { ascending: true });
 
     if (error || !data) {
-      console.error('[listCategories] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as CategoryDTO[];
   } catch (error) {
-    console.error('[listCategories] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -223,7 +224,7 @@ export async function createCategory(
       .single();
 
     if (error || !row) {
-      console.error('[createCategory] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return {
         id: '',
         academy_id: academyId,
@@ -237,7 +238,7 @@ export async function createCategory(
 
     return row as unknown as CategoryDTO;
   } catch (error) {
-    console.error('[createCategory] Fallback:', error);
+    logServiceError(error, 'store');
     return {
       id: '',
       academy_id: academyId,
@@ -271,13 +272,13 @@ export async function updateCategory(
       .single();
 
     if (error || !row) {
-      console.error('[updateCategory] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return { id, academy_id: '', name: '', slug: '', sort_order: 0, created_at: '' };
     }
 
     return row as unknown as CategoryDTO;
   } catch (error) {
-    console.error('[updateCategory] Fallback:', error);
+    logServiceError(error, 'store');
     return { id, academy_id: '', name: '', slug: '', sort_order: 0, created_at: '' };
   }
 }
@@ -298,10 +299,10 @@ export async function deleteCategory(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[deleteCategory] Supabase error:', error.message);
+      logServiceError(error, 'store');
     }
   } catch (error) {
-    console.error('[deleteCategory] Fallback:', error);
+    logServiceError(error, 'store');
   }
 }
 
@@ -334,13 +335,13 @@ export async function seedDefaultCategories(academyId: string): Promise<Category
       .select();
 
     if (error || !data) {
-      console.error('[seedDefaultCategories] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as CategoryDTO[];
   } catch (error) {
-    console.error('[seedDefaultCategories] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -366,13 +367,13 @@ export async function listSizeGuides(academyId: string): Promise<SizeGuideDTO[]>
       .order('name', { ascending: true });
 
     if (error || !data) {
-      console.error('[listSizeGuides] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as SizeGuideDTO[];
   } catch (error) {
-    console.error('[listSizeGuides] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -394,13 +395,13 @@ export async function getSizeGuide(id: string): Promise<SizeGuideDTO> {
       .single();
 
     if (error || !data) {
-      console.error('[getSizeGuide] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return { id, academy_id: '', name: '', sizes: [], created_at: '' };
     }
 
     return data as unknown as SizeGuideDTO;
   } catch (error) {
-    console.error('[getSizeGuide] Fallback:', error);
+    logServiceError(error, 'store');
     return { id, academy_id: '', name: '', sizes: [], created_at: '' };
   }
 }
@@ -425,7 +426,7 @@ export async function createSizeGuide(
       .single();
 
     if (error || !row) {
-      console.error('[createSizeGuide] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return {
         id: '',
         academy_id: academyId,
@@ -439,7 +440,7 @@ export async function createSizeGuide(
 
     return row as unknown as SizeGuideDTO;
   } catch (error) {
-    console.error('[createSizeGuide] Fallback:', error);
+    logServiceError(error, 'store');
     return {
       id: '',
       academy_id: academyId,
@@ -473,13 +474,13 @@ export async function updateSizeGuide(
       .single();
 
     if (error || !row) {
-      console.error('[updateSizeGuide] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return { id, academy_id: '', name: '', sizes: [], created_at: '' };
     }
 
     return row as unknown as SizeGuideDTO;
   } catch (error) {
-    console.error('[updateSizeGuide] Fallback:', error);
+    logServiceError(error, 'store');
     return { id, academy_id: '', name: '', sizes: [], created_at: '' };
   }
 }
@@ -500,10 +501,10 @@ export async function deleteSizeGuide(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[deleteSizeGuide] Supabase error:', error.message);
+      logServiceError(error, 'store');
     }
   } catch (error) {
-    console.error('[deleteSizeGuide] Fallback:', error);
+    logServiceError(error, 'store');
   }
 }
 
@@ -592,13 +593,13 @@ export async function listProducts(academyId: string, filters?: ProductFilters):
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('[listProducts] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as Product[];
   } catch (error) {
-    console.error('[listProducts] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -621,7 +622,7 @@ export async function getProduct(id: string): Promise<Product> {
       .single();
 
     if (error || !data) {
-      console.error('[getProduct] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return emptyProduct(id);
     }
 
@@ -666,7 +667,7 @@ export async function getProduct(id: string): Promise<Product> {
 
     return product;
   } catch (error) {
-    console.error('[getProduct] Fallback:', error);
+    logServiceError(error, 'store');
     return emptyProduct(id);
   }
 }
@@ -688,7 +689,7 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
       .single();
 
     if (error || !row) {
-      console.error('[createProduct] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return {
         id: '',
         academy_id: '',
@@ -702,7 +703,7 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
 
     return row as unknown as Product;
   } catch (error) {
-    console.error('[createProduct] Fallback:', error);
+    logServiceError(error, 'store');
     return {
       id: '',
       academy_id: '',
@@ -733,13 +734,13 @@ export async function updateProduct(id: string, data: Partial<CreateProductData>
       .single();
 
     if (error || !row) {
-      console.error('[updateProduct] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return emptyProduct(id);
     }
 
     return row as unknown as Product;
   } catch (error) {
-    console.error('[updateProduct] Fallback:', error);
+    logServiceError(error, 'store');
     return emptyProduct(id);
   }
 }
@@ -760,10 +761,10 @@ export async function deleteProduct(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[deleteProduct] Supabase error:', error.message);
+      logServiceError(error, 'store');
     }
   } catch (error) {
-    console.error('[deleteProduct] Fallback:', error);
+    logServiceError(error, 'store');
   }
 }
 
@@ -786,7 +787,7 @@ export async function toggleFeatured(productId: string): Promise<boolean> {
       .single();
 
     if (fetchError || !current) {
-      console.error('[toggleFeatured] Supabase fetch error:', fetchError?.message);
+      logServiceError(fetchError, 'store');
       return false;
     }
 
@@ -798,13 +799,13 @@ export async function toggleFeatured(productId: string): Promise<boolean> {
       .eq('id', productId);
 
     if (updateError) {
-      console.error('[toggleFeatured] Supabase update error:', updateError.message);
+      logServiceError(updateError, 'store');
       return false;
     }
 
     return newValue;
   } catch (error) {
-    console.error('[toggleFeatured] Fallback:', error);
+    logServiceError(error, 'store');
     return false;
   }
 }
@@ -828,7 +829,7 @@ export async function updateStock(variantId: string, delta: number): Promise<voi
       .single();
 
     if (fetchError || !variant) {
-      console.error('[updateStock] Supabase fetch error:', fetchError?.message);
+      logServiceError(fetchError, 'store');
       return;
     }
 
@@ -840,10 +841,10 @@ export async function updateStock(variantId: string, delta: number): Promise<voi
       .eq('id', variantId);
 
     if (updateError) {
-      console.error('[updateStock] Supabase update error:', updateError.message);
+      logServiceError(updateError, 'store');
     }
   } catch (error) {
-    console.error('[updateStock] Fallback:', error);
+    logServiceError(error, 'store');
   }
 }
 
@@ -868,13 +869,13 @@ export async function listVariants(productId: string): Promise<StructuredVariant
       .order('sort_order', { ascending: true });
 
     if (error || !data) {
-      console.error('[listVariants] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as StructuredVariant[];
   } catch (error) {
-    console.error('[listVariants] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -899,13 +900,13 @@ export async function createVariant(
       .single();
 
     if (error || !row) {
-      console.error('[createVariant] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return { id: '', product_id: productId, ...data };
     }
 
     return row as unknown as StructuredVariant;
   } catch (error) {
-    console.error('[createVariant] Fallback:', error);
+    logServiceError(error, 'store');
     return { id: '', product_id: productId, ...data };
   }
 }
@@ -931,7 +932,7 @@ export async function updateVariant(
       .single();
 
     if (error || !row) {
-      console.error('[updateVariant] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return {
         id: variantId,
         product_id: '',
@@ -945,7 +946,7 @@ export async function updateVariant(
 
     return row as unknown as StructuredVariant;
   } catch (error) {
-    console.error('[updateVariant] Fallback:', error);
+    logServiceError(error, 'store');
     return {
       id: variantId,
       product_id: '',
@@ -974,10 +975,10 @@ export async function deleteVariant(variantId: string): Promise<void> {
       .eq('id', variantId);
 
     if (error) {
-      console.error('[deleteVariant] Supabase error:', error.message);
+      logServiceError(error, 'store');
     }
   } catch (error) {
-    console.error('[deleteVariant] Fallback:', error);
+    logServiceError(error, 'store');
   }
 }
 
@@ -1002,13 +1003,13 @@ export async function listReviews(productId: string): Promise<ReviewDTO[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[listReviews] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return [];
     }
 
     return data as unknown as ReviewDTO[];
   } catch (error) {
-    console.error('[listReviews] Fallback:', error);
+    logServiceError(error, 'store');
     return [];
   }
 }
@@ -1046,7 +1047,7 @@ export async function createReview(
       .single();
 
     if (error || !row) {
-      console.error('[createReview] Supabase error:', error?.message);
+      logServiceError(error, 'store');
       return {
         id: '',
         product_id: productId,
@@ -1065,7 +1066,7 @@ export async function createReview(
 
     return row as unknown as ReviewDTO;
   } catch (error) {
-    console.error('[createReview] Fallback:', error);
+    logServiceError(error, 'store');
     return {
       id: '',
       product_id: productId,
@@ -1102,7 +1103,7 @@ export async function getProductRating(
       .eq('product_id', productId);
 
     if (error || !data || data.length === 0) {
-      if (error) console.error('[getProductRating] Supabase error:', error.message);
+      if (error) logServiceError(error, 'store');
       return { avg: 0, count: 0 };
     }
 
@@ -1112,7 +1113,7 @@ export async function getProductRating(
 
     return { avg: Math.round(avg * 10) / 10, count };
   } catch (error) {
-    console.error('[getProductRating] Fallback:', error);
+    logServiceError(error, 'store');
     return { avg: 0, count: 0 };
   }
 }

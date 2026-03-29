@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface TutorialProgress {
   id: string;
@@ -21,7 +22,8 @@ function getLocalProgress(): TutorialProgress[] {
   try {
     const raw = localStorage.getItem(LS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch {
+  } catch (error) {
+    logServiceError(error, 'tutorial');
     return [];
   }
 }
@@ -127,8 +129,8 @@ export async function getTutorialProgress(userId: string): Promise<TutorialProgr
     saveLocalProgress([...allLocal, ...merged]);
 
     return merged;
-  } catch {
-    console.error('[tutorial.getTutorialProgress] Supabase unavailable, using localStorage');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
     return localData;
   }
 }
@@ -157,8 +159,8 @@ export async function startTutorial(userId: string, tutorialId: string): Promise
         tutorial_id: tutorialId,
         ...patch,
       }, { onConflict: 'user_id,tutorial_id' });
-  } catch {
-    console.error('[tutorial.startTutorial] Supabase unavailable, localStorage used as fallback');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
   }
 }
 
@@ -176,8 +178,8 @@ export async function updateTutorialStep(userId: string, tutorialId: string, ste
       .update({ current_step: step })
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
-  } catch {
-    console.error('[tutorial.updateStep] Supabase unavailable, localStorage used as fallback');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
   }
 }
 
@@ -200,8 +202,8 @@ export async function completeTutorial(userId: string, tutorialId: string): Prom
       .update(patch)
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
-  } catch {
-    console.error('[tutorial.completeTutorial] Supabase unavailable, localStorage used as fallback');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
   }
 }
 
@@ -226,8 +228,8 @@ export async function skipTutorial(userId: string, tutorialId: string): Promise<
         tutorial_id: tutorialId,
         ...patch,
       }, { onConflict: 'user_id,tutorial_id' });
-  } catch {
-    console.error('[tutorial.skipTutorial] Supabase unavailable, localStorage used as fallback');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
   }
 }
 
@@ -248,7 +250,7 @@ export async function resetTutorial(userId: string, tutorialId: string): Promise
       .delete()
       .eq('user_id', userId)
       .eq('tutorial_id', tutorialId);
-  } catch {
-    console.error('[tutorial.resetTutorial] Supabase unavailable, localStorage used as fallback');
+  } catch (error) {
+    logServiceError(error, 'tutorial');
   }
 }

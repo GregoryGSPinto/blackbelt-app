@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Plan, PlanInterval } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface CreatePlanRequest {
   name: string;
@@ -28,12 +29,12 @@ export async function listPlans(academyId: string): Promise<Plan[]> {
       .eq('academy_id', academyId)
       .order('price', { ascending: true });
     if (error || !data) {
-      console.error('[listPlans] Supabase error:', error?.message);
+      logServiceError(error, 'planos');
       return [];
     }
     return data as unknown as Plan[];
   } catch (error) {
-    console.error('[listPlans] Fallback:', error);
+    logServiceError(error, 'planos');
     return [];
   }
 }
@@ -52,12 +53,12 @@ export async function getPlanById(id: string): Promise<Plan> {
       .eq('id', id)
       .single();
     if (error || !data) {
-      console.error('[getPlanById] Supabase error:', error?.message);
+      logServiceError(error, 'planos');
       return {} as Plan;
     }
     return data as unknown as Plan;
   } catch (error) {
-    console.error('[getPlanById] Fallback:', error);
+    logServiceError(error, 'planos');
     return {} as Plan;
   }
 }
@@ -76,12 +77,12 @@ export async function createPlan(academyId: string, data: CreatePlanRequest): Pr
       .select()
       .single();
     if (error || !row) {
-      console.error('[createPlan] Supabase error:', error?.message);
+      logServiceError(error, 'planos');
       return {} as Plan;
     }
     return row as unknown as Plan;
   } catch (error) {
-    console.error('[createPlan] Fallback:', error);
+    logServiceError(error, 'planos');
     return {} as Plan;
   }
 }
@@ -101,12 +102,12 @@ export async function updatePlan(id: string, data: UpdatePlanRequest): Promise<P
       .select()
       .single();
     if (error || !row) {
-      console.error('[updatePlan] Supabase error:', error?.message);
+      logServiceError(error, 'planos');
       return {} as Plan;
     }
     return row as unknown as Plan;
   } catch (error) {
-    console.error('[updatePlan] Fallback:', error);
+    logServiceError(error, 'planos');
     return {} as Plan;
   }
 }

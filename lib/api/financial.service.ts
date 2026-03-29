@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
+import { logServiceError } from '@/lib/api/errors';
 
 type InvRow = {
   id: string;
@@ -73,7 +74,7 @@ export async function listMensalidades(
     }
     const { data, error } = await query;
     if (error) {
-      console.error('[listMensalidades] error:', error.message);
+      logServiceError(error, 'financial');
       return [];
     }
     let results = (data ?? []).map((inv: unknown) => toMensalidade(inv as InvRow));
@@ -84,7 +85,7 @@ export async function listMensalidades(
     }
     return results;
   } catch (error) {
-    console.error('[listMensalidades] Fallback:', error);
+    logServiceError(error, 'financial');
     return [];
   }
 }
@@ -107,7 +108,7 @@ export async function markAsPaid(
     .select(INVOICE_SELECT)
     .single();
   if (error) {
-    console.error('[markAsPaid] error:', error.message);
+    logServiceError(error, 'financial');
     throw new Error(`[markAsPaid] Failed to mark as paid: ${error.message}`);
   }
   trackFeatureUsage('financial', 'create', { method });
@@ -159,7 +160,7 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       ticket_medio: paidCur.length > 0 ? Math.round(revenue_this_month / paidCur.length) : 0,
     };
   } catch (error) {
-    console.error('[getFinancialSummary] Fallback:', error);
+    logServiceError(error, 'financial');
     return empty;
   }
 }
@@ -194,7 +195,7 @@ export async function getRevenueChart(academyId: string): Promise<FinancialChart
     }
     return points;
   } catch (error) {
-    console.error('[getRevenueChart] Fallback:', error);
+    logServiceError(error, 'financial');
     return [];
   }
 }
@@ -216,7 +217,7 @@ export async function getOverdueList(academyId: string): Promise<OverdueItem[]> 
       .in('status', ['open', 'uncollectible'])
       .lt('due_date', today);
     if (error) {
-      console.error('[getOverdueList] error:', error.message);
+      logServiceError(error, 'financial');
       return [];
     }
     const now = Date.now();
@@ -233,7 +234,7 @@ export async function getOverdueList(academyId: string): Promise<OverdueItem[]> 
       };
     });
   } catch (error) {
-    console.error('[getOverdueList] Fallback:', error);
+    logServiceError(error, 'financial');
     return [];
   }
 }
@@ -243,6 +244,6 @@ export async function generateMonthlyBills(_academyId: string, _month: string): 
     return { generated: 172 };
   }
 
-  console.error('[financial.generateMonthlyBills] fallback — not yet connected to Supabase');
+  logServiceError(new Error('fallback — not yet connected to Supabase'), 'financial');
   throw new Error('[generateMonthlyBills] Not yet connected to Supabase');
 }

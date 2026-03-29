@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface SentimentResult {
   score: number; // -1 to 1
@@ -39,12 +40,12 @@ export async function getSentimentTrend(academyId: string): Promise<SentimentTre
       .eq('academy_id', academyId)
       .order('month', { ascending: true });
     if (error) {
-      console.error('[getSentimentTrend] Supabase error:', error.message);
+      logServiceError(error, 'sentiment');
       return [];
     }
     return (data ?? []) as SentimentTrend[];
   } catch (error) {
-    console.error('[getSentimentTrend] Fallback:', error);
+    logServiceError(error, 'sentiment');
     return [];
   }
 }

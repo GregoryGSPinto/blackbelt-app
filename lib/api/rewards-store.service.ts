@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type RewardCategory = 'desconto' | 'experiencia' | 'produto' | 'digital' | 'prioridade';
 export type RewardStatus = 'available' | 'out_of_stock' | 'expired';
@@ -46,7 +47,7 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       .eq('status', 'available');
 
     if (error || !data) {
-      console.error('[getRewardsStore] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return { rewards: [], user_points_balance: 0 };
     }
 
@@ -64,7 +65,7 @@ export async function getRewardsStore(academyId: string): Promise<RewardsStoreDa
       user_points_balance: 0,
     };
   } catch (error) {
-    console.error('[getRewardsStore] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return { rewards: [], user_points_balance: 0 };
   }
 }
@@ -85,7 +86,7 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       .single();
 
     if (error || !data) {
-      console.error('[redeemReward] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return { success: false, message: error?.message ?? 'Error', redemption: { id: '', reward_id: rewardId, reward_name: '', cost_points: 0, redeemed_at: '', status: 'pending', user_id: userId } };
     }
 
@@ -103,7 +104,7 @@ export async function redeemReward(userId: string, rewardId: string): Promise<{ 
       },
     };
   } catch (error) {
-    console.error('[redeemReward] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return { success: false, message: 'Error', redemption: { id: '', reward_id: rewardId, reward_name: '', cost_points: 0, redeemed_at: '', status: 'pending', user_id: userId } };
   }
 }
@@ -124,7 +125,7 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       .order('redeemed_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getMyRedemptions] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return [];
     }
 
@@ -139,7 +140,7 @@ export async function getMyRedemptions(userId: string): Promise<RedemptionDTO[]>
       user_name: row.user_name ? String(row.user_name) : undefined,
     }));
   } catch (error) {
-    console.error('[getMyRedemptions] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return [];
   }
 }
@@ -161,7 +162,7 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       .single();
 
     if (error || !row) {
-      console.error('[createStoreReward] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return { id: '', ...data, status: 'available' };
     }
 
@@ -176,7 +177,7 @@ export async function createStoreReward(academyId: string, data: Omit<StoreRewar
       status: (row.status ?? 'available') as RewardStatus,
     };
   } catch (error) {
-    console.error('[createStoreReward] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return { id: '', ...data, status: 'available' };
   }
 }
@@ -198,7 +199,7 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       .single();
 
     if (error || !row) {
-      console.error('[updateStoreReward] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return { id: rewardId, name: '', description: '', image_url: '', cost_points: 0, category: 'produto', stock: 0, status: 'available', ...data };
     }
 
@@ -213,7 +214,7 @@ export async function updateStoreReward(rewardId: string, data: Partial<StoreRew
       status: (row.status ?? 'available') as RewardStatus,
     };
   } catch (error) {
-    console.error('[updateStoreReward] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return { id: rewardId, name: '', description: '', image_url: '', cost_points: 0, category: 'produto', stock: 0, status: 'available', ...data };
   }
 }
@@ -233,10 +234,10 @@ export async function deleteStoreReward(rewardId: string): Promise<void> {
       .eq('id', rewardId);
 
     if (error) {
-      console.error('[deleteStoreReward] Supabase error:', error.message);
+      logServiceError(error, 'rewards-store');
     }
   } catch (error) {
-    console.error('[deleteStoreReward] Fallback:', error);
+    logServiceError(error, 'rewards-store');
   }
 }
 
@@ -256,7 +257,7 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       .order('redeemed_at', { ascending: false });
 
     if (error || !data) {
-      console.error('[getAllRedemptions] Supabase error:', error?.message);
+      logServiceError(error, 'rewards-store');
       return [];
     }
 
@@ -271,7 +272,7 @@ export async function getAllRedemptions(academyId: string): Promise<RedemptionDT
       user_name: row.user_name ? String(row.user_name) : undefined,
     }));
   } catch (error) {
-    console.error('[getAllRedemptions] Fallback:', error);
+    logServiceError(error, 'rewards-store');
     return [];
   }
 }

@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { MarketplaceCourse, CourseModality, BeltLevel, CourseModule } from '@/lib/api/marketplace.service';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface CourseAnalytics {
   course_id: string;
@@ -48,12 +49,12 @@ export async function createCourse(creatorId: string, payload: CreateCoursePaylo
       .select()
       .single();
     if (error || !data) {
-      console.error('[createCourse] Supabase error:', error?.message);
+      logServiceError(error, 'course-creator');
       return {} as MarketplaceCourse;
     }
     return data as unknown as MarketplaceCourse;
   } catch (error) {
-    console.error('[createCourse] Fallback:', error);
+    logServiceError(error, 'course-creator');
     return {} as MarketplaceCourse;
   }
 }
@@ -72,12 +73,12 @@ export async function addModule(payload: AddModulePayload): Promise<CourseModule
       .select()
       .single();
     if (error || !data) {
-      console.error('[addModule] Supabase error:', error?.message);
+      logServiceError(error, 'course-creator');
       return {} as CourseModule;
     }
     return data as unknown as CourseModule;
   } catch (error) {
-    console.error('[addModule] Fallback:', error);
+    logServiceError(error, 'course-creator');
     return {} as CourseModule;
   }
 }
@@ -94,10 +95,10 @@ export async function addLesson(payload: AddLessonPayload): Promise<void> {
       .from('course_lessons')
       .insert({ course_id: payload.course_id, module_id: payload.module_id, title: payload.title, video_url: payload.video_url, duration: payload.duration });
     if (error) {
-      console.error('[addLesson] Supabase error:', error.message);
+      logServiceError(error, 'course-creator');
     }
   } catch (error) {
-    console.error('[addLesson] Fallback:', error);
+    logServiceError(error, 'course-creator');
   }
 }
 
@@ -114,7 +115,7 @@ export async function reorderModules(courseId: string, moduleIds: string[]): Pro
     );
     await Promise.all(updates);
   } catch (error) {
-    console.error('[reorderModules] Fallback:', error);
+    logServiceError(error, 'course-creator');
   }
 }
 
@@ -133,12 +134,12 @@ export async function publishCourse(courseId: string): Promise<MarketplaceCourse
       .select()
       .single();
     if (error || !data) {
-      console.error('[publishCourse] Supabase error:', error?.message);
+      logServiceError(error, 'course-creator');
       return {} as MarketplaceCourse;
     }
     return data as unknown as MarketplaceCourse;
   } catch (error) {
-    console.error('[publishCourse] Fallback:', error);
+    logServiceError(error, 'course-creator');
     return {} as MarketplaceCourse;
   }
 }
@@ -156,12 +157,12 @@ export async function getCourseAnalytics(creatorId: string): Promise<CourseAnaly
       .select('*')
       .eq('creator_id', creatorId);
     if (error || !data) {
-      console.error('[getCourseAnalytics] Supabase error:', error?.message);
+      logServiceError(error, 'course-creator');
       return [];
     }
     return data as unknown as CourseAnalytics[];
   } catch (error) {
-    console.error('[getCourseAnalytics] Fallback:', error);
+    logServiceError(error, 'course-creator');
     return [];
   }
 }

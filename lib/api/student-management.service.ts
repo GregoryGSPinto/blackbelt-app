@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { AdminStudentItem, StudentManagementStats } from '@/lib/types/student-management';
+import { logServiceError } from '@/lib/api/errors';
 
 export async function listStudents(
   academyId: string,
@@ -29,7 +30,7 @@ export async function listStudents(
 
     const { data, error } = await query;
     if (error) {
-      console.error('[listStudents] Supabase error:', error.message);
+      logServiceError(error, 'student-management');
       return [];
     }
 
@@ -66,7 +67,7 @@ export async function listStudents(
 
     return results;
   } catch (error) {
-    console.error('[listStudents] Fallback:', error);
+    logServiceError(error, 'student-management');
     return [];
   }
 }
@@ -106,7 +107,7 @@ export async function getStudentManagementStats(
       by_belt: byBelt,
     };
   } catch (error) {
-    console.error('[getStudentManagementStats] Fallback:', error);
+    logServiceError(error, 'student-management');
     return { total_active: 0, new_this_month: 0, inactive: 0, by_belt: {} };
   }
 }
@@ -127,12 +128,12 @@ export async function deactivateStudent(studentId: string): Promise<AdminStudent
       .eq('profile_id', studentId);
 
     if (error) {
-      console.error('[deactivateStudent] Supabase error:', error.message);
+      logServiceError(error, 'student-management');
     }
 
     return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
   } catch (error) {
-    console.error('[deactivateStudent] Fallback:', error);
+    logServiceError(error, 'student-management');
     return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
   }
 }

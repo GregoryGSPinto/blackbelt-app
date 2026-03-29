@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { DashboardData, ActivityFeedItem } from '@/lib/types/admin-dashboard';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Get full dashboard data ────────────────────────────────────────
 
@@ -121,7 +122,7 @@ export async function getActivityFeed(
     .range(offset, offset + limit - 1);
 
   if (error) {
-    console.error('[getActivityFeed] Supabase error:', error.message);
+    logServiceError(error, 'admin-dashboard');
     return [];
   }
 
@@ -156,7 +157,7 @@ export async function dismissDashboardAlert(_alertId: string): Promise<void> {
     .update({ read: true })
     .eq('id', _alertId);
   if (error) {
-    console.error('[dismissDashboardAlert] error:', error.message);
+    logServiceError(error, 'admin-dashboard');
     throw new Error(`[dismissDashboardAlert] Failed: ${error.message}`);
   }
 }

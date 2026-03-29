@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Attendance, BeltLevel, ScheduleSlot } from '@/lib/types';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface ActiveClassStudent {
   student_id: string;
@@ -45,7 +46,7 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
       `)
       .eq('professor_id', professorId);
     if (error) {
-      console.error('[getActiveClass] error:', error.message);
+      logServiceError(error, 'turma-ativa');
       return null;
     }
 
@@ -126,7 +127,7 @@ export async function getActiveClass(professorId: string): Promise<ActiveClassDT
       students,
     };
   } catch (error) {
-    console.error('[getActiveClass] Fallback:', error);
+    logServiceError(error, 'turma-ativa');
     return null;
   }
 }
@@ -165,13 +166,13 @@ export async function saveAttendance(data: SaveAttendanceRequest): Promise<Atten
       .insert(records)
       .select();
     if (error) {
-      console.error('[saveAttendance] error:', error.message);
+      logServiceError(error, 'turma-ativa');
       return [];
     }
 
     return (result ?? []) as Attendance[];
   } catch (error) {
-    console.error('[saveAttendance] Fallback:', error);
+    logServiceError(error, 'turma-ativa');
     return [];
   }
 }

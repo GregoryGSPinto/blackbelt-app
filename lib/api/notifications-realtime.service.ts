@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface AppNotification {
   id: string;
@@ -28,7 +29,7 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[getUnreadNotifications] Supabase error:', error.message);
+      logServiceError(error, 'notifications-realtime');
       return [];
     }
 
@@ -43,7 +44,7 @@ export async function getUnreadNotifications(profileId: string): Promise<AppNoti
     }));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error('[getUnreadNotifications] Fallback:', msg);
+    logServiceError(new Error(msg), 'notifications-realtime');
     return [];
   }
 }
@@ -60,11 +61,11 @@ export async function markNotificationRead(id: string): Promise<void> {
       .eq('id', id);
 
     if (error) {
-      console.error('[markNotificationRead] Supabase error:', error.message);
+      logServiceError(error, 'notifications-realtime');
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error('[markNotificationRead] Fallback:', msg);
+    logServiceError(new Error(msg), 'notifications-realtime');
   }
 }
 
@@ -81,10 +82,10 @@ export async function markAllRead(profileId: string): Promise<void> {
       .eq('read', false);
 
     if (error) {
-      console.error('[markAllRead] Supabase error:', error.message);
+      logServiceError(error, 'notifications-realtime');
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error('[markAllRead] Fallback:', msg);
+    logServiceError(new Error(msg), 'notifications-realtime');
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       .single();
 
     if (error || !cls) {
-      console.error('[getModoAula] Supabase error:', error?.message);
+      logServiceError(error, 'modo-aula');
       return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
     }
 
@@ -131,7 +132,7 @@ export async function getModoAula(turmaId: string): Promise<ModoAulaDTO> {
       alertas: [],
     };
   } catch (error) {
-    console.error('[getModoAula] Fallback:', error);
+    logServiceError(error, 'modo-aula');
     return { turma: { id: turmaId, nome: '', modalidade: '', horario: '', sala: '', capacidade: 0 }, alunos: [], alertas: [] };
   }
 }
@@ -160,7 +161,7 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
         );
 
       if (error) {
-        console.error('[registrarPresenca] Supabase error:', error.message);
+        logServiceError(error, 'modo-aula');
       }
     } else {
       // Remove attendance record for today (mark as absent = no record)
@@ -175,11 +176,11 @@ export async function registrarPresenca(turmaId: string, alunoId: string, presen
         .gte('checked_at', todayStart.toISOString());
 
       if (error) {
-        console.error('[registrarPresenca] Delete error:', error.message);
+        logServiceError(error, 'modo-aula');
       }
     }
   } catch (error) {
-    console.error('[registrarPresenca] Fallback:', error);
+    logServiceError(error, 'modo-aula');
   }
 }
 
@@ -203,7 +204,7 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       .gte('checked_at', todayStart.toISOString());
 
     if (countError) {
-      console.error('[encerrarAula] Supabase error:', countError.message);
+      logServiceError(countError, 'modo-aula');
       return { totalPresentes: 0, totalAlunos: 0 };
     }
 
@@ -219,7 +220,7 @@ export async function encerrarAula(turmaId: string): Promise<{ totalPresentes: n
       totalAlunos: enrolledCount ?? 0,
     };
   } catch (error) {
-    console.error('[encerrarAula] Fallback:', error);
+    logServiceError(error, 'modo-aula');
     return { totalPresentes: 0, totalAlunos: 0 };
   }
 }

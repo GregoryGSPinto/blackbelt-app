@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 import type {
   PlatformPlan,
   AcademyFull,
@@ -24,7 +25,7 @@ export async function listPlans(): Promise<PlatformPlan[]> {
     .select('*')
     .order('price_monthly', { ascending: true });
   if (error) {
-    console.error('[listPlans] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return [];
   }
   return (data ?? []) as PlatformPlan[];
@@ -44,7 +45,7 @@ export async function getPlan(id: string): Promise<PlatformPlan | null> {
     .eq('id', id)
     .single();
   if (error) {
-    console.error('[getPlan] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return null;
   }
   return (data ?? null) as PlatformPlan | null;
@@ -77,7 +78,7 @@ export async function listAcademies(
   }
   const { data, error } = await query;
   if (error) {
-    console.error('[listAcademies] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return [];
   }
   return (data ?? []) as AcademyFull[];
@@ -97,7 +98,7 @@ export async function getAcademy(id: string): Promise<AcademyFull | null> {
     .eq('id', id)
     .single();
   if (error) {
-    console.error('[getAcademy] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return null;
   }
   return (data ?? null) as AcademyFull | null;
@@ -154,7 +155,7 @@ export async function createAcademy(
     .select('*')
     .single();
   if (tokenError || !onboardToken) {
-    console.error('[createAcademy] Token creation error:', tokenError?.message);
+    logServiceError(tokenError, 'superadmin');
     return { academy: academy as AcademyFull, onboardToken: {} as OnboardToken };
   }
   return {
@@ -250,7 +251,7 @@ export async function listOnboardTokens(
   }
   const { data, error } = await query;
   if (error) {
-    console.error('[listOnboardTokens] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return [];
   }
   return (data ?? []) as OnboardToken[];
@@ -381,7 +382,7 @@ export async function getUnacknowledgedAcademies(): Promise<AcademyFull[]> {
     .eq('acknowledged', false)
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('[getUnacknowledgedAcademies] Supabase error:', error.message);
+    logServiceError(error, 'superadmin');
     return [];
   }
   return (data ?? []) as AcademyFull[];

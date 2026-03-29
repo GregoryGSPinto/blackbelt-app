@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── DTOs ─────────────────────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ export async function getLessonPlans(classId: string): Promise<LessonPlanDTO[]> 
       .order('date', { ascending: false });
 
     if (error) {
-      console.error('[getLessonPlans] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return [];
     }
 
@@ -129,7 +130,7 @@ export async function getLessonPlans(classId: string): Promise<LessonPlanDTO[]> 
       };
     });
   } catch (error) {
-    console.error('[getLessonPlans] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return [];
   }
 }
@@ -146,7 +147,7 @@ export async function createLessonPlan(data: CreateLessonPlanPayload): Promise<L
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[createLessonPlan] error: Nao autenticado');
+      logServiceError(new Error('error: Nao autenticado'), 'plano-aula');
       return { id: '', class_id: data.class_id, date: data.date, theme: data.theme, warmup: data.warmup, technique_1: data.technique_1, technique_2: data.technique_2, drilling: data.drilling, sparring: data.sparring, notes: data.notes, professor_name: '', created_at: '' };
     }
 
@@ -172,7 +173,7 @@ export async function createLessonPlan(data: CreateLessonPlanPayload): Promise<L
       .single();
 
     if (error || !inserted) {
-      console.error('[createLessonPlan] error:', error?.message ?? 'Erro ao criar plano');
+      logServiceError(error, 'plano-aula');
       return { id: '', class_id: data.class_id, date: data.date, theme: data.theme, warmup: data.warmup, technique_1: data.technique_1, technique_2: data.technique_2, drilling: data.drilling, sparring: data.sparring, notes: data.notes, professor_name: '', created_at: '' };
     }
 
@@ -198,7 +199,7 @@ export async function createLessonPlan(data: CreateLessonPlanPayload): Promise<L
       created_at: now,
     };
   } catch (error) {
-    console.error('[createLessonPlan] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { id: '', class_id: data.class_id, date: data.date, theme: data.theme, warmup: data.warmup, technique_1: data.technique_1, technique_2: data.technique_2, drilling: data.drilling, sparring: data.sparring, notes: data.notes, professor_name: '', created_at: '' };
   }
 }
@@ -219,7 +220,7 @@ export async function getTemplates(): Promise<LessonPlanTemplateDTO[]> {
       .order('name');
 
     if (error) {
-      console.error('[getTemplates] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return [];
     }
 
@@ -235,7 +236,7 @@ export async function getTemplates(): Promise<LessonPlanTemplateDTO[]> {
       notes: (t.notes ?? '') as string,
     }));
   } catch (error) {
-    console.error('[getTemplates] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return [];
   }
 }
@@ -267,7 +268,7 @@ export async function getClassNotes(classId: string): Promise<ClassNoteDTO[]> {
       .order('date', { ascending: false });
 
     if (error) {
-      console.error('[getClassNotes] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return [];
     }
 
@@ -285,7 +286,7 @@ export async function getClassNotes(classId: string): Promise<ClassNoteDTO[]> {
       };
     });
   } catch (error) {
-    console.error('[getClassNotes] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return [];
   }
 }
@@ -302,7 +303,7 @@ export async function saveClassNote(data: SaveClassNotePayload): Promise<ClassNo
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[saveClassNote] error: Nao autenticado');
+      logServiceError(new Error('error: Nao autenticado'), 'plano-aula');
       return { id: '', class_id: data.class_id, date: data.date, content: data.content, student_highlights: data.student_highlights, attendance_count: data.attendance_count, professor_name: '', created_at: '' };
     }
 
@@ -324,7 +325,7 @@ export async function saveClassNote(data: SaveClassNotePayload): Promise<ClassNo
       .single();
 
     if (error || !inserted) {
-      console.error('[saveClassNote] error:', error?.message ?? 'Erro ao salvar nota');
+      logServiceError(error, 'plano-aula');
       return { id: '', class_id: data.class_id, date: data.date, content: data.content, student_highlights: data.student_highlights, attendance_count: data.attendance_count, professor_name: '', created_at: '' };
     }
 
@@ -345,7 +346,7 @@ export async function saveClassNote(data: SaveClassNotePayload): Promise<ClassNo
       created_at: now,
     };
   } catch (error) {
-    console.error('[saveClassNote] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { id: '', class_id: data.class_id, date: data.date, content: data.content, student_highlights: data.student_highlights, attendance_count: data.attendance_count, professor_name: '', created_at: '' };
   }
 }
@@ -447,7 +448,7 @@ export async function createPlano(dados: CreatePlanoPayload): Promise<PlanoAula>
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[createPlano] error: Nao autenticado');
+      logServiceError(new Error('error: Nao autenticado'), 'plano-aula');
       return { ...EMPTY_PLANO };
     }
 
@@ -480,13 +481,13 @@ export async function createPlano(dados: CreatePlanoPayload): Promise<PlanoAula>
       .single();
 
     if (error || !inserted) {
-      console.error('[createPlano] error:', error?.message ?? 'Erro ao criar plano');
+      logServiceError(error, 'plano-aula');
       return { ...EMPTY_PLANO };
     }
 
     return mapRowToPlano(inserted);
   } catch (error) {
-    console.error('[createPlano] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { ...EMPTY_PLANO };
   }
 }
@@ -535,13 +536,13 @@ export async function updatePlano(id: string, dados: Partial<CreatePlanoPayload>
       .single();
 
     if (error || !updated) {
-      console.error('[updatePlano] error:', error?.message ?? 'Erro ao atualizar plano');
+      logServiceError(error, 'plano-aula');
       return { ...EMPTY_PLANO, id };
     }
 
     return mapRowToPlano(updated);
   } catch (error) {
-    console.error('[updatePlano] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { ...EMPTY_PLANO, id };
   }
 }
@@ -577,13 +578,13 @@ export async function listPlanos(professorId: string, periodo?: string): Promise
     const { data, error } = await query;
 
     if (error) {
-      console.error('[listPlanos] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return [];
     }
 
     return (data ?? []).map((row: Record<string, unknown>) => mapRowToPlano(row));
   } catch (error) {
-    console.error('[listPlanos] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return [];
   }
 }
@@ -625,7 +626,7 @@ export async function getSemana(professorId: string, semana: string): Promise<Se
       .order('date', { ascending: true });
 
     if (error) {
-      console.error('[getSemana] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return { semana, tema: '', aulas: [] };
     }
 
@@ -635,7 +636,7 @@ export async function getSemana(professorId: string, semana: string): Promise<Se
 
     return { semana, tema, aulas };
   } catch (error) {
-    console.error('[getSemana] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { semana, tema: '', aulas: [] };
   }
 }
@@ -658,7 +659,7 @@ export async function duplicarPlano(id: string, novaData: string): Promise<Plano
       .single();
 
     if (fetchError || !original) {
-      console.error('[duplicarPlano] error: Plano original nao encontrado', fetchError?.message);
+      logServiceError(fetchError, 'plano-aula');
       return { ...EMPTY_PLANO };
     }
 
@@ -690,13 +691,13 @@ export async function duplicarPlano(id: string, novaData: string): Promise<Plano
       .single();
 
     if (error || !inserted) {
-      console.error('[duplicarPlano] error:', error?.message ?? 'Erro ao duplicar plano');
+      logServiceError(error, 'plano-aula');
       return { ...EMPTY_PLANO };
     }
 
     return mapRowToPlano(inserted);
   } catch (error) {
-    console.error('[duplicarPlano] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return { ...EMPTY_PLANO };
   }
 }
@@ -727,7 +728,7 @@ export async function getProximaAula(professorId: string): Promise<PlanoAula | n
       .maybeSingle();
 
     if (error) {
-      console.error('[getProximaAula] error:', error.message);
+      logServiceError(error, 'plano-aula');
       return null;
     }
 
@@ -735,7 +736,7 @@ export async function getProximaAula(professorId: string): Promise<PlanoAula | n
 
     return mapRowToPlano(data as Record<string, unknown>);
   } catch (error) {
-    console.error('[getProximaAula] Fallback:', error);
+    logServiceError(error, 'plano-aula');
     return null;
   }
 }

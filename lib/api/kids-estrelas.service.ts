@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface KidsProfile {
   id: string;
@@ -55,13 +56,13 @@ export async function getKidsProfile(studentId: string): Promise<KidsProfile> {
       .eq('student_id', studentId)
       .maybeSingle();
     if (error || !data) {
-      console.error('[getKidsProfile] Supabase error:', error?.message);
+      logServiceError(error, 'kids-estrelas');
       const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
       return mockGetKidsProfile(studentId);
     }
     return data as unknown as KidsProfile;
   } catch (error) {
-    console.error('[getKidsProfile] Fallback:', error);
+    logServiceError(error, 'kids-estrelas');
     const { mockGetKidsProfile } = await import('@/lib/mocks/kids-estrelas.mock');
     return mockGetKidsProfile(studentId);
   }
@@ -81,12 +82,12 @@ export async function getEstrelasHistorico(studentId: string): Promise<EstrelaHi
       .eq('student_id', studentId)
       .order('data', { ascending: false });
     if (error) {
-      console.error('[getEstrelasHistorico] Supabase error:', error.message);
+      logServiceError(error, 'kids-estrelas');
       return [];
     }
     return (data ?? []) as unknown as EstrelaHistorico[];
   } catch (error) {
-    console.error('[getEstrelasHistorico] Fallback:', error);
+    logServiceError(error, 'kids-estrelas');
     return [];
   }
 }
@@ -104,12 +105,12 @@ export async function getRecompensas(studentId: string): Promise<RecompensaEstre
       .select('*')
       .eq('student_id', studentId);
     if (error) {
-      console.error('[getRecompensas] Supabase error:', error.message);
+      logServiceError(error, 'kids-estrelas');
       return [];
     }
     return (data ?? []) as unknown as RecompensaEstrela[];
   } catch (error) {
-    console.error('[getRecompensas] Fallback:', error);
+    logServiceError(error, 'kids-estrelas');
     return [];
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export type SSOProvider = 'google' | 'azure' | 'saml';
 
@@ -35,12 +36,12 @@ export async function getSSOConfig(academyId: string): Promise<SSOConfig | null>
       .single();
 
     if (error || !data) {
-      console.error('[getSSOConfig] error:', error?.message ?? 'not found');
+      logServiceError(error, 'sso');
       return null;
     }
     return data.value as unknown as SSOConfig;
   } catch (error) {
-    console.error('[getSSOConfig] Fallback:', error);
+    logServiceError(error, 'sso');
     return null;
   }
 }
@@ -61,12 +62,12 @@ export async function updateSSOConfig(academyId: string, config: Partial<SSOConf
       .single();
 
     if (error || !data) {
-      console.error('[updateSSOConfig] error:', error?.message);
+      logServiceError(error, 'sso');
       return config as SSOConfig;
     }
     return data.value as unknown as SSOConfig;
   } catch (error) {
-    console.error('[updateSSOConfig] Fallback:', error);
+    logServiceError(error, 'sso');
     return config as SSOConfig;
   }
 }
@@ -78,10 +79,10 @@ export async function initSSOLogin(provider: SSOProvider, _academyId: string): P
       return mockInitSSOLogin(provider, _academyId);
     }
     // SSO login requires external provider configuration
-    console.error('[initSSOLogin] SSO not configured for provider:', provider);
+    logServiceError(new Error('SSO not configured for provider'), 'sso');
     return { redirectUrl: '' };
   } catch (error) {
-    console.error('[initSSOLogin] Fallback:', error);
+    logServiceError(error, 'sso');
     return { redirectUrl: '' };
   }
 }
@@ -93,10 +94,10 @@ export async function handleSSOCallback(provider: SSOProvider, _code: string): P
       return mockHandleSSOCallback(provider, _code);
     }
     // SSO callback requires external provider configuration
-    console.error('[handleSSOCallback] SSO not configured for provider:', provider);
+    logServiceError(new Error('SSO not configured for provider'), 'sso');
     return { user: { id: '', email: '', name: '' }, profile: { externalId: '', provider }, tokens: { accessToken: '', refreshToken: '' } };
   } catch (error) {
-    console.error('[handleSSOCallback] Fallback:', error);
+    logServiceError(error, 'sso');
     return { user: { id: '', email: '', name: '' }, profile: { externalId: '', provider }, tokens: { accessToken: '', refreshToken: '' } };
   }
 }
@@ -128,7 +129,7 @@ export async function testSSOConnection(academyId: string): Promise<{ success: b
 
     return { success: true, error: null };
   } catch (error) {
-    console.error('[testSSOConnection] Fallback:', error);
+    logServiceError(error, 'sso');
     return { success: false, error: 'Erro ao testar conexão SSO' };
   }
 }

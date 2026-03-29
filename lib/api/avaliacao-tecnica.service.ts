@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -72,7 +73,7 @@ export async function createAvaliacao(
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[createAvaliacao] Not authenticated');
+      logServiceError(new Error('Not authenticated'), 'avaliacao-tecnica');
       return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
     }
 
@@ -95,7 +96,7 @@ export async function createAvaliacao(
       .single();
 
     if (error) {
-      console.error('[createAvaliacao] Supabase error:', error.message);
+      logServiceError(error, 'avaliacao-tecnica');
     }
 
     return {
@@ -112,7 +113,7 @@ export async function createAvaliacao(
       recomendacao: recomendacao as AvaliacaoTecnica['recomendacao'],
     };
   } catch (error) {
-    console.error('[createAvaliacao] Fallback:', error);
+    logServiceError(error, 'avaliacao-tecnica');
     return { id: '', alunoId, alunoNome: '', professorId: '', professorNome: '', data: new Date().toISOString(), faixaNoMomento: '', criterios, mediaGeral: 0, observacoes, recomendacao: 'manter_faixa' };
   }
 }
@@ -137,7 +138,7 @@ export async function listAvaliacoes(
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[listAvaliacoes] Supabase error:', error.message);
+      logServiceError(error, 'avaliacao-tecnica');
       return [];
     }
 
@@ -159,7 +160,7 @@ export async function listAvaliacoes(
       };
     });
   } catch (error) {
-    console.error('[listAvaliacoes] Fallback:', error);
+    logServiceError(error, 'avaliacao-tecnica');
     return [];
   }
 }
@@ -181,7 +182,7 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('[getEvolucaoAluno] Supabase error:', error.message);
+      logServiceError(error, 'avaliacao-tecnica');
       return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
     }
 
@@ -212,7 +213,7 @@ export async function getEvolucaoAluno(alunoId: string): Promise<EvolucaoAluno> 
       requisitosPromocao: [],
     };
   } catch (error) {
-    console.error('[getEvolucaoAluno] Fallback:', error);
+    logServiceError(error, 'avaliacao-tecnica');
     return { alunoId, avaliacoes: [], evolucaoPorCriterio: [], mediaAtual: 0, mediaAnterior: 0, prontoParaPromocao: false, requisitosPromocao: [] };
   }
 }
@@ -228,12 +229,12 @@ export async function getCriterios(): Promise<CriterioAvaliacao[]> {
 
     const { data, error } = await supabase.from('evaluation_criteria').select('*');
     if (error || !data?.length) {
-      console.error('[getCriterios] Using default criteria');
+      logServiceError(new Error('Using default criteria'), 'avaliacao-tecnica');
       return CRITERIOS_BJJ;
     }
     return data as unknown as CriterioAvaliacao[];
   } catch (error) {
-    console.error('[getCriterios] Fallback:', error);
+    logServiceError(error, 'avaliacao-tecnica');
     return CRITERIOS_BJJ;
   }
 }

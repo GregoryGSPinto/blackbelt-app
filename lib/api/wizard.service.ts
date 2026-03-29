@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 export interface WizardStepData {
   [key: string]: string | string[] | number | boolean | null | undefined | Record<string, string | number | boolean>;
@@ -33,7 +34,7 @@ export async function getWizardProgress(academyId: string): Promise<WizardProgre
       .single();
 
     if (error || !data) {
-      console.error('[getWizardProgress] Supabase error:', error?.message);
+      logServiceError(error, 'wizard');
       return { ...EMPTY_PROGRESS, academyId };
     }
 
@@ -46,7 +47,7 @@ export async function getWizardProgress(academyId: string): Promise<WizardProgre
       completedAt: data.completed_at ? String(data.completed_at) : null,
     };
   } catch (error) {
-    console.error('[getWizardProgress] Fallback:', error);
+    logServiceError(error, 'wizard');
     return { ...EMPTY_PROGRESS, academyId };
   }
 }
@@ -82,7 +83,7 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       .single();
 
     if (error || !row) {
-      console.error('[saveWizardStep] Supabase error:', error?.message);
+      logServiceError(error, 'wizard');
       return { ...EMPTY_PROGRESS, academyId };
     }
 
@@ -95,7 +96,7 @@ export async function saveWizardStep(academyId: string, step: number, data: Wiza
       completedAt: row.completed_at ? String(row.completed_at) : null,
     };
   } catch (error) {
-    console.error('[saveWizardStep] Fallback:', error);
+    logServiceError(error, 'wizard');
     return { ...EMPTY_PROGRESS, academyId };
   }
 }
@@ -117,7 +118,7 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       .single();
 
     if (error || !data) {
-      console.error('[completeWizard] Supabase error:', error?.message);
+      logServiceError(error, 'wizard');
       return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
     }
 
@@ -130,7 +131,7 @@ export async function completeWizard(academyId: string): Promise<WizardProgressD
       completedAt: data.completed_at ? String(data.completed_at) : new Date().toISOString(),
     };
   } catch (error) {
-    console.error('[completeWizard] Fallback:', error);
+    logServiceError(error, 'wizard');
     return { ...EMPTY_PROGRESS, academyId, completed: true, completedAt: new Date().toISOString() };
   }
 }

@@ -1,4 +1,5 @@
 import { isMock } from '@/lib/env';
+import { logServiceError } from '@/lib/api/errors';
 
 // ─── Interfaces ───────────────────────────────────────────────
 
@@ -197,12 +198,12 @@ export async function getFaixas(): Promise<FaixaBase[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_tiers').select('*').order('min_alunos');
     if (error) {
-      console.error('[getFaixas] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []) as unknown as FaixaBase[];
   } catch (error) {
-    console.error('[getFaixas] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -218,12 +219,12 @@ export async function getModulos(): Promise<Modulo[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_modules').select('*').order('ordem');
     if (error) {
-      console.error('[getModulos] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []) as unknown as Modulo[];
   } catch (error) {
-    console.error('[getModulos] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -239,12 +240,12 @@ export async function getPacotes(): Promise<PacoteSugerido[]> {
     const supabase = createBrowserClient();
     const { data, error } = await supabase.from('pricing_packages').select('*');
     if (error) {
-      console.error('[getPacotes] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []) as unknown as PacoteSugerido[];
   } catch (error) {
-    console.error('[getPacotes] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -265,11 +266,11 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
       .limit(1)
       .maybeSingle();
     if (error) {
-      console.error('[getAssinatura] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
     }
     return (data ?? { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] }) as unknown as AssinaturaSaaS;
   } catch (error) {
-    console.error('[getAssinatura] Fallback:', error);
+    logServiceError(error, 'pricing');
     return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as unknown as AssinaturaSaaS;
   }
 }
@@ -287,11 +288,11 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
       body: JSON.stringify({ academyId, moduloSlug }),
     });
     if (!res.ok) {
-      console.error('[ativarModulo] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'pricing');
     }
     return res.json();
   } catch (error) {
-    console.error('[ativarModulo] Fallback:', error);
+    logServiceError(error, 'pricing');
     return {} as AssinaturaSaaS;
   }
 }
@@ -309,11 +310,11 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
       body: JSON.stringify({ academyId, moduloSlug }),
     });
     if (!res.ok) {
-      console.error('[desativarModulo] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'pricing');
     }
     return res.json();
   } catch (error) {
-    console.error('[desativarModulo] Fallback:', error);
+    logServiceError(error, 'pricing');
     return {} as AssinaturaSaaS;
   }
 }
@@ -333,7 +334,7 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       .eq('academy_id', academyId)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('[getHistoricoCobrancas] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []).map((c: Record<string, unknown>) => ({
@@ -345,7 +346,7 @@ export async function getHistoricoCobrancas(academyId: string): Promise<Cobranca
       metodo: (c.method ?? '') as string,
     }));
   } catch (error) {
-    console.error('[getHistoricoCobrancas] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -364,12 +365,12 @@ export async function getUsoDescoberta(academyId: string): Promise<UsoDescoberta
       .select('*')
       .eq('academy_id', academyId);
     if (error) {
-      console.error('[getUsoDescoberta] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []) as unknown as UsoDescoberta[];
   } catch (error) {
-    console.error('[getUsoDescoberta] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -383,13 +384,13 @@ export async function isModuloAcessivel(academyId: string, moduloSlug: string): 
 
     const res = await fetch(`/api/pricing/module-access?academyId=${encodeURIComponent(academyId)}&module=${encodeURIComponent(moduloSlug)}`);
     if (!res.ok) {
-      console.error('[isModuloAcessivel] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'pricing');
       return false;
     }
     const data = await res.json();
     return data.accessible;
   } catch (error) {
-    console.error('[isModuloAcessivel] Fallback:', error);
+    logServiceError(error, 'pricing');
     return false;
   }
 }
@@ -409,12 +410,12 @@ export async function getModulosExtrasDescoberta(academyId: string): Promise<Mod
       .eq('academy_id', academyId)
       .eq('included_in_plan', false);
     if (error) {
-      console.error('[getModulosExtrasDescoberta] Supabase error:', error.message);
+      logServiceError(error, 'pricing');
       return [];
     }
     return (data ?? []) as unknown as ModuloExtra[];
   } catch (error) {
-    console.error('[getModulosExtrasDescoberta] Fallback:', error);
+    logServiceError(error, 'pricing');
     return [];
   }
 }
@@ -432,11 +433,11 @@ export async function simularUpgrade(academyId: string, novosModulos: string[]):
       body: JSON.stringify({ academyId, novosModulos }),
     });
     if (!res.ok) {
-      console.error('[simularUpgrade] API error:', res.status);
+      logServiceError(new Error(`API error: ${res.status}`), 'pricing');
     }
     return res.json();
   } catch (error) {
-    console.error('[simularUpgrade] Fallback:', error);
+    logServiceError(error, 'pricing');
     return { modulosNovos: [], custoAdicional: 0, totalNovo: 0 };
   }
 }

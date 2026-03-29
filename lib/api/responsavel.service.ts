@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { BeltLevel } from '@/lib/types/domain';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -87,7 +88,7 @@ export async function getGuardianDashboard(profileId: string): Promise<GuardianD
     .eq('profile_id', profileId)
     .maybeSingle();
   if (error || !data) {
-    console.error('[getGuardianDashboard] Supabase error:', error?.message);
+    logServiceError(error, 'responsavel');
     const { mockGetGuardianDashboard } = await import('@/lib/mocks/responsavel.mock');
     return mockGetGuardianDashboard(profileId);
   }
