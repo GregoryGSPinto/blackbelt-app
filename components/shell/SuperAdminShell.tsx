@@ -293,7 +293,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
             >
               {/* Mobile menu toggle */}
               <button
-                className="lg:hidden"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2"
                 onClick={() => setSidebarOpen(true)}
                 style={{ color: 'var(--bb-ink-60)' }}
                 aria-label="Abrir menu"

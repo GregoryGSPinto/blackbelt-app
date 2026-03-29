@@ -439,7 +439,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
           >
             <div className="flex items-center gap-3">
               <button
-                className="lg:hidden"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Abrir menu"
               >

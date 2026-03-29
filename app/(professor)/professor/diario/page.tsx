@@ -491,7 +491,7 @@ export default function DiarioPage() {
                       <div key={i} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: 'rgba(34,197,94,0.08)', borderRadius: 'var(--bb-radius-lg)' }}>
                         <CheckCircleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: '#22C55E' }} />
                         <span className="flex-1" style={{ color: 'var(--bb-ink-80)' }}><strong>{d.alunoNome}</strong>: {d.motivo}</span>
-                        <button type="button" onClick={() => removeDestaque(i)} className="shrink-0 p-1"><XIcon className="h-3 w-3" style={{ color: 'var(--bb-ink-40)' }} /></button>
+                        <button type="button" onClick={() => removeDestaque(i)} className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"><XIcon className="h-3 w-3" style={{ color: 'var(--bb-ink-40)' }} /></button>
                       </div>
                     ))}
                   </div>
@@ -518,7 +518,7 @@ export default function DiarioPage() {
                       <div key={i} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: 'rgba(234,179,8,0.08)', borderRadius: 'var(--bb-radius-lg)' }}>
                         <AlertTriangleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: '#EAB308' }} />
                         <span className="flex-1" style={{ color: 'var(--bb-ink-80)' }}><strong>{d.alunoNome}</strong>: {d.observacao}</span>
-                        <button type="button" onClick={() => removeDificuldade(i)} className="shrink-0 p-1"><XIcon className="h-3 w-3" style={{ color: 'var(--bb-ink-40)' }} /></button>
+                        <button type="button" onClick={() => removeDificuldade(i)} className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"><XIcon className="h-3 w-3" style={{ color: 'var(--bb-ink-40)' }} /></button>
                       </div>
                     ))}
                   </div>

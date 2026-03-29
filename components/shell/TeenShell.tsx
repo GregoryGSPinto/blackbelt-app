@@ -250,7 +250,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
               style={{ background: 'var(--bb-depth-2)', borderBottom: '1px solid var(--bb-glass-border)', paddingTop: 'var(--safe-area-top)' }}
             >
               <div className="flex items-center gap-3">
-                <button className="lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Abrir menu">
+                <button className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2" onClick={() => setSidebarOpen(true)} aria-label="Abrir menu">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: 'var(--bb-ink-60)' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>

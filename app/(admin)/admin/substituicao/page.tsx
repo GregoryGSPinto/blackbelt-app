@@ -258,7 +258,8 @@ export default function SubstituicaoPage() {
       {/* History View */}
       {tab === 'history' && (
         <Card className="overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+          <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-bb-gray-200 bg-bb-gray-50">
                 <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Data</th>
@@ -300,6 +301,7 @@ export default function SubstituicaoPage() {
               )}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
 

@@ -294,10 +294,10 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                       className="flex-1 px-2 py-1 rounded text-sm"
                       style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-brand, #D4AF37)', color: 'var(--bb-ink-100)' }}
                     />
-                    <button onClick={() => handleEditSave(video.id)} className="p-1 rounded hover:bg-green-500/20" aria-label="Salvar título">
+                    <button onClick={() => handleEditSave(video.id)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-green-500/20" aria-label="Salvar título">
                       <Check size={14} style={{ color: 'var(--bb-success, #22C55E)' }} />
                     </button>
-                    <button onClick={handleEditCancel} className="p-1 rounded hover:bg-red-500/20" aria-label="Cancelar edição">
+                    <button onClick={handleEditCancel} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-red-500/20" aria-label="Cancelar edição">
                       <X size={14} style={{ color: 'var(--bb-error, #EF4444)' }} />
                     </button>
                   </div>
@@ -318,7 +318,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                     <div className="flex items-center gap-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEditStart(video); }}
-                        className="p-1 rounded hover:bg-blue-500/20 transition-colors"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-blue-500/20 transition-colors"
                         title="Editar título"
                         aria-label="Editar título"
                       >
@@ -326,7 +326,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeleteTarget(video); }}
-                        className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-red-500/20 transition-colors"
                         title="Excluir vídeo"
                         aria-label="Excluir vídeo"
                       >

@@ -1011,8 +1011,8 @@ export default function VideoExperiencePage() {
                           <p className="text-[9px] mt-1.5" style={{ color: 'var(--bb-ink-40)' }}>{formatDate(n.criadaEm)}</p>
                         </div>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <button onClick={() => { setEditingNoteId(n.id); setEditingNoteText(n.texto); }} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--bb-ink-40)' }}><IconEdit size={14} /></button>
-                          <button onClick={() => handleDeleteNote(n.id)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--bb-error)' }}><IconTrash size={14} /></button>
+                          <button onClick={() => { setEditingNoteId(n.id); setEditingNoteText(n.texto); }} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--bb-ink-40)' }}><IconEdit size={14} /></button>
+                          <button onClick={() => handleDeleteNote(n.id)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--bb-error)' }}><IconTrash size={14} /></button>
                         </div>
                       </div>
                     )}

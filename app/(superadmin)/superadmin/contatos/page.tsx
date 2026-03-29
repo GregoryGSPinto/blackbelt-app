@@ -106,7 +106,8 @@ export default function ContatosPage() {
           className="overflow-hidden rounded-xl"
           style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}
         >
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Status</th>
@@ -151,6 +152,7 @@ export default function ContatosPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

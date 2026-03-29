@@ -67,7 +67,8 @@ export default function AnalyticsCharts({ type, forecast, professors, occupancy 
     return (
       <Card className="overflow-hidden">
         <div className="p-4"><h2 className="font-semibold text-bb-black">Ocupação por Turma</h2></div>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
           <thead><tr className="border-b border-bb-gray-300 bg-bb-gray-100">
             <th className="px-4 py-3 text-left font-medium text-bb-gray-500">Turma</th>
             <th className="px-4 py-3 text-center font-medium text-bb-gray-500">Dia</th>
@@ -87,6 +88,7 @@ export default function AnalyticsCharts({ type, forecast, professors, occupancy 
             </tr>
           ))}</tbody>
         </table>
+        </div>
       </Card>
     );
   }

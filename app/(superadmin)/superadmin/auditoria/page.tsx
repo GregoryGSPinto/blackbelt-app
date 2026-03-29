@@ -218,7 +218,8 @@ export default function AuditoriaPage() {
         <>
           {/* Desktop Table */}
           <div className="hidden overflow-hidden rounded-lg md:block" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--bb-glass-border)', background: 'var(--bb-depth-3)' }}>
                   <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--bb-ink-50)' }}>Data</th>
@@ -259,6 +260,7 @@ export default function AuditoriaPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Mobile Cards */}

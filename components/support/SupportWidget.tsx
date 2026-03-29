@@ -473,7 +473,7 @@ const SupportWidget = forwardRef<HTMLDivElement>(function SupportWidget(_, ref) 
                   <button
                     type="button"
                     onClick={() => setSection('menu')}
-                    className="p-1 rounded-lg transition-colors hover:opacity-70"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
                     style={{ color: 'var(--bb-text-secondary, #666)' }}
                   >
                     <ChevronDown className="w-5 h-5 rotate-90" />
