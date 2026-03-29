@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
 const ASAAS_BASE_URL = process.env.ASAAS_SANDBOX === 'true'
   ? 'https://sandbox.asaas.com/api/v3'

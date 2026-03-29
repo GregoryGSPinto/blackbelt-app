@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getVideo, deleteVideo, updateVideo, getEmbedUrl, getThumbnailUrl } from '@/lib/services/bunny-stream';
 
+export const dynamic = 'force-dynamic';
+
 async function checkAuth(req: NextRequest): Promise<NextResponse | null> {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

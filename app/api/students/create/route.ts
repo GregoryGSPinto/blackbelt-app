@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 interface CreateStudentBody {
   nome: string;
   email: string;
