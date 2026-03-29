@@ -223,13 +223,13 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
         {impersonating && (
           <div
             className="fixed left-0 right-0 top-0 z-[9999] flex items-center justify-center gap-3 px-4 py-2 text-sm font-semibold"
-            style={{ background: '#f59e0b', color: '#000' }}
+            style={{ background: 'var(--bb-warning)', color: 'var(--bb-ink-100)' }}
           >
             <span>Você está visualizando como: {impersonateAcademia} (Admin)</span>
             <button
               onClick={handleStopImpersonation}
               className="ml-2 rounded-md px-3 py-1 text-xs font-bold"
-              style={{ background: 'rgba(0,0,0,0.2)', color: '#000' }}
+              style={{ background: 'rgba(0,0,0,0.2)', color: 'var(--bb-ink-100)' }}
             >
               Sair da visualização
             </button>
@@ -313,8 +313,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         {isLocked && <LockIcon className="ml-auto h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />}
                         {showBadge && !isLocked && (
                           <span
-                            className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                            style={{ background: '#F59E0B' }}
+                            className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
+                            style={{ background: 'var(--bb-warning)', color: 'var(--bb-depth-1)' }}
                           >
                             {billingAlertCount}
                           </span>
@@ -408,8 +408,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                             {isLocked && <LockIcon className="ml-auto h-3.5 w-3.5" style={{ color: 'var(--bb-ink-40)' }} />}
                             {showBadge && !isLocked && (
                               <span
-                                className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                                style={{ background: '#F59E0B' }}
+                                className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
+                                style={{ background: 'var(--bb-warning)', color: 'var(--bb-depth-1)' }}
                               >
                                 {billingAlertCount}
                               </span>

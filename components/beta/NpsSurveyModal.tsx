@@ -16,9 +16,9 @@ const FEATURES = [
 ];
 
 function getScoreColor(score: number): string {
-  if (score <= 6) return '#ef4444';
-  if (score <= 8) return '#f59e0b';
-  return '#22c55e';
+  if (score <= 6) return 'var(--bb-error)';
+  if (score <= 8) return 'var(--bb-warning)';
+  return 'var(--bb-success)';
 }
 
 const NpsSurveyModal = forwardRef<HTMLDivElement>(function NpsSurveyModal(_, ref) {
@@ -127,7 +127,7 @@ const NpsSurveyModal = forwardRef<HTMLDivElement>(function NpsSurveyModal(_, ref
                   className="flex h-10 items-center justify-center rounded-lg text-sm font-bold transition-all"
                   style={{
                     background: selectedScore === i ? getScoreColor(i) : 'var(--bb-depth-3)',
-                    color: selectedScore === i ? '#fff' : 'var(--bb-ink-60)',
+                    color: selectedScore === i ? 'var(--bb-depth-1)' : 'var(--bb-ink-60)',
                     border: selectedScore === i ? 'none' : '1px solid var(--bb-glass-border)',
                     transform: selectedScore === i ? 'scale(1.1)' : 'scale(1)',
                   }}
@@ -205,8 +205,8 @@ const NpsSurveyModal = forwardRef<HTMLDivElement>(function NpsSurveyModal(_, ref
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-60"
-                    style={{ background: 'var(--bb-primary, #C62828)' }}
+                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
+                    style={{ background: 'var(--bb-brand-deep)', color: 'var(--bb-depth-1)' }}
                   >
                     {submitting ? 'Enviando...' : 'Enviar'}
                   </button>

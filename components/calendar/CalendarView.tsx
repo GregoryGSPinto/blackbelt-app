@@ -229,7 +229,7 @@ const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
                 className="px-3 py-1.5 text-sm font-medium transition-colors"
                 style={{
                   background: viewMode === mode ? 'var(--bb-brand)' : 'transparent',
-                  color: viewMode === mode ? '#fff' : 'var(--bb-ink-60)',
+                  color: viewMode === mode ? 'var(--bb-depth-1)' : 'var(--bb-ink-60)',
                 }}
               >
                 {mode === 'week' ? 'Semana' : 'Mes'}
@@ -390,7 +390,7 @@ function WeekView({
                 style={{
                   borderRadius: '50%',
                   ...(today
-                    ? { background: 'var(--bb-brand)', color: '#fff' }
+                    ? { background: 'var(--bb-brand)', color: 'var(--bb-depth-1)' }
                     : { color: 'var(--bb-ink-100)' }),
                 }}
               >
@@ -503,7 +503,7 @@ function MonthView({
                   style={{
                     borderRadius: '50%',
                     ...(today
-                      ? { background: 'var(--bb-brand)', color: '#fff' }
+                      ? { background: 'var(--bb-brand)', color: 'var(--bb-depth-1)' }
                       : { color: 'var(--bb-ink-80)' }),
                   }}
                 >
@@ -736,7 +736,7 @@ function EventDetail({
               style={{
                 width: `${Math.min(100, (event.enrolledCount / event.capacity) * 100)}%`,
                 borderRadius: 'var(--bb-radius-sm)',
-                background: event.enrolledCount / event.capacity > 0.9 ? '#EF4444' : event.color,
+                background: event.enrolledCount / event.capacity > 0.9 ? 'var(--bb-error)' : event.color,
               }}
             />
           </div>

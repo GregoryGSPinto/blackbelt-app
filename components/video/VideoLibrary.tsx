@@ -143,20 +143,20 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
   function StatusBadge({ status, encodeProgress }: { status: string; encodeProgress: number }) {
     if (status === 'ready') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E' }}>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(34,197,94,0.15)', color: 'var(--bb-success, #22C55E)' }}>
           Disponível
         </span>
       );
     }
     if (status === 'error') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444' }}>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--bb-error, #EF4444)' }}>
           Erro
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(212,175,55,0.15)', color: '#D4AF37' }}>
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--bb-brand, #D4AF37)' }}>
         Processando {encodeProgress > 0 ? `${encodeProgress}%` : ''}
       </span>
     );
@@ -211,7 +211,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
           <option value="title">A-Z</option>
           <option value="views">Mais vistos</option>
         </select>
-        <button onClick={fetchVideos} className="p-2 rounded-lg" style={{ background: 'var(--bb-depth-3)' }}>
+        <button onClick={fetchVideos} className="p-2 rounded-lg" style={{ background: 'var(--bb-depth-3)' }} aria-label="Atualizar lista de vídeos">
           <RefreshCw size={16} style={{ color: 'var(--bb-ink-60)' }} />
         </button>
       </div>
@@ -229,7 +229,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
       {/* Video grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin" style={{ color: '#D4AF37' }} />
+          <Loader2 size={24} className="animate-spin" style={{ color: 'var(--bb-brand, #D4AF37)' }} />
         </div>
       ) : videos.length === 0 ? (
         /* 5D: Improved empty state */
@@ -245,7 +245,8 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
             <button
               onClick={onSwitchToUpload}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
-              style={{ background: '#D4AF37', color: '#000' }}
+              style={{ background: 'var(--bb-brand, #D4AF37)', color: 'var(--bb-ink-100)' }}
+              aria-label="Enviar primeiro vídeo"
             >
               <Upload size={16} /> Enviar primeiro vídeo
             </button>
@@ -260,7 +261,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
               style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border, rgba(255,255,255,0.1))' }}
               onClick={() => setSelectedVideo(video)}
             >
-              <div className="relative" style={{ aspectRatio: '16/9', background: '#111' }}>
+              <div className="relative" style={{ aspectRatio: '16/9', background: 'var(--bb-depth-2, #111)' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={video.thumbnailUrl}
@@ -270,7 +271,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                 />
                 {video.status === 'processing' && (
                   <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
-                    <Loader2 size={24} className="animate-spin" style={{ color: '#D4AF37' }} />
+                    <Loader2 size={24} className="animate-spin" style={{ color: 'var(--bb-brand, #D4AF37)' }} />
                     <span className="ml-2 text-xs text-white">Processando... {video.encodeProgress}%</span>
                   </div>
                 )}
@@ -291,13 +292,13 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                       onKeyDown={(e) => { if (e.key === 'Enter') handleEditSave(video.id); if (e.key === 'Escape') handleEditCancel(); }}
                       autoFocus
                       className="flex-1 px-2 py-1 rounded text-sm"
-                      style={{ background: 'var(--bb-depth-2)', border: '1px solid #D4AF37', color: 'var(--bb-ink-100)' }}
+                      style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-brand, #D4AF37)', color: 'var(--bb-ink-100)' }}
                     />
-                    <button onClick={() => handleEditSave(video.id)} className="p-1 rounded hover:bg-green-500/20">
-                      <Check size={14} style={{ color: '#22C55E' }} />
+                    <button onClick={() => handleEditSave(video.id)} className="p-1 rounded hover:bg-green-500/20" aria-label="Salvar título">
+                      <Check size={14} style={{ color: 'var(--bb-success, #22C55E)' }} />
                     </button>
-                    <button onClick={handleEditCancel} className="p-1 rounded hover:bg-red-500/20">
-                      <X size={14} style={{ color: '#EF4444' }} />
+                    <button onClick={handleEditCancel} className="p-1 rounded hover:bg-red-500/20" aria-label="Cancelar edição">
+                      <X size={14} style={{ color: 'var(--bb-error, #EF4444)' }} />
                     </button>
                   </div>
                 ) : (
@@ -319,6 +320,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                         onClick={(e) => { e.stopPropagation(); handleEditStart(video); }}
                         className="p-1 rounded hover:bg-blue-500/20 transition-colors"
                         title="Editar título"
+                        aria-label="Editar título"
                       >
                         <Pencil size={14} style={{ color: 'var(--bb-ink-40)' }} />
                       </button>
@@ -326,8 +328,9 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                         onClick={(e) => { e.stopPropagation(); setDeleteTarget(video); }}
                         className="p-1 rounded hover:bg-red-500/20 transition-colors"
                         title="Excluir vídeo"
+                        aria-label="Excluir vídeo"
                       >
-                        <Trash2 size={14} style={{ color: '#EF4444' }} />
+                        <Trash2 size={14} style={{ color: 'var(--bb-error, #EF4444)' }} />
                       </button>
                     </div>
                   )}
@@ -351,7 +354,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
             <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
               Tem certeza que deseja excluir <strong style={{ color: 'var(--bb-ink-100)' }}>{deleteTarget.title}</strong>?
             </p>
-            <p className="text-xs" style={{ color: '#EF4444' }}>
+            <p className="text-xs" style={{ color: 'var(--bb-error, #EF4444)' }}>
               Esta ação não pode ser desfeita.
             </p>
             <div className="flex gap-3 pt-2">
@@ -360,6 +363,7 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                 disabled={deleting}
                 className="flex-1 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
                 style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-60)' }}
+                aria-label="Cancelar exclusão"
               >
                 Cancelar
               </button>
@@ -367,7 +371,8 @@ export function VideoLibrary({ canDelete = false, onSwitchToUpload, className }:
                 onClick={handleDeleteConfirm}
                 disabled={deleting}
                 className="flex-1 py-2 rounded-lg text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2"
-                style={{ background: '#EF4444', color: '#fff' }}
+                style={{ background: 'var(--bb-error, #EF4444)', color: 'var(--bb-depth-1, #fff)' }}
+                aria-label="Confirmar exclusão permanente"
               >
                 {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                 Excluir permanentemente

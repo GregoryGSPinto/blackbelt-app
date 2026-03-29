@@ -264,7 +264,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                               background: active
                                 ? 'var(--bb-brand)'
                                 : 'color-mix(in srgb, var(--bb-brand) 15%, transparent)',
-                              color: active ? '#fff' : 'var(--bb-brand)',
+                              color: active ? 'var(--bb-depth-1)' : 'var(--bb-brand)',
                             }}
                             onMouseEnter={(e) => {
                               if (!active) {
@@ -476,7 +476,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                       key={item.href}
                       href={item.href}
                       className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-all"
-                      style={{ color: active ? '#fff' : 'var(--bb-brand)' }}
+                      style={{ color: active ? 'var(--bb-depth-1)' : 'var(--bb-brand)' }}
                     >
                       <span
                         className="flex h-10 w-10 items-center justify-center rounded-full -mt-3"
@@ -485,7 +485,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
                           boxShadow: 'var(--bb-shadow-lg)',
                         }}
                       >
-                        <Icon className="h-5 w-5" style={{ color: '#fff' }} />
+                        <Icon className="h-5 w-5" style={{ color: 'var(--bb-depth-1)' }} />
                       </span>
                       <span
                         className="text-[10px] font-semibold"

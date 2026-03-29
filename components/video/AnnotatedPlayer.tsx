@@ -160,8 +160,8 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                   className="w-32 rounded border border-bb-gray-600 bg-bb-gray-800 px-2 py-1 text-xs text-white"
                   autoFocus
                 />
-                <button onClick={handleSubmitTextAnnotation} className="rounded bg-bb-primary px-2 py-1 text-xs text-white">OK</button>
-                <button onClick={() => { setClickPos(null); setSelectedTool(null); }} className="rounded bg-bb-gray-600 px-2 py-1 text-xs text-white">X</button>
+                <button onClick={handleSubmitTextAnnotation} className="rounded bg-bb-primary px-2 py-1 text-xs text-white" aria-label="Confirmar anotação">OK</button>
+                <button onClick={() => { setClickPos(null); setSelectedTool(null); }} className="rounded bg-bb-gray-600 px-2 py-1 text-xs text-white" aria-label="Cancelar anotação">X</button>
               </div>
             </div>
           )}
@@ -179,6 +179,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
               value={currentTime}
               onChange={handleSeek}
               className="h-2 w-full cursor-pointer appearance-none rounded-full bg-bb-gray-700 accent-bb-primary"
+              aria-label="Progresso do vídeo"
             />
             {/* Annotation markers on timeline */}
             {annotations.map((ann) => (
@@ -188,6 +189,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                 className={`absolute top-0 h-2 w-2 -translate-x-1/2 rounded-full ${COLOR_CLASSES[ann.color]}`}
                 style={{ left: `${(ann.timestamp_sec / duration) * 100}%` }}
                 title={ann.content}
+                aria-label={`Ir para anotação em ${formatTime(ann.timestamp_sec)}`}
               />
             ))}
           </div>
@@ -195,7 +197,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
           {/* Playback controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button onClick={togglePlay} className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-primary text-white">
+              <button onClick={togglePlay} className="flex h-8 w-8 items-center justify-center rounded-full bg-bb-primary text-white" aria-label={playing ? 'Pausar' : 'Reproduzir'}>
                 {playing ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
                 ) : (
@@ -206,16 +208,17 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={handleSpeedChange} className="rounded bg-bb-gray-700 px-2 py-1 text-xs font-medium text-bb-gray-300 hover:bg-bb-gray-600">
+              <button onClick={handleSpeedChange} className="rounded bg-bb-gray-700 px-2 py-1 text-xs font-medium text-bb-gray-300 hover:bg-bb-gray-600" aria-label={`Velocidade de reprodução: ${speed}x`}>
                 {speed}x
               </button>
-              <button onClick={toggleFullscreen} className="rounded bg-bb-gray-700 px-2 py-1 text-xs text-bb-gray-300 hover:bg-bb-gray-600">
+              <button onClick={toggleFullscreen} className="rounded bg-bb-gray-700 px-2 py-1 text-xs text-bb-gray-300 hover:bg-bb-gray-600" aria-label={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}>
                 {isFullscreen ? 'Sair' : 'Tela cheia'}
               </button>
               {!readOnly && (
                 <button
                   onClick={() => setShowAnnotationPanel(!showAnnotationPanel)}
                   className="rounded bg-bb-gray-700 px-2 py-1 text-xs text-bb-gray-300 hover:bg-bb-gray-600"
+                  aria-label={showAnnotationPanel ? 'Ocultar painel de anotações' : 'Mostrar painel de anotações'}
                 >
                   Anotar
                 </button>
@@ -235,6 +238,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                     key={tool}
                     onClick={() => setSelectedTool(selectedTool === tool ? null : tool)}
                     className={`flex h-8 w-8 items-center justify-center rounded text-sm font-bold ${selectedTool === tool ? 'bg-bb-primary text-white' : 'bg-bb-gray-700 text-bb-gray-300 hover:bg-bb-gray-600'}`}
+                    aria-label={tool === 'circle' ? 'Ferramenta círculo' : tool === 'arrow' ? 'Ferramenta seta' : 'Ferramenta texto'}
                   >
                     {TOOL_ICONS[tool]}
                   </button>
@@ -247,6 +251,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`h-6 w-6 rounded-full ${COLOR_CLASSES[color]} ${selectedColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-bb-gray-800' : ''}`}
+                    aria-label={color === 'green' ? 'Cor verde' : color === 'red' ? 'Cor vermelha' : 'Cor amarela'}
                   />
                 ))}
               </div>
@@ -269,6 +274,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                   key={ann.id}
                   onClick={() => jumpToAnnotation(ann.timestamp_sec)}
                   className="w-full rounded-lg bg-bb-gray-800 p-2 text-left hover:bg-bb-gray-700"
+                  aria-label={`Ir para anotação em ${formatTime(ann.timestamp_sec)}: ${ann.content}`}
                 >
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${COLOR_CLASSES[ann.color]}`} />
@@ -293,6 +299,7 @@ const AnnotatedPlayer = forwardRef<HTMLDivElement, AnnotatedPlayerProps>(functio
                 key={ann.id}
                 onClick={() => jumpToAnnotation(ann.timestamp_sec)}
                 className="flex w-full items-start gap-3 rounded-lg p-2 text-left transition-colors hover:bg-bb-gray-50"
+                aria-label={`Ir para anotação em ${formatTime(ann.timestamp_sec)}: ${ann.content}`}
               >
                 <div className={`mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full ${COLOR_CLASSES[ann.color]}`} />
                 <div className="flex-1">

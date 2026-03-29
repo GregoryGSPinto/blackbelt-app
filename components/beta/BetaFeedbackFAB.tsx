@@ -91,8 +91,8 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
         style={{
           bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
           right: '16px',
-          background: 'var(--bb-primary, #C62828)',
-          color: '#fff',
+          background: 'var(--bb-brand-deep)',
+          color: 'var(--bb-depth-1)',
         }}
         aria-label="Enviar feedback"
       >
@@ -231,8 +231,8 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
                   <button
                     onClick={() => setStep(3)}
                     disabled={!title.trim() || !description.trim()}
-                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-40"
-                    style={{ background: 'var(--bb-primary, #C62828)' }}
+                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-40"
+                    style={{ background: 'var(--bb-brand-deep)', color: 'var(--bb-depth-1)' }}
                   >
                     Revisar
                   </button>
@@ -275,8 +275,8 @@ const BetaFeedbackFAB = forwardRef<HTMLDivElement>(function BetaFeedbackFAB(_, r
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-60"
-                    style={{ background: 'var(--bb-primary, #C62828)' }}
+                    className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
+                    style={{ background: 'var(--bb-brand-deep)', color: 'var(--bb-depth-1)' }}
                   >
                     {submitting ? 'Enviando...' : 'Enviar feedback'}
                   </button>

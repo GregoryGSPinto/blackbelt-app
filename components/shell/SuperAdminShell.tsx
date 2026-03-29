@@ -43,7 +43,7 @@ interface SidebarGroup {
   items: { href: string; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; badge?: number; id?: string }[];
 }
 
-const AMBER = '#f59e0b';
+const AMBER = 'var(--bb-warning)';
 
 const sidebarGroups: SidebarGroup[] = [
   {
@@ -162,13 +162,13 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
         {impersonating && impersonateInfo && (
           <div
             className="fixed left-0 right-0 top-0 z-[9999] flex items-center justify-center gap-3 px-4 py-2 text-sm font-semibold"
-            style={{ background: AMBER, color: '#000' }}
+            style={{ background: AMBER, color: 'var(--bb-ink-100)' }}
           >
             <span>Você está visualizando como: {impersonateInfo.academiaNome} (Admin)</span>
             <button
               onClick={handleStopImpersonation}
               className="ml-2 flex items-center gap-1 rounded-md px-3 py-1 text-xs font-bold transition-colors"
-              style={{ background: 'rgba(0,0,0,0.2)', color: '#000' }}
+              style={{ background: 'rgba(0,0,0,0.2)', color: 'var(--bb-ink-100)' }}
             >
               <XIcon className="h-3 w-3" />
               Sair da visualização
@@ -231,7 +231,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                           onClick={() => setSidebarOpen(false)}
                           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
                           style={{
-                            background: active ? `rgba(245,158,11,0.12)` : 'transparent',
+                            background: active ? 'var(--bb-warning-surface)' : 'transparent',
                             color: active ? AMBER : 'var(--bb-ink-60)',
                             borderLeft: active ? `3px solid ${AMBER}` : '3px solid transparent',
                           }}
@@ -247,7 +247,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                           {item.badge !== undefined && item.badge > 0 && (
                             <span
                               className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold"
-                              style={{ background: AMBER, color: '#000' }}
+                              style={{ background: AMBER, color: 'var(--bb-ink-100)' }}
                             >
                               {item.badge}
                             </span>
@@ -371,7 +371,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                         <button
                           onClick={handleLogout}
                           className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-                          style={{ color: 'var(--bb-danger, #ef4444)' }}
+                          style={{ color: 'var(--bb-error)' }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                         >
