@@ -18,7 +18,9 @@ import {
 import type { ConversationMessage, Contact } from '@/lib/types/messaging';
 import { ChevronLeftIcon, SendIcon } from '@/components/shell/icons';
 import { ReportButton } from '@/components/shared/ReportButton';
+import { BlockUserButton } from '@/components/shared/BlockUserButton';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { filterProfanity } from '@/lib/utils/profanity-filter';
 
 // ────────────────────────────────────────────────────────────
 // HELPERS
@@ -129,8 +131,11 @@ const ChatView = forwardRef<HTMLDivElement, ChatViewProps>(
     }, [conversationId, currentProfileId, scrollToBottom]);
 
     async function handleSend() {
-      const text = newMessage.trim();
-      if (!text || sending) return;
+      const raw = newMessage.trim();
+      if (!raw || sending) return;
+
+      // Profanity filter — replace offensive words before sending
+      const { clean: text } = filterProfanity(raw);
 
       setSending(true);
       try {
@@ -328,13 +333,20 @@ const ChatView = forwardRef<HTMLDivElement, ChatViewProps>(
                             </span>
                           )}
                           {!isMine && (
-                            <ReportButton
-                              contentType="message"
-                              contentId={msg.id}
-                              reportedUserId={msg.sender_id}
-                              userId={currentProfileId}
-                              academyId={getActiveAcademyId()}
-                            />
+                            <>
+                              <ReportButton
+                                contentType="message"
+                                contentId={msg.id}
+                                reportedUserId={msg.sender_id}
+                                userId={currentProfileId}
+                                academyId={getActiveAcademyId()}
+                              />
+                              <BlockUserButton
+                                userId={msg.sender_id}
+                                userName={otherParticipant.display_name}
+                                size="sm"
+                              />
+                            </>
                           )}
                         </div>
                       </div>

@@ -120,6 +120,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { href: '/admin/mensagens', label: 'Mensagens', icon: MessageIcon, id: 'sidebar-link-mensagens' },
       { href: '/admin/feedbacks', label: 'Feedbacks', icon: MessageIcon, id: 'sidebar-link-feedbacks' },
+      { href: '/admin/moderacao', label: 'Moderação', icon: ShieldIcon, id: 'sidebar-link-moderacao' },
     ],
   },
   {
