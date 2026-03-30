@@ -3,9 +3,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useToast } from '@/lib/hooks/useToast';
 import { getRevenueMetrics } from '@/lib/api/superadmin-revenue.service';
 import type { RevenueMetrics } from '@/lib/api/superadmin-revenue.service';
+import { translateError } from '@/lib/utils/error-translator';
 import type { PieLabelRenderProps } from 'recharts'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 /* ---------- Recharts dynamic imports (ssr: false) ---------- */
@@ -83,20 +86,36 @@ function PageSkeleton() {
 
 /* ================================================================== */
 export default function ReceitaPage() {
+  const { toast } = useToast();
   const [data, setData] = useState<RevenueMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
+    setError(null);
     let cancelled = false;
     (async () => {
       try {
         const metrics = await getRevenueMetrics();
         if (!cancelled) setData(metrics);
+      } catch (err) {
+        if (!cancelled) {
+          const msg = translateError(err);
+          setError(msg);
+          toast(msg, 'error');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
+  };
+
+  useEffect(() => {
+    const cleanup = loadData();
+    return cleanup;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* Projection chart data: merge 3 scenarios into single rows */
@@ -111,7 +130,20 @@ export default function ReceitaPage() {
     return Array.from(map.values());
   }, [data]);
 
-  if (loading || !data) return <PageSkeleton />;
+  if (loading) return <PageSkeleton />;
+
+  if (!data || error) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-4 p-6">
+        <p style={{ color: 'var(--bb-ink-60)' }}>
+          {error ? `Erro ao carregar: ${error}` : 'Nenhum dado de receita disponível.'}
+        </p>
+        <Button variant="secondary" onClick={loadData}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -267,12 +299,17 @@ export default function ReceitaPage() {
               <span className="text-xl font-bold" style={{ color: AMBER }}>
                 {data.ltvCacRatio}x
               </span>
-              <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}
-              >
-                Excelente
-              </span>
+              {data.ltvCacRatio > 0 && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                  style={{
+                    background: data.ltvCacRatio >= 3 ? 'rgba(34,197,94,0.15)' : data.ltvCacRatio >= 1.5 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
+                    color: data.ltvCacRatio >= 3 ? '#22c55e' : data.ltvCacRatio >= 1.5 ? '#f59e0b' : '#ef4444',
+                  }}
+                >
+                  {data.ltvCacRatio >= 3 ? 'Excelente' : data.ltvCacRatio >= 1.5 ? 'Bom' : 'Atenção'}
+                </span>
+              )}
             </div>
           </div>
 
@@ -428,13 +465,28 @@ export default function ReceitaPage() {
             </p>
             <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-80)' }}>
               Em 3 meses, MRR estimado entre{' '}
-              <span className="font-bold" style={{ color: '#ef4444' }}>R$ 12,8k</span>
+              <span className="font-bold" style={{ color: '#ef4444' }}>
+                {(() => {
+                  const pessimista = data.projecao3Meses.filter((p) => p.cenario === 'pessimista');
+                  const min = pessimista.length > 0 ? pessimista[pessimista.length - 1].mrrEstimado : 0;
+                  return fmtBRL(min);
+                })()}
+              </span>
               {' '}e{' '}
-              <span className="font-bold" style={{ color: '#22c55e' }}>R$ 15k</span>
+              <span className="font-bold" style={{ color: '#22c55e' }}>
+                {(() => {
+                  const otimista = data.projecao3Meses.filter((p) => p.cenario === 'otimista');
+                  const max = otimista.length > 0 ? otimista[otimista.length - 1].mrrEstimado : 0;
+                  return fmtBRL(max);
+                })()}
+              </span>
             </p>
             <p className="mt-3 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Cenario realista aponta para R$ 14k, com crescimento sustentavel
-              baseado no historico dos ultimos 6 meses.
+              {(() => {
+                const realista = data.projecao3Meses.filter((p) => p.cenario === 'realista');
+                const val = realista.length > 0 ? realista[realista.length - 1].mrrEstimado : 0;
+                return `Cenario realista aponta para ${fmtBRL(val)}, com crescimento sustentavel baseado no historico dos ultimos 6 meses.`;
+              })()}
             </p>
           </div>
         </Card>

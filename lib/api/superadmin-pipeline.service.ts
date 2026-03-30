@@ -80,18 +80,122 @@ export async function getPipelineMetrics(): Promise<PipelineMetrics> {
       const supabase = createBrowserClient();
       const { data, error } = await supabase
         .from('prospects')
-        .select('status');
+        .select('status, faturamento_estimado, fonte, created_at');
       if (error || !data) {
         logServiceError(error, 'superadmin-pipeline');
         return emptyMetrics;
       }
-      const counts: Record<string, number> = {};
+
+      // ── Status mapping (DB uses PT names, pipeline uses mixed) ──
+      // Map DB statuses to pipeline stage names
+      const statusMap: Record<string, string> = {
+        novo: 'lead',
+        contactado: 'contato',
+        interessado: 'contato',
+        demo_agendada: 'demo_agendada',
+        negociando: 'demo_realizada',
+        fechado: 'ativo',
+        perdido: 'perdido',
+        ignorar: 'perdido',
+        // Also support English names if already mapped
+        lead: 'lead',
+        contato: 'contato',
+        trial: 'trial',
+        ativo: 'ativo',
+      };
+
+      const counts: Record<string, { quantidade: number; valor: number }> = {};
+      const origemCounts: Record<string, number> = {};
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      let leadsEsteMes = 0;
+      let conversaoEsteMes = 0;
+      let totalLeads = 0;
+      let totalConversoes = 0;
+      let valorPipelineTotal = 0;
+
       for (const row of data) {
-        const s = (row.status as string) || 'unknown';
-        counts[s] = (counts[s] || 0) + 1;
+        const rawStatus = (row.status as string) || 'lead';
+        const mappedStatus = statusMap[rawStatus] ?? rawStatus;
+        const valor = Number(row.faturamento_estimado ?? 0);
+        const fonte = (row.fonte as string) || (row as Record<string, unknown>).source as string || 'outro';
+        const createdAt = row.created_at ? new Date(row.created_at) : null;
+
+        // Funnel counts
+        if (!counts[mappedStatus]) counts[mappedStatus] = { quantidade: 0, valor: 0 };
+        counts[mappedStatus].quantidade += 1;
+        counts[mappedStatus].valor += valor * 12; // annualized
+
+        // Origem counts
+        origemCounts[fonte] = (origemCounts[fonte] ?? 0) + 1;
+
+        // This month
+        if (createdAt && createdAt >= startOfMonth) {
+          leadsEsteMes++;
+          if (mappedStatus === 'ativo') conversaoEsteMes++;
+        }
+
+        // Totals
+        totalLeads++;
+        if (mappedStatus === 'ativo') totalConversoes++;
+        if (mappedStatus !== 'perdido' && mappedStatus !== 'ativo') {
+          valorPipelineTotal += valor * 12;
+        }
       }
-      const funil = Object.entries(counts).map(([nome, quantidade]) => ({ nome, quantidade, valor: 0 }));
-      return { ...emptyMetrics, funil, leadsEsteMes: data.length };
+
+      // Build funnel array in correct order
+      const stageOrder = ['lead', 'contato', 'demo_agendada', 'demo_realizada', 'trial', 'ativo', 'perdido'];
+      const funil: PipelineStage[] = stageOrder
+        .filter((s) => counts[s])
+        .map((s) => ({
+          nome: s,
+          quantidade: counts[s].quantidade,
+          valor: counts[s].valor,
+        }));
+
+      // Add any stages not in stageOrder
+      for (const [nome, vals] of Object.entries(counts)) {
+        if (!stageOrder.includes(nome)) {
+          funil.push({ nome, quantidade: vals.quantidade, valor: vals.valor });
+        }
+      }
+
+      // Best origin
+      let melhorOrigem = '';
+      let maxOrigemCount = 0;
+      for (const [origem, count] of Object.entries(origemCounts)) {
+        if (count > maxOrigemCount) {
+          maxOrigemCount = count;
+          melhorOrigem = origem;
+        }
+      }
+
+      // Conversion rate
+      const taxaConversaoGeral = totalLeads > 0 ? (totalConversoes / totalLeads) * 100 : 0;
+
+      // Avg conversion time (simplified: avg days from creation)
+      const convertedLeads = data.filter((r: Record<string, unknown>) => {
+        const mapped = statusMap[(r.status as string) || 'lead'] ?? r.status;
+        return mapped === 'ativo';
+      });
+      let tempoMedioConversao = 30; // default
+      if (convertedLeads.length > 0) {
+        const totalDays = convertedLeads.reduce((sum: number, l: Record<string, unknown>) => {
+          const created = l.created_at ? new Date(l.created_at as string) : now;
+          return sum + Math.max(1, Math.floor((now.getTime() - created.getTime()) / 86400000));
+        }, 0);
+        tempoMedioConversao = Math.round(totalDays / convertedLeads.length);
+      }
+
+      return {
+        funil,
+        taxaConversaoGeral: Math.round(taxaConversaoGeral * 10) / 10,
+        tempoMedioConversao,
+        valorPipelineTotal,
+        melhorOrigem,
+        leadsEsteMes,
+        conversaoEsteMes,
+      };
     } catch (error) {
       logServiceError(error, 'superadmin-pipeline');
       return emptyMetrics;
