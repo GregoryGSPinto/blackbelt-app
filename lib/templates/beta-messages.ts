@@ -57,7 +57,7 @@ Obrigado por fazer parte dessa jornada. Sua academia foi uma das primeiras a usa
 Quero te fazer uma proposta:
 - O beta termina em {data_fim}
 - Como agradecimento, voce tem 50% OFF VITALICIO no plano Pro
-- Isso significa R$ 98,50/mes em vez de R$ 197/mes
+- Isso significa R$ 124,50/mes em vez de R$ 249/mes
 - Para sempre. Sem aumento.
 
 Quer continuar? Me avisa aqui que ativo seu plano!`,

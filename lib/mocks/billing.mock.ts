@@ -19,8 +19,8 @@ const PLANS: PlanDefinition[] = [
     id: 'plan-starter',
     name: 'Starter',
     slug: 'starter',
-    price_monthly: 9700,
-    price_yearly: 93100,
+    price_monthly: 7900,
+    price_yearly: 75800,
     limits: { students: 50, professors: 2, classes: 10, storage_gb: 5 },
     overage: { student_cents: 250, professor_cents: 590, class_cents: 90, storage_gb_cents: 150 },
     modules: { streaming: false, store: false, financial: true, events: false, multi_branch: false, api: false },
@@ -32,8 +32,8 @@ const PLANS: PlanDefinition[] = [
     id: 'plan-essencial',
     name: 'Essencial',
     slug: 'essencial',
-    price_monthly: 19700,
-    price_yearly: 189100,
+    price_monthly: 14900,
+    price_yearly: 143000,
     limits: { students: 100, professors: 5, classes: 20, storage_gb: 20 },
     overage: { student_cents: 220, professor_cents: 490, class_cents: 70, storage_gb_cents: 120 },
     modules: { streaming: true, store: false, financial: true, events: false, multi_branch: false, api: false },
@@ -45,8 +45,8 @@ const PLANS: PlanDefinition[] = [
     id: 'plan-pro',
     name: 'Pro',
     slug: 'pro',
-    price_monthly: 34700,
-    price_yearly: 333100,
+    price_monthly: 24900,
+    price_yearly: 239000,
     limits: { students: 200, professors: -1, classes: 9999, storage_gb: 50 },
     overage: { student_cents: 190, professor_cents: 0, class_cents: 50, storage_gb_cents: 90 },
     modules: { streaming: true, store: true, financial: true, events: true, multi_branch: false, api: false },
@@ -58,8 +58,8 @@ const PLANS: PlanDefinition[] = [
     id: 'plan-blackbelt',
     name: 'Black Belt',
     slug: 'blackbelt',
-    price_monthly: 59700,
-    price_yearly: 573100,
+    price_monthly: 39700,
+    price_yearly: 381200,
     limits: { students: -1, professors: -1, classes: -1, storage_gb: 200 },
     overage: { student_cents: 0, professor_cents: 0, class_cents: 0, storage_gb_cents: 70 },
     modules: { streaming: true, store: true, financial: true, events: true, multi_branch: true, api: true },
@@ -137,10 +137,10 @@ const MOCK_INVOICES: BillingInvoice[] = [
   {
     id: 'inv-2026-03',
     period: 'Mar/2026',
-    base_cost_cents: 34700,
+    base_cost_cents: 24900,
     overage_details: [],
     overage_total_cents: 0,
-    total_cents: 34700,
+    total_cents: 24900,
     status: 'pending',
     paid_at: null,
     pdf_url: null,
@@ -148,7 +148,7 @@ const MOCK_INVOICES: BillingInvoice[] = [
   {
     id: 'inv-2026-02',
     period: 'Fev/2026',
-    base_cost_cents: 34700,
+    base_cost_cents: 24900,
     overage_details: [
       { resource: 'Alunos excedentes', count: 8, unit_cost_cents: 190, total_cents: 1520 },
     ],
@@ -161,10 +161,10 @@ const MOCK_INVOICES: BillingInvoice[] = [
   {
     id: 'inv-2026-01',
     period: 'Jan/2026',
-    base_cost_cents: 34700,
+    base_cost_cents: 24900,
     overage_details: [],
     overage_total_cents: 0,
-    total_cents: 34700,
+    total_cents: 24900,
     status: 'paid',
     paid_at: '2026-02-05T09:15:00Z',
     pdf_url: '/mock/invoice-jan-2026.pdf',
@@ -284,7 +284,7 @@ export async function mockGetOverageProjection(_academyId: string): Promise<Over
   const savingsIfUpgrade = currentTotal - upgradeCost; // negative = upgrade costs more
 
   // Breakeven: at how many extra students does Black Belt become cheaper?
-  // cost_diff = 59700 - 34700 = 25000 cents
+  // cost_diff = 39700 - 24900 = 14800 cents
   // per_student_savings = 190 cents (Pro overage per student)
   // breakeven = ceil(25000 / 190) = 132
   const breakeven = Math.ceil(

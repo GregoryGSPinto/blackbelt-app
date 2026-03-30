@@ -38,12 +38,12 @@ export async function createCheckoutSession(
     if (isMock()) {
       await new Promise((r) => setTimeout(r, 800));
       const prices: Record<string, Record<BillingCycle, number>> = {
-        starter: { monthly: 9700, annual: 77 * 12 * 100 },
-        essencial: { monthly: 19700, annual: 157 * 12 * 100 },
-        pro: { monthly: 34700, annual: 277 * 12 * 100 },
-        'black-belt': { monthly: 59700, annual: 477 * 12 * 100 },
+        starter: { monthly: 7900, annual: 63 * 12 * 100 },
+        essencial: { monthly: 14900, annual: 119 * 12 * 100 },
+        pro: { monthly: 24900, annual: 199 * 12 * 100 },
+        'black-belt': { monthly: 39700, annual: 317 * 12 * 100 },
       };
-      const amount = prices[planId]?.[billingCycle] ?? 34700;
+      const amount = prices[planId]?.[billingCycle] ?? 24900;
       return {
         id: `cs_mock_${Date.now()}`,
         url: '#checkout-mock',
@@ -77,7 +77,7 @@ export async function getPaymentStatus(sessionId: string): Promise<PaymentSessio
         status: 'succeeded',
         planId: 'pro',
         billingCycle: 'monthly',
-        amount: 34700,
+        amount: 24900,
         created_at: new Date().toISOString(),
       };
     }

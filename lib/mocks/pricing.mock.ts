@@ -11,7 +11,7 @@ import type {
 
 const delay = () => new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
 
-// ─── 5 Faixas (R$ 97–597/mes) ────────────────────────────────
+// ─── 5 Faixas (R$ 79–397/mes) ────────────────────────────────
 
 const FAIXAS: FaixaBase[] = [
   {
@@ -20,8 +20,8 @@ const FAIXAS: FaixaBase[] = [
     slug: 'starter',
     minAlunos: 1,
     maxAlunos: 50,
-    precoMensal: 97,
-    precoAnual: 77.60,
+    precoMensal: 79,
+    precoAnual: 63.20,
     professoresInclusos: 2,
     turmasInclusas: 10,
     unidadesInclusas: 1,
@@ -32,8 +32,8 @@ const FAIXAS: FaixaBase[] = [
     slug: 'essencial',
     minAlunos: 51,
     maxAlunos: 100,
-    precoMensal: 197,
-    precoAnual: 157.60,
+    precoMensal: 149,
+    precoAnual: 119.20,
     professoresInclusos: 5,
     turmasInclusas: 20,
     unidadesInclusas: 1,
@@ -44,8 +44,8 @@ const FAIXAS: FaixaBase[] = [
     slug: 'pro',
     minAlunos: 101,
     maxAlunos: 200,
-    precoMensal: 347,
-    precoAnual: 277.60,
+    precoMensal: 249,
+    precoAnual: 199.20,
     professoresInclusos: 999,
     turmasInclusas: 9999,
     unidadesInclusas: 2,
@@ -56,8 +56,8 @@ const FAIXAS: FaixaBase[] = [
     slug: 'blackbelt',
     minAlunos: 201,
     maxAlunos: 9999,
-    precoMensal: 597,
-    precoAnual: 477.60,
+    precoMensal: 397,
+    precoAnual: 317.60,
     professoresInclusos: 999,
     turmasInclusas: 9999,
     unidadesInclusas: 999,
@@ -391,7 +391,7 @@ const ASSINATURA: AssinaturaSaaS = {
   unidadesAdicionais: 0,
   ciclo: 'mensal',
   pacoteId: 'pkg-profissional',
-  precoTotal: 347 + (profissionalOriginal * 0.80), // Pro tier + Profissional package
+  precoTotal: 249 + (profissionalOriginal * 0.80), // Pro tier + Profissional package
   status: 'discovery',
   trialStartedAt: daysAgo(52),
   trialEndsAt: daysAgo(45),

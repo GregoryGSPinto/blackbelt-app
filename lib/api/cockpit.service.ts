@@ -346,7 +346,7 @@ const MOCK_ADRS: ArchitectureDecision[] = [
     id: 'ck-adr-005', product: 'blackbelt', adr_number: 5, title: 'Modelo de Precificação: 3 planos fixos',
     status: 'accepted', context: 'Definir modelo de preço para academias de artes marciais.',
     options_considered: [
-      { option: '3 planos fixos (Starter R$97, Pro R$297, Premium R$497)', pros: 'Simples de entender, previsível', cons: 'Menos flexível para academias muito grandes' },
+      { option: '5 planos fixos (Starter R$79, Essencial R$149, Pro R$249, Black Belt R$397, Enterprise sob consulta)', pros: 'Simples de entender, previsível', cons: 'Menos flexível para academias muito grandes' },
       { option: 'Preço por aluno ativo', pros: 'Escala com o cliente', cons: 'Imprevisível para o cliente, complexo de calcular' },
       { option: 'Freemium + addons', pros: 'Baixa barreira de entrada', cons: 'Difícil monetizar cedo, feature-gating complexo' },
     ],

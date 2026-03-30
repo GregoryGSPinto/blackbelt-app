@@ -31,10 +31,10 @@ export function BillingMockup() {
         {/* Invoice list */}
         <div className="text-xs font-semibold mb-2" style={{ color: 'var(--bb-ink-40)' }}>FATURAS RECENTES</div>
         <div className="space-y-2">
-          <InvoiceRow name="Ana Costa" amount="R$ 197" status="pago" />
-          <InvoiceRow name="Pedro Lima" amount="R$ 347" status="pago" />
-          <InvoiceRow name="Carlos Souza" amount="R$ 197" status="pendente" />
-          <InvoiceRow name="Julia Santos" amount="R$ 97" status="vencido" />
+          <InvoiceRow name="Ana Costa" amount="R$ 149" status="pago" />
+          <InvoiceRow name="Pedro Lima" amount="R$ 249" status="pago" />
+          <InvoiceRow name="Carlos Souza" amount="R$ 149" status="pendente" />
+          <InvoiceRow name="Julia Santos" amount="R$ 79" status="vencido" />
         </div>
       </div>
     </div>
