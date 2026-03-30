@@ -7,8 +7,10 @@ import { Card } from '@/components/ui/Card';
 import { BeltBadge } from '@/components/ui/BeltBadge';
 import { BeltProgress } from '@/components/ui/BeltProgress';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BillingConfigSection } from '@/components/finance/BillingConfigSection';
 import { BeltLevel, InvoiceStatus } from '@/lib/types';
 import { BELT_ORDER, MIN_ATTENDANCE_FOR_PROMOTION } from '@/lib/types/constants';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import type { BeltColor } from '@/components/ui/BeltStripe';
 
 // ── Inline SVG icons (project does not use lucide-react) ────────────
@@ -679,6 +681,9 @@ export default function AdminStudentProfilePage() {
           })}
         </div>
       </Card>
+
+      {/* ── Billing Config Section (Dados Financeiros) ─────── */}
+      <BillingConfigSection profileId={student.id} academyId={getActiveAcademyId()} />
 
       {/* ── History Section (Timeline) ───────────────────────── */}
       <Card className="p-6">

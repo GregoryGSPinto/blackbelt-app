@@ -18,6 +18,7 @@ import { translateError } from '@/lib/utils/error-translator';
 import { exportToCSV } from '@/lib/utils/export-csv';
 import { Download } from 'lucide-react';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { BILLING_TYPE_LABELS, formatCentsToBRL } from '@/lib/api/student-billing.service';
 
 const BELT_LABEL: Record<string, string> = {
   white: 'Branca',
@@ -387,7 +388,7 @@ export default function AdminAlunosPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                    {['Aluno', 'Faixa', 'Turmas', 'Freq.', 'Mensalidade', 'Status', ''].map(
+                    {['Aluno', 'Faixa', 'Turmas', 'Freq.', 'Tipo', 'Valor', 'Mensalidade', 'Status', ''].map(
                       (h) => (
                         <th
                           key={h}
@@ -484,6 +485,26 @@ export default function AdminAlunosPage() {
                               {s.attendance_rate}%
                             </span>
                           </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className="rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              background: s.billing_type === 'gympass' || s.billing_type === 'totalpass' || s.billing_type === 'smartfit'
+                                ? 'rgba(168,85,247,0.15)' : s.billing_type === 'cortesia' || s.billing_type === 'funcionario'
+                                ? 'rgba(59,130,246,0.15)' : 'var(--bb-depth-4)',
+                              color: s.billing_type === 'gympass' || s.billing_type === 'totalpass' || s.billing_type === 'smartfit'
+                                ? '#A855F7' : s.billing_type === 'cortesia' || s.billing_type === 'funcionario'
+                                ? '#3B82F6' : 'var(--bb-ink-60)',
+                            }}
+                          >
+                            {BILLING_TYPE_LABELS[s.billing_type as keyof typeof BILLING_TYPE_LABELS] ?? s.billing_type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>
+                            {s.monthly_amount > 0 ? formatCentsToBRL(s.monthly_amount) : '—'}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           <span

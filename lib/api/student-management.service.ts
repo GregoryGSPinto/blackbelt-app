@@ -20,7 +20,7 @@ export async function listStudents(
       .select(`
         id, profile_id, belt, started_at, academy_id,
         profiles!students_profile_id_fkey(display_name, avatar, user_id),
-        memberships!inner(status),
+        memberships!inner(status, billing_type, billing_status, monthly_amount),
         class_enrollments(classes(modalities(name)))
       `)
       .eq('academy_id', academyId);
@@ -44,6 +44,10 @@ export async function listStudents(
         return (mod?.name ?? '') as string;
       }).filter(Boolean);
 
+      const m0 = memberships?.[0];
+      const billingStatus = (m0?.billing_status ?? 'em_dia') as string;
+      const mensalidadeMap: Record<string, AdminStudentItem['mensalidade_status']> = { em_dia: 'em_dia', pendente: 'pendente', atrasado: 'atrasado' };
+
       return {
         id: s.id as string,
         profile_id: s.profile_id as string,
@@ -53,8 +57,10 @@ export async function listStudents(
         belt: s.belt as AdminStudentItem['belt'],
         turmas,
         attendance_rate: 0,
-        mensalidade_status: 'em_dia' as const,
-        status: ((memberships?.[0]?.status ?? 'active') === 'active' ? 'active' : 'inactive') as AdminStudentItem['status'],
+        mensalidade_status: (mensalidadeMap[billingStatus] ?? 'em_dia') as AdminStudentItem['mensalidade_status'],
+        billing_type: (m0?.billing_type ?? 'particular') as string,
+        monthly_amount: (m0?.monthly_amount ?? 0) as number,
+        status: ((m0?.status ?? 'active') === 'active' ? 'active' : 'inactive') as AdminStudentItem['status'],
         started_at: (s.started_at ?? '') as string,
         avatar_url: (profile?.avatar ?? null) as string | null,
       };
@@ -131,9 +137,9 @@ export async function deactivateStudent(studentId: string): Promise<AdminStudent
       logServiceError(error, 'student-management');
     }
 
-    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
+    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', billing_type: 'particular', monthly_amount: 0, status: 'inactive', started_at: '', avatar_url: null };
   } catch (error) {
     logServiceError(error, 'student-management');
-    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', status: 'inactive', started_at: '', avatar_url: null };
+    return { id: studentId, profile_id: '', display_name: '', email: '', phone: '', belt: 'white' as AdminStudentItem['belt'], turmas: [], attendance_rate: 0, mensalidade_status: 'em_dia', billing_type: 'particular', monthly_amount: 0, status: 'inactive', started_at: '', avatar_url: null };
   }
 }

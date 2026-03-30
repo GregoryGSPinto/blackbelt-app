@@ -18,6 +18,8 @@ export interface AdminStudentItem {
   turmas: string[];
   attendance_rate: number;
   mensalidade_status: MensalidadeStatusBadge;
+  billing_type: string;
+  monthly_amount: number; // centavos
   status: StudentManagementStatus;
   started_at: string;
   avatar_url: string | null;
