@@ -77,7 +77,9 @@ export default function LoginPage() {
     }
   };
 
-  const isSubmitting = loading || authLoading;
+  const isSubmitting = loading;
+  const isBusy = loading || authLoading;
+  const canSubmit = !isBusy && !!email.trim() && !!password.trim();
   const needsEmailConfirmationCta = localError.toLowerCase().includes('confirm');
 
   async function handleResendConfirmation() {
@@ -232,7 +234,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => handleOAuth('google')}
-              disabled={isSubmitting || !!oauthLoading}
+              disabled={isBusy || !!oauthLoading}
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
@@ -251,7 +253,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => handleOAuth('apple')}
-              disabled={isSubmitting || !!oauthLoading}
+              disabled={isBusy || !!oauthLoading}
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
@@ -404,7 +406,7 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={!canSubmit}
               className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               style={{ background: 'var(--bb-brand-deep)' }}
             >
