@@ -12,6 +12,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 import { LegalFooter } from './LegalFooter';
 import {
   LayoutDashboardIcon,
@@ -180,6 +181,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
         <div className="flex flex-1">
           {/* ═══ SIDEBAR DESKTOP ═══ */}
           <aside
+            data-tour="sidebar"
             className="hidden lg:flex lg:w-64 lg:flex-col"
             style={{ background: 'var(--bb-depth-2)', borderRight: '1px solid var(--bb-glass-border)' }}
           >
@@ -274,6 +276,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 <div className="relative">
                   <button
                     ref={userMenuButtonRef}
+                    data-tour="profile-menu"
                     onClick={() => setUserMenuOpen((prev) => !prev)}
                     aria-label="Menu do usuario"
                     className="flex h-9 w-9 items-center justify-center cursor-pointer"
@@ -398,6 +401,9 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
             </button>
           </div>
         </nav>
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
     );
   },

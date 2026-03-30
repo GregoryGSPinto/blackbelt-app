@@ -13,6 +13,7 @@ import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { LegalFooter } from './LegalFooter';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 import {
   HomeIcon,
   UsersIcon,
@@ -189,6 +190,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
         <div className="flex flex-1">
           {/* Sidebar - desktop */}
           <aside
+            data-tour="sidebar"
             className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0"
             style={{
               background: 'var(--bb-depth-2)',
@@ -270,6 +272,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                 <div className="relative">
                   <button
                     ref={userMenuButtonRef}
+                    data-tour="profile-menu"
                     onClick={() => setUserMenuOpen((prev) => !prev)}
                     aria-label="Menu do usuário"
                     className="flex h-9 w-9 items-center justify-center cursor-pointer"
@@ -360,6 +363,9 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
         <div className="lg:hidden">
           <BottomNav items={mobileNavItems} />
         </div>
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
     );
   },

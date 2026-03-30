@@ -12,6 +12,7 @@ import { SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { LegalFooter } from './LegalFooter';
 import { BetaBadge } from '@/components/beta/BetaBadge';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import {
   LayoutDashboardIcon,
@@ -194,6 +195,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
           {/* Sidebar */}
           <aside
             id="superadmin-sidebar"
+            data-tour="sidebar"
             className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
@@ -321,6 +323,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                 <div className="relative">
                   <button
                     ref={userMenuButtonRef}
+                    data-tour="profile-menu"
                     onClick={() => setUserMenuOpen((prev) => !prev)}
                     className="flex h-9 w-9 items-center justify-center cursor-pointer"
                     aria-label="Menu do usuario"
@@ -408,6 +411,9 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
             <LegalFooter />
           </div>
         </div>
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
     );
   },

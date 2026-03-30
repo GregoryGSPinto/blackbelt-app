@@ -5,6 +5,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useTutorial } from '@/components/tutorial/TutorialProvider';
 import { useToast } from '@/lib/hooks/useToast';
 import { ROLE_TUTORIAL_MAP } from '@/lib/tutorials/definitions';
+import { resetTourForProfile } from '@/lib/api/tour.service';
+import { logServiceError } from '@/lib/api/errors';
 import { HelpCircleIcon, LifeBuoyIcon, MessageIcon } from './icons';
 
 // ── Sidebar Help Section ─────────────────────────────────────────────────
@@ -28,6 +30,12 @@ export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionP
     function handleResetTutorial() {
       if (tutorialId) {
         resetTutorial(tutorialId);
+        // Also reset the tour overlay (has_seen_tour flag)
+        if (profile?.id) {
+          resetTourForProfile(profile.id).catch((err) =>
+            logServiceError(err, 'HelpSection.resetTour'),
+          );
+        }
         onItemClick?.();
       }
     }
@@ -197,6 +205,12 @@ export function HeaderHelpButton() {
                 type="button"
                 onClick={() => {
                   if (tutorialId) resetTutorial(tutorialId);
+                  // Also reset the tour overlay (has_seen_tour flag)
+                  if (profile?.id) {
+                    resetTourForProfile(profile.id).catch((err) =>
+                      logServiceError(err, 'HeaderHelpButton.resetTour'),
+                    );
+                  }
                   setOpen(false);
                 }}
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"

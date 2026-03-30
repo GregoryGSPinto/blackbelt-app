@@ -16,6 +16,7 @@ import { LegalFooter } from './LegalFooter';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { usePlan } from '@/lib/hooks/usePlan';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
 import { TrialBanner } from '@/components/plans/TrialBanner';
 import { DiscoveryBanner } from '@/components/plans/DiscoveryBanner';
@@ -210,6 +211,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
         <div className="hidden lg:flex lg:min-h-screen">
           {/* Sidebar */}
           <aside
+            data-tour="sidebar"
             className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col"
             style={{
               background: 'var(--bb-depth-2)',
@@ -338,6 +340,7 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
             <div className="relative mx-3 mb-4">
               <button
                 ref={userMenuButtonRef}
+                data-tour="profile-menu"
                 onClick={() => setUserMenuOpen((prev) => !prev)}
                 className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors"
                 style={{ background: userMenuOpen ? 'var(--bb-depth-4)' : 'var(--bb-depth-3)' }}
@@ -620,6 +623,9 @@ const ProfessorShell = forwardRef<HTMLDivElement, ProfessorShellProps>(
 
         {/* Command Palette (Search) */}
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
     );
   },

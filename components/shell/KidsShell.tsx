@@ -12,6 +12,7 @@ import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { LegalFooter } from './LegalFooter';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 import {
   HomeIcon,
   StarIcon,
@@ -124,6 +125,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
         <div className="flex flex-1">
           {/* ═══ SIDEBAR DESKTOP ═══ */}
           <aside
+            data-tour="sidebar"
             className="hidden lg:flex lg:w-64 lg:flex-col"
             style={{ background: 'var(--bb-depth-2)', borderRight: '1px solid var(--bb-glass-border)' }}
           >
@@ -189,6 +191,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                 <div className="relative">
                   <button
                     ref={userMenuButtonRef}
+                    data-tour="profile-menu"
                     onClick={() => setUserMenuOpen((prev) => !prev)}
                     aria-label="Menu do usuario"
                     className="flex h-9 w-9 items-center justify-center cursor-pointer"
@@ -293,6 +296,9 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
             })}
           </div>
         </nav>
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
     );
   },

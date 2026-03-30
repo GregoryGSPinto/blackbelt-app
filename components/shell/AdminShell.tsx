@@ -54,6 +54,7 @@ import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { isNative } from '@/lib/platform';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -254,6 +255,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
         <div className="flex flex-1" style={{ marginTop: impersonating ? '40px' : '0' }}>
         {/* Sidebar - desktop */}
         <aside
+          data-tour="sidebar"
           className="hidden lg:flex lg:w-64 lg:flex-col"
           style={{
             background: 'var(--bb-depth-2)',
@@ -485,6 +487,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               <div className="relative">
                 <button
                   ref={userMenuButtonRef}
+                  data-tour="profile-menu"
                   onClick={() => {
                     setUserMenuOpen((prev) => !prev);
                   }}
@@ -612,6 +615,9 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
 
         {/* Command Palette (Search) */}
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
+
+        {/* Tour overlay — auto-triggers on first access */}
+        <TourIntegration />
       </div>
       </div>
     );

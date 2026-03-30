@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { TourIntegration } from '@/components/tour/TourIntegration';
 
 const sidebarItems: { href: string; label: string; id?: string }[] = [
   { href: '/franqueador', label: 'Dashboard', id: 'sidebar-link-dashboard-fr' },
@@ -41,6 +42,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
 
       {/* Sidebar - desktop always visible, mobile slide-in */}
       <aside
+        data-tour="sidebar"
         className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
@@ -144,6 +146,9 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
           </Suspense>
         </main>
       </div>
+
+      {/* Tour overlay — auto-triggers on first access */}
+      <TourIntegration />
     </div>
   );
 }
