@@ -8,8 +8,11 @@ import type { KidsProfile } from '@/lib/api/kids-estrelas.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
 
 export default function KidsRecompensasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [recompensas, setRecompensas] = useState<RecompensaKids[]>([]);
   const [historico, setHistorico] = useState<HistoricoResgate[]>([]);
   const [profile, setProfile] = useState<KidsProfile | null>(null);
@@ -20,27 +23,30 @@ export default function KidsRecompensasPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
         const [recs, hist, prof] = await Promise.all([
-          getRecompensasKids('stu-kids-helena'),
-          getHistoricoResgates('stu-kids-helena'),
-          getKidsProfile('stu-kids-helena'),
+          getRecompensasKids(studentId!),
+          getHistoricoResgates(studentId!),
+          getKidsProfile(studentId!),
         ]);
         setRecompensas(recs);
         setHistorico(hist);
         setProfile(prof);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleTrocar() {
-    if (!confirmItem || !profile) return;
+    if (!confirmItem || !profile || !studentId) return;
     try {
-      const result = await resgatarRecompensa('stu-kids-helena', confirmItem.id);
+      const result = await resgatarRecompensa(studentId, confirmItem.id);
       setProfile((prev) =>
         prev ? { ...prev, estrelasTotal: prev.estrelasTotal - confirmItem.custoEstrelas } : prev,
       );
@@ -55,8 +61,8 @@ export default function KidsRecompensasPage() {
       setCelebrating(true);
       toast(`${confirmItem.emoji} Você conseguiu! Incrível!`, 'success');
       setTimeout(() => setCelebrating(false), 3000);
-    } catch {
-      toast('Tente de novo mais tarde! 🌟', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -64,7 +70,7 @@ export default function KidsRecompensasPage() {
     profile ? item.custoEstrelas <= profile.estrelasTotal : false;
 
   // ── Loading ─────────────────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

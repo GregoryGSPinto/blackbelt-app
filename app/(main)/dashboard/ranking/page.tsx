@@ -6,30 +6,13 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { getByAcademia } from '@/lib/api/ranking.service';
+import { getXP } from '@/lib/api/xp.service';
+import type { RankedStudent, XPDTO } from '@/lib/api/xp.service';
 
-// ── Mock ranking data ──────────────────────────────────────────────
-interface RankingEntry {
-  student_id: string;
-  display_name: string;
-  avatar: string | null;
-  xp: number;
-  rank: number;
-  is_current_user: boolean;
-  belt: string;
-  streak_days: number;
-}
-
-const MOCK_RANKING: RankingEntry[] = [
-  { student_id: 'stu-1', display_name: 'Sophia Martins', avatar: null, xp: 4200, rank: 1, is_current_user: false, belt: 'purple', streak_days: 21 },
-  { student_id: 'stu-2', display_name: 'Pedro Oliveira', avatar: null, xp: 3800, rank: 2, is_current_user: false, belt: 'blue', streak_days: 14 },
-  { student_id: 'stu-3', display_name: 'Ana Silva', avatar: null, xp: 3500, rank: 3, is_current_user: false, belt: 'blue', streak_days: 10 },
-  { student_id: 'stu-current', display_name: 'Voce', avatar: null, xp: 3100, rank: 4, is_current_user: true, belt: 'green', streak_days: 5 },
-  { student_id: 'stu-5', display_name: 'Gabriel Costa', avatar: null, xp: 2800, rank: 5, is_current_user: false, belt: 'green', streak_days: 7 },
-  { student_id: 'stu-6', display_name: 'Julia Santos', avatar: null, xp: 2500, rank: 6, is_current_user: false, belt: 'orange', streak_days: 3 },
-  { student_id: 'stu-7', display_name: 'Matheus Lima', avatar: null, xp: 2200, rank: 7, is_current_user: false, belt: 'orange', streak_days: 0 },
-  { student_id: 'stu-8', display_name: 'Isabella Souza', avatar: null, xp: 1900, rank: 8, is_current_user: false, belt: 'yellow', streak_days: 2 },
-];
-
+// ── Medal emojis ────────────────────────────────────────────────
 const MEDAL_EMOJIS: Record<number, string> = { 1: '\u{1F947}', 2: '\u{1F948}', 3: '\u{1F949}' };
 
 const BELT_COLORS: Record<string, string> = {
@@ -44,32 +27,57 @@ const BELT_COLORS: Record<string, string> = {
   black: 'var(--bb-ink-100)',
 };
 
-async function fetchRanking(): Promise<RankingEntry[]> {
-  // Simulates API delay
-  await new Promise((r) => setTimeout(r, 600));
-  return MOCK_RANKING;
-}
+const BELT_LABELS: Record<string, string> = {
+  white: 'Branca',
+  gray: 'Cinza',
+  yellow: 'Amarela',
+  orange: 'Laranja',
+  green: 'Verde',
+  blue: 'Azul',
+  purple: 'Roxa',
+  brown: 'Marrom',
+  black: 'Preta',
+};
 
-// ── Tabs ───────────────────────────────────────────────────────────
+// ── Tabs ────────────────────────────────────────────────────────
 type RankingTab = 'geral' | 'mensal' | 'semanal';
 
+interface RankingData {
+  ranking: RankedStudent[];
+  myXP: XPDTO;
+}
+
 export default function DashboardRankingPage() {
-  const { data: ranking, loading } = useSWRFetch<RankingEntry[]>(
-    'dashboard-ranking',
-    fetchRanking,
-  );
+  const { studentId, loading: studentLoading } = useStudentId();
   const [tab, setTab] = useState<RankingTab>('geral');
 
-  if (loading || !ranking) {
+  const academyId = getActiveAcademyId();
+
+  const { data, loading } = useSWRFetch<RankingData>(
+    !studentLoading && studentId && academyId ? `dashboard-ranking-${academyId}-${studentId}` : null,
+    async () => {
+      const [ranking, myXP] = await Promise.all([
+        getByAcademia(academyId),
+        getXP(studentId!),
+      ]);
+      return { ranking, myXP };
+    },
+  );
+
+  if (loading || studentLoading) {
     return (
       <div className="space-y-4 p-4">
         <Skeleton variant="text" className="h-8 w-48" />
+        <Skeleton variant="card" className="h-24" />
         {[1, 2, 3, 4, 5].map((i) => (
           <Skeleton key={i} variant="card" className="h-16" />
         ))}
       </div>
     );
   }
+
+  const ranking = data?.ranking ?? [];
+  const myXP = data?.myXP;
 
   if (ranking.length === 0) {
     return (
@@ -84,6 +92,16 @@ export default function DashboardRankingPage() {
     );
   }
 
+  // Sort by XP descending and assign rank
+  const sorted = [...ranking].sort((a, b) => b.xp - a.xp).map((entry, idx) => ({
+    ...entry,
+    rank: idx + 1,
+    is_current_user: entry.student_id === studentId,
+  }));
+
+  // Find current user position
+  const myEntry = sorted.find((e) => e.is_current_user);
+
   const tabs: { key: RankingTab; label: string }[] = [
     { key: 'geral', label: 'Geral' },
     { key: 'mensal', label: 'Mensal' },
@@ -95,6 +113,33 @@ export default function DashboardRankingPage() {
       <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
         Ranking da Academia
       </h1>
+
+      {/* My position card */}
+      {myEntry && myXP && (
+        <Card variant="elevated" className="p-4" style={{ border: '2px solid var(--bb-brand)', background: 'var(--bb-brand-surface)' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase" style={{ color: 'var(--bb-ink-40)' }}>
+                Sua posicao
+              </p>
+              <p className="mt-1 text-3xl font-bold" style={{ color: 'var(--bb-brand)' }}>
+                #{myEntry.rank}
+              </p>
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                de {sorted.length} alunos
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+                {myXP.xp.toLocaleString('pt-BR')} XP
+              </p>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                Nivel {myXP.level}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Tab selector */}
       <div
@@ -121,7 +166,7 @@ export default function DashboardRankingPage() {
 
       {/* Ranking list */}
       <div className="space-y-2">
-        {ranking.map((entry) => (
+        {sorted.map((entry) => (
           <Card
             key={entry.student_id}
             style={{
@@ -156,10 +201,8 @@ export default function DashboardRankingPage() {
                     className="inline-block h-2.5 w-2.5 rounded-full"
                     style={{ background: BELT_COLORS[entry.belt] ?? 'var(--bb-ink-40)' }}
                   />
+                  <span>{BELT_LABELS[entry.belt] ?? entry.belt}</span>
                   <span>{entry.xp.toLocaleString('pt-BR')} XP</span>
-                  {entry.streak_days > 0 && (
-                    <span>{entry.streak_days}d streak</span>
-                  )}
                 </div>
               </div>
             </div>

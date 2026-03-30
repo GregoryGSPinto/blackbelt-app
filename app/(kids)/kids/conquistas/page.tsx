@@ -5,6 +5,9 @@ import { getKidsDashboard } from '@/lib/api/kids.service';
 import type { KidsDashboardDTO } from '@/lib/api/kids.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ────────────────────────────────────────────────────────────
 // Kid-friendly achievement data
@@ -38,25 +41,30 @@ const KIDS_ACHIEVEMENTS: KidsAchievementDTO[] = [
 type FilterType = 'all' | 'earned' | 'locked';
 
 export default function KidsConquistasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [data, setData] = useState<KidsDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('all');
   const [selectedAch, setSelectedAch] = useState<KidsAchievementDTO | null>(null);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const d = await getKidsDashboard('stu-kids-helena');
+        const d = await getKidsDashboard(studentId!);
         setData(d);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading ───────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

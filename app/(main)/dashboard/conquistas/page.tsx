@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { getAchievements, getAchievementProgress, CATEGORY_META } from '@/lib/api/conquistas-v2.service';
+import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 import type { AchievementV2DTO, AchievementProgressDTO, AchievementCategory, AchievementRarity } from '@/lib/api/conquistas-v2.service';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
@@ -56,6 +58,7 @@ const ALL_CATEGORIES: AchievementCategory[] = ['JORNADA', 'CONSTANCIA', 'FAIXA',
 
 export default function ConquistasPage() {
   const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [achievements, setAchievements] = useState<AchievementV2DTO[]>([]);
   const [progress, setProgress] = useState<AchievementProgressDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +75,8 @@ export default function ConquistasPage() {
         ]);
         setAchievements(achs);
         setProgress(prog);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }

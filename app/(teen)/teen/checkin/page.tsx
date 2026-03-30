@@ -8,9 +8,12 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
+import { useToast } from '@/lib/hooks/useToast';
 
 export default function TeenCheckinPage() {
   const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [history, setHistory] = useState<Attendance[]>([]);
   const [stats, setStats] = useState<AttendanceStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,12 +25,14 @@ export default function TeenCheckinPage() {
         const [h, s] = await Promise.all([getHistory(studentId!), getStats(studentId!)]);
         setHistory(h);
         setStats(s);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [studentId, studentLoading]);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const historyByMonth = history.reduce<Record<string, Attendance[]>>((acc, a) => {
     const d = new Date(a.checked_at);

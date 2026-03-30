@@ -7,10 +7,13 @@ import { getKidsProfile } from '@/lib/api/kids-estrelas.service';
 import type { KidsProfile } from '@/lib/api/kids-estrelas.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
 
 type ModalType = 'mascote' | 'titulo' | 'cor' | null;
 
 export default function KidsPerfilPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [personalizacao, setPersonalizacao] = useState<PersonalizacaoKids | null>(null);
   const [profile, setProfile] = useState<KidsProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,20 +21,23 @@ export default function KidsPerfilPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
         const [pers, prof] = await Promise.all([
-          getPersonalizacao('stu-kids-helena'),
-          getKidsProfile('stu-kids-helena'),
+          getPersonalizacao(studentId!),
+          getKidsProfile(studentId!),
         ]);
         setPersonalizacao(pers);
         setProfile(prof);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSelectMascote(mascote: MascoteOption) {
     if (!mascote.desbloqueado) {
@@ -39,14 +45,14 @@ export default function KidsPerfilPage() {
       return;
     }
     try {
-      await setMascoteKids('stu-kids-helena', mascote.id);
+      await setMascoteKids(studentId!, mascote.id);
       setPersonalizacao((prev) =>
         prev ? { ...prev, mascoteAtual: mascote.id } : prev,
       );
       setActiveModal(null);
       toast(`Seu mascote agora \u00e9 ${mascote.nome}! ${mascote.emoji}`, 'success');
-    } catch {
-      toast('Tente de novo! \u{1F31F}', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -56,7 +62,7 @@ export default function KidsPerfilPage() {
       return;
     }
     try {
-      await setTituloKids('stu-kids-helena', titulo.titulo);
+      await setTituloKids(studentId!, titulo.titulo);
       setPersonalizacao((prev) =>
         prev ? { ...prev, tituloAtual: titulo.titulo } : prev,
       );
@@ -65,8 +71,8 @@ export default function KidsPerfilPage() {
       );
       setActiveModal(null);
       toast(`Seu t\u00edtulo agora \u00e9 ${titulo.titulo}! \u{1F3C5}`, 'success');
-    } catch {
-      toast('Tente de novo! \u{1F31F}', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -76,14 +82,14 @@ export default function KidsPerfilPage() {
       return;
     }
     try {
-      await setCorKids('stu-kids-helena', cor.id);
+      await setCorKids(studentId!, cor.id);
       setPersonalizacao((prev) =>
         prev ? { ...prev, corAtual: cor.id } : prev,
       );
       setActiveModal(null);
       toast(`Sua cor agora \u00e9 ${cor.nome}! \u{1F3A8}`, 'success');
-    } catch {
-      toast('Tente de novo! \u{1F31F}', 'error');
+    } catch (err) {
+      toast(translateError(err), 'error');
     }
   }
 
@@ -100,7 +106,7 @@ export default function KidsPerfilPage() {
   }
 
   // ── Loading ─────────────────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
+import { useStudentId } from '@/lib/hooks/useStudentId';
 
 // ────────────────────────────────────────────────────────────
 // Belt border color map
@@ -24,12 +25,13 @@ const BELT_RING_COLORS: Record<string, string> = {
 };
 
 export default function TeenDashboardPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const { data, loading } = useSWRFetch<TeenDashboardDTO>(
-    'teen-dashboard',
-    () => getTeenDashboard('stu-teen-lucas'),
+    studentId ? `teen-dashboard-${studentId}` : null,
+    () => getTeenDashboard(studentId!),
   );
 
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

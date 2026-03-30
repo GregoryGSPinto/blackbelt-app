@@ -5,6 +5,9 @@ import { getDesafios, claimReward } from '@/lib/api/teen-desafios.service';
 import type { DesafiosOverview, DesafioTeen } from '@/lib/api/teen-desafios.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -45,6 +48,8 @@ const TYPE_BAR_COLOR: Record<DesafioTeen['type'], string> = {
 // ────────────────────────────────────────────────────────────
 
 export default function TeenDesafiosPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [data, setData] = useState<DesafiosOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabFilter>('ativos');
@@ -53,16 +58,19 @@ export default function TeenDesafiosPage() {
   const [claimFeedback, setClaimFeedback] = useState<{ id: string; xp: number } | null>(null);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const d = await getDesafios('stu-teen-lucas');
+        const d = await getDesafios(studentId!);
         setData(d);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleClaim(desafioId: string) {
     setClaimingId(desafioId);
@@ -71,13 +79,15 @@ export default function TeenDesafiosPage() {
       setClaimedIds((prev) => new Set(prev).add(desafioId));
       setClaimFeedback({ id: desafioId, xp: result.xp_earned });
       setTimeout(() => setClaimFeedback(null), 2000);
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setClaimingId(null);
     }
   }
 
   // ── Loading ───────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

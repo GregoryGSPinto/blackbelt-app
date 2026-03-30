@@ -6,6 +6,9 @@ import type { TeenDashboardDTO, TeenRankingEntryDTO } from '@/lib/api/teen.servi
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ────────────────────────────────────────────────────────────
 // Extended ranking data for full leaderboard
@@ -46,24 +49,29 @@ const BELT_COLORS: Record<string, string> = {
 type TabFilter = 'xp' | 'streak';
 
 export default function TeenRankingPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [data, setData] = useState<TeenDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabFilter>('xp');
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const d = await getTeenDashboard('stu-teen-lucas');
+        const d = await getTeenDashboard(studentId!);
         setData(d);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading ───────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
@@ -96,14 +104,24 @@ export default function TeenRankingPage() {
     );
   }
 
+  // Use real ranking data from service when available, fall back to extended mock
+  const rankingSource: ExtendedRankingEntry[] = data.ranking.length > 0
+    ? data.ranking.map((r) => ({
+        ...r,
+        streak_days: 0,
+        level: 0,
+        belt: 'white',
+      }))
+    : EXTENDED_RANKING;
+
   const sortedRanking =
     tab === 'xp'
-      ? [...EXTENDED_RANKING].sort((a, b) => b.xp - a.xp)
-      : [...EXTENDED_RANKING].sort((a, b) => b.streak_days - a.streak_days);
+      ? [...rankingSource].sort((a, b) => b.xp - a.xp)
+      : [...rankingSource].sort((a, b) => b.streak_days - a.streak_days);
 
   const top3 = sortedRanking.slice(0, 3);
   const rest = sortedRanking.slice(3);
-  const myEntry = EXTENDED_RANKING.find((e) => e.is_current_user);
+  const myEntry = rankingSource.find((e) => e.is_current_user);
 
   return (
     <PlanGate module="teen_module">

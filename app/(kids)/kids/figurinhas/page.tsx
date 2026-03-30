@@ -6,6 +6,8 @@ import type { AlbumFigurinhas, Figurinha } from '@/lib/api/kids-figurinhas.servi
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Rarity config ────────────────────────────────────────────────────
 const RARITY_BORDER: Record<string, string> = {
@@ -30,22 +32,26 @@ const RARITY_LABEL_COLOR: Record<string, string> = {
 };
 
 export default function KidsFigurinhasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
   const [album, setAlbum] = useState<AlbumFigurinhas | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedFigurinha, setSelectedFigurinha] = useState<Figurinha | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const data = await getAlbum('stu-kids-helena');
+        const data = await getAlbum(studentId!);
         setAlbum(data);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleStickerTap(fig: Figurinha) {
     setSelectedFigurinha(fig);
@@ -55,7 +61,7 @@ export default function KidsFigurinhasPage() {
   }
 
   // ── Loading ─────────────────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">

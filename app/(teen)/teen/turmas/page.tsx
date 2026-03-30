@@ -6,6 +6,9 @@ import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useStudentId } from '@/lib/hooks/useStudentId';
+import { translateError } from '@/lib/utils/error-translator';
+import { useToast } from '@/lib/hooks/useToast';
 
 // ────────────────────────────────────────────────────────────
 // Mock class data (derived from dashboard context)
@@ -68,24 +71,29 @@ const DAY_ORDER: Record<string, number> = {
 };
 
 export default function TeenTurmasPage() {
+  const { studentId, loading: studentLoading } = useStudentId();
+  const { toast } = useToast();
   const [data, setData] = useState<TeenDashboardDTO | null>(null);
   const [classes] = useState<TeenClassDTO[]>(MOCK_CLASSES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (studentLoading || !studentId) return;
     async function load() {
       try {
-        const d = await getTeenDashboard('stu-teen-lucas');
+        const d = await getTeenDashboard(studentId!);
         setData(d);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading ───────────────────────────────────────────────
-  if (loading) {
+  if (loading || studentLoading) {
     return (
       <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
