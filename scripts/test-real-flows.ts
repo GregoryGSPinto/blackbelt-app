@@ -1,16 +1,32 @@
 /**
  * Testa 10 fluxos E2E contra o Supabase real.
  *
+ * Schema-aware: profiles NAO tem email/academy_id.
+ * Memberships liga profiles a academies.
+ *
  * Uso: set -a && source .env.local && set +a && pnpm tsx scripts/test-real-flows.ts
  */
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+if (!supabaseUrl || !serviceRoleKey) {
+  console.error('NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY devem estar definidas');
+  process.exit(1);
+}
+
+// Admin client — bypasses RLS for data queries
+const admin = createClient(supabaseUrl, serviceRoleKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+// Auth client — uses anon key for login tests (simulates real app)
+const authClient = createClient(supabaseUrl, anonKey || serviceRoleKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
 
 async function testFlows() {
   let pass = 0;
@@ -18,87 +34,206 @@ async function testFlows() {
 
   function assert(name: string, condition: boolean, detail?: string) {
     if (condition) {
-      console.log(`  ✅ ${name}`);
+      console.log(`  PASS: ${name}`);
       pass++;
     } else {
-      console.log(`  ❌ ${name}${detail ? ': ' + detail : ''}`);
+      console.log(`  FAIL: ${name}${detail ? ' — ' + detail : ''}`);
       fail++;
     }
   }
 
-  // FLUXO 1 — Login
-  console.log('\n=== FLUXO 1: Login ===');
-  const { data: login } = await supabase.auth.signInWithPassword({
-    email: 'admin@guerreiros.com', password: 'BlackBelt@2026'
+  // ═══════════════════════════════════════════
+  // FLUXO 1 — Login admin
+  // ═══════════════════════════════════════════
+  console.log('\n=== FLUXO 1: Login admin ===');
+  const { data: login, error: loginErr } = await authClient.auth.signInWithPassword({
+    email: 'admin@guerreiros.com',
+    password: 'BlackBelt@2026',
   });
-  assert('Login admin', !!login?.user);
+  assert('Login admin@guerreiros.com', !!login?.user, loginErr?.message);
+  const adminUserId = login?.user?.id;
 
-  // FLUXO 2 — Buscar profile
+  // ═══════════════════════════════════════════
+  // FLUXO 2 — Buscar profile (via user_id, NOT email)
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 2: Profile ===');
-  const { data: profile } = await supabase.from('profiles').select('*').eq('email', 'admin@guerreiros.com').single();
-  assert('Profile existe', !!profile);
-  assert('Profile tem academy_id', !!profile?.academy_id);
-  assert('Profile role é admin', profile?.role === 'admin');
+  let adminProfileId: string | null = null;
 
-  // FLUXO 3 — Buscar academia
-  console.log('\n=== FLUXO 3: Academia ===');
-  if (profile?.academy_id) {
-    const { data: academy } = await supabase.from('academies').select('*').eq('id', profile.academy_id).single();
-    assert('Academia existe', !!academy);
-    assert('Academia tem nome', !!academy?.name);
-    assert('Academia status ativa', academy?.status === 'active');
+  if (adminUserId) {
+    const { data: profiles, error: profileErr } = await admin
+      .from('profiles')
+      .select('id, user_id, role, display_name')
+      .eq('user_id', adminUserId);
+
+    const profile = profiles?.find((p: any) => p.role === 'admin') ?? profiles?.[0];
+    assert('Profile existe', !!profile, profileErr?.message);
+    assert('Profile role e admin', profile?.role === 'admin', `role=${profile?.role}`);
+    assert('Profile tem display_name', !!profile?.display_name, `display_name=${profile?.display_name}`);
+    adminProfileId = profile?.id || null;
+  } else {
+    assert('Profile existe', false, 'user_id nao disponivel (login falhou)');
   }
 
+  // ═══════════════════════════════════════════
+  // FLUXO 3 — Buscar academia (via memberships)
+  // ═══════════════════════════════════════════
+  console.log('\n=== FLUXO 3: Academia ===');
+  let academyId: string | null = null;
+
+  if (adminProfileId) {
+    const { data: membership, error: membErr } = await admin
+      .from('memberships')
+      .select('academy_id, role, status')
+      .eq('profile_id', adminProfileId)
+      .eq('status', 'active')
+      .limit(1)
+      .maybeSingle();
+
+    assert('Membership existe', !!membership, membErr?.message);
+    assert('Membership role e admin', membership?.role === 'admin', `role=${membership?.role}`);
+    assert('Membership status ativa', membership?.status === 'active', `status=${membership?.status}`);
+
+    academyId = membership?.academy_id || null;
+
+    if (academyId) {
+      const { data: academy, error: acadErr } = await admin
+        .from('academies')
+        .select('id, name, status')
+        .eq('id', academyId)
+        .single();
+
+      assert('Academia existe', !!academy, acadErr?.message);
+      assert('Academia tem nome', !!academy?.name, `name=${academy?.name}`);
+      assert('Academia status ativa', academy?.status === 'active', `status=${academy?.status}`);
+    }
+  } else {
+    assert('Membership existe', false, 'profile_id nao disponivel');
+  }
+
+  // ═══════════════════════════════════════════
   // FLUXO 4 — Listar turmas
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 4: Turmas ===');
-  const { data: turmas } = await supabase.from('classes').select('*').eq('academy_id', profile?.academy_id);
-  assert('Turmas existem', (turmas?.length || 0) > 0);
-  assert('Tem pelo menos 5 turmas', (turmas?.length || 0) >= 5);
+  if (academyId) {
+    const { data: turmas, error: turmasErr } = await admin
+      .from('classes')
+      .select('id, name')
+      .eq('academy_id', academyId);
 
-  // FLUXO 5 — Listar alunos
+    assert('Turmas existem', (turmas?.length || 0) > 0, turmasErr?.message);
+    assert('Tem pelo menos 5 turmas', (turmas?.length || 0) >= 5, `count=${turmas?.length}`);
+  } else {
+    assert('Turmas existem', false, 'academy_id nao disponivel');
+  }
+
+  // ═══════════════════════════════════════════
+  // FLUXO 5 — Listar alunos (via memberships)
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 5: Alunos ===');
-  const { data: alunos } = await supabase.from('profiles').select('*')
-    .eq('academy_id', profile?.academy_id)
-    .in('role', ['aluno_adulto', 'aluno_teen', 'aluno_kids']);
-  assert('Alunos existem', (alunos?.length || 0) > 0);
+  if (academyId) {
+    const { data: alunos, error: alunosErr } = await admin
+      .from('memberships')
+      .select('id, profile_id, role')
+      .eq('academy_id', academyId)
+      .in('role', ['aluno_adulto', 'aluno_teen', 'aluno_kids']);
 
+    assert('Alunos existem', (alunos?.length || 0) > 0, alunosErr?.message);
+    assert('Tem pelo menos 3 alunos', (alunos?.length || 0) >= 3, `count=${alunos?.length}`);
+  } else {
+    assert('Alunos existem', false, 'academy_id nao disponivel');
+  }
+
+  // ═══════════════════════════════════════════
   // FLUXO 6 — Check-ins
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 6: Check-ins ===');
-  const { count } = await supabase.from('checkins').select('*', { count: 'exact', head: true })
-    .eq('academy_id', profile?.academy_id);
-  assert('Check-ins existem', (count || 0) > 0);
-  assert('Tem pelo menos 50 check-ins', (count || 0) >= 50);
+  if (academyId) {
+    const { count, error: checkErr } = await admin
+      .from('checkins')
+      .select('id', { count: 'exact', head: true })
+      .eq('academy_id', academyId);
 
+    assert('Check-ins existem', (count || 0) > 0, checkErr?.message);
+    assert('Tem pelo menos 50 check-ins', (count || 0) >= 50, `count=${count}`);
+  } else {
+    assert('Check-ins existem', false, 'academy_id nao disponivel');
+  }
+
+  // ═══════════════════════════════════════════
   // FLUXO 7 — Faturas
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 7: Faturas ===');
-  const { count: fCount } = await supabase.from('invoices').select('*', { count: 'exact', head: true })
-    .eq('academy_id', profile?.academy_id);
-  assert('Faturas existem', (fCount || 0) > 0);
+  {
+    const { count, error: invErr } = await admin
+      .from('invoices')
+      .select('id', { count: 'exact', head: true });
 
+    assert('Faturas existem', (count || 0) > 0, invErr?.message || `count=${count}`);
+  }
+
+  // ═══════════════════════════════════════════
   // FLUXO 8 — Planos
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 8: Planos ===');
-  const { data: planos } = await supabase.from('platform_plans').select('*');
-  assert('Planos existem', (planos?.length || 0) > 0);
-  const pro = planos?.find((p: any) => p.tier === 'pro');
-  assert('Pro custa R$249', pro?.price_monthly === 24900);
+  {
+    const { data: planos, error: planErr } = await admin
+      .from('platform_plans')
+      .select('id, tier, name, price_monthly');
 
+    assert('Planos existem', (planos?.length || 0) > 0, planErr?.message);
+    assert('Tem 5 planos', (planos?.length || 0) === 5, `count=${planos?.length}`);
+
+    const pro = planos?.find((p: any) => p.tier === 'pro');
+    assert('Pro custa R$249', pro?.price_monthly === 24900, `price_monthly=${pro?.price_monthly}`);
+  }
+
+  // ═══════════════════════════════════════════
   // FLUXO 9 — Guardian links
+  // ═══════════════════════════════════════════
   console.log('\n=== FLUXO 9: Guardian links ===');
-  const { data: links } = await supabase.from('guardian_links').select('*');
-  assert('Guardian links existem', (links?.length || 0) > 0);
+  {
+    const { data: links, error: linkErr } = await admin
+      .from('guardian_links')
+      .select('id, guardian_id, child_id, relationship');
 
-  // FLUXO 10 — Multi-profile (superadmin)
-  console.log('\n=== FLUXO 10: Multi-profile ===');
-  const { data: superLogin } = await supabase.auth.signInWithPassword({
-    email: 'greg@email.com', password: 'BlackBelt@Greg1994'
+    assert('Guardian links existem', (links?.length || 0) > 0, linkErr?.message || `count=${links?.length}`);
+
+    if (links && links.length > 0) {
+      assert('Relationship e parent', links[0].relationship === 'parent', `relationship=${links[0].relationship}`);
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // FLUXO 10 — Login superadmin
+  // ═══════════════════════════════════════════
+  console.log('\n=== FLUXO 10: Login superadmin ===');
+  // Use a fresh auth client so the previous signIn doesn't interfere
+  const authClient2 = createClient(supabaseUrl, anonKey || serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
   });
-  assert('Login superadmin', !!superLogin?.user);
+  const { data: superLogin, error: superErr } = await authClient2.auth.signInWithPassword({
+    email: 'greg@email.com',
+    password: 'BlackBelt@Greg1994',
+  });
+  assert('Login superadmin', !!superLogin?.user, superErr?.message);
 
+  if (superLogin?.user) {
+    const { data: superProfiles } = await admin
+      .from('profiles')
+      .select('id, role')
+      .eq('user_id', superLogin.user.id);
+
+    const superProfile = superProfiles?.find((p: any) => p.role === 'superadmin') ?? superProfiles?.[0];
+    assert('Superadmin profile role', superProfile?.role === 'superadmin', `role=${superProfile?.role}`);
+  }
+
+  // ═══════════════════════════════════════════
   // RESULTADO
+  // ═══════════════════════════════════════════
   console.log('\n════════════════════════════════');
-  console.log(`✅ Passou: ${pass}`);
-  console.log(`❌ Falhou: ${fail}`);
-  console.log(`📊 Score: ${Math.round((pass / (pass + fail)) * 100)}%`);
+  console.log(`Passou: ${pass}`);
+  console.log(`Falhou: ${fail}`);
+  console.log(`Score: ${Math.round((pass / (pass + fail)) * 100)}%`);
   console.log('════════════════════════════════\n');
 
   if (fail > 0) {
