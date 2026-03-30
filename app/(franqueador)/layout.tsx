@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
@@ -8,6 +8,8 @@ import { NotificationBell } from '@/components/shared/NotificationBell';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { TourIntegration } from '@/components/tour/TourIntegration';
+import { Avatar } from '@/components/ui/Avatar';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const sidebarItems: { href: string; label: string; id?: string }[] = [
   { href: '/franqueador', label: 'Dashboard', id: 'sidebar-link-dashboard-fr' },
@@ -23,13 +25,44 @@ const sidebarItems: { href: string; label: string; id?: string }[] = [
 
 export default function FranqueadorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { profile } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const userName = profile?.display_name || 'Franqueador';
 
   // Close sidebar on route change
   useEffect(() => {
     setSidebarOpen(false);
   }, [pathname]);
+
+  // Close user menu on click outside
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (
+      userMenuRef.current &&
+      !userMenuRef.current.contains(e.target as Node) &&
+      userMenuButtonRef.current &&
+      !userMenuButtonRef.current.contains(e.target as Node)
+    ) {
+      setUserMenuOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [userMenuOpen, handleClickOutside]);
+
+  async function handleLogout() {
+    setUserMenuOpen(false);
+    const { performLogout } = await import('@/lib/auth/logout');
+    await performLogout();
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bb-depth-1)' }}>
@@ -57,7 +90,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
           className="flex h-14 items-center px-6"
           style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
         >
-          <BlackBeltLogo variant="navbar" mode="dark" height={28} />
+          <BlackBeltLogo variant="navbar" height={28} />
           <span className="ml-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
             Franqueador
           </span>
@@ -145,6 +178,91 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
             </button>
             <NotificationBell />
             <ThemeToggle />
+
+            {/* User Menu */}
+            <div className="relative">
+              <button
+                ref={userMenuButtonRef}
+                data-tour="profile-menu"
+                onClick={() => setUserMenuOpen((prev) => !prev)}
+                aria-label="Menu do usuario"
+                className="flex h-9 w-9 items-center justify-center cursor-pointer"
+              >
+                <Avatar name={userName} size="sm" />
+              </button>
+
+              {userMenuOpen && (
+                <div
+                  ref={userMenuRef}
+                  className="absolute right-0 top-full mt-2 w-64 z-50 overflow-hidden"
+                  style={{
+                    background: 'var(--bb-depth-3)',
+                    border: '1px solid var(--bb-glass-border)',
+                    boxShadow: 'var(--bb-shadow-lg)',
+                    borderRadius: 'var(--bb-radius-lg)',
+                    animation: 'scaleIn 0.15s ease-out',
+                    transformOrigin: 'top right',
+                  }}
+                >
+                  <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                      {userName}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      Franqueador
+                    </p>
+                  </div>
+
+                  <div className="py-1">
+                    <Link
+                      href="/franqueador/perfil"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-ink-80)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; e.currentTarget.style.color = 'var(--bb-ink-100)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bb-ink-80)'; }}
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                      Meu Perfil
+                    </Link>
+                    <Link
+                      href="/franqueador/configuracoes"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-ink-80)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; e.currentTarget.style.color = 'var(--bb-ink-100)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bb-ink-80)'; }}
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      Configuracoes
+                    </Link>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+                    <button
+                      onClick={() => { setUserMenuOpen(false); sessionStorage.setItem('bb_profile_switch', '1'); window.location.href = '/selecionar-perfil'; }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-ink-80)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                      Trocar Perfil
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                      style={{ color: 'var(--bb-danger, var(--bb-brand))' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                      Sair
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
