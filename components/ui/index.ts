@@ -9,3 +9,4 @@ export { Skeleton, type SkeletonProps, type SkeletonVariant } from './Skeleton';
 export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { PageError, type PageErrorProps } from './PageError';
 export { Spinner, type SpinnerProps, type SpinnerSize } from './Spinner';
+export { Toggle } from './Toggle';

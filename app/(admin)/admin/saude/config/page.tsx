@@ -11,6 +11,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Toggle } from '@/components/ui/Toggle';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
@@ -218,23 +219,7 @@ export default function HealthConfigPage() {
               <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{field.label}</p>
               <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{field.description}</p>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={Boolean(config[field.key])}
-              onClick={() => toggleField(field.key)}
-              className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200"
-              style={{
-                background: config[field.key] ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
-              }}
-            >
-              <span
-                className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
-                style={{
-                  transform: config[field.key] ? 'translateX(22px)' : 'translateX(4px)',
-                }}
-              />
-            </button>
+            <Toggle checked={Boolean(config[field.key])} onChange={() => toggleField(field.key)} label={field.label} />
           </div>
         ))}
       </Card>

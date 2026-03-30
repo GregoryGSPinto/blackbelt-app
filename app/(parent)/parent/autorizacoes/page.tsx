@@ -13,6 +13,7 @@ import type {
 } from '@/lib/api/responsavel-autorizacoes.service';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Toggle } from '@/components/ui/Toggle';
 import {
   ShieldIcon,
   CheckIcon,
@@ -100,37 +101,8 @@ function AutorizacoesSkeleton() {
 }
 
 // ────────────────────────────────────────────────────────────
-// Toggle Switch
+// Toggle Switch (uses shared Toggle component)
 // ────────────────────────────────────────────────────────────
-
-function ToggleSwitch({
-  enabled,
-  onToggle,
-  disabled,
-}: {
-  enabled: boolean;
-  onToggle: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      disabled={disabled}
-      onClick={onToggle}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-        enabled ? 'bg-[var(--bb-brand)]' : 'bg-[var(--bb-ink-20)]'
-      } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-    >
-      <span
-        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-          enabled ? 'translate-x-5' : 'translate-x-0'
-        }`}
-      />
-    </button>
-  );
-}
 
 // ────────────────────────────────────────────────────────────
 // Authorization Card
@@ -452,10 +424,10 @@ export default function AutorizacoesPage() {
                           {perm.description}
                         </p>
                       </div>
-                      <ToggleSwitch
-                        enabled={perm.enabled}
+                      <Toggle
+                        checked={perm.enabled}
                         disabled={isToggling}
-                        onToggle={() =>
+                        onChange={() =>
                           handleTogglePermission(
                             selectedControle.student_id,
                             perm.key,

@@ -14,6 +14,7 @@ import type {
   CreateEvaluationPayload,
 } from '@/lib/types/evaluation';
 import { Card } from '@/components/ui/Card';
+import { Toggle } from '@/components/ui/Toggle';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -463,17 +464,7 @@ export default function ProfessorAvaliacoesPage() {
               <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Pronto para graduar?</p>
               <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Recomendar este aluno para graduação de faixa</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setProntoGraduar(!prontoGraduar)}
-              className="relative h-6 w-11 rounded-full transition-colors"
-              style={{ background: prontoGraduar ? '#22c55e' : 'var(--bb-depth-4)' }}
-            >
-              <span
-                className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
-                style={{ left: prontoGraduar ? '22px' : '2px' }}
-              />
-            </button>
+            <Toggle checked={prontoGraduar} onChange={setProntoGraduar} label="Pronto para graduar?" />
           </label>
         </Card>
 

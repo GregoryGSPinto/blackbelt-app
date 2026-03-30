@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/wizard.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Toggle } from '@/components/ui/Toggle';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
@@ -523,18 +524,7 @@ export default function WizardPage() {
                       Seus alunos terão acesso a vídeos técnicos, aulas gravadas e tutoriais.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setVideoEnabled(!videoEnabled)}
-                    className={`relative h-6 w-11 rounded-full transition-colors ${
-                      videoEnabled ? 'bg-bb-red' : 'bg-bb-gray-300'
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                        videoEnabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
+                  <Toggle checked={videoEnabled} onChange={setVideoEnabled} label="Biblioteca de Vídeos" />
                 </div>
               </div>
               {videoEnabled && (

@@ -2,6 +2,7 @@
 
 import { forwardRef, useState } from 'react';
 import { useToast } from '@/lib/hooks/useToast';
+import { Toggle } from '@/components/ui/Toggle';
 import type { ParentalControlConfig } from '@/lib/types/domain';
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -45,19 +46,7 @@ function ToggleRow({
         <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{label}</p>
         <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>{description}</p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
-        style={{ background: checked ? 'var(--bb-brand)' : 'var(--bb-depth-3)' }}
-      >
-        <span
-          className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
-          style={{ transform: checked ? 'translateX(20px)' : 'translateX(0)' }}
-        />
-      </button>
+      <Toggle checked={checked} onChange={onChange} label={label} />
     </div>
   );
 }

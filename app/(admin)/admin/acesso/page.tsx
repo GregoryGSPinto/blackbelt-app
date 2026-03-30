@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { Toggle } from '@/components/ui/Toggle';
 import {
   getAccessLog,
   getAccessRules,
@@ -165,12 +166,7 @@ export default function AcessoAdminPage() {
                     {rule.type === 'block_overdue' && `Bloqueia após ${(rule.config as Record<string, number>).grace_days} dias de atraso`}
                   </p>
                 </div>
-                <button
-                  onClick={() => toggleRule(rule.id)}
-                  className={`relative h-6 w-11 rounded-full transition-colors ${rule.enabled ? 'bg-green-500' : 'bg-bb-gray-300'}`}
-                >
-                  <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${rule.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
+                <Toggle checked={rule.enabled} onChange={() => toggleRule(rule.id)} label={rule.name} />
               </div>
             </div>
           ))}

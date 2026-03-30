@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, type CSSProperties } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { Toggle } from '@/components/ui/Toggle';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import {
@@ -410,24 +411,12 @@ export default function FeaturesPage() {
 
                   {/* Toggle */}
                   <td className="px-3 py-3">
-                    <button
+                    <Toggle
+                      checked={feat.statusGlobal}
+                      onChange={() => handleToggle(feat)}
                       disabled={isToggling}
-                      onClick={() => handleToggle(feat)}
-                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50"
-                      style={{
-                        background: feat.statusGlobal ? '#f59e0b' : 'var(--bb-depth-4)',
-                        border: `1px solid ${feat.statusGlobal ? '#f59e0b' : 'var(--bb-glass-border)'}`,
-                      }}
-                      aria-label={`Toggle ${feat.nome}`}
-                    >
-                      <span
-                        className="inline-block h-4 w-4 rounded-full transition-transform"
-                        style={{
-                          background: '#fff',
-                          transform: feat.statusGlobal ? 'translateX(22px)' : 'translateX(3px)',
-                        }}
-                      />
-                    </button>
+                      label={feat.nome}
+                    />
                   </td>
 
                   {/* Configurar */}
@@ -512,22 +501,7 @@ export default function FeaturesPage() {
               <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
                 Status Global
               </label>
-              <button
-                onClick={() => setCfgStatusGlobal(!cfgStatusGlobal)}
-                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                style={{
-                  background: cfgStatusGlobal ? '#f59e0b' : 'var(--bb-depth-4)',
-                  border: `1px solid ${cfgStatusGlobal ? '#f59e0b' : 'var(--bb-glass-border)'}`,
-                }}
-              >
-                <span
-                  className="inline-block h-4 w-4 rounded-full transition-transform"
-                  style={{
-                    background: '#fff',
-                    transform: cfgStatusGlobal ? 'translateX(22px)' : 'translateX(3px)',
-                  }}
-                />
-              </button>
+              <Toggle checked={cfgStatusGlobal} onChange={setCfgStatusGlobal} label="Status Global" />
             </div>
 
             {/* Planos */}
@@ -703,22 +677,7 @@ export default function FeaturesPage() {
             <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>
               Status Global
             </label>
-            <button
-              onClick={() => setNewStatusGlobal(!newStatusGlobal)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-              style={{
-                background: newStatusGlobal ? '#f59e0b' : 'var(--bb-depth-4)',
-                border: `1px solid ${newStatusGlobal ? '#f59e0b' : 'var(--bb-glass-border)'}`,
-              }}
-            >
-              <span
-                className="inline-block h-4 w-4 rounded-full transition-transform"
-                style={{
-                  background: '#fff',
-                  transform: newStatusGlobal ? 'translateX(22px)' : 'translateX(3px)',
-                }}
-              />
-            </button>
+            <Toggle checked={newStatusGlobal} onChange={setNewStatusGlobal} label="Status Global" />
           </div>
 
           {/* Planos */}

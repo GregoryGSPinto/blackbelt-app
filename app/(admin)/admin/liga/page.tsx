@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/leagues.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Toggle } from '@/components/ui/Toggle';
 import { Spinner } from '@/components/ui/Spinner';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 
@@ -58,19 +59,7 @@ export default function AdminLigaPage() {
           <span className="text-sm text-bb-gray-500">
             {stats.opted_in ? 'Participando' : 'Não participando'}
           </span>
-          <button
-            onClick={handleToggleOptIn}
-            disabled={toggling}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              stats.opted_in ? 'bg-bb-primary' : 'bg-bb-gray-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                stats.opted_in ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
+          <Toggle checked={stats.opted_in} onChange={() => handleToggleOptIn()} disabled={toggling} label="Participar da Liga" />
         </div>
       </div>
 

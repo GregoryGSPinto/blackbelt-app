@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { Toggle } from '@/components/ui/Toggle';
 import {
   getProximityConfig,
   configureBeacon,
@@ -120,12 +121,7 @@ export default function ProximidadeAdminPage() {
             Quando ativo, alunos próximos com aula agendada fazem check-in automaticamente
           </p>
         </div>
-        <button
-          onClick={handleToggleAutoCheckin}
-          className={`relative h-6 w-11 rounded-full transition-colors ${config.auto_checkin_enabled ? 'bg-green-500' : 'bg-bb-gray-300'}`}
-        >
-          <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${config.auto_checkin_enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-        </button>
+        <Toggle checked={config.auto_checkin_enabled} onChange={() => handleToggleAutoCheckin()} label="Check-in Automático" />
       </div>
 
       {/* Dwell time */}
@@ -206,12 +202,7 @@ export default function ProximidadeAdminPage() {
                   ID: {beacon.beacon_id} · TX: {beacon.tx_power}dBm · Visto: {new Date(beacon.last_seen).toLocaleTimeString('pt-BR')}
                 </p>
               </div>
-              <button
-                onClick={() => handleToggleBeacon(beacon)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${beacon.active ? 'bg-green-500' : 'bg-bb-gray-300'}`}
-              >
-                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${beacon.active ? 'translate-x-5' : 'translate-x-0.5'}`} />
-              </button>
+              <Toggle checked={beacon.active} onChange={() => handleToggleBeacon(beacon)} label={beacon.name} />
             </div>
           ))}
         </div>

@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useMemo } from 'react';
 import { useToast } from '@/lib/hooks/useToast';
+import { Toggle } from '@/components/ui/Toggle';
 import { translateError } from '@/lib/utils/error-translator';
 import { createPerson, createFamilyLink } from '@/lib/api/family.service';
 import type { FamilyRelationship } from '@/lib/types/domain';
@@ -264,19 +265,7 @@ const AddChildForm = forwardRef<HTMLFormElement, AddChildFormProps>(
                   Se ativado, o teen podera acessar o app com email e senha proprios
                 </p>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={form.hasOwnLogin}
-                onClick={() => update('hasOwnLogin', !form.hasOwnLogin)}
-                className="relative h-6 w-11 rounded-full transition-colors"
-                style={{ background: form.hasOwnLogin ? 'var(--bb-brand)' : 'var(--bb-depth-3)' }}
-              >
-                <span
-                  className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
-                  style={{ transform: form.hasOwnLogin ? 'translateX(20px)' : 'translateX(0)' }}
-                />
-              </button>
+              <Toggle checked={form.hasOwnLogin} onChange={(v) => update('hasOwnLogin', v)} label="Login proprio para o teen" />
             </div>
             {form.hasOwnLogin && (
               <div className="flex flex-col gap-2">

@@ -5,6 +5,7 @@ import { listAutomations, toggleAutomation } from '@/lib/api/automations.service
 import type { AutomationConfig } from '@/lib/types/notification';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { Toggle } from '@/components/ui/Toggle';
 import { useToast } from '@/lib/hooks/useToast';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -87,18 +88,7 @@ export default function AutomacoesPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => handleToggle(auto.id, !auto.enabled)}
-                className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
-                  auto.enabled ? 'bg-green-500' : 'bg-bb-gray-300'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                    auto.enabled ? 'translate-x-5' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Toggle checked={auto.enabled} onChange={(v) => handleToggle(auto.id, v)} label={auto.name} />
             </div>
           </Card>
         ))}

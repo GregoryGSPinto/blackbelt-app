@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { Toggle } from '@/components/ui/Toggle';
 import {
   getDevices,
   getLiveAccess,
@@ -333,9 +334,7 @@ export default function IoTPage() {
                     <p className="text-sm text-bb-gray-900">{item.label}</p>
                     <p className="text-xs text-bb-gray-500">{item.desc}</p>
                   </div>
-                  <div className="relative h-6 w-11 rounded-full" style={{ background: 'var(--bb-success)' }}>
-                    <div className="absolute right-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm" />
-                  </div>
+                  <Toggle checked={true} onChange={() => {}} label={item.label} />
                 </div>
               ))}
             </div>

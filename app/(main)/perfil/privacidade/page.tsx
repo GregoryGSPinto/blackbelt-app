@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
+import { Toggle } from '@/components/ui/Toggle';
 import type { ConsentRecord } from '@/lib/api/privacy.service';
 import { getConsents, updateConsent, requestDataExport, requestAccountDeletion } from '@/lib/api/privacy.service';
 import { useToast } from '@/lib/hooks/useToast';
@@ -82,16 +83,11 @@ export default function PrivacyPage() {
                     <p className="mt-1 text-xs text-bb-gray-400">Aceito em {new Date(c.acceptedAt).toLocaleDateString('pt-BR')}</p>
                   )}
                 </div>
-                <label className="relative inline-flex cursor-pointer items-center">
-                  <input
-                    type="checkbox"
-                    checked={c.accepted}
-                    onChange={(e) => handleToggle(c.type, e.target.checked)}
-                    disabled={c.type === 'terms' || c.type === 'privacy'}
-                    className="peer sr-only"
-                  />
-                  <div className="h-6 w-11 rounded-full bg-bb-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-bb-red peer-checked:after:translate-x-full peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
-                </label>
+                <Toggle
+                  checked={c.accepted}
+                  onChange={(v) => handleToggle(c.type, v)}
+                  disabled={c.type === 'terms' || c.type === 'privacy'}
+                />
               </div>
             );
           })}

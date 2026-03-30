@@ -12,6 +12,7 @@ import {
   type WhatsAppConfig,
 } from '@/lib/api/whatsapp.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Toggle } from '@/components/ui/Toggle';
 import { useToast } from '@/lib/hooks/useToast';
 import {
   SendIcon,
@@ -739,21 +740,7 @@ export default function WhatsAppPage() {
                 >
                   <ClockIcon className="h-4 w-4" style={{ color: 'var(--bb-ink-40)' }} />
                   Agendar envio
-                  <span
-                    className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
-                    style={{
-                      background: scheduleEnabled ? 'var(--bb-brand)' : 'var(--bb-ink-30)',
-                    }}
-                  >
-                    <span
-                      className="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform"
-                      style={{
-                        transform: scheduleEnabled
-                          ? 'translateX(18px)'
-                          : 'translateX(3px)',
-                      }}
-                    />
-                  </span>
+                  <Toggle checked={scheduleEnabled} onChange={setScheduleEnabled} size="sm" />
                 </button>
               </div>
 
@@ -848,27 +835,11 @@ export default function WhatsAppPage() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => handleToggleAutomation(auto.id)}
-                    className="relative h-6 w-11 flex-shrink-0 rounded-full transition-colors"
-                    style={{
-                      background: auto.active
-                        ? 'var(--bb-brand)'
-                        : 'var(--bb-ink-30)',
-                    }}
-                    aria-label={
-                      auto.active ? 'Desativar automacao' : 'Ativar automacao'
-                    }
-                  >
-                    <span
-                      className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
-                      style={{
-                        transform: auto.active
-                          ? 'translateX(20px)'
-                          : 'translateX(2px)',
-                      }}
-                    />
-                  </button>
+                  <Toggle
+                    checked={auto.active}
+                    onChange={() => handleToggleAutomation(auto.id)}
+                    label={auto.active ? 'Desativar automacao' : 'Ativar automacao'}
+                  />
                 </div>
               </div>
             ))}

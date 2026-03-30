@@ -11,6 +11,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Toggle } from '@/components/ui/Toggle';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
@@ -94,35 +95,7 @@ function PageSkeleton() {
   );
 }
 
-// -- Toggle component --------------------------------------------------------
-
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200"
-      style={{
-        background: checked ? 'var(--bb-brand)' : 'var(--bb-depth-4)',
-      }}
-    >
-      <span
-        className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
-        style={{
-          transform: checked ? 'translateX(22px)' : 'translateX(4px)',
-        }}
-      />
-    </button>
-  );
-}
+// -- Toggle component (uses shared Toggle from @/components/ui/Toggle) ------
 
 // -- Main page ---------------------------------------------------------------
 
