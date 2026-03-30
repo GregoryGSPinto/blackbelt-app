@@ -22,6 +22,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Belt display helpers ────────────────────────────────────────────
 
@@ -245,6 +248,8 @@ type ViewMode = 'list' | 'evaluate' | 'history';
 // ── Page Component ──────────────────────────────────────────────────
 
 export default function ProfessorAvaliacoesPage() {
+  const { profile } = useAuth();
+  const { toast } = useToast();
   const [students, setStudents] = useState<EvaluableStudent[]>([]);
   const [classes, setClasses] = useState<Array<{ class_id: string; class_name: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -273,22 +278,27 @@ export default function ProfessorAvaliacoesPage() {
   const [timeline, setTimeline] = useState<EvaluationTimeline | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  const professorId = profile?.id ?? '';
+
   // Load data
   useEffect(() => {
+    if (!professorId) return;
     async function load() {
       try {
         const [studentData, classData] = await Promise.all([
-          getEvaluableStudents('prof-1'),
-          getProfessorClasses('prof-1'),
+          getEvaluableStudents(professorId),
+          getProfessorClasses(professorId),
         ]);
         setStudents(studentData);
         setClasses(classData);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [professorId, toast]);
 
   // Filter students
   const filteredStudents = useMemo(() => {
@@ -322,10 +332,12 @@ export default function ProfessorAvaliacoesPage() {
     try {
       const data = await getStudentEvaluationTimeline(student.student_id);
       setTimeline(data);
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setLoadingHistory(false);
     }
-  }, []);
+  }, [toast]);
 
   // Submit evaluation
   const handleSubmit = useCallback(async () => {
@@ -345,15 +357,18 @@ export default function ProfessorAvaliacoesPage() {
         comment,
       };
       await createEvaluation(payload);
+      toast('Avaliacao salva com sucesso!', 'success');
       // Refresh students
-      const updated = await getEvaluableStudents('prof-1');
+      const updated = await getEvaluableStudents(professorId);
       setStudents(updated);
       setView('list');
       setSelectedStudent(null);
+    } catch (err) {
+      toast(translateError(err), 'error');
     } finally {
       setSaving(false);
     }
-  }, [selectedStudent, technique, posture, evolution, behavior, conditioning, theory, discipline, comment]);
+  }, [selectedStudent, technique, posture, evolution, behavior, conditioning, theory, discipline, comment, professorId, toast]);
 
   // ── Loading ─────────────────────────────────────────────────────────
 

@@ -74,23 +74,82 @@ export async function listAttendanceRecord(classId: string, date: string): Promi
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
 
-  const { data, error } = await supabase
+  // 1. Get all enrolled students for this class
+  const { data: enrollments, error: enrollError } = await supabase
+    .from('class_enrollments')
+    .select('student_id, students(id, profiles(display_name))')
+    .eq('class_id', classId)
+    .eq('status', 'active');
+
+  if (enrollError) {
+    logServiceError(enrollError, 'attendance');
+    return [];
+  }
+
+  // 2. Get attendance records for this class on this date
+  const { data: attendanceData, error: attError } = await supabase
     .from('attendance')
-    .select('id, student_id, class_id, checked_at, method, students(profiles(display_name))')
+    .select('id, student_id, class_id, checked_at, method')
     .eq('class_id', classId)
     .gte('checked_at', dayStart.toISOString())
     .lte('checked_at', dayEnd.toISOString());
 
-  if (error) {
-    logServiceError(error, 'attendance');
-    return [];
+  if (attError) {
+    logServiceError(attError, 'attendance');
   }
 
-  return (data ?? []).map((a: Record<string, unknown>) => {
-    const students = a.students as Record<string, unknown> | null;
-    const profiles = students?.profiles as Record<string, unknown> | null;
-    return { ...a, student_name: (profiles?.display_name ?? '') as string, date: a.checked_at, status: 'present', checked_in_at: a.checked_at } as AttendanceRecord;
+  // Build a map of student_id -> attendance record
+  const checkedInMap = new Map<string, Record<string, unknown>>();
+  for (const a of (attendanceData ?? []) as Array<Record<string, unknown>>) {
+    checkedInMap.set(a.student_id as string, a);
+  }
+
+  // 3. Merge: all enrolled students, marking present if they have an attendance record
+  const records: AttendanceRecord[] = [];
+  const seenStudents = new Set<string>();
+
+  for (const row of (enrollments ?? []) as Array<Record<string, unknown>>) {
+    const studentId = row.student_id as string;
+    if (seenStudents.has(studentId)) continue;
+    seenStudents.add(studentId);
+
+    const student = row.students as Record<string, unknown> | null;
+    const profile = student?.profiles as Record<string, unknown> | null;
+    const studentName = (profile?.display_name ?? '') as string;
+
+    const att = checkedInMap.get(studentId);
+    if (att) {
+      records.push({
+        id: att.id as string,
+        student_id: studentId,
+        student_name: studentName,
+        class_id: classId,
+        date: att.checked_at as string,
+        status: 'present',
+        checked_in_at: att.checked_at as string,
+        method: (att.method ?? 'manual') as 'manual' | 'qrcode',
+      });
+    } else {
+      records.push({
+        id: '',
+        student_id: studentId,
+        student_name: studentName,
+        class_id: classId,
+        date,
+        status: 'absent',
+        checked_in_at: null,
+        method: 'manual',
+      });
+    }
+  }
+
+  // Sort: present first, then alphabetically
+  records.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'present' ? -1 : 1;
+    return a.student_name.localeCompare(b.student_name);
   });
+
+  return records;
 }
 
 export async function getStudentAttendanceRecord(

@@ -109,16 +109,24 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       return mockGetPlanos();
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
+    const { getActiveAcademyId } = await import('@/lib/hooks/useActiveAcademy');
     const supabase = createBrowserClient();
+    const academyId = getActiveAcademyId();
     const { data, error } = await supabase
       .from('plans')
       .select('id, name, price, features')
-      .eq('active', true);
+      .eq('academy_id', academyId)
+      .eq('is_active', true);
     if (error || !data) {
       logServiceError(error, 'recepcao-cadastro');
       return [];
     }
-    return data.map((p: { id: string; name: string; price: number; features: string[] | null }) => ({ id: p.id, nome: p.name, valor: p.price, beneficios: p.features ?? [] })) as PlanoResumo[];
+    return data.map((p: Record<string, unknown>) => ({
+      id: p.id as string,
+      nome: (p.name ?? '') as string,
+      valor: (p.price ?? 0) as number,
+      beneficios: (p.features ?? []) as string[],
+    }));
   } catch (error) {
     logServiceError(error, 'recepcao-cadastro');
     return [];
@@ -132,23 +140,37 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       return mockGetTurmasDisponiveis();
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
+    const { getActiveAcademyId } = await import('@/lib/hooks/useActiveAcademy');
     const supabase = createBrowserClient();
+    const academyId = getActiveAcademyId();
     const { data, error } = await supabase
       .from('classes')
-      .select('id, schedule, modalities(name), profiles!classes_professor_id_fkey(display_name)');
+      .select('id, schedule, capacity, modalities(name), profiles!classes_professor_id_fkey(display_name), units!inner(academy_id)')
+      .eq('units.academy_id', academyId);
     if (error || !data) {
       logServiceError(error, 'recepcao-cadastro');
       return [];
     }
+
+    const dayNames: Record<number, string> = { 0: 'Dom', 1: 'Seg', 2: 'Ter', 3: 'Qua', 4: 'Qui', 5: 'Sex', 6: 'Sab' };
+
     return data.map((c: Record<string, unknown>) => {
       const mod = c.modalities as Record<string, unknown> | null;
       const prof = c.profiles as Record<string, unknown> | null;
+      const schedule = (c.schedule as Array<{ day_of_week: number; start_time: string; end_time: string }>) ?? [];
+      const cap = (c.capacity as number) ?? 30;
+
+      // Build readable schedule string: "Seg 18:00, Qua 18:00"
+      const horario = schedule
+        .map((s: { day_of_week: number; start_time: string }) => `${dayNames[s.day_of_week] ?? ''} ${s.start_time}`)
+        .join(', ');
+
       return {
         id: c.id as string,
         nome: (mod?.name ?? 'Turma') as string,
-        horario: '',
+        horario,
         professor: (prof?.display_name ?? '') as string,
-        vagas: 0,
+        vagas: cap,
       };
     });
   } catch (error) {

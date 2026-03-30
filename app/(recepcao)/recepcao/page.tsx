@@ -115,10 +115,10 @@ export default function RecepcaoDashboardPage() {
         </p>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'Buscar Aluno', href: '/recepcao/busca' },
+            { label: 'Buscar Aluno', href: '/recepcao/checkin' },
             { label: 'Cadastro Rapido', href: '/recepcao/cadastro' },
-            { label: 'Check-in Manual', href: '/recepcao/caixa' },
-            { label: '\uD83E\uDD4B Experimental', href: '/admin/experimental/novo' },
+            { label: 'Check-in Manual', href: '/recepcao/checkin' },
+            { label: 'Experimental', href: '/recepcao/experimentais' },
           ].map((action) => (
             <Link
               key={action.label}

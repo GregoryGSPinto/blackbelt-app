@@ -225,7 +225,7 @@ export default function ProfessorPresencaPage() {
       )}
 
       {/* ── Stats mini ─────────────────────────────────────────────── */}
-      <section className="animate-reveal flex gap-4">
+      <section className="animate-reveal flex flex-wrap gap-3">
         <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'rgba(34,197,94,0.1)' }}>
           <CheckSquareIcon className="h-4 w-4" style={{ color: '#22C55E' }} />
           <span className="text-sm font-semibold" style={{ color: '#22C55E' }}>{present} presentes</span>
@@ -237,6 +237,36 @@ export default function ProfessorPresencaPage() {
           <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{attendances.length} alunos</span>
         </div>
       </section>
+
+      {/* ── Mark all buttons ───────────────────────────────────────── */}
+      {attendances.length > 0 && (
+        <section className="animate-reveal flex gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              setAttendanceRecords((prev) =>
+                prev.map((a) => ({ ...a, status: 'present' as const })),
+              )
+            }
+            className="rounded-lg px-4 py-2 text-xs font-semibold transition-all hover:opacity-80"
+            style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }}
+          >
+            Marcar todos presentes
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setAttendanceRecords((prev) =>
+                prev.map((a) => ({ ...a, status: 'absent' as const })),
+              )
+            }
+            className="rounded-lg px-4 py-2 text-xs font-semibold transition-all hover:opacity-80"
+            style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.3)' }}
+          >
+            Marcar todos ausentes
+          </button>
+        </section>
+      )}
 
       {/* ── Student list ───────────────────────────────────────────── */}
       <section className="animate-reveal space-y-2">
@@ -271,6 +301,11 @@ export default function ProfessorPresencaPage() {
                 <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>
                   {a.student_name}
                 </p>
+                {a.method === 'qrcode' && a.status === 'present' && (
+                  <p className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                    Auto check-in (QR)
+                  </p>
+                )}
               </div>
               <span
                 className="rounded-full px-2 py-0.5 text-xs font-semibold"

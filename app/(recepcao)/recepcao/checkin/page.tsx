@@ -12,6 +12,7 @@ import {
 } from '@/lib/api/recepcao-checkin.service';
 import type { AlunoCheckin, PessoaDentro, CapacidadeInfo } from '@/lib/api/recepcao-checkin.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 // ── Faixa color helper ─────────────────────────────────────────────────
 const FAIXA_COLORS: Record<string, string> = {
@@ -45,11 +46,11 @@ export default function RecepcaoCheckinPage() {
       setDentroAgora(res.pessoas);
       setCapacidade(res.capacidade);
     } catch (err) {
-      console.error('[RecepcaoCheckinPage]', err);
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => { loadDentro(); }, [loadDentro]);
 

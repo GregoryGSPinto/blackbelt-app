@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logServiceError } from '@/lib/api/errors';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -44,15 +45,17 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
+    const academyId = getActiveAcademyId();
 
-    // Search students via students → profiles join
+    // Search students via students -> profiles join, include memberships for billing status
     const { data, error } = await supabase
       .from('students')
       .select(`
-        id, belt, profile_id,
+        id, belt, profile_id, academy_id,
         profiles!students_profile_id_fkey(display_name, avatar),
         class_enrollments(classes(modalities(name)))
       `)
+      .eq('academy_id', academyId)
       .ilike('profiles.display_name', `%${query}%`)
       .limit(10);
 
@@ -61,24 +64,59 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
       return [];
     }
 
-    return data.map((s: Record<string, unknown>) => {
-      const profile = s.profiles as Record<string, unknown> | null;
-      const enrollments = s.class_enrollments as Array<Record<string, unknown>> | null;
-      const firstEnroll = enrollments?.[0];
-      const cls = firstEnroll?.classes as Record<string, unknown> | null;
-      const mod = cls?.modalities as Record<string, unknown> | null;
+    // Fetch billing status for matched profiles from memberships
+    const profileIds = data
+      .map((s: Record<string, unknown>) => s.profile_id as string)
+      .filter(Boolean);
 
-      return {
-        id: s.id as string,
-        nome: (profile?.display_name ?? '') as string,
-        avatar: (profile?.avatar ?? '') as string,
-        faixa: (s.belt ?? 'white') as string,
-        turma: (mod?.name ?? '') as string,
-        statusFinanceiro: 'em_dia' as const,
-        diasAtraso: 0,
-        ultimoTreino: '',
-      };
-    });
+    const billingMap: Record<string, string> = {};
+    if (profileIds.length > 0) {
+      const { data: memberships } = await supabase
+        .from('memberships')
+        .select('profile_id, billing_status')
+        .eq('academy_id', academyId)
+        .eq('status', 'active')
+        .in('profile_id', profileIds);
+
+      if (memberships) {
+        for (const m of memberships) {
+          const rec = m as Record<string, unknown>;
+          billingMap[rec.profile_id as string] = (rec.billing_status as string) ?? 'em_dia';
+        }
+      }
+    }
+
+    return data
+      .map((s: Record<string, unknown>) => {
+        const profile = s.profiles as Record<string, unknown> | null;
+        const displayName = (profile?.display_name ?? '') as string;
+        // Filter out rows where the profile join didn't match (ilike on inner join)
+        if (!displayName) return null;
+
+        const enrollments = s.class_enrollments as Array<Record<string, unknown>> | null;
+        const firstEnroll = enrollments?.[0];
+        const cls = firstEnroll?.classes as Record<string, unknown> | null;
+        const mod = cls?.modalities as Record<string, unknown> | null;
+
+        const profileId = s.profile_id as string;
+        const billing = billingMap[profileId] ?? 'em_dia';
+
+        let statusFinanceiro: AlunoCheckin['statusFinanceiro'] = 'em_dia';
+        if (billing === 'atrasado') statusFinanceiro = 'atrasado';
+        else if (billing === 'cancelado' || billing === 'pendente') statusFinanceiro = 'inadimplente';
+
+        return {
+          id: s.id as string,
+          nome: displayName,
+          avatar: (profile?.avatar ?? '') as string,
+          faixa: (s.belt ?? 'white') as string,
+          turma: (mod?.name ?? '') as string,
+          statusFinanceiro,
+          diasAtraso: statusFinanceiro !== 'em_dia' ? 1 : 0, // approximate - exact days not tracked in memberships
+          ultimoTreino: '',
+        };
+      })
+      .filter((item: AlunoCheckin | null): item is AlunoCheckin => item !== null);
   } catch (error) {
     logServiceError(error, 'recepcao-checkin');
     return [];
@@ -123,45 +161,25 @@ export async function registrarEntrada(alunoId: string): Promise<{ success: bool
   }
 }
 
-export async function registrarSaida(alunoId: string): Promise<{ success: boolean }> {
+export async function registrarSaida(checkinId: string): Promise<{ success: boolean }> {
   try {
     if (isMock()) {
       const { mockRegistrarSaida } = await import('@/lib/mocks/recepcao-checkin.mock');
-      return mockRegistrarSaida(alunoId);
+      return mockRegistrarSaida(checkinId);
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
 
-    // Find latest open check-in for this student's profile and mark check_out_at
-    const { data: student } = await supabase
-      .from('students')
-      .select('profile_id')
-      .eq('id', alunoId)
-      .single();
-
-    if (!student) return { success: false };
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const { data: openCheckin } = await supabase
-      .from('checkins')
-      .select('id')
-      .eq('profile_id', student.profile_id)
-      .gte('check_in_at', todayStart.toISOString())
-      .is('check_out_at', null)
-      .order('check_in_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (!openCheckin) return { success: false };
-
+    // getDentroAgora returns checkin.id as pessoa.id, so update directly
     const { error } = await supabase
       .from('checkins')
       .update({ check_out_at: new Date().toISOString() })
-      .eq('id', openCheckin.id);
+      .eq('id', checkinId);
 
-    if (error) return { success: false };
+    if (error) {
+      logServiceError(error, 'recepcao-checkin');
+      return { success: false };
+    }
     return { success: true };
   } catch (error) {
     logServiceError(error, 'recepcao-checkin');
@@ -224,8 +242,10 @@ export async function registrarVisitante(nome: string, motivo: string): Promise<
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
+    const academyId = getActiveAcademyId();
 
     const { error } = await supabase.from('visitantes').insert({
+      academy_id: academyId || null,
       nome,
       motivo,
       check_in_at: new Date().toISOString(),

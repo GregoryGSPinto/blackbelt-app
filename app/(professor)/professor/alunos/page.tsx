@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { translateError } from '@/lib/utils/error-translator';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const BELT_COLORS: Record<string, string> = {
@@ -53,6 +55,7 @@ function attendanceLabel(days: number | null): { text: string; color: string } {
 export default function ProfessorAlunosPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [alunos, setAlunos] = useState<AlunoResumoDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
@@ -63,16 +66,20 @@ export default function ProfessorAlunosPage() {
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
+    const professorId = profile?.id;
+    if (!professorId) return;
     async function load() {
       try {
-        const data = await getProfessorDashboard('prof-1');
+        const data = await getProfessorDashboard(professorId!);
         setAlunos(data.meusAlunos);
+      } catch (err) {
+        toast(translateError(err), 'error');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [profile?.id, toast]);
 
   const filteredAlunos = useMemo(() => {
     return alunos.filter((a) => {

@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/recepcao-cobrancas.service';
 import type { Inadimplente, Pagamento } from '@/lib/api/recepcao-cobrancas.service';
 import { useToast } from '@/lib/hooks/useToast';
+import { translateError } from '@/lib/utils/error-translator';
 
 const FAIXA_COLORS: Record<string, string> = {
   branca: '#f5f5f5', azul: '#2563eb', roxa: '#7c3aed', marrom: '#92400e', preta: '#1e1e1e',
@@ -47,11 +48,11 @@ export default function RecepcaoCobrancasPage() {
       setInadimplentes(res.inadimplentes);
       setTotalInadimplente(res.resumo.totalInadimplente);
     } catch (err) {
-      console.error('[RecepcaoCobrancasPage]', err);
+      toast(translateError(err), 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => { load(); }, [load]);
 

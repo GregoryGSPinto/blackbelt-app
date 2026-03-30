@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { logServiceError } from '@/lib/api/errors';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -44,19 +45,56 @@ export async function getInadimplentes(): Promise<{ inadimplentes: Inadimplente[
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('inadimplentes_view').select('*').order('dias_atraso', { ascending: false });
-    if (error || !data) return fallback;
-    const inadimplentes = data.map((d: Record<string, unknown>) => ({
-      id: d.id as string,
-      nome: d.nome as string,
-      avatar: (d.avatar as string) || '',
-      valor: d.valor as number,
-      diasAtraso: d.dias_atraso as number,
-      telefone: d.telefone as string,
-      email: d.email as string,
-      turma: (d.turma as string) || '',
-      faixa: (d.faixa as string) || 'branca',
-    }));
+    const academyId = getActiveAcademyId();
+
+    // Try inadimplentes_view first (may be populated by a cron/trigger)
+    const { data: viewData, error: viewError } = await supabase
+      .from('inadimplentes_view')
+      .select('*')
+      .order('dias_atraso', { ascending: false });
+
+    if (!viewError && viewData && viewData.length > 0) {
+      const inadimplentes = viewData.map((d: Record<string, unknown>) => ({
+        id: d.id as string,
+        nome: (d.nome ?? '') as string,
+        avatar: (d.avatar as string) || '',
+        valor: (d.valor as number) ?? 0,
+        diasAtraso: (d.dias_atraso as number) ?? 0,
+        telefone: (d.telefone ?? '') as string,
+        email: (d.email ?? '') as string,
+        turma: (d.turma as string) || '',
+        faixa: (d.faixa as string) || 'branca',
+      }));
+      const totalInadimplente = inadimplentes.reduce((sum: number, i: Inadimplente) => sum + i.valor, 0);
+      return { inadimplentes, resumo: { totalInadimplente, quantidadeInadimplentes: inadimplentes.length } };
+    }
+
+    // Fallback: query memberships with billing_status = 'atrasado'
+    const { data: memberships, error: mbError } = await supabase
+      .from('memberships')
+      .select('id, monthly_amount, billing_status, profile_id, profiles!memberships_profile_id_fkey(display_name, avatar)')
+      .eq('academy_id', academyId)
+      .eq('status', 'active')
+      .in('billing_status', ['atrasado', 'pendente']);
+
+    if (mbError || !memberships) return fallback;
+
+    const inadimplentes: Inadimplente[] = memberships.map((m: Record<string, unknown>) => {
+      const prof = m.profiles as Record<string, unknown> | null;
+      const amountCents = (m.monthly_amount as number) ?? 0;
+      return {
+        id: m.id as string,
+        nome: (prof?.display_name ?? '') as string,
+        avatar: (prof?.avatar as string) || '',
+        valor: Math.round(amountCents / 100), // cents -> reais
+        diasAtraso: 0, // exact days not tracked in memberships
+        telefone: '',
+        email: '',
+        turma: '',
+        faixa: 'branca',
+      };
+    });
+
     const totalInadimplente = inadimplentes.reduce((sum: number, i: Inadimplente) => sum + i.valor, 0);
     return { inadimplentes, resumo: { totalInadimplente, quantidadeInadimplentes: inadimplentes.length } };
   } catch (error) {
@@ -73,8 +111,17 @@ export async function registrarPagamento(alunoId: string, valor: number, forma: 
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { error } = await supabase.from('pagamentos').insert({ aluno_id: alunoId, valor, forma, created_at: new Date().toISOString() });
-    if (error) return { success: false };
+
+    const { error } = await supabase.from('pagamentos').insert({
+      aluno_id: alunoId,
+      valor,
+      forma,
+      created_at: new Date().toISOString(),
+    });
+    if (error) {
+      logServiceError(error, 'recepcao-cobrancas');
+      return { success: false };
+    }
     return { success: true };
   } catch (error) {
     logServiceError(error, 'recepcao-cobrancas');

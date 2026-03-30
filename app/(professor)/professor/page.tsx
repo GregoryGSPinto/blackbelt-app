@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
@@ -8,6 +8,8 @@ import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
+import { isMock } from '@/lib/env';
+import { translateError } from '@/lib/utils/error-translator';
 
 import {
   UsersIcon,
@@ -399,18 +401,130 @@ function TrialStudentsPreview() {
 
 export default function ProfessorDashboardPage() {
   const { profile } = useAuth();
-  const { data: duvidasPendentes, loading } = useSWRFetch<(Duvida & { videoTitulo: string; videoId: string })[]>(
+  const { data: duvidasPendentes, loading: loadingDuvidas } = useSWRFetch<(Duvida & { videoTitulo: string; videoId: string })[]>(
     'professor-duvidas-pendentes',
     () => getDuvidasPendentes(),
   );
+
+  const [aulasHoje, setAulasHoje] = useState<AulaHoje[]>([]);
+  const [totalAlunos, setTotalAlunos] = useState(0);
+  const [pendingEvaluations, setPendingEvaluations] = useState(0);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
 
   const statsSection = useInView(0.1);
 
   useEffect(() => { trackFeatureUsage('dashboard', 'view', { role: 'professor' }); }, []);
 
+  // ── Fetch real dashboard data ────────────────────────────────────
+  const loadDashboardData = useCallback(async () => {
+    if (isMock()) {
+      setAulasHoje(MOCK_AULAS_HOJE);
+      setTotalAlunos(42);
+      setPendingEvaluations(5);
+      setLoadingDashboard(false);
+      return;
+    }
+
+    try {
+      const { createBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createBrowserClient();
+      const academyId = getActiveAcademyId();
+      const professorId = profile?.id;
+      if (!professorId) { setLoadingDashboard(false); return; }
+
+      // 1. Get professor's classes with schedule & enrollment count
+      const { data: classes } = await supabase
+        .from('classes')
+        .select('id, name, schedule, capacity, modalities(name), class_enrollments(count)')
+        .eq('academy_id', academyId)
+        .eq('professor_id', professorId);
+
+      const now = new Date();
+      const currentDay = now.getDay();
+      const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+      const todayClasses: AulaHoje[] = [];
+      for (const cls of classes ?? []) {
+        const schedule = (cls.schedule ?? []) as Array<{ day_of_week: number; start_time: string; end_time: string }>;
+        const enrollments = cls.class_enrollments as Array<Record<string, number>> | null;
+        const enrolledCount = enrollments?.[0]?.count ?? 0;
+        const modality = cls.modalities as Record<string, unknown> | null;
+
+        for (const slot of schedule) {
+          if (slot.day_of_week === currentDay) {
+            let status: AulaHoje['status'] = 'agendada';
+            if (slot.end_time <= currentTime) {
+              status = 'concluida';
+            } else if (slot.start_time <= currentTime && slot.end_time > currentTime) {
+              status = 'em_andamento';
+            } else {
+              // Find the closest future class
+              const upcoming = schedule
+                .filter((s: { day_of_week: number; start_time: string }) => s.day_of_week === currentDay && s.start_time > currentTime)
+                .sort((a: { start_time: string }, b: { start_time: string }) => a.start_time.localeCompare(b.start_time));
+              if (upcoming.length > 0 && upcoming[0].start_time === slot.start_time) {
+                status = 'proxima';
+              }
+            }
+
+            todayClasses.push({
+              id: cls.id,
+              horario: slot.start_time.slice(0, 5),
+              horaFim: slot.end_time.slice(0, 5),
+              nome: cls.name ?? (modality?.name as string) ?? 'Turma',
+              modalidade: (modality?.name as string) ?? '',
+              inscritos: enrolledCount,
+              capacidade: (cls.capacity as number) ?? 25,
+              status,
+            });
+          }
+        }
+      }
+
+      todayClasses.sort((a, b) => a.horario.localeCompare(b.horario));
+      setAulasHoje(todayClasses);
+
+      // 2. Count unique active students across professor's classes
+      const classIds = (classes ?? []).map((c: Record<string, unknown>) => c.id as string);
+      let studentCount = 0;
+      if (classIds.length > 0) {
+        const { data: enrollments } = await supabase
+          .from('class_enrollments')
+          .select('student_id')
+          .in('class_id', classIds)
+          .eq('status', 'active');
+        const uniqueStudents = new Set((enrollments ?? []).map((e: Record<string, unknown>) => e.student_id as string));
+        studentCount = uniqueStudents.size;
+      }
+      setTotalAlunos(studentCount);
+
+      // 3. Count pending evaluations (students not evaluated in the last 90 days)
+      if (classIds.length > 0) {
+        const ninetyDaysAgo = new Date(Date.now() - 90 * 86400000).toISOString();
+        const { data: recentEvals } = await supabase
+          .from('student_evaluations')
+          .select('student_id')
+          .eq('professor_id', professorId)
+          .gte('created_at', ninetyDaysAgo);
+        const evaluatedStudentIds = new Set((recentEvals ?? []).map((e: Record<string, unknown>) => e.student_id as string));
+        const pending = studentCount - evaluatedStudentIds.size;
+        setPendingEvaluations(Math.max(0, pending));
+      }
+    } catch (err) {
+      console.error(translateError(err));
+    } finally {
+      setLoadingDashboard(false);
+    }
+  }, [profile?.id]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const loading = loadingDashboard || loadingDuvidas;
+
   const greeting = useMemo(() => getGreeting(), []);
   const firstName = profile?.display_name ? getFirstName(profile.display_name) : 'Professor';
-  const aulasHoje = MOCK_AULAS_HOJE;
   const totalAulasHoje = aulasHoje.length;
 
   // ── Loading skeleton ────────────────────────────────────────────────
@@ -494,7 +608,7 @@ export default function ProfessorDashboardPage() {
         <div className="grid grid-cols-2 gap-3" data-stagger>
           <StatCard
             label="Alunos ativos"
-            value={42}
+            value={totalAlunos}
             icon={<UsersIcon className="h-5 w-5" />}
             accent="var(--bb-brand)"
             inView={statsSection.inView}
@@ -507,8 +621,8 @@ export default function ProfessorDashboardPage() {
             inView={statsSection.inView}
           />
           <StatCard
-            label="Avaliacoes"
-            value={5}
+            label="Aval. pendentes"
+            value={pendingEvaluations}
             icon={<CheckSquareIcon className="h-5 w-5" />}
             accent="var(--bb-warning)"
             inView={statsSection.inView}
