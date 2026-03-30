@@ -1,6 +1,6 @@
 import { isMock } from '@/lib/env';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
-import { logServiceError } from '@/lib/api/errors';
+import { logServiceError, handleServiceError } from '@/lib/api/errors';
 
 export interface InvoiceFilters {
   status?: InvoiceStatus;
@@ -86,6 +86,39 @@ export async function markInvoicePaid(id: string): Promise<Invoice> {
   } catch (error) {
     logServiceError(error, 'faturas');
     return {} as Invoice;
+  }
+}
+
+export async function markInvoiceAsPaid(
+  invoiceId: string,
+  paymentMethod: string,
+  notes: string,
+): Promise<Invoice> {
+  try {
+    if (isMock()) {
+      const { mockMarkInvoiceAsPaid } = await import('@/lib/mocks/faturas.mock');
+      return mockMarkInvoiceAsPaid(invoiceId, paymentMethod, notes);
+    }
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('invoices')
+      .update({
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        payment_method: paymentMethod,
+        payment_notes: notes || null,
+        manual_payment: true,
+      })
+      .eq('id', invoiceId)
+      .select()
+      .single();
+    if (error || !data) {
+      handleServiceError(error, 'faturas.markInvoiceAsPaid');
+    }
+    return data as unknown as Invoice;
+  } catch (error) {
+    handleServiceError(error, 'faturas.markInvoiceAsPaid');
   }
 }
 

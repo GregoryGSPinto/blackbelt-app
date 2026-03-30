@@ -8,6 +8,7 @@ import {
   getRevenueChart,
   getOverdueList,
   markAsPaid,
+  markAsManuallyPaid,
 } from '@/lib/api/financial.service';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -26,6 +27,8 @@ import { isMock } from '@/lib/env';
 import { createBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ChargeStudentModal } from '@/components/finance/ChargeStudentModal';
+import { ManualPaymentModal } from '@/components/finance/ManualPaymentModal';
+import type { ManualPaymentData } from '@/components/finance/ManualPaymentModal';
 
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import('recharts').then((m) => m.Bar), { ssr: false });
@@ -107,6 +110,11 @@ export default function AdminFinanceiroPage() {
   const [chargeOpen, setChargeOpen] = useState(false);
   const [bankConfigured, setBankConfigured] = useState<boolean | null>(null);
   const [studentPayments, setStudentPayments] = useState<StudentPaymentRow[]>([]);
+
+  // Manual payment modal
+  const [manualPaymentData, setManualPaymentData] = useState<ManualPaymentData | null>(null);
+  const [manualPaymentOpen, setManualPaymentOpen] = useState(false);
+  const [manualPaymentSaving, setManualPaymentSaving] = useState(false);
 
   // Filters — default to current month
   const [filterMonth, setFilterMonth] = useState(() => {
@@ -190,6 +198,32 @@ export default function AdminFinanceiroPage() {
       toast('Pagamento registrado!', 'success');
     } catch (err) {
       toast(translateError(err), 'error');
+    }
+  }
+
+  function openManualPayment(m: Mensalidade) {
+    setManualPaymentData({
+      invoiceId: m.id,
+      studentName: m.student_name,
+      amount: m.amount,
+      referenceMonth: m.reference_month,
+    });
+    setManualPaymentOpen(true);
+  }
+
+  async function handleManualPaymentConfirm(paymentMethod: string, notes: string) {
+    if (!manualPaymentData) return;
+    setManualPaymentSaving(true);
+    try {
+      const updated = await markAsManuallyPaid(manualPaymentData.invoiceId, paymentMethod, notes);
+      setMensalidades((prev) => prev.map((m) => (m.id === manualPaymentData.invoiceId ? updated : m)));
+      toast(`Pagamento de ${manualPaymentData.studentName} registrado com sucesso`, 'success');
+      setManualPaymentOpen(false);
+      setManualPaymentData(null);
+    } catch (err) {
+      toast(translateError(err), 'error');
+    } finally {
+      setManualPaymentSaving(false);
     }
   }
 
@@ -418,7 +452,20 @@ export default function AdminFinanceiroPage() {
                 />
               ) : (
                 mensalidades.map((m) => {
-                  const sc = STATUS_COLORS[m.status] ?? STATUS_COLORS.pendente;
+                  const sc = m.status === 'pago' && m.manual_payment
+                    ? { bg: 'rgba(59,130,246,0.15)', text: '#3B82F6' }
+                    : (STATUS_COLORS[m.status] ?? STATUS_COLORS.pendente);
+
+                  // Build status label with visual differentiation
+                  let statusLabel: string;
+                  if (m.status === 'pago' && m.manual_payment) {
+                    statusLabel = `Baixa manual${m.payment_method ? ` — ${m.payment_method}` : ''}`;
+                  } else if (m.status === 'pago' && m.paid_at) {
+                    statusLabel = `Pago em ${new Date(m.paid_at).toLocaleDateString('pt-BR')}`;
+                  } else {
+                    statusLabel = STATUS_LABELS[m.status] ?? m.status;
+                  }
+
                   return (
                     <div
                       key={m.id}
@@ -434,10 +481,11 @@ export default function AdminFinanceiroPage() {
                         </p>
                         <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
                           Venc: {new Date(m.due_date).toLocaleDateString('pt-BR')}
-                          {m.payment_method && ` · ${m.payment_method}`}
+                          {m.status === 'pago' && !m.manual_payment && m.payment_method && ` · ${m.payment_method}`}
+                          {m.manual_payment && m.payment_notes && ` · ${m.payment_notes}`}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                         <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
                           R$ {fmt(m.amount)}
                         </p>
@@ -445,17 +493,30 @@ export default function AdminFinanceiroPage() {
                           className="rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap"
                           style={{ background: sc.bg, color: sc.text }}
                         >
-                          {STATUS_LABELS[m.status]}
+                          {statusLabel}
                         </span>
                         {(m.status === 'pendente' || m.status === 'atrasado') && (
-                          <button
-                            type="button"
-                            onClick={() => handleMarkPaid(m.id)}
-                            className="rounded-lg px-3 py-1.5 min-h-[44px] min-w-[44px] text-xs font-medium transition-all hover:opacity-80"
-                            style={{ background: '#22C55E', color: '#fff' }}
-                          >
-                            Pago
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => openManualPayment(m)}
+                              className="rounded-lg px-3 py-1.5 min-h-[44px] text-xs font-medium transition-all hover:opacity-80 whitespace-nowrap"
+                              style={{
+                                background: 'var(--bb-brand)',
+                                color: '#fff',
+                              }}
+                            >
+                              Dar baixa
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMarkPaid(m.id)}
+                              className="rounded-lg px-3 py-1.5 min-h-[44px] min-w-[44px] text-xs font-medium transition-all hover:opacity-80"
+                              style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+                            >
+                              Pago
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -636,6 +697,18 @@ export default function AdminFinanceiroPage() {
             )}
           </section>
         )}
+        {/* Manual Payment Modal */}
+        <ManualPaymentModal
+          open={manualPaymentOpen}
+          data={manualPaymentData}
+          saving={manualPaymentSaving}
+          onClose={() => {
+            setManualPaymentOpen(false);
+            setManualPaymentData(null);
+          }}
+          onConfirm={handleManualPaymentConfirm}
+        />
+
         {/* Charge Modal */}
         <ChargeStudentModal
           open={chargeOpen}

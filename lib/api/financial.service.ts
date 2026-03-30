@@ -1,7 +1,7 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { Mensalidade, FinancialSummary, FinancialChartPoint, OverdueItem } from '@/lib/types/financial';
-import { logServiceError } from '@/lib/api/errors';
+import { logServiceError, handleServiceError } from '@/lib/api/errors';
 
 type InvRow = {
   id: string;
@@ -10,6 +10,8 @@ type InvRow = {
   due_date: string;
   paid_at: string | null;
   payment_method: string | null;
+  payment_notes: string | null;
+  manual_payment: boolean;
   subscriptions: {
     student_id: string;
     students: { profiles: { display_name: string } | null } | null;
@@ -18,7 +20,7 @@ type InvRow = {
 };
 
 const INVOICE_SELECT = `
-  id, amount, status, due_date, paid_at, payment_method,
+  id, amount, status, due_date, paid_at, payment_method, payment_notes, manual_payment,
   subscriptions!inner(
     student_id,
     students(profiles(display_name)),
@@ -45,6 +47,8 @@ function toMensalidade(inv: InvRow): Mensalidade {
     status: mapStatus(inv.status, inv.due_date),
     paid_at: inv.paid_at,
     payment_method: inv.payment_method as Mensalidade['payment_method'],
+    payment_notes: inv.payment_notes ?? null,
+    manual_payment: inv.manual_payment ?? false,
     reference_month: inv.due_date?.slice(0, 7) ?? '',
   };
 }
@@ -113,6 +117,41 @@ export async function markAsPaid(
   }
   trackFeatureUsage('financial', 'create', { method });
   return toMensalidade(data as unknown as InvRow);
+}
+
+export async function markAsManuallyPaid(
+  invoiceId: string,
+  paymentMethod: string,
+  notes: string,
+): Promise<Mensalidade> {
+  if (isMock()) {
+    const { mockMarkAsManuallyPaid } = await import('@/lib/mocks/financial.mock');
+    return mockMarkAsManuallyPaid(invoiceId, paymentMethod, notes);
+  }
+
+  try {
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data, error } = await supabase
+      .from('invoices')
+      .update({
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        payment_method: paymentMethod,
+        payment_notes: notes || null,
+        manual_payment: true,
+      })
+      .eq('id', invoiceId)
+      .select(INVOICE_SELECT)
+      .single();
+    if (error) {
+      handleServiceError(error, 'financial.markAsManuallyPaid');
+    }
+    trackFeatureUsage('financial', 'create', { method: paymentMethod, manual: true });
+    return toMensalidade(data as unknown as InvRow);
+  } catch (error) {
+    handleServiceError(error, 'financial.markAsManuallyPaid');
+  }
 }
 
 export async function getFinancialSummary(academyId: string): Promise<FinancialSummary> {

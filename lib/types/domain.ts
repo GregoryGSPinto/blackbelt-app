@@ -421,6 +421,10 @@ export interface Invoice extends AuditFields {
   amount: number;
   status: InvoiceStatus;
   due_date: string;
+  manual_payment?: boolean;
+  payment_method?: string | null;
+  payment_notes?: string | null;
+  paid_at?: string | null;
 }
 
 // ────────────────────────────────────────────────────────────

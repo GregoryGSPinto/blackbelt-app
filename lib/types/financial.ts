@@ -4,7 +4,7 @@
 // ============================================================
 
 export type MensalidadeStatus = 'pago' | 'pendente' | 'atrasado' | 'isento';
-export type PaymentMethod = 'PIX' | 'boleto' | 'cartao';
+export type PaymentMethod = 'PIX' | 'boleto' | 'cartao' | 'Dinheiro' | 'PIX (direto)' | 'Transferencia' | 'Cartao (maquininha)' | 'Outro';
 
 export interface Mensalidade {
   id: string;
@@ -16,6 +16,8 @@ export interface Mensalidade {
   status: MensalidadeStatus;
   paid_at: string | null;
   payment_method: PaymentMethod | null;
+  payment_notes: string | null;
+  manual_payment: boolean;
   reference_month: string; // "2026-03"
 }
 

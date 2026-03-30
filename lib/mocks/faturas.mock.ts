@@ -87,6 +87,25 @@ export async function mockMarkPaid(id: string): Promise<Invoice> {
   return { ...inv, status: InvoiceStatus.Paid, updated_at: new Date().toISOString() };
 }
 
+export async function mockMarkInvoiceAsPaid(
+  id: string,
+  paymentMethod: string,
+  notes: string,
+): Promise<Invoice> {
+  await delay();
+  const inv = MOCK_INVOICES.find((i) => i.id === id);
+  if (!inv) throw new Error('Invoice not found');
+  return {
+    ...inv,
+    status: InvoiceStatus.Paid,
+    manual_payment: true,
+    payment_method: paymentMethod,
+    payment_notes: notes || null,
+    paid_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export async function mockGenerateMonthly(_academyId: string): Promise<Invoice[]> {
   await delay();
   const now = new Date();

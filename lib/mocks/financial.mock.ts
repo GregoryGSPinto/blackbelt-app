@@ -54,6 +54,8 @@ function generateMensalidades(): Mensalidade[] {
         status,
         paid_at: paidAt,
         payment_method: method,
+        payment_notes: null,
+        manual_payment: false,
         reference_month: month,
       });
       idx++;
@@ -98,6 +100,22 @@ export function mockMarkAsPaid(
   item.status = 'pago';
   item.paid_at = new Date().toISOString();
   item.payment_method = method;
+  item.manual_payment = false;
+  return { ...item };
+}
+
+export function mockMarkAsManuallyPaid(
+  mensalidadeId: string,
+  paymentMethod: string,
+  notes: string,
+): Mensalidade {
+  const item = ALL_MENSALIDADES.find((m) => m.id === mensalidadeId);
+  if (!item) throw new Error('Mensalidade not found');
+  item.status = 'pago';
+  item.paid_at = new Date().toISOString();
+  item.payment_method = paymentMethod as Mensalidade['payment_method'];
+  item.payment_notes = notes || null;
+  item.manual_payment = true;
   return { ...item };
 }
 
