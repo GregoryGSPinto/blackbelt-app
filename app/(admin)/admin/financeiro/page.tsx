@@ -25,6 +25,8 @@ import { Download, Plus } from 'lucide-react';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { isMock } from '@/lib/env';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { getFinancialSummary as getBillingTypeSummary, generateMonthlyInvoices, BILLING_TYPE_LABELS, formatCentsToBRL } from '@/lib/api/student-billing.service';
+import type { FinancialSummary as BillingTypeSummary } from '@/lib/api/student-billing.service';
 import Link from 'next/link';
 import { ChargeStudentModal } from '@/components/finance/ChargeStudentModal';
 import { ManualPaymentModal } from '@/components/finance/ManualPaymentModal';
@@ -103,6 +105,8 @@ export default function AdminFinanceiroPage() {
   const [mensalidades, setMensalidades] = useState<Mensalidade[]>([]);
   const [overdue, setOverdue] = useState<OverdueItem[]>([]);
 
+  const [billingBreakdown, setBillingBreakdown] = useState<BillingTypeSummary | null>(null);
+  const [generatingInvoices, setGeneratingInvoices] = useState(false);
   const [reportData, setReportData] = useState<FinancialReportData | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
 
@@ -127,12 +131,14 @@ export default function AdminFinanceiroPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [s, c, m, o] = await Promise.all([
+        const [s, c, m, o, bb] = await Promise.all([
           getFinancialSummary(getActiveAcademyId()),
           getRevenueChart(getActiveAcademyId()),
           listMensalidades(getActiveAcademyId(), { month: filterMonth, status: filterStatus || undefined, search: filterSearch || undefined }),
           getOverdueList(getActiveAcademyId()),
+          getBillingTypeSummary(getActiveAcademyId()),
         ]);
+        setBillingBreakdown(bb);
         setSummary(s);
         setChart(c);
         setMensalidades(m);
@@ -333,6 +339,59 @@ export default function AdminFinanceiroPage() {
             ))}
           </div>
         </section>
+
+        {/* ── Billing type breakdown + Generate invoices ──────────── */}
+        {billingBreakdown && billingBreakdown.by_type.length > 0 && (
+          <section className="animate-reveal">
+            <div
+              className="p-5"
+              style={{
+                background: 'var(--bb-depth-2)',
+                border: '1px solid var(--bb-glass-border)',
+                borderRadius: 'var(--bb-radius-lg)',
+              }}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Por Tipo de Vínculo</h2>
+                <button
+                  onClick={async () => {
+                    setGeneratingInvoices(true);
+                    try {
+                      const count = await generateMonthlyInvoices(getActiveAcademyId());
+                      toast(`${count} fatura${count !== 1 ? 's' : ''} gerada${count !== 1 ? 's' : ''} para ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`, 'success');
+                    } catch (err) {
+                      toast(translateError(err), 'error');
+                    } finally {
+                      setGeneratingInvoices(false);
+                    }
+                  }}
+                  disabled={generatingInvoices}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80 disabled:opacity-60"
+                  style={{ background: 'var(--bb-brand)', color: '#fff' }}
+                >
+                  {generatingInvoices ? 'Gerando...' : '+ Gerar Faturas do Mês'}
+                </button>
+              </div>
+              <div className="space-y-2">
+                {billingBreakdown.by_type.map((bt) => (
+                  <div key={bt.type} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'var(--bb-depth-4)' }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                        {BILLING_TYPE_LABELS[bt.type] ?? bt.type}
+                      </span>
+                      <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                        {bt.count} aluno{bt.count !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>
+                      {bt.revenue > 0 ? `${formatCentsToBRL(bt.revenue)}/mês` : '—'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── Chart ─────────────────────────────────────────────────── */}
         <section className="animate-reveal">
