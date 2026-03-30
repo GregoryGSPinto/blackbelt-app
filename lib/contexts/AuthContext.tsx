@@ -141,6 +141,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ? profileList.find((p) => p.role === activeRole) ?? profileList[0] ?? null
             : profileList[0] ?? null;
 
+          // Ensure cookies exist (may have been cleared by logout/expiry)
+          if (activeProfile) {
+            const cookieOpts = ';path=/;max-age=' + (60 * 60 * 24 * 30) + ';samesite=lax';
+            if (!activeRole) {
+              document.cookie = `bb-active-role=${activeProfile.role}${cookieOpts}`;
+            }
+            // Ensure academy cookie exists
+            const hasAcademyCookie = document.cookie.includes('bb-academy-id=');
+            if (!hasAcademyCookie) {
+              try {
+                const { data: membership } = await supabase
+                  .from('memberships')
+                  .select('academy_id')
+                  .eq('profile_id', activeProfile.id)
+                  .eq('status', 'active')
+                  .limit(1)
+                  .maybeSingle();
+                if (membership?.academy_id) {
+                  document.cookie = `bb-academy-id=${membership.academy_id}${cookieOpts}`;
+                }
+              } catch {
+                // Non-critical — services will fallback
+              }
+            }
+          }
+
           // COPPA/LGPD: disable analytics for kids profiles
           if (activeProfile?.role === Role.AlunoKids) {
             disableAnalyticsForKids();
@@ -308,10 +334,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    // Use performLogout for nuclear cleanup (cookies, storage, state, hard redirect)
-    const { performLogout } = await import('@/lib/auth/logout');
-    await performLogout();
-    // performLogout does window.location.href = '/login' — code below won't execute
+    try {
+      // Use performLogout for nuclear cleanup (cookies, storage, state, hard redirect)
+      const { performLogout } = await import('@/lib/auth/logout');
+      await performLogout();
+      // performLogout does window.location.href = '/login' — code below won't execute
+    } catch (err) {
+      console.error('[AuthContext] logout error — fallback redirect:', err);
+      // Fallback: clear state and hard redirect
+      setState({ profile: null, profiles: [], isLoading: false, isAuthenticated: false });
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
   }, []);
 
   const refreshSession = useCallback(async () => {
