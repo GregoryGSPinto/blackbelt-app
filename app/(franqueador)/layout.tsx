@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { TourIntegration } from '@/components/tour/TourIntegration';
 
@@ -23,6 +24,7 @@ const sidebarItems: { href: string; label: string; id?: string }[] = [
 export default function FranqueadorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Close sidebar on route change
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
       {/* Sidebar - desktop always visible, mobile slide-in */}
       <aside
         data-tour="sidebar"
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:overflow-y-auto lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
@@ -131,6 +133,16 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
           <div className="hidden lg:block" />
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="rounded-lg p-2 transition-colors"
+              style={{ color: 'var(--bb-ink-60)' }}
+              aria-label="Buscar"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
             <NotificationBell />
             <ThemeToggle />
           </div>
@@ -146,6 +158,8 @@ export default function FranqueadorLayout({ children }: { children: React.ReactN
           </Suspense>
         </main>
       </div>
+
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
 
       {/* Tour overlay — auto-triggers on first access */}
       <TourIntegration />
