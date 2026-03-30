@@ -50,7 +50,21 @@ export async function getUnidades(franchiseId: string): Promise<UnidadeFranquia[
       return [];
     }
 
-    return (data ?? []) as unknown as UnidadeFranquia[];
+    return (data ?? []).map((u: Record<string, unknown>) => ({
+      id: u.id as string,
+      name: (u.name as string) ?? '',
+      city: (u.city as string) ?? '',
+      state: (u.state as string) ?? '',
+      manager_name: (u.manager_name as string) ?? '',
+      manager_email: (u.manager_email as string) ?? '',
+      status: (u.status as UnidadeFranquia['status']) ?? 'ativa',
+      students_count: (u.students_count as number) ?? 0,
+      revenue_monthly: (u.revenue_monthly as number) ?? 0,
+      health_score: (u.health_score as number) ?? 0,
+      compliance_score: (u.compliance_score as number) ?? 0,
+      opened_at: (u.opened_at as string) ?? (u.created_at as string) ?? new Date().toISOString(),
+      updated_at: (u.updated_at as string) ?? new Date().toISOString(),
+    }));
   } catch (error) {
     logServiceError(error, 'franqueador-unidades');
     return [];
@@ -117,7 +131,22 @@ export async function getUnidadeDetail(unitId: string): Promise<UnidadeFranquia>
       return {} as UnidadeFranquia;
     }
 
-    return data as unknown as UnidadeFranquia;
+    const u = data as Record<string, unknown>;
+    return {
+      id: u.id as string,
+      name: (u.name as string) ?? '',
+      city: (u.city as string) ?? '',
+      state: (u.state as string) ?? '',
+      manager_name: (u.manager_name as string) ?? '',
+      manager_email: (u.manager_email as string) ?? '',
+      status: (u.status as UnidadeFranquia['status']) ?? 'ativa',
+      students_count: (u.students_count as number) ?? 0,
+      revenue_monthly: (u.revenue_monthly as number) ?? 0,
+      health_score: (u.health_score as number) ?? 0,
+      compliance_score: (u.compliance_score as number) ?? 0,
+      opened_at: (u.opened_at as string) ?? (u.created_at as string) ?? new Date().toISOString(),
+      updated_at: (u.updated_at as string) ?? new Date().toISOString(),
+    };
   } catch (error) {
     logServiceError(error, 'franqueador-unidades');
     return {} as UnidadeFranquia;
@@ -149,7 +178,22 @@ export async function updateUnidadeStatus(
       return {} as UnidadeFranquia;
     }
 
-    return data as unknown as UnidadeFranquia;
+    const u = data as Record<string, unknown>;
+    return {
+      id: u.id as string,
+      name: (u.name as string) ?? '',
+      city: (u.city as string) ?? '',
+      state: (u.state as string) ?? '',
+      manager_name: (u.manager_name as string) ?? '',
+      manager_email: (u.manager_email as string) ?? '',
+      status: (u.status as UnidadeFranquia['status']) ?? 'ativa',
+      students_count: (u.students_count as number) ?? 0,
+      revenue_monthly: (u.revenue_monthly as number) ?? 0,
+      health_score: (u.health_score as number) ?? 0,
+      compliance_score: (u.compliance_score as number) ?? 0,
+      opened_at: (u.opened_at as string) ?? (u.created_at as string) ?? new Date().toISOString(),
+      updated_at: (u.updated_at as string) ?? new Date().toISOString(),
+    };
   } catch (error) {
     logServiceError(error, 'franqueador-unidades');
     return {} as UnidadeFranquia;

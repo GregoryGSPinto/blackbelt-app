@@ -132,11 +132,47 @@ export async function getNetworkDashboard(franchiseId: string): Promise<NetworkD
       avg_attendance: Math.round(avgAttendance * 10) / 10,
     };
 
+    // Fetch monthly financials for revenue chart
+    const { data: finRows, error: finError } = await supabase
+      .from('franchise_financials')
+      .select('*')
+      .eq('franchise_id', franchiseId)
+      .order('month', { ascending: true });
+
+    if (finError) {
+      logServiceError(finError, 'franchise');
+    }
+
+    const finRecords = (finRows ?? []) as Record<string, unknown>[];
+    const monthMap = new Map<string, MonthlyRevenueByAcademy>();
+    for (const row of finRecords) {
+      const month = (row.month as string) ?? '';
+      const academyId = (row.academy_id as string) ?? '';
+      const rev = (row.revenue as number) ?? 0;
+      const academyName = academyList.find((a) => a.id === academyId)?.name ?? '';
+      const entry = monthMap.get(month) ?? { month, academies: [], total: 0 };
+      entry.academies.push({ academy_id: academyId, academy_name: academyName, revenue: rev });
+      entry.total += rev;
+      monthMap.set(month, entry);
+    }
+    const monthlyData = Array.from(monthMap.values());
+
+    const finTotalRevenue = monthlyData.reduce((s, m) => s + m.total, 0);
+    const finTotalRoyalties = Math.round(finTotalRevenue * 0.1);
+    const lastMonth = monthlyData[monthlyData.length - 1]?.total ?? 0;
+    const prevMonth = monthlyData[monthlyData.length - 2]?.total ?? 0;
+    const growthPct = prevMonth > 0 ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100 * 10) / 10 : 0;
+
     return {
       kpis,
       academies: academyList,
       alerts: alertList,
-      financials: { monthly_data: [], total_revenue: totalRevenue, total_royalties: totalRevenue * 0.1, growth_pct: 0 },
+      financials: {
+        monthly_data: monthlyData,
+        total_revenue: finTotalRevenue || totalRevenue,
+        total_royalties: finTotalRoyalties || totalRevenue * 0.1,
+        growth_pct: growthPct,
+      },
     };
   } catch (error) {
     logServiceError(error, 'franchise');
@@ -200,21 +236,37 @@ export async function getFinancials(franchiseId: string): Promise<NetworkFinanci
       .from('franchise_financials')
       .select('*')
       .eq('franchise_id', franchiseId)
-      .order('month', { ascending: false })
-      .limit(12);
+      .order('month', { ascending: true })
+      .limit(60);
 
     if (error) {
       logServiceError(error, 'franchise');
       return { monthly_data: [], total_revenue: 0, total_royalties: 0, growth_pct: 0 };
     }
 
-    const totalRevenue = (data ?? []).reduce((s: number, d: Record<string, unknown>) => s + ((d.revenue as number) ?? 0), 0);
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const monthMap = new Map<string, MonthlyRevenueByAcademy>();
+    for (const row of rows) {
+      const month = (row.month as string) ?? '';
+      const academyId = (row.academy_id as string) ?? '';
+      const rev = (row.revenue as number) ?? 0;
+      const entry = monthMap.get(month) ?? { month, academies: [], total: 0 };
+      entry.academies.push({ academy_id: academyId, academy_name: '', revenue: rev });
+      entry.total += rev;
+      monthMap.set(month, entry);
+    }
+    const monthlyData = Array.from(monthMap.values()).slice(-12);
+
+    const totalRevenue = monthlyData.reduce((s, m) => s + m.total, 0);
+    const lastMonth = monthlyData[monthlyData.length - 1]?.total ?? 0;
+    const prevMonth = monthlyData[monthlyData.length - 2]?.total ?? 0;
+    const growthPct = prevMonth > 0 ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100 * 10) / 10 : 0;
 
     return {
-      monthly_data: [],
+      monthly_data: monthlyData,
       total_revenue: totalRevenue,
-      total_royalties: totalRevenue * 0.1,
-      growth_pct: 0,
+      total_royalties: Math.round(totalRevenue * 0.1),
+      growth_pct: growthPct,
     };
   } catch (error) {
     logServiceError(error, 'franchise');

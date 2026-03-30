@@ -17,7 +17,12 @@ import { translateError } from '@/lib/utils/error-translator';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
-const STATUS_COLOR: Record<RoyaltyStatus, string> = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', atrasado: 'bg-red-100 text-red-700', parcial: 'bg-orange-100 text-orange-700' };
+const STATUS_STYLE: Record<RoyaltyStatus, React.CSSProperties> = {
+  pendente: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' },
+  pago: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  atrasado: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' },
+  parcial: { background: 'color-mix(in srgb, var(--bb-warning) 25%, transparent)', color: 'var(--bb-warning)' },
+};
 
 const ACADEMIES = [
   { id: 'acad-1', name: 'Black Belt Moema' },
@@ -46,7 +51,7 @@ export default function RoyaltiesFranqueadorPage() {
   useEffect(() => {
     getRoyaltyHistory('franchise-1')
       .then(setHistory)
-      .catch(() => {})
+      .catch((err) => { toast(translateError(err), 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -120,15 +125,15 @@ export default function RoyaltiesFranqueadorPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card className="p-4">
               <p className="text-xs text-bb-gray-500">Total Arrecadado</p>
-              <p className="mt-1 text-2xl font-bold text-green-600">R$ {history.total_collected.toLocaleString('pt-BR')}</p>
+              <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--bb-success)' }}>R$ {history.total_collected.toLocaleString('pt-BR')}</p>
             </Card>
             <Card className="p-4">
               <p className="text-xs text-bb-gray-500">Pendente</p>
-              <p className="mt-1 text-2xl font-bold text-yellow-600">R$ {history.total_pending.toLocaleString('pt-BR')}</p>
+              <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--bb-warning)' }}>R$ {history.total_pending.toLocaleString('pt-BR')}</p>
             </Card>
             <Card className="p-4">
               <p className="text-xs text-bb-gray-500">Em Atraso</p>
-              <p className="mt-1 text-2xl font-bold text-red-600">R$ {history.total_overdue.toLocaleString('pt-BR')}</p>
+              <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--bb-danger)' }}>R$ {history.total_overdue.toLocaleString('pt-BR')}</p>
             </Card>
           </div>
 
@@ -144,8 +149,8 @@ export default function RoyaltiesFranqueadorPage() {
                   <div key={m.month} className="flex items-center gap-3">
                     <span className="w-16 text-xs text-bb-gray-500">{m.month}</span>
                     <div className="flex flex-1 h-5 rounded bg-bb-gray-200 overflow-hidden">
-                      <div className="h-full bg-green-500" style={{ width: `${paidPct}%` }} />
-                      <div className="h-full bg-yellow-400" style={{ width: `${pendingPct}%` }} />
+                      <div className="h-full" style={{ width: `${paidPct}%`, backgroundColor: 'var(--bb-success)' }} />
+                      <div className="h-full" style={{ width: `${pendingPct}%`, backgroundColor: 'var(--bb-warning)' }} />
                     </div>
                     <span className="w-24 text-right text-xs font-medium text-bb-gray-500">
                       R$ {(m.total / 1000).toFixed(1)}k
@@ -155,8 +160,8 @@ export default function RoyaltiesFranqueadorPage() {
               })}
             </div>
             <div className="mt-3 flex gap-4 text-xs text-bb-gray-500">
-              <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded bg-green-500" /> Pago</span>
-              <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded bg-yellow-400" /> Pendente</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded" style={{ backgroundColor: 'var(--bb-success)' }} /> Pago</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded" style={{ backgroundColor: 'var(--bb-warning)' }} /> Pendente</span>
             </div>
           </Card>
         </>
@@ -216,7 +221,7 @@ export default function RoyaltiesFranqueadorPage() {
                     </td></tr>
                   )}
                   {filtered.slice(0, 30).map((calc) => (
-                    <tr key={calc.id} className={`border-b border-bb-gray-100 ${calc.status === 'atrasado' ? 'bg-red-50' : ''}`}>
+                    <tr key={calc.id} className="border-b border-bb-gray-100" style={calc.status === 'atrasado' ? { background: 'color-mix(in srgb, var(--bb-danger) 5%, transparent)' } : undefined}>
                       <td className="px-4 py-3 font-medium text-bb-black">{calc.academy_name}</td>
                       <td className="px-4 py-3 text-bb-gray-500">{calc.month}</td>
                       <td className="px-4 py-3 text-right text-bb-gray-500">R$ {calc.gross_revenue.toLocaleString('pt-BR')}</td>
@@ -224,7 +229,7 @@ export default function RoyaltiesFranqueadorPage() {
                       <td className="px-4 py-3 text-right text-bb-gray-500">R$ {calc.marketing_fund_amount.toLocaleString('pt-BR')}</td>
                       <td className="px-4 py-3 text-right font-bold text-bb-black">R$ {calc.total_due.toLocaleString('pt-BR')}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[calc.status]}`}>
+                        <span className="inline-block rounded-full px-2 py-0.5 text-xs font-medium" style={STATUS_STYLE[calc.status]}>
                           {STATUS_LABEL[calc.status]}
                         </span>
                       </td>

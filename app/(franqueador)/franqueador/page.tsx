@@ -29,7 +29,7 @@ export default function FranqueadorDashboardPage() {
   useEffect(() => {
     getNetworkDashboard('franchise-1')
       .then(setDashboard)
-      .catch(() => {})
+      .catch((err) => { toast(translateError(err), 'error'); })
       .finally(() => setLoading(false));
   }, []);
 

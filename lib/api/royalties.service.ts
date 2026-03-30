@@ -59,16 +59,17 @@ export async function calculateRoyalties(academyId: string, month: string): Prom
       .eq('academy_id', academyId)
       .eq('month', month)
       .maybeSingle();
-    if (error || !data) {
+    if (error) {
       logServiceError(error, 'royalties');
-      const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
-      return mockCalculateRoyalties(academyId, month);
+      throw error;
+    }
+    if (!data) {
+      throw new Error('Nenhum calculo de royalty encontrado para este periodo');
     }
     return data as RoyaltyCalculation;
   } catch (error) {
     logServiceError(error, 'royalties');
-    const { mockCalculateRoyalties } = await import('@/lib/mocks/royalties.mock');
-    return mockCalculateRoyalties(academyId, month);
+    throw error;
   }
 }
 
@@ -89,20 +90,17 @@ export async function getRoyaltyHistory(franchiseId: string, period?: string): P
       query = query.gte('month', period);
     }
     const { data, error } = await query;
-    if (error || !data) {
+    if (error) {
       logServiceError(error, 'royalties');
-      const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
-      return mockGetRoyaltyHistory(franchiseId, period);
     }
-    const calculations = data as RoyaltyCalculation[];
-    const total_collected = calculations.filter(c => c.status === 'pago').reduce((s, c) => s + c.total_due, 0);
-    const total_pending = calculations.filter(c => c.status === 'pendente').reduce((s, c) => s + c.total_due, 0);
-    const total_overdue = calculations.filter(c => c.status === 'atrasado').reduce((s, c) => s + c.total_due, 0);
+    const calculations = (data ?? []) as RoyaltyCalculation[];
+    const total_collected = calculations.filter((c) => c.status === 'pago').reduce((s, c) => s + (c.total_due ?? 0), 0);
+    const total_pending = calculations.filter((c) => c.status === 'pendente').reduce((s, c) => s + (c.total_due ?? 0), 0);
+    const total_overdue = calculations.filter((c) => c.status === 'atrasado').reduce((s, c) => s + (c.total_due ?? 0), 0);
     return { total_collected, total_pending, total_overdue, calculations };
   } catch (error) {
     logServiceError(error, 'royalties');
-    const { mockGetRoyaltyHistory } = await import('@/lib/mocks/royalties.mock');
-    return mockGetRoyaltyHistory(franchiseId, period);
+    return { total_collected: 0, total_pending: 0, total_overdue: 0, calculations: [] };
   }
 }
 
@@ -119,16 +117,17 @@ export async function generateRoyaltyInvoice(academyId: string, month: string): 
       .insert({ academy_id: academyId, month })
       .select()
       .single();
-    if (error || !data) {
+    if (error) {
       logServiceError(error, 'royalties');
-      const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
-      return mockGenerateRoyaltyInvoice(academyId, month);
+      throw error;
+    }
+    if (!data) {
+      throw new Error('Falha ao gerar cobranca de royalties');
     }
     return data as RoyaltyInvoice;
   } catch (error) {
     logServiceError(error, 'royalties');
-    const { mockGenerateRoyaltyInvoice } = await import('@/lib/mocks/royalties.mock');
-    return mockGenerateRoyaltyInvoice(academyId, month);
+    throw error;
   }
 }
 
@@ -146,15 +145,16 @@ export async function payRoyalty(invoiceId: string): Promise<RoyaltyCalculation>
       .eq('id', invoiceId)
       .select()
       .single();
-    if (error || !data) {
+    if (error) {
       logServiceError(error, 'royalties');
-      const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
-      return mockPayRoyalty(invoiceId);
+      throw error;
+    }
+    if (!data) {
+      throw new Error('Royalty nao encontrado');
     }
     return data as RoyaltyCalculation;
   } catch (error) {
     logServiceError(error, 'royalties');
-    const { mockPayRoyalty } = await import('@/lib/mocks/royalties.mock');
-    return mockPayRoyalty(invoiceId);
+    throw error;
   }
 }

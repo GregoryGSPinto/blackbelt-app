@@ -26,17 +26,23 @@ const STATUS_LABEL: Record<UnitStatus, string> = {
   encerrada: 'Encerrada',
 };
 
-const STATUS_COLOR: Record<UnitStatus, string> = {
-  ativa: 'bg-green-100 text-green-700',
-  setup: 'bg-blue-100 text-blue-700',
-  suspensa: 'bg-yellow-100 text-yellow-700',
-  encerrada: 'bg-red-100 text-red-700',
+const STATUS_STYLE: Record<UnitStatus, React.CSSProperties> = {
+  ativa: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' },
+  setup: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' },
+  suspensa: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' },
+  encerrada: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' },
 };
 
-function healthColor(score: number): string {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-yellow-600';
-  return 'text-red-600';
+function healthStyle(score: number): React.CSSProperties {
+  if (score >= 80) return { color: 'var(--bb-success)' };
+  if (score >= 60) return { color: 'var(--bb-warning)' };
+  return { color: 'var(--bb-danger)' };
+}
+
+function healthBarColor(score: number): string {
+  if (score >= 80) return 'var(--bb-success)';
+  if (score >= 60) return 'var(--bb-warning)';
+  return 'var(--bb-danger)';
 }
 
 
@@ -62,7 +68,7 @@ export default function UnidadesFranqueadorPage() {
         setUnidades(units);
         setOverview(ov);
       })
-      .catch(() => {})
+      .catch((err) => { toast(translateError(err), 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -118,7 +124,7 @@ export default function UnidadesFranqueadorPage() {
           </Card>
           <Card className="p-4">
             <p className="text-xs text-bb-gray-500">Ativas</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{overview.active_units}</p>
+            <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--bb-success)' }}>{overview.active_units}</p>
           </Card>
           <Card className="p-4">
             <p className="text-xs text-bb-gray-500">Total Alunos</p>
@@ -126,13 +132,13 @@ export default function UnidadesFranqueadorPage() {
           </Card>
           <Card className="p-4">
             <p className="text-xs text-bb-gray-500">Health Score Medio</p>
-            <p className={`mt-1 text-2xl font-bold ${healthColor(overview.avg_health_score)}`}>
+            <p className="mt-1 text-2xl font-bold" style={healthStyle(overview.avg_health_score)}>
               {overview.avg_health_score}%
             </p>
           </Card>
           <Card className="p-4">
             <p className="text-xs text-bb-gray-500">Compliance Medio</p>
-            <p className={`mt-1 text-2xl font-bold ${healthColor(overview.avg_compliance)}`}>
+            <p className="mt-1 text-2xl font-bold" style={healthStyle(overview.avg_compliance)}>
               {overview.avg_compliance}%
             </p>
           </Card>
@@ -181,7 +187,8 @@ export default function UnidadesFranqueadorPage() {
                   <p className="text-sm text-bb-gray-500">{unit.city} - {unit.state}</p>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[unit.status]}`}
+                  className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  style={STATUS_STYLE[unit.status]}
                 >
                   {STATUS_LABEL[unit.status]}
                 </span>
@@ -208,11 +215,11 @@ export default function UnidadesFranqueadorPage() {
                   <div className="mt-0.5 flex items-center gap-1.5">
                     <div className="h-1.5 flex-1 rounded-full bg-bb-gray-200">
                       <div
-                        className={`h-full rounded-full ${unit.health_score >= 80 ? 'bg-green-500' : unit.health_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                        style={{ width: `${unit.health_score}%` }}
+                        className="h-full rounded-full"
+                        style={{ width: `${unit.health_score}%`, backgroundColor: healthBarColor(unit.health_score) }}
                       />
                     </div>
-                    <span className={`text-xs font-bold ${healthColor(unit.health_score)}`}>
+                    <span className="text-xs font-bold" style={healthStyle(unit.health_score)}>
                       {unit.health_score}%
                     </span>
                   </div>
@@ -222,11 +229,11 @@ export default function UnidadesFranqueadorPage() {
                   <div className="mt-0.5 flex items-center gap-1.5">
                     <div className="h-1.5 flex-1 rounded-full bg-bb-gray-200">
                       <div
-                        className={`h-full rounded-full ${unit.compliance_score >= 80 ? 'bg-green-500' : unit.compliance_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                        style={{ width: `${unit.compliance_score}%` }}
+                        className="h-full rounded-full"
+                        style={{ width: `${unit.compliance_score}%`, backgroundColor: healthBarColor(unit.compliance_score) }}
                       />
                     </div>
-                    <span className={`text-xs font-bold ${healthColor(unit.compliance_score)}`}>
+                    <span className="text-xs font-bold" style={healthStyle(unit.compliance_score)}>
                       {unit.compliance_score}%
                     </span>
                   </div>
@@ -264,7 +271,7 @@ export default function UnidadesFranqueadorPage() {
 
             <div>
               <p className="text-sm text-bb-gray-500">Status atual:</p>
-              <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[statusModal.status]}`}>
+              <span className="inline-block mt-1 rounded-full px-2 py-0.5 text-xs font-medium" style={STATUS_STYLE[statusModal.status]}>
                 {STATUS_LABEL[statusModal.status]}
               </span>
             </div>
