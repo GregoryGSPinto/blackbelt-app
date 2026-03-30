@@ -196,7 +196,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
           <aside
             id="superadmin-sidebar"
             data-tour="sidebar"
-            className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:static lg:translate-x-0 ${
+            className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:translate-x-0 lg:z-auto ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
             style={{

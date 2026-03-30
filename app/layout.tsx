@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Instrument_Sans, JetBrains_Mono, Outfit, Playfair_Display } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
-import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { BetaWidgets } from '@/components/beta/BetaWidgets';
 import { OfflineNotice } from '@/components/shared/OfflineNotice';
 import { AccentColorInit } from '@/components/AccentColorInit';
@@ -103,7 +102,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main-content">{children}</main>
         </Providers>
         <ServiceWorkerRegistrar />
-        <InstallPrompt />
         <BetaWidgets />
       </body>
     </html>

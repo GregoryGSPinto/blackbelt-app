@@ -201,7 +201,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
           {/* ═══ SIDEBAR DESKTOP ═══ */}
           <aside
             data-tour="sidebar"
-            className="hidden lg:flex lg:w-64 lg:flex-col"
+            className="hidden lg:flex lg:w-64 lg:flex-col lg:sticky lg:top-0 lg:h-screen lg:shrink-0"
             style={{ background: 'var(--bb-depth-2)', borderRight: '1px solid var(--bb-glass-border)' }}
           >
             <div

@@ -80,10 +80,10 @@ export function SidebarFeedback() {
 
   return (
     <>
-      {/* Sidebar trigger — visible on desktop (lg+) */}
+      {/* Sidebar trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden lg:flex items-center gap-3 text-sm transition-colors w-full text-left"
+        className="flex items-center gap-3 text-sm transition-colors w-full text-left"
         style={{
           padding: '10px 16px',
           borderRadius: 'var(--bb-radius-sm)',
@@ -116,35 +116,6 @@ export function SidebarFeedback() {
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
         <span>Feedback</span>
-      </button>
-
-      {/* Mobile FAB — visible below lg */}
-      <button
-        onClick={() => setOpen(true)}
-        className="lg:hidden fixed z-[80] flex items-center gap-2 rounded-full px-4 py-2.5 shadow-lg transition-transform hover:scale-105 active:scale-95"
-        style={{
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
-          right: '16px',
-          background: 'var(--bb-brand)',
-          color: '#fff',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-        aria-label="Enviar feedback"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        <span className="text-xs font-semibold">Feedback</span>
       </button>
 
       {/* Modal Overlay */}
