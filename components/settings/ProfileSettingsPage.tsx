@@ -11,6 +11,7 @@ import {
   SettingsAvatar,
   DangerZone,
 } from '@/components/shared/settings';
+import { AccentColorPicker } from '@/components/settings/AccentColorPicker';
 import {
   getProfileSettings,
   updateProfileSettings,
@@ -381,6 +382,9 @@ function ThemeSection() {
             </button>
           ))}
         </div>
+      </div>
+      <div className="mt-4 border-t pt-4" style={{ borderColor: 'var(--bb-glass-border)' }}>
+        <AccentColorPicker />
       </div>
     </SettingsSection>
   );
