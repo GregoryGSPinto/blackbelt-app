@@ -8,14 +8,15 @@ import {
   type UnidadeFranquia,
   type UnidadesOverview,
 } from '@/lib/api/franqueador-unidades.service';
+import { getMyNetwork } from '@/lib/api/franchise.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 type UnitStatus = UnidadeFranquia['status'];
 
@@ -47,8 +48,8 @@ function healthBarColor(score: number): string {
 
 
 export default function UnidadesFranqueadorPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [unidades, setUnidades] = useState<UnidadeFranquia[]>([]);
   const [overview, setOverview] = useState<UnidadesOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,19 +59,26 @@ export default function UnidadesFranqueadorPage() {
   const [newStatus, setNewStatus] = useState<UnitStatus>('ativa');
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    Promise.all([
-      getUnidades('franchise-1'),
-      getUnidadesOverview('franchise-1'),
-    ])
-      .then(([units, ov]) => {
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        const [units, ov] = await Promise.all([
+          getUnidades(network.id),
+          getUnidadesOverview(network.id),
+        ]);
         setUnidades(units);
         setOverview(ov);
-      })
-      .catch((err) => { toast(translateError(err), 'error'); })
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStatusChange() {
     if (!statusModal) return;
@@ -94,7 +102,6 @@ export default function UnidadesFranqueadorPage() {
     setNewStatus(unit.status);
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const filtered = unidades.filter((u) => {

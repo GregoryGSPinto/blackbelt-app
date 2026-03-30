@@ -14,14 +14,15 @@ import {
   type ReceiptStatus,
   type NetworkTraining,
 } from '@/lib/api/franchise-communication.service';
+import { getMyNetwork } from '@/lib/api/franchise.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const TYPE_LABEL: Record<BroadcastType, string> = {
   comunicado: 'Comunicado',
@@ -77,8 +78,9 @@ const TRAINING_STATUS_COLOR: Record<string, string> = {
 type Tab = 'broadcasts' | 'trainings';
 
 export default function ComunicacaoPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const [franchiseId, setFranchiseId] = useState('');
   const [tab, setTab] = useState<Tab>('broadcasts');
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [trainings, setTrainings] = useState<NetworkTraining[]>([]);
@@ -106,24 +108,33 @@ export default function ComunicacaoPage() {
     format: 'online' as 'presencial' | 'online' | 'hibrido', instructor: '', max_participants: 30,
   });
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    Promise.all([
-      getBroadcasts('franchise-1'),
-      getTrainings('franchise-1'),
-    ])
-      .then(([b, t]) => {
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        setFranchiseId(network.id);
+        const [b, t] = await Promise.all([
+          getBroadcasts(network.id),
+          getTrainings(network.id),
+        ]);
         setBroadcasts(b);
         setTrainings(t);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSend() {
+    if (!franchiseId) return;
     setSending(true);
     try {
-      const broadcast = await sendBroadcast('franchise-1', composeForm);
+      const broadcast = await sendBroadcast(franchiseId, composeForm);
       setBroadcasts((prev) => [broadcast, ...prev]);
       setShowCompose(false);
       setComposeForm({ type: 'comunicado', subject: '', body: '', channels: ['email'] });
@@ -147,8 +158,9 @@ export default function ComunicacaoPage() {
   }
 
   async function handleScheduleTraining() {
+    if (!franchiseId) return;
     try {
-      const training = await scheduleTraining('franchise-1', trainingForm);
+      const training = await scheduleTraining(franchiseId, trainingForm);
       setTrainings((prev) => [...prev, training]);
       setShowTrainingForm(false);
       setTrainingForm({ title: '', description: '', date: '', time: '10:00', duration_minutes: 60, format: 'online', instructor: '', max_participants: 30 });
@@ -167,7 +179,6 @@ export default function ComunicacaoPage() {
     }));
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const TABS: { id: Tab; label: string }[] = [
@@ -192,8 +203,9 @@ export default function ComunicacaoPage() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === t.id ? 'bg-white text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
+              tab === t.id ? 'text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
             }`}
+            style={tab === t.id ? { background: 'var(--bb-depth-1)' } : undefined}
           >
             {t.label}
           </button>

@@ -1,42 +1,54 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getNetworkDashboard, type NetworkDashboard, type AcademyStatus } from '@/lib/api/franchise.service';
+import { getMyNetwork, getNetworkDashboard, type NetworkDashboard, type AcademyStatus } from '@/lib/api/franchise.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { sendNetworkMessage } from '@/lib/api/franchise.service';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<AcademyStatus, string> = { ativa: 'Ativa', inadimplente: 'Inadimplente', suspensa: 'Suspensa', em_setup: 'Em Setup' };
 const STATUS_STYLE: Record<AcademyStatus, React.CSSProperties> = { ativa: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' }, inadimplente: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' }, suspensa: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' }, em_setup: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' } };
 const ALERT_ICON: Record<string, string> = { high_churn: 'Churn', overdue: 'Atraso', attendance_drop: 'Frequencia', low_nps: 'NPS' };
 
 export default function FranqueadorDashboardPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const [franchiseId, setFranchiseId] = useState('');
   const [dashboard, setDashboard] = useState<NetworkDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [msgModal, setMsgModal] = useState(false);
   const [msgForm, setMsgForm] = useState({ subject: '', body: '', channel: 'email' as 'email' | 'push' | 'sms' });
   const [sending, setSending] = useState(false);
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getNetworkDashboard('franchise-1')
-      .then(setDashboard)
-      .catch((err) => { toast(translateError(err), 'error'); })
-      .finally(() => setLoading(false));
-  }, []);
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        setFranchiseId(network.id);
+        const result = await getNetworkDashboard(network.id);
+        setDashboard(result);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSendMessage() {
+    if (!franchiseId) return;
     setSending(true);
     try {
-      await sendNetworkMessage('franchise-1', {
+      await sendNetworkMessage(franchiseId, {
         subject: msgForm.subject,
         body: msgForm.body,
         recipients: [],
@@ -52,9 +64,8 @@ export default function FranqueadorDashboardPage() {
     }
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
-  if (!dashboard) return <div className="p-6 text-bb-gray-500">Erro ao carregar dashboard.</div>;
+  if (!dashboard) return <EmptyState icon="📊" title="Nenhuma rede encontrada" description="Nao foi possivel encontrar sua rede de franquias. Verifique se voce tem acesso como franqueador." variant="first-time" />;
 
   const { kpis, academies, alerts, financials } = dashboard;
 
@@ -108,7 +119,7 @@ export default function FranqueadorDashboardPage() {
 
       {/* Alerts */}
       {alerts.length > 0 && (
-        <Card className="border-l-4 border-l-red-500 p-4">
+        <Card className="border-l-4 p-4" style={{ borderLeftColor: 'var(--bb-danger)' }}>
           <h2 className="mb-3 font-semibold text-bb-black">Alertas da Rede</h2>
           <div className="space-y-2">
             {alerts.map((alert) => (

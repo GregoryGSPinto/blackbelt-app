@@ -9,13 +9,14 @@ import {
   type StandardCategory,
   type ComplianceReport,
 } from '@/lib/api/franchise-standards.service';
+import { getMyNetwork, getNetworkUnits, type NetworkUnit } from '@/lib/api/franchise.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const CATEGORY_LABEL: Record<StandardCategory, string> = {
   visual: 'Visual',
@@ -47,19 +48,13 @@ const COMPLIANCE_LABEL: Record<string, string> = {
   pendente: 'Pendente',
 };
 
-const ACADEMIES = [
-  { id: 'acad-1', name: 'Black Belt Moema' },
-  { id: 'acad-2', name: 'Black Belt Alphaville' },
-  { id: 'acad-3', name: 'Black Belt Barra' },
-  { id: 'acad-4', name: 'Black Belt Savassi' },
-  { id: 'acad-5', name: 'Black Belt Moinhos' },
-];
-
 type Tab = 'standards' | 'compliance';
 
 export default function PadroesPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const [franchiseId, setFranchiseId] = useState('');
+  const [academies, setAcademies] = useState<{ id: string; name: string }[]>([]);
   const [tab, setTab] = useState<Tab>('standards');
   const [standards, setStandards] = useState<Standard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,23 +69,40 @@ export default function PadroesPage() {
   });
 
   // Compliance state
-  const [selectedAcademy, setSelectedAcademy] = useState(ACADEMIES[0].id);
+  const [selectedAcademy, setSelectedAcademy] = useState('');
   const [complianceReport, setComplianceReport] = useState<ComplianceReport | null>(null);
   const [checking, setChecking] = useState(false);
   const [filterCategory, setFilterCategory] = useState<StandardCategory | ''>('');
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getStandards('franchise-1')
-      .then(setStandards)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        setFranchiseId(network.id);
+        const [stds, units] = await Promise.all([
+          getStandards(network.id),
+          getNetworkUnits(network.id),
+        ]);
+        setStandards(stds);
+        const unitList = units.map((u: NetworkUnit) => ({ id: u.id, name: u.name }));
+        setAcademies(unitList);
+        if (unitList.length > 0) setSelectedAcademy(unitList[0].id);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate() {
+    if (!franchiseId) return;
     try {
       const standard = await createStandard({
-        franchise_id: 'franchise-1',
+        franchise_id: franchiseId,
         category: form.category,
         name: form.name,
         description: form.description,
@@ -134,7 +146,6 @@ export default function PadroesPage() {
     setForm({ ...form, checklist_items: form.checklist_items.filter((_, i) => i !== idx) });
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const filteredStandards = filterCategory
@@ -255,7 +266,7 @@ export default function PadroesPage() {
                   onChange={(e) => setSelectedAcademy(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
                 >
-                  {ACADEMIES.map((a) => (
+                  {academies.map((a) => (
                     <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>

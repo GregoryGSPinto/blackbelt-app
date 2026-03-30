@@ -8,9 +8,12 @@ import {
   type CurriculoOverview,
   type TecnicaCurriculo,
 } from '@/lib/api/franqueador-curriculo.service';
+import { getMyNetwork } from '@/lib/api/franchise.service';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
-import { ComingSoon } from '@/components/shared/ComingSoon';
+import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { translateError } from '@/lib/utils/error-translator';
 
 type TechCategory = TecnicaCurriculo['category'];
 
@@ -55,7 +58,8 @@ const BELT_LABEL: Record<string, string> = {
 };
 
 export default function CurriculoFranqueadorPage() {
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const { profile } = useAuth();
+  const { toast } = useToast();
   const [curriculos, setCurriculos] = useState<CurriculoRede[]>([]);
   const [overview, setOverview] = useState<CurriculoOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,21 +67,27 @@ export default function CurriculoFranqueadorPage() {
   const [filterBelt, setFilterBelt] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    Promise.all([
-      getCurriculos('franchise-1'),
-      getCurriculoOverview('franchise-1'),
-    ])
-      .then(([currs, ov]) => {
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        const [currs, ov] = await Promise.all([
+          getCurriculos(network.id),
+          getCurriculoOverview(network.id),
+        ]);
         setCurriculos(currs);
         setOverview(ov);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const modalities = overview?.modalities ?? [...new Set(curriculos.map((c) => c.modality))];

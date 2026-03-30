@@ -11,13 +11,14 @@ import {
   type OnboardingStep,
   type ViabilityAnalysis,
 } from '@/lib/api/franchise-expansion.service';
+import { getMyNetwork } from '@/lib/api/franchise.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STAGES: PipelineStage[] = ['lead', 'analise', 'aprovado', 'setup', 'operando'];
 const STAGE_LABEL: Record<PipelineStage, string> = { lead: 'Lead', analise: 'Analise', aprovado: 'Aprovado', setup: 'Setup', operando: 'Operando' };
@@ -57,8 +58,9 @@ const VIABILITY_LABEL: Record<string, string> = {
 type ViewMode = 'kanban' | 'onboarding';
 
 export default function ExpansaoPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const [franchiseId, setFranchiseId] = useState('');
   const [leads, setLeads] = useState<FranchiseLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewMode>('kanban');
@@ -75,17 +77,28 @@ export default function ExpansaoPage() {
   const [viabilityResult, setViabilityResult] = useState<ViabilityAnalysis | null>(null);
   const [analyzingViability, setAnalyzingViability] = useState(false);
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getLeads('franchise-1')
-      .then(setLeads)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        setFranchiseId(network.id);
+        const result = await getLeads(network.id);
+        setLeads(result);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate() {
+    if (!franchiseId) return;
     try {
-      const lead = await createLead({ franchise_id: 'franchise-1', ...form });
+      const lead = await createLead({ franchise_id: franchiseId, ...form });
       setLeads((prev) => [...prev, lead]);
       setShowCreate(false);
       setForm({ name: '', email: '', phone: '', city: '', state: '', investment_capacity: 0, experience: '', notes: '' });
@@ -125,7 +138,6 @@ export default function ExpansaoPage() {
     setViabilityResult(null);
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (

@@ -7,14 +7,15 @@ import {
   type RoyaltyHistorySummary,
   type RoyaltyStatus,
 } from '@/lib/api/royalties.service';
+import { getMyNetwork, getNetworkUnits, type NetworkUnit } from '@/lib/api/franchise.service';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
-import { ComingSoon } from '@/components/shared/ComingSoon';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
 const STATUS_STYLE: Record<RoyaltyStatus, React.CSSProperties> = {
@@ -24,36 +25,44 @@ const STATUS_STYLE: Record<RoyaltyStatus, React.CSSProperties> = {
   parcial: { background: 'color-mix(in srgb, var(--bb-warning) 25%, transparent)', color: 'var(--bb-warning)' },
 };
 
-const ACADEMIES = [
-  { id: 'acad-1', name: 'Black Belt Moema' },
-  { id: 'acad-2', name: 'Black Belt Alphaville' },
-  { id: 'acad-3', name: 'Black Belt Barra' },
-  { id: 'acad-4', name: 'Black Belt Savassi' },
-  { id: 'acad-5', name: 'Black Belt Moinhos' },
-];
-
 type ViewTab = 'resumo' | 'detalhes' | 'gerar';
 
 export default function RoyaltiesFranqueadorPage() {
+  const { profile } = useAuth();
   const { toast } = useToast();
-  const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
+  const [academies, setAcademies] = useState<{ id: string; name: string }[]>([]);
   const [tab, setTab] = useState<ViewTab>('resumo');
   const [history, setHistory] = useState<RoyaltyHistorySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<RoyaltyStatus | ''>('');
   const [filterAcademy, setFilterAcademy] = useState('');
   const [generateModal, setGenerateModal] = useState(false);
-  const [genAcademy, setGenAcademy] = useState(ACADEMIES[0].id);
+  const [genAcademy, setGenAcademy] = useState('');
   const [genMonth, setGenMonth] = useState('');
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getRoyaltyHistory('franchise-1')
-      .then(setHistory)
-      .catch((err) => { toast(translateError(err), 'error'); })
-      .finally(() => setLoading(false));
-  }, []);
+    async function load() {
+      if (!profile?.id) return;
+      try {
+        const network = await getMyNetwork(profile.id);
+        if (!network) return;
+        const [hist, units] = await Promise.all([
+          getRoyaltyHistory(network.id),
+          getNetworkUnits(network.id),
+        ]);
+        setHistory(hist);
+        const unitList = units.map((u: NetworkUnit) => ({ id: u.id, name: u.name }));
+        setAcademies(unitList);
+        if (unitList.length > 0) setGenAcademy(unitList[0].id);
+      } catch (err) {
+        toast(translateError(err), 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleGenerate() {
     if (!genMonth) return;
@@ -69,7 +78,6 @@ export default function RoyaltiesFranqueadorPage() {
     }
   }
 
-  if (loading && comingSoonTimeout) return <ComingSoon backHref="/franqueador" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (!history) return <div className="p-6 text-bb-gray-500">Erro ao carregar dados.</div>;
 
@@ -110,8 +118,9 @@ export default function RoyaltiesFranqueadorPage() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === t.id ? 'bg-white text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
+              tab === t.id ? 'text-bb-black shadow-sm' : 'text-bb-gray-500 hover:text-bb-black'
             }`}
+            style={tab === t.id ? { background: 'var(--bb-depth-1)' } : undefined}
           >
             {t.label}
           </button>
@@ -178,7 +187,7 @@ export default function RoyaltiesFranqueadorPage() {
               className="rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
             >
               <option value="">Todas Academias</option>
-              {ACADEMIES.map((a) => (
+              {academies.map((a) => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
             </select>
@@ -257,7 +266,7 @@ export default function RoyaltiesFranqueadorPage() {
                 onChange={(e) => setGenAcademy(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
               >
-                {ACADEMIES.map((a) => (
+                {academies.map((a) => (
                   <option key={a.id} value={a.id}>{a.name}</option>
                 ))}
               </select>
@@ -287,7 +296,7 @@ export default function RoyaltiesFranqueadorPage() {
             onChange={(e) => setGenAcademy(e.target.value)}
             className="w-full rounded-lg border border-bb-gray-300 px-3 py-2 text-sm"
           >
-            {ACADEMIES.map((a) => (
+            {academies.map((a) => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
           </select>

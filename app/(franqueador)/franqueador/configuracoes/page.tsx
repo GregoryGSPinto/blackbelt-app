@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useToast } from '@/lib/hooks/useToast';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TutorialSettings } from '@/components/shared/TutorialSettings';
 import {
@@ -43,8 +44,6 @@ const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
   { value: 'system', label: 'Sistema' },
 ];
 
-const MOCK_PROFILE_ID = 'franqueador-1';
-
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
 function SettingsSkeleton() {
@@ -66,6 +65,7 @@ function SettingsSkeleton() {
 
 export default function FranqueadorConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
+  const { profile } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -76,10 +76,13 @@ export default function FranqueadorConfiguracoesPage() {
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
+  const profileId = profile?.id ?? '';
+
   useEffect(() => {
     async function load() {
+      if (!profileId) return;
       try {
-        const p = await getUserPreferences(MOCK_PROFILE_ID);
+        const p = await getUserPreferences(profileId);
         setPrefs(p);
       } catch (err) {
         toast(translateError(err), 'error');
@@ -88,19 +91,20 @@ export default function FranqueadorConfiguracoesPage() {
       }
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [profileId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const savePref = useCallback(
     async (partial: Partial<UserPreferences>) => {
+      if (!profileId) return;
       try {
-        await updateUserPreferences(MOCK_PROFILE_ID, partial);
+        await updateUserPreferences(profileId, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
       } catch (err) {
         toast(translateError(err), 'error');
       }
     },
-    [toast],
+    [toast, profileId],
   );
 
   async function handleSalvarSenha() {
@@ -162,10 +166,10 @@ export default function FranqueadorConfiguracoesPage() {
           <>
             <SettingsSection icon="user" title="Foto de Perfil">
               <SettingsAvatar
-                name="Franqueador"
+                name={profile?.display_name ?? 'Franqueador'}
                 onUpload={async (file) => {
                   try {
-                    await uploadAvatar(MOCK_PROFILE_ID, file);
+                    await uploadAvatar(profileId, file);
                     toast('Avatar atualizado!', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -178,18 +182,18 @@ export default function FranqueadorConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Franqueador Master"
+                value={profile?.display_name ?? ''}
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput
                 label="Email"
-                value="franqueador@rede.com.br"
+                value=""
                 type="email"
                 onSave={() => toast('Email atualizado!', 'success')}
               />
               <SettingsInput
                 label="Telefone"
-                value="(11) 95555-0000"
+                value=""
                 type="tel"
                 onSave={() => toast('Telefone atualizado!', 'success')}
               />
@@ -306,7 +310,7 @@ export default function FranqueadorConfiguracoesPage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    await exportUserData(MOCK_PROFILE_ID);
+                    await exportUserData(profileId);
                     toast('Exportacao iniciada!', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -325,7 +329,7 @@ export default function FranqueadorConfiguracoesPage() {
                   label: 'Excluir minha conta',
                   description: 'Sua conta de franqueador sera excluida. As unidades continuam ativas.',
                   action: async () => {
-                    await deleteAccount(MOCK_PROFILE_ID, 'EXCLUIR');
+                    await deleteAccount(profileId, 'EXCLUIR');
                     toast('Conta excluida.', 'success');
                   },
                   confirmText: 'EXCLUIR MINHA CONTA',
