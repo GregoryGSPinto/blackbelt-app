@@ -8,12 +8,14 @@ interface BillingStepProps {
   onPlanChange: (planId: string) => void;
   onBillingDataChange: (data: BillingData) => void;
   billingData: Partial<BillingData>;
+  availablePlans?: AsaasPlan[];
 }
 
-export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange, billingData }: BillingStepProps) {
+export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange, billingData, availablePlans }: BillingStepProps) {
   const [billingType, setBillingType] = useState<'pix' | 'boleto' | 'credit_card'>(billingData.billingType || 'pix');
 
-  const selectedPlan: AsaasPlan = PLANS.find(p => p.id === selectedPlanId) || PLANS[0];
+  const planList = availablePlans ?? PLANS;
+  const selectedPlan: AsaasPlan = planList.find(p => p.id === selectedPlanId) || planList[0];
 
   function update(partial: Partial<BillingData>) {
     onBillingDataChange({ ...billingData as BillingData, ...partial });
@@ -36,7 +38,7 @@ export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange,
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {PLANS.map((plan) => (
+        {planList.map((plan) => (
           <button
             key={plan.id}
             type="button"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createAcademy } from '@/lib/api/onboarding.service';
@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { BillingStep } from '@/components/onboarding/BillingStep';
-import { PLANS, type BillingData } from '@/lib/types/billing';
+import { PLANS, type AsaasPlan, type BillingData } from '@/lib/types/billing';
+import { getActivePlans } from '@/lib/api/plans.service';
 import {
   formatBrazilianPhone,
   formatCep,
@@ -78,6 +79,32 @@ export default function CadastrarAcademiaPage() {
   // Step 4: Plan + Billing
   const [plan, setPlan] = useState('blackbelt');
   const [billingData, setBillingData] = useState<Partial<BillingData>>({ billingType: 'pix' });
+
+  // Loaded plans from service (single source of truth)
+  const [loadedPlans, setLoadedPlans] = useState<AsaasPlan[]>([]);
+  const loadPlansFromService = useCallback(async () => {
+    try {
+      const active = await getActivePlans();
+      const mapped: AsaasPlan[] = active.map((p) => ({
+        id: p.tier,
+        name: p.name,
+        price: p.price_monthly / 100,
+        priceCents: p.price_monthly,
+        maxStudents: p.limits.max_alunos,
+        maxUnits: p.limits.max_unidades,
+        maxProfessors: p.limits.max_professores,
+        features: p.features.filter((f) => f.included).map((f) => f.name),
+        popular: p.is_popular,
+      }));
+      setLoadedPlans(mapped);
+    } catch {
+      setLoadedPlans(PLANS);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPlansFromService();
+  }, [loadPlansFromService]);
 
   const academyErrors = {
     name: !academy.name.trim()
@@ -178,7 +205,8 @@ export default function CadastrarAcademiaPage() {
 
       // Create Asaas subscription (non-blocking — academy is already created)
       if (billingData.cpfCnpj && billingData.name) {
-        const selectedPlan = PLANS.find(p => p.id === plan);
+        const activePlans = loadedPlans.length > 0 ? loadedPlans : PLANS;
+        const selectedPlan = activePlans.find(p => p.id === plan);
         if (selectedPlan) {
           try {
             const subRes = await fetch('/api/subscriptions/create', {
@@ -677,6 +705,7 @@ export default function CadastrarAcademiaPage() {
               onPlanChange={setPlan}
               onBillingDataChange={setBillingData}
               billingData={billingData}
+              availablePlans={loadedPlans.length > 0 ? loadedPlans : undefined}
             />
 
             <div className="flex gap-3 pt-2">
@@ -729,7 +758,7 @@ export default function CadastrarAcademiaPage() {
                   ...(academy.website ? [{ label: 'Website', value: normalizeWebsite(academy.website) }] : []),
                   { label: 'Cidade', value: `${academy.city}/${academy.state}` },
                   { label: 'Modalidades', value: modalidades.join(', ') },
-                  { label: 'Plano', value: PLANS.find((p) => p.id === plan)?.name ?? plan },
+                  { label: 'Plano', value: (loadedPlans.length > 0 ? loadedPlans : PLANS).find((p) => p.id === plan)?.name ?? plan },
                   ...(billingData.name ? [{ label: 'Responsavel financeiro', value: billingData.name }] : []),
                   ...(billingData.billingType ? [{ label: 'Pagamento', value: billingData.billingType === 'pix' ? 'PIX' : billingData.billingType === 'boleto' ? 'Boleto' : 'Cartao' }] : []),
                 ].map((item) => (
