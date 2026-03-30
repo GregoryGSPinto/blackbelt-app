@@ -134,7 +134,7 @@ const bottomNavItems: {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   accent?: boolean;
 }[] = [
-  { href: '/professor', label: 'Home', icon: HomeIcon },
+  { href: '/professor', label: 'Inicio', icon: HomeIcon },
   { href: '/professor/turmas', label: 'Turmas', icon: CalendarIcon },
   { href: '/professor/turma-ativa', label: 'Aula', icon: PlayIcon, accent: true },
   { href: '/professor/alunos', label: 'Alunos', icon: UsersIcon },

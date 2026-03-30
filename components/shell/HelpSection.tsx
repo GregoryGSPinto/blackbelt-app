@@ -15,10 +15,14 @@ import { HelpCircleIcon, LifeBuoyIcon, MessageIcon } from './icons';
 
 interface SidebarHelpSectionProps {
   onItemClick?: () => void;
+  /** 'staff' = admin/professor/recepcao (ticket + whatsapp suporte),
+   *  'student' = aluno/teen (fale com a academia),
+   *  'kids' = tutorial only, no ticket/chat */
+  variant?: 'staff' | 'student' | 'kids';
 }
 
 export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionProps>(
-  function SidebarHelpSection({ onItemClick }, ref) {
+  function SidebarHelpSection({ onItemClick, variant = 'staff' }, ref) {
     const { profile } = useAuth();
     const { resetTutorial, isActive: isTutorialActive, progressLoaded } = useTutorial();
     const { toast } = useToast();
@@ -42,6 +46,11 @@ export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionP
 
     function handleOpenTicket() {
       toast('Sistema de tickets em breve!', 'info');
+      onItemClick?.();
+    }
+
+    function handleFaleComAcademia() {
+      toast('Fale com sua academia pelo chat de mensagens!', 'info');
       onItemClick?.();
     }
 
@@ -87,55 +96,88 @@ export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionP
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={handleOpenTicket}
-            className="flex items-center gap-3 text-sm transition-colors text-left w-full"
-            style={{
-              padding: '10px 16px',
-              borderRadius: 'var(--bb-radius-sm)',
-              color: 'var(--bb-ink-60)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bb-depth-4)';
-              e.currentTarget.style.color = 'var(--bb-ink-80)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--bb-ink-60)';
-            }}
-          >
-            <LifeBuoyIcon className="h-5 w-5" />
-            Abrir Ticket
-          </button>
+          {variant === 'staff' && (
+            <>
+              <button
+                type="button"
+                onClick={handleOpenTicket}
+                className="flex items-center gap-3 text-sm transition-colors text-left w-full"
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 'var(--bb-radius-sm)',
+                  color: 'var(--bb-ink-60)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--bb-depth-4)';
+                  e.currentTarget.style.color = 'var(--bb-ink-80)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--bb-ink-60)';
+                }}
+              >
+                <LifeBuoyIcon className="h-5 w-5" />
+                Abrir Ticket
+              </button>
 
-          <a
-            href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 text-sm transition-colors"
-            style={{
-              padding: '10px 16px',
-              borderRadius: 'var(--bb-radius-sm)',
-              color: 'var(--bb-ink-60)',
-              textDecoration: 'none',
-            }}
-            onClick={() => onItemClick?.()}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bb-depth-4)';
-              e.currentTarget.style.color = 'var(--bb-ink-80)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--bb-ink-60)';
-            }}
-          >
-            <MessageIcon className="h-5 w-5" />
-            WhatsApp Suporte
-          </a>
+              <a
+                href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-sm transition-colors"
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 'var(--bb-radius-sm)',
+                  color: 'var(--bb-ink-60)',
+                  textDecoration: 'none',
+                }}
+                onClick={() => onItemClick?.()}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--bb-depth-4)';
+                  e.currentTarget.style.color = 'var(--bb-ink-80)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--bb-ink-60)';
+                }}
+              >
+                <MessageIcon className="h-5 w-5" />
+                WhatsApp Suporte
+              </a>
+            </>
+          )}
+
+          {variant === 'student' && (
+            <button
+              type="button"
+              onClick={handleFaleComAcademia}
+              className="flex items-center gap-3 text-sm transition-colors text-left w-full"
+              style={{
+                padding: '10px 16px',
+                borderRadius: 'var(--bb-radius-sm)',
+                color: 'var(--bb-ink-60)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--bb-depth-4)';
+                e.currentTarget.style.color = 'var(--bb-ink-80)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--bb-ink-60)';
+              }}
+            >
+              <MessageIcon className="h-5 w-5" />
+              Fale com a Academia
+            </button>
+          )}
+
+          {/* Kids variant: only shows tutorial reset, no ticket or chat */}
         </div>
       </div>
     );
@@ -147,7 +189,7 @@ SidebarHelpSection.displayName = 'SidebarHelpSection';
 // ── Header Help Button ───────────────────────────────────────────────────
 // Compact help button + dropdown for bottom-nav shells that don't have a sidebar.
 
-export function HeaderHelpButton() {
+export function HeaderHelpButton({ variant = 'staff' }: { variant?: 'staff' | 'student' | 'kids' }) {
   const { profile } = useAuth();
   const { resetTutorial, isActive: isTutorialActive, progressLoaded } = useTutorial();
   const { toast } = useToast();
@@ -223,34 +265,57 @@ export function HeaderHelpButton() {
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={() => {
-                toast('Sistema de tickets em breve!', 'info');
-                setOpen(false);
-              }}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
-              style={{ color: 'var(--bb-ink-80)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-            >
-              <LifeBuoyIcon className="h-4 w-4" />
-              Abrir Ticket
-            </button>
+            {variant === 'staff' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    toast('Sistema de tickets em breve!', 'info');
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                  style={{ color: 'var(--bb-ink-80)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <LifeBuoyIcon className="h-4 w-4" />
+                  Abrir Ticket
+                </button>
 
-            <a
-              href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-              style={{ color: 'var(--bb-ink-80)', textDecoration: 'none' }}
-              onClick={() => setOpen(false)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-            >
-              <MessageIcon className="h-4 w-4" />
-              WhatsApp Suporte
-            </a>
+                <a
+                  href="https://wa.me/5531996793625?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20BlackBelt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: 'var(--bb-ink-80)', textDecoration: 'none' }}
+                  onClick={() => setOpen(false)}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <MessageIcon className="h-4 w-4" />
+                  WhatsApp Suporte
+                </a>
+              </>
+            )}
+
+            {variant === 'student' && (
+              <button
+                type="button"
+                onClick={() => {
+                  toast('Fale com sua academia pelo chat de mensagens!', 'info');
+                  setOpen(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--bb-ink-80)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <MessageIcon className="h-4 w-4" />
+                Fale com a Academia
+              </button>
+            )}
+
+            {/* Kids variant: only shows tutorial reset */}
           </div>
         </>
       )}

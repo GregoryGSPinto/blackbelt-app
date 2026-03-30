@@ -100,7 +100,7 @@ const sidebarGroups: SidebarGroup[] = [
 ];
 
 const bottomNavItems = [
-  { href: '/dashboard', label: 'Home', icon: LayoutDashboardIcon },
+  { href: '/dashboard', label: 'Inicio', icon: LayoutDashboardIcon },
   { href: '/dashboard/turmas', label: 'Turmas', icon: CalendarIcon },
   { href: '/dashboard/checkin', label: 'Check-in', icon: CheckSquareIcon },
   { href: '/dashboard/progresso', label: 'Progresso', icon: TrendingUpIcon },
@@ -213,7 +213,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
             </div>
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
-              <SidebarHelpSection />
+              <SidebarHelpSection variant="student" />
               <SidebarFeedback />
             </nav>
           </aside>
@@ -232,7 +232,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
                 </div>
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
-                  <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarHelpSection variant="student" onItemClick={() => setSidebarOpen(false)} />
                   <SidebarFeedback />
                 </nav>
               </aside>
@@ -253,14 +253,14 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <HeaderHelpButton />
+                <HeaderHelpButton variant="student" />
                 <BetaBadge />
                 <Link href="/carrinho" className="relative flex items-center justify-center h-9 w-9" aria-label="Carrinho">
                   <ShoppingBagIcon className="h-5 w-5" style={{ color: 'var(--bb-ink-60)' }} />
                   {cartCount > 0 && (
                     <span
                       className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                      style={{ background: '#EF4444' }}
+                      style={{ background: 'var(--bb-danger)' }}
                     >
                       {cartCount > 9 ? '9+' : cartCount}
                     </span>

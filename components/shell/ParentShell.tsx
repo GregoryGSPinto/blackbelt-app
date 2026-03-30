@@ -208,7 +208,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
             </div>
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
-              <SidebarHelpSection />
+              <SidebarHelpSection variant="student" />
               <SidebarFeedback />
             </nav>
           </aside>
@@ -232,7 +232,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                 </div>
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
-                  <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarHelpSection variant="student" onItemClick={() => setSidebarOpen(false)} />
                   <SidebarFeedback />
                 </nav>
               </aside>
@@ -264,7 +264,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <HeaderHelpButton />
+                <HeaderHelpButton variant="student" />
                 <ThemeToggle />
                 <NotificationBell />
 

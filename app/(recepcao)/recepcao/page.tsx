@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
@@ -42,6 +43,7 @@ export default function RecepcaoDashboardPage() {
     'recepcao-dashboard',
     () => getRecepcaoDashboard(),
   );
+  const router = useRouter();
   const [clock, setClock] = useState('');
   const { toast } = useToast();
 
@@ -95,7 +97,7 @@ export default function RecepcaoDashboardPage() {
           {pendenciasCount > 0 && (
             <span
               className="inline-flex h-7 min-w-[1.75rem] items-center justify-center rounded-full px-2 text-xs font-bold text-white"
-              style={{ background: '#ef4444' }}
+              style={{ background: 'var(--bb-danger)' }}
             >
               {pendenciasCount}
             </span>
@@ -213,7 +215,12 @@ export default function RecepcaoDashboardPage() {
                   <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{p.titulo}</p>
                   <p className="mt-0.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>{p.descricao}</p>
                   <div className="mt-2">
-                    <Button variant="ghost" size="sm" className="text-emerald-600" style={{ color: '#059669' }}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      style={{ color: 'var(--bb-success)' }}
+                      onClick={() => router.push(p.acao.rota)}
+                    >
                       {p.acao.label} <ChevronRightIcon className="ml-1 h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -339,7 +346,7 @@ export default function RecepcaoDashboardPage() {
           </h2>
           <div className="space-y-2">
             {data.aniversariantes.map((a, i) => (
-              <Card key={i} style={{ borderLeft: '3px solid #10b981' }}>
+              <Card key={i} style={{ borderLeft: '3px solid var(--bb-success)' }}>
                 <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
                   🎂 {a.nome} faz {a.idade} anos hoje!
                 </p>
@@ -347,7 +354,7 @@ export default function RecepcaoDashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    style={{ color: '#059669' }}
+                    style={{ color: 'var(--bb-success)' }}
                     onClick={() => toast('Parabens enviado!', 'success')}
                   >
                     Enviar parabens

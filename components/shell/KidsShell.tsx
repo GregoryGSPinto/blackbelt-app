@@ -141,7 +141,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
               <SidebarFeedback />
-              <SidebarHelpSection />
+              <SidebarHelpSection variant="kids" />
             </nav>
           </aside>
 
@@ -162,7 +162,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
                   <SidebarFeedback />
-                  <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarHelpSection variant="kids" onItemClick={() => setSidebarOpen(false)} />
                 </nav>
               </aside>
             </div>
@@ -185,7 +185,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <HeaderHelpButton />
+                <HeaderHelpButton variant="kids" />
                 <ThemeToggle />
                 <NotificationBell />
                 <div className="relative">

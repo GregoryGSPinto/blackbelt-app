@@ -195,7 +195,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
             {/* XP Bar in sidebar */}
             <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
               <div className="flex items-center justify-between text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Level 7</span>
+                <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Nivel 7</span>
                 <span>2.450 / 3.000 XP</span>
               </div>
               <div className="mt-1 h-2 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
@@ -207,7 +207,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
             </div>
             <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-3">
               {renderSidebarNav()}
-              <SidebarHelpSection />
+              <SidebarHelpSection variant="student" />
               <SidebarFeedback />
             </nav>
           </aside>
@@ -226,7 +226,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 </div>
                 <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                   <div className="flex items-center justify-between text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                    <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Level 7</span>
+                    <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Nivel 7</span>
                     <span>2.450 / 3.000 XP</span>
                   </div>
                   <div className="mt-1 h-2 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
@@ -238,7 +238,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 </div>
                 <nav aria-label="Menu principal" className="overflow-y-auto p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
-                  <SidebarHelpSection onItemClick={() => setSidebarOpen(false)} />
+                  <SidebarHelpSection variant="student" onItemClick={() => setSidebarOpen(false)} />
                   <SidebarFeedback />
                 </nav>
               </aside>
@@ -259,7 +259,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 </button>
                 {/* Mobile XP bar */}
                 <div className="lg:hidden flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                  <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Lv7</span>
+                  <span className="font-bold" style={{ color: 'var(--bb-ink-100)' }}>Nv7</span>
                   <div className="h-2 w-20 overflow-hidden rounded-full" style={{ background: 'var(--bb-depth-4)' }}>
                     <div
                       className="h-full rounded-full"
@@ -269,7 +269,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <HeaderHelpButton />
+                <HeaderHelpButton variant="student" />
                 <BetaBadge />
                 <ThemeToggle />
                 <NotificationBell />
