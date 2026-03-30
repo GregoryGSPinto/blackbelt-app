@@ -25,6 +25,18 @@ export interface CommandItem {
   icon: string;
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Administrador',
+  professor: 'Professor',
+  recepcao: 'Recepção',
+  aluno_adulto: 'Aluno Adulto',
+  aluno_teen: 'Aluno Teen',
+  aluno_kids: 'Aluno Kids',
+  responsavel: 'Responsável',
+  franqueador: 'Franqueador',
+  superadmin: 'Super Admin',
+};
+
 export async function globalSearch(
   query: string,
   academyId: string,
@@ -39,72 +51,54 @@ export async function globalSearch(
     const term = `%${query}%`;
     const results: SearchResult[] = [];
 
-    // Search students by name
-    try {
-      const { data: students } = await supabase
-        .from('students')
-        .select('id, belt, profile:profiles!students_profile_id_fkey(display_name)')
-        .eq('academy_id', academyId)
-        .ilike('profiles.display_name', term)
-        .limit(10);
-      for (const s of (students ?? []) as Array<{ id: string; belt: string; profile: { display_name: string } | null }>) {
-        if (!s.profile?.display_name) continue;
-        results.push({
-          id: s.id,
-          group: 'alunos',
-          title: s.profile.display_name,
-          subtitle: `Faixa: ${s.belt}`,
-          url: `/admin/alunos/${s.id}`,
-          icon: 'user',
-        });
+    // Search members via memberships + profiles
+    if (academyId) {
+      try {
+        const { data: members } = await supabase
+          .from('memberships')
+          .select('id, role, status, profile_id, profiles!inner(id, display_name)')
+          .eq('academy_id', academyId)
+          .eq('status', 'active')
+          .ilike('profiles.display_name', term)
+          .limit(8);
+        for (const m of (members ?? []) as Array<{ id: string; role: string; profile_id: string; profiles: { id: string; display_name: string } }>) {
+          if (!m.profiles?.display_name) continue;
+          results.push({
+            id: m.profiles.id,
+            group: 'alunos',
+            title: m.profiles.display_name,
+            subtitle: ROLE_LABELS[m.role] ?? m.role,
+            url: `/admin/alunos/${m.profiles.id}`,
+            icon: 'user',
+          });
+        }
+      } catch (err) {
+        logServiceError(err, 'search');
       }
-    } catch (err) {
-      logServiceError(err, 'search');
     }
 
     // Search classes by name
-    try {
-      const { data: classes } = await supabase
-        .from('classes')
-        .select('id, name')
-        .eq('academy_id', academyId)
-        .ilike('name', term)
-        .limit(10);
-      for (const c of (classes ?? []) as Array<{ id: string; name: string }>) {
-        results.push({
-          id: c.id,
-          group: 'turmas',
-          title: c.name ?? '',
-          subtitle: 'Turma',
-          url: `/admin/turmas/${c.id}`,
-          icon: 'calendar',
-        });
+    if (academyId) {
+      try {
+        const { data: classes } = await supabase
+          .from('classes')
+          .select('id, name')
+          .eq('academy_id', academyId)
+          .ilike('name', term)
+          .limit(5);
+        for (const c of (classes ?? []) as Array<{ id: string; name: string }>) {
+          results.push({
+            id: c.id,
+            group: 'turmas',
+            title: c.name ?? '',
+            subtitle: 'Turma',
+            url: `/admin/turmas/${c.id}`,
+            icon: 'calendar',
+          });
+        }
+      } catch (err) {
+        logServiceError(err, 'search');
       }
-    } catch (err) {
-      logServiceError(err, 'search');
-    }
-
-    // Search profiles (professors, etc.) by display_name
-    try {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, display_name, role')
-        .ilike('display_name', term)
-        .limit(10);
-      for (const p of (profiles ?? []) as Array<{ id: string; display_name: string; role: string }>) {
-        // Skip if already in students results
-        if (results.some(r => r.title === p.display_name && r.group === 'alunos')) continue;
-        results.push({
-          id: p.id,
-          group: 'alunos',
-          title: p.display_name,
-          subtitle: p.role,
-          url: `/admin/perfil/${p.id}`,
-          icon: 'user',
-        });
-      }
-    } catch (err) {
-      logServiceError(err, 'search');
     }
 
     return { results, total: results.length };

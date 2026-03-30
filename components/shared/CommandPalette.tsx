@@ -7,6 +7,7 @@ import {
   getCommands,
   type SearchResultGroup,
 } from '@/lib/api/search.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { SearchIcon } from '@/components/shell/icons';
 
 // ── Constants ──────────────────────────────────────────────────────────
@@ -131,7 +132,7 @@ const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
         // Regular search mode
         setLoading(true);
         try {
-          const response = await globalSearch(searchQuery, 'academy-1');
+          const response = await globalSearch(searchQuery, getActiveAcademyId());
           setItems(
             response.results.map(
               (r): ResultItem => ({
