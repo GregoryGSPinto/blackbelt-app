@@ -10,6 +10,8 @@ import { CommandPalette } from '@/components/shared/CommandPalette';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { usePlan } from '@/lib/hooks/usePlan';
 import { getAlerts } from '@/lib/api/billing.service';
+import { getOverdueMembers } from '@/lib/api/student-billing.service';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
 import { TrialBanner } from '@/components/plans/TrialBanner';
 import { DiscoveryBanner } from '@/components/plans/DiscoveryBanner';
@@ -163,6 +165,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const [searchOpen, setSearchOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [billingAlertCount, setBillingAlertCount] = useState(0);
+    const [overdueCount, setOverdueCount] = useState(0);
     const [impersonating, setImpersonating] = useState(false);
     const [impersonateAcademia, setImpersonateAcademia] = useState('');
     const [native, setNative] = useState(false);
@@ -174,6 +177,9 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     useEffect(() => {
       getAlerts('academy-1')
         .then((alerts) => setBillingAlertCount(alerts.length))
+        .catch(() => {});
+      getOverdueMembers(getActiveAcademyId())
+        .then((members) => setOverdueCount(members.length))
         .catch(() => {});
     }, []);
 
@@ -291,7 +297,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
-                    const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                    const showBadge = (item.href === '/admin/plano' && billingAlertCount > 0) || ((item.href === '/admin/financeiro' || item.href === '/admin/inadimplencia') && overdueCount > 0);
                     const moduleForLink = PAGE_MODULE_MAP[item.href];
                     const isLocked = moduleForLink ? !hasAccess(moduleForLink) : false;
                     return (
@@ -333,9 +339,9 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                         {showBadge && !isLocked && (
                           <span
                             className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
-                            style={{ background: 'var(--bb-warning)', color: 'var(--bb-depth-1)' }}
+                            style={{ background: item.href === '/admin/plano' ? 'var(--bb-warning)' : '#EF4444', color: '#fff' }}
                           >
-                            {billingAlertCount}
+                            {item.href === '/admin/plano' ? billingAlertCount : overdueCount}
                           </span>
                         )}
                       </Link>
@@ -385,7 +391,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                       {group.items.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href + '/'));
-                        const showBadge = item.href === '/admin/plano' && billingAlertCount > 0;
+                        const showBadge = (item.href === '/admin/plano' && billingAlertCount > 0) || ((item.href === '/admin/financeiro' || item.href === '/admin/inadimplencia') && overdueCount > 0);
                         const moduleForLink = PAGE_MODULE_MAP[item.href];
                         const isLocked = moduleForLink ? !hasAccess(moduleForLink) : false;
                         return (
@@ -428,9 +434,9 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
                             {showBadge && !isLocked && (
                               <span
                                 className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
-                                style={{ background: 'var(--bb-warning)', color: 'var(--bb-depth-1)' }}
+                                style={{ background: item.href === '/admin/plano' ? 'var(--bb-warning)' : '#EF4444', color: '#fff' }}
                               >
-                                {billingAlertCount}
+                                {item.href === '/admin/plano' ? billingAlertCount : overdueCount}
                               </span>
                             )}
                           </Link>
