@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { getUpcomingClasses } from '@/lib/api/parent-checkin.service';
-import { preCheckin } from '@/lib/api/pre-checkin.service';
+import { preCheckin, cancelPreCheckin } from '@/lib/api/pre-checkin.service';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { translateError } from '@/lib/utils/error-translator';
 import {
@@ -60,6 +60,8 @@ export default function PreCheckinPage() {
   const [upcomingClasses, setUpcomingClasses] = useState<UpcomingClass[]>([]);
   const [confirmed, setConfirmed] = useState<Set<string>>(new Set());
   const [confirming, setConfirming] = useState<Set<string>>(new Set());
+  const [cancelling, setCancelling] = useState<Set<string>>(new Set());
+  const [preCheckinIds, setPreCheckinIds] = useState<Map<string, string>>(new Map());
 
   const guardianId = profile?.id ?? '';
 
@@ -82,13 +84,49 @@ export default function PreCheckinPage() {
     setConfirming((prev) => new Set(prev).add(key));
     try {
       const academyId = getActiveAcademyId();
-      await preCheckin(academyId, cls.student_id, cls.class_id, cls.date);
+      const result = await preCheckin(academyId, cls.student_id, cls.class_id, cls.date);
       setConfirmed((prev) => new Set(prev).add(key));
+      if (result) {
+        setPreCheckinIds((prev) => new Map(prev).set(key, result.id));
+      }
       toast(`Pre-check-in de ${cls.child_name} confirmado para ${cls.class_name}`, 'success');
     } catch (error) {
       toast(translateError(error), 'error');
     } finally {
       setConfirming((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  }
+
+  async function handleCancel(cls: UpcomingClass) {
+    const key = cls.id;
+    const pcId = preCheckinIds.get(key);
+    if (!pcId) return;
+    setCancelling((prev) => new Set(prev).add(key));
+    try {
+      const success = await cancelPreCheckin(pcId);
+      if (success) {
+        setConfirmed((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+        setPreCheckinIds((prev) => {
+          const next = new Map(prev);
+          next.delete(key);
+          return next;
+        });
+        toast(`Pre-check-in de ${cls.child_name} cancelado`, 'success');
+      } else {
+        toast('Erro ao cancelar pre-check-in', 'error');
+      }
+    } catch (error) {
+      toast(translateError(error), 'error');
+    } finally {
+      setCancelling((prev) => {
         const next = new Set(prev);
         next.delete(key);
         return next;
@@ -194,16 +232,25 @@ export default function PreCheckinPage() {
                         </div>
                       </div>
                       {isConfirmed ? (
-                        <span
-                          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
-                          style={{
-                            backgroundColor: 'var(--bb-success-surface)',
-                            color: 'var(--bb-success)',
-                          }}
-                        >
-                          <CheckSquareIcon className="h-3.5 w-3.5" />
-                          Confirmado
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
+                            style={{
+                              backgroundColor: 'var(--bb-success-surface)',
+                              color: 'var(--bb-success)',
+                            }}
+                          >
+                            <CheckSquareIcon className="h-3.5 w-3.5" />
+                            Confirmado
+                          </span>
+                          <button
+                            onClick={() => handleCancel(cls)}
+                            disabled={cancelling.has(cls.id)}
+                            className="rounded-[var(--bb-radius-sm)] px-3 py-1.5 text-xs font-bold text-[var(--bb-error)] transition-all hover:bg-[rgba(239,68,68,0.08)] disabled:opacity-60"
+                          >
+                            {cancelling.has(cls.id) ? 'Cancelando...' : 'Cancelar'}
+                          </button>
+                        </div>
                       ) : (
                         <button
                           onClick={() => handleConfirm(cls)}

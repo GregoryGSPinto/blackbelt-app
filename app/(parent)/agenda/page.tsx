@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { getFamilyCalendar, getMonthlyReport } from '@/lib/api/agenda-familiar.service';
 import type {
   FamilyCalendarDTO,
@@ -48,26 +49,32 @@ function groupByDay(events: FamilyCalendarEventDTO[]): Map<number, FamilyCalenda
 // ────────────────────────────────────────────────────────────
 
 export default function AgendaFamiliarPage() {
+  const { profile } = useAuth();
   const [calendar, setCalendar] = useState<FamilyCalendarDTO | null>(null);
   const [report, setReport] = useState<MonthlyReportDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReport, setShowReport] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [cal, rep] = await Promise.all([
-          getFamilyCalendar('prof-guardian-1'),
-          getMonthlyReport('prof-guardian-1', '2026-03'),
-        ]);
-        setCalendar(cal);
-        setReport(rep);
-      } finally {
-        setLoading(false);
-      }
+  const guardianId = profile?.id ?? '';
+  const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+  const loadData = useCallback(async () => {
+    if (!guardianId) return;
+    try {
+      const [cal, rep] = await Promise.all([
+        getFamilyCalendar(guardianId),
+        getMonthlyReport(guardianId, currentMonth),
+      ]);
+      setCalendar(cal);
+      setReport(rep);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }, [guardianId, currentMonth]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (

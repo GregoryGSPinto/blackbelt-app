@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { getGuardianDashboard } from '@/lib/api/responsavel.service';
 import type { GuardianDashboardDTO, GuardianChildDTO } from '@/lib/api/responsavel.service';
 import { Card } from '@/components/ui/Card';
@@ -336,25 +337,30 @@ function ChildReportCard({ child }: { child: GuardianChildDTO }) {
 // ────────────────────────────────────────────────────────────
 
 export default function RelatoriosMensaisPage() {
+  const { profile } = useAuth();
   const [data, setData] = useState<GuardianDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const dashboard = await getGuardianDashboard('prof-guardian-1');
-        setData(dashboard);
-      } catch {
-        // Error handled by service
-      } finally {
-        setLoading(false);
-      }
+  const guardianId = profile?.id ?? '';
+
+  const loadData = useCallback(async () => {
+    if (!guardianId) return;
+    try {
+      const dashboard = await getGuardianDashboard(guardianId);
+      setData(dashboard);
+    } catch {
+      // Error handled by service
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }, [guardianId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const isCurrentMonth = useMemo(() => {
     const n = new Date();

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { getGuardianDashboard } from '@/lib/api/responsavel.service';
 import type { GuardianDashboardDTO } from '@/lib/api/responsavel.service';
 import { Card } from '@/components/ui/Card';
@@ -187,20 +188,25 @@ function SettingsSection() {
 // ────────────────────────────────────────────────────────────
 
 export default function ParentPerfilPage() {
+  const { profile } = useAuth();
   const [data, setData] = useState<GuardianDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const d = await getGuardianDashboard('prof-guardian-1');
-        setData(d);
-      } finally {
-        setLoading(false);
-      }
+  const guardianId = profile?.id ?? '';
+
+  const loadData = useCallback(async () => {
+    if (!guardianId) return;
+    try {
+      const d = await getGuardianDashboard(guardianId);
+      setData(d);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }, [guardianId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (

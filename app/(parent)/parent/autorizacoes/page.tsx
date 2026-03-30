@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 import {
   getAutorizacoes,
   respondAutorizacao,
@@ -202,6 +203,7 @@ function AutorizacaoCard({
 type TabKey = 'autorizacoes' | 'controle';
 
 export default function AutorizacoesPage() {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('autorizacoes');
   const [autorizacoes, setAutorizacoes] = useState<Autorizacao[]>([]);
   const [controles, setControles] = useState<ControleParental[]>([]);
@@ -210,24 +212,27 @@ export default function AutorizacoesPage() {
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
   const [selectedChildId, setSelectedChildId] = useState('stu-sophia');
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [auths, ctrlSophia, ctrlMiguel] = await Promise.all([
-          getAutorizacoes('prof-guardian-1'),
-          getControleParental('stu-sophia'),
-          getControleParental('stu-miguel'),
-        ]);
-        setAutorizacoes(auths);
-        setControles([ctrlSophia, ctrlMiguel]);
-      } catch {
-        // Error handled by service
-      } finally {
-        setLoading(false);
-      }
+  const guardianId = profile?.id ?? '';
+
+  const loadData = useCallback(async () => {
+    if (!guardianId) return;
+    try {
+      const auths = await getAutorizacoes(guardianId);
+      setAutorizacoes(auths);
+      // Parental controls are per-student, loaded separately
+      const ctrlSophia = await getControleParental('stu-sophia');
+      const ctrlMiguel = await getControleParental('stu-miguel');
+      setControles([ctrlSophia, ctrlMiguel]);
+    } catch {
+      // Error handled by service
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }, [guardianId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   async function handleRespond(id: string, status: 'autorizado' | 'negado') {
     setResponding(id);

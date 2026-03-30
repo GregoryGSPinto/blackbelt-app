@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 import {
   getNotificacoes,
   marcarLida,
@@ -197,24 +198,29 @@ function NotificationCard({
 // ────────────────────────────────────────────────────────────
 
 export default function NotificacoesPage() {
+  const { profile } = useAuth();
   const [notificacoes, setNotificacoes] = useState<NotificacaoResponsavel[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<NotifType | 'todas'>('todas');
   const [markingAll, setMarkingAll] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getNotificacoes('prof-guardian-1');
-        setNotificacoes(data);
-      } catch {
-        // Error handled by service
-      } finally {
-        setLoading(false);
-      }
+  const guardianId = profile?.id ?? '';
+
+  const loadData = useCallback(async () => {
+    if (!guardianId) return;
+    try {
+      const data = await getNotificacoes(guardianId);
+      setNotificacoes(data);
+    } catch {
+      // Error handled by service
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }, [guardianId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const unreadCount = useMemo(
     () => notificacoes.filter((n) => !n.read).length,
@@ -240,7 +246,7 @@ export default function NotificacoesPage() {
   async function handleMarkAllRead() {
     setMarkingAll(true);
     try {
-      await marcarTodasLidas('prof-guardian-1');
+      await marcarTodasLidas(guardianId);
       setNotificacoes((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch {
       // Error handled by service

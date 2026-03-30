@@ -11,6 +11,7 @@ import {
   getCheckinHistory,
 } from '@/lib/api/parent-checkin.service';
 import type { ParentChildClass, ParentCheckinHistory } from '@/lib/api/parent-checkin.service';
+import { translateError } from '@/lib/utils/error-translator';
 import {
   CheckSquareIcon,
   ClockIcon,
@@ -77,7 +78,7 @@ export default function ParentCheckinPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const guardianId = profile?.id ?? 'prof-guardian-1';
+  const guardianId = profile?.id ?? '';
 
   const loadData = useCallback(async () => {
     try {
@@ -108,7 +109,7 @@ export default function ParentCheckinPage() {
       const classes = await getTodayClasses(guardianId);
       setTodayClasses(classes);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao realizar check-in.');
+      setError(translateError(err));
     } finally {
       setCheckingIn(null);
     }
