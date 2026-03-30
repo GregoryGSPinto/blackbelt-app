@@ -133,17 +133,45 @@ export async function getAttendanceSummary(academyId: string): Promise<Attendanc
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-  const { count: totalPresent } = await supabase
-    .from('attendance')
-    .select('id', { count: 'exact', head: true })
-    .gte('checked_at', thirtyDaysAgo);
+  const [presentRes, studentsRes, classesRes] = await Promise.all([
+    supabase
+      .from('attendance')
+      .select('id', { count: 'exact', head: true })
+      .gte('checked_at', thirtyDaysAgo),
+    supabase
+      .from('students')
+      .select('id', { count: 'exact', head: true })
+      .eq('academy_id', academyId),
+    supabase
+      .from('classes')
+      .select('id, schedule')
+      .eq('academy_id', academyId),
+  ]);
+
+  const totalPresent = presentRes.count ?? 0;
+  const totalStudents = studentsRes.count ?? 0;
+  const allClasses = classesRes.data ?? [];
+
+  // Count total class slots in the last 30 days (approx: count weekly slots * ~4.3 weeks)
+  let weeklySlots = 0;
+  for (const cls of allClasses) {
+    const schedule = (cls.schedule ?? []) as Array<{ day_of_week: number }>;
+    weeklySlots += schedule.length;
+  }
+  const totalClassSlots30d = Math.round(weeklySlots * 4.3);
+
+  // Expected attendance = students * class sessions they could attend (approx 3/week * 4.3)
+  const expectedAttendance = totalStudents * Math.round(3 * 4.3);
+  const attendanceRate = expectedAttendance > 0
+    ? Math.min(100, Math.round((totalPresent / expectedAttendance) * 100))
+    : 0;
 
   return {
-    total_classes: 0,
-    total_present: totalPresent ?? 0,
-    total_absent: 0,
+    total_classes: totalClassSlots30d,
+    total_present: totalPresent,
+    total_absent: Math.max(0, expectedAttendance - totalPresent),
     total_justified: 0,
-    attendance_rate: 0,
+    attendance_rate: attendanceRate,
     current_streak: 0,
     best_streak: 0,
   } as AttendanceSummary;
@@ -190,23 +218,36 @@ export async function getAbsentAlerts(academyId: string, days: number): Promise<
 
   const cutoff = new Date(Date.now() - days * 86400000).toISOString();
 
-  // Get students with no attendance in the last N days
+  // Get students
   const { data: students } = await supabase
     .from('students')
     .select('id, profiles!students_profile_id_fkey(display_name)')
     .eq('academy_id', academyId);
 
+  const allStudents = students ?? [];
+  if (allStudents.length === 0) return [];
+
+  // Batch: fetch all attendance ordered by recency
+  const studentIds = allStudents.map((s: Record<string, unknown>) => s.id as string);
+  const { data: recentAttendance } = await supabase
+    .from('attendance')
+    .select('student_id, checked_at')
+    .in('student_id', studentIds)
+    .order('checked_at', { ascending: false });
+
+  // Build map: student_id -> last checked_at
+  const lastAttMap = new Map<string, string>();
+  for (const att of (recentAttendance ?? []) as Array<Record<string, unknown>>) {
+    const sid = String(att.student_id);
+    if (!lastAttMap.has(sid)) {
+      lastAttMap.set(sid, att.checked_at as string);
+    }
+  }
+
   const alerts: { student_name: string; days_absent: number; last_attendance: string }[] = [];
 
-  for (const student of students ?? []) {
-    const { data: lastAtt } = await supabase
-      .from('attendance')
-      .select('checked_at')
-      .eq('student_id', student.id)
-      .order('checked_at', { ascending: false })
-      .limit(1);
-
-    const lastDate = lastAtt?.[0]?.checked_at ?? null;
+  for (const student of allStudents) {
+    const lastDate = lastAttMap.get(student.id) ?? null;
     if (!lastDate || lastDate < cutoff) {
       const profile = student.profiles as Record<string, unknown> | null;
       const daysAbsent = lastDate

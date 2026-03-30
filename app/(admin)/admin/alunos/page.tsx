@@ -89,6 +89,7 @@ export default function AdminAlunosPage() {
   const [filterBelt, setFilterBelt] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterTurma, setFilterTurma] = useState('');
+  const [filterBillingType, setFilterBillingType] = useState('');
 
   useEffect(() => {
     async function load() {
@@ -126,8 +127,9 @@ export default function AdminAlunosPage() {
     if (filterBelt) result = result.filter((s) => s.belt === filterBelt);
     if (filterStatus) result = result.filter((s) => s.status === filterStatus);
     if (filterTurma) result = result.filter((s) => s.turmas.includes(filterTurma));
+    if (filterBillingType) result = result.filter((s) => s.billing_type === filterBillingType);
     return result;
-  }, [students, debouncedSearch, filterBelt, filterStatus, filterTurma]);
+  }, [students, debouncedSearch, filterBelt, filterStatus, filterTurma, filterBillingType]);
 
   function handleExportCSV() {
     exportToCSV(
@@ -345,10 +347,25 @@ export default function AdminAlunosPage() {
           <option value="inactive">Inativo</option>
           <option value="pending">Pendente</option>
         </select>
+        <select
+          value={filterBillingType}
+          onChange={(e) => setFilterBillingType(e.target.value)}
+          className="rounded-lg px-3 py-2 min-h-[44px] text-sm w-full sm:w-auto"
+          style={{
+            background: 'var(--bb-depth-2)',
+            border: '1px solid var(--bb-glass-border)',
+            color: 'var(--bb-ink-100)',
+          }}
+        >
+          <option value="">Todos os tipos</option>
+          {Object.entries(BILLING_TYPE_LABELS).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
       </section>
 
       {/* ── Results count ───────────────────────────────────────── */}
-      {(search || filterBelt || filterStatus || filterTurma) && (
+      {(search || filterBelt || filterStatus || filterTurma || filterBillingType) && (
         <p className="animate-reveal text-xs" style={{ color: 'var(--bb-ink-40)' }}>
           {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
           {search && ` para "${search}"`}
@@ -361,11 +378,11 @@ export default function AdminAlunosPage() {
           <div className="flex flex-col items-center gap-3 py-16" style={{ color: 'var(--bb-ink-40)' }}>
             <span className="text-4xl">🥋</span>
             <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-              {search || filterBelt || filterStatus || filterTurma
+              {search || filterBelt || filterStatus || filterTurma || filterBillingType
                 ? 'Nenhum aluno encontrado com esses filtros'
                 : 'Nenhum aluno cadastrado'}
             </p>
-            {!search && !filterBelt && !filterStatus && !filterTurma && (
+            {!search && !filterBelt && !filterStatus && !filterTurma && !filterBillingType && (
               <Link
                 href="/admin/convites"
                 className="inline-flex items-center rounded-lg px-4 py-2 min-h-[44px] text-sm font-semibold"

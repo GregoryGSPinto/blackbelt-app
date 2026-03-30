@@ -102,6 +102,23 @@ function getBeltColor(belt: string): string {
   return map[belt] ?? '#9CA3AF';
 }
 
+function formatTimestamp(ts: string): string {
+  try {
+    const date = new Date(ts);
+    if (isNaN(date.getTime())) return ts;
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'agora';
+    if (diffMin < 60) return `${diffMin}min`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return `${diffH}h`;
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  } catch {
+    return ts;
+  }
+}
+
 // ── Intersection Observer hook ─────────────────────────────────────
 
 function useInView(threshold = 0.15) {
@@ -1038,7 +1055,7 @@ export default function AdminDashboardPage() {
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>{item.actor_name}</p>
                     <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{item.message}</p>
                   </div>
-                  <span className="flex-shrink-0 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{item.timestamp}</span>
+                  <span className="flex-shrink-0 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{formatTimestamp(item.timestamp)}</span>
                 </div>
               ))}
             </div>
@@ -1241,7 +1258,7 @@ export default function AdminDashboardPage() {
                   <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>{item.message}</p>
                 </div>
                 <span className="flex-shrink-0 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                  {item.timestamp}
+                  {formatTimestamp(item.timestamp)}
                 </span>
               </div>
             ))}

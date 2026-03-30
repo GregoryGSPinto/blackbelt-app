@@ -167,24 +167,50 @@ export async function getDailyBriefing(academyId: string): Promise<DailyBriefing
       // ── At-risk students (no check-in in 14+ days) ──────────
       const todayCheckins = (checkinsRes.data ?? []).length;
       const alunosRisco: AlunoRisco[] = [];
+
+      // Batch: fetch all attendance ordered by student + recency in one query
+      const studentIds = allStudents.map((s: Record<string, unknown>) => String(s.id));
+      const { data: recentAttendance } = await supabase
+        .from('attendance')
+        .select('student_id, checked_at')
+        .in('student_id', studentIds.length > 0 ? studentIds : ['__none__'])
+        .order('checked_at', { ascending: false });
+
+      // Build map: student_id -> last checked_at
+      const lastAttMap = new Map<string, string>();
+      for (const att of (recentAttendance ?? []) as Array<Record<string, unknown>>) {
+        const sid = String(att.student_id);
+        if (!lastAttMap.has(sid)) {
+          lastAttMap.set(sid, att.checked_at as string);
+        }
+      }
+
       for (const s of allStudents as Record<string, unknown>[]) {
         const prof = s.profiles as Record<string, unknown> | null;
-        // Check last attendance for this student
-        const { data: lastAtt } = await supabase
-          .from('attendance')
-          .select('checked_at')
-          .eq('student_id', String(s.id))
-          .order('checked_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (lastAtt) {
-          const lastDate = new Date(lastAtt.checked_at as string);
+        const sid = String(s.id);
+        const lastCheckedAt = lastAttMap.get(sid);
+        if (lastCheckedAt) {
+          const lastDate = new Date(lastCheckedAt);
           const diasAusente = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
           if (diasAusente >= 14) {
             alunosRisco.push({
-              id: String(s.id ?? ''),
+              id: sid,
               nome: (prof?.display_name ?? '') as string,
-              ultimoCheckin: (lastAtt.checked_at as string).split('T')[0],
+              ultimoCheckin: lastCheckedAt.split('T')[0],
+              diasAusente,
+              faixa: String(s.belt ?? 'white'),
+            });
+          }
+        }
+        // Students with NO attendance at all are also at risk
+        if (!lastCheckedAt) {
+          const startedAt = s.started_at ? new Date(s.started_at as string) : now;
+          const diasAusente = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60 * 60 * 24));
+          if (diasAusente >= 14) {
+            alunosRisco.push({
+              id: sid,
+              nome: (prof?.display_name ?? '') as string,
+              ultimoCheckin: '',
               diasAusente,
               faixa: String(s.belt ?? 'white'),
             });

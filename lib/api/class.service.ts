@@ -24,8 +24,11 @@ export async function listClasses(
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
-  // all columns needed for admin CRUD
-  let query = supabase.from('classes').select('*').eq('academy_id', academyId);
+
+  let query = supabase
+    .from('classes')
+    .select('*, profiles!classes_professor_id_fkey(display_name), class_enrollments(count)')
+    .eq('academy_id', academyId);
   if (filters?.modality) query = query.eq('modality', filters.modality);
   if (filters?.status) query = query.eq('status', filters.status);
   if (filters?.professor_id) query = query.eq('professor_id', filters.professor_id);
@@ -34,7 +37,27 @@ export async function listClasses(
     logServiceError(error, 'class');
     return [];
   }
-  return data as unknown as ClassItem[];
+
+  return (data as Array<Record<string, unknown>>).map((row) => {
+    const profiles = row.profiles as Record<string, unknown> | null;
+    const enrollments = row.class_enrollments as Array<Record<string, number>> | null;
+    return {
+      id: row.id as string,
+      academy_id: row.academy_id as string,
+      name: (row.name ?? '') as string,
+      modality: (row.modality ?? '') as string,
+      professor_id: (row.professor_id ?? '') as string,
+      professor_name: (profiles?.display_name ?? '') as string,
+      schedule: (row.schedule ?? []) as ClassItem['schedule'],
+      capacity: (row.capacity ?? 25) as number,
+      enrolled_count: enrollments?.[0]?.count ?? 0,
+      status: (row.status ?? 'active') as ClassItem['status'],
+      room: (row.room ?? '') as string,
+      min_belt: (row.min_belt ?? 'white') as string,
+      max_belt: (row.max_belt ?? 'black') as string,
+      description: (row.description ?? '') as string,
+    };
+  });
 }
 
 export async function getClass(id: string): Promise<ClassItem> {
@@ -45,17 +68,36 @@ export async function getClass(id: string): Promise<ClassItem> {
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
-  // all columns needed for admin CRUD
+
   const { data, error } = await supabase
     .from('classes')
-    .select('*')
+    .select('*, profiles!classes_professor_id_fkey(display_name), class_enrollments(count)')
     .eq('id', id)
     .single();
   if (error || !data) {
     logServiceError(error, 'class');
     return {} as ClassItem;
   }
-  return data as unknown as ClassItem;
+
+  const row = data as Record<string, unknown>;
+  const profiles = row.profiles as Record<string, unknown> | null;
+  const enrollments = row.class_enrollments as Array<Record<string, number>> | null;
+  return {
+    id: row.id as string,
+    academy_id: row.academy_id as string,
+    name: (row.name ?? '') as string,
+    modality: (row.modality ?? '') as string,
+    professor_id: (row.professor_id ?? '') as string,
+    professor_name: (profiles?.display_name ?? '') as string,
+    schedule: (row.schedule ?? []) as ClassItem['schedule'],
+    capacity: (row.capacity ?? 25) as number,
+    enrolled_count: enrollments?.[0]?.count ?? 0,
+    status: (row.status ?? 'active') as ClassItem['status'],
+    room: (row.room ?? '') as string,
+    min_belt: (row.min_belt ?? 'white') as string,
+    max_belt: (row.max_belt ?? 'black') as string,
+    description: (row.description ?? '') as string,
+  };
 }
 
 export async function createClass(data: CreateClassDTO): Promise<ClassItem> {
