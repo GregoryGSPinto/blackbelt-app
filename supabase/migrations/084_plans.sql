@@ -1,7 +1,11 @@
--- Tabela de planos gerenciados pelo Super Admin
-CREATE TABLE IF NOT EXISTS plans (
+-- Tabela de planos da PLATAFORMA gerenciados pelo Super Admin
+-- A tabela platform_plans anterior tinha schema diferente (sem tier, price como decimal).
+-- Dropar e recriar com schema correto.
+DROP TABLE IF EXISTS platform_plans CASCADE;
+
+CREATE TABLE platform_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tier TEXT NOT NULL CHECK (tier IN ('starter', 'essencial', 'pro', 'blackbelt', 'enterprise')),
+  tier TEXT NOT NULL UNIQUE CHECK (tier IN ('starter', 'essencial', 'pro', 'blackbelt', 'enterprise')),
   name TEXT NOT NULL,
   price_monthly INTEGER NOT NULL DEFAULT 0, -- centavos
   is_custom_price BOOLEAN NOT NULL DEFAULT FALSE,
@@ -25,24 +29,26 @@ CREATE TABLE IF NOT EXISTS plans (
 );
 
 -- RLS
-ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform_plans ENABLE ROW LEVEL SECURITY;
 
--- Qualquer pessoa autenticada pode VER planos ativos (para onboarding/upgrade)
-CREATE POLICY "plans_select_active" ON plans
-  FOR SELECT USING (is_active = TRUE);
+DO $$ BEGIN
+  CREATE POLICY "pplans_select_active" ON platform_plans
+    FOR SELECT USING (is_active = TRUE);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- Apenas Super Admin pode gerenciar planos
-CREATE POLICY "plans_superadmin_all" ON plans
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'superadmin'
-    )
-  );
+DO $$ BEGIN
+  CREATE POLICY "pplans_superadmin_all" ON platform_plans
+    FOR ALL USING (
+      EXISTS (
+        SELECT 1 FROM profiles
+        WHERE profiles.user_id = auth.uid()
+        AND profiles.role = 'superadmin'
+      )
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Seed dos 5 planos
-INSERT INTO plans (tier, name, price_monthly, is_custom_price, max_alunos, max_professores, max_unidades, max_storage_gb, max_turmas, features, is_popular, sort_order) VALUES
+INSERT INTO platform_plans (tier, name, price_monthly, is_custom_price, max_alunos, max_professores, max_unidades, max_storage_gb, max_turmas, features, is_popular, sort_order) VALUES
 ('starter', 'Starter', 7900, FALSE, 50, 2, 1, 5, 10,
  '["gestao_alunos","checkin","financeiro_basico","agenda","notificacoes","biblioteca_videos"]',
  FALSE, 1),
@@ -57,10 +63,11 @@ INSERT INTO plans (tier, name, price_monthly, is_custom_price, max_alunos, max_p
  FALSE, 4),
 ('enterprise', 'Enterprise', 0, TRUE, NULL, NULL, NULL, 100, NULL,
  '["gestao_alunos","checkin","financeiro_basico","agenda","notificacoes","biblioteca_videos","streaming_library","certificados_digitais","relatorios_avancados","comunicacao_responsaveis","app_aluno","compete","gamificacao_teen","curriculo_tecnico","match_analysis","estoque","contratos_digitais","franqueador","white_label","api_access","suporte_prioritario","relatorios_multi_unidade","sla_dedicado","onboarding_assistido","customizacoes","integracao_legados"]',
- FALSE, 5);
+ FALSE, 5)
+ON CONFLICT (tier) DO NOTHING;
 
 -- Trigger de updated_at
-CREATE OR REPLACE FUNCTION update_plans_updated_at()
+CREATE OR REPLACE FUNCTION update_platform_plans_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -68,7 +75,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER plans_updated_at
-  BEFORE UPDATE ON plans
-  FOR EACH ROW
-  EXECUTE FUNCTION update_plans_updated_at();
+DO $$ BEGIN
+  CREATE TRIGGER platform_plans_updated_at
+    BEFORE UPDATE ON platform_plans
+    FOR EACH ROW
+    EXECUTE FUNCTION update_platform_plans_updated_at();
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

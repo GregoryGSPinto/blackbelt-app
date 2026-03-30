@@ -10,7 +10,7 @@ export async function getPlans(): Promise<Plan[]> {
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('plans').select('*').order('sort_order');
+    const { data, error } = await supabase.from('platform_plans').select('*').order('sort_order');
     if (error) throw error;
     return (data ?? []) as unknown as Plan[];
   } catch (error) {
@@ -26,7 +26,7 @@ export async function getActivePlans(): Promise<Plan[]> {
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('plans').select('*').eq('is_active', true).order('sort_order');
+    const { data, error } = await supabase.from('platform_plans').select('*').eq('is_active', true).order('sort_order');
     if (error) throw error;
     return (data ?? []) as unknown as Plan[];
   } catch (error) {
@@ -42,7 +42,7 @@ export async function getPlanById(id: string): Promise<Plan | null> {
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('plans').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supabase.from('platform_plans').select('*').eq('id', id).maybeSingle();
     if (error) throw error;
     return (data ?? null) as unknown as Plan | null;
   } catch (error) {
@@ -58,7 +58,7 @@ export async function getPlanByTier(tier: PlanTier): Promise<Plan | null> {
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
-    const { data, error } = await supabase.from('plans').select('*').eq('tier', tier).maybeSingle();
+    const { data, error } = await supabase.from('platform_plans').select('*').eq('tier', tier).maybeSingle();
     if (error) throw error;
     return (data ?? null) as unknown as Plan | null;
   } catch (error) {

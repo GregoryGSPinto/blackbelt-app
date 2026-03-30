@@ -12,11 +12,17 @@ CREATE TABLE IF NOT EXISTS blocked_users (
 );
 
 ALTER TABLE blocked_users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY blocked_own_select ON blocked_users FOR SELECT USING (auth.uid() = blocker_id);
-CREATE POLICY blocked_own_insert ON blocked_users FOR INSERT WITH CHECK (auth.uid() = blocker_id);
-CREATE POLICY blocked_own_delete ON blocked_users FOR DELETE USING (auth.uid() = blocker_id);
-CREATE INDEX idx_blocked_blocker ON blocked_users(blocker_id);
-CREATE INDEX idx_blocked_blocked ON blocked_users(blocked_id);
+DO $$ BEGIN
+  CREATE POLICY blocked_own_select ON blocked_users FOR SELECT USING (auth.uid() = blocker_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE POLICY blocked_own_insert ON blocked_users FOR INSERT WITH CHECK (auth.uid() = blocker_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE POLICY blocked_own_delete ON blocked_users FOR DELETE USING (auth.uid() = blocker_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS idx_blocked_blocker ON blocked_users(blocker_id);
+CREATE INDEX IF NOT EXISTS idx_blocked_blocked ON blocked_users(blocked_id);
 
 -- 2. Add hidden_at column to messages if the messages table exists
 DO $$ BEGIN

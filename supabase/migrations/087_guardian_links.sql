@@ -16,13 +16,17 @@ CREATE TABLE IF NOT EXISTS guardian_links (
 
 ALTER TABLE guardian_links ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "guardian_own_links" ON guardian_links
-  FOR ALL USING (
-    guardian_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
-    OR child_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
-  );
+DO $$ BEGIN
+  CREATE POLICY "guardian_own_links" ON guardian_links
+    FOR ALL USING (
+      guardian_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
+      OR child_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Pre-checkin tracking
 ALTER TABLE checkins ADD COLUMN IF NOT EXISTS checked_in_by UUID;
-ALTER TABLE checkins ADD COLUMN IF NOT EXISTS checkin_type TEXT DEFAULT 'self'
-  CHECK (checkin_type IN ('self', 'pre_checkin', 'qr', 'biometric', 'manual'));
+DO $$ BEGIN
+  ALTER TABLE checkins ADD COLUMN checkin_type TEXT DEFAULT 'self'
+    CHECK (checkin_type IN ('self', 'pre_checkin', 'qr', 'biometric', 'manual'));
+EXCEPTION WHEN duplicate_column THEN NULL; END $$;

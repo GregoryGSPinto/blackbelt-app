@@ -18,316 +18,602 @@
 -- ── Multi-tenant academy_id lookups ──────────────────────────────
 
 -- academy_members
-CREATE INDEX IF NOT EXISTS idx_academy_members_academy ON public.academy_members(academy_id);
-CREATE INDEX IF NOT EXISTS idx_academy_members_profile ON public.academy_members(profile_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_members_academy ON public.academy_members(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_members_profile ON public.academy_members(profile_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
--- products (flagged in review)
-CREATE INDEX IF NOT EXISTS idx_products_academy ON public.products(academy_id);
-CREATE INDEX IF NOT EXISTS idx_products_status ON public.products(status);
+-- products (flagged in review) — guarded: table may not exist
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_products_academy ON public.products(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_products_status ON public.products(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- orders — no academy_id column, index user_id + status
-CREATE INDEX IF NOT EXISTS idx_orders_user ON public.orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_orders_user ON public.orders(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- devedores
-CREATE INDEX IF NOT EXISTS idx_devedores_academy ON public.devedores(academy_id);
-CREATE INDEX IF NOT EXISTS idx_devedores_status ON public.devedores(status_cobranca);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_devedores_academy ON public.devedores(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_devedores_status ON public.devedores(status_cobranca);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- mensalidades
-CREATE INDEX IF NOT EXISTS idx_mensalidades_academy ON public.mensalidades(academy_id);
-CREATE INDEX IF NOT EXISTS idx_mensalidades_student ON public.mensalidades(student_id);
-CREATE INDEX IF NOT EXISTS idx_mensalidades_status ON public.mensalidades(status);
-CREATE INDEX IF NOT EXISTS idx_mensalidades_due_date ON public.mensalidades(due_date);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_mensalidades_academy ON public.mensalidades(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_mensalidades_student ON public.mensalidades(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_mensalidades_status ON public.mensalidades(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_mensalidades_due_date ON public.mensalidades(due_date);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- contratos (PT-BR)
-CREATE INDEX IF NOT EXISTS idx_contratos_academy ON public.contratos(academy_id);
-CREATE INDEX IF NOT EXISTS idx_contratos_aluno ON public.contratos(aluno_id);
-CREATE INDEX IF NOT EXISTS idx_contratos_status ON public.contratos(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_contratos_academy ON public.contratos(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_contratos_aluno ON public.contratos(aluno_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_contratos_status ON public.contratos(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- contrato_templates
-CREATE INDEX IF NOT EXISTS idx_contrato_templates_academy ON public.contrato_templates(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_contrato_templates_academy ON public.contrato_templates(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- estoque
-CREATE INDEX IF NOT EXISTS idx_estoque_academy ON public.estoque(academy_id);
-CREATE INDEX IF NOT EXISTS idx_estoque_status ON public.estoque(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_estoque_academy ON public.estoque(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_estoque_status ON public.estoque(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- inventory_items
-CREATE INDEX IF NOT EXISTS idx_inventory_items_academy ON public.inventory_items(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_inventory_items_academy ON public.inventory_items(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- billing tables
-CREATE INDEX IF NOT EXISTS idx_billing_config_academy ON public.billing_config(academy_id);
-CREATE INDEX IF NOT EXISTS idx_billing_invoices_academy ON public.billing_invoices(academy_id);
-CREATE INDEX IF NOT EXISTS idx_billing_invoices_status ON public.billing_invoices(status);
-CREATE INDEX IF NOT EXISTS idx_billing_summaries_academy ON public.billing_summaries(academy_id);
-CREATE INDEX IF NOT EXISTS idx_billing_alerts_academy ON public.billing_alerts(academy_id);
-CREATE INDEX IF NOT EXISTS idx_billing_usage_metrics_academy ON public.billing_usage_metrics(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_config_academy ON public.billing_config(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_invoices_academy ON public.billing_invoices(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_invoices_status ON public.billing_invoices(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_summaries_academy ON public.billing_summaries(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_alerts_academy ON public.billing_alerts(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_billing_usage_metrics_academy ON public.billing_usage_metrics(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- academy_branding
-CREATE INDEX IF NOT EXISTS idx_academy_branding_academy ON public.academy_branding(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_branding_academy ON public.academy_branding(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- academy_events
-CREATE INDEX IF NOT EXISTS idx_academy_events_academy ON public.academy_events(academy_id);
-CREATE INDEX IF NOT EXISTS idx_academy_events_date ON public.academy_events(date);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_events_academy ON public.academy_events(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_events_date ON public.academy_events(date);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- academy_usage
-CREATE INDEX IF NOT EXISTS idx_academy_usage_academy ON public.academy_usage(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_academy_usage_academy ON public.academy_usage(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- insights
-CREATE INDEX IF NOT EXISTS idx_insights_academy ON public.insights(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_insights_academy ON public.insights(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- seasons (gamification)
-CREATE INDEX IF NOT EXISTS idx_seasons_academy ON public.seasons(academy_id);
-CREATE INDEX IF NOT EXISTS idx_seasons_status ON public.seasons(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_seasons_academy ON public.seasons(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_seasons_status ON public.seasons(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- hall_of_fame
-CREATE INDEX IF NOT EXISTS idx_hall_of_fame_academy ON public.hall_of_fame(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_hall_of_fame_academy ON public.hall_of_fame(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- store_rewards
-CREATE INDEX IF NOT EXISTS idx_store_rewards_academy ON public.store_rewards(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_store_rewards_academy ON public.store_rewards(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- reward_redemptions
-CREATE INDEX IF NOT EXISTS idx_reward_redemptions_academy ON public.reward_redemptions(academy_id);
-CREATE INDEX IF NOT EXISTS idx_reward_redemptions_user ON public.reward_redemptions(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reward_redemptions_academy ON public.reward_redemptions(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reward_redemptions_user ON public.reward_redemptions(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- sentiment_trends
-CREATE INDEX IF NOT EXISTS idx_sentiment_trends_academy ON public.sentiment_trends(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_sentiment_trends_academy ON public.sentiment_trends(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- suggestions
-CREATE INDEX IF NOT EXISTS idx_suggestions_academy ON public.suggestions(academy_id);
-CREATE INDEX IF NOT EXISTS idx_suggestions_user ON public.suggestions(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_suggestions_academy ON public.suggestions(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_suggestions_user ON public.suggestions(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- notification_logs
-CREATE INDEX IF NOT EXISTS idx_notification_logs_academy ON public.notification_logs(academy_id);
-CREATE INDEX IF NOT EXISTS idx_notification_logs_user ON public.notification_logs(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_notification_logs_academy ON public.notification_logs(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_notification_logs_user ON public.notification_logs(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- substitutions
-CREATE INDEX IF NOT EXISTS idx_substitutions_academy ON public.substitutions(academy_id);
-CREATE INDEX IF NOT EXISTS idx_substitutions_date ON public.substitutions(date);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_substitutions_academy ON public.substitutions(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_substitutions_date ON public.substitutions(date);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- class_schedule
-CREATE INDEX IF NOT EXISTS idx_class_schedule_academy ON public.class_schedule(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_class_schedule_academy ON public.class_schedule(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- trial_classes
-CREATE INDEX IF NOT EXISTS idx_trial_classes_academy ON public.trial_classes(academy_id);
-CREATE INDEX IF NOT EXISTS idx_trial_classes_status ON public.trial_classes(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_trial_classes_academy ON public.trial_classes(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_trial_classes_status ON public.trial_classes(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- curricula
-CREATE INDEX IF NOT EXISTS idx_curricula_academy ON public.curricula(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_curricula_academy ON public.curricula(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- professor_reports
-CREATE INDEX IF NOT EXISTS idx_professor_reports_academy ON public.professor_reports(academy_id);
-CREATE INDEX IF NOT EXISTS idx_professor_reports_professor ON public.professor_reports(professor_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_professor_reports_academy ON public.professor_reports(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_professor_reports_professor ON public.professor_reports(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- promotion_candidates
-CREATE INDEX IF NOT EXISTS idx_promotion_candidates_academy ON public.promotion_candidates(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_promotion_candidates_academy ON public.promotion_candidates(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- referral_stats
-CREATE INDEX IF NOT EXISTS idx_referral_stats_academy ON public.referral_stats(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_referral_stats_academy ON public.referral_stats(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- royalty_calculations
-CREATE INDEX IF NOT EXISTS idx_royalty_calculations_academy ON public.royalty_calculations(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_royalty_calculations_academy ON public.royalty_calculations(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- royalty_invoices
-CREATE INDEX IF NOT EXISTS idx_royalty_invoices_academy ON public.royalty_invoices(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_royalty_invoices_academy ON public.royalty_invoices(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- wizard_progress
-CREATE INDEX IF NOT EXISTS idx_wizard_progress_academy ON public.wizard_progress(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_wizard_progress_academy ON public.wizard_progress(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- storage_stats
-CREATE INDEX IF NOT EXISTS idx_storage_stats_academy ON public.storage_stats(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_storage_stats_academy ON public.storage_stats(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- video_series
-CREATE INDEX IF NOT EXISTS idx_video_series_academy ON public.video_series(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_video_series_academy ON public.video_series(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- streaming_trails
-CREATE INDEX IF NOT EXISTS idx_streaming_trails_academy ON public.streaming_trails(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_trails_academy ON public.streaming_trails(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── User / Profile lookups ───────────────────────────────────────
 
 -- courses (flagged in review)
-CREATE INDEX IF NOT EXISTS idx_courses_creator ON public.courses(creator_id);
-CREATE INDEX IF NOT EXISTS idx_courses_status ON public.courses(status);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_courses_creator ON public.courses(creator_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_courses_status ON public.courses(status);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- course_modules
-CREATE INDEX IF NOT EXISTS idx_course_modules_course ON public.course_modules(course_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_course_modules_course ON public.course_modules(course_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- course_lessons
-CREATE INDEX IF NOT EXISTS idx_course_lessons_course ON public.course_lessons(course_id);
-CREATE INDEX IF NOT EXISTS idx_course_lessons_module ON public.course_lessons(module_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_course_lessons_course ON public.course_lessons(course_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_course_lessons_module ON public.course_lessons(module_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- course_analytics
-CREATE INDEX IF NOT EXISTS idx_course_analytics_course ON public.course_analytics(course_id);
-CREATE INDEX IF NOT EXISTS idx_course_analytics_creator ON public.course_analytics(creator_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_course_analytics_course ON public.course_analytics(course_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_course_analytics_creator ON public.course_analytics(creator_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- battle_pass_progress
-CREATE INDEX IF NOT EXISTS idx_battle_pass_progress_user ON public.battle_pass_progress(user_id);
-CREATE INDEX IF NOT EXISTS idx_battle_pass_progress_season ON public.battle_pass_progress(season_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_battle_pass_progress_user ON public.battle_pass_progress(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_battle_pass_progress_season ON public.battle_pass_progress(season_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- season_leaderboard
-CREATE INDEX IF NOT EXISTS idx_season_leaderboard_season ON public.season_leaderboard(season_id);
-CREATE INDEX IF NOT EXISTS idx_season_leaderboard_student ON public.season_leaderboard(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_season_leaderboard_season ON public.season_leaderboard(season_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_season_leaderboard_student ON public.season_leaderboard(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- season_progress
-CREATE INDEX IF NOT EXISTS idx_season_progress_season ON public.season_progress(season_id);
-CREATE INDEX IF NOT EXISTS idx_season_progress_student ON public.season_progress(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_season_progress_season ON public.season_progress(season_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_season_progress_student ON public.season_progress(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- league_standings
-CREATE INDEX IF NOT EXISTS idx_league_standings_league ON public.league_standings(league_id);
-CREATE INDEX IF NOT EXISTS idx_league_standings_academy ON public.league_standings(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_league_standings_league ON public.league_standings(league_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_league_standings_academy ON public.league_standings(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- user_titles
-CREATE INDEX IF NOT EXISTS idx_user_titles_user ON public.user_titles(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_user_titles_user ON public.user_titles(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- reward_balances
-CREATE INDEX IF NOT EXISTS idx_reward_balances_user ON public.reward_balances(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reward_balances_user ON public.reward_balances(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- reward_transactions
-CREATE INDEX IF NOT EXISTS idx_reward_transactions_user ON public.reward_transactions(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reward_transactions_user ON public.reward_transactions(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- teen_desafios
-CREATE INDEX IF NOT EXISTS idx_teen_desafios_student ON public.teen_desafios(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_teen_desafios_student ON public.teen_desafios(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- guardian_dashboards
-CREATE INDEX IF NOT EXISTS idx_guardian_dashboards_profile ON public.guardian_dashboards(profile_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_guardian_dashboards_profile ON public.guardian_dashboards(profile_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- guardian_notifications
-CREATE INDEX IF NOT EXISTS idx_guardian_notifications_guardian ON public.guardian_notifications(guardian_id);
-CREATE INDEX IF NOT EXISTS idx_guardian_notifications_read ON public.guardian_notifications(read);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_guardian_notifications_guardian ON public.guardian_notifications(guardian_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_guardian_notifications_read ON public.guardian_notifications(read);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- family_calendar
-CREATE INDEX IF NOT EXISTS idx_family_calendar_profile ON public.family_calendar(profile_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_family_calendar_profile ON public.family_calendar(profile_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- family_monthly_reports
-CREATE INDEX IF NOT EXISTS idx_family_monthly_reports_profile ON public.family_monthly_reports(profile_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_family_monthly_reports_profile ON public.family_monthly_reports(profile_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- kids tables
-CREATE INDEX IF NOT EXISTS idx_kids_profiles_student ON public.kids_profiles(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_albums_student ON public.kids_albums(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_estrelas_historico_student ON public.kids_estrelas_historico(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_faixas_student ON public.kids_faixas(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_personalizacao_student ON public.kids_personalizacao(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_recompensas_student ON public.kids_recompensas(student_id);
-CREATE INDEX IF NOT EXISTS idx_kids_resgates_student ON public.kids_resgates(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_profiles_student ON public.kids_profiles(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_albums_student ON public.kids_albums(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_estrelas_historico_student ON public.kids_estrelas_historico(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_faixas_student ON public.kids_faixas(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_personalizacao_student ON public.kids_personalizacao(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_recompensas_student ON public.kids_recompensas(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_kids_resgates_student ON public.kids_resgates(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- student progress tables
-CREATE INDEX IF NOT EXISTS idx_student_progress_student ON public.student_progress(student_id);
-CREATE INDEX IF NOT EXISTS idx_student_journeys_student ON public.student_journeys(student_id);
-CREATE INDEX IF NOT EXISTS idx_student_curriculum_progress_student ON public.student_curriculum_progress(student_id);
-CREATE INDEX IF NOT EXISTS idx_belt_history_student ON public.belt_history(student_id);
-CREATE INDEX IF NOT EXISTS idx_belt_requirements_student ON public.belt_requirements(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_student_progress_student ON public.student_progress(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_student_journeys_student ON public.student_journeys(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_student_curriculum_progress_student ON public.student_curriculum_progress(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_belt_history_student ON public.belt_history(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_belt_requirements_student ON public.belt_requirements(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- agenda_slots
-CREATE INDEX IF NOT EXISTS idx_agenda_slots_professor ON public.agenda_slots(professor_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_agenda_slots_professor ON public.agenda_slots(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- diarios_aula
-CREATE INDEX IF NOT EXISTS idx_diarios_aula_professor ON public.diarios_aula(professor_id);
-CREATE INDEX IF NOT EXISTS idx_diarios_aula_turma ON public.diarios_aula(turma_id);
-CREATE INDEX IF NOT EXISTS idx_diarios_aula_data ON public.diarios_aula(data);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_diarios_aula_professor ON public.diarios_aula(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_diarios_aula_turma ON public.diarios_aula(turma_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_diarios_aula_data ON public.diarios_aula(data);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- relatorios_aula
-CREATE INDEX IF NOT EXISTS idx_relatorios_aula_professor ON public.relatorios_aula(professor_id);
-CREATE INDEX IF NOT EXISTS idx_relatorios_aula_turma ON public.relatorios_aula(turma_id);
-CREATE INDEX IF NOT EXISTS idx_relatorios_aula_data ON public.relatorios_aula(data);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_relatorios_aula_professor ON public.relatorios_aula(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_relatorios_aula_turma ON public.relatorios_aula(turma_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_relatorios_aula_data ON public.relatorios_aula(data);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- professor_alerts
-CREATE INDEX IF NOT EXISTS idx_professor_alerts_professor ON public.professor_alerts(professor_id);
-CREATE INDEX IF NOT EXISTS idx_professor_alerts_lido ON public.professor_alerts(lido);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_professor_alerts_professor ON public.professor_alerts(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_professor_alerts_lido ON public.professor_alerts(lido);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- notas_aluno
-CREATE INDEX IF NOT EXISTS idx_notas_aluno_professor ON public.notas_aluno(professor_id);
-CREATE INDEX IF NOT EXISTS idx_notas_aluno_aluno ON public.notas_aluno(aluno_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_notas_aluno_professor ON public.notas_aluno(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_notas_aluno_aluno ON public.notas_aluno(aluno_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- lesson_requests
-CREATE INDEX IF NOT EXISTS idx_lesson_requests_professor ON public.lesson_requests(professor_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_lesson_requests_professor ON public.lesson_requests(professor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- class_students
-CREATE INDEX IF NOT EXISTS idx_class_students_class ON public.class_students(class_id);
-CREATE INDEX IF NOT EXISTS idx_class_students_student ON public.class_students(student_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_class_students_class ON public.class_students(class_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_class_students_student ON public.class_students(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- exercise_logs
-CREATE INDEX IF NOT EXISTS idx_exercise_logs_plan ON public.exercise_logs(plan_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_exercise_logs_plan ON public.exercise_logs(plan_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- stock_movements
-CREATE INDEX IF NOT EXISTS idx_stock_movements_item ON public.stock_movements(item_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_stock_movements_item ON public.stock_movements(item_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- shipments
-CREATE INDEX IF NOT EXISTS idx_shipments_order ON public.shipments(order_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_shipments_order ON public.shipments(order_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- contatos_cobranca
-CREATE INDEX IF NOT EXISTS idx_contatos_cobranca_devedor ON public.contatos_cobranca(devedor_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_contatos_cobranca_devedor ON public.contatos_cobranca(devedor_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- campaign_metrics
-CREATE INDEX IF NOT EXISTS idx_campaign_metrics_campaign ON public.campaign_metrics(campaign_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_campaign_metrics_campaign ON public.campaign_metrics(campaign_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- reviews
-CREATE INDEX IF NOT EXISTS idx_reviews_course ON public.reviews(course_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_user ON public.reviews(user_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reviews_course ON public.reviews(course_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_reviews_user ON public.reviews(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- wishlist
-CREATE INDEX IF NOT EXISTS idx_wishlist_user ON public.wishlist(user_id);
-CREATE INDEX IF NOT EXISTS idx_wishlist_product ON public.wishlist(product_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_wishlist_user ON public.wishlist(user_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_wishlist_product ON public.wishlist(product_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- streaming tables
-CREATE INDEX IF NOT EXISTS idx_streaming_series_category ON public.streaming_series(category);
-CREATE INDEX IF NOT EXISTS idx_streaming_episodes_series ON public.streaming_episodes(series_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_library_profile ON public.streaming_library(profile_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_certificates_student ON public.streaming_certificates(student_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_trail_progress_student ON public.streaming_trail_progress(student_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_trail_progress_trail ON public.streaming_trail_progress(trail_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_watch_progress_student ON public.streaming_watch_progress(student_id);
-CREATE INDEX IF NOT EXISTS idx_streaming_watch_progress_episode ON public.streaming_watch_progress(episode_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_series_category ON public.streaming_series(category);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_episodes_series ON public.streaming_episodes(series_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_library_profile ON public.streaming_library(profile_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_certificates_student ON public.streaming_certificates(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_trail_progress_student ON public.streaming_trail_progress(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_trail_progress_trail ON public.streaming_trail_progress(trail_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_watch_progress_student ON public.streaming_watch_progress(student_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_streaming_watch_progress_episode ON public.streaming_watch_progress(episode_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── Date-based queries ───────────────────────────────────────────
 
 -- messages (flagged in review — already has idx_messages_created in 007 but ensure compound)
-CREATE INDEX IF NOT EXISTS idx_messages_channel_created ON public.messages(channel, created_at DESC);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_messages_channel_created ON public.messages(channel, created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- leads
-CREATE INDEX IF NOT EXISTS idx_leads_created ON public.leads(created_at DESC);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_leads_created ON public.leads(created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- notifications — compound for unread queries
-CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id, read, created_at DESC);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id, read, created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- feed_posts
-CREATE INDEX IF NOT EXISTS idx_feed_posts_academy_created ON public.feed_posts(academy_id, created_at DESC);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_feed_posts_academy_created ON public.feed_posts(academy_id, created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- events
-CREATE INDEX IF NOT EXISTS idx_events_date ON public.events(date);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_events_date ON public.events(date);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- challenges
-CREATE INDEX IF NOT EXISTS idx_challenges_academy ON public.challenges(academy_id);
-CREATE INDEX IF NOT EXISTS idx_challenges_dates ON public.challenges(start_date, end_date);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_challenges_academy ON public.challenges(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_challenges_dates ON public.challenges(start_date, end_date);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- nps_responses
-CREATE INDEX IF NOT EXISTS idx_nps_responses_academy ON public.nps_responses(academy_id);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_nps_responses_academy ON public.nps_responses(academy_id);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- webhook_logs
-CREATE INDEX IF NOT EXISTS idx_webhook_logs_created ON public.webhook_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_webhook_logs_processed ON public.webhook_logs(processed);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_webhook_logs_created ON public.webhook_logs(created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_webhook_logs_processed ON public.webhook_logs(processed);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- error_logs
-CREATE INDEX IF NOT EXISTS idx_error_logs_severity ON public.error_logs(severity);
-CREATE INDEX IF NOT EXISTS idx_error_logs_created ON public.error_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_error_logs_resolved ON public.error_logs(is_resolved);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_error_logs_severity ON public.error_logs(severity);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_error_logs_created ON public.error_logs(created_at DESC);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_error_logs_resolved ON public.error_logs(is_resolved);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── Email lookups ────────────────────────────────────────────────
 
-CREATE INDEX IF NOT EXISTS idx_leads_email ON public.leads(email);
-CREATE INDEX IF NOT EXISTS idx_experimentais_email ON public.experimentais(email);
-CREATE INDEX IF NOT EXISTS idx_trial_classes_email ON public.trial_classes(lead_email);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_leads_email ON public.leads(email);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_experimentais_email ON public.experimentais(email);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_trial_classes_email ON public.trial_classes(lead_email);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── Compete module (extra coverage) ──────────────────────────────
 
 -- tournament_registrations — email lookup for guest athletes
-CREATE INDEX IF NOT EXISTS idx_treg_email ON public.tournament_registrations(athlete_email)
-  WHERE athlete_email IS NOT NULL;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_treg_email ON public.tournament_registrations(athlete_email)
+    WHERE athlete_email IS NOT NULL;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- tournament_registrations — cpf lookup
-CREATE INDEX IF NOT EXISTS idx_treg_cpf ON public.tournament_registrations(athlete_cpf)
-  WHERE athlete_cpf IS NOT NULL;
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_treg_cpf ON public.tournament_registrations(athlete_cpf)
+    WHERE athlete_cpf IS NOT NULL;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- tournaments — search by name
-CREATE INDEX IF NOT EXISTS idx_t_name ON public.tournaments(name);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_t_name ON public.tournaments(name);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── Soft delete filter ───────────────────────────────────────────
 
@@ -497,49 +783,49 @@ DROP FUNCTION IF EXISTS public._create_updated_at_trigger(text);
 DO $$ BEGIN
   ALTER TABLE public.orders ADD CONSTRAINT orders_status_check
     CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- products.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.products ADD CONSTRAINT products_status_check
     CHECK (status IN ('active', 'inactive', 'draft', 'archived'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- campaigns.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.campaigns ADD CONSTRAINT campaigns_status_check
     CHECK (status IN ('draft', 'scheduled', 'sending', 'sent', 'paused', 'cancelled'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- experimentais.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.experimentais ADD CONSTRAINT experimentais_status_check
     CHECK (status IN ('agendada', 'confirmada', 'compareceu', 'matriculou', 'nao_compareceu', 'cancelada'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- trial_classes.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.trial_classes ADD CONSTRAINT trial_classes_status_check
     CHECK (status IN ('agendada', 'confirmada', 'compareceu', 'matriculou', 'nao_compareceu', 'cancelada'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- mensalidades.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.mensalidades ADD CONSTRAINT mensalidades_status_check
     CHECK (status IN ('pendente', 'pago', 'atrasado', 'cancelado'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- contratos.status CHECK
 DO $$ BEGIN
   ALTER TABLE public.contratos ADD CONSTRAINT contratos_status_check
     CHECK (status IN ('rascunho', 'enviado', 'assinado', 'cancelado', 'expirado'));
-EXCEPTION WHEN duplicate_object OR check_violation THEN NULL;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 

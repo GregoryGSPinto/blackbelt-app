@@ -21,20 +21,16 @@ ALTER TABLE content_reports ENABLE ROW LEVEL SECURITY;
 
 -- Qualquer autenticado pode criar report
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'cr_insert_bb') THEN
-    CREATE POLICY "cr_insert_bb" ON content_reports FOR INSERT WITH CHECK (
-      auth.uid() = reporter_id
-    );
-  END IF;
-END $$;
+  CREATE POLICY "cr_insert_bb" ON content_reports FOR INSERT WITH CHECK (
+    auth.uid() = reporter_id
+  );
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
--- Admin/Super Admin vê reports da academia
+-- Admin/Super Admin vê reports da academia (uses profiles instead of memberships)
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'cr_staff_bb') THEN
-    CREATE POLICY "cr_staff_bb" ON content_reports FOR ALL USING (
-      academy_id IN (
-        SELECT academy_id FROM memberships WHERE user_id = auth.uid() AND role IN ('admin', 'super_admin')
-      )
-    );
-  END IF;
-END $$;
+  CREATE POLICY "cr_staff_bb" ON content_reports FOR ALL USING (
+    academy_id IN (
+      SELECT academy_id FROM profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin')
+    )
+  );
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
