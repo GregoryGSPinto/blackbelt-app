@@ -6,6 +6,16 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  webpack: (config) => {
+    // Capacitor native-only plugins are not available in web builds.
+    // They are always behind dynamic import() + isNative() guards,
+    // so it's safe to stub them out for webpack.
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'capacitor-native-biometric': false,
+    };
+    return config;
+  },
   images: {
     remotePatterns: [
       {

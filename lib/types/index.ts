@@ -30,3 +30,4 @@ export * from './chat';
 export * from './gamification';
 export * from './compete';
 export * from './messaging';
+export * from './guardian';

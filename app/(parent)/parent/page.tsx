@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/lib/hooks/useToast';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Toggle } from '@/components/ui/Toggle';
+import { getGuardianLinks, updateGuardianPermissions } from '@/lib/api/guardian-links.service';
+import type { GuardianLink } from '@/lib/types/guardian';
 import {
   CalendarIcon,
   DollarIcon,
@@ -16,6 +20,8 @@ import {
   VideoIcon,
   ChevronRightIcon,
   ClockIcon,
+  UsersIcon,
+  ShieldIcon,
 } from '@/components/shell/icons';
 
 // ────────────────────────────────────────────────────────────
@@ -373,6 +379,147 @@ function DashboardSkeleton() {
 }
 
 // ────────────────────────────────────────────────────────────
+// Guardian Management Section
+// ────────────────────────────────────────────────────────────
+
+const RELATIONSHIP_LABELS: Record<string, string> = {
+  parent: 'Pai/Mae',
+  legal_guardian: 'Responsavel Legal',
+  other: 'Outro',
+};
+
+function GuardianManagementSection({ guardianId }: { guardianId: string }) {
+  const { toast } = useToast();
+  const [links, setLinks] = useState<GuardianLink[]>([]);
+  const [loadingLinks, setLoadingLinks] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const loadLinks = useCallback(async () => {
+    try {
+      const data = await getGuardianLinks(guardianId);
+      setLinks(data);
+    } finally {
+      setLoadingLinks(false);
+    }
+  }, [guardianId]);
+
+  useEffect(() => {
+    loadLinks();
+  }, [loadLinks]);
+
+  async function handleToggle(
+    link: GuardianLink,
+    field: 'can_precheckin' | 'can_view_grades' | 'can_manage_payments',
+    value: boolean,
+  ) {
+    setUpdatingId(link.id);
+    try {
+      const updated = await updateGuardianPermissions(link.id, { [field]: value });
+      setLinks((prev) =>
+        prev.map((l) => (l.id === link.id ? { ...l, ...updated } : l)),
+      );
+      toast('Permissao atualizada', 'success');
+    } catch {
+      toast('Erro ao atualizar permissao', 'error');
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  if (loadingLinks) {
+    return (
+      <div className="space-y-3">
+        <Skeleton variant="card" className="h-24" />
+        <Skeleton variant="card" className="h-24" />
+      </div>
+    );
+  }
+
+  if (links.length === 0) {
+    return (
+      <Card className="p-6 text-center">
+        <UsersIcon className="mx-auto h-8 w-8 text-[var(--bb-ink-40)]" />
+        <p className="mt-2 text-sm font-medium text-[var(--bb-ink-60)]">
+          Nenhum filho vinculado
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {links.map((link) => {
+        const childName = link.child_name ?? 'Filho';
+        const isUpdating = updatingId === link.id;
+        return (
+          <Card key={link.id} className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar name={childName} size="md" />
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm font-bold text-[var(--bb-ink-100)]">
+                  {childName}
+                </h4>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span
+                    className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                    style={{
+                      backgroundColor:
+                        link.child_role === 'aluno_teen'
+                          ? 'var(--bb-info-surface)'
+                          : 'var(--bb-warning-surface)',
+                      color:
+                        link.child_role === 'aluno_teen'
+                          ? 'var(--bb-info)'
+                          : 'var(--bb-warning)',
+                    }}
+                  >
+                    {link.child_role === 'aluno_teen' ? 'Teen' : 'Kids'}
+                  </span>
+                  <span className="text-[10px] text-[var(--bb-ink-40)]">
+                    {RELATIONSHIP_LABELS[link.relationship] ?? link.relationship}
+                  </span>
+                </div>
+              </div>
+              <ShieldIcon className="h-4 w-4 text-[var(--bb-ink-40)]" />
+            </div>
+
+            <div
+              className="space-y-2 rounded-[var(--bb-radius-sm)] p-3"
+              style={{ backgroundColor: 'var(--bb-depth-4)' }}
+            >
+              <Toggle
+                size="sm"
+                checked={link.can_precheckin}
+                onChange={(v) => handleToggle(link, 'can_precheckin', v)}
+                disabled={isUpdating}
+                label="Pre-check-in"
+                description="Confirmar presenca antecipada"
+              />
+              <Toggle
+                size="sm"
+                checked={link.can_view_grades}
+                onChange={(v) => handleToggle(link, 'can_view_grades', v)}
+                disabled={isUpdating}
+                label="Ver notas"
+                description="Visualizar avaliacoes e notas"
+              />
+              <Toggle
+                size="sm"
+                checked={link.can_manage_payments}
+                onChange={(v) => handleToggle(link, 'can_manage_payments', v)}
+                disabled={isUpdating}
+                label="Gerenciar pagamentos"
+                description="Pagar mensalidades e ver faturas"
+              />
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
 // Main Page
 // ────────────────────────────────────────────────────────────
 
@@ -530,15 +677,15 @@ export default function ParentDashboardPage() {
 
         {/* Quick Actions */}
         <div className="animate-reveal">
-          <SectionHeader icon={CheckSquareIcon} title="Ações Rápidas" />
+          <SectionHeader icon={CheckSquareIcon} title="Acoes Rapidas" />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { icon: CheckSquareIcon, label: 'Check-in', color: 'var(--bb-brand)', bg: 'var(--bb-brand-surface)', href: '/parent/checkin' },
-              { icon: CalendarIcon, label: 'Ver Presença', color: 'var(--bb-success)', bg: 'var(--bb-success-surface)', href: '/parent/presencas' },
+              { icon: CheckSquareIcon, label: 'Pre-check-in', color: 'var(--bb-success)', bg: 'var(--bb-success-surface)', href: '/parent/precheckin' },
+              { icon: CalendarIcon, label: 'Ver Presenca', color: 'var(--bb-success)', bg: 'var(--bb-success-surface)', href: '/parent/presencas' },
               { icon: DollarIcon, label: 'Pagar Mensalidade', color: 'var(--bb-brand)', bg: 'var(--bb-brand-surface)', href: '/parent/pagamentos' },
               { icon: MessageIcon, label: 'Falar com Professor', color: 'var(--bb-info)', bg: 'var(--bb-info-surface)', href: '/parent/mensagens' },
-              { icon: BarChartIcon, label: 'Relatórios', color: 'var(--bb-warning)', bg: 'var(--bb-warning-surface)', href: '/parent/relatorios' },
-              { icon: CalendarIcon, label: 'Agenda', color: 'var(--bb-ink-60)', bg: 'var(--bb-depth-4)', href: '/parent/agenda' },
+              { icon: BarChartIcon, label: 'Relatorios', color: 'var(--bb-warning)', bg: 'var(--bb-warning-surface)', href: '/parent/relatorios' },
             ].map((action) => (
               <button
                 key={action.label}
@@ -552,6 +699,12 @@ export default function ParentDashboardPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ─── Guardian Management ─── */}
+      <section className="mt-6 animate-reveal">
+        <SectionHeader icon={UsersIcon} title="Filhos Vinculados" />
+        <GuardianManagementSection guardianId={profile?.id ?? 'prof-guardian-1'} />
       </section>
     </div>
   );
