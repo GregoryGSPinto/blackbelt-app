@@ -71,6 +71,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { href: '/admin', label: 'Dashboard', icon: HomeIcon, id: 'sidebar-link-dashboard' },
       { href: '/admin/turmas', label: 'Turmas', icon: CalendarIcon, id: 'sidebar-link-turmas' },
+      { href: '/admin/presenca', label: 'Presença', icon: CheckSquareIcon, id: 'sidebar-link-presenca' },
       { href: '/admin/alunos', label: 'Alunos', icon: UsersIcon, id: 'sidebar-link-alunos' },
       { href: '/admin/usuarios', label: 'Usuarios', icon: UserPlusIcon, id: 'sidebar-link-usuarios' },
       { href: '/admin/calendario', label: 'Calendario', icon: ClockIcon, id: 'sidebar-link-calendario' },

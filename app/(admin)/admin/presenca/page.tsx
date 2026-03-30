@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { isMock } from '@/lib/env';
-import { listAttendanceRecord, checkIn, markAbsent } from '@/lib/api/attendance.service';
-import type { AttendanceRecord } from '@/lib/types/attendance';
+import { listAttendanceRecord, checkIn, markAbsent, getAttendanceSummary } from '@/lib/api/attendance.service';
+import type { AttendanceRecord, AttendanceSummary } from '@/lib/types/attendance';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
-import { useAuth } from '@/lib/hooks/useAuth';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { CheckSquareIcon } from '@/components/shell/icons';
+import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
 
@@ -40,15 +40,16 @@ const STATUS_LABEL: Record<StatusValue, string> = {
   justified: 'Justificado',
 };
 
-export default function ProfessorPresencaPage() {
+export default function AdminPresencaPage() {
   const { toast } = useToast();
-  const { profile } = useAuth();
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [attendances, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [summary, setSummary] = useState<AttendanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showQR, setShowQR] = useState(false);
+
+  const academyId = getActiveAcademyId();
 
   const loadClasses = useCallback(async () => {
     if (isMock()) {
@@ -59,20 +60,12 @@ export default function ProfessorPresencaPage() {
     try {
       const { createBrowserClient } = await import('@/lib/supabase/client');
       const supabase = createBrowserClient();
-      const academyId = getActiveAcademyId();
 
-      // Get classes for this professor's academy
-      let query = supabase
+      const { data } = await supabase
         .from('classes')
         .select('id, name, schedule')
         .eq('academy_id', academyId);
 
-      // If professor, filter by professor_id
-      if (profile?.role === 'professor' && profile?.id) {
-        query = query.eq('professor_id', profile.id);
-      }
-
-      const { data } = await query;
       const result: ClassOption[] = [];
       for (const cls of data ?? []) {
         const schedules = (cls.schedule ?? []) as Array<{ day_of_week: number; start_time: string }>;
@@ -85,11 +78,12 @@ export default function ProfessorPresencaPage() {
     } catch (err) {
       toast(translateError(err), 'error');
     }
-  }, [profile, toast]);
+  }, [academyId, toast]);
 
   useEffect(() => {
     loadClasses();
-  }, [loadClasses]);
+    getAttendanceSummary(academyId).then(setSummary).catch(() => {});
+  }, [loadClasses, academyId]);
 
   useEffect(() => {
     if (!selectedClass) return;
@@ -129,26 +123,46 @@ export default function ProfessorPresencaPage() {
   const present = attendances.filter((a) => a.status === 'present').length;
   const absent = attendances.filter((a) => a.status === 'absent').length;
 
-  if (loading) {
-    return (
-      <div className="space-y-4 p-4 sm:p-6">
-        <Skeleton variant="text" className="h-8 w-48" />
-        <div className="flex gap-3">
-          <Skeleton variant="card" className="h-10 w-48" />
-          <Skeleton variant="card" className="h-10 w-40" />
-        </div>
-        {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} variant="card" className="h-14" />)}
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen space-y-6 p-4 sm:p-6" data-stagger>
       <section className="animate-reveal">
-        <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Presença</h1>
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ backgroundColor: 'var(--bb-brand-surface)' }}
+          >
+            <CheckSquareIcon className="h-5 w-5 text-[var(--bb-brand)]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>Presença</h1>
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Gerenciar presença dos alunos</p>
+          </div>
+        </div>
       </section>
 
-      {/* ── Selectors ──────────────────────────────────────────────── */}
+      {/* Summary cards */}
+      {summary && (
+        <section className="animate-reveal grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold" style={{ color: 'var(--bb-brand)' }}>{summary.total_present}</p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Presenças (30d)</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold" style={{ color: '#22C55E' }}>{summary.attendance_rate}%</p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Taxa de Presença</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{classes.length}</p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Turmas</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold" style={{ color: '#EAB308' }}>{summary.total_absent}</p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Ausências (30d)</p>
+          </Card>
+        </section>
+      )}
+
+      {/* Selectors */}
       <section className="animate-reveal flex flex-col gap-3 sm:flex-row">
         <select
           value={selectedClass}
@@ -176,55 +190,9 @@ export default function ProfessorPresencaPage() {
             color: 'var(--bb-ink-100)',
           }}
         />
-
-        <button
-          type="button"
-          onClick={() => setShowQR(!showQR)}
-          className="rounded-lg px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
-          style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
-        >
-          {showQR ? 'Fechar QR' : 'QR Code'}
-        </button>
       </section>
 
-      {/* ── QR Code ────────────────────────────────────────────────── */}
-      {showQR && (
-        <section className="animate-reveal">
-          <div
-            className="flex flex-col items-center gap-4 p-8"
-            style={{
-              background: 'var(--bb-depth-2)',
-              border: '1px solid var(--bb-glass-border)',
-              borderRadius: 'var(--bb-radius-lg)',
-            }}
-          >
-            <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-              QR Code — {classes.find((c) => c.id === selectedClass)?.name}
-            </p>
-            {/* SVG QR Code placeholder */}
-            <svg width="200" height="200" viewBox="0 0 200 200">
-              <rect width="200" height="200" rx="12" fill="white" />
-              <rect x="20" y="20" width="60" height="60" rx="4" fill="#000" />
-              <rect x="120" y="20" width="60" height="60" rx="4" fill="#000" />
-              <rect x="20" y="120" width="60" height="60" rx="4" fill="#000" />
-              <rect x="30" y="30" width="40" height="40" rx="2" fill="white" />
-              <rect x="130" y="30" width="40" height="40" rx="2" fill="white" />
-              <rect x="30" y="130" width="40" height="40" rx="2" fill="white" />
-              <rect x="40" y="40" width="20" height="20" fill="#000" />
-              <rect x="140" y="40" width="20" height="20" fill="#000" />
-              <rect x="40" y="140" width="20" height="20" fill="#000" />
-              <rect x="90" y="90" width="20" height="20" fill="#000" />
-              <rect x="120" y="120" width="60" height="60" rx="4" fill="var(--bb-brand)" opacity="0.2" />
-              <text x="150" y="155" textAnchor="middle" fontSize="10" fill="var(--bb-brand)" fontWeight="bold">BB</text>
-            </svg>
-            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Alunos escaneiam para fazer check-in automático
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* ── Stats mini ─────────────────────────────────────────────── */}
+      {/* Stats mini */}
       <section className="animate-reveal flex gap-4">
         <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'rgba(34,197,94,0.1)' }}>
           <CheckSquareIcon className="h-4 w-4" style={{ color: '#22C55E' }} />
@@ -238,62 +206,70 @@ export default function ProfessorPresencaPage() {
         </div>
       </section>
 
-      {/* ── Student list ───────────────────────────────────────────── */}
+      {/* Student list */}
       <section className="animate-reveal space-y-2">
-        {attendances.length === 0 && (
+        {loading ? (
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} variant="card" className="h-14" />)}
+          </div>
+        ) : attendances.length === 0 ? (
           <EmptyState
             icon="📝"
             title="Nenhum aluno nesta turma"
             description="Não há registros de presença para a turma e data selecionadas."
             variant="search"
           />
-        )}
-        {attendances.map((a) => {
-          const sc = STATUS_COLORS[a.status];
-          return (
-            <div
-              key={a.student_id}
-              className="flex items-center gap-3 rounded-lg p-3 transition-all"
-              style={{
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => toggleStatus(a.student_id, a.status)}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-all"
-                style={{ background: sc.bg }}
+        ) : (
+          attendances.map((a) => {
+            const sc = STATUS_COLORS[a.status];
+            return (
+              <div
+                key={a.student_id}
+                className="flex items-center gap-3 rounded-lg p-3 transition-all"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
               >
-                {a.status === 'present' ? '\u2705' : a.status === 'absent' ? '\u274C' : '\u26A0\uFE0F'}
-              </button>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>
-                  {a.student_name}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => toggleStatus(a.student_id, a.status)}
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-all"
+                  style={{ background: sc.bg }}
+                  aria-label={`Alterar status de ${a.student_name}`}
+                >
+                  {a.status === 'present' ? '\u2705' : a.status === 'absent' ? '\u274C' : '\u26A0\uFE0F'}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--bb-ink-100)' }}>
+                    {a.student_name}
+                  </p>
+                </div>
+                <span
+                  className="rounded-full px-2 py-0.5 text-xs font-semibold"
+                  style={{ background: sc.bg, color: sc.text }}
+                >
+                  {STATUS_LABEL[a.status]}
+                </span>
               </div>
-              <span
-                className="rounded-full px-2 py-0.5 text-xs font-semibold"
-                style={{ background: sc.bg, color: sc.text }}
-              >
-                {STATUS_LABEL[a.status]}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </section>
 
-      {/* ── Save button ────────────────────────────────────────────── */}
-      <section className="animate-reveal">
-        <button
-          type="button"
-          onClick={handleSave}
-          className="w-full rounded-lg py-3 text-sm font-semibold transition-all hover:opacity-90"
-          style={{ background: 'var(--bb-brand)', color: '#fff' }}
-        >
-          Salvar Presença
-        </button>
-      </section>
+      {/* Save button */}
+      {attendances.length > 0 && (
+        <section className="animate-reveal">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-full rounded-lg py-3 text-sm font-semibold transition-all hover:opacity-90"
+            style={{ background: 'var(--bb-brand)', color: '#fff' }}
+          >
+            Salvar Presença
+          </button>
+        </section>
+      )}
     </div>
   );
 }
