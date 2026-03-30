@@ -1,0 +1,21 @@
+-- Extra fields for complete profile settings
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS cpf TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS specialties JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS weight NUMERIC;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS height NUMERIC;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS objective TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS injuries TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS cref TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS has_seen_tour BOOLEAN DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS accent_color TEXT DEFAULT '#C62828';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS guardian_pin_hash TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notification_push BOOLEAN DEFAULT true;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notification_email BOOLEAN DEFAULT true;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notification_sms BOOLEAN DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS theme_preference TEXT DEFAULT 'system' CHECK (theme_preference IN ('light', 'dark', 'system'));
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS nickname TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS favorite_color TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS favorite_emoji TEXT;

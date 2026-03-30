@@ -92,7 +92,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/dashboard/saude', label: 'Saude', icon: ShieldIcon },
       { href: '/dashboard/conduta', label: 'Conduta', icon: FileTextIcon },
       { href: '/dashboard/contrato', label: 'Contrato', icon: EditIcon },
-      { href: '/perfil', label: 'Perfil', icon: UserIcon },
+      { href: '/dashboard/perfil', label: 'Perfil', icon: UserIcon },
       { href: '/dashboard/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
     ],
   },
@@ -294,7 +294,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
                       </div>
                       <div className="py-1">
                         <Link
-                          href="/perfil"
+                          href="/dashboard/perfil"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
                           style={{ color: 'var(--bb-ink-80)' }}

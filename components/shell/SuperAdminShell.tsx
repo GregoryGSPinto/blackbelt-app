@@ -349,7 +349,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                       {/* Quick links */}
                       <div style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
                         <Link
-                          href="/superadmin"
+                          href="/superadmin/perfil"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
                           style={{ color: 'var(--bb-ink-80)' }}
@@ -357,7 +357,18 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
                           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                         >
                           <LayoutDashboardIcon className="h-4 w-4" />
-                          Mission Control
+                          Meu Perfil
+                        </Link>
+                        <Link
+                          href="/superadmin/configuracoes"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <LayoutDashboardIcon className="h-4 w-4" />
+                          Configuracoes
                         </Link>
                       </div>
 

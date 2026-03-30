@@ -15,6 +15,8 @@ const sidebarItems: { href: string; label: string; id?: string }[] = [
   { href: '/franqueador/royalties', label: 'Royalties', id: 'sidebar-link-royalties' },
   { href: '/franqueador/expansao', label: 'Expansao', id: 'sidebar-link-expansao' },
   { href: '/franqueador/comunicacao', label: 'Comunicacao', id: 'sidebar-link-comunicacao' },
+  { href: '/franqueador/perfil', label: 'Meu Perfil', id: 'sidebar-link-perfil-fr' },
+  { href: '/franqueador/configuracoes', label: 'Configuracoes', id: 'sidebar-link-configuracoes-fr' },
 ];
 
 export default function FranqueadorLayout({ children }: { children: React.ReactNode }) {

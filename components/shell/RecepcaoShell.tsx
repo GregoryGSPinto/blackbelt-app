@@ -63,6 +63,7 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: 'CONTA',
     items: [
+      { href: '/recepcao/perfil', label: 'Meu Perfil', icon: UserIcon },
       { href: '/recepcao/configuracoes', label: 'Configuracoes', icon: SettingsIcon },
     ],
   },
@@ -252,7 +253,7 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
                       </div>
                       <div className="py-1">
                         <Link
-                          href="/recepcao"
+                          href="/recepcao/perfil"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
                           style={{ color: 'var(--bb-ink-80)' }}
@@ -260,7 +261,18 @@ const RecepcaoShell = forwardRef<HTMLDivElement, RecepcaoShellProps>(
                           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bb-ink-80)'; }}
                         >
                           <UserIcon className="h-4 w-4" />
-                          Meu Painel
+                          Meu Perfil
+                        </Link>
+                        <Link
+                          href="/recepcao/configuracoes"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                          style={{ color: 'var(--bb-ink-80)' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; e.currentTarget.style.color = 'var(--bb-ink-100)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bb-ink-80)'; }}
+                        >
+                          <SettingsIcon className="h-4 w-4" />
+                          Configuracoes
                         </Link>
                       </div>
                       <ProfileSwitcher onSwitch={() => setUserMenuOpen(false)} />
