@@ -5,167 +5,19 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
-import { getFaixas, getModulos, getPacotes } from '@/lib/api/pricing.service';
-import type { FaixaBase, Modulo, PacoteSugerido } from '@/lib/api/pricing.service';
+import { getPlans, updatePlan, createPlan, togglePlanActive, deletePlan, getAcademyCountByPlan } from '@/lib/api/plans.service';
+import { ALL_FEATURES, CATEGORY_LABELS } from '@/lib/constants/plan-features';
+import type { Plan, PlanFormData, PlanTier } from '@/lib/types/plan';
 import { translateError } from '@/lib/utils/error-translator';
-
-// ─── Constants ────────────────────────────────────────────────
-
-const AMBER = '#f59e0b';
-const GREEN = '#22c55e';
-const RED = '#ef4444';
-const BLUE = '#3b82f6';
-
-type TabKey = 'faixas' | 'modulos' | 'pacotes' | 'assinaturas' | 'receita';
-
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'faixas', label: 'Faixas' },
-  { key: 'modulos', label: 'Modulos' },
-  { key: 'pacotes', label: 'Pacotes' },
-  { key: 'assinaturas', label: 'Assinaturas' },
-  { key: 'receita', label: 'Receita' },
-];
-
-const CATEGORIA_LABELS: Record<string, { label: string; color: string }> = {
-  operacao: { label: 'Operacao', color: BLUE },
-  ensino: { label: 'Ensino', color: '#8b5cf6' },
-  engajamento: { label: 'Engajamento', color: GREEN },
-  comercial: { label: 'Comercial', color: AMBER },
-  avancado: { label: 'Avancado', color: '#ec4899' },
-};
-
-type SubStatus = 'trial' | 'discovery' | 'full' | 'cancelled';
-type SubFilter = 'todos' | SubStatus;
-
-interface MockSubscription {
-  id: string;
-  academyName: string;
-  faixa: string;
-  modulosPagos: string[];
-  precoTotal: number;
-  status: SubStatus;
-  diasRestantesDescoberta: number;
-  ciclo: 'mensal' | 'anual';
-}
-
-const MOCK_SUBSCRIPTIONS: MockSubscription[] = [
-  {
-    id: 's1',
-    academyName: 'Guerreiros do Tatame',
-    faixa: 'Profissional',
-    modulosPagos: ['financeiro', 'pedagogico', 'checkin-qr', 'gamificacao', 'streaming'],
-    precoTotal: 402,
-    status: 'discovery',
-    diasRestantesDescoberta: 45,
-    ciclo: 'mensal',
-  },
-  {
-    id: 's2',
-    academyName: 'Fight Academy',
-    faixa: 'Essencial',
-    modulosPagos: ['financeiro', 'pedagogico', 'checkin-qr'],
-    precoTotal: 264,
-    status: 'full',
-    diasRestantesDescoberta: 0,
-    ciclo: 'mensal',
-  },
-  {
-    id: 's3',
-    academyName: 'BJJ Masters',
-    faixa: 'Completo',
-    modulosPagos: ['financeiro', 'pedagogico', 'checkin-qr', 'gamificacao', 'streaming', 'analytics', 'loja', 'kids'],
-    precoTotal: 542,
-    status: 'trial',
-    diasRestantesDescoberta: 5,
-    ciclo: 'mensal',
-  },
-  {
-    id: 's4',
-    academyName: 'Tatame Kids',
-    faixa: 'Essencial',
-    modulosPagos: ['financeiro', 'checkin-qr', 'kids'],
-    precoTotal: 214,
-    status: 'discovery',
-    diasRestantesDescoberta: 72,
-    ciclo: 'mensal',
-  },
-  {
-    id: 's5',
-    academyName: 'MMA Pro',
-    faixa: 'Profissional',
-    modulosPagos: ['financeiro', 'pedagogico', 'checkin-qr', 'gamificacao', 'streaming', 'analytics'],
-    precoTotal: 549,
-    status: 'cancelled',
-    diasRestantesDescoberta: 0,
-    ciclo: 'mensal',
-  },
-];
-
-const STATUS_CONFIG: Record<SubStatus, { label: string; bg: string; color: string }> = {
-  trial: { label: 'Trial', bg: 'rgba(59,130,246,0.15)', color: BLUE },
-  discovery: { label: 'Descoberta', bg: 'rgba(245,158,11,0.15)', color: AMBER },
-  full: { label: 'Ativo', bg: 'rgba(34,197,94,0.15)', color: GREEN },
-  cancelled: { label: 'Cancelado', bg: 'rgba(239,68,68,0.15)', color: RED },
-};
-
-const FILTER_BUTTONS: { key: SubFilter; label: string }[] = [
-  { key: 'todos', label: 'Todos' },
-  { key: 'trial', label: 'Trial' },
-  { key: 'discovery', label: 'Descoberta' },
-  { key: 'full', label: 'Ativo' },
-  { key: 'cancelled', label: 'Cancelado' },
-];
-
-// ─── Revenue mock data ────────────────────────────────────────
-
-interface ModuloReceita {
-  nome: string;
-  receita: number;
-  academias: number;
-}
-
-const MOCK_MRR_POR_MODULO: ModuloReceita[] = [
-  { nome: 'Financeiro', receita: 196, academias: 4 },
-  { nome: 'Pedagogico', receita: 156, academias: 4 },
-  { nome: 'QR Check-in', receita: 116, academias: 4 },
-  { nome: 'Gamificacao', receita: 102, academias: 3 },
-  { nome: 'Streaming', receita: 96, academias: 3 },
-  { nome: 'Analytics', receita: 72, academias: 2 },
-  { nome: 'Loja', receita: 48, academias: 1 },
-  { nome: 'Kids', receita: 42, academias: 2 },
-];
-
-interface ConversaoModulo {
-  nome: string;
-  percent: number;
-}
-
-const MOCK_CONVERSAO: ConversaoModulo[] = [
-  { nome: 'Gamificacao', percent: 62 },
-  { nome: 'Streaming', percent: 55 },
-  { nome: 'Analytics', percent: 48 },
-  { nome: 'Loja', percent: 35 },
-  { nome: 'Kids', percent: 30 },
-  { nome: 'Franquia', percent: 8 },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────
 
-function fmtBRL(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+function fmtBRL(cents: number): string {
+  return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function discoveryLabel(sub: MockSubscription): string {
-  if (sub.status === 'cancelled') return '-';
-  if (sub.status === 'full') return 'Encerrada';
-  if (sub.status === 'trial') return `${sub.diasRestantesDescoberta} dias (trial)`;
-  return `${sub.diasRestantesDescoberta} dias`;
-}
-
-function conversionColor(percent: number): string {
-  if (percent > 50) return GREEN;
-  if (percent >= 30) return AMBER;
-  return RED;
+function limitDisplay(val: number | null): string {
+  return val === null ? 'Ilimitados' : String(val);
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────
@@ -175,15 +27,305 @@ function PageSkeleton() {
     <div className="space-y-6 p-6 pb-20">
       <Skeleton variant="text" className="h-8 w-64" />
       <Skeleton variant="text" className="h-5 w-96" />
-      <div className="flex gap-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} variant="text" className="h-10 w-24" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} variant="card" className="h-24" />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} variant="card" className="h-36" />
-        ))}
+      <Skeleton variant="card" className="h-64" />
+    </div>
+  );
+}
+
+// ─── Plan Modal ───────────────────────────────────────────────
+
+interface PlanModalProps {
+  plan: Plan | null;
+  onClose: () => void;
+  onSave: (data: PlanFormData) => void;
+  saving: boolean;
+}
+
+function PlanModal({ plan, onClose, onSave, saving }: PlanModalProps) {
+  const isNew = !plan;
+  const [name, setName] = useState(plan?.name ?? '');
+  const [tier, setTier] = useState<PlanTier>(plan?.tier ?? 'starter');
+  const [priceMonthly, setPriceMonthly] = useState(plan ? plan.price_monthly / 100 : 0);
+  const [isCustomPrice, setIsCustomPrice] = useState(plan?.is_custom_price ?? false);
+  const [maxAlunos, setMaxAlunos] = useState(plan?.limits.max_alunos ?? 0);
+  const [alunosIlimitado, setAlunosIlimitado] = useState(plan?.limits.max_alunos === null);
+  const [maxProfs, setMaxProfs] = useState(plan?.limits.max_professores ?? 0);
+  const [profsIlimitado, setProfsIlimitado] = useState(plan?.limits.max_professores === null);
+  const [maxUnidades, setMaxUnidades] = useState(plan?.limits.max_unidades ?? 0);
+  const [unidadesIlimitado, setUnidadesIlimitado] = useState(plan?.limits.max_unidades === null);
+  const [maxStorage, setMaxStorage] = useState(plan?.limits.max_storage_gb ?? 5);
+  const [maxTurmas, setMaxTurmas] = useState(plan?.limits.max_turmas ?? 0);
+  const [turmasIlimitado, setTurmasIlimitado] = useState(plan?.limits.max_turmas === null);
+  const [alunoExtra, setAlunoExtra] = useState((plan?.overage_rates.aluno_extra ?? 300) / 100);
+  const [profExtra, setProfExtra] = useState((plan?.overage_rates.professor_extra ?? 1500) / 100);
+  const [unidadeExtra, setUnidadeExtra] = useState((plan?.overage_rates.unidade_extra ?? 4900) / 100);
+  const [storageExtra, setStorageExtra] = useState((plan?.overage_rates.storage_extra_gb ?? 50) / 100);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
+    plan?.features.filter((f) => f.included).map((f) => f.id) ?? [],
+  );
+  const [isPopular, setIsPopular] = useState(plan?.is_popular ?? false);
+  const [isActive, setIsActive] = useState(plan?.is_active ?? true);
+  const [trialDays, setTrialDays] = useState(plan?.trial_days ?? 7);
+
+  function toggleFeature(id: string) {
+    setSelectedFeatures((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    );
+  }
+
+  function handleSubmit() {
+    onSave({
+      name,
+      tier,
+      price_monthly: Math.round(priceMonthly * 100),
+      is_custom_price: isCustomPrice,
+      limits: {
+        max_alunos: alunosIlimitado ? null : maxAlunos,
+        max_professores: profsIlimitado ? null : maxProfs,
+        max_unidades: unidadesIlimitado ? null : maxUnidades,
+        max_storage_gb: maxStorage,
+        max_turmas: turmasIlimitado ? null : maxTurmas,
+      },
+      overage_rates: {
+        aluno_extra: Math.round(alunoExtra * 100),
+        professor_extra: Math.round(profExtra * 100),
+        unidade_extra: Math.round(unidadeExtra * 100),
+        storage_extra_gb: Math.round(storageExtra * 100),
+      },
+      features: selectedFeatures,
+      is_popular: isPopular,
+      is_active: isActive,
+      trial_days: trialDays,
+    });
+  }
+
+  const groupedFeatures = useMemo(() => {
+    const groups: Record<string, typeof ALL_FEATURES> = {};
+    for (const f of ALL_FEATURES) {
+      if (!groups[f.category]) groups[f.category] = [];
+      groups[f.category].push(f);
+    }
+    return groups;
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 pt-10 pb-10" style={{ background: 'rgba(0,0,0,0.6)' }}>
+      <div
+        className="w-full max-w-2xl rounded-xl p-6"
+        style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+            {isNew ? 'Novo Plano' : `Editar Plano: ${plan.name}`}
+          </h2>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-lg"
+            style={{ color: 'var(--bb-ink-40)' }}
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-5">
+          {/* Nome e Tier */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Nome do Plano</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Tier</label>
+              <select
+                value={tier}
+                onChange={(e) => setTier(e.target.value as PlanTier)}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+              >
+                <option value="starter">Starter</option>
+                <option value="essencial">Essencial</option>
+                <option value="pro">Pro</option>
+                <option value="blackbelt">Black Belt</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Preco */}
+          <div>
+            <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Preço Mensal (R$)</label>
+            <input
+              type="number"
+              value={priceMonthly}
+              onChange={(e) => setPriceMonthly(Number(e.target.value))}
+              disabled={isCustomPrice}
+              className="w-full rounded-lg px-3 py-2 text-sm"
+              style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)', opacity: isCustomPrice ? 0.5 : 1 }}
+            />
+            <label className="mt-2 flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+              <input type="checkbox" checked={isCustomPrice} onChange={(e) => setIsCustomPrice(e.target.checked)} />
+              Sob consulta (sem preço fixo)
+            </label>
+          </div>
+
+          {/* Limites */}
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Limites</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <LimitField label="Máx. Alunos" value={maxAlunos} onChange={setMaxAlunos} unlimited={alunosIlimitado} onToggle={setAlunosIlimitado} />
+              <LimitField label="Máx. Professores" value={maxProfs} onChange={setMaxProfs} unlimited={profsIlimitado} onToggle={setProfsIlimitado} />
+              <LimitField label="Máx. Unidades" value={maxUnidades} onChange={setMaxUnidades} unlimited={unidadesIlimitado} onToggle={setUnidadesIlimitado} />
+              <LimitField label="Máx. Turmas" value={maxTurmas} onChange={setMaxTurmas} unlimited={turmasIlimitado} onToggle={setTurmasIlimitado} />
+              <div>
+                <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Storage (GB)</label>
+                <input
+                  type="number"
+                  value={maxStorage}
+                  onChange={(e) => setMaxStorage(Number(e.target.value))}
+                  className="w-full rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Excedentes */}
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Excedentes</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div>
+                <label className="mb-1 block text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>Aluno extra (R$)</label>
+                <input type="number" step="0.01" value={alunoExtra} onChange={(e) => setAlunoExtra(Number(e.target.value))} className="w-full rounded-lg px-2 py-1.5 text-sm" style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>Prof. extra (R$)</label>
+                <input type="number" step="0.01" value={profExtra} onChange={(e) => setProfExtra(Number(e.target.value))} className="w-full rounded-lg px-2 py-1.5 text-sm" style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>Unidade extra (R$)</label>
+                <input type="number" step="0.01" value={unidadeExtra} onChange={(e) => setUnidadeExtra(Number(e.target.value))} className="w-full rounded-lg px-2 py-1.5 text-sm" style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>Storage extra/GB (R$)</label>
+                <input type="number" step="0.01" value={storageExtra} onChange={(e) => setStorageExtra(Number(e.target.value))} className="w-full rounded-lg px-2 py-1.5 text-sm" style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Features Incluídas</p>
+            {Object.entries(groupedFeatures).map(([cat, features]) => (
+              <div key={cat} className="mb-3">
+                <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--bb-brand)' }}>
+                  {CATEGORY_LABELS[cat] ?? cat}
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {features.map((f) => (
+                    <label key={f.id} className="flex items-center gap-2 rounded-md px-2 py-1 text-xs cursor-pointer" style={{ color: 'var(--bb-ink-80)' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedFeatures.includes(f.id)}
+                        onChange={() => toggleFeature(f.id)}
+                      />
+                      {f.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Popular + Trial */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-80)' }}>
+              <input type="checkbox" checked={isPopular} onChange={(e) => setIsPopular(e.target.checked)} />
+              Marcar como &quot;Mais Popular&quot;
+            </label>
+            <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--bb-ink-80)' }}>
+              <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+              Plano ativo
+            </label>
+            <div>
+              <label className="mb-1 block text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>Dias de trial</label>
+              <input type="number" value={trialDays} onChange={(e) => setTrialDays(Number(e.target.value))} className="w-full rounded-lg px-2 py-1.5 text-sm" style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }} />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="secondary" onClick={onClose} disabled={saving}>
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={handleSubmit} disabled={saving || !name.trim()}>
+              {saving ? 'Salvando...' : isNew ? 'Criar Plano' : 'Salvar Alterações'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LimitField({ label, value, onChange, unlimited, onToggle }: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  unlimited: boolean;
+  onToggle: (v: boolean) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>{label}</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          disabled={unlimited}
+          className="flex-1 rounded-lg px-3 py-2 text-sm"
+          style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)', opacity: unlimited ? 0.5 : 1 }}
+        />
+        <label className="flex shrink-0 items-center gap-1 text-[10px]" style={{ color: 'var(--bb-ink-60)' }}>
+          <input type="checkbox" checked={unlimited} onChange={(e) => onToggle(e.target.checked)} />
+          Ilimitado
+        </label>
+      </div>
+    </div>
+  );
+}
+
+// ─── Confirm Dialog ──────────────────────────────────────────
+
+interface ConfirmDialogProps {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)' }}>
+      <div className="w-full max-w-sm rounded-xl p-6" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+        <h3 className="mb-2 text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>{title}</h3>
+        <p className="mb-4 text-xs leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>{message}</p>
+        <div className="flex justify-end gap-3">
+          <Button variant="secondary" size="sm" onClick={onCancel}>Cancelar</Button>
+          <Button variant="primary" size="sm" onClick={onConfirm}>{confirmLabel}</Button>
+        </div>
       </div>
     </div>
   );
@@ -193,20 +335,18 @@ function PageSkeleton() {
 
 export default function PlanosPage() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<TabKey>('faixas');
   const [loading, setLoading] = useState(true);
-
-  const [faixas, setFaixas] = useState<FaixaBase[]>([]);
-  const [modulos, setModulos] = useState<Modulo[]>([]);
-  const [pacotes, setPacotes] = useState<PacoteSugerido[]>([]);
-  const [subFilter, setSubFilter] = useState<SubFilter>('todos');
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [academyCounts, setAcademyCounts] = useState<Record<string, number>>({});
+  const [modalPlan, setModalPlan] = useState<Plan | null | 'new'>(null);
+  const [saving, setSaving] = useState(false);
+  const [confirm, setConfirm] = useState<ConfirmDialogProps | null>(null);
 
   const loadData = useCallback(async () => {
     try {
-      const [f, m, p] = await Promise.all([getFaixas(), getModulos(), getPacotes()]);
-      setFaixas(f);
-      setModulos(m);
-      setPacotes(p);
+      const [p, counts] = await Promise.all([getPlans(), getAcademyCountByPlan()]);
+      setPlans(p);
+      setAcademyCounts(counts);
     } catch (err) {
       toast(translateError(err), 'error');
     } finally {
@@ -218,37 +358,112 @@ export default function PlanosPage() {
     loadData();
   }, [loadData]);
 
-  // ── Derived data ──────────────────────────────────────────
+  // ── Stats ────────────────────────────────────────────────
 
-  const modulosByCategory = useMemo(() => {
-    const map = new Map<string, Modulo[]>();
-    for (const m of modulos) {
-      const cat = m.categoria;
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(m);
+  const totalPlans = plans.length;
+  const activePlans = plans.filter((p) => p.is_active).length;
+  const popularPlan = plans.find((p) => p.is_popular);
+  const totalAcademies = Object.values(academyCounts).reduce((s, v) => s + v, 0);
+  const totalMRR = plans.reduce((sum, p) => {
+    const count = academyCounts[p.id] ?? 0;
+    return sum + (p.price_monthly * count);
+  }, 0);
+
+  // ── Handlers ─────────────────────────────────────────────
+
+  async function handleSave(data: PlanFormData) {
+    setSaving(true);
+    try {
+      if (modalPlan === 'new') {
+        await createPlan(data);
+        toast('Plano criado com sucesso', 'success');
+      } else if (modalPlan) {
+        const priceChanged = data.price_monthly !== modalPlan.price_monthly;
+        if (priceChanged) {
+          setConfirm({
+            title: 'Alterar preço',
+            message: 'O novo preço será aplicado apenas a novos cadastros. Academias existentes mantêm o valor atual até renovação. Confirmar?',
+            confirmLabel: 'Confirmar',
+            onConfirm: async () => {
+              setConfirm(null);
+              await updatePlan(modalPlan.id, data);
+              toast('Plano atualizado com sucesso', 'success');
+              setModalPlan(null);
+              await loadData();
+            },
+            onCancel: () => setConfirm(null),
+          });
+          setSaving(false);
+          return;
+        }
+        await updatePlan(modalPlan.id, data);
+        toast('Plano atualizado com sucesso', 'success');
+      }
+      setModalPlan(null);
+      await loadData();
+    } catch (err) {
+      toast(translateError(err), 'error');
+    } finally {
+      setSaving(false);
     }
-    // Sort each group by ordem
-    for (const [, list] of map) {
-      list.sort((a, b) => a.ordem - b.ordem);
+  }
+
+  function handleToggle(plan: Plan) {
+    const count = academyCounts[plan.id] ?? 0;
+    if (plan.is_active && count > 0) {
+      setConfirm({
+        title: 'Desativar plano',
+        message: `Este plano tem ${count} academia${count !== 1 ? 's' : ''}. Elas manterão o plano atual mas novos cadastros não poderão selecionar este plano. Continuar?`,
+        confirmLabel: 'Desativar',
+        onConfirm: async () => {
+          setConfirm(null);
+          try {
+            await togglePlanActive(plan.id);
+            toast(plan.is_active ? 'Plano desativado' : 'Plano ativado', 'success');
+            await loadData();
+          } catch (err) {
+            toast(translateError(err), 'error');
+          }
+        },
+        onCancel: () => setConfirm(null),
+      });
+    } else {
+      togglePlanActive(plan.id).then(() => {
+        toast(plan.is_active ? 'Plano desativado' : 'Plano ativado', 'success');
+        loadData();
+      }).catch((err) => toast(translateError(err), 'error'));
     }
-    return map;
-  }, [modulos]);
+  }
 
-  const filteredSubs = useMemo(() => {
-    if (subFilter === 'todos') return MOCK_SUBSCRIPTIONS;
-    return MOCK_SUBSCRIPTIONS.filter((s) => s.status === subFilter);
-  }, [subFilter]);
-
-  const totalMRR = useMemo(() => {
-    return MOCK_SUBSCRIPTIONS.filter((s) => s.status !== 'cancelled').reduce(
-      (sum, s) => sum + s.precoTotal,
-      0,
-    );
-  }, []);
-
-  const maxModuloReceita = useMemo(() => {
-    return Math.max(...MOCK_MRR_POR_MODULO.map((m) => m.receita));
-  }, []);
+  function handleDelete(plan: Plan) {
+    const count = academyCounts[plan.id] ?? 0;
+    if (count > 0) {
+      setConfirm({
+        title: 'Não é possível excluir',
+        message: `${count} academia${count !== 1 ? 's' : ''} usa${count !== 1 ? 'm' : ''} este plano. Desative-o em vez disso.`,
+        confirmLabel: 'Entendi',
+        onConfirm: () => setConfirm(null),
+        onCancel: () => setConfirm(null),
+      });
+    } else {
+      setConfirm({
+        title: 'Excluir plano',
+        message: `Tem certeza que deseja excluir o plano "${plan.name}"? Esta ação não pode ser desfeita.`,
+        confirmLabel: 'Excluir',
+        onConfirm: async () => {
+          setConfirm(null);
+          try {
+            await deletePlan(plan.id);
+            toast('Plano excluído', 'success');
+            await loadData();
+          } catch (err) {
+            toast(translateError(err), 'error');
+          }
+        },
+        onCancel: () => setConfirm(null),
+      });
+    }
+  }
 
   // ── Loading ───────────────────────────────────────────────
 
@@ -259,608 +474,260 @@ export default function PlanosPage() {
   return (
     <div className="space-y-6 p-6 pb-20">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-          Pricing Management
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-          Faixas de base, modulos, pacotes, assinaturas e receita da plataforma
-        </p>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <Button
-              key={tab.key}
-              size="sm"
-              variant={isActive ? 'primary' : 'secondary'}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </Button>
-          );
-        })}
-      </div>
-
-      {/* ═══ TAB 1: FAIXAS ══════════════════════════════════ */}
-      {activeTab === 'faixas' && (
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-            Faixas de Base ({faixas.length})
-          </h2>
-
-          {/* Desktop table */}
-          <div className="hidden overflow-x-auto md:block">
-            <div
-              className="min-w-full rounded-xl"
-              style={{
-                background: 'var(--bb-depth-3)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              {/* Header row */}
-              <div
-                className="grid grid-cols-6 gap-4 px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--bb-ink-40)', borderBottom: '1px solid var(--bb-glass-border)' }}
-              >
-                <span>Nome</span>
-                <span>Faixa de alunos</span>
-                <span>R$/mes</span>
-                <span>R$/ano</span>
-                <span>Professores</span>
-                <span>Turmas</span>
-              </div>
-              {faixas.map((f) => (
-                <div
-                  key={f.id}
-                  className="grid grid-cols-6 gap-4 px-5 py-3"
-                  style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                >
-                  <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                    {f.nome}
-                  </span>
-                  <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                    {f.minAlunos} - {f.maxAlunos}
-                  </span>
-                  <span className="text-sm font-bold" style={{ color: AMBER }}>
-                    {fmtBRL(f.precoMensal)}
-                  </span>
-                  <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                    {fmtBRL(f.precoAnual)}
-                  </span>
-                  <span className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                    {f.professoresInclusos}
-                  </span>
-                  <span className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                    {f.turmasInclusas}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="grid grid-cols-1 gap-3 md:hidden">
-            {faixas.map((f) => (
-              <Card key={f.id} className="p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                    {f.nome}
-                  </span>
-                  <span
-                    className="rounded-full px-2 py-0.5 text-[10px] font-medium"
-                    style={{ background: 'rgba(245,158,11,0.12)', color: AMBER }}
-                  >
-                    {f.minAlunos}-{f.maxAlunos} alunos
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div
-                    className="rounded-lg p-2"
-                    style={{ background: 'var(--bb-depth-4)' }}
-                  >
-                    <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Mensal</p>
-                    <p className="text-sm font-bold" style={{ color: AMBER }}>{fmtBRL(f.precoMensal)}</p>
-                  </div>
-                  <div
-                    className="rounded-lg p-2"
-                    style={{ background: 'var(--bb-depth-4)' }}
-                  >
-                    <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Anual</p>
-                    <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{fmtBRL(f.precoAnual)}</p>
-                  </div>
-                  <div
-                    className="rounded-lg p-2"
-                    style={{ background: 'var(--bb-depth-4)' }}
-                  >
-                    <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Professores</p>
-                    <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{f.professoresInclusos}</p>
-                  </div>
-                  <div
-                    className="rounded-lg p-2"
-                    style={{ background: 'var(--bb-depth-4)' }}
-                  >
-                    <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Turmas</p>
-                    <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{f.turmasInclusas}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {faixas.length === 0 && (
-            <div className="py-12 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Nenhuma faixa cadastrada.
-            </div>
-          )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+            Gestão de Planos
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Criar, editar e gerenciar planos da plataforma
+          </p>
         </div>
-      )}
+        <Button variant="primary" onClick={() => setModalPlan('new')}>
+          + Novo Plano
+        </Button>
+      </div>
 
-      {/* ═══ TAB 2: MODULOS ═════════════════════════════════ */}
-      {activeTab === 'modulos' && (
-        <div className="space-y-6">
-          {Array.from(modulosByCategory.entries()).map(([category, items]) => {
-            const catConfig = CATEGORIA_LABELS[category] ?? { label: category, color: 'var(--bb-ink-60)' };
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label="Total Planos" value={String(totalPlans)} icon="📋" />
+        <StatCard label="Ativos" value={String(activePlans)} icon="✅" />
+        <StatCard label="Mais Popular" value={popularPlan?.name ?? '-'} icon="⭐" />
+        <StatCard label="MRR Total" value={fmtBRL(totalMRR)} icon="💰" />
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden overflow-x-auto lg:block">
+        <div className="min-w-full rounded-xl" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+          <div
+            className="grid grid-cols-8 gap-4 px-5 py-3 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--bb-ink-40)', borderBottom: '1px solid var(--bb-glass-border)' }}
+          >
+            <span>Plano</span>
+            <span>Preço/mês</span>
+            <span>Alunos</span>
+            <span>Professores</span>
+            <span>Unidades</span>
+            <span>Academias</span>
+            <span>Status</span>
+            <span>Ações</span>
+          </div>
+          {plans.map((plan) => {
+            const count = academyCounts[plan.id] ?? 0;
             return (
-              <div key={category}>
-                <div className="mb-3 flex items-center gap-2">
+              <div
+                key={plan.id}
+                className="grid grid-cols-8 items-center gap-4 px-5 py-3"
+                style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
+              >
+                <span className="flex items-center gap-1.5 text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                  {plan.name}
+                  {plan.is_popular && (
+                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold" style={{ background: 'var(--bb-warning-surface)', color: 'var(--bb-warning)' }}>
+                      ⭐
+                    </span>
+                  )}
+                </span>
+                <span className="text-sm font-bold" style={{ color: 'var(--bb-warning)' }}>
+                  {plan.is_custom_price ? 'Sob consulta' : fmtBRL(plan.price_monthly)}
+                </span>
+                <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{limitDisplay(plan.limits.max_alunos)}</span>
+                <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{limitDisplay(plan.limits.max_professores)}</span>
+                <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>{limitDisplay(plan.limits.max_unidades)}</span>
+                <span className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>{count}</span>
+                <span>
                   <span
-                    className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                    style={{ background: `${catConfig.color}20`, color: catConfig.color }}
+                    className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold"
+                    style={{
+                      background: plan.is_active ? 'var(--bb-success-surface)' : 'var(--bb-error-surface)',
+                      color: plan.is_active ? 'var(--bb-success)' : 'var(--bb-error)',
+                    }}
                   >
-                    {catConfig.label}
+                    {plan.is_active ? 'Ativo' : 'Inativo'}
                   </span>
-                  <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                    {items.length} modulo{items.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {items.map((m) => (
-                    <ModuloCard key={m.id} modulo={m} />
-                  ))}
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setModalPlan(plan)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors"
+                    style={{ color: 'var(--bb-ink-60)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    title="Editar"
+                    aria-label={`Editar plano ${plan.name}`}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => handleToggle(plan)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors"
+                    style={{ color: 'var(--bb-ink-60)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    title={plan.is_active ? 'Desativar' : 'Ativar'}
+                    aria-label={`${plan.is_active ? 'Desativar' : 'Ativar'} plano ${plan.name}`}
+                  >
+                    🔄
+                  </button>
+                  <button
+                    onClick={() => handleDelete(plan)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors"
+                    style={{ color: 'var(--bb-ink-60)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    title="Excluir"
+                    aria-label={`Excluir plano ${plan.name}`}
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             );
           })}
-          {modulos.length === 0 && (
-            <div className="py-12 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Nenhum modulo cadastrado.
-            </div>
-          )}
         </div>
-      )}
+      </div>
 
-      {/* ═══ TAB 3: PACOTES ═════════════════════════════════ */}
-      {activeTab === 'pacotes' && (
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-            Pacotes Sugeridos ({pacotes.length})
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {pacotes.map((p) => (
-              <Card
-                key={p.id}
-                className="relative flex flex-col p-6"
-                style={p.popular ? { border: '2px solid #f59e0b' } : undefined}
-              >
-                {p.popular && (
-                  <span
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-xs font-bold"
-                    style={{ background: AMBER, color: '#fff' }}
-                  >
-                    Mais Popular
+      {/* Mobile Cards */}
+      <div className="grid grid-cols-1 gap-3 lg:hidden">
+        {plans.map((plan) => {
+          const count = academyCounts[plan.id] ?? 0;
+          return (
+            <Card key={plan.id} className="p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+                    {plan.name}
                   </span>
-                )}
-                <div className="mb-4 text-center">
-                  <span className="text-3xl">{p.icone}</span>
-                  <h3 className="mt-2 text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                    {p.nome}
-                  </h3>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-                    {p.descricao}
-                  </p>
-                </div>
-
-                {/* Discount badge */}
-                <div className="mb-4 text-center">
+                  {plan.is_popular && <span className="text-xs">⭐</span>}
                   <span
-                    className="inline-block rounded-full px-3 py-1 text-xs font-bold"
-                    style={{ background: 'rgba(34,197,94,0.15)', color: GREEN }}
+                    className="rounded-full px-2 py-0.5 text-[9px] font-bold"
+                    style={{
+                      background: plan.is_active ? 'var(--bb-success-surface)' : 'var(--bb-error-surface)',
+                      color: plan.is_active ? 'var(--bb-success)' : 'var(--bb-error)',
+                    }}
                   >
-                    {p.descontoPercent}% de desconto
+                    {plan.is_active ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-
-                {/* Pricing */}
-                <div className="mb-4 text-center">
-                  <p className="text-xs line-through" style={{ color: 'var(--bb-ink-40)' }}>
-                    {fmtBRL(p.precoOriginal)}
-                  </p>
-                  <p className="text-2xl font-bold" style={{ color: AMBER }}>
-                    {fmtBRL(p.precoComDesconto)}
-                  </p>
-                  <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>/mes</p>
-                </div>
-
-                {/* Modules included */}
-                <div>
-                  <p
-                    className="mb-2 text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--bb-ink-40)' }}
-                  >
-                    Modulos inclusos ({p.modulosSlugs.length})
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {p.modulosSlugs.map((slug) => {
-                      const mod = modulos.find((m) => m.slug === slug);
-                      return (
-                        <span
-                          key={slug}
-                          className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium"
-                          style={{
-                            background: 'var(--bb-depth-4)',
-                            color: 'var(--bb-ink-80)',
-                          }}
-                          title={mod?.nome ?? slug}
-                        >
-                          {mod ? <span>{mod.icone}</span> : null}
-                          {mod?.nome ?? slug}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {pacotes.length === 0 && (
-            <div className="py-12 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Nenhum pacote cadastrado.
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ═══ TAB 4: ASSINATURAS ═════════════════════════════ */}
-      {activeTab === 'assinaturas' && (
-        <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-              Assinaturas ({filteredSubs.length})
-            </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {FILTER_BUTTONS.map((fb) => {
-                const isActive = subFilter === fb.key;
-                return (
-                  <Button
-                    key={fb.key}
-                    size="sm"
-                    variant={isActive ? 'primary' : 'ghost'}
-                    onClick={() => setSubFilter(fb.key)}
-                  >
-                    {fb.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Desktop table */}
-          <div className="hidden overflow-x-auto lg:block">
-            <div
-              className="min-w-full rounded-xl"
-              style={{
-                background: 'var(--bb-depth-3)',
-                border: '1px solid var(--bb-glass-border)',
-              }}
-            >
-              <div
-                className="grid grid-cols-6 gap-4 px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--bb-ink-40)', borderBottom: '1px solid var(--bb-glass-border)' }}
-              >
-                <span>Academia</span>
-                <span>Faixa</span>
-                <span>Modulos pagos</span>
-                <span>Total/mes</span>
-                <span>Status</span>
-                <span>Descoberta</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--bb-warning)' }}>
+                  {plan.is_custom_price ? 'Sob consulta' : fmtBRL(plan.price_monthly)}
+                </span>
               </div>
-              {filteredSubs.map((sub) => {
-                const statusCfg = STATUS_CONFIG[sub.status];
-                return (
-                  <div
-                    key={sub.id}
-                    className="grid grid-cols-6 items-center gap-4 px-5 py-3"
-                    style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-                  >
-                    <span className="truncate text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                      {sub.academyName}
-                    </span>
-                    <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                      {sub.faixa}
-                    </span>
-                    <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                      {sub.modulosPagos.length}
-                    </span>
-                    <span className="text-sm font-bold" style={{ color: AMBER }}>
-                      {fmtBRL(sub.precoTotal)}
-                    </span>
-                    <span>
-                      <span
-                        className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-                        style={{ background: statusCfg.bg, color: statusCfg.color }}
-                      >
-                        {statusCfg.label}
-                      </span>
-                    </span>
-                    <span className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                      {discoveryLabel(sub)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <MiniStat label="Alunos" value={limitDisplay(plan.limits.max_alunos)} />
+                <MiniStat label="Professores" value={limitDisplay(plan.limits.max_professores)} />
+                <MiniStat label="Unidades" value={limitDisplay(plan.limits.max_unidades)} />
+                <MiniStat label="Academias" value={String(count)} />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="secondary" onClick={() => setModalPlan(plan)}>Editar</Button>
+                <Button size="sm" variant="ghost" onClick={() => handleToggle(plan)}>{plan.is_active ? 'Desativar' : 'Ativar'}</Button>
+                <Button size="sm" variant="ghost" onClick={() => handleDelete(plan)}>Excluir</Button>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
 
-          {/* Mobile cards */}
-          <div className="grid grid-cols-1 gap-3 lg:hidden">
-            {filteredSubs.map((sub) => {
-              const statusCfg = STATUS_CONFIG[sub.status];
+      {plans.length === 0 && (
+        <div className="py-12 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+          Nenhum plano cadastrado. Clique em &quot;+ Novo Plano&quot; para começar.
+        </div>
+      )}
+
+      {/* Distribution Chart */}
+      {plans.length > 0 && (
+        <div className="rounded-xl p-5" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+          <h3 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Distribuição de Academias por Plano
+          </h3>
+          <div className="space-y-3">
+            {plans.filter((p) => p.is_active).map((plan) => {
+              const count = academyCounts[plan.id] ?? 0;
+              const pct = totalAcademies > 0 ? (count / totalAcademies) * 100 : 0;
               return (
-                <Card key={sub.id} className="p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="truncate text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-                      {sub.academyName}
-                    </span>
-                    <span
-                      className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-                      style={{ background: statusCfg.bg, color: statusCfg.color }}
-                    >
-                      {statusCfg.label}
-                    </span>
+                <div key={plan.id}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{plan.name}</span>
+                    <span className="text-sm font-bold" style={{ color: 'var(--bb-warning)' }}>{count} ({pct.toFixed(0)}%)</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg p-2" style={{ background: 'var(--bb-depth-4)' }}>
-                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Faixa</p>
-                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{sub.faixa}</p>
-                    </div>
-                    <div className="rounded-lg p-2" style={{ background: 'var(--bb-depth-4)' }}>
-                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Total/mes</p>
-                      <p className="text-sm font-bold" style={{ color: AMBER }}>{fmtBRL(sub.precoTotal)}</p>
-                    </div>
-                    <div className="rounded-lg p-2" style={{ background: 'var(--bb-depth-4)' }}>
-                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Modulos</p>
-                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{sub.modulosPagos.length}</p>
-                    </div>
-                    <div className="rounded-lg p-2" style={{ background: 'var(--bb-depth-4)' }}>
-                      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>Descoberta</p>
-                      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{discoveryLabel(sub)}</p>
-                    </div>
+                  <div className="h-2 w-full rounded-full" style={{ background: 'var(--bb-depth-1)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'var(--bb-warning)' }} />
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>
-
-          {filteredSubs.length === 0 && (
-            <div className="py-12 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              Nenhuma assinatura encontrada para este filtro.
-            </div>
-          )}
         </div>
       )}
 
-      {/* ═══ TAB 5: RECEITA E CONVERSAO ═════════════════════ */}
-      {activeTab === 'receita' && (
-        <div className="space-y-6">
-          {/* MRR Card */}
-          <div
-            className="rounded-xl p-6"
-            style={{
-              background: 'var(--bb-depth-3)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-              MRR (Monthly Recurring Revenue)
-            </p>
-            <p className="mt-2 text-3xl font-bold" style={{ color: AMBER }}>
-              {fmtBRL(totalMRR)}/mes
-            </p>
-            <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-              Soma de {MOCK_SUBSCRIPTIONS.filter((s) => s.status !== 'cancelled').length} assinaturas ativas
-            </p>
-          </div>
-
-          {/* MRR por modulo */}
-          <div
-            className="rounded-xl p-5"
-            style={{
-              background: 'var(--bb-depth-3)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <h3 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-              MRR por Modulo
-            </h3>
-            <div className="space-y-3">
-              {MOCK_MRR_POR_MODULO.map((m) => {
-                const pct = maxModuloReceita > 0 ? (m.receita / maxModuloReceita) * 100 : 0;
-                return (
-                  <div key={m.nome}>
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                        {m.nome}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold" style={{ color: AMBER }}>
-                          {fmtBRL(m.receita)}
-                        </span>
-                        <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>
-                          ({m.academias} academia{m.academias !== 1 ? 's' : ''})
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className="h-2 w-full rounded-full"
-                      style={{ background: 'var(--bb-depth-1)' }}
-                    >
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{ width: `${pct}%`, background: AMBER }}
-                      />
+      {/* Revenue by Plan */}
+      {plans.length > 0 && (
+        <div className="rounded-xl p-5" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+          <h3 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Receita por Plano
+          </h3>
+          <div className="space-y-3">
+            {plans.filter((p) => p.is_active && !p.is_custom_price).map((plan) => {
+              const count = academyCounts[plan.id] ?? 0;
+              const revenue = plan.price_monthly * count;
+              const pct = totalMRR > 0 ? (revenue / totalMRR) * 100 : 0;
+              return (
+                <div key={plan.id}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{plan.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold" style={{ color: 'var(--bb-warning)' }}>{fmtBRL(revenue)}</span>
+                      <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>({count} academia{count !== 1 ? 's' : ''})</span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Conversao pos-descoberta */}
-          <div
-            className="rounded-xl p-5"
-            style={{
-              background: 'var(--bb-depth-3)',
-              border: '1px solid var(--bb-glass-border)',
-            }}
-          >
-            <h3 className="mb-4 text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-              Conversao pos-descoberta
-            </h3>
-            <div className="space-y-3">
-              {MOCK_CONVERSAO.map((c) => {
-                const barColor = conversionColor(c.percent);
-                return (
-                  <div key={c.nome}>
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
-                        {c.nome}
-                      </span>
-                      <span className="text-sm font-bold" style={{ color: barColor }}>
-                        {c.percent}%
-                      </span>
-                    </div>
-                    <div
-                      className="h-2 w-full rounded-full"
-                      style={{ background: 'var(--bb-depth-1)' }}
-                    >
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{ width: `${c.percent}%`, background: barColor }}
-                      />
-                    </div>
-                    {c.percent < 30 && (
-                      <p className="mt-0.5 text-[10px]" style={{ color: RED }}>
-                        Considere reduzir preco
-                      </p>
-                    )}
+                  <div className="h-2 w-full rounded-full" style={{ background: 'var(--bb-depth-1)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'var(--bb-brand)' }} />
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Insight card */}
-          <div
-            className="rounded-xl p-5"
-            style={{
-              background: 'rgba(245,158,11,0.06)',
-              border: '1px solid rgba(245,158,11,0.2)',
-            }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: AMBER }}>
-              Insight
-            </p>
-            <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-80)' }}>
-              Gamificacao tem a maior taxa de conversao (62%). Considere inclui-la em pacotes menores
-              para aumentar a adocao. Franquia tem a menor conversao (8%) — avalie reduzir o preco
-              ou criar um trial estendido para esse modulo.
-            </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
+
+      {/* Modal */}
+      {modalPlan !== null && (
+        <PlanModal
+          plan={modalPlan === 'new' ? null : modalPlan}
+          onClose={() => setModalPlan(null)}
+          onSave={handleSave}
+          saving={saving}
+        />
+      )}
+
+      {/* Confirm Dialog */}
+      {confirm && <ConfirmDialog {...confirm} />}
     </div>
   );
 }
 
-// ─── ModuloCard Sub-component ─────────────────────────────────
+// ─── Sub-components ──────────────────────────────────────────
 
-function ModuloCard({ modulo }: { modulo: Modulo }) {
-  const [expanded, setExpanded] = useState(false);
-  const catConfig = CATEGORIA_LABELS[modulo.categoria] ?? { label: modulo.categoria, color: 'var(--bb-ink-60)' };
-
+function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
-    <Card className="flex flex-col p-4">
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{modulo.icone}</span>
-          <div>
-            <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              {modulo.nome}
-            </p>
-            <span
-              className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase"
-              style={{ background: `${catConfig.color}20`, color: catConfig.color }}
-            >
-              {catConfig.label}
-            </span>
-          </div>
+    <div className="rounded-xl p-4" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
+      <div className="flex items-center gap-2">
+        <span className="text-lg">{icon}</span>
+        <div>
+          <p className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>{value}</p>
+          <p className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>{label}</p>
         </div>
-        {modulo.destaque && (
-          <span
-            className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold"
-            style={{ background: 'rgba(245,158,11,0.15)', color: AMBER }}
-          >
-            Popular
-          </span>
-        )}
       </div>
+    </div>
+  );
+}
 
-      <p className="mb-3 line-clamp-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-        {modulo.descricao}
-      </p>
-
-      {/* Pricing */}
-      <div className="mb-3 flex items-baseline gap-2">
-        <span className="text-lg font-bold" style={{ color: AMBER }}>
-          {fmtBRL(modulo.precoMensal)}
-        </span>
-        <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>/mes</span>
-        <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-          | {fmtBRL(modulo.precoAnual)}/ano
-        </span>
-      </div>
-
-      {/* Features toggle */}
-      {modulo.features.length > 0 && (
-        <div className="mt-auto">
-          <button
-            type="button"
-            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--bb-brand)', background: 'transparent', border: 'none', cursor: 'pointer' }}
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? 'Ocultar' : 'Ver'} features ({modulo.features.length})
-          </button>
-          {expanded && (
-            <ul className="space-y-1">
-              {modulo.features.map((f, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-1.5 text-xs"
-                  style={{ color: 'var(--bb-ink-60)' }}
-                >
-                  <span style={{ color: GREEN, fontSize: 10 }}>&#10003;</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </Card>
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg p-2" style={{ background: 'var(--bb-depth-4)' }}>
+      <p className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{label}</p>
+      <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>{value}</p>
+    </div>
   );
 }
