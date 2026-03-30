@@ -15,7 +15,6 @@ import type { OAuthProvider } from '@/lib/api/auth.service';
 import { isMock } from '@/lib/env';
 import {
   setTokens,
-  clearTokens,
   getAccessToken,
   getRefreshToken,
   isTokenExpired,
@@ -23,7 +22,7 @@ import {
 } from '@/lib/security';
 import * as authService from '@/lib/api/auth.service';
 import { useRouter } from 'next/navigation';
-import { identifyUser, resetAnalytics, trackEvent, AnalyticsEvents, disableAnalyticsForKids, enableAnalytics } from '@/lib/analytics/posthog';
+import { identifyUser, trackEvent, AnalyticsEvents, disableAnalyticsForKids, enableAnalytics } from '@/lib/analytics/posthog';
 
 interface AuthState {
   profile: Profile | null;
@@ -61,6 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profileSwitchRef.current = true;
       sessionStorage.removeItem('bb_profile_switch');
     }
+  }, []);
+
+  // Timeout safety — never stay loading for more than 5 seconds
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setState((prev) => {
+        if (prev.isLoading) {
+          console.warn('[Auth] Timeout 5s — forçando isLoading=false');
+          return { ...prev, isLoading: false };
+        }
+        return prev;
+      });
+    }, 5000);
+    return () => clearTimeout(timeout);
   }, []);
 
   // Bootstrap: check existing session on mount
@@ -295,25 +308,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await authService.logout();
-    resetAnalytics();
-
-    if (isMock()) {
-      clearTokens();
-    }
-
-    setState({
-      profile: null,
-      profiles: [],
-      isLoading: false,
-      isAuthenticated: false,
-    });
-
-    // Hard navigation to ensure Supabase session cookies are
-    // cleared before the middleware runs on the /login request.
-    // router.push does a client-side nav where old cookies
-    // cause the middleware to redirect back to the dashboard.
-    window.location.href = '/login';
+    // Use performLogout for nuclear cleanup (cookies, storage, state, hard redirect)
+    const { performLogout } = await import('@/lib/auth/logout');
+    await performLogout();
+    // performLogout does window.location.href = '/login' — code below won't execute
   }, []);
 
   const refreshSession = useCallback(async () => {
