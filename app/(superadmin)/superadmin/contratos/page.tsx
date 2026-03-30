@@ -10,6 +10,7 @@ import {
   updateSoftwareContractTemplate,
   type SoftwareContractTemplate,
 } from '@/lib/api/contracts.service';
+import { downloadContractPDF } from '@/lib/utils/contract-pdf';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -239,6 +240,7 @@ export default function SuperadminContratosPage() {
   const [template, setTemplate] = useState<SoftwareContractTemplate | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   // Edit form state
   const [editTitle, setEditTitle] = useState('');
@@ -822,30 +824,136 @@ export default function SuperadminContratosPage() {
 
       {/* HTML Body Preview */}
       <div style={{ ...cardStyle, marginBottom: 16 }}>
-        <p
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'var(--bb-ink-80)',
-            marginBottom: 12,
-          }}
-        >
-          Pre-visualizacao do contrato
-        </p>
         <div
           style={{
-            background: '#fff',
-            border: '1px solid var(--bb-glass-border)',
-            borderRadius: 8,
-            padding: 24,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 12,
+            flexWrap: 'wrap',
+            gap: 8,
+          }}
+        >
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--bb-ink-80)',
+              margin: 0,
+            }}
+          >
+            Pre-visualizacao do contrato
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              setDownloadingPdf(true);
+              try {
+                await downloadContractPDF(
+                  'contract-content',
+                  'contrato-software-blackbelt.pdf',
+                );
+                toast('PDF gerado com sucesso', 'success');
+              } catch (err) {
+                toast(translateError(err), 'error');
+              } finally {
+                setDownloadingPdf(false);
+              }
+            }}
+            disabled={downloadingPdf}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 16px',
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#fff',
+              background: downloadingPdf ? 'var(--bb-ink-40)' : 'var(--bb-brand)',
+              border: 'none',
+              borderRadius: 8,
+              cursor: downloadingPdf ? 'not-allowed' : 'pointer',
+              opacity: downloadingPdf ? 0.7 : 1,
+              transition: 'all 0.2s',
+            }}
+          >
+            {downloadingPdf ? (
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ animation: 'spin 1s linear infinite' }}
+              >
+                <circle opacity="0.25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path opacity="0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            )}
+            {downloadingPdf ? 'Gerando PDF...' : 'Baixar PDF'}
+          </button>
+        </div>
+        <div
+          id="contract-content"
+          style={{
+            background: 'white',
+            color: '#1a1a1a',
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            padding: '48px 56px',
+            maxWidth: '800px',
+            margin: '0 auto',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            borderRadius: '4px',
+            lineHeight: '1.8',
             maxHeight: 500,
             overflow: 'auto',
-            color: '#1a1a1a',
-            fontSize: 14,
-            lineHeight: 1.7,
           }}
           dangerouslySetInnerHTML={{ __html: template.body_html }}
         />
+        <style>{`
+          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          #contract-content h1 {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 24px 0;
+            color: #1a1a1a;
+          }
+          #contract-content h2 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ccc;
+            color: #1a1a1a;
+          }
+          #contract-content p {
+            margin: 8px 0;
+            text-align: justify;
+            color: #1a1a1a;
+          }
+          #contract-content strong {
+            color: #111;
+          }
+        `}</style>
       </div>
 
       {/* Plan Clauses */}

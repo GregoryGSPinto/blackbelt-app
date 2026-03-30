@@ -13,6 +13,7 @@ import type {
   StudentContractStatus,
   SignatureData,
 } from '@/lib/api/contracts.service';
+import { downloadContractPDF } from '@/lib/utils/contract-pdf';
 
 // ── Status labels (PT-BR) ──────────────────────────────────────────
 
@@ -111,9 +112,29 @@ function ContractCard({
   contract: StudentContract;
   onSign: (contract: StudentContract) => void;
 }) {
+  const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const statusColor = STATUS_COLORS[contract.status] ?? STATUS_COLORS.draft;
   const statusLabel = STATUS_LABELS[contract.status] ?? contract.status;
+
+  const contractElementId = `contract-content-${contract.id}`;
+
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true);
+    try {
+      const safeName = contract.student_name
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+      await downloadContractPDF(contractElementId, `contrato-${safeName}.pdf`);
+      toast('PDF gerado com sucesso', 'success');
+    } catch (err) {
+      toast(translateError(err), 'error');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
 
   return (
     <div
@@ -214,22 +235,111 @@ function ContractCard({
           </span>
           {expanded ? 'Ocultar Contrato' : 'Ver Contrato'}
         </button>
+
+        {expanded && contract.contract_body_html && (
+          <button
+            onClick={handleDownloadPdf}
+            disabled={downloadingPdf}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: 'none',
+              background: downloadingPdf ? 'var(--bb-ink-40)' : 'var(--bb-brand)',
+              color: '#fff',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: downloadingPdf ? 'not-allowed' : 'pointer',
+              opacity: downloadingPdf ? 0.7 : 1,
+              transition: 'all 0.2s',
+            }}
+          >
+            {downloadingPdf ? (
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ animation: 'spin 1s linear infinite' }}
+              >
+                <circle opacity="0.25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path opacity="0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            )}
+            {downloadingPdf ? 'Gerando...' : 'Baixar PDF'}
+          </button>
+        )}
       </div>
 
-      {/* Expanded contract body */}
+      {/* Expanded contract body with professional document styling */}
       {expanded && contract.contract_body_html && (
-        <div
-          style={{
-            marginTop: 4,
-            padding: 16,
-            borderRadius: 10,
-            border: '1px solid var(--bb-glass-border)',
-            background: 'var(--bb-depth-1)',
-            maxHeight: 400,
-            overflowY: 'auto',
-          }}
-          dangerouslySetInnerHTML={{ __html: contract.contract_body_html }}
-        />
+        <>
+          <div
+            id={contractElementId}
+            style={{
+              marginTop: 4,
+              background: 'white',
+              color: '#1a1a1a',
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              padding: '48px 56px',
+              maxWidth: '800px',
+              margin: '4px auto 0',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: '4px',
+              lineHeight: '1.8',
+              maxHeight: 400,
+              overflowY: 'auto',
+            }}
+            dangerouslySetInnerHTML={{ __html: contract.contract_body_html }}
+          />
+          <style>{`
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            #${contractElementId} h1 {
+              font-size: 22px;
+              font-weight: bold;
+              text-align: center;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              margin: 0 0 24px 0;
+              color: #1a1a1a;
+            }
+            #${contractElementId} h2 {
+              font-size: 16px;
+              font-weight: bold;
+              margin-top: 24px;
+              margin-bottom: 8px;
+              padding-bottom: 4px;
+              border-bottom: 1px solid #ccc;
+              color: #1a1a1a;
+            }
+            #${contractElementId} p {
+              margin: 8px 0;
+              text-align: justify;
+              color: #1a1a1a;
+            }
+            #${contractElementId} strong {
+              color: #111;
+            }
+          `}</style>
+        </>
       )}
     </div>
   );
@@ -311,22 +421,53 @@ function SignContractFlow({
         </p>
       </div>
 
-      {/* Contract body (scrollable) */}
+      {/* Contract body (scrollable) with professional document styling */}
       {contract.contract_body_html && (
-        <div
-          style={{
-            maxHeight: 360,
-            overflowY: 'auto',
-            padding: 16,
-            borderRadius: 12,
-            border: '1px solid var(--bb-glass-border)',
-            background: 'var(--bb-depth-1)',
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: 'var(--bb-ink-80)',
-          }}
-          dangerouslySetInnerHTML={{ __html: contract.contract_body_html }}
-        />
+        <>
+          <div
+            id="sign-contract-content"
+            style={{
+              maxHeight: 360,
+              overflowY: 'auto',
+              background: 'white',
+              color: '#1a1a1a',
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              padding: '32px 40px',
+              borderRadius: 4,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              lineHeight: 1.8,
+            }}
+            dangerouslySetInnerHTML={{ __html: contract.contract_body_html }}
+          />
+          <style>{`
+            #sign-contract-content h1 {
+              font-size: 20px;
+              font-weight: bold;
+              text-align: center;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              margin: 0 0 20px 0;
+              color: #1a1a1a;
+            }
+            #sign-contract-content h2 {
+              font-size: 15px;
+              font-weight: bold;
+              margin-top: 20px;
+              margin-bottom: 6px;
+              padding-bottom: 4px;
+              border-bottom: 1px solid #ccc;
+              color: #1a1a1a;
+            }
+            #sign-contract-content p {
+              margin: 6px 0;
+              text-align: justify;
+              color: #1a1a1a;
+            }
+            #sign-contract-content strong {
+              color: #111;
+            }
+          `}</style>
+        </>
       )}
 
       {/* Consent checkboxes */}
