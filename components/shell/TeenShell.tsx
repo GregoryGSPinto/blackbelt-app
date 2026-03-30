@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
@@ -30,6 +31,7 @@ import {
   MessageIcon,
   UsersIcon,
   LogOutIcon,
+  SearchIcon,
 } from './icons';
 
 interface TeenShellProps {
@@ -94,6 +96,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
     const { profile, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -269,6 +272,14 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: 'var(--bb-ink-60)' }}
+                  aria-label="Buscar"
+                >
+                  <SearchIcon className="h-5 w-5" />
+                </button>
                 <HeaderHelpButton variant="student" />
                 <BetaBadge />
                 <ThemeToggle />
@@ -404,6 +415,9 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
 
         {/* Tour overlay — auto-triggers on first access */}
         <TourIntegration />
+
+        {/* Command Palette */}
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
       </div>
     );
   },

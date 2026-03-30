@@ -8,6 +8,7 @@ import { BottomNav } from './BottomNav';
 import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 import { HeaderHelpButton, SidebarHelpSection } from './HelpSection';
 import { SidebarFeedback } from '@/components/shared/SidebarFeedback';
 import { LegalFooter } from './LegalFooter';
@@ -27,6 +28,7 @@ import {
   ShieldIcon,
   BellIcon,
   BarChartIcon,
+  SearchIcon,
 } from './icons';
 import type { NavItem } from './BottomNav';
 
@@ -92,6 +94,7 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
     const { profile, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -264,6 +267,14 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
                 </span>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: 'var(--bb-ink-60)' }}
+                  aria-label="Buscar"
+                >
+                  <SearchIcon className="h-5 w-5" />
+                </button>
                 <HeaderHelpButton variant="student" />
                 <ThemeToggle />
                 <NotificationBell />
@@ -366,6 +377,9 @@ const ParentShell = forwardRef<HTMLDivElement, ParentShellProps>(
 
         {/* Tour overlay — auto-triggers on first access */}
         <TourIntegration />
+
+        {/* Command Palette */}
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
       </div>
     );
   },

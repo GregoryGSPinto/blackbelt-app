@@ -14,6 +14,8 @@ import { LegalFooter } from './LegalFooter';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { TourIntegration } from '@/components/tour/TourIntegration';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { CommandPalette } from '@/components/shared/CommandPalette';
+import { SearchIcon } from './icons';
 import {
   LayoutDashboardIcon,
   BuildingIcon,
@@ -113,6 +115,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
     const [impersonating, setImpersonating] = useState(false);
     const [impersonateInfo, setImpersonateInfo] = useState<{ academiaNome: string } | null>(null);
     const userMenuRef = useRef<HTMLDivElement>(null);
@@ -316,6 +319,16 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
               </div>
 
               <div className="flex items-center gap-3">
+                {/* Search */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: 'var(--bb-ink-60)' }}
+                  aria-label="Buscar"
+                >
+                  <SearchIcon className="h-5 w-5" />
+                </button>
+
                 {/* Notifications */}
                 <NotificationBell />
 
@@ -414,6 +427,9 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
 
         {/* Tour overlay — auto-triggers on first access */}
         <TourIntegration />
+
+        {/* Command Palette */}
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
       </div>
     );
   },

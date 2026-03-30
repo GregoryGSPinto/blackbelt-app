@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { SidebarHelpSection, HeaderHelpButton } from './HelpSection';
 import { LegalFooter } from './LegalFooter';
@@ -39,6 +40,7 @@ import {
   ShieldIcon,
   FileTextIcon,
   EditIcon,
+  SearchIcon,
 } from './icons';
 
 interface MainShellProps {
@@ -113,6 +115,7 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
     const { cartCount } = useCartContext();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -253,6 +256,14 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
                 </button>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: 'var(--bb-ink-60)' }}
+                  aria-label="Buscar"
+                >
+                  <SearchIcon className="h-5 w-5" />
+                </button>
                 <HeaderHelpButton variant="student" />
                 <BetaBadge />
                 <Link href="/carrinho" className="relative flex items-center justify-center h-9 w-9" aria-label="Carrinho">
@@ -399,6 +410,9 @@ const MainShell = forwardRef<HTMLDivElement, MainShellProps>(
 
         {/* Tour overlay — auto-triggers on first access */}
         <TourIntegration />
+
+        {/* Command Palette */}
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
       </div>
     );
   },
