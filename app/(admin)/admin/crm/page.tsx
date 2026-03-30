@@ -39,10 +39,15 @@ export default function AdminCRMPage() {
   const [novoSaving, setNovoSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const [l, m] = await Promise.all([getLeads(academyId), getCRMMetrics(academyId)]);
-    setLeads(l);
-    setMetrics(m);
-    setLoading(false);
+    try {
+      const [l, m] = await Promise.all([getLeads(academyId), getCRMMetrics(academyId)]);
+      setLeads(l);
+      setMetrics(m);
+    } catch (err) {
+      console.error('[AdminCRMPage]', err);
+    } finally {
+      setLoading(false);
+    }
   }, [academyId]);
 
   useEffect(() => { load(); }, [load]);

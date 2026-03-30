@@ -21,7 +21,7 @@ export default function SystemPage() {
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
-    getSystemStatus().then((s) => { setStatus(s); setLoading(false); });
+    getSystemStatus().then((s) => { setStatus(s); }).catch((err) => { console.error('[SystemPage]', err); }).finally(() => { setLoading(false); });
   }, []);
 
   if ((loading || !status) && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;

@@ -30,7 +30,7 @@ export default function WebhooksPage() {
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    listWebhooks(getActiveAcademyId()).then((w) => { setWebhooks(w); setLoading(false); });
+    listWebhooks(getActiveAcademyId()).then((w) => { setWebhooks(w); }).catch((err) => { console.error('[WebhooksPage]', err); }).finally(() => { setLoading(false); });
   }, []);
 
   async function handleCreate() {

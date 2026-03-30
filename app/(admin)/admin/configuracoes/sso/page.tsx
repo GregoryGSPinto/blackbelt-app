@@ -25,7 +25,7 @@ export default function SSOConfigPage() {
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    getSSOConfig(getActiveAcademyId()).then((c) => { setConfig(c); setLoading(false); });
+    getSSOConfig(getActiveAcademyId()).then((c) => { setConfig(c); }).catch((err) => { console.error('[SSOConfigPage]', err); }).finally(() => { setLoading(false); });
   }, []);
 
   async function handleSave() {

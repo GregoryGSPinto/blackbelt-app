@@ -40,10 +40,15 @@ export default function RecepcaoCheckinPage() {
 
   // Load "dentro agora"
   const loadDentro = useCallback(async () => {
-    const res = await getDentroAgora();
-    setDentroAgora(res.pessoas);
-    setCapacidade(res.capacidade);
-    setLoading(false);
+    try {
+      const res = await getDentroAgora();
+      setDentroAgora(res.pessoas);
+      setCapacidade(res.capacidade);
+    } catch (err) {
+      console.error('[RecepcaoCheckinPage]', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadDentro(); }, [loadDentro]);

@@ -51,8 +51,11 @@ export default function KidsVideoExperiencePage() {
         setData(result);
         setProgress(result.progresso.progressoSegundos);
         if (result.social.minhaAvaliacao) setStars(result.social.minhaAvaliacao);
-        setLoading(false);
       }
+    }).catch((err) => {
+      console.error('[KidsVideoExperiencePage]', err);
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
   }, [videoId]);

@@ -302,8 +302,13 @@ export default function AdminStudentProfilePage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setData(buildMockData(studentId));
-      setLoading(false);
+      try {
+        setData(buildMockData(studentId));
+      } catch (err) {
+        console.error('[AdminStudentProfilePage]', err);
+      } finally {
+        setLoading(false);
+      }
     }, 400);
     return () => clearTimeout(timer);
   }, [studentId]);

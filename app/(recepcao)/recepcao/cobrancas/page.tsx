@@ -42,10 +42,15 @@ export default function RecepcaoCobrancasPage() {
   const [histLoading, setHistLoading] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await getInadimplentes();
-    setInadimplentes(res.inadimplentes);
-    setTotalInadimplente(res.resumo.totalInadimplente);
-    setLoading(false);
+    try {
+      const res = await getInadimplentes();
+      setInadimplentes(res.inadimplentes);
+      setTotalInadimplente(res.resumo.totalInadimplente);
+    } catch (err) {
+      console.error('[RecepcaoCobrancasPage]', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);

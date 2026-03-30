@@ -70,9 +70,14 @@ export default function AdminGamificacaoPage() {
   const [novoXP, setNovoXP] = useState('50');
 
   const load = useCallback(() => {
-    setBadges(MOCK_BADGES);
-    setRanking(MOCK_RANKING);
-    setLoading(false);
+    try {
+      setBadges(MOCK_BADGES);
+      setRanking(MOCK_RANKING);
+    } catch (err) {
+      console.error('[AdminGamificacaoPage]', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);

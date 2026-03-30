@@ -38,6 +38,9 @@ export default function AppDetailPage() {
     Promise.all([getApp(appId), getAppReviews(appId)]).then(([a, r]) => {
       setApp(a);
       setReviews(r);
+    }).catch((err) => {
+      console.error('[AppDetailPage]', err);
+    }).finally(() => {
       setLoading(false);
     });
   }, [appId]);

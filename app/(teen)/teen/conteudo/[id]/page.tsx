@@ -96,7 +96,11 @@ export default function TeenVideoExperiencePage() {
     setLoading(true);
     trackFeatureUsage('content', 'view');
     getVideoExperience(videoId).then((d) => {
-      if (!cancelled) { setData(d); setProgress(d.progresso.progressoSegundos); setLoading(false); }
+      if (!cancelled) { setData(d); setProgress(d.progresso.progressoSegundos); }
+    }).catch((err) => {
+      console.error('[TeenVideoExperiencePage]', err);
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
   }, [videoId]);

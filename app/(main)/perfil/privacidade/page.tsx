@@ -29,7 +29,7 @@ export default function PrivacyPage() {
       return;
     }
 
-    getConsents(profile.id).then((c) => { setConsents(c); setLoading(false); });
+    getConsents(profile.id).then((c) => { setConsents(c); }).catch((err) => { console.error('[PrivacyPage]', err); }).finally(() => { setLoading(false); });
   }, [authLoading, profile?.id]);
 
   async function handleToggle(type: ConsentRecord['type'], accepted: boolean) {

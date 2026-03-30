@@ -32,7 +32,7 @@ export default function ApiKeysPage() {
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
   useEffect(() => {
-    listApiKeys(getActiveAcademyId()).then((k) => { setKeys(k); setLoading(false); });
+    listApiKeys(getActiveAcademyId()).then((k) => { setKeys(k); }).catch((err) => { console.error('[ApiKeysPage]', err); }).finally(() => { setLoading(false); });
   }, []);
 
   async function handleCreate() {

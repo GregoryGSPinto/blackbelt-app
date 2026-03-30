@@ -57,7 +57,15 @@ export default function SuperAdminUsuariosPage() {
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => { setUsers(MOCK_USERS); setLoading(false); }, 300);
+    const timer = setTimeout(() => {
+      try {
+        setUsers(MOCK_USERS);
+      } catch (err) {
+        console.error('[SuperAdminUsuariosPage]', err);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 

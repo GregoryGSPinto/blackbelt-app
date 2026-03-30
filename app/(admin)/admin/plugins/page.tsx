@@ -38,6 +38,9 @@ export default function PluginsPage() {
   useEffect(() => {
     listPlugins().then((p) => {
       setPlugins(p);
+    }).catch((err) => {
+      console.error('[PluginsPage]', err);
+    }).finally(() => {
       setLoading(false);
     });
   }, []);

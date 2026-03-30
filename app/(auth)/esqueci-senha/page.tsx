@@ -89,8 +89,9 @@ export default function EsqueciSenhaPage() {
       await sendResetEmail(trimmed);
     } catch {
       // SECURITY: Never reveal if email exists. Always show success.
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
     setSent(true);
     setCooldown(RESEND_COOLDOWN_SECONDS);
   }

@@ -67,10 +67,15 @@ export default function ProfessorDuvidasPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [p, r] = await Promise.all([getDuvidasPendentes(), getDuvidasRespondidas()]);
-    setPendentes(p);
-    setRespondidas(r);
-    setLoading(false);
+    try {
+      const [p, r] = await Promise.all([getDuvidasPendentes(), getDuvidasRespondidas()]);
+      setPendentes(p);
+      setRespondidas(r);
+    } catch (err) {
+      console.error('[ProfessorDuvidasPage]', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

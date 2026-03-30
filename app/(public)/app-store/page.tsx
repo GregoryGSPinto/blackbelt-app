@@ -37,6 +37,9 @@ export default function AppStorePage() {
       setApps(a);
       setCategories(c);
       setFeatured(f);
+    }).catch((err) => {
+      console.error('[AppStorePage]', err);
+    }).finally(() => {
       setLoading(false);
     });
   }, []);

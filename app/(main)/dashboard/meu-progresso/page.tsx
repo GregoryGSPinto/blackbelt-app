@@ -234,8 +234,13 @@ export default function MeuProgressoPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setData(buildMockData());
-      setLoading(false);
+      try {
+        setData(buildMockData());
+      } catch (err) {
+        console.error('[MeuProgressoPage]', err);
+      } finally {
+        setLoading(false);
+      }
     }, 350);
     return () => clearTimeout(timer);
   }, []);

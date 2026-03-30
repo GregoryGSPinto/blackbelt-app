@@ -24,6 +24,9 @@ export default function NetworkPage() {
     ]).then(([d, f]) => {
       setDashboard(d);
       setFinancials(f);
+    }).catch((err) => {
+      console.error('[NetworkPage]', err);
+    }).finally(() => {
       setLoading(false);
     });
   }, []);

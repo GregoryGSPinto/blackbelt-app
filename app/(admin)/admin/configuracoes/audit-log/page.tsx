@@ -39,12 +39,17 @@ export default function AuditLogPage() {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const filters: Record<string, string> = {};
-      if (filterAction) filters.action = filterAction;
-      if (filterEntity) filters.entityType = filterEntity;
-      const result = await searchAuditLogs(getActiveAcademyId(), filters);
-      setLogs(result.logs);
-      setLoading(false);
+      try {
+        const filters: Record<string, string> = {};
+        if (filterAction) filters.action = filterAction;
+        if (filterEntity) filters.entityType = filterEntity;
+        const result = await searchAuditLogs(getActiveAcademyId(), filters);
+        setLogs(result.logs);
+      } catch (err) {
+        console.error('[AuditLogPage]', err);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, [filterAction, filterEntity]);

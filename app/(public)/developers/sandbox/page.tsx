@@ -138,10 +138,15 @@ export default function SandboxPage() {
     const start = performance.now();
     // Simulate network delay
     setTimeout(() => {
-      const elapsed = Math.round(performance.now() - start);
-      setResponse(selected.mockResponse);
-      setResponseTime(elapsed);
-      setLoading(false);
+      try {
+        const elapsed = Math.round(performance.now() - start);
+        setResponse(selected.mockResponse);
+        setResponseTime(elapsed);
+      } catch (err) {
+        console.error('[SandboxPage]', err);
+      } finally {
+        setLoading(false);
+      }
     }, 300 + Math.random() * 400);
   }, [selected]);
 

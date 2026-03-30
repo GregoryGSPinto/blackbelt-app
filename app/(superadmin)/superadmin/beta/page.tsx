@@ -127,16 +127,21 @@ function FeedbackTab() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [feedbackData, statsData] = await Promise.all([
-      getAllFeedback({
-        status: filterStatus || undefined,
-        type: filterType || undefined,
-      }),
-      getFeedbackStats(),
-    ]);
-    setItems(feedbackData);
-    setStats(statsData);
-    setLoading(false);
+    try {
+      const [feedbackData, statsData] = await Promise.all([
+        getAllFeedback({
+          status: filterStatus || undefined,
+          type: filterType || undefined,
+        }),
+        getFeedbackStats(),
+      ]);
+      setItems(feedbackData);
+      setStats(statsData);
+    } catch (err) {
+      console.error('[FeedbackTab]', err);
+    } finally {
+      setLoading(false);
+    }
   }, [filterStatus, filterType]);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -450,9 +455,14 @@ function ChangelogTab() {
 
   const loadEntries = useCallback(async () => {
     setLoading(true);
-    const data = await getAllChangelog();
-    setEntries(data);
-    setLoading(false);
+    try {
+      const data = await getAllChangelog();
+      setEntries(data);
+    } catch (err) {
+      console.error('[ChangelogTab]', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadEntries(); }, [loadEntries]);

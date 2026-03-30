@@ -19,7 +19,7 @@ export default function ReferralPage() {
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
-    getReferralStats(getActiveAcademyId()).then((s) => { setStats(s); setLoading(false); });
+    getReferralStats(getActiveAcademyId()).then((s) => { setStats(s); }).catch((err) => { console.error('[ReferralPage]', err); }).finally(() => { setLoading(false); });
   }, []);
 
   function copyLink() {
