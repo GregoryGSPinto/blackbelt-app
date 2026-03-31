@@ -124,9 +124,14 @@ export default function NotificacoesPage() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<InAppNotificationType | 'all'>('all');
 
-  const userId = profile?.id ?? 'admin-1';
+  const userId = profile?.id ?? '';
 
   const fetchNotifications = useCallback(async () => {
+    if (!userId) {
+      setNotifications([]);
+      setLoading(false);
+      return;
+    }
     try {
       const data = await listNotifications(userId);
       setNotifications(data);
@@ -153,6 +158,7 @@ export default function NotificacoesPage() {
   }
 
   async function handleMarkAllRead() {
+    if (!userId) return;
     try {
       await markAllRead(userId);
       setNotifications((prev) =>

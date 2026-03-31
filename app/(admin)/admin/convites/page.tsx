@@ -17,10 +17,9 @@ import {
 } from '@/lib/api/invite-tokens.service';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ───────────────────────────────────────────────────────────
-
-const ACADEMY_ID = 'academy-bb-001';
 
 const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Super Admin',
@@ -86,6 +85,7 @@ function getStatusInfo(token: InviteToken): { label: string; bg: string; text: s
 
 export default function ConvitesPage() {
   const { toast } = useToast();
+  const academyId = getActiveAcademyId();
 
   const [tokens, setTokens] = useState<InviteToken[]>([]);
   const [stats, setStats] = useState<InviteStats | null>(null);
@@ -116,17 +116,24 @@ export default function ConvitesPage() {
   // ── Load data ──────────────────────────────────────────────────────
 
   const loadData = useCallback(async () => {
+    if (!academyId) {
+      setTokens([]);
+      setStats(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const [tokenList, statsData] = await Promise.all([
-        listInviteTokens(ACADEMY_ID),
-        getInviteStats(ACADEMY_ID),
+        listInviteTokens(academyId),
+        getInviteStats(academyId),
       ]);
       setTokens(tokenList);
       setStats(statsData);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [academyId]);
 
   useEffect(() => {
     loadData();
@@ -177,6 +184,10 @@ export default function ConvitesPage() {
       toast('Preencha o nome do link.', 'error');
       return;
     }
+    if (!academyId) {
+      toast('Academia ativa nao encontrada.', 'error');
+      return;
+    }
 
     setCreating(true);
     try {
@@ -188,10 +199,10 @@ export default function ConvitesPage() {
         expires_at: formHasExpiry && formExpiry ? new Date(formExpiry).toISOString() : null,
       };
 
-      const created = await createInviteToken(ACADEMY_ID, payload);
+      const created = await createInviteToken(academyId, payload);
       setTokens((prev) => [created, ...prev]);
 
-      const newStats = await getInviteStats(ACADEMY_ID);
+      const newStats = await getInviteStats(academyId);
       setStats(newStats);
 
       toast('Link de convite criado!', 'success');
@@ -207,7 +218,7 @@ export default function ConvitesPage() {
     try {
       const updated = await deactivateInviteToken(token.id);
       setTokens((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-      const newStats = await getInviteStats(ACADEMY_ID);
+      const newStats = await getInviteStats(academyId);
       setStats(newStats);
       toast('Convite desativado.', 'success');
     } catch (err) {
@@ -220,7 +231,7 @@ export default function ConvitesPage() {
     try {
       await deleteInviteToken(token.id);
       setTokens((prev) => prev.filter((t) => t.id !== token.id));
-      const newStats = await getInviteStats(ACADEMY_ID);
+      const newStats = await getInviteStats(academyId);
       setStats(newStats);
       toast('Convite excluido.', 'success');
     } catch (err) {
@@ -230,6 +241,17 @@ export default function ConvitesPage() {
   }
 
   // ── Loading state ──────────────────────────────────────────────────
+
+  if (!academyId) {
+    return (
+      <div className="space-y-4 p-4 sm:p-6">
+        <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Convites</h1>
+        <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+          Selecione uma academia valida antes de gerenciar convites.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

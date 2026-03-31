@@ -18,6 +18,7 @@ import {
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -39,8 +40,6 @@ const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
   { value: 'dark', label: 'Escuro' },
   { value: 'system', label: 'Sistema' },
 ];
-
-const MOCK_PROFILE_ID = 'superadmin-1';
 
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
@@ -64,6 +63,7 @@ function SettingsSkeleton() {
 export default function SuperadminConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { profile, isLoading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
@@ -74,9 +74,16 @@ export default function SuperadminConfiguracoesPage() {
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
   useEffect(() => {
+    if (authLoading) return;
+
     async function load() {
+      if (!profile?.id) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const p = await getUserPreferences(MOCK_PROFILE_ID);
+        const p = await getUserPreferences(profile.id);
         setPrefs(p);
       } catch (err) {
         toast(translateError(err), 'error');
@@ -85,7 +92,7 @@ export default function SuperadminConfiguracoesPage() {
       }
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authLoading, profile?.id, toast]);
 
   async function handleSalvarSenha() {
     if (!senhaAtual || !novaSenha || !confirmarSenha) {
@@ -107,7 +114,9 @@ export default function SuperadminConfiguracoesPage() {
     }
   }
 
-  if (loading || !prefs) return <SettingsSkeleton />;
+  if (loading || authLoading) return <SettingsSkeleton />;
+
+  if (!profile?.id || !prefs) return <SettingsSkeleton />;
 
   return (
     <div className="min-h-screen p-4 sm:p-6">
@@ -146,10 +155,10 @@ export default function SuperadminConfiguracoesPage() {
           <>
             <SettingsSection icon="user" title="Foto de Perfil">
               <SettingsAvatar
-                name="Superadmin"
+                name={profile.display_name || 'Superadmin'}
                 onUpload={async (file) => {
                   try {
-                    await uploadAvatar(MOCK_PROFILE_ID, file);
+                    await uploadAvatar(profile.id, file);
                     toast('Avatar atualizado!', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -162,7 +171,7 @@ export default function SuperadminConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Superadmin"
+                value={profile.display_name || 'Superadmin'}
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput

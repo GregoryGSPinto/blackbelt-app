@@ -9,6 +9,7 @@ import {
   updateUserPreferences,
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -40,8 +41,6 @@ const THEME_OPTIONS: { value: ThemeOption; label: string; emoji: string }[] = [
   { value: 'system', label: 'Auto', emoji: '\uD83C\uDF08' },
 ];
 
-const MOCK_PROFILE_ID = 'kids-1';
-
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
 function KidsSkeleton() {
@@ -60,14 +59,22 @@ function KidsSkeleton() {
 export default function KidsConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { profile, isLoading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const profileId = profile?.id ?? '';
 
   useEffect(() => {
+    if (authLoading) return;
+
     async function load() {
+      if (!profileId) {
+        setLoading(false);
+        return;
+      }
       try {
-        const p = await getUserPreferences(MOCK_PROFILE_ID);
+        const p = await getUserPreferences(profileId);
         setPrefs(p);
       } catch {
         toast('Ops! Algo deu errado', 'error');
@@ -76,22 +83,23 @@ export default function KidsConfiguracoesPage() {
       }
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authLoading, profileId, toast]);
 
   const savePref = useCallback(
     async (partial: Partial<UserPreferences>) => {
       try {
-        await updateUserPreferences(MOCK_PROFILE_ID, partial);
+        if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+        await updateUserPreferences(profileId, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Pronto!', 'success');
       } catch {
         toast('Ops! Tenta de novo', 'error');
       }
     },
-    [toast],
+    [profileId, toast],
   );
 
-  if (loading || !prefs) return <KidsSkeleton />;
+  if (loading || authLoading || !prefs) return <KidsSkeleton />;
 
   return (
     <div className="min-h-screen p-4 sm:p-6" style={{ fontSize: '16px' }}>

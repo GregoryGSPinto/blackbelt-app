@@ -22,6 +22,7 @@ import {
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -57,8 +58,6 @@ const VIDEO_QUALITY: { value: string; label: string }[] = [
   { value: '480p', label: '480p' },
 ];
 
-const MOCK_PROFILE_ID = 'aluno-1';
-
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
 function SettingsSkeleton() {
@@ -81,6 +80,7 @@ function SettingsSkeleton() {
 export default function AlunoConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { profile, isLoading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
@@ -89,11 +89,18 @@ export default function AlunoConfiguracoesPage() {
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const profileId = profile?.id ?? '';
 
   useEffect(() => {
+    if (authLoading) return;
+
     async function load() {
+      if (!profileId) {
+        setLoading(false);
+        return;
+      }
       try {
-        const p = await getUserPreferences(MOCK_PROFILE_ID);
+        const p = await getUserPreferences(profileId);
         setPrefs(p);
       } catch (err) {
         toast(translateError(err), 'error');
@@ -102,19 +109,20 @@ export default function AlunoConfiguracoesPage() {
       }
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authLoading, profileId, toast]);
 
   const savePref = useCallback(
     async (partial: Partial<UserPreferences>) => {
       try {
-        await updateUserPreferences(MOCK_PROFILE_ID, partial);
+        if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+        await updateUserPreferences(profileId, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
       } catch (err) {
         toast(translateError(err), 'error');
       }
     },
-    [toast],
+    [profileId, toast],
   );
 
   async function handleSalvarSenha() {
@@ -137,7 +145,7 @@ export default function AlunoConfiguracoesPage() {
     }
   }
 
-  if (loading || !prefs) return <SettingsSkeleton />;
+  if (loading || authLoading || !prefs) return <SettingsSkeleton />;
 
   return (
     <div className="min-h-screen p-4 sm:p-6">
@@ -176,10 +184,11 @@ export default function AlunoConfiguracoesPage() {
           <>
             <SettingsSection icon="user" title="Foto de Perfil">
               <SettingsAvatar
-                name="Aluno"
+                name={profile?.display_name || 'Aluno'}
                 onUpload={async (file) => {
                   try {
-                    await uploadAvatar(MOCK_PROFILE_ID, file);
+                    if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+                    await uploadAvatar(profileId, file);
                     toast('Avatar atualizado!', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -192,7 +201,7 @@ export default function AlunoConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Aluno Silva"
+                value={profile?.display_name || 'Aluno'}
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput
@@ -457,7 +466,8 @@ export default function AlunoConfiguracoesPage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    await exportUserData(MOCK_PROFILE_ID);
+                    if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+                    await exportUserData(profileId);
                     toast('Exportacao iniciada!', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -476,7 +486,8 @@ export default function AlunoConfiguracoesPage() {
                   label: 'Excluir minha conta',
                   description: 'Sua conta e todos os dados serao excluidos permanentemente.',
                   action: async () => {
-                    await deleteAccount(MOCK_PROFILE_ID, 'EXCLUIR');
+                    if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+                    await deleteAccount(profileId, 'EXCLUIR');
                     toast('Conta excluida.', 'success');
                   },
                   confirmText: 'EXCLUIR MINHA CONTA',
