@@ -25,8 +25,17 @@ const STUDENTS: AdminStudentItem[] = [
   { id: 's-17', profile_id: 'p-17', display_name: 'Felipe Gonçalves', email: 'felipe.goncalves@email.com', phone: '11999001017', belt: BeltLevel.Green, turmas: ['Judô Adulto'], attendance_rate: 80, mensalidade_status: 'em_dia', billing_type: 'particular', monthly_amount: 12900, status: 'active', started_at: '2024-09-12', avatar_url: null },
   { id: 's-18', profile_id: 'p-18', display_name: 'Isabela Moreira', email: 'isabela.moreira@email.com', phone: '11999001018', belt: BeltLevel.White, turmas: ['BJJ Fundamentos'], attendance_rate: 0, mensalidade_status: 'pendente', billing_type: 'particular', monthly_amount: 14900, status: 'pending', started_at: '2026-03-15', avatar_url: null },
   { id: 's-19', profile_id: 'p-19', display_name: 'Daniel Pereira Castro', email: 'daniel.pereira@email.com', phone: '11999001019', belt: BeltLevel.Blue, turmas: ['BJJ All Levels', 'BJJ Avançado'], attendance_rate: 89, mensalidade_status: 'em_dia', billing_type: 'particular', monthly_amount: 19900, status: 'active', started_at: '2023-03-28', avatar_url: null },
-  { id: 's-20', profile_id: 'p-20', display_name: 'Fernanda Lopes Dias', email: 'fernanda.lopes@email.com', phone: '11999001020', belt: BeltLevel.Orange, turmas: ['BJJ Fundamentos'], attendance_rate: 72, mensalidade_status: 'em_dia', billing_type: 'smartfit', monthly_amount: 0, status: 'active', started_at: '2025-02-14', avatar_url: null },
-];
+  { id: 's-20', profile_id: 'p-20', display_name: 'Fernanda Lopes Dias', email: 'fernanda.lopes@email.com', phone: '11999001020', belt: BeltLevel.Orange, turmas: ['BJJ Fundamentos'], attendance_rate: 72, mensalidade_status: 'em_dia', billing_type: 'convenio', monthly_amount: 0, status: 'active', started_at: '2025-02-14', avatar_url: null },
+].map((student) => ({
+  payment_method_default: student.billing_type === 'gympass' || student.billing_type === 'totalpass' ? 'external_platform' : student.billing_type === 'cortesia' || student.billing_type === 'funcionario' ? 'none' : 'pix',
+  recurrence: student.billing_type === 'avulso' ? 'per_class' : student.billing_type === 'cortesia' || student.billing_type === 'funcionario' ? 'none' : 'monthly',
+  next_due_date: student.mensalidade_status === 'atrasado' ? '2026-03-05' : student.mensalidade_status === 'pendente' ? '2026-03-31' : '2026-04-10',
+  checkin_goal_status: student.billing_type === 'gympass' ? 'attention' : student.billing_type === 'totalpass' ? 'risk' : 'ok',
+  current_month_checkins: student.billing_type === 'gympass' ? 5 : student.billing_type === 'totalpass' ? 6 : 0,
+  monthly_checkin_minimum: student.billing_type === 'gympass' ? 8 : student.billing_type === 'totalpass' ? 10 : 0,
+  alert_sent_today: student.billing_type === 'totalpass',
+  ...student,
+})) as AdminStudentItem[];
 
 export function mockListStudents(
   _academyId: string,

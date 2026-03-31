@@ -405,7 +405,7 @@ export default function AdminAlunosPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
-                    {['Aluno', 'Faixa', 'Turmas', 'Freq.', 'Tipo', 'Valor', 'Mensalidade', 'Status', ''].map(
+                    {['Aluno', 'Faixa', 'Turmas', 'Freq.', 'Vínculo', 'Cobrança', 'Valor', 'Vencimento', 'Status', ''].map(
                       (h) => (
                         <th
                           key={h}
@@ -507,10 +507,10 @@ export default function AdminAlunosPage() {
                           <span
                             className="rounded-full px-2 py-0.5 text-xs font-medium"
                             style={{
-                              background: s.billing_type === 'gympass' || s.billing_type === 'totalpass' || s.billing_type === 'smartfit'
+                              background: s.billing_type === 'gympass' || s.billing_type === 'totalpass'
                                 ? 'rgba(168,85,247,0.15)' : s.billing_type === 'cortesia' || s.billing_type === 'funcionario'
                                 ? 'rgba(59,130,246,0.15)' : 'var(--bb-depth-4)',
-                              color: s.billing_type === 'gympass' || s.billing_type === 'totalpass' || s.billing_type === 'smartfit'
+                              color: s.billing_type === 'gympass' || s.billing_type === 'totalpass'
                                 ? '#A855F7' : s.billing_type === 'cortesia' || s.billing_type === 'funcionario'
                                 ? '#3B82F6' : 'var(--bb-ink-60)',
                             }}
@@ -520,16 +520,33 @@ export default function AdminAlunosPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>
+                            {s.payment_method_default === 'external_platform'
+                              ? 'Plataforma externa'
+                              : `${s.payment_method_default} · ${s.recurrence}`}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs" style={{ color: 'var(--bb-ink-80)' }}>
                             {s.monthly_amount > 0 ? formatCentsToBRL(s.monthly_amount) : '—'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span
-                            className="rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{ background: ms.bg, color: ms.text }}
-                          >
-                            {ms.label}
-                          </span>
+                          <div className="space-y-1">
+                            <span
+                              className="rounded-full px-2 py-0.5 text-xs font-medium"
+                              style={{ background: ms.bg, color: ms.text }}
+                            >
+                              {ms.label}
+                            </span>
+                            <div className="text-[11px]" style={{ color: 'var(--bb-ink-40)' }}>
+                              {s.next_due_date ? new Date(`${s.next_due_date}T00:00:00`).toLocaleDateString('pt-BR') : '—'}
+                            </div>
+                            {(s.billing_type === 'gympass' || s.billing_type === 'totalpass') && (
+                              <div className="text-[11px]" style={{ color: s.checkin_goal_status === 'risk' ? '#EF4444' : s.checkin_goal_status === 'attention' ? '#EAB308' : '#22C55E' }}>
+                                {s.current_month_checkins}/{s.monthly_checkin_minimum} check-ins
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <span

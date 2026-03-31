@@ -1,27 +1,30 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import {
-  getMemberBilling,
-  updateMemberBilling,
+  BILLING_STATUS_COLORS,
+  BILLING_STATUS_LABELS,
   BILLING_TYPE_LABELS,
+  CHARGE_MODE_OPTIONS,
+  CHECKIN_GOAL_COLORS,
+  CHECKIN_GOAL_LABELS,
   PAYMENT_METHOD_LABELS,
   RECURRENCE_LABELS,
-  BILLING_STATUS_LABELS,
-  BILLING_STATUS_COLORS,
-  formatCentsToBRL,
   billingTypeNeedsBilling,
+  billingTypeNeedsCheckinGoal,
+  formatCentsToBRL,
+  getMemberBilling,
+  updateMemberBilling,
+  type BillingType,
+  type ChargeMode,
+  type MemberBilling,
+  type PaymentMethod,
+  type Recurrence,
 } from '@/lib/api/student-billing.service';
-import type {
-  BillingType,
-  PaymentMethod,
-  Recurrence,
-  MemberBilling,
-} from '@/lib/api/student-billing.service';
-import { Skeleton } from '@/components/ui/Skeleton';
 
 interface BillingConfigSectionProps {
   membershipId?: string;
@@ -33,108 +36,172 @@ interface BillingConfigSectionProps {
 const BILLING_TYPES = Object.entries(BILLING_TYPE_LABELS) as [BillingType, string][];
 const PAYMENT_METHODS = Object.entries(PAYMENT_METHOD_LABELS) as [PaymentMethod, string][];
 const RECURRENCES = Object.entries(RECURRENCE_LABELS) as [Recurrence, string][];
+const CHARGE_MODES = Object.entries(CHARGE_MODE_OPTIONS) as [ChargeMode, string][];
 
-export function BillingConfigSection({ membershipId: propMembershipId, profileId, academyId, onSave }: BillingConfigSectionProps) {
-  const [resolvedMembershipId, setResolvedMembershipId] = useState(propMembershipId ?? '');
+function inputStyle() {
+  return {
+    background: 'var(--bb-depth-4)',
+    border: '1px solid var(--bb-glass-border)',
+    color: 'var(--bb-ink-100)',
+  } as const;
+}
+
+function parseCurrencyInput(value: string): number {
+  const normalized = value.replace(/[^\d,]/g, '').replace(',', '.');
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? Math.round(parsed * 100) : 0;
+}
+
+function formatCurrencyInput(cents: number): string {
+  if (!cents) return '';
+  return (cents / 100).toFixed(2).replace('.', ',');
+}
+
+export function BillingConfigSection({
+  membershipId: propMembershipId,
+  profileId,
+  academyId,
+  onSave,
+}: BillingConfigSectionProps) {
   const { toast } = useToast();
+  const [resolvedMembershipId, setResolvedMembershipId] = useState(propMembershipId ?? '');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [billing, setBilling] = useState<MemberBilling | null>(null);
 
-  // Form state
-  const [billingType, setBillingType] = useState<BillingType>('particular');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('pix');
-  const [recurrence, setRecurrence] = useState<Recurrence>('mensal');
-  const [monthlyAmount, setMonthlyAmount] = useState(''); // display R$ string
-  const [discountPercent, setDiscountPercent] = useState('0');
-  const [discountReason, setDiscountReason] = useState('');
-  const [billingDay, setBillingDay] = useState('10');
-  const [contractStart, setContractStart] = useState('');
-  const [contractEnd, setContractEnd] = useState('');
-  const [billingNotes, setBillingNotes] = useState('');
+  const [financialModel, setFinancialModel] = useState<BillingType>('particular');
+  const [chargeMode, setChargeMode] = useState<ChargeMode>('manual');
+  const [paymentMethodDefault, setPaymentMethodDefault] = useState<PaymentMethod>('pix');
+  const [recurrence, setRecurrence] = useState<Recurrence>('monthly');
+  const [amount, setAmount] = useState('');
+  const [discountAmount, setDiscountAmount] = useState('');
+  const [scholarshipPercent, setScholarshipPercent] = useState('0');
+  const [dueDay, setDueDay] = useState('10');
+  const [notes, setNotes] = useState('');
+  const [monthlyCheckinMinimum, setMonthlyCheckinMinimum] = useState('8');
+  const [alertDaysBeforeMonthEnd, setAlertDaysBeforeMonthEnd] = useState('5');
+  const [partnershipName, setPartnershipName] = useState('');
+  const [partnershipTransferMode, setPartnershipTransferMode] = useState('');
+  const [exemptionReason, setExemptionReason] = useState('');
+  const [periodStartDate, setPeriodStartDate] = useState('');
+  const [periodEndDate, setPeriodEndDate] = useState('');
 
-  const loadBilling = useCallback(async () => {
+  const load = useCallback(async () => {
     try {
-      let mId = resolvedMembershipId;
+      let membershipId = resolvedMembershipId;
 
-      // If no membershipId, look it up from profileId + academyId
-      if (!mId && profileId && academyId) {
-        const { isMock: checkMock } = await import('@/lib/env');
-        if (!checkMock()) {
-          const { createBrowserClient } = await import('@/lib/supabase/client');
-          const supabase = createBrowserClient();
-          const { data: membership } = await supabase
+      if (!membershipId && profileId && academyId) {
+        const { createBrowserClient } = await import('@/lib/supabase/client');
+        const supabase = createBrowserClient();
+        let resolvedProfileId = profileId;
+
+        const { data: membershipByProfile } = await supabase
+          .from('memberships')
+          .select('id')
+          .eq('profile_id', resolvedProfileId)
+          .eq('academy_id', academyId)
+          .in('role', ['aluno_adulto', 'aluno_teen', 'aluno_kids'])
+          .limit(1)
+          .maybeSingle();
+
+        if (!membershipByProfile?.id) {
+          const { data: student } = await supabase
+            .from('students')
+            .select('profile_id')
+            .eq('id', profileId)
+            .maybeSingle();
+          if (student?.profile_id) {
+            resolvedProfileId = student.profile_id;
+          }
+        }
+
+        const { data } = membershipByProfile?.id
+          ? { data: membershipByProfile }
+          : await supabase
             .from('memberships')
             .select('id')
-            .eq('profile_id', profileId)
+            .eq('profile_id', resolvedProfileId)
             .eq('academy_id', academyId)
+            .in('role', ['aluno_adulto', 'aluno_teen', 'aluno_kids'])
             .limit(1)
-            .single();
-          if (membership) {
-            mId = membership.id;
-            setResolvedMembershipId(mId);
-          }
+            .maybeSingle();
+
+        if (data?.id) {
+          membershipId = data.id;
+          setResolvedMembershipId(data.id);
         }
       }
 
-      if (!mId) { setLoading(false); return; }
+      if (!membershipId) {
+        setLoading(false);
+        return;
+      }
 
-      const data = await getMemberBilling(mId);
+      const data = await getMemberBilling(membershipId);
+      setBilling(data);
+
       if (data) {
-        setBilling(data);
-        setBillingType(data.billing_type);
-        setPaymentMethod(data.payment_method ?? '');
+        setFinancialModel(data.financial_model);
+        setChargeMode(data.charge_mode);
+        setPaymentMethodDefault(data.payment_method_default);
         setRecurrence(data.recurrence);
-        setMonthlyAmount(data.monthly_amount > 0 ? (data.monthly_amount / 100).toFixed(2).replace('.', ',') : '');
-        setDiscountPercent(String(data.discount_percent));
-        setDiscountReason(data.discount_reason ?? '');
-        setBillingDay(String(data.billing_day));
-        setContractStart(data.contract_start ?? '');
-        setContractEnd(data.contract_end ?? '');
-        setBillingNotes(data.billing_notes ?? '');
+        setAmount(formatCurrencyInput(data.amount_cents));
+        setDiscountAmount(formatCurrencyInput(data.discount_amount_cents));
+        setScholarshipPercent(String(data.scholarship_percent || 0));
+        setDueDay(data.due_day ? String(data.due_day) : '10');
+        setNotes(data.notes ?? '');
+        setMonthlyCheckinMinimum(String(data.monthly_checkin_minimum ?? 0));
+        setAlertDaysBeforeMonthEnd(String(data.alert_days_before_month_end ?? 5));
+        setPartnershipName(data.partnership_name ?? '');
+        setPartnershipTransferMode(data.partnership_transfer_mode ?? '');
+        setExemptionReason(data.exemption_reason ?? '');
+        setPeriodStartDate(data.period_start_date ?? '');
+        setPeriodEndDate(data.period_end_date ?? '');
       }
     } finally {
       setLoading(false);
     }
-  }, [resolvedMembershipId, profileId, academyId]);
+  }, [academyId, profileId, resolvedMembershipId]);
 
   useEffect(() => {
-    loadBilling();
-  }, [loadBilling]);
+    load();
+  }, [load]);
 
-  function parseCents(value: string): number {
-    const cleaned = value.replace(/[^\d,]/g, '').replace(',', '.');
-    return Math.round(parseFloat(cleaned || '0') * 100);
-  }
-
-  const amountCents = parseCents(monthlyAmount);
-  const discount = Number(discountPercent) || 0;
-  const discountedAmount = Math.round(amountCents * (1 - discount / 100));
-
-  const showPaymentFields = billingTypeNeedsBilling(billingType);
-  const isPartnerPlatform = billingType === 'gympass' || billingType === 'totalpass' || billingType === 'smartfit';
-  const isFree = billingType === 'cortesia' || billingType === 'funcionario';
+  const directCharge = billingTypeNeedsBilling(financialModel);
+  const externalPlatform = billingTypeNeedsCheckinGoal(financialModel);
+  const exempt = ['cortesia', 'funcionario'].includes(financialModel);
+  const scholarship = financialModel === 'bolsista';
+  const convenio = financialModel === 'convenio';
+  const avulso = financialModel === 'avulso';
 
   async function handleSave() {
+    if (!resolvedMembershipId) return;
+
     setSaving(true);
     try {
       await updateMemberBilling(resolvedMembershipId, {
-        billing_type: billingType,
-        payment_method: showPaymentFields && paymentMethod ? paymentMethod as PaymentMethod : null,
-        recurrence: showPaymentFields ? recurrence : 'avulso',
-        monthly_amount: showPaymentFields ? amountCents : 0,
-        discount_percent: billingType === 'bolsista' ? discount : 0,
-        discount_reason: billingType === 'bolsista' ? discountReason || null : null,
-        billing_day: showPaymentFields ? Number(billingDay) || 10 : 10,
-        billing_status: isFree ? 'cortesia' : isPartnerPlatform ? 'gympass' : undefined,
-        contract_start: contractStart || null,
-        contract_end: contractEnd || null,
-        billing_notes: billingNotes || null,
+        financial_model: financialModel,
+        charge_mode: externalPlatform ? 'manual' : chargeMode,
+        payment_method_default: externalPlatform ? 'external_platform' : directCharge ? paymentMethodDefault : 'none',
+        recurrence: exempt ? 'none' : avulso ? 'per_class' : recurrence,
+        amount_cents: directCharge ? parseCurrencyInput(amount) : 0,
+        discount_amount_cents: scholarship ? parseCurrencyInput(discountAmount) : 0,
+        scholarship_percent: scholarship ? Number(scholarshipPercent || 0) : 0,
+        due_day: directCharge && !avulso ? Number(dueDay || 10) : null,
+        notes,
+        monthly_checkin_minimum: externalPlatform ? Number(monthlyCheckinMinimum || 0) : 0,
+        alert_days_before_month_end: externalPlatform ? Number(alertDaysBeforeMonthEnd || 5) : 5,
+        partnership_name: convenio ? partnershipName : externalPlatform ? BILLING_TYPE_LABELS[financialModel] : null,
+        partnership_transfer_mode: convenio ? partnershipTransferMode : externalPlatform ? 'Repasse externo por check-in' : null,
+        exemption_reason: exempt || scholarship ? exemptionReason : null,
+        period_start_date: periodStartDate || null,
+        period_end_date: periodEndDate || null,
       });
-      toast('Dados financeiros salvos!', 'success');
+      toast('Configuração financeira salva.', 'success');
+      await load();
       onSave?.();
-    } catch (err) {
-      toast(translateError(err), 'error');
+    } catch (error) {
+      toast(translateError(error), 'error');
     } finally {
       setSaving(false);
     }
@@ -142,237 +209,372 @@ export function BillingConfigSection({ membershipId: propMembershipId, profileId
 
   if (loading) {
     return (
-      <Card className="p-6 space-y-3">
-        <Skeleton variant="text" className="h-6 w-48" />
-        <Skeleton variant="card" className="h-10" />
-        <Skeleton variant="card" className="h-10" />
+      <Card className="space-y-3 p-6">
+        <Skeleton variant="text" className="h-6 w-56" />
+        <Skeleton variant="card" className="h-20" />
+        <Skeleton variant="card" className="h-40" />
       </Card>
     );
   }
 
-  const statusColors = billing ? BILLING_STATUS_COLORS[billing.billing_status] : null;
-
   return (
     <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-          Dados Financeiros
-        </h2>
-        {billing && statusColors && (
-          <span
-            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-            style={{ background: statusColors.bg, color: statusColors.text }}
-          >
-            {BILLING_STATUS_LABELS[billing.billing_status]}
-          </span>
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+            Configuração Financeira
+          </h2>
+          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Defina vínculo, cobrança, vencimento, repasse externo e regras de alerta.
+          </p>
+        </div>
+
+        {billing && (
+          <div className="flex flex-wrap gap-2">
+            <span
+              className="rounded-full px-2.5 py-1 text-xs font-medium"
+              style={{
+                background: BILLING_STATUS_COLORS[billing.financial_status].bg,
+                color: BILLING_STATUS_COLORS[billing.financial_status].text,
+              }}
+            >
+              {BILLING_STATUS_LABELS[billing.financial_status]}
+            </span>
+            {externalPlatform && (
+              <span
+                className="rounded-full px-2.5 py-1 text-xs font-medium"
+                style={{
+                  background: CHECKIN_GOAL_COLORS[billing.checkin_goal_status].bg,
+                  color: CHECKIN_GOAL_COLORS[billing.checkin_goal_status].text,
+                }}
+              >
+                {CHECKIN_GOAL_LABELS[billing.checkin_goal_status]}
+              </span>
+            )}
+          </div>
         )}
       </div>
 
-      <div className="space-y-4">
-        {/* Tipo de Vínculo */}
-        <div>
-          <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-            Tipo de Vínculo
-          </label>
-          <select
-            value={billingType}
-            onChange={(e) => setBillingType(e.target.value as BillingType)}
-            className="w-full rounded-lg px-3 py-2 text-sm"
-            style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-          >
-            {BILLING_TYPES.map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
+      <div className="space-y-5">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+              Vínculo financeiro
+            </label>
+            <select
+              value={financialModel}
+              onChange={(event) => setFinancialModel(event.target.value as BillingType)}
+              className="w-full rounded-lg px-3 py-2 text-sm"
+              style={inputStyle()}
+            >
+              {BILLING_TYPES.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+              Período da condição
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="date"
+                value={periodStartDate}
+                onChange={(event) => setPeriodStartDate(event.target.value)}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={inputStyle()}
+              />
+              <input
+                type="date"
+                value={periodEndDate}
+                onChange={(event) => setPeriodEndDate(event.target.value)}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={inputStyle()}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Partner platform info */}
-        {isPartnerPlatform && (
-          <div
-            className="rounded-lg p-3 text-xs"
-            style={{ background: 'rgba(168,85,247,0.08)', color: '#A855F7', border: '1px solid rgba(168,85,247,0.2)' }}
-          >
-            Pagamento gerenciado pela plataforma parceira. Receita contabilizada por check-in.
-          </div>
-        )}
-
-        {/* Free info */}
-        {isFree && (
-          <div
-            className="rounded-lg p-3 text-xs"
-            style={{ background: 'rgba(59,130,246,0.08)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.2)' }}
-          >
-            Sem cobrança. Acesso liberado.
-          </div>
-        )}
-
-        {/* Payment fields for particular/bolsista/avulso */}
-        {showPaymentFields && (
-          <>
-            <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                Forma de Pagamento
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                className="w-full rounded-lg px-3 py-2 text-sm"
-                style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-              >
-                <option value="">Selecionar...</option>
-                {PAYMENT_METHODS.map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-
-            {billingType !== 'avulso' && (
+        {directCharge && (
+          <section className="space-y-4 rounded-xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+            <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                  Recorrência
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  Modo de cobrança
                 </label>
                 <select
-                  value={recurrence}
-                  onChange={(e) => setRecurrence(e.target.value as Recurrence)}
+                  value={chargeMode}
+                  onChange={(event) => setChargeMode(event.target.value as ChargeMode)}
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                  style={inputStyle()}
                 >
-                  {RECURRENCES.filter(([v]) => v !== 'avulso').map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
+                  {CHARGE_MODES.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
                   ))}
                 </select>
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                  Valor Mensal (R$)
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  Pagamento padrão
                 </label>
-                <input
-                  type="text"
-                  value={monthlyAmount}
-                  onChange={(e) => setMonthlyAmount(e.target.value)}
-                  placeholder="149,00"
+                <select
+                  value={paymentMethodDefault}
+                  onChange={(event) => setPaymentMethodDefault(event.target.value as PaymentMethod)}
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-                />
+                  style={inputStyle()}
+                >
+                  {PAYMENT_METHODS.filter(([value]) => value !== 'external_platform').map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                  Dia de Vencimento
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  Recorrência
                 </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={28}
-                  value={billingDay}
-                  onChange={(e) => setBillingDay(e.target.value)}
+                <select
+                  value={avulso ? 'per_class' : recurrence}
+                  onChange={(event) => setRecurrence(event.target.value as Recurrence)}
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-                />
+                  style={inputStyle()}
+                  disabled={avulso}
+                >
+                  {RECURRENCES.filter(([value]) => value !== 'none').map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Bolsista discount */}
-            {billingType === 'bolsista' && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div>
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  {avulso ? 'Valor por aula/evento' : 'Valor base'}
+                </label>
+                <input
+                  type="text"
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value)}
+                  placeholder="150,00"
+                  className="w-full rounded-lg px-3 py-2 text-sm"
+                  style={inputStyle()}
+                />
+              </div>
+
+              {scholarship && (
+                <>
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                      Desconto (%)
+                    <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                      Desconto (R$)
+                    </label>
+                    <input
+                      type="text"
+                      value={discountAmount}
+                      onChange={(event) => setDiscountAmount(event.target.value)}
+                      placeholder="50,00"
+                      className="w-full rounded-lg px-3 py-2 text-sm"
+                      style={inputStyle()}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                      Bolsa (%)
                     </label>
                     <input
                       type="number"
                       min={0}
                       max={100}
-                      value={discountPercent}
-                      onChange={(e) => setDiscountPercent(e.target.value)}
+                      value={scholarshipPercent}
+                      onChange={(event) => setScholarshipPercent(event.target.value)}
                       className="w-full rounded-lg px-3 py-2 text-sm"
-                      style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                      style={inputStyle()}
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                      Valor com desconto
-                    </label>
-                    <div
-                      className="rounded-lg px-3 py-2 text-sm font-semibold"
-                      style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: '#22C55E' }}
-                    >
-                      {formatCentsToBRL(discountedAmount)}
-                    </div>
-                  </div>
-                </div>
+                </>
+              )}
+
+              {!avulso && (
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-                    Motivo do Desconto
+                  <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                    Dia de vencimento
                   </label>
                   <input
-                    type="text"
-                    value={discountReason}
-                    onChange={(e) => setDiscountReason(e.target.value)}
-                    placeholder="Ex: Competidor da equipe"
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={dueDay}
+                    onChange={(event) => setDueDay(event.target.value)}
                     className="w-full rounded-lg px-3 py-2 text-sm"
-                    style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                    style={inputStyle()}
                   />
                 </div>
-              </>
-            )}
-          </>
+              )}
+
+              <div className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}>
+                <span className="block text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  Valor líquido
+                </span>
+                {formatCentsToBRL(Math.max(parseCurrencyInput(amount) - parseCurrencyInput(discountAmount), 0))}
+              </div>
+            </div>
+          </section>
         )}
 
-        {/* Contract dates */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-              Início do Contrato
-            </label>
-            <input
-              type="date"
-              value={contractStart}
-              onChange={(e) => setContractStart(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 text-sm"
-              style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
-              Fim do Contrato (opcional)
-            </label>
-            <input
-              type="date"
-              value={contractEnd}
-              onChange={(e) => setContractEnd(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 text-sm"
-              style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
-            />
-          </div>
-        </div>
+        {externalPlatform && (
+          <section className="space-y-4 rounded-xl p-4" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.22)' }}>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                Repasse por plataforma externa
+              </p>
+              <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                O aluno não entra em cobrança direta. O acompanhamento é por meta mensal de check-ins e alertas.
+              </p>
+            </div>
 
-        {/* Notes */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  Check-ins mínimos no mês
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={monthlyCheckinMinimum}
+                  onChange={(event) => setMonthlyCheckinMinimum(event.target.value)}
+                  className="w-full rounded-lg px-3 py-2 text-sm"
+                  style={inputStyle()}
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                  Alertar antes do fim do mês
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={15}
+                  value={alertDaysBeforeMonthEnd}
+                  onChange={(event) => setAlertDaysBeforeMonthEnd(event.target.value)}
+                  className="w-full rounded-lg px-3 py-2 text-sm"
+                  style={inputStyle()}
+                />
+              </div>
+
+              <div className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)' }}>
+                <span className="block text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  Check-ins do mês
+                </span>
+                <span style={{ color: 'var(--bb-ink-100)' }}>
+                  {billing?.current_month_checkins ?? 0}
+                </span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {convenio && (
+          <section className="grid gap-4 rounded-xl p-4 md:grid-cols-2" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+            <div>
+              <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                Nome do convênio/parceria
+              </label>
+              <input
+                type="text"
+                value={partnershipName}
+                onChange={(event) => setPartnershipName(event.target.value)}
+                placeholder="Ex: Empresa XPTO"
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={inputStyle()}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                Forma de repasse
+              </label>
+              <input
+                type="text"
+                value={partnershipTransferMode}
+                onChange={(event) => setPartnershipTransferMode(event.target.value)}
+                placeholder="Ex: repasse mensal por colaborador ativo"
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                style={inputStyle()}
+              />
+            </div>
+          </section>
+        )}
+
+        {(exempt || scholarship) && (
+          <section className="rounded-xl p-4" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.22)' }}>
+            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+              Motivo da condição especial
+            </label>
+            <input
+              type="text"
+              value={exemptionReason}
+              onChange={(event) => setExemptionReason(event.target.value)}
+              placeholder="Ex: atleta da equipe, colaborador, ação promocional"
+              className="w-full rounded-lg px-3 py-2 text-sm"
+              style={inputStyle()}
+            />
+          </section>
+        )}
+
         <div>
-          <label className="block text-xs font-medium mb-1" style={{ color: 'var(--bb-ink-60)' }}>
+          <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
             Observações
           </label>
           <textarea
-            value={billingNotes}
-            onChange={(e) => setBillingNotes(e.target.value)}
-            rows={2}
-            className="w-full rounded-lg px-3 py-2 text-sm resize-none"
-            style={{ background: 'var(--bb-depth-4)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+            rows={3}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-sm"
+            style={inputStyle()}
           />
         </div>
 
-        {/* Save */}
+        {billing && (
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg p-3" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Próximo vencimento</p>
+              <p className="mt-1 text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                {billing.next_due_date ? new Date(`${billing.next_due_date}T00:00:00`).toLocaleDateString('pt-BR') : '—'}
+              </p>
+            </div>
+            <div className="rounded-lg p-3" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Último alerta</p>
+              <p className="mt-1 text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                {billing.last_alert_sent_at ? new Date(billing.last_alert_sent_at).toLocaleString('pt-BR') : 'Nenhum'}
+              </p>
+            </div>
+            <div className="rounded-lg p-3" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>Canal padrão</p>
+              <p className="mt-1 text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>
+                {PAYMENT_METHOD_LABELS[billing.payment_method_default]}
+              </p>
+            </div>
+          </div>
+        )}
+
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !resolvedMembershipId}
           className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
           style={{ background: 'var(--bb-brand)', color: '#fff' }}
         >
-          {saving ? 'Salvando...' : 'Salvar Dados Financeiros'}
+          {saving ? 'Salvando...' : 'Salvar configuração financeira'}
         </button>
       </div>
     </Card>

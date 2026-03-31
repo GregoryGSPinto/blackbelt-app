@@ -20,6 +20,13 @@ export interface AdminStudentItem {
   mensalidade_status: MensalidadeStatusBadge;
   billing_type: string;
   monthly_amount: number; // centavos
+  payment_method_default: string;
+  recurrence: string;
+  next_due_date: string | null;
+  checkin_goal_status: 'ok' | 'attention' | 'risk';
+  current_month_checkins: number;
+  monthly_checkin_minimum: number;
+  alert_sent_today: boolean;
   status: StudentManagementStatus;
   started_at: string;
   avatar_url: string | null;
