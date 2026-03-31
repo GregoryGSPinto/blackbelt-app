@@ -31,6 +31,17 @@ export interface CurriculoOverview {
   total_techniques: number;
 }
 
+// --- Helpers ---
+
+function parseJsonField<T>(raw: unknown, fallback: T[]): T[] {
+  if (!raw) return fallback;
+  let arr = raw;
+  if (typeof arr === 'string') {
+    try { arr = JSON.parse(arr); } catch { return fallback; }
+  }
+  return Array.isArray(arr) ? arr : fallback;
+}
+
 // --- Service Functions ---
 
 export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[]> {
@@ -54,7 +65,12 @@ export async function getCurriculos(franchiseId: string): Promise<CurriculoRede[
       return [];
     }
 
-    return (data ?? []) as unknown as CurriculoRede[];
+    return (data ?? []).map((c: Record<string, unknown>) => ({
+      ...(c as object),
+      techniques: parseJsonField<TecnicaCurriculo>(c.techniques, []),
+      evaluation_criteria: parseJsonField<string>(c.evaluation_criteria, []),
+      min_classes_required: (c.min_classes_required as number) ?? 0,
+    })) as unknown as CurriculoRede[];
   } catch (error) {
     logServiceError(error, 'franqueador-curriculo');
     return [];

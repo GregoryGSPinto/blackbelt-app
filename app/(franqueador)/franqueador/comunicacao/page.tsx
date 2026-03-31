@@ -226,9 +226,10 @@ export default function ComunicacaoPage() {
             />
           )}
           {broadcasts.map((bc) => {
-            const readCount = bc.recipients.filter((r) => r.status === 'lido').length;
-            const deliveredCount = bc.recipients.filter((r) => r.status === 'entregue' || r.status === 'lido').length;
-            const failCount = bc.recipients.filter((r) => r.status === 'falha').length;
+            const recipients = bc.recipients ?? [];
+            const readCount = recipients.filter((r) => r.status === 'lido').length;
+            const deliveredCount = recipients.filter((r) => r.status === 'entregue' || r.status === 'lido').length;
+            const failCount = recipients.filter((r) => r.status === 'falha').length;
 
             return (
               <Card key={bc.id} className="p-4">
@@ -244,7 +245,7 @@ export default function ComunicacaoPage() {
                     <div className="mt-2 flex flex-wrap gap-2 text-xs text-bb-gray-500">
                       <span>{new Date(bc.sent_at).toLocaleDateString('pt-BR')}</span>
                       <span>por {bc.created_by}</span>
-                      <span>via {bc.channels.map((c) => CHANNEL_LABEL[c]).join(', ')}</span>
+                      <span>via {(bc.channels ?? []).map((c) => CHANNEL_LABEL[c]).join(', ')}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -264,8 +265,8 @@ export default function ComunicacaoPage() {
                 </div>
                 {/* Progress bar */}
                 <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-bb-gray-200">
-                  <div className="h-full bg-green-500" style={{ width: `${(readCount / bc.recipients.length) * 100}%` }} />
-                  <div className="h-full bg-blue-400" style={{ width: `${((deliveredCount - readCount) / bc.recipients.length) * 100}%` }} />
+                  <div className="h-full bg-green-500" style={{ width: `${recipients.length > 0 ? (readCount / recipients.length) * 100 : 0}%` }} />
+                  <div className="h-full bg-blue-400" style={{ width: `${recipients.length > 0 ? ((deliveredCount - readCount) / recipients.length) * 100 : 0}%` }} />
                 </div>
               </Card>
             );

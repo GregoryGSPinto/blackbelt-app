@@ -222,7 +222,7 @@ export default function PadroesPage() {
 
                 {/* Checklist */}
                 <div className="mt-3 space-y-1">
-                  {std.checklist_items.map((item) => (
+                  {(std.checklist_items ?? []).map((item) => (
                     <div key={item.id} className="flex items-center gap-2 text-xs">
                       <span className={`h-3.5 w-3.5 rounded border ${item.completed ? 'text-white' : 'border-bb-gray-300'} flex items-center justify-center`} style={item.completed ? { borderColor: 'var(--bb-success)', background: 'var(--bb-success)' } : undefined}>
                         {item.completed && <span>&#10003;</span>}
@@ -233,7 +233,7 @@ export default function PadroesPage() {
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-xs text-bb-gray-500">
-                  <span>{std.checklist_items.filter((c) => c.completed).length}/{std.checklist_items.length} itens</span>
+                  <span>{(std.checklist_items ?? []).filter((c) => c.completed).length}/{(std.checklist_items ?? []).length} itens</span>
                   {std.deadline && <span>Prazo: {new Date(std.deadline).toLocaleDateString('pt-BR')}</span>}
                 </div>
 
@@ -243,7 +243,7 @@ export default function PadroesPage() {
                     className="h-full rounded-full"
                     style={{
                       background: 'var(--bb-success)',
-                      width: `${std.checklist_items.length > 0 ? (std.checklist_items.filter((c) => c.completed).length / std.checklist_items.length) * 100 : 0}%`,
+                      width: `${(std.checklist_items ?? []).length > 0 ? ((std.checklist_items ?? []).filter((c) => c.completed).length / (std.checklist_items ?? []).length) * 100 : 0}%`,
                     }}
                   />
                 </div>

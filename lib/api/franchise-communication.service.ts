@@ -118,7 +118,13 @@ export async function getBroadcasts(franchiseId: string): Promise<Broadcast[]> {
       return [];
     }
 
-    return (data ?? []) as unknown as Broadcast[];
+    // DB rows don't have 'recipients' — that lives in franchise_broadcast_receipts.
+    // Default to empty array so callers never hit undefined.
+    return (data ?? []).map((b: Record<string, unknown>) => ({
+      ...(b as object),
+      recipients: Array.isArray(b.recipients) ? b.recipients : [],
+      channels: Array.isArray(b.channels) ? b.channels : [],
+    })) as unknown as Broadcast[];
   } catch (error) {
     logServiceError(error, 'franchise-communication');
     return [];

@@ -63,6 +63,29 @@ export interface CreateStandardData {
   deadline: string | null;
 }
 
+// --- Helpers ---
+
+/** Safely parse checklist_items which may be a JSON string, array, or undefined */
+function parseChecklistItems(raw: unknown): ChecklistItem[] {
+  if (!raw) return [];
+  let arr = raw;
+  if (typeof arr === 'string') {
+    try { arr = JSON.parse(arr); } catch { return []; }
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item: unknown, i: number) => {
+    if (typeof item === 'string') {
+      return { id: `item-${i}`, description: item, completed: false };
+    }
+    const obj = item as Record<string, unknown>;
+    return {
+      id: (obj.id as string) ?? `item-${i}`,
+      description: (obj.description as string) ?? '',
+      completed: (obj.completed as boolean) ?? false,
+    };
+  });
+}
+
 // --- Service Functions ---
 
 export async function getStandards(franchiseId: string): Promise<Standard[]> {
@@ -86,7 +109,10 @@ export async function getStandards(franchiseId: string): Promise<Standard[]> {
       return [];
     }
 
-    return (data ?? []) as unknown as Standard[];
+    return (data ?? []).map((s: Record<string, unknown>) => ({
+      ...(s as object),
+      checklist_items: parseChecklistItems(s.checklist_items),
+    })) as unknown as Standard[];
   } catch (error) {
     logServiceError(error, 'franchise-standards');
     return [];
