@@ -1,8 +1,31 @@
 # Relatório Final — Financeiro Senior por Aluno
 
+## O que foi fechado nesta rodada
+
+- [`app/(admin)/admin/alunos/[id]/page.tsx`](/Users/user_pc/Projetos/black_belt_v2/app/(admin)/admin/alunos/[id]/page.tsx)
+  - removeu o fluxo antigo em mock do detalhe do aluno
+  - passou a carregar aluno, membership, frequência, perfil financeiro, histórico e alertas direto do backend real
+  - eliminou a confusão entre `student.id`, `profile_id` e `membership_id` no fluxo administrativo
+- [`lib/api/admin-student-detail.service.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/api/admin-student-detail.service.ts)
+  - novo service de detalhe administrativo com resolução segura de aluno por `student.id` ou `profile_id`
+  - consolida dados reais de `students`, `profiles`, `memberships`, `attendance`, `student_financial_profiles`, `student_payments` e `student_financial_alerts`
+- [`lib/server/student-financial-alerts.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/server/student-financial-alerts.ts)
+  - automação real de alertas GymPass/TotalPass com cálculo de meta, janela de envio, destinatário e proteção contra duplicidade diária
+- [`app/api/cron/student-financial-alerts/route.ts`](/Users/user_pc/Projetos/black_belt_v2/app/api/cron/student-financial-alerts/route.ts)
+  - endpoint cron protegido por `CRON_SECRET` para executar o job automático
+- [`vercel.json`](/Users/user_pc/Projetos/black_belt_v2/vercel.json)
+  - cron diário configurado para `/api/cron/student-financial-alerts`
+- [`tests/services/student-financial-alerts.service.test.ts`](/Users/user_pc/Projetos/black_belt_v2/tests/services/student-financial-alerts.service.test.ts)
+  - cobertura simulada dos cenários operacionais de alerta automático
+
 ## Migrations criadas e ajustadas
 
 - [`supabase/migrations/092_student_financial_profiles.sql`](/Users/user_pc/Projetos/black_belt_v2/supabase/migrations/092_student_financial_profiles.sql)
+
+## Migrations criadas nesta rodada
+
+- nenhuma migration complementar foi necessária
+- a modelagem existente já cobria `student_financial_profiles`, `student_financial_alerts` e `student_payments` para o fechamento atual
 
 ## Tabelas e colunas afetadas
 
@@ -34,6 +57,10 @@
   - adaptado para operar sobre a nova base
 - [`lib/api/student-management.service.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/api/student-management.service.ts)
   - lista de alunos enriquecida com dados financeiros reais
+- [`lib/api/admin-student-detail.service.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/api/admin-student-detail.service.ts)
+  - detalhe administrativo do aluno com backend real
+- [`lib/server/student-financial-alerts.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/server/student-financial-alerts.ts)
+  - job automático de alertas GymPass/TotalPass
 
 ## Telas alteradas
 
@@ -48,6 +75,8 @@
   - histórico financeiro
 - [`app/(admin)/admin/alunos/page.tsx`](/Users/user_pc/Projetos/black_belt_v2/app/(admin)/admin/alunos/page.tsx)
   - maior visibilidade financeira na lista de alunos
+- [`app/(admin)/admin/alunos/[id]/page.tsx`](/Users/user_pc/Projetos/black_belt_v2/app/(admin)/admin/alunos/[id]/page.tsx)
+  - detalhe do aluno 100% conectado ao backend no trecho financeiro e operacional relacionado
 
 ## Dashboards alterados
 
@@ -81,6 +110,10 @@
 - geração de cobranças recorrentes em `student_payments`
 - registro de pagamento manual
 - histórico financeiro por aluno
+- detalhe de aluno particular com backend real
+- detalhe de aluno GymPass/TotalPass com meta, status e alertas reais
+- resolução de links do financeiro para a entidade correta do aluno
+- automação diária de alertas GymPass/TotalPass pronta para deploy
 
 ## Seed ajustado
 
@@ -98,13 +131,44 @@
 ## Testes executados
 
 - `pnpm typecheck`
-- `pnpm test tests/domain/student-financial.test.ts tests/services/financeiro.service.test.ts`
+- `pnpm test tests/domain/student-financial.test.ts tests/services/financeiro.service.test.ts tests/services/student-financial-alerts.service.test.ts`
 - `pnpm build`
-  - compilação e lint passaram pelo trecho alterado
-  - o processo continuou emitindo warnings preexistentes do projeto e não finalizou retorno dentro da janela observada
+  - build concluído com saída `0`
+  - warnings globais antigos de lint/Sentry/OpenTelemetry continuam aparecendo, mas não foram introduzidos por esta rodada
+
+## Endpoints, functions e jobs adicionados
+
+- [`app/api/cron/student-financial-alerts/route.ts`](/Users/user_pc/Projetos/black_belt_v2/app/api/cron/student-financial-alerts/route.ts)
+  - handler HTTP para cron
+- [`vercel.json`](/Users/user_pc/Projetos/black_belt_v2/vercel.json)
+  - agendamento diário `0 22 * * *`
+
+## Evidências de fluxo validado
+
+- detalhe do aluno usa `getAdminStudentDetail()` e deixa de depender do mock legado
+- edição de configuração financeira continua persistindo via [`components/finance/BillingConfigSection.tsx`](/Users/user_pc/Projetos/black_belt_v2/components/finance/BillingConfigSection.tsx) usando `membershipId` real
+- histórico financeiro exibido no detalhe vem de `student_payments`
+- alertas exibidos no detalhe vêm de `student_financial_alerts`
+- automação usa `student_financial_profiles` + `attendance` + `checkins` + `guardian_links` + `academies`
+- cobertura simulada validou teen GymPass, teen TotalPass, kids com responsável, janela de envio e anti-duplicidade
+
+## Pronto no código
+
+- fluxo real de `/admin/alunos/[id]` para dados financeiros, histórico, status, meta externa e alertas
+- job automático para alertas GymPass/TotalPass
+- build, typecheck e suíte focada de testes passando
+
+## Pronto para piloto
+
+- uso administrativo do detalhe do aluno sem mock mascarando backend
+- monitoramento operacional de alunos externos com alerta diário automatizado
+
+## Dependente de credencial ou deploy externo
+
+- execução automática em produção depende de deploy da rota cron e configuração de `CRON_SECRET` no ambiente
+- qualquer disparo externo além do registro interno/dashboard depende da infraestrutura real de mensageria que o projeto vier a conectar
 
 ## Gaps restantes
 
-- o detalhe completo de `/admin/alunos/[id]` ainda possui partes antigas em mock fora do bloco financeiro novo; o trecho financeiro já está real, mas o restante da página merece refatoração separada
-- o job/cron automático de alerta GymPass/TotalPass ainda não foi ligado a uma edge function dedicada; a lógica operacional e o registro já existem no domínio/service e na ação manual
-- o build do projeto ainda carrega warnings preexistentes de lint e dependências dinâmicas de Sentry/OpenTelemetry
+- warnings preexistentes do projeto fora do escopo financeiro ainda aparecem no `pnpm build`
+- o cron está pronto no código, mas a execução automática em ambiente remoto depende de deploy/configuração de segredo
