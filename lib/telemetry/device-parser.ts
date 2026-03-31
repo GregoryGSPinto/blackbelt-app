@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════
 
 export interface DeviceInfo {
-  type: 'mobile' | 'tablet' | 'desktop';
+  type: 'mobile' | 'tablet' | 'desktop' | 'tv' | 'unknown';
   os: string;
   osVersion: string;
   browser: string;
@@ -195,14 +195,20 @@ function parseDeviceModel(ua: string, screenW: number, screenH: number): { model
   return { model: `Desktop`, vendor: '—' };
 }
 
-function getDeviceType(ua: string, screenW: number): 'mobile' | 'tablet' | 'desktop' {
+function getDeviceType(ua: string, screenW: number): 'mobile' | 'tablet' | 'desktop' | 'tv' | 'unknown' {
+  if (/smart-tv|smarttv|googletv|appletv|hbbtv|netcast|viera|tizen|web0s|webos|tv/i.test(ua)) {
+    return 'tv';
+  }
   if (/iPad|Android(?!.*Mobile)/i.test(ua) || (screenW >= 600 && screenW < 1024 && 'ontouchend' in (globalThis.document || {}))) {
     return 'tablet';
   }
   if (/Mobile|iPhone|Android.*Mobile/i.test(ua) || screenW < 600) {
     return 'mobile';
   }
-  return 'desktop';
+  if (screenW >= 1920 && /CrKey|AFT|TV/i.test(ua)) {
+    return 'tv';
+  }
+  return screenW > 0 ? 'desktop' : 'unknown';
 }
 
 function getConnectionInfo(): { type: string; speed: string; effectiveType?: string; downlink?: number } {

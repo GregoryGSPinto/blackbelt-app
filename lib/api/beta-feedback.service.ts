@@ -88,6 +88,41 @@ export async function submitFeedback(data: CreateFeedbackDTO): Promise<{ success
     return { success: false };
   }
 
+  await supabase.from('support_feedback_items').insert({
+    academy_id: membership?.academy_id ?? null,
+    reporter_user_id: user.id,
+    reporter_profile_id: profile?.id ?? null,
+    category:
+      data.feedback_type === 'feature_request'
+        ? 'suggestion'
+        : data.feedback_type === 'bug'
+          ? 'bug'
+          : data.feedback_type === 'praise'
+            ? 'praise'
+            : 'feedback',
+    severity: data.feedback_type === 'bug' ? 'high' : 'medium',
+    status: 'new',
+    origin: 'web',
+    title: data.title,
+    description: data.description,
+    route_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    source_page: typeof window !== 'undefined' ? window.location.pathname : '',
+    device_type: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1280 ? 'tablet' : 'desktop',
+    viewport_width: typeof window !== 'undefined' ? window.innerWidth : null,
+    viewport_height: typeof window !== 'undefined' ? window.innerHeight : null,
+    browser_name: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+    os_name: typeof navigator !== 'undefined' ? navigator.platform : null,
+    app_version: process.env.NEXT_PUBLIC_APP_VERSION ?? null,
+    release_version: process.env.NEXT_PUBLIC_APP_VERSION ?? null,
+    metadata: {
+      beta_feedback_id: feedback?.id ?? null,
+      screenshot_url: data.screenshot_url ?? null,
+      user_name: profile?.display_name || user.email,
+      user_role: profile?.role || 'unknown',
+      device_info: getDeviceInfo(),
+    },
+  });
+
   return { success: true, id: feedback?.id };
 }
 

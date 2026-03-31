@@ -1,266 +1,349 @@
-// ═══════════════════════════════════════════════════════
-// Telemetry Collector — Lightweight client-side SDK
-// ═══════════════════════════════════════════════════════
-
 import { parseDevice, type DeviceInfo } from './device-parser';
 import { observeWebVitals } from './performance-observer';
 import { installFetchInterceptor, type APICallRecord } from './fetch-interceptor';
 
-// ── Types ──
-
-interface JSError {
-  message: string;
-  stack: string;
-  source: string;
-  line: number;
-  column: number;
-  timestamp: string;
-  page: string;
-  count: number;
-}
+type TelemetrySeverity = 'info' | 'warning' | 'error' | 'critical';
 
 interface TelemetryEvent {
-  type: string;
-  page: string;
-  data: Record<string, unknown>;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  name: string;
+  routePath: string;
+  severity: TelemetrySeverity;
   timestamp: string;
+  durationMs?: number;
+  metadata?: Record<string, unknown>;
 }
 
-// ── State ──
+interface BufferedPerformance {
+  routePath: string;
+  metrics: {
+    ttfb?: number;
+    fcp?: number;
+    lcp?: number;
+    cls?: number;
+    fid?: number;
+    inp?: number;
+  };
+}
 
-let sessionId: string | null = null;
+let sessionKey: string | null = null;
 let userId: string | null = null;
 let profileId: string | null = null;
-let role: string | null = null;
 let academyId: string | null = null;
+let role: string | null = null;
 let device: DeviceInfo | null = null;
-let startedAt: string | null = null;
+let eventBuffer: TelemetryEvent[] = [];
 let pagesVisited: string[] = [];
 let totalActions = 0;
-let eventBuffer: TelemetryEvent[] = [];
-const jsErrors: Map<string, JSError> = new Map();
+let lastActivityAt = Date.now();
+let startedAt = Date.now();
+let currentRouteStartedAt = Date.now();
+let currentRoute = '/';
+let performanceBuffer: Map<string, BufferedPerformance['metrics']> = new Map();
 let flushInterval: ReturnType<typeof setInterval> | null = null;
 let cleanupFns: Array<() => void> = [];
 let isInitialized = false;
-let lastActivityAt = Date.now();
 
-function generateId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+function generateKey(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function pushEvent(type: string, data: Record<string, unknown>, severity: TelemetryEvent['severity'] = 'info') {
+function getAppVersion(): string | undefined {
+  return process.env.NEXT_PUBLIC_APP_VERSION;
+}
+
+function pushEvent(
+  name: string,
+  metadata: Record<string, unknown> = {},
+  severity: TelemetrySeverity = 'info',
+  durationMs?: number,
+) {
+  if (typeof window === 'undefined') return;
+
   eventBuffer.push({
-    type,
-    page: typeof window !== 'undefined' ? window.location.pathname : '',
-    data,
+    name,
+    routePath: window.location.pathname,
     severity,
     timestamp: new Date().toISOString(),
+    durationMs,
+    metadata,
   });
 
-  // Cap at 100 events in buffer
-  if (eventBuffer.length > 100) {
-    eventBuffer = eventBuffer.slice(-50);
+  if (eventBuffer.length > 150) {
+    eventBuffer = eventBuffer.slice(-100);
   }
-}
-
-async function flushEvents() {
-  if (!sessionId || eventBuffer.length === 0) return;
-
-  const batch = eventBuffer.splice(0, 50);
-  const payload = {
-    sessionId,
-    userId,
-    profileId,
-    role,
-    academyId,
-    device,
-    locale: typeof navigator !== 'undefined' ? navigator.language : 'pt-BR',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    startedAt,
-    lastActivityAt: new Date(lastActivityAt).toISOString(),
-    duration: Math.round((Date.now() - new Date(startedAt!).getTime()) / 1000),
-    isActive: Date.now() - lastActivityAt < 5 * 60 * 1000,
-    currentPage: typeof window !== 'undefined' ? window.location.pathname : '',
-    pagesVisited,
-    totalPageViews: pagesVisited.length,
-    totalActions,
-    events: batch,
-  };
-
-  try {
-    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-      navigator.sendBeacon('/api/telemetry', JSON.stringify(payload));
-    } else {
-      fetch('/api/telemetry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch(() => {
-        // silently fail — non-critical
-      });
-    }
-  } catch {
-    // silently fail
-  }
-}
-
-function onJSError(message: string, source: string, line: number, column: number, stack: string) {
-  const key = `${message}:${source}:${line}`;
-  const existing = jsErrors.get(key);
-  if (existing) {
-    existing.count++;
-    existing.timestamp = new Date().toISOString();
-  } else {
-    jsErrors.set(key, {
-      message, stack, source, line, column,
-      timestamp: new Date().toISOString(),
-      page: window.location.pathname,
-      count: 1,
-    });
-  }
-
-  pushEvent('js_error', { message, stack: stack.slice(0, 500), source, line, column }, 'error');
-}
-
-function onAPIError(record: APICallRecord) {
-  pushEvent('api_error', {
-    url: record.url,
-    method: record.method,
-    status: record.status,
-    message: record.message,
-    duration: record.duration,
-  }, record.status >= 500 ? 'error' : 'warning');
 }
 
 function trackActivity() {
   lastActivityAt = Date.now();
-  totalActions++;
+  totalActions += 1;
 }
 
-// ── Public API ──
+function flushCurrentRoute() {
+  if (typeof window === 'undefined') return;
+  const durationMs = Math.max(0, Date.now() - currentRouteStartedAt);
+  pushEvent(
+    'screen_left',
+    {
+      pageCount: pagesVisited.length,
+      totalActions,
+    },
+    'info',
+    durationMs,
+  );
+}
 
-export function initTelemetry(
-  uid: string,
-  pid: string,
-  userRole: string,
-  userAcademyId: string,
-) {
+async function flushEvents() {
+  if (!sessionKey || !device || eventBuffer.length === 0 || typeof window === 'undefined') return;
+
+  const batch = eventBuffer.splice(0, 80);
+  const payload = {
+    sessionKey,
+    userId,
+    profileId,
+    academyId,
+    role,
+    origin: device.isCapacitor ? 'android' : 'web',
+    appVersion: getAppVersion(),
+    releaseVersion: getAppVersion(),
+    locale: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    startedAt: new Date(startedAt).toISOString(),
+    lastActivityAt: new Date(lastActivityAt).toISOString(),
+    durationSeconds: Math.round((Date.now() - startedAt) / 1000),
+    totalPageViews: pagesVisited.length,
+    totalActions,
+    currentRoute: window.location.pathname,
+    pagesVisited,
+    device: {
+      deviceType: device.type,
+      deviceModel: device.deviceModel,
+      deviceVendor: device.deviceVendor,
+      osName: device.os,
+      osVersion: device.osVersion,
+      browserName: device.browser,
+      browserVersion: device.browserVersion,
+      screenWidth: device.screenWidth,
+      screenHeight: device.screenHeight,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      pixelRatio: device.pixelRatio,
+      connectionType: device.connectionType,
+      effectiveType: device.effectiveType,
+    },
+    events: batch.map((event) => ({
+      ...event,
+      metadata: {
+        ...event.metadata,
+        appVersion: getAppVersion(),
+        releaseVersion: getAppVersion(),
+      },
+    })),
+  };
+
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/telemetry', JSON.stringify(payload));
+      return;
+    }
+    await fetch('/api/telemetry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+  } catch {
+    // Non-critical; telemetry must not break the UX.
+  }
+}
+
+function registerPerformanceMetric(routePath: string, name: string, value: number) {
+  const current = performanceBuffer.get(routePath) ?? {};
+  current[name as keyof BufferedPerformance['metrics']] = value;
+  performanceBuffer.set(routePath, current);
+
+  if (name === 'lcp' || name === 'ttfb') {
+    pushEvent(
+      'performance_metric',
+      {
+        metric: name,
+        value,
+        ...current,
+      },
+      'info',
+    );
+  }
+}
+
+function handleApiSignal(record: APICallRecord) {
+  const baseMetadata = {
+    url: record.url,
+    method: record.method,
+    status: record.status,
+    durationMs: record.duration,
+    message: record.message,
+  };
+
+  if (record.status === 401 || record.status === 403) {
+    pushEvent('auth_failure', baseMetadata, 'warning');
+    return;
+  }
+  if (record.duration >= 8000 || /timeout/i.test(record.message ?? '')) {
+    pushEvent('timeout', baseMetadata, 'warning');
+    return;
+  }
+
+  pushEvent('api_error', baseMetadata, record.status >= 500 ? 'error' : 'warning');
+}
+
+function recordRouteVisit(routePath: string) {
+  currentRoute = routePath;
+  currentRouteStartedAt = Date.now();
+  pagesVisited.push(routePath);
+  pushEvent('route_visited', {
+    screenWidth: window.innerWidth,
+    screenHeight: window.innerHeight,
+  });
+  pushEvent('screen_viewed', {
+    title: document.title,
+  });
+}
+
+function handleNavigation(nextRoute: string) {
+  if (nextRoute === currentRoute) return;
+  flushCurrentRoute();
+  recordRouteVisit(nextRoute);
+  lastActivityAt = Date.now();
+}
+
+export function initTelemetry(uid: string, pid: string, userRole: string, userAcademyId: string) {
   if (typeof window === 'undefined' || isInitialized) return;
 
-  sessionId = generateId();
+  sessionKey = generateKey();
   userId = uid;
   profileId = pid;
+  academyId = userAcademyId || null;
   role = userRole;
-  academyId = userAcademyId;
   device = parseDevice();
-  startedAt = new Date().toISOString();
-  pagesVisited = [window.location.pathname];
+  startedAt = Date.now();
+  lastActivityAt = Date.now();
   totalActions = 0;
   eventBuffer = [];
-  jsErrors.clear();
+  pagesVisited = [];
+  performanceBuffer = new Map();
   isInitialized = true;
 
-  // JS Errors
-  const origOnError = window.onerror;
-  window.onerror = function (msg, source, line, col, err) {
-    onJSError(
-      String(msg),
-      source ?? '',
-      line ?? 0,
-      col ?? 0,
-      err?.stack ?? '',
-    );
-    if (origOnError) origOnError.call(window, msg, source, line, col, err);
-  };
-  cleanupFns.push(() => { window.onerror = origOnError; });
+  currentRoute = window.location.pathname;
+  currentRouteStartedAt = Date.now();
+  recordRouteVisit(window.location.pathname);
 
-  // Unhandled promise rejections
-  const onRejection = (e: PromiseRejectionEvent) => {
-    onJSError(
-      e.reason?.message ?? String(e.reason),
-      '',
-      0,
-      0,
-      e.reason?.stack ?? '',
+  const originalOnError = window.onerror;
+  window.onerror = function (message, source, line, column, error) {
+    pushEvent(
+      'js_error',
+      {
+        message: String(message),
+        source: source ?? '',
+        line: line ?? 0,
+        column: column ?? 0,
+        stack: error?.stack?.slice(0, 1000),
+      },
+      'error',
+    );
+    if (originalOnError) {
+      return originalOnError.call(window, message, source, line, column, error);
+    }
+    return false;
+  };
+  cleanupFns.push(() => {
+    window.onerror = originalOnError;
+  });
+
+  const onRejection = (event: PromiseRejectionEvent) => {
+    pushEvent(
+      'js_error',
+      {
+        message: event.reason?.message ?? String(event.reason),
+        stack: event.reason?.stack?.slice(0, 1000),
+      },
+      'error',
     );
   };
   window.addEventListener('unhandledrejection', onRejection);
   cleanupFns.push(() => window.removeEventListener('unhandledrejection', onRejection));
 
-  // Performance observer
   const stopVitals = observeWebVitals((metric) => {
-    pushEvent('page_load', { [metric.name]: metric.value }, 'info');
+    registerPerformanceMetric(metric.page, metric.name, metric.value);
   });
   cleanupFns.push(stopVitals);
 
-  // Fetch interceptor
-  const stopFetch = installFetchInterceptor(onAPIError);
+  const stopFetch = installFetchInterceptor(handleApiSignal);
   cleanupFns.push(stopFetch);
 
-  // Visibility
-  const onVisChange = () => {
+  const activityEvents = ['click', 'keydown', 'scroll', 'touchstart'] as const;
+  for (const eventName of activityEvents) {
+    document.addEventListener(eventName, trackActivity, { passive: true });
+    cleanupFns.push(() => document.removeEventListener(eventName, trackActivity));
+  }
+
+  const onVisibilityChange = () => {
     if (document.visibilityState === 'hidden') {
-      flushEvents();
+      flushCurrentRoute();
+      void flushEvents();
     }
   };
-  document.addEventListener('visibilitychange', onVisChange);
-  cleanupFns.push(() => document.removeEventListener('visibilitychange', onVisChange));
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  cleanupFns.push(() => document.removeEventListener('visibilitychange', onVisibilityChange));
 
-  // Activity tracking
-  const events = ['click', 'keydown', 'scroll', 'touchstart'] as const;
-  events.forEach((evt) => {
-    document.addEventListener(evt, trackActivity, { passive: true });
-    cleanupFns.push(() => document.removeEventListener(evt, trackActivity));
+  const onPopState = () => handleNavigation(window.location.pathname);
+  window.addEventListener('popstate', onPopState);
+  cleanupFns.push(() => window.removeEventListener('popstate', onPopState));
+
+  const originalPushState = history.pushState;
+  history.pushState = function (...args) {
+    originalPushState.apply(this, args);
+    handleNavigation(window.location.pathname);
+  };
+  cleanupFns.push(() => {
+    history.pushState = originalPushState;
   });
 
-  // Page navigation tracking (popstate + pushState)
-  const onNav = () => {
-    const page = window.location.pathname;
-    if (pagesVisited[pagesVisited.length - 1] !== page) {
-      pagesVisited.push(page);
-      pushEvent('navigation', { page }, 'info');
-    }
-    lastActivityAt = Date.now();
+  const originalReplaceState = history.replaceState;
+  history.replaceState = function (...args) {
+    originalReplaceState.apply(this, args);
+    handleNavigation(window.location.pathname);
   };
-  window.addEventListener('popstate', onNav);
-  cleanupFns.push(() => window.removeEventListener('popstate', onNav));
+  cleanupFns.push(() => {
+    history.replaceState = originalReplaceState;
+  });
 
-  // Monkey-patch pushState for SPA navigation
-  const origPushState = history.pushState;
-  history.pushState = function (...args) {
-    origPushState.apply(this, args);
-    onNav();
-  };
-  cleanupFns.push(() => { history.pushState = origPushState; });
-
-  // Flush every 30s
-  flushInterval = setInterval(flushEvents, 30_000);
-
-  // Flush on unload
   const onBeforeUnload = () => {
-    flushEvents();
+    flushCurrentRoute();
+    void flushEvents();
   };
   window.addEventListener('beforeunload', onBeforeUnload);
   cleanupFns.push(() => window.removeEventListener('beforeunload', onBeforeUnload));
 
-  // Initial page load event
-  pushEvent('navigation', { page: window.location.pathname }, 'info');
+  flushInterval = setInterval(() => {
+    void flushEvents();
+  }, 30000);
 }
 
 export function stopTelemetry() {
   if (!isInitialized) return;
-  flushEvents();
+
+  flushCurrentRoute();
+  void flushEvents();
+
   if (flushInterval) clearInterval(flushInterval);
   cleanupFns.forEach((fn) => fn());
   cleanupFns = [];
+  flushInterval = null;
   isInitialized = false;
-  sessionId = null;
+  sessionKey = null;
 }
 
 export function getSessionId(): string | null {
-  return sessionId;
+  return sessionKey;
 }
 
 export function getCurrentDevice(): DeviceInfo | null {
@@ -272,9 +355,6 @@ export function getRecentEvents(): TelemetryEvent[] {
 }
 
 export function trackPageView(page: string) {
-  if (!isInitialized) return;
-  if (pagesVisited[pagesVisited.length - 1] !== page) {
-    pagesVisited.push(page);
-    pushEvent('navigation', { page }, 'info');
-  }
+  if (!isInitialized || typeof window === 'undefined') return;
+  handleNavigation(page);
 }

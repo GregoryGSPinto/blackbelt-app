@@ -34,6 +34,16 @@ export async function submitFeedback(
 
     const { createBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createBrowserClient();
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData.user;
+    const { data: profile } = user
+      ? await supabase
+          .from('profiles')
+          .select('id, role, display_name')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle()
+      : { data: null };
 
     const { data: row, error } = await supabase
       .from('user_feedback')
@@ -52,6 +62,42 @@ export async function submitFeedback(
       logServiceError(error, 'feedback');
       return null;
     }
+
+    const categoryMap: Record<FeedbackType, 'feedback' | 'complaint' | 'suggestion' | 'bug' | 'praise'> = {
+      suggestion: 'suggestion',
+      bug: 'bug',
+      praise: 'praise',
+      complaint: 'complaint',
+      other: 'feedback',
+    };
+
+    await supabase.from('support_feedback_items').insert({
+      academy_id: academyId,
+      reporter_user_id: user?.id ?? null,
+      reporter_profile_id: profile?.id ?? null,
+      category: categoryMap[data.type],
+      severity: data.type === 'complaint' || data.type === 'bug' ? 'high' : 'medium',
+      status: 'new',
+      origin: 'web',
+      title: data.message.slice(0, 80),
+      description: data.message,
+      route_path: data.page_url ?? null,
+      source_page: data.page_url ?? null,
+      device_type: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop',
+      viewport_width: typeof window !== 'undefined' ? window.innerWidth : null,
+      viewport_height: typeof window !== 'undefined' ? window.innerHeight : null,
+      browser_name: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      os_name: typeof navigator !== 'undefined' ? navigator.platform : null,
+      app_version: process.env.NEXT_PUBLIC_APP_VERSION ?? null,
+      release_version: process.env.NEXT_PUBLIC_APP_VERSION ?? null,
+      metadata: {
+        rating: data.rating ?? null,
+        legacy_feedback_id: row.id,
+        legacy_type: data.type,
+        reporter_name: profile?.display_name ?? null,
+        reporter_role: profile?.role ?? null,
+      },
+    });
 
     return row as UserFeedback;
   } catch (err) {

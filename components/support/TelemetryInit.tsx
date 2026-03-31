@@ -10,11 +10,16 @@ export function TelemetryInit() {
   useEffect(() => {
     if (!profile?.user_id) return;
 
+    const academyId = document.cookie
+      .split('; ')
+      .find((item) => item.startsWith('bb-academy-id='))
+      ?.split('=')[1] ?? '';
+
     initTelemetry(
       profile.user_id,
       profile.id,
       profile.role,
-      '',
+      academyId,
     );
 
     return () => {
