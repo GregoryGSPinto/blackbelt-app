@@ -1,90 +1,110 @@
-# Central da Plataforma — Fechamento Técnico
+# Central da Plataforma — Fechamento Operacional
 
-## Implementado
-- Migration base da Central da Plataforma com schema real, enums, índices, views e RLS.
-- Seed coerente local para cenários enterprise com multi-tenant, 20k acessos/mês e incidentes/dispositivos.
-- Ingestão real de telemetria em sessão, eventos, erros, performance e snapshots de dispositivo.
-- Dual-write de feedback para abastecer a Central sem quebrar fluxos legados.
-- Endpoint agregado do Super Admin para leitura operacional.
-- UI nova em `/superadmin/suporte` com 5 abas:
-  - Visão Geral
-  - Suporte & Feedback
-  - Erros & Performance
-  - Dispositivos & Layout
-  - Saúde, Segurança & IA
+## Escopo desta fase
+- Ativação real do backend da Central da Plataforma no projeto Supabase usado pelo app.
+- Regeneração dos tipos Supabase a partir do schema ativo.
+- Validação real do endpoint agregado e da UI `/superadmin/suporte`.
+- Smoke autenticado com backend ativo.
+- Publicação final em `main` e novo deploy de produção.
 
-## Tabelas criadas/ajustadas
-- `app_telemetry_sessions`
-- `app_telemetry_events`
-- `app_error_events`
-- `app_performance_metrics`
-- `app_device_snapshots`
-- `support_feedback_items`
-- `support_feedback_comments`
-- `support_feedback_assignments`
-- `support_feedback_tags`
-- `support_feedback_item_tags`
-- `platform_incidents`
-- `platform_health_snapshots`
-- `platform_risk_snapshots`
-- `model_observability_snapshots`
+## Migrations aplicadas
+- `092_student_financial_profiles.sql`
+  - estava pendente no projeto linkado e precisou entrar antes da Central.
+- `093_platform_central_foundation.sql`
+  - aplicada no projeto `tdplmmodmumryzdosmpv`.
+  - ajuste feito na view `platform_overview_daily_v` para corrigir a agregação por dia e evitar erro SQL de coluna não agrupada.
+- `094_platform_central_seed_activation.sql`
+  - criada nesta fase para materializar no banco linkado o mesmo cenário de seed da Central.
+  - motivo: o repositório não possui `supabase/config.toml` configurado para `seed --linked`, então a ativação remota precisava de um caminho não destrutivo e auditável.
+  - a migration foi alinhada para usar `owner_id` e perfis reais já existentes no ambiente ativo, sem depender de UUIDs fictícios.
 
-## Services e contratos
-- [`lib/server/platform-central.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/server/platform-central.ts)
-- [`lib/api/platform-central.service.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/api/platform-central.service.ts)
-- [`app/api/superadmin/platform-central/route.ts`](/Users/user_pc/Projetos/black_belt_v2/app/api/superadmin/platform-central/route.ts)
-- [`app/api/telemetry/route.ts`](/Users/user_pc/Projetos/black_belt_v2/app/api/telemetry/route.ts)
+## Seed aplicado no banco ativo
+- O seed operacional da Central foi aplicado no mesmo projeto Supabase do app via `094_platform_central_seed_activation.sql`.
+- Resultado confirmado no banco:
+  - `app_telemetry_events`: `20000`
+  - `app_error_events`: `360`
+  - `app_performance_metrics`: `1800`
+  - `app_device_snapshots`: `800`
+  - `support_feedback_items`: `36`
+  - `platform_health_snapshots`: `8`
+  - `platform_risk_snapshots`: `5`
+  - `model_observability_snapshots`: `1`
 
-## Instrumentação criada
-- `route_visited`
-- `screen_viewed`
-- `screen_left`
-- `performance_metric`
-- `js_error`
-- `api_error`
-- `auth_failure`
-- `timeout`
+## Tipos regenerados
+- `lib/supabase/database.types.ts`
+  - regenerado a partir do projeto ativo `tdplmmodmumryzdosmpv`.
 
-## Validação executada
-- `pnpm typecheck`
-  - Resultado: ok
-- `pnpm test tests/services/platform-central-scoring.test.ts`
-  - Resultado: 1 arquivo, 4 testes, todos ok
-- `pnpm build`
-  - Resultado: ok
-  - Observação: warnings legados preexistentes de hooks/img/console fora do escopo da Central permaneceram no build, mas não bloquearam a geração.
+## Arquivos ajustados nesta fase
+- [`supabase/migrations/093_platform_central_foundation.sql`](/Users/user_pc/Projetos/black_belt_v2/supabase/migrations/093_platform_central_foundation.sql)
+- [`supabase/migrations/094_platform_central_seed_activation.sql`](/Users/user_pc/Projetos/black_belt_v2/supabase/migrations/094_platform_central_seed_activation.sql)
+- [`lib/supabase/database.types.ts`](/Users/user_pc/Projetos/black_belt_v2/lib/supabase/database.types.ts)
+- [`e2e/tests/11-platform-central.spec.ts`](/Users/user_pc/Projetos/black_belt_v2/e2e/tests/11-platform-central.spec.ts)
 
-## Evidências dos fluxos validados
-- Snapshot único do Super Admin disponível em `/api/superadmin/platform-central`.
-- Página `/superadmin/suporte` compilada e incluída no build final.
-- Drill-down operacional em suporte via modal com:
-  - abertura do item
-  - mudança de status
+## Resultado do endpoint `/api/superadmin/platform-central`
+- Validado em execução real do app local com autenticação de superadmin.
+- A resposta `GET /api/superadmin/platform-central` retornou `200 OK`.
+- Evidências confirmadas na carga:
+  - `overview.totalAccesses > 0`
+  - `support.metrics.total > 0`
+  - `errorsPerformance.totals.errors > 0`
+  - `devicesLayout.distribution.length > 0`
+  - `healthSecurityAI.latest.length > 0`
+  - `healthSecurityAI.ai.status = "not_configured"`
+- Consulta direta ao banco também confirmou que as views agregadas estão respondendo:
+  - `platform_overview_daily_v`
+  - `platform_health_risk_latest_v`
+
+## Resultado da página `/superadmin/suporte`
+- Validada ponta a ponta com smoke autenticado.
+- Confirmado:
+  - carregamento das 5 abas
+  - cards e gráficos renderizando
+  - filtros de suporte funcionando
+  - abertura do drill-down do item
   - atribuição para o operador atual
-  - nota interna
-- Leituras de erros/performance por rota, device e release.
-- Leituras de dispositivos, resolução, breakpoint e risco visual/layout.
-- Health/risk snapshots e IA com estado honesto `não configurado`.
+  - mudança de status para resolvido
+  - registro de nota interna
+  - aba de IA exibindo estado honesto `Não configurado`
+
+## Testes executados
+- `pnpm typecheck`
+  - resultado: `ok`
+- `pnpm test tests/services/platform-central-scoring.test.ts`
+  - resultado: `1 arquivo`, `4 testes`, todos `ok`
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3002 pnpm exec playwright test e2e/tests/11-platform-central.spec.ts --project=desktop`
+  - resultado: `1 passed`
+- `pnpm build`
+  - resultado: `ok`
+  - observação: warnings legados de hooks/img/console seguiram presentes fora do escopo da Central e não bloquearam o build.
+
+## Resultado do deploy
+- Nesta fase, o código atualizado foi preparado para publicação final em `main`.
+- O deploy de produção precisa ser reexecutado após os commits desta fase.
+- A validação anterior de produção já tinha confirmado que a URL Vercel respondia `HTTP/2 401`, o que indica deploy ativo porém protegido.
+- O resultado final desta nova publicação deve registrar:
+  - push concluído
+  - URL final gerada
+  - se a proteção Vercel continuar ativa
 
 ## Pronto no código
-- Schema
-- Seed
-- ingestão
-- agregação
+- Schema final da Central
+- Seed operacional da Central
+- Tipos Supabase regenerados
+- Endpoint agregado do Super Admin
 - UI 5 abas
-- thresholds e scoring
+- Smoke e2e mínimo da rota crítica
 
-## Pronto com backend real local de teste
-- Telemetria persistida em tabelas novas
-- agregações do Super Admin
-- suporte/feedback na fila nova
-- snapshots de health/risk
+## Pronto no banco real/local
+- `093` aplicada no projeto linkado
+- seed da Central aplicado no projeto linkado
+- views e tabelas da Central respondendo com dados reais
+- backend lendo o banco ativo, sem mock dominante como fonte principal
 
-## Dependente de integração externa
-- vulnerabilidades reais de dependências
-- provenance de deploy/último release a partir de CI/CD
-- model observability real quando houver provider/modelo ativo
+## Pronto em produção
+- Até este ponto do documento: pendente de push/deploy desta fase
 
-## Gaps restantes
-- Regenerar `lib/supabase/database.types.ts` no ambiente Supabase após aplicar a migration.
-- Se a decisão de produto for unificação total, migrar completamente o legado de `support_tickets` para `support_feedback_items`.
+## Dependente de credencial, rede ou infra externa
+- execução do push final para `main`
+- deploy Vercel desta revisão final
+- eventual proteção/autenticação de ambiente na URL pública do Vercel
+- qualquer validação externa que dependa de DNS, API da Vercel ou políticas de acesso do ambiente

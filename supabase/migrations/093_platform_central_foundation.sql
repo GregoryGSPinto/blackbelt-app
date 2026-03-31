@@ -550,25 +550,43 @@ END
 $$;
 
 CREATE OR REPLACE VIEW public.platform_overview_daily_v AS
+WITH telemetry_daily AS (
+  SELECT
+    date_trunc('day', e.happened_at)::date AS day,
+    COUNT(*) FILTER (WHERE e.event_name IN ('route_visited', 'screen_viewed')) AS access_count,
+    COUNT(DISTINCT e.user_id) FILTER (WHERE e.user_id IS NOT NULL) AS active_users,
+    COUNT(DISTINCT e.academy_id) FILTER (WHERE e.academy_id IS NOT NULL) AS active_tenants,
+    COUNT(*) FILTER (WHERE e.event_name = 'auth_failure') AS auth_failures,
+    COUNT(*) FILTER (WHERE e.event_name = 'timeout') AS timeouts
+  FROM public.app_telemetry_events e
+  GROUP BY 1
+),
+error_daily AS (
+  SELECT
+    date_trunc('day', err.occurred_at)::date AS day,
+    COUNT(*) AS error_count
+  FROM public.app_error_events err
+  GROUP BY 1
+),
+performance_daily AS (
+  SELECT
+    date_trunc('day', pm.recorded_at)::date AS day,
+    ROUND(AVG(pm.load_time_ms))::integer AS avg_latency_ms
+  FROM public.app_performance_metrics pm
+  GROUP BY 1
+)
 SELECT
-  date_trunc('day', e.happened_at)::date AS day,
-  COUNT(*) FILTER (WHERE e.event_name IN ('route_visited', 'screen_viewed')) AS access_count,
-  COUNT(DISTINCT e.user_id) FILTER (WHERE e.user_id IS NOT NULL) AS active_users,
-  COUNT(DISTINCT e.academy_id) FILTER (WHERE e.academy_id IS NOT NULL) AS active_tenants,
-  COUNT(*) FILTER (WHERE e.event_name = 'auth_failure') AS auth_failures,
-  COUNT(*) FILTER (WHERE e.event_name = 'timeout') AS timeouts,
-  (
-    SELECT COUNT(*)
-    FROM public.app_error_events err
-    WHERE date_trunc('day', err.occurred_at)::date = date_trunc('day', e.happened_at)::date
-  ) AS error_count,
-  (
-    SELECT ROUND(AVG(pm.load_time_ms))::integer
-    FROM public.app_performance_metrics pm
-    WHERE date_trunc('day', pm.recorded_at)::date = date_trunc('day', e.happened_at)::date
-  ) AS avg_latency_ms
-FROM public.app_telemetry_events e
-GROUP BY 1;
+  td.day,
+  td.access_count,
+  td.active_users,
+  td.active_tenants,
+  td.auth_failures,
+  td.timeouts,
+  COALESCE(ed.error_count, 0) AS error_count,
+  pd.avg_latency_ms
+FROM telemetry_daily td
+LEFT JOIN error_daily ed ON ed.day = td.day
+LEFT JOIN performance_daily pd ON pd.day = td.day;
 
 CREATE OR REPLACE VIEW public.platform_error_route_metrics_v AS
 SELECT
