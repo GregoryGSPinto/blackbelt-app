@@ -11,11 +11,12 @@ import {
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function ParentMensagensPage() {
   const { profile } = useAuth();
-  const profileId = profile?.id ?? 'prof-patricia-001';
-  const academyId = 'acad-001';
+  const profileId = profile?.id ?? '';
+  const academyId = getActiveAcademyId();
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
@@ -48,6 +49,19 @@ export default function ParentMensagensPage() {
     },
     [profileId, academyId],
   );
+
+  // Don't render messaging UI until we have a real profile + academy
+  if (!profileId || !academyId) {
+    return (
+      <PlanGate module="mensagens">
+        <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
+          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+            Carregando...
+          </p>
+        </div>
+      </PlanGate>
+    );
+  }
 
   // Build child context string
   const childContext =

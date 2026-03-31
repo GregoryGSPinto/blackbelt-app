@@ -12,12 +12,13 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function TeenMensagensPage() {
   const { profile } = useAuth();
   const { toast } = useToast();
-  const profileId = profile?.id ?? 'prof-lucas-001';
-  const academyId = 'acad-001';
+  const profileId = profile?.id ?? '';
+  const academyId = getActiveAcademyId();
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');

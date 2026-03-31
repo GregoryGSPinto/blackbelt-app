@@ -12,11 +12,12 @@ import {
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function AdminMensagensPage() {
   const { profile } = useAuth();
-  const profileId = profile?.id ?? 'prof-roberto-001';
-  const academyId = 'acad-001';
+  const profileId = profile?.id ?? '';
+  const academyId = getActiveAcademyId();
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');

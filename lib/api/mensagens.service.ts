@@ -47,7 +47,7 @@ export async function getMyContacts(
 
     // Role-based contact filtering:
     // admin → all | professor → admin + alunos | aluno → professor + admin
-    // responsavel → professor + admin | kids → nobody (no messaging)
+    // responsavel → professor + admin + recepcao | kids → nobody (no messaging)
     const allowedRoles = role === Role.Admin || role === Role.Superadmin
       ? [] // no filter — see all
       : role === Role.Professor
@@ -55,40 +55,68 @@ export async function getMyContacts(
         : role === Role.AlunoAdulto || role === Role.AlunoTeen
           ? [Role.Admin, Role.Professor]
           : role === Role.Responsavel
-            ? [Role.Admin, Role.Professor]
+            ? [Role.Admin, Role.Professor, Role.Recepcao]
             : role === Role.Recepcao
               ? [Role.Admin, Role.Professor, Role.AlunoAdulto]
               : [Role.Admin];
 
-    let query = supabase
-      .from('profiles')
-      .select('id, display_name, avatar_url, role')
+    // 1. Get profile IDs from memberships for this academy
+    const { data: members, error: memberError } = await supabase
+      .from('memberships')
+      .select('profile_id, role')
       .eq('academy_id', academyId)
-      .neq('id', profileId);
+      .eq('status', 'active')
+      .neq('profile_id', profileId);
 
-    if (allowedRoles.length > 0) {
-      query = query.in('role', allowedRoles);
+    if (memberError) {
+      logServiceError(memberError, 'mensagens');
+      return [];
     }
 
-    const { data, error } = await query;
+    if (!members || members.length === 0) return [];
+
+    // 2. Filter by allowed roles (using membership role)
+    const filtered = allowedRoles.length > 0
+      ? members.filter((m: Record<string, unknown>) => allowedRoles.includes(String(m.role) as Role))
+      : members;
+
+    if (filtered.length === 0) return [];
+
+    const profileIds = filtered.map((m: Record<string, unknown>) => String(m.profile_id));
+
+    // 3. Fetch profiles for those members
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, display_name, avatar, avatar_url, role')
+      .in('id', profileIds);
 
     if (error) {
       logServiceError(error, 'mensagens');
       return [];
     }
 
-    return (data ?? []).map((row: Record<string, unknown>) => ({
-      profile_id: String(row.id ?? ''),
-      display_name: String(row.display_name ?? ''),
-      avatar_url: row.avatar_url ? String(row.avatar_url) : null,
-      role: (row.role as Role) ?? 'aluno',
-      role_badge: String(row.role ?? 'aluno'),
-      classes_in_common: [],
-      children_linked: [],
-      last_message: null,
-      last_message_at: null,
-      unread_count: 0,
-    }));
+    // Build a role map from memberships (more accurate than profile role)
+    const memberRoleMap = new Map<string, string>();
+    for (const m of filtered) {
+      memberRoleMap.set(String((m as Record<string, unknown>).profile_id), String((m as Record<string, unknown>).role));
+    }
+
+    return (data ?? []).map((row: Record<string, unknown>) => {
+      const memberRole = memberRoleMap.get(String(row.id)) ?? String(row.role ?? 'aluno');
+      const avatarSrc = row.avatar_url ? String(row.avatar_url) : row.avatar ? String(row.avatar) : null;
+      return {
+        profile_id: String(row.id ?? ''),
+        display_name: String(row.display_name ?? ''),
+        avatar_url: avatarSrc,
+        role: memberRole as Role,
+        role_badge: memberRole,
+        classes_in_common: [],
+        children_linked: [],
+        last_message: null,
+        last_message_at: null,
+        unread_count: 0,
+      };
+    });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
     logServiceError(new Error(msg), 'mensagens');
