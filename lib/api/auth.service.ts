@@ -214,11 +214,17 @@ export async function selectProfile(profileId: string): Promise<SelectProfileRes
 
   const { createBrowserClient } = await import('@/lib/supabase/client');
   const supabase = createBrowserClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Sessao invalida. Faca login novamente.');
+  }
 
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('id, user_id, role, display_name, avatar, created_at, updated_at')
     .eq('id', profileId)
+    .eq('user_id', user.id)
     .single();
   if (error || !profile) {
     logServiceError(error, 'auth');

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { errorResponse } from './helpers';
 
 export interface AuthContext {
@@ -43,12 +44,36 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
     } = await supabase.auth.getUser();
 
     if (user) {
-      const { data: membership } = await supabase
+      const admin = getAdminClient();
+      const activeAcademyId = request.cookies.get('bb-academy-id')?.value ?? null;
+      const activeRole = request.cookies.get('bb-active-role')?.value ?? null;
+
+      const { data: profiles } = await admin
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id);
+
+      const profileIds = (profiles ?? []).map((profile) => profile.id);
+      if (profileIds.length === 0) {
+        return { error: errorResponse('Authenticated user does not have any profiles.', 403) };
+      }
+
+      let membershipQuery = admin
         .from('memberships')
-        .select('academy_id, role, profile_id')
+        .select('academy_id, role, profile_id, created_at')
         .eq('status', 'active')
-        .limit(1)
-        .single();
+        .in('profile_id', profileIds);
+
+      if (activeAcademyId) {
+        membershipQuery = membershipQuery.eq('academy_id', activeAcademyId);
+      }
+
+      const { data: memberships } = await membershipQuery
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      const membership = (memberships ?? []).find((item) => !activeRole || item.role === activeRole)
+        ?? memberships?.[0];
 
       if (membership) {
         return {
@@ -57,6 +82,24 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
             academyId: membership.academy_id,
             role: membership.role,
             profileId: membership.profile_id,
+          },
+        };
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, role')
+        .eq('user_id', user.id)
+        .eq('role', 'superadmin')
+        .limit(1);
+
+      if (profile?.[0]) {
+        return {
+          auth: {
+            userId: user.id,
+            academyId: activeAcademyId ?? '',
+            role: 'superadmin',
+            profileId: profile[0].id,
           },
         };
       }

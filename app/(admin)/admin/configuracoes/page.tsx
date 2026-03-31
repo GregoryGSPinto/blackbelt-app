@@ -29,6 +29,7 @@ import {
 import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -62,9 +63,6 @@ const DAY_NAMES: Record<string, string> = {
   sunday: 'Domingo',
 };
 
-const MOCK_PROFILE_ID = 'admin-1';
-const MOCK_ACADEMY_ID = getActiveAcademyId();
-
 // ── Loading Skeleton ─────────────────────────────────────────────────
 
 function SettingsSkeleton() {
@@ -88,6 +86,7 @@ function SettingsSkeleton() {
 export default function AdminConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { profile, isLoading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
@@ -98,15 +97,24 @@ export default function AdminConfiguracoesPage() {
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const activeAcademyId = getActiveAcademyId();
+  const profileId = profile?.id ?? '';
 
   // ── Load data ────────────────────────────────────────────────────
 
   useEffect(() => {
+    if (authLoading) return;
+
     async function load() {
+      if (!profileId || !activeAcademyId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const [p, a] = await Promise.all([
-          getUserPreferences(MOCK_PROFILE_ID),
-          getAcademySettings(MOCK_ACADEMY_ID),
+          getUserPreferences(profileId),
+          getAcademySettings(activeAcademyId),
         ]);
         setPrefs(p);
         setAcademy(a);
@@ -117,34 +125,36 @@ export default function AdminConfiguracoesPage() {
       }
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeAcademyId, authLoading, profileId, toast]);
 
   // ── Save helpers ─────────────────────────────────────────────────
 
   const savePref = useCallback(
     async (partial: Partial<UserPreferences>) => {
       try {
-        await updateUserPreferences(MOCK_PROFILE_ID, partial);
+        if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+        await updateUserPreferences(profileId, partial);
         setPrefs((p) => (p ? { ...p, ...partial } : p));
         toast('Salvo!', 'success');
       } catch (err) {
         toast(translateError(err), 'error');
       }
     },
-    [toast],
+    [profileId, toast],
   );
 
   const saveAcademy = useCallback(
     async (partial: Partial<AcademySettings>) => {
       try {
-        await updateAcademySettings(MOCK_ACADEMY_ID, partial);
+        if (!activeAcademyId) throw new Error('Academia ativa nao encontrada.');
+        await updateAcademySettings(activeAcademyId, partial);
         setAcademy((a) => (a ? { ...a, ...partial } : a));
         toast('Salvo!', 'success');
       } catch (err) {
         toast(translateError(err), 'error');
       }
     },
-    [toast],
+    [activeAcademyId, toast],
   );
 
   // ── Handlers ─────────────────────────────────────────────────────
@@ -175,7 +185,8 @@ export default function AdminConfiguracoesPage() {
 
   async function handleUploadAvatar(file: File) {
     try {
-      await uploadAvatar(MOCK_PROFILE_ID, file);
+      if (!profileId) throw new Error('Perfil ativo nao encontrado.');
+      await uploadAvatar(profileId, file);
       toast('Avatar atualizado!', 'success');
     } catch (err) {
       toast(translateError(err), 'error');
@@ -184,7 +195,8 @@ export default function AdminConfiguracoesPage() {
 
   async function handleUploadLogo(file: File) {
     try {
-      await uploadAcademyLogo(MOCK_ACADEMY_ID, file);
+      if (!activeAcademyId) throw new Error('Academia ativa nao encontrada.');
+      await uploadAcademyLogo(activeAcademyId, file);
       toast('Logo atualizada!', 'success');
     } catch (err) {
       toast(translateError(err), 'error');
@@ -193,7 +205,25 @@ export default function AdminConfiguracoesPage() {
 
   // ── Loading state ────────────────────────────────────────────────
 
-  if (loading || !prefs || !academy) return <SettingsSkeleton />;
+  if (loading || authLoading) return <SettingsSkeleton />;
+
+  if (!profileId || !activeAcademyId) {
+    return (
+      <div className="min-h-screen p-4 sm:p-6">
+        <div
+          className="rounded-xl border p-6"
+          style={{ borderColor: 'var(--bb-danger)', background: 'color-mix(in srgb, var(--bb-danger) 8%, transparent)' }}
+        >
+          <h1 className="text-lg font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Configuracoes indisponiveis</h1>
+          <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+            Nao foi possivel identificar o perfil ou a academia ativos. Refaça o login ou selecione o perfil novamente.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!prefs || !academy) return <SettingsSkeleton />;
 
   // ── Render ───────────────────────────────────────────────────────
 
@@ -238,8 +268,8 @@ export default function AdminConfiguracoesPage() {
         {activeTab === 'perfil' && (
           <>
             <SettingsSection icon="user" title="Foto de Perfil">
-              <SettingsAvatar
-                name="Admin"
+                <SettingsAvatar
+                name={profile?.display_name || 'Administrador'}
                 onUpload={handleUploadAvatar}
                 size="lg"
               />
@@ -248,7 +278,7 @@ export default function AdminConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value="Administrador"
+                value={profile?.display_name || 'Administrador'}
                 onSave={(v) => savePref({ nickname: v })}
               />
               <SettingsInput
@@ -672,7 +702,7 @@ export default function AdminConfiguracoesPage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    await exportUserData(MOCK_PROFILE_ID);
+                    await exportUserData(profileId);
                     toast('Exportacao iniciada! Voce recebera o arquivo por email.', 'success');
                   } catch (err) {
                     toast(translateError(err), 'error');
@@ -708,7 +738,7 @@ export default function AdminConfiguracoesPage() {
                   label: 'Desativar academia',
                   description: 'A academia sera desativada e os alunos nao poderao acessar.',
                   action: async () => {
-                    await deactivateAcademy(MOCK_ACADEMY_ID);
+                    await deactivateAcademy(activeAcademyId);
                     toast('Academia desativada.', 'success');
                   },
                   confirmText: 'DESATIVAR',
@@ -717,7 +747,7 @@ export default function AdminConfiguracoesPage() {
                   label: 'Excluir academia',
                   description: 'Todos os dados serao removidos permanentemente. Essa acao e irreversivel.',
                   action: async () => {
-                    await deleteAcademy(MOCK_ACADEMY_ID, academy.name);
+                    await deleteAcademy(activeAcademyId, academy.name);
                     toast('Academia excluida.', 'success');
                   },
                   confirmText: academy.name,
@@ -726,7 +756,7 @@ export default function AdminConfiguracoesPage() {
                   label: 'Excluir minha conta',
                   description: 'Sua conta sera excluida permanentemente.',
                   action: async () => {
-                    await deleteAccount(MOCK_PROFILE_ID, 'EXCLUIR');
+                    await deleteAccount(profileId, 'EXCLUIR');
                     toast('Conta excluida.', 'success');
                   },
                   confirmText: 'EXCLUIR MINHA CONTA',

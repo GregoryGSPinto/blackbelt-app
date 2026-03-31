@@ -19,10 +19,9 @@ import {
   DollarIcon,
 } from '@/components/shell/icons';
 import { translateError } from '@/lib/utils/error-translator';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ────────────────────────────────────────────────────────
-
-const ACADEMY_ID = 'academy-bb-001';
 
 const cardStyle: CSSProperties = {
   background: 'var(--bb-depth-3)',
@@ -120,6 +119,7 @@ function IconEyeOff({ size = 16, color }: { size?: number; color: string }) {
 
 export default function AdminPagamentoConfigPage() {
   const { toast } = useToast();
+  const academyId = getActiveAcademyId();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -137,10 +137,15 @@ export default function AdminPagamentoConfigPage() {
 
   useEffect(() => {
     async function load() {
+      if (!academyId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const [config, gatewayStatus] = await Promise.all([
-          getGatewayConfig(ACADEMY_ID),
-          getGatewayStatus(ACADEMY_ID),
+          getGatewayConfig(academyId),
+          getGatewayStatus(academyId),
         ]);
         if (config) {
           setProvider(config.provider);
@@ -155,7 +160,7 @@ export default function AdminPagamentoConfigPage() {
       }
     }
     load();
-  }, [toast]);
+  }, [academyId, toast]);
 
   // ── Handlers ────────────────────────────────────────────────────────
 
@@ -179,7 +184,8 @@ export default function AdminPagamentoConfigPage() {
   async function handleSyncCustomers() {
     setSyncing(true);
     try {
-      const result = await syncCustomers(ACADEMY_ID);
+      if (!academyId) throw new Error('Academia ativa nao encontrada.');
+      const result = await syncCustomers(academyId);
       setLastSyncCount(result.synced);
       setStatus((prev) => prev ? { ...prev, lastSync: new Date().toISOString() } : prev);
       toast(`${result.synced} clientes sincronizados com sucesso!`, 'success');
@@ -193,11 +199,12 @@ export default function AdminPagamentoConfigPage() {
   async function handleSave() {
     setSaving(true);
     try {
-      await saveGatewayConfig(ACADEMY_ID, {
+      if (!academyId) throw new Error('Academia ativa nao encontrada.');
+      await saveGatewayConfig(academyId, {
         provider,
         apiKey,
         environment,
-        academyId: ACADEMY_ID,
+        academyId,
         connected: status?.connected ?? false,
       });
       toast('Configuracoes de pagamento salvas!', 'success');
@@ -218,6 +225,17 @@ export default function AdminPagamentoConfigPage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  if (!loading && !academyId) {
+    return (
+      <div className="space-y-4 p-4 sm:p-6">
+        <h1 className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>Pagamentos</h1>
+        <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+          Selecione uma academia valida antes de configurar o gateway de pagamentos.
+        </p>
+      </div>
+    );
   }
 
   // ── Loading ─────────────────────────────────────────────────────────
