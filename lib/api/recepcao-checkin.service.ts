@@ -52,7 +52,7 @@ export async function buscarAlunoCheckin(query: string): Promise<AlunoCheckin[]>
       .from('students')
       .select(`
         id, belt, profile_id, academy_id,
-        profiles!students_profile_id_fkey(display_name, avatar),
+        profiles!inner(display_name, avatar),
         class_enrollments(classes(modalities(name)))
       `)
       .eq('academy_id', academyId)

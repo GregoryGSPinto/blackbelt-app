@@ -54,6 +54,17 @@ export async function createAcademy(
     throw new Error(payload.error ?? 'Falha ao criar academia.');
   }
 
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: admin.email.trim().toLowerCase(),
+    password: admin.password,
+  });
+
+  if (signInError) {
+    throw new Error(`Academia criada, mas falhou ao autenticar administrador: ${signInError.message}`);
+  }
+
   // Set academy ID cookie
   if (typeof document !== 'undefined') {
     document.cookie = `bb-academy-id=${payload.academyId};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;

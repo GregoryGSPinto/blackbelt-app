@@ -50,6 +50,19 @@ function normalizeRecurrence(interval: string | null | undefined): string {
   }
 }
 
+function normalizeMembershipRecurrence(interval: string | null | undefined): string {
+  switch (interval) {
+    case 'quarterly':
+      return 'trimestral';
+    case 'semiannual':
+      return 'semestral';
+    case 'annual':
+      return 'anual';
+    default:
+      return 'mensal';
+  }
+}
+
 function currentMonthReference(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -232,9 +245,9 @@ export async function POST(req: NextRequest) {
       status: 'active',
       monthly_amount: body.tipo === 'matricula' ? plan?.price ?? null : null,
       billing_type: body.tipo === 'matricula' ? 'particular' : 'cortesia',
-      billing_status: body.tipo === 'matricula' ? 'em_dia' : 'isento',
-      payment_method: body.tipo === 'matricula' ? 'pix' : 'none',
-      recurrence: body.tipo === 'matricula' ? normalizeRecurrence(plan?.interval) : 'none',
+      billing_status: body.tipo === 'matricula' ? 'em_dia' : 'cortesia',
+      payment_method: body.tipo === 'matricula' ? 'pix' : null,
+      recurrence: body.tipo === 'matricula' ? normalizeMembershipRecurrence(plan?.interval) : 'avulso',
       billing_day: body.tipo === 'matricula' ? 10 : null,
     };
 
@@ -409,7 +422,7 @@ export async function POST(req: NextRequest) {
               {
                 guardian_id: guardianProfileId,
                 child_id: profileId,
-                relationship: relation,
+                relationship: 'parent',
                 can_manage_payments: true,
                 can_precheckin: true,
                 can_view_grades: true,
