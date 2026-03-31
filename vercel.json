@@ -1,5 +1,11 @@
 {
   "regions": ["gru1"],
+  "crons": [
+    {
+      "path": "/api/cron/student-financial-alerts",
+      "schedule": "0 22 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
