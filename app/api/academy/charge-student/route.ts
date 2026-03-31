@@ -105,11 +105,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erro ao gerar cobranca', details: payment.errors }, { status: 400 });
     }
 
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('id')
+      .eq('academy_id', academyId)
+      .eq('profile_id', studentProfileId)
+      .in('role', ['aluno_adulto', 'aluno_teen', 'aluno_kids'])
+      .maybeSingle();
+
     // 3. Salvar no banco
     const { data: savedPayment } = await supabase.from('student_payments').insert({
       academy_id: academyId,
       student_profile_id: studentProfileId,
       guardian_person_id: guardianPersonId,
+      membership_id: membership?.id ?? null,
       description: description || `Mensalidade ${academy.name}`,
       amount_cents: amountCents,
       billing_type: billingType || 'PIX',
@@ -118,6 +127,8 @@ export async function POST(req: NextRequest) {
       asaas_payment_id: payment.id,
       asaas_customer_id: customerId,
       invoice_url: payment.invoiceUrl,
+      payment_method: billingType?.toLowerCase() || null,
+      pix_payload: payment.pixQrCode?.payload || null,
       pix_qr_code: payment.pixQrCode?.payload || null,
       reference_month: referenceMonth,
     }).select('id').single();

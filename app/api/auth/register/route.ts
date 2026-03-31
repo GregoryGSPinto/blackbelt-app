@@ -41,6 +41,13 @@ function isStrongPassword(pw: string): boolean {
   );
 }
 
+function normalizeRelationship(input: string | undefined): 'pai' | 'mae' | 'tutor' {
+  const normalized = (input ?? '').trim().toLowerCase();
+  if (normalized.startsWith('pai')) return 'pai';
+  if (normalized.startsWith('m')) return 'mae';
+  return 'tutor';
+}
+
 // ── POST handler ───────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -150,12 +157,14 @@ export async function POST(request: NextRequest) {
     if (profileData) {
       profileId = profileData.id;
       // Update role if invite specifies one
-      if (invite?.target_role) {
-        await admin
-          .from('profiles')
-          .update({ role: invite.target_role, display_name: body.nome.trim() })
-          .eq('id', profileId);
-      }
+      await admin
+        .from('profiles')
+        .update({
+          role: invite?.target_role ?? profileData.role,
+          display_name: body.nome.trim(),
+          phone: body.telefone ?? null,
+        })
+        .eq('id', profileId);
     } else {
       // Trigger didn't fire; create profile manually
       const role = invite?.target_role ?? 'aluno_adulto';
@@ -165,6 +174,7 @@ export async function POST(request: NextRequest) {
           user_id: authData.user.id,
           role,
           display_name: body.nome.trim(),
+          phone: body.telefone ?? null,
         })
         .select()
         .single();
@@ -195,17 +205,29 @@ export async function POST(request: NextRequest) {
     // 3e. If student role: create student record
     const role = invite?.target_role ?? 'aluno_adulto';
     if (['aluno_adulto', 'aluno_teen', 'aluno_kids'].includes(role) && academyId) {
+      const { data: person } = await admin
+        .from('people')
+        .insert({
+          account_id: authData.user.id,
+          full_name: body.nome.trim(),
+          email: body.email.trim().toLowerCase(),
+          phone: body.telefone ?? null,
+          birth_date: body.dataNascimento ?? null,
+        })
+        .select('id')
+        .single();
+
+      if (person?.id) {
+        await admin.from('profiles').update({ person_id: person.id }).eq('id', profileId);
+      }
+
       const { error: studentError } = await admin
         .from('students')
         .insert({
           profile_id: profileId,
           academy_id: academyId,
-          name: body.nome.trim(),
-          email: body.email.trim().toLowerCase(),
-          phone: body.telefone ?? null,
-          birth_date: body.dataNascimento ?? null,
-          belt_rank: 'white',
-          stripes: 0,
+          belt: 'white',
+          parental_consent: role === 'aluno_adulto' ? true : null,
         });
       if (studentError) {
         console.error('[POST /api/auth/register] create student error:', studentError.message);
@@ -214,19 +236,85 @@ export async function POST(request: NextRequest) {
     }
 
     // 3f. If minor with guardian: create guardian link
-    if (body.responsavel && profileId) {
-      const { error: guardianError } = await admin
-        .from('guardian_links')
-        .insert({
-          student_profile_id: profileId,
-          guardian_name: body.responsavel.nome.trim(),
-          guardian_email: body.responsavel.email.trim().toLowerCase(),
-          guardian_phone: body.responsavel.telefone ?? null,
-          relationship: body.responsavel.parentesco,
+    if (body.responsavel && profileId && academyId) {
+      const guardianEmail = body.responsavel.email.trim().toLowerCase();
+      const { data: guardianUsers } = await admin.auth.admin.listUsers();
+      let guardianUser = guardianUsers.users.find((candidate) => candidate.email === guardianEmail) ?? null;
+
+      if (!guardianUser) {
+        const { data: createdGuardianUser, error: guardianAuthError } = await admin.auth.admin.createUser({
+          email: guardianEmail,
+          password: `Guardian#${Date.now()}Aa1`,
+          email_confirm: true,
+          user_metadata: { display_name: body.responsavel.nome.trim() },
         });
-      if (guardianError) {
-        console.error('[POST /api/auth/register] create guardian error:', guardianError.message);
-        // Non-fatal
+        if (guardianAuthError || !createdGuardianUser.user) {
+          console.error('[POST /api/auth/register] create guardian auth error:', guardianAuthError?.message);
+        } else {
+          guardianUser = createdGuardianUser.user;
+        }
+      }
+
+      if (guardianUser) {
+        const { data: existingGuardianProfile } = await admin
+          .from('profiles')
+          .select('id')
+          .eq('user_id', guardianUser.id)
+          .eq('role', 'responsavel')
+          .maybeSingle();
+
+        let guardianProfile = existingGuardianProfile;
+        if (existingGuardianProfile?.id) {
+          await admin
+            .from('profiles')
+            .update({
+              display_name: body.responsavel.nome.trim(),
+              phone: body.responsavel.telefone ?? null,
+            })
+            .eq('id', existingGuardianProfile.id);
+        } else {
+          const { data: createdGuardianProfile } = await admin
+            .from('profiles')
+            .insert({
+              user_id: guardianUser.id,
+              role: 'responsavel',
+              display_name: body.responsavel.nome.trim(),
+              phone: body.responsavel.telefone ?? null,
+            })
+            .select('id')
+            .single();
+          guardianProfile = createdGuardianProfile;
+        }
+
+        if (guardianProfile?.id) {
+          await admin.from('memberships').upsert(
+            {
+              profile_id: guardianProfile.id,
+              academy_id: academyId,
+              role: 'responsavel',
+              status: 'active',
+            },
+            { onConflict: 'profile_id,academy_id,role' },
+          );
+
+          const relation = normalizeRelationship(body.responsavel.parentesco);
+          const { error: guardianError } = await admin
+            .from('guardian_links')
+            .upsert(
+              {
+                guardian_id: guardianProfile.id,
+                child_id: profileId,
+                relationship: relation,
+                can_manage_payments: true,
+                can_precheckin: true,
+                can_view_grades: true,
+              },
+              { onConflict: 'guardian_id,child_id' },
+            );
+          if (guardianError) {
+            console.error('[POST /api/auth/register] create guardian link error:', guardianError.message);
+          }
+        }
       }
     }
 

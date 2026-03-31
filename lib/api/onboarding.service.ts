@@ -27,84 +27,36 @@ export interface SetupWizardStep {
 export async function createAcademy(
   academy: OnboardingAcademyData,
   admin: OnboardingAdminData,
-  _platformPlan: string,
+  platformPlan: string,
 ): Promise<OnboardingResult> {
   if (isMock()) {
     const { mockCreateAcademy } = await import('@/lib/mocks/onboarding.mock');
-    return mockCreateAcademy(academy, admin, _platformPlan);
+    return mockCreateAcademy(academy, admin, platformPlan);
   }
 
-  const { createBrowserClient } = await import('@/lib/supabase/client');
-  const supabase = createBrowserClient();
-
-  // 1. Sign up the admin user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: admin.email,
-    password: admin.password,
-    options: { data: { name: admin.name } },
+  const response = await fetch('/api/register-academy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      academy,
+      admin,
+      platformPlan,
+    }),
   });
-  if (authError || !authData.user) {
-    throw new Error(`[createAcademy] Auth error: ${authError?.message ?? 'User not created'}`);
-  }
+  const payload = (await response.json()) as {
+    error?: string;
+    academyId?: string;
+    slug?: string;
+    adminProfileId?: string;
+  };
 
-  // 2. The trigger auto-creates a profile; fetch it
-  const { data: profiles, error: profileError } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('user_id', authData.user.id)
-    .limit(1);
-  if (profileError) {
-    throw new Error(`[createAcademy] Error fetching profile: ${profileError.message}`);
-  }
-  const profileId = profiles?.[0]?.id ?? authData.user.id;
-
-  // 3. Create the academy
-  const slug = academy.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  const { data: academyData, error: academyError } = await supabase
-    .from('academies')
-    .insert({
-      name: academy.name,
-      slug,
-      owner_id: authData.user.id,
-    })
-    .select()
-    .single();
-  if (academyError || !academyData) {
-    throw new Error(`[createAcademy] Error creating academy: ${academyError?.message ?? 'No data returned'}`);
-  }
-
-  // 4. Create unit
-  const { error: unitError } = await supabase
-    .from('units')
-    .insert({
-      academy_id: academyData.id,
-      name: 'Sede',
-      address: academy.address,
-    });
-  if (unitError) {
-    throw new Error(`[createAcademy] Error creating unit: ${unitError.message}`);
-  }
-
-  // 5. Create admin membership
-  const { error: memberError } = await supabase
-    .from('memberships')
-    .insert({
-      profile_id: profileId,
-      academy_id: academyData.id,
-      role: 'admin',
-      status: 'active',
-    });
-  if (memberError) {
-    throw new Error(`[createAcademy] Error creating membership: ${memberError.message}`);
+  if (!response.ok || !payload.academyId || !payload.slug || !payload.adminProfileId) {
+    throw new Error(payload.error ?? 'Falha ao criar academia.');
   }
 
   // Set academy ID cookie
   if (typeof document !== 'undefined') {
-    document.cookie = `bb-academy-id=${academyData.id};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+    document.cookie = `bb-academy-id=${payload.academyId};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
   }
 
   // Set active role cookie
@@ -113,9 +65,9 @@ export async function createAcademy(
   }
 
   return {
-    academyId: academyData.id,
-    slug: academyData.slug,
-    adminProfileId: profileId,
+    academyId: payload.academyId,
+    slug: payload.slug,
+    adminProfileId: payload.adminProfileId,
   };
 }
 

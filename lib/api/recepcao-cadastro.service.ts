@@ -1,6 +1,7 @@
 import { isMock } from '@/lib/env';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import { logServiceError } from '@/lib/api/errors';
+import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ────────────────────────────────────────────────────────────
 // DTOs
@@ -75,7 +76,7 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
         tipoAluno: data.tipoAluno,
         turmaId: data.turmaId,
         planoId: data.planoId,
-        academyId: 'academy-1', // resolved server-side in production via session
+        academyId: getActiveAcademyId(),
         origem: data.origem,
         tipo: data.tipo,
         responsavel: data.responsavel,
@@ -109,7 +110,6 @@ export async function getPlanos(): Promise<PlanoResumo[]> {
       return mockGetPlanos();
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
-    const { getActiveAcademyId } = await import('@/lib/hooks/useActiveAcademy');
     const supabase = createBrowserClient();
     const academyId = getActiveAcademyId();
     const { data, error } = await supabase
@@ -140,7 +140,6 @@ export async function getTurmasDisponiveis(): Promise<TurmaResumo[]> {
       return mockGetTurmasDisponiveis();
     }
     const { createBrowserClient } = await import('@/lib/supabase/client');
-    const { getActiveAcademyId } = await import('@/lib/hooks/useActiveAcademy');
     const supabase = createBrowserClient();
     const academyId = getActiveAcademyId();
     const { data, error } = await supabase
