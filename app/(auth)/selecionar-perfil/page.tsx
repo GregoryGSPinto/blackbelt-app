@@ -6,7 +6,8 @@ import { useToast } from '@/lib/hooks/useToast';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
-import type { Role } from '@/lib/types';
+import type { Profile, Role } from '@/lib/types';
+import { isMock } from '@/lib/env';
 
 const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Super Admin',
@@ -17,21 +18,58 @@ const ROLE_LABELS: Record<string, string> = {
   aluno_adulto: 'Aluno',
   aluno_teen: 'Teen',
   aluno_kids: 'Kids',
-  responsavel: 'Responsável',
+  responsavel: 'Responsavel',
   franqueador: 'Franqueador',
 };
 
 export default function SelecionarPerfilPage() {
-  const { profiles, selectProfile, isLoading, isAuthenticated } = useAuth();
+  const { profiles: authProfiles, selectProfile, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [timedOut, setTimedOut] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [fallbackProfiles, setFallbackProfiles] = useState<Profile[]>([]);
+  const [fallbackLoading, setFallbackLoading] = useState(false);
 
   // Timeout safety: if profiles never load, show fallback after 6s
   useEffect(() => {
     const t = setTimeout(() => setTimedOut(true), 6000);
     return () => clearTimeout(t);
   }, []);
+
+  // Fallback: if AuthContext has no profiles but user might be authenticated,
+  // try fetching directly from Supabase
+  useEffect(() => {
+    if (authProfiles.length > 0 || isLoading || isMock()) return;
+
+    let cancelled = false;
+    setFallbackLoading(true);
+
+    (async () => {
+      try {
+        const { createBrowserClient } = await import('@/lib/supabase/client');
+        const supabase = createBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && !cancelled) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.id);
+          if (!cancelled && profiles && profiles.length > 0) {
+            setFallbackProfiles(profiles as Profile[]);
+          }
+        }
+      } catch {
+        // Ignore — fallback failed, show session expired
+      } finally {
+        if (!cancelled) setFallbackLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [authProfiles.length, isLoading]);
+
+  const profiles = authProfiles.length > 0 ? authProfiles : fallbackProfiles;
+  const isStillLoading = isLoading || fallbackLoading;
 
   async function handleSelect(profileId: string) {
     setSelecting(true);
@@ -46,7 +84,7 @@ export default function SelecionarPerfilPage() {
   }
 
   // Still loading: show spinner (respects AuthContext 5s timeout + our 6s)
-  if (isLoading && !timedOut) {
+  if (isStillLoading && !timedOut) {
     return (
       <div className="flex items-center justify-center rounded-lg bg-[var(--bb-depth-3)] p-8">
         <Spinner size="lg" className="text-[var(--bb-ink-100)]" />
@@ -75,6 +113,16 @@ export default function SelecionarPerfilPage() {
     );
   }
 
+  // Auto-select if only 1 profile
+  if (profiles.length === 1 && !selecting) {
+    handleSelect(profiles[0].id);
+    return (
+      <div className="flex items-center justify-center rounded-lg bg-[var(--bb-depth-3)] p-8">
+        <Spinner size="lg" className="text-[var(--bb-ink-100)]" />
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg bg-[var(--bb-depth-3)] p-8" style={{ boxShadow: 'var(--bb-shadow-xl)', border: '1px solid var(--bb-glass-border)' }}>
       <h1 className="mb-1 text-center text-2xl font-bold text-[var(--bb-ink-100)]">BlackBelt</h1>
@@ -95,6 +143,9 @@ export default function SelecionarPerfilPage() {
                 {ROLE_LABELS[profile.role as Role] ?? profile.role}
               </Badge>
             </div>
+            {selecting && (
+              <div className="w-5 h-5 border-2 border-[var(--bb-ink-40)]/30 border-t-[var(--bb-ink-40)] rounded-full animate-spin" />
+            )}
           </button>
         ))}
       </div>

@@ -35,19 +35,39 @@ export default function LoginPage() {
       return;
     }
     setLoading(true);
+
+    // Clear stale auth cookies that may corrupt the session
+    try {
+      document.cookie.split(';').forEach((c) => {
+        const name = c.trim().split('=')[0];
+        if (name && (name.startsWith('bb-') || name.startsWith('sb-'))) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+        }
+      });
+    } catch { /* ignore */ }
+
+    // Timeout safety — if login hangs for 12s, abort
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      setLocalError('Tempo esgotado. Verifique sua conexao e tente novamente.');
+    }, 12000);
+
     try {
       const profiles = await login(email, password);
+      clearTimeout(timeout);
       if (profiles.length === 1) {
         await selectProfile(profiles[0].id);
       } else if (profiles.length > 1) {
         router.push('/selecionar-perfil');
       } else {
-        setLocalError('Nenhum perfil encontrado para este usuário.');
+        setLocalError('Nenhum perfil encontrado para este usuario.');
       }
     } catch (err: unknown) {
+      clearTimeout(timeout);
       console.error('[LoginPage] handleSubmit error:', err);
       setLocalError(translateError(err));
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   };
