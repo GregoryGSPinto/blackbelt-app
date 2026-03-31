@@ -78,13 +78,18 @@
   - observação: warnings legados de hooks/img/console seguiram presentes fora do escopo da Central e não bloquearam o build.
 
 ## Resultado do deploy
-- Nesta fase, o código atualizado foi preparado para publicação final em `main`.
-- O deploy de produção precisa ser reexecutado após os commits desta fase.
-- A validação anterior de produção já tinha confirmado que a URL Vercel respondia `HTTP/2 401`, o que indica deploy ativo porém protegido.
-- O resultado final desta nova publicação deve registrar:
-  - push concluído
-  - URL final gerada
-  - se a proteção Vercel continuar ativa
+- Commit publicado em `main`:
+  - `5279f041d6e3473eebc58181beac927f037ad170`
+- Push concluído para `origin/main`.
+- Deploy de produção executado com Vercel CLI.
+- URLs geradas:
+  - inspect: `https://vercel.com/gregorys-projects-e10ef67b/black_belt_v2/4pqzKsjVts8hb3WjnDfVhqm82daF`
+  - production: `https://blackbeltv2-87kxvi20d-gregorys-projects-e10ef67b.vercel.app`
+- Validação externa possível nesta sessão:
+  - `curl -I` para a URL de produção respondeu `HTTP/2 401`
+  - isso confirma que a URL publicada está ativa na Vercel, porém protegida por autenticação/protection layer do ambiente
+- Bloqueio externo remanescente:
+  - não foi possível validar conteúdo público da produção além do `401`, porque a própria proteção do ambiente bloqueia leitura sem credencial/sessão autorizada
 
 ## Pronto no código
 - Schema final da Central
@@ -101,7 +106,10 @@
 - backend lendo o banco ativo, sem mock dominante como fonte principal
 
 ## Pronto em produção
-- Até este ponto do documento: pendente de push/deploy desta fase
+- código publicado em `main`
+- deploy Vercel disparado
+- URL final emitida pela Vercel
+- acesso externo confirmado até a camada de proteção (`HTTP/2 401`)
 
 ## Dependente de credencial, rede ou infra externa
 - execução do push final para `main`
