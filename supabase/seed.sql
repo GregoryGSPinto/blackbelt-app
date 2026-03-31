@@ -426,5 +426,229 @@ BEGIN
     (v_academy_id, v_student_teen1, 9, 'Treino muito bom, galera é gente boa.')
   ON CONFLICT DO NOTHING;
 
+  -- ─────────────────────────────────────────────────────────────
+  -- 24. Financeiro senior por aluno
+  -- ─────────────────────────────────────────────────────────────
+  INSERT INTO public.guardian_links (guardian_id, child_id, relationship, can_manage_payments)
+  VALUES
+    (v_resp1_pid, v_kids1_pid, 'parent', true),
+    (v_resp2_pid, v_kids2_pid, 'parent', true)
+  ON CONFLICT (guardian_id, child_id) DO NOTHING;
+
+  INSERT INTO public.student_financial_profiles (
+    academy_id,
+    membership_id,
+    profile_id,
+    financial_model,
+    charge_mode,
+    payment_method_default,
+    recurrence,
+    amount_cents,
+    discount_amount_cents,
+    scholarship_percent,
+    due_day,
+    next_due_date,
+    financial_status,
+    notes,
+    monthly_checkin_minimum,
+    current_month_checkins,
+    alert_days_before_month_end,
+    checkin_goal_status,
+    partnership_name,
+    partnership_transfer_mode,
+    exemption_reason,
+    period_start_date,
+    period_end_date
+  )
+  SELECT
+    v_academy_id,
+    m.id,
+    m.profile_id,
+    cfg.financial_model,
+    cfg.charge_mode,
+    cfg.payment_method_default,
+    cfg.recurrence,
+    cfg.amount_cents,
+    cfg.discount_amount_cents,
+    cfg.scholarship_percent,
+    cfg.due_day,
+    cfg.next_due_date,
+    cfg.financial_status,
+    cfg.notes,
+    cfg.monthly_checkin_minimum,
+    cfg.current_month_checkins,
+    cfg.alert_days_before_month_end,
+    cfg.checkin_goal_status,
+    cfg.partnership_name,
+    cfg.partnership_transfer_mode,
+    cfg.exemption_reason,
+    cfg.period_start_date,
+    cfg.period_end_date
+  FROM public.memberships m
+  JOIN (
+    VALUES
+      (v_adulto1_pid, 'particular', 'manual', 'pix', 'monthly', 19990, 0, 0::numeric, 10, CURRENT_DATE + 10, 'em_dia', 'Aluno particular PIX mensal', 0, 0, 5, 'ok', NULL, NULL, NULL, CURRENT_DATE - 200, NULL),
+      (v_adulto2_pid, 'particular', 'automatic', 'credit_card', 'semiannual', 89940, 0, 0::numeric, 31, CURRENT_DATE, 'vence_hoje', 'Cartão semestral', 0, 0, 5, 'ok', NULL, NULL, NULL, CURRENT_DATE - 100, NULL),
+      (v_adulto3_pid, 'particular', 'hybrid', 'bank_transfer', 'annual', 149900, 0, 0::numeric, 5, CURRENT_DATE - 7, 'atrasado', 'Plano anual atrasado', 0, 0, 5, 'ok', NULL, NULL, NULL, CURRENT_DATE - 365, NULL),
+      (v_teen1_pid, 'gympass', 'manual', 'external_platform', 'none', 0, 0, 0::numeric, NULL, NULL, 'em_dia', 'GymPass com meta 8', 8, 5, 4, 'attention', 'GymPass', 'Repasse por check-in', NULL, CURRENT_DATE - 60, NULL),
+      (v_teen2_pid, 'totalpass', 'manual', 'external_platform', 'none', 0, 0, 0::numeric, NULL, NULL, 'em_dia', 'TotalPass com meta 10', 10, 4, 5, 'risk', 'TotalPass', 'Repasse por check-in', NULL, CURRENT_DATE - 60, NULL),
+      (v_kids1_pid, 'bolsista', 'manual', 'pix', 'monthly', 19990, 9995, 50::numeric, 12, CURRENT_DATE + 2, 'vence_em_breve', 'Bolsista parcial', 0, 0, 5, 'ok', NULL, NULL, 'Bolsa kids parcial', CURRENT_DATE - 30, NULL),
+      (v_kids2_pid, 'cortesia', 'manual', 'none', 'none', 0, 0, 0::numeric, NULL, NULL, 'isento', 'Cortesia para kids', 0, 0, 5, 'ok', NULL, NULL, 'Cortesia promocional', CURRENT_DATE - 30, CURRENT_DATE + 30),
+      (v_resp1_pid, 'convenio', 'hybrid', 'boleto', 'monthly', 12990, 0, 0::numeric, 20, CURRENT_DATE + 1, 'vence_em_breve', 'Convênio empresarial', 0, 0, 5, 'ok', 'Convênio Empresa XPTO', 'Repasse mensal por funcionário ativo', NULL, CURRENT_DATE - 60, NULL)
+  ) AS cfg(
+    profile_id,
+    financial_model,
+    charge_mode,
+    payment_method_default,
+    recurrence,
+    amount_cents,
+    discount_amount_cents,
+    scholarship_percent,
+    due_day,
+    next_due_date,
+    financial_status,
+    notes,
+    monthly_checkin_minimum,
+    current_month_checkins,
+    alert_days_before_month_end,
+    checkin_goal_status,
+    partnership_name,
+    partnership_transfer_mode,
+    exemption_reason,
+    period_start_date,
+    period_end_date
+  ) ON cfg.profile_id = m.profile_id
+  WHERE m.academy_id = v_academy_id
+    AND m.role IN ('aluno_adulto', 'aluno_teen', 'aluno_kids', 'responsavel')
+  ON CONFLICT (membership_id) DO UPDATE
+  SET
+    financial_model = EXCLUDED.financial_model,
+    charge_mode = EXCLUDED.charge_mode,
+    payment_method_default = EXCLUDED.payment_method_default,
+    recurrence = EXCLUDED.recurrence,
+    amount_cents = EXCLUDED.amount_cents,
+    discount_amount_cents = EXCLUDED.discount_amount_cents,
+    scholarship_percent = EXCLUDED.scholarship_percent,
+    due_day = EXCLUDED.due_day,
+    next_due_date = EXCLUDED.next_due_date,
+    financial_status = EXCLUDED.financial_status,
+    notes = EXCLUDED.notes,
+    monthly_checkin_minimum = EXCLUDED.monthly_checkin_minimum,
+    current_month_checkins = EXCLUDED.current_month_checkins,
+    alert_days_before_month_end = EXCLUDED.alert_days_before_month_end,
+    checkin_goal_status = EXCLUDED.checkin_goal_status,
+    partnership_name = EXCLUDED.partnership_name,
+    partnership_transfer_mode = EXCLUDED.partnership_transfer_mode,
+    exemption_reason = EXCLUDED.exemption_reason,
+    period_start_date = EXCLUDED.period_start_date,
+    period_end_date = EXCLUDED.period_end_date;
+
+  INSERT INTO public.student_payments (
+    academy_id,
+    student_profile_id,
+    membership_id,
+    description,
+    amount_cents,
+    billing_type,
+    due_date,
+    status,
+    payment_method,
+    paid_amount_cents,
+    paid_at,
+    reference_month,
+    payment_notes,
+    source
+  )
+  SELECT
+    v_academy_id,
+    sp.student_profile_id,
+    m.id,
+    sp.description,
+    sp.amount_cents,
+    sp.billing_type,
+    sp.due_date,
+    sp.status,
+    sp.payment_method,
+    sp.paid_amount_cents,
+    sp.paid_at,
+    sp.reference_month,
+    sp.payment_notes,
+    sp.source
+  FROM (
+    VALUES
+      (v_adulto1_pid, 'Mensalidade PIX março', 19990, 'PIX', CURRENT_DATE + 10, 'PENDING', 'pix', NULL::integer, NULL::timestamptz, to_char(CURRENT_DATE, 'YYYY-MM'), NULL::text, 'recurring_charge'),
+      (v_adulto2_pid, 'Semestral cartão março', 89940, 'CREDIT_CARD', CURRENT_DATE, 'PENDING', 'credit_card', NULL::integer, NULL::timestamptz, to_char(CURRENT_DATE, 'YYYY-MM'), NULL::text, 'recurring_charge'),
+      (v_adulto3_pid, 'Anual transferência vencido', 149900, 'PIX', CURRENT_DATE - 7, 'OVERDUE', 'bank_transfer', NULL::integer, NULL::timestamptz, to_char(CURRENT_DATE, 'YYYY-MM'), 'Cliente prometeu regularizar', 'recurring_charge'),
+      (v_kids1_pid, 'Bolsa parcial kids', 9995, 'PIX', CURRENT_DATE + 2, 'PENDING', 'pix', NULL::integer, NULL::timestamptz, to_char(CURRENT_DATE, 'YYYY-MM'), NULL::text, 'recurring_charge'),
+      (v_resp1_pid, 'Convênio Empresa XPTO', 12990, 'BOLETO', CURRENT_DATE + 1, 'PENDING', 'boleto', NULL::integer, NULL::timestamptz, to_char(CURRENT_DATE, 'YYYY-MM'), NULL::text, 'manual_charge'),
+      (v_kids2_pid, 'Cortesia registrada', 0, 'PIX', CURRENT_DATE + 30, 'CONFIRMED', 'none', 0, now() - interval '2 days', to_char(CURRENT_DATE, 'YYYY-MM'), 'Isenção total', 'migration')
+  ) AS sp(
+    student_profile_id,
+    description,
+    amount_cents,
+    billing_type,
+    due_date,
+    status,
+    payment_method,
+    paid_amount_cents,
+    paid_at,
+    reference_month,
+    payment_notes,
+    source
+  )
+  JOIN public.memberships m
+    ON m.profile_id = sp.student_profile_id
+   AND m.academy_id = v_academy_id
+  WHERE m.role IN ('aluno_adulto', 'aluno_teen', 'aluno_kids', 'responsavel')
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO public.student_financial_alerts (
+    academy_id,
+    membership_id,
+    profile_id,
+    recipient_profile_id,
+    recipient_type,
+    alert_kind,
+    channel,
+    status,
+    alert_reference_date,
+    remaining_checkins,
+    message
+  )
+  SELECT
+    v_academy_id,
+    m.id,
+    m.profile_id,
+    CASE
+      WHEN m.profile_id = v_teen1_pid THEN v_teen1_pid
+      WHEN m.profile_id = v_teen2_pid THEN v_teen2_pid
+      WHEN m.profile_id = v_kids1_pid THEN v_resp1_pid
+      ELSE NULL
+    END,
+    CASE
+      WHEN m.profile_id = v_kids1_pid THEN 'guardian'
+      ELSE 'student'
+    END,
+    'checkin_goal',
+    'internal',
+    'sent',
+    CURRENT_DATE,
+    CASE
+      WHEN m.profile_id = v_teen1_pid THEN 3
+      WHEN m.profile_id = v_teen2_pid THEN 6
+      WHEN m.profile_id = v_kids1_pid THEN 2
+      ELSE 0
+    END,
+    CASE
+      WHEN m.profile_id = v_teen1_pid THEN 'GymPass abaixo da meta do mês.'
+      WHEN m.profile_id = v_teen2_pid THEN 'TotalPass em risco de não bater a meta.'
+      WHEN m.profile_id = v_kids1_pid THEN 'Responsável avisado sobre meta parcial de check-ins.'
+      ELSE 'Alerta financeiro'
+    END
+  FROM public.memberships m
+  WHERE m.academy_id = v_academy_id
+    AND m.profile_id IN (v_teen1_pid, v_teen2_pid, v_kids1_pid)
+  ON CONFLICT DO NOTHING;
+
   RAISE NOTICE 'Seed completo: 15 perfis, 1 academia, 4 turmas, 7 alunos, presenças, pagamentos, graduações.';
 END $$;
