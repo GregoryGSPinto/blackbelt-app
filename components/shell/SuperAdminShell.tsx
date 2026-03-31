@@ -103,7 +103,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { href: '/superadmin/onboarding', label: 'Onboarding', icon: RocketIcon, id: 'sidebar-link-onboarding' },
       { href: '/superadmin/auditoria', label: 'Auditoria', icon: ShieldIcon, id: 'sidebar-link-auditoria-sa' },
-      { href: '/superadmin/suporte', label: 'Suporte', icon: LifeBuoyIcon, id: 'superadmin-nav-suporte' },
+      { href: '/superadmin/suporte', label: 'Central da Plataforma', icon: LifeBuoyIcon, id: 'superadmin-nav-suporte' },
     ],
   },
 ];
