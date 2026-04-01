@@ -7,6 +7,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Toggle } from '@/components/ui/Toggle';
 import { getParentDashboard } from '@/lib/api/parent.service';
 import type { FilhoResumoDTO, NotificacaoParentDTO } from '@/lib/api/parent.service';
@@ -28,6 +29,9 @@ import {
   UsersIcon,
   ShieldIcon,
 } from '@/components/shell/icons';
+
+const GUARDIAN_RESOLUTION_ATTEMPTS = 4;
+const GUARDIAN_RESOLUTION_DELAY_MS = 750;
 
 // ────────────────────────────────────────────────────────────
 // Belt color mapping
@@ -503,14 +507,62 @@ export default function ParentDashboardPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [filhos, setFilhos] = useState<FilhoResumoDTO[]>([]);
   const [notificacoes, setNotificacoes] = useState<NotificacaoParentDTO[]>([]);
   const [todayClasses, setTodayClasses] = useState<ParentChildClass[]>([]);
+  const [guardianId, setGuardianId] = useState<string | null>(profile?.id ?? null);
+  const [guardianResolved, setGuardianResolved] = useState(false);
 
-  const guardianId = profile?.id ?? '';
+  useEffect(() => {
+    let mounted = true;
+
+    async function resolveGuardian() {
+      if (profile?.id) {
+        if (mounted) {
+          setGuardianId(profile.id);
+          setGuardianResolved(true);
+        }
+        return;
+      }
+
+      try {
+        for (let attempt = 0; attempt < GUARDIAN_RESOLUTION_ATTEMPTS; attempt += 1) {
+          const response = await fetch('/api/parent/current-guardian', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+          });
+          const payload = await response.json();
+
+          if (response.ok && payload.profileId) {
+            if (mounted) {
+              setGuardianId(payload.profileId as string);
+              setGuardianResolved(true);
+            }
+            return;
+          }
+
+          if (attempt < GUARDIAN_RESOLUTION_ATTEMPTS - 1) {
+            await new Promise((resolve) => window.setTimeout(resolve, GUARDIAN_RESOLUTION_DELAY_MS));
+          }
+        }
+      } finally {
+        if (mounted) {
+          setGuardianResolved(true);
+        }
+      }
+    }
+
+    void resolveGuardian();
+    return () => {
+      mounted = false;
+    };
+  }, [profile?.id]);
 
   const loadData = useCallback(async () => {
     if (!guardianId) return;
+    setLoadError(null);
     try {
       const [dashboard, classes] = await Promise.all([
         getParentDashboard(guardianId),
@@ -519,8 +571,8 @@ export default function ParentDashboardPage() {
       setFilhos(dashboard.filhos);
       setNotificacoes(dashboard.notificacoes);
       setTodayClasses(classes);
-    } catch {
-      // Data loading errors handled silently — empty state shown
+    } catch (error) {
+      setLoadError(translateError(error));
     } finally {
       setLoading(false);
     }
@@ -528,10 +580,24 @@ export default function ParentDashboardPage() {
   }, [guardianId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!guardianResolved) {
+      return;
+    }
+
+    if (!guardianId) {
+      setLoading(false);
+      return;
+    }
+
+    void loadData();
+  }, [guardianId, guardianResolved, loadData]);
 
   async function handleQuickCheckin(cls: ParentChildClass) {
+    if (!guardianId) {
+      toast('Nao foi possivel resolver o responsavel autenticado.', 'error');
+      return;
+    }
+
     try {
       await doParentCheckin(cls.student_id, cls.class_id, AttendanceMethod.Manual);
       toast(`Check-in de ${cls.child_name} realizado!`, 'success');
@@ -543,7 +609,40 @@ export default function ParentDashboardPage() {
     }
   }
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading || !guardianResolved) return <DashboardSkeleton />;
+  if (!guardianId) {
+    return (
+      <div className="p-4 lg:p-6">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel identificar o responsavel"
+            description="Atualize a pagina ou troque de perfil para restaurar o contexto da familia."
+            actionLabel="Atualizar"
+            onAction={() => window.location.reload()}
+          />
+        </Card>
+      </div>
+    );
+  }
+  if (loadError) {
+    return (
+      <div className="p-4 lg:p-6">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel carregar a rotina da familia"
+            description={loadError}
+            actionLabel="Tentar novamente"
+            onAction={() => {
+              setLoading(true);
+              void loadData();
+            }}
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const firstName = profile?.display_name?.split(' ')[0] ?? 'Responsavel';
 

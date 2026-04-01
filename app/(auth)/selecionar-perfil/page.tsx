@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useToast } from '@/lib/hooks/useToast';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
 import type { Profile, Role } from '@/lib/types';
 import { isMock } from '@/lib/env';
 
@@ -27,6 +29,7 @@ export default function SelecionarPerfilPage() {
   const { toast } = useToast();
   const [timedOut, setTimedOut] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [fallbackProfiles, setFallbackProfiles] = useState<Profile[]>([]);
   const [fallbackLoading, setFallbackLoading] = useState(false);
 
@@ -72,22 +75,37 @@ export default function SelecionarPerfilPage() {
   const isStillLoading = isLoading || fallbackLoading;
 
   async function handleSelect(profileId: string) {
+    if (selecting) return;
+    setSelectedProfileId(profileId);
     setSelecting(true);
     try {
       await selectProfile(profileId);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao selecionar perfil.';
       toast(message, 'error');
+      setSelectedProfileId(null);
     } finally {
       setSelecting(false);
     }
   }
 
+  useEffect(() => {
+    if (profiles.length === 1 && !isStillLoading && !selectedProfileId) {
+      void handleSelect(profiles[0].id);
+    }
+  }, [profiles, isStillLoading, selectedProfileId]);
+
   // Still loading: show spinner (respects AuthContext 5s timeout + our 6s)
   if (isStillLoading && !timedOut) {
     return (
-      <div className="flex items-center justify-center rounded-lg bg-[var(--bb-depth-3)] p-8">
-        <Spinner size="lg" className="text-[var(--bb-ink-100)]" />
+      <div className="rounded-lg bg-[var(--bb-depth-3)] p-8 text-center" style={{ boxShadow: 'var(--bb-shadow-xl)', border: '1px solid var(--bb-glass-border)' }}>
+        <div className="mb-4 flex justify-center">
+          <Spinner size="lg" className="text-[var(--bb-brand)]" />
+        </div>
+        <h1 className="text-xl font-bold text-[var(--bb-ink-100)]">Carregando seus perfis</h1>
+        <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
+          Estamos validando a sua sessao e organizando os acessos disponiveis.
+        </p>
       </div>
     );
   }
@@ -102,23 +120,9 @@ export default function SelecionarPerfilPage() {
             ? 'Sua sessao expirou. Faca login novamente.'
             : 'Nenhum perfil encontrado para esta conta.'}
         </p>
-        <a
-          href="/login"
-          className="inline-block rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors"
-          style={{ background: 'var(--bb-brand)' }}
-        >
-          Voltar ao login
-        </a>
-      </div>
-    );
-  }
-
-  // Auto-select if only 1 profile
-  if (profiles.length === 1 && !selecting) {
-    handleSelect(profiles[0].id);
-    return (
-      <div className="flex items-center justify-center rounded-lg bg-[var(--bb-depth-3)] p-8">
-        <Spinner size="lg" className="text-[var(--bb-ink-100)]" />
+        <Link href="/login">
+          <Button>Voltar ao login</Button>
+        </Link>
       </div>
     );
   }
@@ -127,6 +131,11 @@ export default function SelecionarPerfilPage() {
     <div className="rounded-lg bg-[var(--bb-depth-3)] p-8" style={{ boxShadow: 'var(--bb-shadow-xl)', border: '1px solid var(--bb-glass-border)' }}>
       <h1 className="mb-1 text-center text-2xl font-bold text-[var(--bb-ink-100)]">BlackBelt</h1>
       <p className="mb-6 text-center text-sm text-[var(--bb-ink-60)]">Selecione seu perfil</p>
+      {profiles.length === 1 && (
+        <div className="mb-4 rounded-lg px-4 py-3 text-center text-sm" style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-brand)' }}>
+          Apenas um perfil disponivel. Estamos entrando automaticamente.
+        </div>
+      )}
 
       <div className="flex flex-col gap-3">
         {profiles.map((profile) => (
@@ -135,6 +144,7 @@ export default function SelecionarPerfilPage() {
             onClick={() => handleSelect(profile.id)}
             disabled={selecting}
             className="flex items-center gap-4 rounded-lg bg-[var(--bb-depth-5)] p-4 text-left transition-colors hover:bg-[var(--bb-depth-4)] disabled:opacity-60"
+            data-role={profile.role}
           >
             <Avatar name={profile.display_name} size="lg" />
             <div className="flex-1">
@@ -143,7 +153,7 @@ export default function SelecionarPerfilPage() {
                 {ROLE_LABELS[profile.role as Role] ?? profile.role}
               </Badge>
             </div>
-            {selecting && (
+            {selecting && selectedProfileId === profile.id && (
               <div className="w-5 h-5 border-2 border-[var(--bb-ink-40)]/30 border-t-[var(--bb-ink-40)] rounded-full animate-spin" />
             )}
           </button>

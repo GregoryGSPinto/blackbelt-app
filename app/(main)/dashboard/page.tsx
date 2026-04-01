@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/utils/cn';
 
 // ── Belt color mapping ─────────────────────────────────────────────────
@@ -168,7 +169,7 @@ export default function StudentDashboardPage() {
   const { studentId, loading: studentLoading } = useStudentId();
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data, loading: swrLoading, refresh } = useSWRFetch<AlunoDashboardDTO>(
+  const { data, error, loading: swrLoading, refresh } = useSWRFetch<AlunoDashboardDTO>(
     !studentLoading && studentId ? `student-dashboard-${studentId}` : null,
     () => getAlunoDashboard(studentId!),
   );
@@ -183,7 +184,50 @@ export default function StudentDashboardPage() {
   };
 
   if (loading) return <DashboardSkeleton />;
-  if (!data) return null;
+  if (!studentId) {
+    return (
+      <div className="p-4">
+        <Card variant="elevated" className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel identificar seu cadastro"
+            description="Recarregue a area do aluno ou troque de perfil para restaurar o contexto correto."
+            actionLabel="Tentar novamente"
+            onAction={handleRefresh}
+          />
+        </Card>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-4">
+        <Card variant="elevated" className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel carregar sua rotina"
+            description="Agenda, progresso e proximas aulas nao puderam ser carregados agora."
+            actionLabel="Tentar novamente"
+            onAction={handleRefresh}
+          />
+        </Card>
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div className="p-4">
+        <Card variant="elevated" className="p-2">
+          <EmptyState
+            title="Sua area ainda nao tem dados suficientes"
+            description="Assim que sua academia concluir o contexto do aluno, sua rotina aparecera aqui."
+            actionLabel="Atualizar"
+            onAction={handleRefresh}
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const freqPct = data.frequenciaMes.total_aulas > 0
     ? Math.round((data.frequenciaMes.presencas / data.frequenciaMes.total_aulas) * 100)

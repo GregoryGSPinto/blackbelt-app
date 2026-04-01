@@ -7,10 +7,10 @@ import { useAuth } from '@/lib/hooks/useAuth';
 /**
  * Resolves the current user's student UUID from their profile.
  * In mock mode: returns 'stu-1'.
- * In real mode: queries the students table by profile_id.
+ * In real mode: resolves the active student through an authenticated API route.
  */
 export function useStudentId(): { studentId: string | null; loading: boolean } {
-  const { profile } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [studentId, setStudentId] = useState<string | null>(isMock() ? 'stu-1' : null);
   const [loading, setLoading] = useState(!isMock());
 
@@ -21,31 +21,39 @@ export function useStudentId(): { studentId: string | null; loading: boolean } {
       return;
     }
 
-    if (!profile?.id) {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setStudentId(null);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
+    setLoading(true);
 
     async function resolve() {
       try {
-        const { createBrowserClient } = await import('@/lib/supabase/client');
-        const supabase = createBrowserClient();
+        const response = await fetch('/api/student/current', {
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+        });
 
-        const { data } = await supabase
-          .from('students')
-          .select('id')
-          .eq('profile_id', profile!.id)
-          .limit(1)
-          .maybeSingle();
+        if (!response.ok) {
+          throw new Error(`Failed to resolve current student (${response.status})`);
+        }
+
+        const data = await response.json();
 
         if (!cancelled) {
-          setStudentId(data?.id ?? 'stu-1');
+          setStudentId((data?.studentId as string | null | undefined) ?? null);
         }
       } catch {
-        console.warn('[useStudentId] Failed to resolve student ID, using fallback');
-        if (!cancelled) setStudentId('stu-1');
+        console.warn('[useStudentId] Failed to resolve student ID');
+        if (!cancelled) setStudentId(null);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -53,7 +61,7 @@ export function useStudentId(): { studentId: string | null; loading: boolean } {
 
     resolve();
     return () => { cancelled = true; };
-  }, [profile?.id]);
+  }, [authLoading, isAuthenticated]);
 
   return { studentId, loading };
 }

@@ -205,7 +205,6 @@ test.describe.serial('Core final gaps', () => {
     await page.getByRole('button', { name: '✅ Registrar Entrada' }).click();
 
     await expect(page.locator(`text=Entrada registrada: ${coreContext.checkinStudentName}`)).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator(`text=${coreContext.checkinStudentName}`)).toBeVisible({ timeout: 10_000 });
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

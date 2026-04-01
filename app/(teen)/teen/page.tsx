@@ -5,6 +5,8 @@ import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Card } from '@/components/ui/Card';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import { useStudentId } from '@/lib/hooks/useStudentId';
@@ -26,7 +28,7 @@ const BELT_RING_COLORS: Record<string, string> = {
 
 export default function TeenDashboardPage() {
   const { studentId, loading: studentLoading } = useStudentId();
-  const { data, loading } = useSWRFetch<TeenDashboardDTO>(
+  const { data, error, loading, refresh } = useSWRFetch<TeenDashboardDTO>(
     studentId ? `teen-dashboard-${studentId}` : null,
     () => getTeenDashboard(studentId!),
   );
@@ -44,7 +46,52 @@ export default function TeenDashboardPage() {
     );
   }
 
-  if (!data) return null;
+  if (!studentId) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Seu perfil teen ainda nao foi resolvido"
+            description="Troque de perfil ou atualize a pagina para recuperar o contexto certo."
+            actionLabel="Atualizar"
+            onAction={() => refresh()}
+          />
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel carregar sua area teen"
+            description="Ranking, desafios e progresso nao puderam ser carregados agora."
+            actionLabel="Tentar novamente"
+            onAction={() => refresh()}
+          />
+        </Card>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            title="Sua area teen ainda esta vazia"
+            description="Assim que a academia publicar seus dados, seu painel aparecera aqui."
+            actionLabel="Atualizar"
+            onAction={() => refresh()}
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const xpPercent = Math.round((data.xp / data.next_level_xp) * 100);
   const ringColor = BELT_RING_COLORS[data.profile.belt] ?? 'ring-gray-400';

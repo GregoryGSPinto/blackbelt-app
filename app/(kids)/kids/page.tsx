@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { getKidsDashboard } from '@/lib/api/kids.service';
 import type { KidsDashboardDTO, KidsExchangeOptionDTO } from '@/lib/api/kids.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Card } from '@/components/ui/Card';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { translateError } from '@/lib/utils/error-translator';
@@ -30,16 +32,20 @@ export default function KidsDashboardPage() {
   const { toast } = useToast();
   const [data, setData] = useState<KidsDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showAllStickers, setShowAllStickers] = useState(false);
 
   useEffect(() => {
     if (studentLoading || !studentId) return;
     async function load() {
+      setLoadError(null);
       try {
         const d = await getKidsDashboard(studentId!);
         setData(d);
       } catch (err) {
-        toast(translateError(err), 'error');
+        const message = translateError(err);
+        setLoadError(message);
+        toast(message, 'error');
       } finally {
         setLoading(false);
       }
@@ -59,7 +65,52 @@ export default function KidsDashboardPage() {
     );
   }
 
-  if (!data) return null;
+  if (!studentId) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao encontramos o aluno desta area"
+            description="Atualize a pagina ou volte ao perfil certo para continuar."
+            actionLabel="Atualizar"
+            onAction={() => window.location.reload()}
+          />
+        </Card>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            variant="error"
+            title="Nao foi possivel carregar a area kids"
+            description={loadError}
+            actionLabel="Tentar novamente"
+            onAction={() => window.location.reload()}
+          />
+        </Card>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="p-4">
+        <Card className="p-2">
+          <EmptyState
+            title="A area kids ainda nao tem conteudo"
+            description="Quando a academia publicar a rotina desta crianca, ela aparecera aqui."
+            actionLabel="Atualizar"
+            onAction={() => window.location.reload()}
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const visibleStickers = showAllStickers
     ? data.sticker_album.stickers

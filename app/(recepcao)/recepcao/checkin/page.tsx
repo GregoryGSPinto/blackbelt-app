@@ -13,6 +13,7 @@ import {
 import type { AlunoCheckin, PessoaDentro, CapacidadeInfo } from '@/lib/api/recepcao-checkin.service';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // ── Faixa color helper ─────────────────────────────────────────────────
 const FAIXA_COLORS: Record<string, string> = {
@@ -31,6 +32,7 @@ export default function RecepcaoCheckinPage() {
   const [dentroAgora, setDentroAgora] = useState<PessoaDentro[]>([]);
   const [capacidade, setCapacidade] = useState<CapacidadeInfo>({ totalDentro: 0, capacidadeMax: 80, percentual: 0 });
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [registrando, setRegistrando] = useState(false);
   const [showVisitante, setShowVisitante] = useState(false);
   const [visitanteNome, setVisitanteNome] = useState('');
@@ -56,8 +58,29 @@ export default function RecepcaoCheckinPage() {
 
   // Search with debounce
   useEffect(() => {
-    if (debouncedQuery.length < 2) { setResultados([]); return; }
-    buscarAlunoCheckin(debouncedQuery).then(setResultados);
+    if (debouncedQuery.length < 2) {
+      setResultados([]);
+      setSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSearching(true);
+
+    buscarAlunoCheckin(debouncedQuery)
+      .then((data) => {
+        if (!cancelled) setResultados(data);
+      })
+      .catch(() => {
+        if (!cancelled) setResultados([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSearching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery]);
 
   async function handleEntrada(aluno: AlunoCheckin) {
@@ -184,6 +207,34 @@ export default function RecepcaoCheckinPage() {
           </div>
         )}
       </div>
+
+      {!selecionado && (
+        <div className="rounded-xl p-4" style={{ background: 'var(--bb-depth-3)' }}>
+          {query.length === 0 && (
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Digite o nome do aluno para buscar rapido por academia e concluir o check-in sem sair desta tela.
+            </p>
+          )}
+          {query.length > 0 && query.length < 2 && (
+            <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+              Continue digitando. Use pelo menos 2 letras para liberar o autocomplete.
+            </p>
+          )}
+          {searching && debouncedQuery.length >= 2 && (
+            <p className="text-sm font-medium" style={{ color: 'var(--bb-brand)' }}>
+              Buscando alunos da academia...
+            </p>
+          )}
+          {!searching && debouncedQuery.length >= 2 && resultados.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Nenhum aluno encontrado"
+              description="Confirme o nome digitado ou refine a busca para localizar o aluno certo."
+              className="py-4"
+            />
+          )}
+        </div>
+      )}
 
       {/* Selected student card */}
       {selecionado && (
