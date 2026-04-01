@@ -1,0 +1,36 @@
+name: Feature Request
+description: Propose product or platform work with explicit boundary clarity.
+title: "[Feature] "
+labels: ["feature"]
+body:
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Target repository
+      options:
+        - blackbelt-site
+        - blackbelt-app
+        - blackbelt-infra-private
+        - Cross-repository
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Business goal
+      description: What revenue, retention, support, or operational outcome should improve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Boundary check
+      description: Explain why this belongs in site, app, infra, or API.
+    validations:
+      required: true

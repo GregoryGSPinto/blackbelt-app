@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Architecture and product topology
+    url: ./docs/architecture
+    about: Review repository split, domains, and operational boundaries before opening new work.

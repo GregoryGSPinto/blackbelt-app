@@ -1,5 +1,5 @@
 {
-  "name": "black_belt_v2",
+  "name": "blackbelt-app",
   "version": "1.0.0",
   "description": "Multi-tenant SaaS platform for martial arts academy management",
   "private": true,
@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "architecture:check": "node scripts/check-architecture.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🥋 BlackBelt v2
+# 🥋 blackbelt-app
 
-**Multi-tenant SaaS Platform for Martial Arts Academy Management**
+**Authenticated product repository for the BlackBelt SaaS platform**
 
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
@@ -14,7 +14,7 @@
 [![Tests](https://img.shields.io/badge/tests-20-brightgreen)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[Live Demo](https://blackbeltv2.vercel.app) · [Architecture](#architecture) · [Getting Started](#getting-started) · [Features](#features)
+[Product Topology](./reports/blackbelt-100-architecture-final.md) · [Architecture](#architecture) · [Getting Started](#getting-started) · [Features](#features)
 
 </div>
 
@@ -26,7 +26,7 @@ Martial arts academies across Brazil and Latin America manage their operations t
 
 ## The Solution
 
-BlackBelt v2 is a unified, role-aware platform that covers the full lifecycle of a martial arts academy -- from student enrollment and QR check-in, through belt graduations and class scheduling, to financial billing, gamification for younger students, franchise oversight, and AI-assisted coaching. Every user role (admin, professor, adult student, teen, kids, parent, receptionist, franchise owner, super admin) gets a dedicated experience optimized for their workflow.
+`blackbelt-app` is the authenticated BlackBelt product: academy operation, mobile experience, internal product surfaces, authenticated APIs, and Supabase-backed business workflows. The public commercial site and private operations repository are intentionally separated and documented in the architecture report.
 
 The platform ships as a **PWA-first** web app with **native mobile shells** via Capacitor for iOS and Android. A built-in **mock mode** (`NEXT_PUBLIC_USE_MOCK=true`) allows the entire frontend to run without any backend, enabling fast UI iteration and demo environments.
 
@@ -105,7 +105,7 @@ The platform ships as a **PWA-first** web app with **native mobile shells** via 
 ## Architecture
 
 ```
-blackbelt-v2/
+blackbelt-app/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                   # Login, registration, password recovery, profile selection
 │   ├── (admin)/                  # Admin dashboard (sidebar layout)
@@ -149,7 +149,10 @@ blackbelt-v2/
 ├── e2e/                          # Playwright E2E tests
 ├── tests/                        # Vitest unit & integration tests
 ├── scripts/                      # Build scripts, seed, Capacitor prepare
-└── .github/workflows/            # CI (lint, typecheck, test), Release, Supabase deploy
+├── scaffolds/blackbelt-site/     # Local starter for the public commercial repo
+├── scaffolds/blackbelt-infra-private/
+│   └──                          # Local starter for the private operations repo
+└── .github/workflows/            # CI, architecture guard, release, Supabase deploy
 ```
 
 ### Key Architectural Decisions

@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a production, product, architecture, or operational defect.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - blackbelt-app
+        - blackbelt-site
+        - blackbelt-infra-private
+        - Cross-repository
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Public site
+        - Authenticated app
+        - API / webhook
+        - Mobile shell
+        - Supabase / data
+        - CI / release / ops
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: Describe the observed behavior and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Exact steps, actor, academy context, and environment.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
