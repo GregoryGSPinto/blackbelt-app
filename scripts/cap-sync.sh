@@ -22,7 +22,11 @@ SKIP_BUILD="${SKIP_BUILD:-false}"
 # Step 1: Build Next.js (skip with SKIP_BUILD=true for fast iteration)
 if [ "$SKIP_BUILD" != "true" ]; then
   echo "[1/5] Building Next.js..."
-  pnpm build 2>&1 | tail -5
+  if [ "$PLATFORM" = "ios" ] || [ "$PLATFORM" = "android" ] || [ "$PLATFORM" = "all" ]; then
+    pnpm build:mobile 2>&1 | tail -5
+  else
+    pnpm build 2>&1 | tail -5
+  fi
 else
   echo "[1/5] Skipping build (SKIP_BUILD=true)"
 fi

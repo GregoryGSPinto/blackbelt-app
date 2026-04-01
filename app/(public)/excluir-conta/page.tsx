@@ -11,6 +11,11 @@ import {
 export default function ExcluirContaPage() {
   const supportEmail = getSupportEmail();
   const supportPhone = getSupportPhone();
+  const supportCards = [
+    { label: 'URL pública', value: getAccountDeletionUrl() },
+    { label: 'Suporte', value: supportEmail },
+    ...(supportPhone ? [{ label: 'Canal rápido', value: supportPhone }] : []),
+  ];
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
@@ -36,11 +41,7 @@ export default function ExcluirContaPage() {
           podem solicitar a exclusão da conta e dos dados pessoais diretamente no app ou pelos canais oficiais de suporte.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {[
-            { label: 'URL pública', value: getAccountDeletionUrl() },
-            { label: 'Suporte', value: supportEmail },
-            { label: 'Canal rápido', value: supportPhone },
-          ].map((item) => (
+          {supportCards.map((item) => (
             <div
               key={item.label}
               className="rounded-2xl border p-4"

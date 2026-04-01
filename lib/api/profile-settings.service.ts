@@ -1,5 +1,6 @@
 import { isMock } from '@/lib/env';
 import { handleServiceError } from '@/lib/api/errors';
+import { deleteAccount } from '@/lib/api/preferences.service';
 import type { ProfileRole, ProfileSettingsData } from '@/lib/mocks/profile-settings.mock';
 
 export type { ProfileRole, ProfileSettingsData } from '@/lib/mocks/profile-settings.mock';
@@ -143,8 +144,21 @@ export async function deleteProfileAccount(): Promise<{ success: boolean }> {
   }
 
   try {
-    // In production, this would call a server-side function to delete the account
-    throw new Error('Exclusao de conta disponivel apenas via suporte.');
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Nao autenticado');
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error || !profile?.id) throw new Error('Perfil nao encontrado');
+
+    await deleteAccount(profile.id, 'EXCLUIR MINHA CONTA');
+    return { success: true };
   } catch (error) {
     handleServiceError(error, 'profileSettings.delete');
   }

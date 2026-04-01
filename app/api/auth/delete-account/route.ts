@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/monitoring/logger';
 
-const DELETE_CONFIRM_TEXT = 'EXCLUIR';
+const DELETE_CONFIRM_TEXTS = new Set(['EXCLUIR', 'EXCLUIR MINHA CONTA']);
 
 export async function DELETE(request: Request) {
   try {
@@ -18,7 +18,7 @@ export async function DELETE(request: Request) {
     const requestedProfileId = typeof body.profile_id === 'string' ? body.profile_id : null;
     const confirm = typeof body.confirm === 'string' ? body.confirm.trim().toUpperCase() : '';
 
-    if (confirm !== DELETE_CONFIRM_TEXT) {
+    if (!DELETE_CONFIRM_TEXTS.has(confirm)) {
       return NextResponse.json({ error: 'Confirmacao invalida' }, { status: 400 });
     }
 
@@ -65,6 +65,7 @@ export async function DELETE(request: Request) {
       status: data.status,
       requestedAt: data.created_at,
       scheduledDeletionAt: data.scheduled_at ?? scheduledDeletionAt,
+      message: 'Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias, exceto quando houver obrigacao legal de retencao.',
     });
   } catch (error) {
     logger.error('Delete account route crashed', {

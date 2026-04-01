@@ -11,6 +11,7 @@ import { TutorialComplete } from '@/components/tutorial/TutorialComplete';
 import { WelcomeMessage } from '@/components/shared/WelcomeMessage';
 import { TelemetryInit } from '@/components/support/TelemetryInit';
 import { NativeBridge } from '@/components/native/NativeBridge';
+import { NativeApiRuntime } from '@/components/native/NativeApiRuntime';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -20,6 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <TutorialProvider>
             <ToastProvider>
               {children}
+              <NativeApiRuntime />
               <NativeBridge />
               <WelcomeMessage />
               <TutorialWelcome />

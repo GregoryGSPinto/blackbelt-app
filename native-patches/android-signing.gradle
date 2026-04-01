@@ -2,20 +2,61 @@
 // This file is copied into android/app/ by cap-sync.sh
 // It is applied via: apply from: 'signing.gradle' in build.gradle
 
-android {
-    signingConfigs {
-        release {
-            if (project.hasProperty('RELEASE_STORE_FILE')) {
-                storeFile file(project.property('RELEASE_STORE_FILE'))
-                storePassword project.property('RELEASE_STORE_PASSWORD')
-                keyAlias project.property('RELEASE_KEY_ALIAS')
-                keyPassword project.property('RELEASE_KEY_PASSWORD')
+def readReleaseSigningValue(String key) {
+    def prop = project.findProperty(key)
+    if (prop != null && prop.toString().trim()) {
+        return prop.toString().trim()
+    }
+
+    def env = System.getenv(key)
+    if (env != null && env.toString().trim()) {
+        return env.toString().trim()
+    }
+
+    return null
+}
+
+def releaseStoreFile = readReleaseSigningValue('RELEASE_STORE_FILE')
+def releaseStorePassword = readReleaseSigningValue('RELEASE_STORE_PASSWORD')
+def releaseKeyAlias = readReleaseSigningValue('RELEASE_KEY_ALIAS')
+def releaseKeyPassword = readReleaseSigningValue('RELEASE_KEY_PASSWORD')
+
+def releaseSigningReady = [
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword,
+].every { value -> value != null && value.trim() }
+
+if (releaseSigningReady) {
+    def candidateStoreFile = file(releaseStoreFile)
+    if (!candidateStoreFile.exists()) {
+        throw new GradleException("Android release signing keystore not found: ${candidateStoreFile}")
+    }
+
+    android {
+        signingConfigs {
+            release {
+                storeFile candidateStoreFile
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
             }
         }
     }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
+}
+
+tasks.matching { it.name == 'bundleRelease' || it.name == 'assembleRelease' }.configureEach {
+    doFirst {
+        if (!releaseSigningReady) {
+            throw new GradleException(
+                'Android release signing is not configured. Set RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, and RELEASE_KEY_PASSWORD via Gradle properties or environment variables.'
+            )
         }
     }
 }

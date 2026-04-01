@@ -8,6 +8,7 @@ export default function ContatoPage() {
   const [form, setForm] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
   const supportEmail = getSupportEmail();
   const supportPhone = getSupportPhone();
+  const hasSupportPhone = supportPhone.length > 0;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -62,12 +63,23 @@ export default function ContatoPage() {
               {supportEmail}
             </a>
           </div>
-          <div className="rounded-xl border border-bb-gray-200 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-bb-gray-500">Telefone</p>
-            <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} className="mt-2 block text-sm font-medium text-bb-red underline">
-              {supportPhone}
-            </a>
-          </div>
+          {hasSupportPhone && (
+            <div className="rounded-xl border border-bb-gray-200 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-bb-gray-500">Telefone</p>
+              <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} className="mt-2 block text-sm font-medium text-bb-red underline">
+                {supportPhone}
+              </a>
+            </div>
+          )}
+          {!hasSupportPhone && (
+            <div className="rounded-xl border border-bb-gray-200 p-4 text-sm text-bb-gray-600">
+              <p className="font-medium text-bb-gray-900">Contato principal</p>
+              <p className="mt-2">
+                O suporte público desta versão usa atendimento por email. Configure `NEXT_PUBLIC_SUPPORT_PHONE`
+                para expor um telefone oficial antes da submissão no Google Play.
+              </p>
+            </div>
+          )}
           <div className="rounded-xl border border-bb-gray-200 p-4 text-sm text-bb-gray-600">
             <p className="font-medium text-bb-gray-900">Atendimento para menores e responsáveis</p>
             <p className="mt-2">

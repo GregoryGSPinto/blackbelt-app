@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import packageJson from '@/package.json';
 
 interface HealthCheck {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -47,7 +48,7 @@ export async function GET() {
 
   const health: HealthCheck = {
     status: overallStatus,
-    version: '2.0.0',
+    version: packageJson.version,
     uptime,
     timestamp: new Date().toISOString(),
     checks: {

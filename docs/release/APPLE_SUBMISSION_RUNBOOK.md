@@ -1,98 +1,72 @@
 # Apple Submission Runbook
 
-Data da auditoria: 2026-04-01
-Status atual: `NO-GO`
+Data: 2026-04-01
+Estado atual: `NO-GO`
 
-## O que foi verificado
+## O que já está pronto no projeto
 
-| Item | Evidência | Status |
-|---|---|---|
-| Nome exibido `BlackBelt` | `ios/App/App/Info.plist` | `verificado no código` |
-| Bundle ID `app.blackbelt.academy` | `ios/App/App.xcodeproj/project.pbxproj` | `verificado no código` |
-| Version `1.0` / build `1` | `ios/App/App.xcodeproj/project.pbxproj` | `verificado no código` |
-| Permissões de câmera/fotos/Face ID | `ios/App/App/Info.plist` | `verificado no código` |
-| Privacy manifest existe | `ios/App/App/PrivacyInfo.xcprivacy` | `verificado no código` |
-| Privacy policy pública existe | rota `/privacidade` | `verificado no código` |
-| Terms públicos existem | rota `/termos` | `verificado no código` |
-| Support público existe | rota `/contato` e `/suporte` | `verificado no código` |
-| Delete account público existe | rota `/excluir-conta` | `verificado no código` |
+- Bundle ID: `app.blackbelt.academy`
+- Version/build: `1.0.0 (1)`
+- `DEVELOPMENT_TEAM` injetável via `APPLE_DEVELOPMENT_TEAM`
+- `PrivacyInfo.xcprivacy` presente no target
+- `Info.plist` com câmera, fotos, Face ID
+- páginas públicas de privacy, terms, support e delete account
+- fluxo de exclusão alinhado para solicitação com até 30 dias
 
-## Blockers Apple
+## O que foi provado nesta sessão
 
-1. O app ainda é empacotado como shell remoto. `capacitor.config.ts` e `scripts/prepare-capacitor-web.mjs` mostram isso claramente.
-2. O archive para App Store Connect não foi provado.
-3. `DEVELOPMENT_TEAM` e signing operacional não estão provados no projeto.
-4. Credenciais reais de review não existem no repositório; só há rascunho.
-5. AASA continua com placeholder em `public/.well-known/apple-app-site-association`.
-6. O fluxo de exclusão de conta está incoerente entre API e UI.
-7. O telefone público é placeholder e o email de suporte não foi provado operacionalmente.
-
-## Ordem exata para Apple
-
-1. Corrigir o empacotamento mobile para que o app não dependa de redirect remoto durante review.
-2. Unificar o comportamento de exclusão de conta e alinhar texto legal, UI e backend.
-3. Substituir telefone placeholder e confirmar email de suporte funcional.
-4. Preencher o Apple Team ID em `public/.well-known/apple-app-site-association`.
-5. Criar e validar a conta real de review sem OTP/2FA.
-6. Configurar conta Apple Developer, time, certificados e provisioning profiles.
-7. Atualizar metadados finais no App Store Connect usando [STORE_METADATA_MASTER.md](/Users/user_pc/Projetos/black_belt_v2/docs/release/STORE_METADATA_MASTER.md).
-8. Rodar o build mobile web:
+Comando:
 
 ```bash
-pnpm build:mobile
+APPLE_DEVELOPMENT_TEAM=ABCDE12345 xcodebuild -project ios/App/App.xcodeproj -scheme App -showBuildSettings | rg "DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|MARKETING_VERSION|CURRENT_PROJECT_VERSION|CODE_SIGN_STYLE"
 ```
 
-9. Sincronizar o projeto nativo:
+Resultado:
+
+- `DEVELOPMENT_TEAM = ABCDE12345`
+- `PRODUCT_BUNDLE_IDENTIFIER = app.blackbelt.academy`
+- `MARKETING_VERSION = 1.0.0`
+- `CURRENT_PROJECT_VERSION = 1`
+- `CODE_SIGN_STYLE = Automatic`
+
+Archive tentado:
 
 ```bash
-pnpm cap:sync
+APPLE_DEVELOPMENT_TEAM=<REAL_TEAM_ID> xcodebuild \
+  -project ios/App/App.xcodeproj \
+  -scheme App \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination generic/platform=iOS \
+  -archivePath /tmp/BlackBelt.xcarchive \
+  -allowProvisioningUpdates \
+  archive
 ```
 
-10. Abrir o projeto iOS:
+Falha objetiva atual:
 
-```bash
-pnpm cap:ios
-```
+- falta conta/certificado/profile Apple para `app.blackbelt.academy`
 
-11. No Xcode:
-Selecionar `Any iOS Device (arm64)` -> `Product` -> `Archive` -> `Distribute App` -> `App Store Connect`.
+## Ordem exata
 
-12. Aguardar o processing do build no App Store Connect.
-13. Preencher `App Review Information`, `App Privacy`, rating e metadata.
-14. Selecionar o build processado.
-15. Submeter para review.
+1. Definir `APPLE_DEVELOPMENT_TEAM` real.
+2. Logar no Xcode com a conta Apple Developer correta.
+3. Garantir que o App ID `app.blackbelt.academy` exista no portal Apple.
+4. Rodar `pnpm build:mobile`.
+5. Rodar `pnpm cap:sync`.
+6. Rodar o comando de archive acima com `-allowProvisioningUpdates`.
+7. Confirmar que o `.xcarchive` foi gerado.
+8. Upload para App Store Connect.
+9. Preencher review notes e credentials reais.
+10. Submeter.
 
-## App Review Notes prontas
+## Blockers restantes Apple
 
-Usar o texto em [STORE_METADATA_MASTER.md](/Users/user_pc/Projetos/black_belt_v2/docs/release/STORE_METADATA_MASTER.md) e substituir as credenciais placeholder por contas reais.
+- Runtime mobile de release ainda depende de `server.url` remoto; o export local quebra por causa de `app/api/*` dinâmicas.
+- Team ID real e provisioning profiles.
+- Credenciais reais de review.
+- `apple-app-site-association` ainda precisa do Team ID real.
 
-## Privacy Nutrition Label draft
+## Veredito
 
-Baseado no código atual:
-
-| Categoria | Declaração draft |
-|---|---|
-| Tracking | `No` |
-| Data linked to user | Nome, email, telefone, fotos, user ID |
-| Data not linked to user | Product interaction, crash data, performance data, device ID |
-| Purposes | App functionality, analytics |
-
-## Itens que dependem do App Store Connect
-
-- Criar o app caso ainda não exista
-- Confirmar availability do nome
-- Completar age rating
-- Inserir review contact info
-- Inserir demo account
-- Confirmar export compliance
-- Selecionar build processado
-
-## Go / No-Go
-
-- Hoje: `NO-GO`
-- Go apenas quando:
-  - o app deixar de ser shell remoto
-  - o archive for gerado com sucesso
-  - houver credenciais reais de review
-  - exclusão de conta estiver coerente
-  - contatos públicos forem reais
+- Apple: `NO-GO`

@@ -2,10 +2,17 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+const isCapacitorStaticExport = process.env.CAPACITOR_STATIC_EXPORT === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  ...(isCapacitorStaticExport
+    ? {
+        output: 'export',
+        trailingSlash: true,
+      }
+    : {}),
   webpack: (config) => {
     // Capacitor native-only plugins are not available in web builds.
     // They are always behind dynamic import() + isNative() guards,
@@ -17,6 +24,7 @@ const nextConfig = {
     return config;
   },
   images: {
+    unoptimized: isCapacitorStaticExport,
     remotePatterns: [
       {
         protocol: 'https',
@@ -30,32 +38,36 @@ const nextConfig = {
       },
     ],
   },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://*.b-cdn.net https://*.bunnycdn.com https://app.posthog.com https://*.posthog.com",
-          },
-        ],
-      },
-    ];
-  },
+  ...(isCapacitorStaticExport
+    ? {}
+    : {
+        async headers() {
+          return [
+            {
+              source: '/(.*)',
+              headers: [
+                { key: 'X-Frame-Options', value: 'DENY' },
+                { key: 'X-Content-Type-Options', value: 'nosniff' },
+                { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                { key: 'X-XSS-Protection', value: '1; mode=block' },
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=31536000; includeSubDomains',
+                },
+                {
+                  key: 'Permissions-Policy',
+                  value: 'camera=(), microphone=(), geolocation=()',
+                },
+                {
+                  key: 'Content-Security-Policy',
+                  value:
+                    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://*.b-cdn.net https://*.bunnycdn.com https://app.posthog.com https://*.posthog.com",
+                },
+              ],
+            },
+          ];
+        },
+      }),
 };
 
 const intlConfig = withNextIntl(nextConfig);

@@ -450,11 +450,11 @@ function DangerSection() {
         {
           label: 'Excluir minha conta',
           description:
-            'Todos os seus dados serao excluidos permanentemente. Esta acao nao pode ser desfeita.',
+            'A solicitacao e registrada agora e a exclusao definitiva ocorre em ate 30 dias.',
           action: async () => {
             try {
               await deleteProfileAccount();
-              toast('Conta excluida com sucesso.', 'success');
+              toast('Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.', 'success');
             } catch (err) {
               toast(translateError(err), 'error');
             }

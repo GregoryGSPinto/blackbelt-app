@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { translateError } from '@/lib/utils/error-translator';
 import { Role } from '@/lib/types/domain';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { deleteAccount } from '@/lib/api/preferences.service';
 
 interface DeleteAccountSectionProps {
   className?: string;
@@ -70,39 +71,19 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
       setIsDeleting(true);
       try {
         if (isMock()) {
-          toast('Conta excluida com sucesso. Seus dados foram anonimizados.', 'success');
+          toast('Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.', 'success');
           setShowModal(false);
           await logout();
           return;
         }
 
-        const { createBrowserClient } = await import('@/lib/supabase/client');
-        const supabase = createBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (!session?.access_token) {
-          toast('Sessao expirada. Faca login novamente.', 'error');
+        if (!profile?.id) {
+          toast('Perfil nao encontrado. Faca login novamente.', 'error');
           return;
         }
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ confirmationText }),
-          }
-        );
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({ error: 'Erro ao excluir conta' }));
-          throw new Error(body.error || 'Erro ao excluir conta');
-        }
-
-        toast('Conta excluida com sucesso. Seus dados foram anonimizados conforme a LGPD.', 'success');
+        await deleteAccount(profile.id, confirmationText);
+        toast('Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.', 'success');
         setShowModal(false);
         await logout();
       } catch (err) {
@@ -129,8 +110,8 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
             Zona de Perigo
           </h3>
           <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-            Ao excluir sua conta, todos os seus dados pessoais serao anonimizados conforme a LGPD.
-            Esta acao e irreversivel.
+            Ao solicitar a exclusao, sua conta e marcada para remocao definitiva em ate 30 dias.
+            Esse periodo cobre retencao operacional, prevencao de fraude e obrigacoes legais.
           </p>
           {isParent && (
             <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
@@ -194,7 +175,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                   </h3>
                   <div className="mt-3 space-y-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
                     <p className="font-semibold">Esta acao e IRREVERSIVEL.</p>
-                    <p>Seus dados serao anonimizados conforme a LGPD.</p>
+                    <p>Sua conta sera removida definitivamente em ate 30 dias, salvo obrigacao legal de retencao.</p>
                     {isParent && (
                       <p>Seus filhos vinculados continuarao na academia.</p>
                     )}

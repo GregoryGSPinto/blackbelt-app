@@ -199,26 +199,41 @@ export async function exportUserData(
 export async function deleteAccount(
   profileId: string,
   confirmText: string,
-): Promise<void> {
+): Promise<{ id: string; status: string; requestedAt: string; scheduledDeletionAt: string; message: string }> {
   try {
     if (isMock()) {
       const { mockDeleteAccount } = await import(
         '@/lib/mocks/preferences.mock'
       );
-      return mockDeleteAccount(profileId, confirmText);
+      await mockDeleteAccount(profileId, confirmText);
+      return {
+        id: 'mock-delete-request',
+        status: 'pending',
+        requestedAt: new Date().toISOString(),
+        scheduledDeletionAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        message: 'Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.',
+      };
     }
+
+    const normalizedConfirmText = confirmText.trim().toUpperCase() === 'EXCLUIR MINHA CONTA'
+      ? 'EXCLUIR MINHA CONTA'
+      : 'EXCLUIR';
 
     const res = await fetch('/api/auth/delete-account', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile_id: profileId, confirm: confirmText }),
+      body: JSON.stringify({ profile_id: profileId, confirm: normalizedConfirmText }),
     });
 
     if (!res.ok) {
       logServiceError(new Error(`API error: ${res.status}`), 'preferences');
+      throw new Error('Nao foi possivel registrar a exclusao da conta.');
     }
+
+    return res.json();
   } catch (error) {
     logServiceError(error, 'preferences');
+    throw error instanceof Error ? error : new Error('Nao foi possivel registrar a exclusao da conta.');
   }
 }
 

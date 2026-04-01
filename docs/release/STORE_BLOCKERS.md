@@ -1,38 +1,36 @@
 # BlackBelt Store Blockers
 
-Data da auditoria: 2026-04-01
-Escopo: estado real do repositório + comandos executados localmente
+Data: 2026-04-01
+Estado base: código e builds validados nesta sessão
 
-## Status geral
+## Status atual
 
-- Apple App Store: `NO-GO`
-- Google Play: `NO-GO`
+- Apple: `NO-GO`
+- Google: `NO-GO`
 
-## Top blockers agora
+## Blockers resolvidos no código
 
-| # | Blocker | Evidência | Apple | Google | Status | Ação necessária |
-|---|---|---|---|---|---|---|
-| 1 | O app mobile ainda é um shell remoto/web wrapper | `capacitor.config.ts` usa `server.url` e `scripts/prepare-capacitor-web.mjs` gera `out/index.html` que redireciona para `https://blackbeltv2.vercel.app` | Crítico | Alto | `bloqueado` | Trocar a estratégia de empacotamento para bundle local real antes de submeter à Apple; no Google também reduz risco de rejeição e instabilidade |
-| 2 | Build Android de release não gera AAB assinada | `./gradlew bundleRelease` falhou em `:app:signReleaseBundle FAILED` com `NullPointerException` | Médio | Crítico | `bloqueado` | Corrigir assinatura Android e provar geração de `app-release.aab` |
-| 3 | Prontidão de archive iOS não foi provada | `ios/App/App.xcodeproj/project.pbxproj` tem bundle/version, mas `DEVELOPMENT_TEAM` não foi encontrado e o archive não foi provado localmente | Crítico | N/A | `bloqueado` | Configurar time/certificados/perfis e gerar archive real no Xcode |
-| 4 | Contato público ainda usa telefone placeholder | `lib/config/legal.ts` define `+55 11 99999-0000` | Alto | Alto | `bloqueado` | Substituir por telefone real antes de qualquer submissão |
-| 5 | Email de suporte não está provado operacionalmente | `lib/config/legal.ts` usa `suporte@blackbelt.app`, mas a entrega depende de MX/caixa externa | Alto | Alto | `pendente externo` | Confirmar mailbox real; se não estiver pronto, usar email funcional validado |
-| 6 | Deep links públicos têm placeholders | `public/.well-known/apple-app-site-association` e `public/.well-known/assetlinks.json` têm `REPLACE_WITH_*` | Alto | Alto | `bloqueado` | Preencher Apple Team ID e fingerprint SHA-256 do certificado de release |
-| 7 | Fluxo de exclusão de conta está incoerente | `app/api/auth/delete-account/route.ts` agenda exclusão em 30 dias; `components/settings/DeleteAccountSection.tsx` comunica anonimização imediata via edge function | Alto | Alto | `bloqueado` | Unificar regra, UX, texto legal e implementação |
-| 8 | Endpoint de health está com versão divergente do app | `app/api/health/route.ts` retorna `2.0.0`, enquanto `package.json`, Android e iOS estão em `1.0.0/1.0/1` | Médio | Médio | `pendente` | Sincronizar versionamento para não gerar inconsistência em revisão/operação |
-| 9 | Credenciais de review/demo não estão provadas | Existe rascunho em `docs/store/STORE_REVIEW_CREDENTIALS.md`, mas sem prova de contas reais | Crítico | Crítico | `pendente externo` | Criar contas reais sem OTP/2FA e validar login fim a fim |
-| 10 | Gate crítico do Play Console não é verificável no repo | Regra de teste fechado para conta pessoal nova só é confirmável no console | N/A | Crítico | `pendente externo` | Confirmar manualmente no console se produção está bloqueada por closed testing |
+| Item | Resultado |
+|---|---|
+| `bundleRelease` não cai mais em `NullPointerException` | Agora falha com erro determinístico se faltar signing |
+| Fluxo de exclusão de conta incoerente | Unificado para solicitação com janela de até 30 dias |
+| Placeholder de telefone público exposto no app | Removido; telefone só aparece se `NEXT_PUBLIC_SUPPORT_PHONE` estiver definido |
+| Versionamento divergente no health | `app/api/health/route.ts` agora usa `package.json` |
+| `DEVELOPMENT_TEAM` não configurável | Projeto iOS agora aceita `APPLE_DEVELOPMENT_TEAM` |
+| `PrivacyInfo.xcprivacy` só existia no filesystem | Agora está referenciado no target iOS |
 
-## Riscos adicionais relevantes
+## Blockers restantes
 
-| Risco | Evidência | Status | Ação |
-|---|---|---|---|
-| Push notifications não estão prontas para prova em loja | ausência de `android/app/google-services.json` e `ios/.../GoogleService-Info.plist` | `pendente` | Configurar Firebase/APNs ou remover promessa de push da metadata |
-| Analytics/telemetria exigem consistência com política e consoles | `components/analytics/GoogleAnalytics.tsx`, `lib/analytics/posthog.ts`, configs Sentry | `pendente` | Declarar corretamente em Apple Privacy e Google Data Safety |
-| App Access é obrigatório por haver login | rotas autenticadas e docs de credenciais já existentes | `pendente externo` | Fornecer conta demo estável + instruções claras em inglês |
-| URLs públicas ainda usam domínio Vercel | `blackbeltv2.vercel.app` espalhado em config e docs | `pendente` | Aceitável temporariamente, mas piora percepção de maturidade e estabilidade |
+| # | Blocker | Tipo | Evidência | Como resolver |
+|---|---|---|---|---|
+| 1 | Runtime mobile de release ainda depende de `server.url` remoto | estrutural de código/produto | `pnpm build:mobile:local` falha porque `output: export` quebra com `app/api/*` dinâmicas | Separar as APIs do bundle web exportável ou abandonar o modelo Next App Router + `app/api` para o runtime mobile local |
+| 2 | Apple Team ID real não foi fornecido | externo | `public/.well-known/apple-app-site-association` está em `APPLE_TEAM_ID_REQUIRED...` | Rodar `APPLE_DEVELOPMENT_TEAM=<TEAM_ID> node scripts/generate-mobile-association-files.mjs` |
+| 3 | SHA-256 final do certificado Android não foi fixado como chave oficial de produção | externo | `public/.well-known/assetlinks.json` está em `ANDROID_RELEASE_SHA256_REQUIRED` | Definir a keystore oficial e rodar `ANDROID_RELEASE_SHA256=<SHA> node scripts/generate-mobile-association-files.mjs` |
+| 4 | Conta/demo credentials de review não existem no ambiente real | externo | só existe template em `docs/release/STORE_REVIEW_CREDENTIALS_TEMPLATE.md` | Criar contas reais sem OTP/2FA e preencher o template |
+| 5 | Archive iOS depende de conta/certificados/perfis Apple | externo | `xcodebuild archive` falhou por falta de provisioning profile | Entrar com Apple Developer válida e rodar archive com `-allowProvisioningUpdates` |
+| 6 | Telefone real de suporte ainda não foi informado | externo | o app agora esconde telefone por padrão | Definir `NEXT_PUBLIC_SUPPORT_PHONE` antes do listing do Google Play |
+| 7 | Email de suporte continua dependente de operação externa real | externo | default atual é `suporte@blackbelt.app` | Garantir caixa ativa ou trocar para email comprovadamente funcional |
 
-## Conclusão operacional
+## Observação crítica
 
-- Apple: não submeter enquanto o shell remoto existir, o archive não estiver provado e a exclusão de conta não estiver coerente.
-- Google: não abrir produção enquanto `bundleRelease` continuar falhando e o gate de closed testing não estiver confirmado no console.
+O maior blocker de Apple não é mais genérico. Ele está provado: o projeto hoje não consegue gerar bundle local exportável porque o runtime mobile ainda depende do mesmo app Next que contém `app/api/*` dinâmicas.

@@ -1,7 +1,6 @@
 const DEFAULT_APP_URL = 'https://blackbeltv2.vercel.app';
 const DEFAULT_SUPPORT_EMAIL = 'suporte@blackbelt.app';
-// TODO: Gregory — substituir por número real antes da submissão nas stores
-const DEFAULT_SUPPORT_PHONE = '+55 11 99999-0000';
+const DEFAULT_SUPPORT_PHONE = '';
 
 export function getPublicAppUrl(): string {
   const value = process.env.NEXT_PUBLIC_APP_URL?.trim();

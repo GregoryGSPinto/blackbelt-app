@@ -426,11 +426,11 @@ export default function ParentConfiguracoesPage() {
               items={[
                 {
                   label: 'Excluir minha conta',
-                  description: 'Sua conta e os vinculos com seus filhos serao removidos permanentemente.',
+                  description: 'A solicitacao e registrada agora e a exclusao definitiva ocorre em ate 30 dias. Os vinculos de acesso do responsavel sao encerrados.',
                   action: async () => {
                     if (!profileId) throw new Error('Perfil ativo nao encontrado.');
-                    await deleteAccount(profileId, 'EXCLUIR');
-                    toast('Conta excluida.', 'success');
+                    await deleteAccount(profileId, 'EXCLUIR MINHA CONTA');
+                    toast('Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.', 'success');
                   },
                   confirmText: 'EXCLUIR MINHA CONTA',
                 },

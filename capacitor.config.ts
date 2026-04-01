@@ -1,19 +1,21 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
-const isMobileBuild = process.env.NEXT_PUBLIC_PLATFORM === 'mobile';
+const useRemoteRuntime = process.env.CAPACITOR_REMOTE_RUNTIME === 'true';
 
 const config: CapacitorConfig = {
   appId: 'app.blackbelt.academy',
   appName: 'BlackBelt',
   webDir: 'out',
-
-  server: {
-    url: 'https://blackbeltv2.vercel.app',
-    androidScheme: 'https',
-    iosScheme: 'https',
-    ...(isMobileBuild ? { url: publicAppUrl } : {}),
-  },
+  ...(useRemoteRuntime
+    ? {
+        server: {
+          url: publicAppUrl,
+          androidScheme: 'https',
+          iosScheme: 'https',
+        },
+      }
+    : {}),
 
   plugins: {
     SplashScreen: {

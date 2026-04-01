@@ -388,11 +388,11 @@ export default function TeenConfiguracoesPage() {
               items={[
                 {
                   label: 'Excluir minha conta',
-                  description: 'Sua conta sera excluida permanentemente.',
+                  description: 'A solicitacao e registrada agora e a exclusao definitiva ocorre em ate 30 dias.',
                   action: async () => {
                     if (!profileId) throw new Error('Perfil ativo nao encontrado.');
-                    await deleteAccount(profileId, 'EXCLUIR');
-                    toast('Conta excluida.', 'success');
+                    await deleteAccount(profileId, 'EXCLUIR MINHA CONTA');
+                    toast('Solicitacao registrada. A exclusao definitiva ocorre em ate 30 dias.', 'success');
                   },
                   confirmText: 'EXCLUIR MINHA CONTA',
                 },
