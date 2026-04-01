@@ -46,11 +46,13 @@ export default function LoginPage() {
       });
     } catch { /* ignore */ }
 
-    // Timeout safety — if login hangs for 12s, abort
+    // Timeout safety — real Supabase auth + profile selection can take longer
+    // for freshly created users, so keep the guard generous enough to avoid
+    // false negatives while still surfacing genuine stalls.
     const timeout = setTimeout(() => {
       setLoading(false);
       setLocalError('Tempo esgotado. Verifique sua conexao e tente novamente.');
-    }, 12000);
+    }, 30000);
 
     try {
       const profiles = await login(email, password);

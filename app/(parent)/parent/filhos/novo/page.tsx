@@ -5,43 +5,53 @@ import { useRouter } from 'next/navigation';
 import { AddChildForm } from '@/components/parent/AddChildForm';
 import { ChevronLeftIcon } from '@/components/shell/icons';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { getPersonByAccountId } from '@/lib/api/family.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+
+const GUARDIAN_RESOLUTION_ATTEMPTS = 4;
+const GUARDIAN_RESOLUTION_DELAY_MS = 750;
 
 export default function NovoFilhoPage() {
   const router = useRouter();
-  const { profile } = useAuth();
+  const { isLoading: authLoading } = useAuth();
   const [guardianPersonId, setGuardianPersonId] = useState<string | null>(null);
+  const [linkedChildren, setLinkedChildren] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [resolvedGuardian, setResolvedGuardian] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
     async function loadGuardianPerson() {
-      if (!profile?.user_id) {
-        if (mounted) {
-          setGuardianPersonId(null);
-          setLoading(false);
-        }
+      if (authLoading) {
         return;
       }
 
       try {
-        const { createBrowserClient } = await import('@/lib/supabase/client');
-        const supabase = createBrowserClient();
+        for (let attempt = 0; attempt < GUARDIAN_RESOLUTION_ATTEMPTS; attempt += 1) {
+          const response = await fetch('/api/parent/current-guardian', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+          });
+          const payload = await response.json();
 
-        const { data: currentProfile } = await supabase
-          .from('profiles')
-          .select('person_id')
-          .eq('id', profile.id)
-          .maybeSingle();
+          if (response.ok && payload.personId) {
+            if (mounted) {
+              setGuardianPersonId((payload.personId as string | null) ?? null);
+              setLinkedChildren(Number(payload.linkedChildren ?? 0));
+              setResolvedGuardian(true);
+            }
+            return;
+          }
 
-        const person = currentProfile?.person_id
-          ? { id: currentProfile.person_id }
-          : await getPersonByAccountId(profile.user_id);
+          if (attempt < GUARDIAN_RESOLUTION_ATTEMPTS - 1) {
+            await new Promise((resolve) => window.setTimeout(resolve, GUARDIAN_RESOLUTION_DELAY_MS));
+          }
+        }
 
-        if (mounted) {
-          setGuardianPersonId(person?.id ?? null);
+        if (mounted && !resolvedGuardian) {
+          setGuardianPersonId(null);
+          setLinkedChildren(0);
         }
       } finally {
         if (mounted) {
@@ -54,9 +64,9 @@ export default function NovoFilhoPage() {
     return () => {
       mounted = false;
     };
-  }, [profile?.user_id]);
+  }, [authLoading, resolvedGuardian]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="mx-auto max-w-lg px-4 py-6 space-y-4">
         <Skeleton variant="text" className="h-5 w-16" />
@@ -84,6 +94,15 @@ export default function NovoFilhoPage() {
       <p className="mb-6 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
         Cadastre um dependente para acompanhar pelo app
       </p>
+
+      {guardianPersonId && (
+        <div
+          className="mb-4 rounded-lg p-3 text-xs font-medium"
+          style={{ background: 'var(--bb-brand-surface)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+        >
+          Responsavel autenticado com {linkedChildren} dependente(s) ja vinculado(s).
+        </div>
+      )}
 
       {!guardianPersonId ? (
         <div
