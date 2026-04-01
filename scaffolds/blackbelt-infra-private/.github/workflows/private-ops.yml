@@ -1,0 +1,10 @@
+name: Private Ops
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Private release, infra and operational workflows live here."
