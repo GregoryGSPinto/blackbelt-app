@@ -14,7 +14,7 @@ if (process.env.CAPACITOR_STATIC_EXPORT === 'true') {
 }
 
 if (process.env.CAPACITOR_REMOTE_RUNTIME === 'true') {
-  const publicAppUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://blackbeltv2.vercel.app').replace(/\/$/, '');
+  const publicAppUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://app.blackbelt.com').replace(/\/$/, '');
   const shell = `<!doctype html>
 <html lang="pt-BR">
   <head>

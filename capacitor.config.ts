@@ -1,6 +1,6 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
+const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.blackbelt.com';
 const useRemoteRuntime = process.env.CAPACITOR_REMOTE_RUNTIME === 'true';
 
 const config: CapacitorConfig = {

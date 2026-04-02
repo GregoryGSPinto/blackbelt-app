@@ -6,7 +6,7 @@
 #   bash scripts/take-screenshots.sh
 #   bash scripts/take-screenshots.sh https://localhost:3000  (URL custom)
 
-BASE_URL="${1:-https://blackbeltv2.vercel.app}"
+BASE_URL="${1:-https://app.blackbelt.com}"
 
 SIZES=(
   "1290x2796:iPhone_15_Pro_Max"

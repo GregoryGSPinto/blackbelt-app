@@ -1,11 +1,10 @@
-const DEFAULT_APP_URL = 'https://blackbeltv2.vercel.app';
+import { getAppUrl } from '@/lib/config/domains';
+
 const DEFAULT_SUPPORT_EMAIL = 'suporte@blackbelt.app';
 const DEFAULT_SUPPORT_PHONE = '';
 
 export function getPublicAppUrl(): string {
-  const value = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (!value) return DEFAULT_APP_URL;
-  return value.replace(/\/$/, '');
+  return getAppUrl();
 }
 
 export function getSupportEmail(): string {
@@ -25,9 +24,17 @@ export function getTermsUrl(): string {
 }
 
 export function getSupportUrl(): string {
-  return `${getPublicAppUrl()}/contato`;
+  return `${getPublicAppUrl()}/suporte`;
 }
 
 export function getAccountDeletionUrl(): string {
   return `${getPublicAppUrl()}/excluir-conta`;
+}
+
+export function getHelpUrl(): string {
+  return `${getPublicAppUrl()}/ajuda`;
+}
+
+export function getStatusUrl(): string {
+  return `${getPublicAppUrl()}/status`;
 }

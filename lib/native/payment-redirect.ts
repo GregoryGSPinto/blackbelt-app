@@ -1,6 +1,7 @@
 import { isNative } from '@/lib/platform';
+import { getAppUrl } from '@/lib/config/domains';
 
-const BASE_URL = 'https://blackbeltv2.vercel.app';
+const BASE_URL = getAppUrl();
 
 export async function openSubscriptionPage(): Promise<void> {
   if (isNative()) {

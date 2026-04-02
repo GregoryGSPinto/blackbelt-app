@@ -3,6 +3,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const isCapacitorStaticExport = process.env.CAPACITOR_STATIC_EXPORT === 'true';
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://blackbelt.com').replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -37,6 +38,40 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/sobre',
+        destination: `${siteUrl}/sobre`,
+        permanent: false,
+      },
+      {
+        source: '/blog',
+        destination: `${siteUrl}/blog`,
+        permanent: false,
+      },
+      {
+        source: '/precos',
+        destination: `${siteUrl}/precos`,
+        permanent: false,
+      },
+      {
+        source: '/beta-invite',
+        destination: `${siteUrl}/beta-invite`,
+        permanent: false,
+      },
+      {
+        source: '/landing',
+        destination: siteUrl,
+        permanent: false,
+      },
+      {
+        source: '/aula-experimental',
+        destination: `${siteUrl}/aula-experimental`,
+        permanent: false,
+      },
+    ];
   },
   ...(isCapacitorStaticExport
     ? {}

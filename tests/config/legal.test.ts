@@ -7,8 +7,8 @@ describe('legal config', () => {
 
     const legal = await import('@/lib/config/legal');
 
-    expect(legal.getPublicAppUrl()).toBe('https://blackbeltv2.vercel.app');
-    expect(legal.getAccountDeletionUrl()).toBe('https://blackbeltv2.vercel.app/excluir-conta');
+    expect(legal.getPublicAppUrl()).toBe('https://app.blackbelt.com');
+    expect(legal.getAccountDeletionUrl()).toBe('https://app.blackbelt.com/excluir-conta');
   });
 
   it('monta URLs públicas a partir da app url configurada', async () => {
@@ -19,6 +19,6 @@ describe('legal config', () => {
 
     expect(legal.getPublicAppUrl()).toBe('https://app.blackbelt.com');
     expect(legal.getPrivacyUrl()).toBe('https://app.blackbelt.com/privacidade');
-    expect(legal.getSupportUrl()).toBe('https://app.blackbelt.com/contato');
+    expect(legal.getSupportUrl()).toBe('https://app.blackbelt.com/suporte');
   });
 });

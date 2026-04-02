@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@/lib/supabase/client';
+import { getAppUrl } from '@/lib/config/domains';
 import { isMock } from '@/lib/env';
 
 export type OAuthProvider = 'google' | 'apple';
@@ -12,9 +13,7 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<void> {
 
   const redirectTo = typeof window !== 'undefined'
     ? `${window.location.origin}/auth/callback`
-    : process.env.NEXT_PUBLIC_APP_URL
-      ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
-      : 'https://blackbeltv2.vercel.app/auth/callback';
+      : `${getAppUrl()}/auth/callback`;
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider,

@@ -22,7 +22,7 @@ fi
 # Vercel
 echo ""
 echo -n "Vercel: "
-DEPLOY=$(curl -sI "https://blackbeltv2.vercel.app" -o /dev/null -w "%{http_code}" 2>/dev/null)
+DEPLOY=$(curl -sI "${APP_URL:-https://app.blackbelt.com}" -o /dev/null -w "%{http_code}" 2>/dev/null)
 if [ "$DEPLOY" = "200" ]; then
   echo "Live ($DEPLOY)"
 else

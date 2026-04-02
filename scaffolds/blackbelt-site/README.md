@@ -1,6 +1,8 @@
 # blackbelt-site
 
-Repositório público comercial do BlackBelt.
+Scaffold do repositório público comercial do BlackBelt.
+
+Este starter existe para manter a fronteira correta com `blackbelt-app`: o app autenticado e o companion mobile permanecem no núcleo operacional, enquanto aquisição, storytelling e conteúdo institucional vivem em `blackbelt.com`.
 
 ## Responsabilidades
 
@@ -8,9 +10,11 @@ Repositório público comercial do BlackBelt.
 - planos
 - demo
 - trial
-- contato
+- contato comercial
 - páginas institucionais
-- privacidade, termos, suporte e exclusão de conta via web
+- pricing e aquisição
+- blog e SEO
+- páginas legais que a operação decidir publicar fora do app
 - SEO, aquisição e storytelling comercial
 
 ## Estrutura Inicial
@@ -39,7 +43,9 @@ blackbelt-site/
 
 - produção: `blackbelt.com`
 - preview: Vercel
-- páginas legais e suporte público publicados fora do app autenticado
+- superfície alvo: `blackbelt.com`
+- o app autenticado fica em `app.blackbelt.com`
+- redirects temporários no app podem apontar para este domínio durante a extração
 
 ## Passos Remotos
 

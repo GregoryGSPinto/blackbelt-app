@@ -1,7 +1,34 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/', '/login', '/cadastro', '/convite', '/esqueci-senha', '/redefinir-senha', '/senha-alterada', '/selecionar-perfil', '/completar-cadastro', '/status', '/termos', '/privacidade', '/privacidade-menores', '/verificar', '/onboarding', '/cadastrar-academia', '/registro-academia', '/landing', '/precos', '/ajuda', '/sobre', '/contato', '/blog', '/comecar', '/g', '/auth/callback', '/compete', '/app-store', '/beta-invite', '/changelog', '/developers', '/marketplace', '/ranking', '/campeonatos', '/.well-known', '/excluir-conta', '/suporte'];
+const AUTH_ENTRY_PATHS = ['/', '/login', '/cadastro', '/convite', '/esqueci-senha', '/redefinir-senha', '/senha-alterada', '/selecionar-perfil', '/comecar'];
+const PUBLIC_OPERATIONAL_PATHS = [
+  '/completar-cadastro',
+  '/status',
+  '/termos',
+  '/privacidade',
+  '/privacidade-menores',
+  '/verificar',
+  '/onboarding',
+  '/cadastrar-academia',
+  '/registro-academia',
+  '/ajuda',
+  '/contato',
+  '/g',
+  '/auth/callback',
+  '/compete',
+  '/app-store',
+  '/changelog',
+  '/developers',
+  '/marketplace',
+  '/ranking',
+  '/campeonatos',
+  '/.well-known',
+  '/excluir-conta',
+  '/suporte',
+];
+const MARKETING_REDIRECT_PATHS = ['/landing', '/precos', '/sobre', '/blog', '/beta-invite', '/aula-experimental'];
+const PUBLIC_PATHS = [...AUTH_ENTRY_PATHS, ...PUBLIC_OPERATIONAL_PATHS, ...MARKETING_REDIRECT_PATHS];
 
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',
@@ -43,6 +70,10 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
 }
 
+function isAuthEntryPath(pathname: string): boolean {
+  return AUTH_ENTRY_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
+
 // Mock mode: original bb-token logic
 function handleMockAuth(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
@@ -51,7 +82,7 @@ function handleMockAuth(request: NextRequest): NextResponse {
 
   if (isPublic && token) {
     // Never block these pages — user may be switching accounts or browsing
-    if (pathname === '/' || pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil' || pathname === '/completar-cadastro' || pathname.startsWith('/convite') || pathname.startsWith('/comecar')) {
+    if (isAuthEntryPath(pathname) || pathname === '/completar-cadastro') {
       return NextResponse.next();
     }
     const payload = decodeTokenPayload(token);
@@ -124,7 +155,7 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
   // Authenticated user on public page → redirect to dashboard
   // EXCEPT these pages — always allow (user switching accounts or browsing)
   if (isPublic && user) {
-    if (pathname === '/' || pathname === '/login' || pathname.startsWith('/cadastro') || pathname === '/selecionar-perfil' || pathname === '/completar-cadastro' || pathname.startsWith('/convite') || pathname.startsWith('/comecar')) {
+    if (isAuthEntryPath(pathname) || pathname === '/completar-cadastro') {
       return response;
     }
     const activeRole = request.cookies.get('bb-active-role')?.value;

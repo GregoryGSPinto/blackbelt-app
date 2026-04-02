@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ownerName, academyName e email são obrigatórios' }, { status: 400 });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.blackbelt.com';
     const template = welcomeEmail({
       ownerName,
       academyName,

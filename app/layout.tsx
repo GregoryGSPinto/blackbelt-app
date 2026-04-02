@@ -6,8 +6,11 @@ import { BetaWidgets } from '@/components/beta/BetaWidgets';
 import { OfflineNotice } from '@/components/shared/OfflineNotice';
 import { AccentColorInit } from '@/components/AccentColorInit';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { getAppUrl } from '@/lib/config/domains';
 import { getThemeInitScript } from '@/lib/utils/theme';
 import '@/styles/globals.css';
+
+const appUrl = getAppUrl();
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -46,33 +49,33 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'BlackBelt — Gestao de Academias de Artes Marciais',
+    default: 'BlackBelt App',
     template: '%s | BlackBelt',
   },
-  description: 'Sistema completo de gestao para academias de BJJ, Judo, Karate e MMA. Check-in, turmas, cobrancas, presenca e comunicacao.',
+  description: 'Produto autenticado BlackBelt para operação de academias, APIs do produto e companion mobile.',
   keywords: ['academia', 'artes marciais', 'bjj', 'jiu jitsu', 'judo', 'karate', 'mma', 'check-in', 'gestao', 'turmas', 'presenca'],
   authors: [{ name: 'BlackBelt' }],
   creator: 'BlackBelt',
   publisher: 'BlackBelt',
-  metadataBase: new URL('https://blackbeltv2.vercel.app'),
+  metadataBase: new URL(appUrl),
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://blackbeltv2.vercel.app',
-    title: 'BlackBelt — Gestao de Academias de Artes Marciais',
-    description: 'Sistema completo de gestao para academias de BJJ, Judo, Karate e MMA.',
-    siteName: 'BlackBelt',
+    url: appUrl,
+    title: 'BlackBelt App',
+    description: 'Produto autenticado BlackBelt para operação web, APIs internas e mobile companion.',
+    siteName: 'BlackBelt App',
     images: [{ url: '/og-image.svg', width: 1200, height: 630, alt: 'BlackBelt' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BlackBelt — Gestao de Academias de Artes Marciais',
-    description: 'Sistema completo de gestao para academias de artes marciais.',
+    title: 'BlackBelt App',
+    description: 'Produto autenticado BlackBelt para operação web e mobile.',
     images: ['/og-image.svg'],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
   manifest: '/manifest.json',
   icons: {
