@@ -16,7 +16,9 @@ import {
   getInviteStats,
 } from '@/lib/api/invite-tokens.service';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { translateError } from '@/lib/utils/error-translator';
+import { logServiceError } from '@/lib/api/errors';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 // ── Constants ───────────────────────────────────────────────────────────
@@ -90,6 +92,7 @@ export default function ConvitesPage() {
   const [tokens, setTokens] = useState<InviteToken[]>([]);
   const [stats, setStats] = useState<InviteStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('todos');
   const [search, setSearch] = useState('');
 
@@ -124,12 +127,17 @@ export default function ConvitesPage() {
     }
 
     try {
+      setLoading(true);
+      setLoadError(null);
       const [tokenList, statsData] = await Promise.all([
         listInviteTokens(academyId),
         getInviteStats(academyId),
       ]);
       setTokens(tokenList);
       setStats(statsData);
+    } catch (err) {
+      logServiceError(err, 'convites.page');
+      setLoadError('Nao foi possivel carregar os convites.');
     } finally {
       setLoading(false);
     }
@@ -163,9 +171,13 @@ export default function ConvitesPage() {
   // ── Actions ────────────────────────────────────────────────────────
 
   async function handleCopy(token: string) {
-    const url = getInviteUrl(token);
-    await navigator.clipboard.writeText(url);
-    toast('Link copiado!', 'success');
+    try {
+      const url = getInviteUrl(token);
+      await navigator.clipboard.writeText(url);
+      toast('Link copiado!', 'success');
+    } catch {
+      toast('Nao foi possivel copiar o link.', 'error');
+    }
   }
 
   function resetCreateForm() {
@@ -267,6 +279,18 @@ export default function ConvitesPage() {
             <Skeleton key={i} variant="card" className="h-32" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="p-6">
+        <ErrorState
+          title="Convites indisponiveis"
+          description={loadError}
+          onRetry={loadData}
+        />
       </div>
     );
   }
