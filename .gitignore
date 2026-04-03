@@ -81,3 +81,6 @@ blackbelt-v2-roadmap-*.pdf
 # misc
 *.pem
 .vercel
+
+# Test results (generated)
+test-results/
