@@ -35,7 +35,7 @@ Data: 2026-03-29
 | 2.4 | 64-bit architecture | ✅ | Capacitor 8 default. Info.plist tem UIRequiredDeviceCapabilities armv7 — considerar atualizar para arm64 (armv7 foi removido desde iOS 11). |
 | 2.5 | IPv6-only funcional | ⚠️ | Capacitor usa WKWebView (ok). Supabase CDN suporta IPv6. Mas sem teste real em rede IPv6-only. |
 | 2.6 | Testado em dispositivo real | ❌ | Sem DEVELOPMENT_TEAM, impossível ter rodado em device. Nenhuma evidência de teste em dispositivo. |
-| 2.7 | Sem crashes/bugs óbvios | ❌ | Impossível confirmar — nunca buildou em device real. Capacitor config aponta server.url para https://blackbeltv2.vercel.app (remote), não bundle local. |
+| 2.7 | Sem crashes/bugs óbvios | ❌ | Impossível confirmar — nunca buildou em device real. Capacitor config aponta server.url para https://blackbelts.com.br (remote), não bundle local. |
 | 2.8 | iPhone app roda no iPad | ⚠️ | TARGETED_DEVICE_FAMILY = "1,2" (iPhone + iPad). UISupportedInterfaceOrientations~ipad configurado. Mas sem teste real. |
 
 ### Android
@@ -52,7 +52,7 @@ Data: 2026-03-29
 
 | # | Problema | Severidade | Notas |
 |---|----------|------------|-------|
-| 2.15 | App é WebView remoto, não bundle local | ⚠️ RISCO ALTO | `capacitor.config.ts` tem `server.url: 'https://blackbeltv2.vercel.app'` — app carrega tudo do Vercel, sem conteúdo local. Apple pode rejeitar por ser "wrapper de website". O script `prepare-capacitor-web.mjs` gera apenas um HTML de redirecionamento no `out/`. |
+| 2.15 | App é WebView remoto, não bundle local | ⚠️ RISCO ALTO | `capacitor.config.ts` tem `server.url: 'https://blackbelts.com.br'` — app carrega tudo do Vercel, sem conteúdo local. Apple pode rejeitar por ser "wrapper de website". O script `prepare-capacitor-web.mjs` gera apenas um HTML de redirecionamento no `out/`. |
 | 2.16 | Sem google-services.json / GoogleService-Info.plist | ❌ | Push notifications (@capacitor/push-notifications) não funcionam sem Firebase config files. |
 | 2.17 | Ícones são default Capacitor | ⚠️ | Ícones Android parecem ser os defaults do Capacitor (tamanhos pequenos: 2-15KB). Ícone iOS tem 110KB/1024x1024 — pode ser customizado. Verificar se são os assets reais da marca. |
 | 2.18 | Info.plist sem NSCameraUsageDescription | ❌ | @capacitor/camera está nas dependências mas Info.plist não tem NSCameraUsageDescription. App será rejeitado pela Apple se camera for invocada. |
@@ -106,6 +106,6 @@ Data: 2026-03-29
 **O projeto NÃO está pronto para submissão em nenhuma das lojas.** Os dois bloqueadores principais são:
 
 1. **Contas de desenvolvedor inexistentes** — nenhuma das duas contas (Apple/Google) foi criada. Sem elas, nada pode ser submetido.
-2. **Arquitetura de WebView remoto** — o app é essencialmente um wrapper que redireciona para `blackbeltv2.vercel.app`. Apple tem histórico de rejeitar esse tipo de app sob a Guideline 4.2 ("Minimum Functionality"). O app precisa ter conteúdo local significativo ou funcionalidade nativa que justifique sua existência como app nativo, além do que um bookmark na home screen ofereceria.
+2. **Arquitetura de WebView remoto** — o app é essencialmente um wrapper que redireciona para `blackbelts.com.br`. Apple tem histórico de rejeitar esse tipo de app sob a Guideline 4.2 ("Minimum Functionality"). O app precisa ter conteúdo local significativo ou funcionalidade nativa que justifique sua existência como app nativo, além do que um bookmark na home screen ofereceria.
 
 **Estimativa para ficar pronto:** 2-4 semanas (considerando tempo de aprovação de contas + refatoração da arquitetura WebView).

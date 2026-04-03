@@ -39,7 +39,7 @@ async function checkEmailExists(email: string): Promise<boolean> {
     // Simulate network delay in mock mode
     await new Promise((r) => setTimeout(r, 600));
     // In mock mode, treat these as "taken" for testing
-    const takenEmails = ['admin@blackbeltv2.vercel.app', 'teste@teste.com'];
+    const takenEmails = ['admin@blackbelts.com.br', 'teste@teste.com'];
     return takenEmails.includes(email.toLowerCase());
   }
 

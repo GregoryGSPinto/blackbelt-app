@@ -34,7 +34,7 @@ const CARDS = [
 const CODE_SNIPPET = `import { BlackBeltSDK } from '@/lib/sdk/blackbelt-sdk';
 
 const sdk = new BlackBeltSDK({
-  baseUrl: 'https://blackbeltv2.vercel.app',
+  baseUrl: 'https://blackbelts.com.br',
   apiKey: 'bb_live_xxxxx',
 });
 

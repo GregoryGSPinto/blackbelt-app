@@ -277,7 +277,7 @@ export default function AdminPlanoPage() {
         >
           Para gerenciar sua assinatura, acesse{' '}
           <span className="font-semibold" style={{ color: 'var(--bb-brand)' }}>
-            blackbeltv2.vercel.app
+            blackbelts.com.br
           </span>{' '}
           no navegador.
         </p>

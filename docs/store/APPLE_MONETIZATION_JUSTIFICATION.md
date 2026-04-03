@@ -37,7 +37,7 @@ BlackBelt is a multi-tenant SaaS platform for martial arts academy management.
 ### App Store Connect Review Notes Template:
 "BlackBelt is a B2B SaaS platform for martial arts academy management,
 per Guideline 3.1.3(a). Subscriptions are purchased by academy owners
-through our website (blackbeltv2.vercel.app). The app does not display
+through our website (blackbelts.com.br). The app does not display
 pricing or offer in-app purchases.
 Demo: roberto@guerreiros.com / BlackBelt@2026 (Admin role)"
 

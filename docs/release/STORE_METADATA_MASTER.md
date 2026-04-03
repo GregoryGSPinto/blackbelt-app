@@ -20,11 +20,11 @@ Base: código validado nesta sessão
 
 | Finalidade | URL |
 |---|---|
-| App web / runtime atual | `https://blackbeltv2.vercel.app` |
-| Privacy | `https://blackbeltv2.vercel.app/privacidade` |
-| Terms | `https://blackbeltv2.vercel.app/termos` |
-| Support | `https://blackbeltv2.vercel.app/suporte` |
-| Delete account | `https://blackbeltv2.vercel.app/excluir-conta` |
+| App web / runtime atual | `https://blackbelts.com.br` |
+| Privacy | `https://blackbelts.com.br/privacidade` |
+| Terms | `https://blackbelts.com.br/termos` |
+| Support | `https://blackbelts.com.br/suporte` |
+| Delete account | `https://blackbelts.com.br/excluir-conta` |
 
 ## Verdade do produto para loja
 
@@ -61,7 +61,7 @@ Review Notes:
 ```text
 BlackBelt is a B2B SaaS app for martial arts academy management. Login is required because all data is academy-specific and role-based.
 
-Important runtime note: the current validated mobile runtime connects to our hosted application backend at https://blackbeltv2.vercel.app.
+Important runtime note: the current validated mobile runtime connects to our hosted application backend at https://blackbelts.com.br.
 
 Review account:
 Email: REPLACE_WITH_REAL_REVIEW_EMAIL
@@ -75,7 +75,7 @@ Business model:
 - The app does not sell digital goods to end users inside the app.
 
 Account deletion:
-- Users can request account deletion inside the app or through https://blackbeltv2.vercel.app/excluir-conta.
+- Users can request account deletion inside the app or through https://blackbelts.com.br/excluir-conta.
 - The request is registered immediately and final deletion occurs within up to 30 days, except where legal retention applies.
 ```
 

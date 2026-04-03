@@ -174,10 +174,10 @@ When filling the Google Play Console Data Safety form:
 
 1. **"Does your app collect or share any of the required user data types?"** — Select **Yes**
 2. **"Is all of the user data collected by your app encrypted in transit?"** — Select **Yes**
-3. **"Do you provide a way for users to request that their data is deleted?"** — Select **Yes** and provide URL: `https://blackbeltv2.vercel.app/excluir-conta`
+3. **"Do you provide a way for users to request that their data is deleted?"** — Select **Yes** and provide URL: `https://blackbelts.com.br/excluir-conta`
 4. Go through each data type category above and fill in as documented
 5. For each "shared" data type, specify the third party and purpose from Section 3
-6. **Privacy Policy URL:** `https://blackbeltv2.vercel.app/privacidade`
+6. **Privacy Policy URL:** `https://blackbelts.com.br/privacidade`
 
 ---
 

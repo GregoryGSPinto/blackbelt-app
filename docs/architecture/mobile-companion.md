@@ -2,13 +2,13 @@
 
 ## Papel do mobile
 
-iOS e Android são companions operacionais do produto autenticado BlackBelt. Eles representam o mesmo sistema que roda em `blackbeltv2.vercel.app`, não um site comercial embrulhado.
+iOS e Android são companions operacionais do produto autenticado BlackBelt. Eles representam o mesmo sistema que roda em `blackbelts.com.br`, não um site comercial embrulhado.
 
 ## Relação com web e API
 
-- runtime do app: `blackbeltv2.vercel.app`
-- backend: `blackbeltv2.vercel.app/api`
-- marketing: `blackbeltv2.vercel.app`
+- runtime do app: `blackbelts.com.br`
+- backend: `blackbelts.com.br/api`
+- marketing: `blackbelts.com.br`
 
 O bundle mobile deve depender apenas do runtime do app e das páginas públicas operacionais necessárias para stores, auth e suporte.
 

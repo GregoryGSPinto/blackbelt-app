@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send payment confirmed email (fire-and-forget)
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbelts.com.br';
       const internalToken = process.env.ASAAS_WEBHOOK_TOKEN ?? '';
       fetch(`${appUrl}/api/emails/payment-confirmed`, {
         method: 'POST',

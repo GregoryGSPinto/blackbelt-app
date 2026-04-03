@@ -193,8 +193,8 @@ No Play Console → App Content → Data Safety:
 | Fotos (avatar) | Sim (opcional) | Nao | Personalizacao |
 
 - **Dados criptografados em transito?** Sim (HTTPS only)
-- **Mecanismo de exclusao de dados?** Sim → https://blackbeltv2.vercel.app/excluir-conta
-- **Politica de privacidade:** https://blackbeltv2.vercel.app/privacidade
+- **Mecanismo de exclusao de dados?** Sim → https://blackbelts.com.br/excluir-conta
+- **Politica de privacidade:** https://blackbelts.com.br/privacidade
 
 Guia detalhado: `docs/store/GOOGLE_DATA_SAFETY_FORM.md`
 
@@ -318,9 +318,9 @@ Copiar de `docs/store/STORE_METADATA.md`:
 | **Subtitle** (≤30 chars) | Gestao de Academias |
 | **Description** | Copiar secao PT-BR do STORE_METADATA.md |
 | **Keywords** (≤100 chars) | academia,artes marciais,bjj,jiu-jitsu,gestao,alunos,aulas,financeiro |
-| **Support URL** | https://blackbeltv2.vercel.app/suporte |
-| **Marketing URL** | https://blackbeltv2.vercel.app |
-| **Privacy Policy URL** | https://blackbeltv2.vercel.app/privacidade |
+| **Support URL** | https://blackbelts.com.br/suporte |
+| **Marketing URL** | https://blackbelts.com.br |
+| **Privacy Policy URL** | https://blackbelts.com.br/privacidade |
 | **Category** | Business |
 | **Secondary Category** | Education |
 

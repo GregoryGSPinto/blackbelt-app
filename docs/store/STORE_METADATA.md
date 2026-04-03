@@ -9,12 +9,12 @@
 - Build: 1
 
 ## URLs publicas
-- App web: https://blackbeltv2.vercel.app
-- Privacy: https://blackbeltv2.vercel.app/privacidade
-- Terms: https://blackbeltv2.vercel.app/termos
-- Support: https://blackbeltv2.vercel.app/contato
-- Delete account: https://blackbeltv2.vercel.app/excluir-conta
-- Contact: https://blackbeltv2.vercel.app/contato
+- App web: https://blackbelts.com.br
+- Privacy: https://blackbelts.com.br/privacidade
+- Terms: https://blackbelts.com.br/termos
+- Support: https://blackbelts.com.br/contato
+- Delete account: https://blackbelts.com.br/excluir-conta
+- Contact: https://blackbelts.com.br/contato
 
 ## Apple App Store
 
@@ -66,13 +66,13 @@ Planos a partir de R$ 79/mes. Teste gratis por 7 dias com acesso completo.
 ### Keywords (100 chars max):
 academia,artes marciais,bjj,jiu jitsu,judo,karate,mma,gestao,check-in,presenca,faixa,graduacao
 
-### Support URL: https://blackbeltv2.vercel.app/contato
-### Marketing URL: https://blackbeltv2.vercel.app
-### Privacy Policy URL: https://blackbeltv2.vercel.app/privacidade
+### Support URL: https://blackbelts.com.br/contato
+### Marketing URL: https://blackbelts.com.br
+### Privacy Policy URL: https://blackbelts.com.br/privacidade
 
 ### App Review Notes:
 BlackBelt is a B2B SaaS platform for martial arts academy management, per Guideline 3.1.3(a).
-Subscriptions are purchased by academy owners through our website (blackbeltv2.vercel.app).
+Subscriptions are purchased by academy owners through our website (blackbelts.com.br).
 The app does not display pricing or offer in-app purchases.
 
 Demo account:
@@ -101,9 +101,9 @@ Gestao completa para academias de artes marciais. Check-in, turmas e cobrancas.
 Usar mesma descricao do Apple com adaptacoes regionais.
 
 ### Contact Email: gregoryguimaraes12@gmail.com
-### Contact Website: https://blackbeltv2.vercel.app
+### Contact Website: https://blackbelts.com.br
 
-### Privacy Policy URL: https://blackbeltv2.vercel.app/privacidade
+### Privacy Policy URL: https://blackbelts.com.br/privacidade
 
 ### Data Safety:
 - Collects: Name, email, phone, payment info (via Asaas), usage data

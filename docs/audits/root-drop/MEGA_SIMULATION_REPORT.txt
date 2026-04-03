@@ -1,7 +1,7 @@
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║     BLACKBELT v2 — MEGA SIMULAÇÃO REPORT (COMPLETO)                 ║
 ║     Data: 2026-03-25                                                ║
-║     Target: https://blackbeltv2.vercel.app                          ║
+║     Target: https://blackbelts.com.br                          ║
 ║     Tool: Playwright + Chromium                                     ║
 ╠═══════════════════════════════════════════════════════════════════════╣
 ║                                                                     ║

@@ -19,9 +19,9 @@
 
 ## Deployment / Domain Impact
 
-- [ ] `blackbeltv2.vercel.app`
-- [ ] `blackbeltv2.vercel.app` (app)
-- [ ] `blackbeltv2.vercel.app/api` (api)
+- [ ] `blackbelts.com.br`
+- [ ] `blackbelts.com.br` (app)
+- [ ] `blackbelts.com.br/api` (api)
 - [ ] Internal/private operations only
 
 ## Follow-ups

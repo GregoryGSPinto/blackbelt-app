@@ -11,7 +11,7 @@ Configure no **Vercel Dashboard → Settings → Environment Variables**.
 | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_...` | Supabase → Settings → API → service_role |
 | `SUPABASE_PROJECT_REF` | `tdplmmodmumryzdosmpv` | URL do projeto |
 | `NEXT_PUBLIC_USE_MOCK` | `false` | Sempre false em produção |
-| `NEXT_PUBLIC_APP_URL` | `https://blackbeltv2.vercel.app` | URL do deploy |
+| `NEXT_PUBLIC_APP_URL` | `https://blackbelts.com.br` | URL do deploy |
 
 ## Pagamento (quando ativar)
 

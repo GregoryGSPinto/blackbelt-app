@@ -16,7 +16,7 @@ export function monthlyReportEmail(data: {
 <tr><td style="padding:12px;border:1px solid #eee;font-weight:600">Avaliação Geral</td><td style="padding:12px;border:1px solid #eee">${data.avaliacao}</td></tr>
 </table>
 <p>Para mais detalhes, acesse o app:</p>`,
-    'https://blackbeltv2.vercel.app/parent',
+    'https://blackbelts.com.br/parent',
     'Ver Detalhes',
   );
 }

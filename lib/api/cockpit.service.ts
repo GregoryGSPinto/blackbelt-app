@@ -316,7 +316,7 @@ const MOCK_ADRS: ArchitectureDecision[] = [
     status: 'accepted', context: 'O cockpit de gestão do produto poderia ser um app separado ou um módulo dentro do BlackBelt.',
     options_considered: [
       { option: 'Módulo interno com perfil SuperAdmin', pros: 'Mesmo deploy, mesma base, sem infra extra', cons: 'Aumenta bundle se não usar code-splitting' },
-      { option: 'App separado (cockpit.blackbeltv2.vercel.app)', pros: 'Isolamento total, deploy independente', cons: 'Duas bases de código, duplicação de auth' },
+      { option: 'App separado (cockpit.blackbelts.com.br)', pros: 'Isolamento total, deploy independente', cons: 'Duas bases de código, duplicação de auth' },
     ],
     decision: 'Módulo interno acessado pelo perfil SuperAdmin', consequences: 'Code-splitting obrigatório. Rotas /cockpit/* protegidas por middleware.',
     created_at: '2026-01-10T10:00:00Z',

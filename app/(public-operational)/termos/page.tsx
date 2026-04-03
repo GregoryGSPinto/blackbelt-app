@@ -565,7 +565,7 @@ export default function TermosPage() {
                       className="underline"
                       style={{ color: 'var(--bb-brand, #ef4444)' }}
                     >
-                      blackbeltv2.vercel.app/status
+                      blackbelts.com.br/status
                     </a>
                     .
                   </p>
@@ -736,7 +736,7 @@ export default function TermosPage() {
                     <li><strong>Email:</strong> {supportEmail}</li>
                     <li><strong>WhatsApp:</strong> +55 (31) 99679-3625</li>
                     <li><strong>Sede:</strong> Vespasiano - MG, Brasil</li>
-                    <li><strong>App:</strong> https://blackbeltv2.vercel.app</li>
+                    <li><strong>App:</strong> https://blackbelts.com.br</li>
                   </ul>
                 </div>
               </div>
@@ -925,7 +925,7 @@ export default function TermosPage() {
                 className="text-xs"
                 style={{ color: 'var(--bb-ink-60, #999)' }}
               >
-                Documento mantido por Gregory Guimaraes Pinto. A versao mais atualizada deste documento pode ser encontrada em blackbeltv2.vercel.app/termos.
+                Documento mantido por Gregory Guimaraes Pinto. A versao mais atualizada deste documento pode ser encontrada em blackbelts.com.br/termos.
               </p>
             </div>
           </article>

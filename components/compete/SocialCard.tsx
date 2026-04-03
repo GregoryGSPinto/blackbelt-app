@@ -120,7 +120,7 @@ const SocialCard = forwardRef<HTMLDivElement, SocialCardProps>(
               </span>
             </div>
             <span className="text-[10px]" style={{ color: 'var(--bb-ink-30)' }}>
-              blackbeltv2.vercel.app
+              blackbelts.com.br
             </span>
           </div>
         </div>

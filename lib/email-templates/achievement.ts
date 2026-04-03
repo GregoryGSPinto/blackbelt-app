@@ -10,7 +10,7 @@ export function achievementEmail(data: { nome: string; conquista: string; descri
 <p style="font-size:14px;color:#666;margin:0">${data.descricao}</p>
 </div>
 <p>Continue treinando para desbloquear mais conquistas!</p>`,
-    'https://blackbeltv2.vercel.app/dashboard/conquistas',
+    'https://blackbelts.com.br/dashboard/conquistas',
     'Ver Minhas Conquistas',
   );
 }

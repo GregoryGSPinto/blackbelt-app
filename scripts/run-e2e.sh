@@ -2,7 +2,7 @@
 echo "BLACKBELT v2 — TESTES E2E"
 echo "========================="
 echo ""
-echo "Base URL: ${E2E_BASE_URL:-https://blackbeltv2.vercel.app}"
+echo "Base URL: ${E2E_BASE_URL:-https://blackbelts.com.br}"
 echo ""
 
 # Instalar browsers se necessario

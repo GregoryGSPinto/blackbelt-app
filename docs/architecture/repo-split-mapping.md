@@ -9,7 +9,7 @@
 | `app/(public-operational)/contato` | `blackbelt-site/app/contato` | manter endpoint atual até extração do formulário |
 | `app/(public-operational)/privacidade` | `blackbelt-site/app/privacy` | manter cópia até publicação externa |
 | `app/(public-operational)/termos` | `blackbelt-site/app/terms` | manter cópia até publicação externa |
-| `app/(public-operational)/suporte` e `app/(public-operational)/ajuda` | `blackbelt-site/app/support` e futura central `blackbeltv2.vercel.app/ajuda` | linkar help center externo quando existir |
+| `app/(public-operational)/suporte` e `app/(public-operational)/ajuda` | `blackbelt-site/app/support` e futura central `blackbelts.com.br/ajuda` | linkar help center externo quando existir |
 | `components/landing/*` | `blackbelt-site/components/marketing/*` | shims locais durante a extração |
 
 ## blackbelt-app

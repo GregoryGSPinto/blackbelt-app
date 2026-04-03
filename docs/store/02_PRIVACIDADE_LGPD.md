@@ -9,7 +9,7 @@ Data: 2026-03-29
 | # | Requisito | Status | Notas |
 |---|-----------|--------|-------|
 | 3.1 | Privacy Policy existe | ✅ | `app/(public)/privacidade/page.tsx` — 12 secoes completas (Quem Somos, Dados Coletados, Como Usamos, Menores, Compartilhamento, Dados Financeiros, Compartilhamento com Terceiros, Armazenamento/Seguranca, Direitos LGPD, Retencao, Cookies, Alteracoes) |
-| 3.2 | URL publica funcional | ✅ | `/privacidade` via `(public)` layout — nao exige login. URL configurada em `lib/config/legal.ts` → `https://blackbeltv2.vercel.app/privacidade` |
+| 3.2 | URL publica funcional | ✅ | `/privacidade` via `(public)` layout — nao exige login. URL configurada em `lib/config/legal.ts` → `https://blackbelts.com.br/privacidade` |
 | 3.3 | Conteudo adequado (dados coletados, uso, compartilhamento) | ✅ | Cobre: dados de identificacao pessoal, dados de uso, dados financeiros, dados tecnicos, bases legais LGPD (Art. 7), compartilhamento com terceiros nomeados (Asaas, Resend, Supabase, Vercel, PostHog), politica de retencao com tabela de prazos |
 | 3.4 | Atualizada recentemente | ✅ | Footer indica "Gregory Guimaraes Pinto em conformidade com a LGPD". Pagina de privacidade-menores indica "Ultima atualizacao: marco de 2026" |
 | 3.5 | Disponivel em PT-BR | ✅ | Todo o conteudo em portugues brasileiro |

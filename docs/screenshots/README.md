@@ -24,7 +24,7 @@
 8. Campeonato (bracket)
 
 ## Como gerar
-1. Acesse blackbeltv2.vercel.app no simulador iOS / Chrome DevTools
+1. Acesse blackbelts.com.br no simulador iOS / Chrome DevTools
 2. Faca login com cada perfil
 3. Tire screenshot de cada tela
 4. Recomendado: usar ferramenta como https://screenshots.pro ou https://appscreens.com

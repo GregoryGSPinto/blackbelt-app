@@ -532,12 +532,12 @@ export default function AdminPagamentoConfigPage() {
               }}
             >
               <span className="truncate flex-1">
-                https://blackbeltv2.vercel.app/api/webhooks/payment
+                https://blackbelts.com.br/api/webhooks/payment
               </span>
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText('https://blackbeltv2.vercel.app/api/webhooks/payment');
+                  navigator.clipboard.writeText('https://blackbelts.com.br/api/webhooks/payment');
                   toast('URL copiada!', 'success');
                 }}
                 className="flex-shrink-0 text-xs font-medium transition-colors"

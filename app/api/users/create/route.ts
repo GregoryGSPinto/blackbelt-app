@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
         type: 'magiclink',
         email,
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://blackbeltv2.vercel.app'}/selecionar-perfil`,
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://blackbelts.com.br'}/selecionar-perfil`,
         },
       });
 

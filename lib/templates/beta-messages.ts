@@ -15,7 +15,7 @@ O que eu peco:
 - Use o sistema normalmente por 30 dias
 - Me de feedback honesto (tem um botaozinho dentro do app)
 
-Quer participar? E so acessar: blackbeltv2.vercel.app/beta-invite
+Quer participar? E so acessar: blackbelts.com.br/beta-invite
 
 Qualquer duvida, me chama aqui!`,
 

@@ -24,14 +24,14 @@ export default function ReferralPage() {
 
   function copyLink() {
     if (!stats) return;
-    navigator.clipboard.writeText(`https://blackbeltv2.vercel.app/r/${stats.code}`);
+    navigator.clipboard.writeText(`https://blackbelts.com.br/r/${stats.code}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
 
   function shareWhatsApp() {
     if (!stats) return;
-    const text = `Conheça o BlackBelt! A melhor plataforma para gestão de academias. Cadastre-se pelo meu link e ganhe benefícios: https://blackbeltv2.vercel.app/r/${stats.code}`;
+    const text = `Conheça o BlackBelt! A melhor plataforma para gestão de academias. Cadastre-se pelo meu link e ganhe benefícios: https://blackbelts.com.br/r/${stats.code}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 

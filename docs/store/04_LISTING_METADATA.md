@@ -12,5 +12,5 @@ Regras:
 
 - nao usar credenciais fake em metadata
 - nao usar telefone placeholder
-- usar `https://blackbeltv2.vercel.app/suporte` como Support URL
+- usar `https://blackbelts.com.br/suporte` como Support URL
 - manter descricoes fieis ao produto validado

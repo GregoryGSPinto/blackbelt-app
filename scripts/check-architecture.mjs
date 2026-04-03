@@ -173,7 +173,7 @@ for (const route of marketingRoutes) {
   }
   const content = readFileSync(file, 'utf8');
   if (!content.includes('getMarketingRedirect') || !content.includes('redirect(')) {
-    failures.push(`Marketing route is not delegating to blackbeltv2.vercel.app: ${route}`);
+    failures.push(`Marketing route is not delegating to blackbelts.com.br: ${route}`);
   }
 }
 

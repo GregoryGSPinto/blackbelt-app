@@ -14,7 +14,7 @@ import { translateError } from '@/lib/utils/error-translator';
 // ── Constants ────────────────────────────────────────────────────────
 
 const ACADEMY_ID = 'academy-bb-001';
-const BASE_URL = 'blackbeltv2.vercel.app';
+const BASE_URL = 'blackbelts.com.br';
 
 const cardStyle: CSSProperties = {
   background: 'var(--bb-depth-3)',

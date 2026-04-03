@@ -2,7 +2,7 @@
 
 Scaffold do repositório público comercial do BlackBelt.
 
-Este starter existe para manter a fronteira correta com `blackbelt-app`: o app autenticado e o companion mobile permanecem no núcleo operacional, enquanto aquisição, storytelling e conteúdo institucional vivem em `blackbeltv2.vercel.app`.
+Este starter existe para manter a fronteira correta com `blackbelt-app`: o app autenticado e o companion mobile permanecem no núcleo operacional, enquanto aquisição, storytelling e conteúdo institucional vivem em `blackbelts.com.br`.
 
 ## Responsabilidades
 
@@ -41,10 +41,10 @@ blackbelt-site/
 
 ## Deploy
 
-- produção: `blackbeltv2.vercel.app`
+- produção: `blackbelts.com.br`
 - preview: Vercel
-- superfície alvo: `blackbeltv2.vercel.app`
-- o app autenticado fica em `app.blackbeltv2.vercel.app`
+- superfície alvo: `blackbelts.com.br`
+- o app autenticado fica em `app.blackbelts.com.br`
 - redirects temporários no app podem apontar para este domínio durante a extração
 
 ## Passos Remotos

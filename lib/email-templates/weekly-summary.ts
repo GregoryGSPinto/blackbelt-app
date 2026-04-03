@@ -65,7 +65,7 @@ export function weeklySummaryEmail(data: WeeklySummaryData): string {
 </div>
 
 <p style="font-size:13px;color:#666">Este resumo e gerado automaticamente toda segunda-feira.</p>`,
-    'https://blackbeltv2.vercel.app/admin',
+    'https://blackbelts.com.br/admin',
     'Ver Dashboard Completo',
   );
 }

@@ -30,5 +30,31 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "blackbeltv2.vercel.app" }],
+      "destination": "https://blackbelts.com.br",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "blackbeltv2.vercel.app" }],
+      "destination": "https://blackbelts.com.br/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.blackbelts.com.br" }],
+      "destination": "https://blackbelts.com.br",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.blackbelts.com.br" }],
+      "destination": "https://blackbelts.com.br/:path*",
+      "permanent": true
+    }
   ]
 }

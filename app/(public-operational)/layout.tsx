@@ -210,7 +210,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
                 Institucional
               </h4>
               <Link href={siteUrl} target="_blank" rel="noreferrer" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                blackbeltv2.vercel.app
+                blackbelts.com.br
               </Link>
             </div>
           </div>

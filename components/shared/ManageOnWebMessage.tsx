@@ -25,7 +25,7 @@ export function ManageOnWebMessage({ feature = 'seu plano' }: { feature?: string
         className="text-sm font-medium"
         style={{ color: 'var(--bb-brand)' }}
       >
-        blackbeltv2.vercel.app
+        blackbelts.com.br
       </p>
     </div>
   );

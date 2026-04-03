@@ -12,7 +12,7 @@ export function welcomeEmail(data: { nome: string; academia: string }): string {
 <li>Conquistar badges e faixas</li>
 </ul>
 <p>Bons treinos!</p>`,
-    'https://blackbeltv2.vercel.app/dashboard',
+    'https://blackbelts.com.br/dashboard',
     'Acessar o App',
   );
 }

@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'https://blackbeltv2.vercel.app';
+const BASE_URL = process.env.BASE_URL || 'https://blackbelts.com.br';
 const LOGIN_EMAIL = 'roberto@guerreiros.com';
 const LOGIN_PASS = 'BlackBelt@2026';
 

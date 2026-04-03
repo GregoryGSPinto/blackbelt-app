@@ -63,7 +63,7 @@ supabase link --project-ref SEU_PROJECT_REF
 
 ## 5. Testar no Browser
 
-- https://blackbeltv2.vercel.app/login
+- https://blackbelts.com.br/login
 - Login: patricia@email.com / BlackBelt@2026 -> Central da Familia
 - Login: admin@guerreiros.com / BlackBelt@2026 -> Pendencias + Timeline + Config Teen
 

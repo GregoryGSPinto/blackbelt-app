@@ -61,7 +61,7 @@ supabase functions deploy send-reminders
 
 Adicionar no Vercel Dashboard → Settings → Environment Variables:
 - `RESEND_API_KEY` = (criar em resend.com)
-- `RESEND_DOMAIN` = blackbeltv2.vercel.app (ou o dominio que comprar)
+- `RESEND_DOMAIN` = blackbelts.com.br (ou o dominio que comprar)
 - `ASAAS_API_KEY` = (criar em asaas.com → sandbox primeiro)
 - `ASAAS_SANDBOX` = true (trocar pra false quando for producao)
 - `ASAAS_WEBHOOK_TOKEN` = (gerar token unico pra validar webhooks)
@@ -70,7 +70,7 @@ Adicionar no Vercel Dashboard → Settings → Environment Variables:
 
 No dashboard do Asaas:
 1. Va em Integracoes → Webhooks
-2. URL: `https://blackbeltv2.vercel.app/api/webhooks/asaas?access_token=SEU_TOKEN`
+2. URL: `https://blackbelts.com.br/api/webhooks/asaas?access_token=SEU_TOKEN`
 3. Eventos: PAYMENT_CONFIRMED, PAYMENT_RECEIVED, PAYMENT_OVERDUE, PAYMENT_REFUNDED
 4. Salvar
 

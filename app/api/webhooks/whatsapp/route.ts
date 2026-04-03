@@ -4,8 +4,8 @@ import { logger } from '@/lib/monitoring/logger';
 
 const COMMAND_RESPONSES: Record<string, string> = {
   '/presenca': 'Sua presença de hoje foi registrada! Continue assim.',
-  '/horario': 'Confira seus horários no app: https://blackbeltv2.vercel.app/turmas',
-  '/fatura': 'Acesse suas faturas em: https://blackbeltv2.vercel.app/pagamentos',
+  '/horario': 'Confira seus horários no app: https://blackbelts.com.br/turmas',
+  '/fatura': 'Acesse suas faturas em: https://blackbelts.com.br/pagamentos',
 };
 
 /**

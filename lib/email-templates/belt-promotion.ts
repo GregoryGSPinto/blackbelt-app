@@ -61,7 +61,7 @@ Faixa ${newBeltName}
 </tr>
 </table>
 <p>Continue treinando com dedicacao! Cada faixa e uma conquista que reflete seu esforco e evolucao.</p>`,
-    'https://blackbeltv2.vercel.app/dashboard/progresso',
+    'https://blackbelts.com.br/dashboard/progresso',
     'Ver Meu Progresso',
   );
 }

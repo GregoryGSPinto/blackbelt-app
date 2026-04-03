@@ -127,7 +127,7 @@ const INFRA_SERVICES: InfraService[] = [
     icon: <Rocket className="h-5 w-5" />,
     status: 'Online',
     variant: 'success',
-    detail: 'blackbeltv2.vercel.app',
+    detail: 'blackbelts.com.br',
     tier: 'Hobby Tier',
     url: 'https://vercel.com/dashboard',
   },

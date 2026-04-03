@@ -15,7 +15,7 @@ interface EnvVar {
 
 const ENV_VARS: EnvVar[] = [
   // App
-  { key: 'NEXT_PUBLIC_APP_URL', required: true, description: 'Public app URL (e.g. https://blackbeltv2.vercel.app)', group: 'app' },
+  { key: 'NEXT_PUBLIC_APP_URL', required: true, description: 'Public app URL (e.g. https://blackbelts.com.br)', group: 'app' },
   { key: 'NEXT_PUBLIC_USE_MOCK', required: false, description: 'Set to "false" for production', group: 'app' },
 
   // Supabase

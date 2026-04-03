@@ -4,7 +4,7 @@ import { resolveDeepLinkPath } from '@/lib/native/deep-links';
 describe('resolveDeepLinkPath', () => {
   it('preserva query string e hash em URLs web', () => {
     expect(
-      resolveDeepLinkPath('https://blackbeltv2.vercel.app/redefinir-senha?source=email#access_token=abc'),
+      resolveDeepLinkPath('https://blackbelts.com.br/redefinir-senha?source=email#access_token=abc'),
     ).toBe('/redefinir-senha?source=email#access_token=abc');
   });
 

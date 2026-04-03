@@ -8,7 +8,7 @@
   - `NEXT_PUBLIC_USE_MOCK=false`
   - `NEXT_PUBLIC_VAPID_PUBLIC_KEY`
   - `FCM_SERVER_KEY`
-- [ ] Domínio customizado configurado (blackbeltv2.vercel.app)
+- [ ] Domínio customizado configurado (blackbelts.com.br)
 - [ ] SSL ativo (automático no Vercel)
 - [ ] DNS propagado e testado
 

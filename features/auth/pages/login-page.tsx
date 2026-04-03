@@ -42,7 +42,7 @@ function DashboardPreview() {
           className="ml-3 text-xs font-mono"
           style={{ color: 'var(--bb-ink-40)' }}
         >
-          blackbeltv2.vercel.app/dashboard
+          blackbelts.com.br/dashboard
         </span>
       </div>
 
@@ -561,7 +561,7 @@ export default function LoginPage() {
                 <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                   Cadastre-se pelo site:{' '}
                   <span className="font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-                    blackbeltv2.vercel.app
+                    blackbelts.com.br
                   </span>
                 </p>
               </div>

@@ -4,7 +4,7 @@
 > **App ID:** `app.blackbelt.v2`
 > **App Name:** BlackBelt
 > **Web Dir:** `out`
-> **Backend:** Supabase at `blackbeltv2.vercel.app`
+> **Backend:** Supabase at `blackbelts.com.br`
 
 ---
 
@@ -148,7 +148,7 @@ For releasing version 1.2.0:
 - [ ] All environment variables set for production (Supabase URL, anon key, etc.)
 - [ ] Sentry DSN configured for crash reporting
 - [ ] Push notification certificates configured (APNs for iOS, FCM for Android)
-- [ ] Deep links configured (`.well-known/apple-app-site-association` and `.well-known/assetlinks.json` deployed to `blackbeltv2.vercel.app`)
+- [ ] Deep links configured (`.well-known/apple-app-site-association` and `.well-known/assetlinks.json` deployed to `blackbelts.com.br`)
 - [ ] Store metadata and screenshots uploaded (App Store Connect / Google Play Console)
 - [ ] Privacy policy URL accessible and linked in store listings
 - [ ] Demo account created for Apple/Google reviewers (if the app requires login)

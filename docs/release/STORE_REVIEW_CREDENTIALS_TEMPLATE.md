@@ -7,7 +7,7 @@ Estado: `pendente externo`
 
 | Campo | Valor |
 |---|---|
-| Login URL | `https://blackbeltv2.vercel.app/login` |
+| Login URL | `https://blackbelts.com.br/login` |
 | Email | `REPLACE_WITH_REAL_REVIEW_EMAIL` |
 | Password | `REPLACE_WITH_REAL_REVIEW_PASSWORD` |
 | Role | `Academy admin` |
@@ -34,11 +34,11 @@ Password: REPLACE_WITH_REAL_REVIEW_PASSWORD
 
 This account has administrator access to a demo academy with students, classes, attendance, invoices, and content already populated.
 
-Account deletion can be requested inside the app or at https://blackbeltv2.vercel.app/excluir-conta. The request is registered immediately and final deletion occurs within up to 30 days.
+Account deletion can be requested inside the app or at https://blackbelts.com.br/excluir-conta. The request is registered immediately and final deletion occurs within up to 30 days.
 
-Public support is available at https://blackbeltv2.vercel.app/contato.
+Public support is available at https://blackbelts.com.br/contato.
 
-The current validated mobile runtime connects to the hosted application backend at https://blackbeltv2.vercel.app.
+The current validated mobile runtime connects to the hosted application backend at https://blackbelts.com.br.
 ```
 
 ## Texto para Google App Access
@@ -46,7 +46,7 @@ The current validated mobile runtime connects to the hosted application backend 
 ```text
 The app requires authentication because it is a role-based management platform for martial arts academies.
 
-Login URL: https://blackbeltv2.vercel.app/login
+Login URL: https://blackbelts.com.br/login
 Email: REPLACE_WITH_REAL_REVIEW_EMAIL
 Password: REPLACE_WITH_REAL_REVIEW_PASSWORD
 

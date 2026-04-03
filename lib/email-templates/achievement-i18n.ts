@@ -13,7 +13,7 @@ export function achievementEmailI18n(data: { nome: string; conquista: string; de
 </div>
 <p>${s.keepGoing}</p>`,
     locale,
-    'https://blackbeltv2.vercel.app/dashboard/conquistas',
+    'https://blackbelts.com.br/dashboard/conquistas',
     s.cta,
   );
 }

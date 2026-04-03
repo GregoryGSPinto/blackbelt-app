@@ -3,7 +3,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const isCapacitorStaticExport = process.env.CAPACITOR_STATIC_EXPORT === 'true';
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://blackbeltv2.vercel.app').replace(/\/$/, '');
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://blackbelts.com.br').replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

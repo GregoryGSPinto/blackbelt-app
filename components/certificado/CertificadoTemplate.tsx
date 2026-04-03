@@ -127,7 +127,7 @@ export const CertificadoTemplate = forwardRef<HTMLDivElement, CertificadoTemplat
               Verificar autenticidade
             </p>
             <p className="mt-1 text-xs font-mono text-[var(--bb-ink-60)] break-all">
-              blackbeltv2.vercel.app/verificar/{certificado.codigoVerificacao}
+              blackbelts.com.br/verificar/{certificado.codigoVerificacao}
             </p>
           </div>
 

@@ -54,7 +54,7 @@ export async function doSomething(param: string): Promise<Result> {
 app/
   (auth)/                    # Login, recovery, invite, account selection
   (public-operational)/      # Legal, support, onboarding, status, product-public pages
-  (site-marketing)/          # Redirect-only compatibility layer to blackbeltv2.vercel.app
+  (site-marketing)/          # Redirect-only compatibility layer to blackbelts.com.br
   (admin|main|parent|teen)/  # Authenticated app shells by role
   api/                       # Product API routes
 lib/

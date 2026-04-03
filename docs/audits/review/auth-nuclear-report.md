@@ -47,5 +47,5 @@
 
 - [ ] Verificar anon key na Vercel (production atualizada, preview pode precisar de update manual)
 - [ ] Redeploy na Vercel com cache OFF
-- [ ] Testar login no browser: https://blackbeltv2.vercel.app/login
+- [ ] Testar login no browser: https://blackbelts.com.br/login
 - [ ] Testar logout e re-login

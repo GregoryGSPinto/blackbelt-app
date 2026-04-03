@@ -1,5 +1,5 @@
 # BlackBelt v2 — Teste Manual dos 10 Fluxos Criticos
-# Executar no browser em https://blackbeltv2.vercel.app
+# Executar no browser em https://blackbelts.com.br
 
 ## PRE-REQUISITO
 - Migrations rodadas no Supabase

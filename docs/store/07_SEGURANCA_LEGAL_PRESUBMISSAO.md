@@ -80,13 +80,13 @@ Versao: 1.0.0 (package.json)
 |---|-----------|--------|-------|
 | 10.1 | Conta demo para reviewer | ✅ | `docs/STORE_REVIEW_CREDENTIALS.md` existe com 4 perfis (admin, professor, aluno, responsavel). **MAS**: credenciais precisam ser criadas de fato no backend de producao |
 | 10.2 | App Review Notes escritas | ⚠️ | Credentials doc tem fluxos de teste, mas falta texto formatado para o campo "App Review Notes" do App Store Connect |
-| 10.3 | Backend ativo e acessivel | ✅ | Vercel + Supabase com deploy automatico. URL: `https://blackbeltv2.vercel.app` |
+| 10.3 | Backend ativo e acessivel | ✅ | Vercel + Supabase com deploy automatico. URL: `https://blackbelts.com.br` |
 | 10.4 | Sem placeholder content | ✅ | Nenhum "Lorem ipsum" encontrado. Placeholders em inputs sao hints contextuais (nomes, emails, etc.) — correto |
 | 10.5 | Sem referencia a "beta" ou "test" | ✅ | Unicas refs a "beta" sao no painel superadmin de feature flags (opcao de status) — nao visivel para usuarios normais |
 | 10.6 | Sem crash no cold start | ⚠️ | Nao testado em device fisico. Necessario teste manual em iPhone |
 | 10.7 | Sem API key hardcoded | ✅ | Todas as keys vem de `process.env.*`. `.env*` no `.gitignore`. `.env.example` tem valores vazios |
 | 10.8 | Info.plist permissions justified | ❌ | **CRITICO**: App usa Camera (`@capacitor/camera` em `lib/native/camera-scanner.ts`) e PushNotifications (`@capacitor/push-notifications`) mas Info.plist NAO tem `NSCameraUsageDescription` nem `NSPhotoLibraryUsageDescription`. Apple REJEITARA na submissao |
-| 10.9 | Capacitor server config | ⚠️ | `capacitor.config.ts` aponta `server.url` para `https://blackbeltv2.vercel.app` — app e um web wrapper. Apple pode rejeitar por "minimum functionality" se nao detectar features nativas suficientes |
+| 10.9 | Capacitor server config | ⚠️ | `capacitor.config.ts` aponta `server.url` para `https://blackbelts.com.br` — app e um web wrapper. Apple pode rejeitar por "minimum functionality" se nao detectar features nativas suficientes |
 | 10.10 | Sentry configurado | ⚠️ | `withSentryConfig` no next.config.mjs mas `SENTRY_DSN` e `SENTRY_AUTH_TOKEN` marcados como "missing" no CTO dashboard |
 
 ---

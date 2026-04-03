@@ -1,6 +1,6 @@
-const DEFAULT_SITE_URL = 'https://blackbeltv2.vercel.app';
-const DEFAULT_APP_URL = 'https://blackbeltv2.vercel.app';
-const DEFAULT_API_URL = 'https://blackbeltv2.vercel.app';
+const DEFAULT_SITE_URL = 'https://blackbelts.com.br';
+const DEFAULT_APP_URL = 'https://blackbelts.com.br';
+const DEFAULT_API_URL = 'https://blackbelts.com.br';
 
 function trimUrl(value: string | undefined, fallback: string): string {
   const normalized = value?.trim();
