@@ -268,7 +268,11 @@ export async function getAssinatura(academyId: string): Promise<AssinaturaSaaS> 
     if (error) {
       logServiceError(error, 'pricing');
     }
-    return (data ?? { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] }) as unknown as AssinaturaSaaS;
+    const raw = (data ?? { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] }) as unknown as AssinaturaSaaS;
+    raw.usoDescoberta = Array.isArray(raw.usoDescoberta) ? raw.usoDescoberta : [];
+    raw.modulosPagos = Array.isArray(raw.modulosPagos) ? raw.modulosPagos : [];
+    raw.modulosAtivos = Array.isArray(raw.modulosAtivos) ? raw.modulosAtivos : [];
+    return raw;
   } catch (error) {
     logServiceError(error, 'pricing');
     return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as unknown as AssinaturaSaaS;
@@ -290,10 +294,14 @@ export async function ativarModulo(academyId: string, moduloSlug: string): Promi
     if (!res.ok) {
       logServiceError(new Error(`API error: ${res.status}`), 'pricing');
     }
-    return res.json();
+    const result = await res.json() as AssinaturaSaaS;
+    result.usoDescoberta = Array.isArray(result.usoDescoberta) ? result.usoDescoberta : [];
+    result.modulosPagos = Array.isArray(result.modulosPagos) ? result.modulosPagos : [];
+    result.modulosAtivos = Array.isArray(result.modulosAtivos) ? result.modulosAtivos : [];
+    return result;
   } catch (error) {
     logServiceError(error, 'pricing');
-    return {} as AssinaturaSaaS;
+    return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
   }
 }
 
@@ -312,10 +320,14 @@ export async function desativarModulo(academyId: string, moduloSlug: string): Pr
     if (!res.ok) {
       logServiceError(new Error(`API error: ${res.status}`), 'pricing');
     }
-    return res.json();
+    const result = await res.json() as AssinaturaSaaS;
+    result.usoDescoberta = Array.isArray(result.usoDescoberta) ? result.usoDescoberta : [];
+    result.modulosPagos = Array.isArray(result.modulosPagos) ? result.modulosPagos : [];
+    result.modulosAtivos = Array.isArray(result.modulosAtivos) ? result.modulosAtivos : [];
+    return result;
   } catch (error) {
     logServiceError(error, 'pricing');
-    return {} as AssinaturaSaaS;
+    return { id: '', academyId, tierId: '', modulosPagos: [], professoresAdicionais: 0, unidadesAdicionais: 0, ciclo: 'mensal', precoTotal: 0, status: 'trial', trialStartedAt: '', trialEndsAt: '', discoveryEndsAt: '', currentPeriodStart: '', currentPeriodEnd: '', modulosAtivos: [], emPeriodoDescoberta: false, diasRestantesDescoberta: 0, usoDescoberta: [] } as AssinaturaSaaS;
   }
 }
 

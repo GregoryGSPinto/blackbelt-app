@@ -217,7 +217,7 @@ export default function AdminPlanoPage() {
   // Sorted discovery usage (extras only, by usage desc)
   const sortedUsoDescoberta = useMemo(() => {
     if (!assinatura) return [];
-    return [...assinatura.usoDescoberta]
+    return [...(assinatura.usoDescoberta ?? [])]
       .filter((u) => !u.inclusoNoPlano)
       .sort((a, b) => b.vezesUsado - a.vezesUsado);
   }, [assinatura]);
@@ -467,9 +467,9 @@ export default function AdminPlanoPage() {
               mod.slug,
               assinatura.modulosPagos,
               assinatura.emPeriodoDescoberta,
-              assinatura.usoDescoberta,
+              assinatura.usoDescoberta ?? [],
             );
-            const usage = getUsageForSlug(assinatura.usoDescoberta, mod.slug);
+            const usage = getUsageForSlug(assinatura.usoDescoberta ?? [], mod.slug);
             const isLoading = activatingSlug === mod.slug;
 
             const borderColor: Record<ModuleState, string> = {

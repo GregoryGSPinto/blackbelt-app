@@ -49,7 +49,7 @@ export function ModuleGate({ moduleSlug, children }: ModuleGateProps) {
 
   // Not accessible: show upsell
   if (!accessible && assinatura) {
-    const moduleData = assinatura.usoDescoberta.find((u) => u.moduloSlug === moduleSlug);
+    const moduleData = (assinatura.usoDescoberta ?? []).find((u) => u.moduloSlug === moduleSlug);
     return (
       <UpsellCard
         moduleSlug={moduleSlug}
