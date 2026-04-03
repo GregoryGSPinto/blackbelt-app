@@ -220,7 +220,7 @@ export default function AdminPedidosPage() {
       <Modal
         open={!!selectedOrder || detailLoading}
         onClose={() => { setSelectedOrder(null); setTrackingInput(''); }}
-        title={selectedOrder ? `Pedido ${selectedOrder.id}` : 'Carregando...'}
+        title={selectedOrder ? `Pedido ${selectedOrder.id}` : 'Pedido'}
       >
         {detailLoading && <div className="flex justify-center py-8"><Spinner /></div>}
         {selectedOrder && !detailLoading && (

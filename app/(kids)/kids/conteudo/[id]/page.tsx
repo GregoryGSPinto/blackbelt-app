@@ -109,7 +109,7 @@ export default function KidsVideoExperiencePage() {
       <div className="flex min-h-screen items-center justify-center" style={{ background: '#FFF7ED' }}>
         <div className="text-center">
           <div className="text-5xl animate-bounce">🥋</div>
-          <p className="mt-2 text-lg font-bold" style={{ color: '#92400e' }}>Carregando...</p>
+          <span className="skeleton mt-3 inline-block h-4 w-28 rounded" />
         </div>
       </div>
     );

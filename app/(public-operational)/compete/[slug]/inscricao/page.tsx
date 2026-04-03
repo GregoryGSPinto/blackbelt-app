@@ -93,7 +93,7 @@ export default function InscricaoPage() {
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.2" />
           <path d="M12 2a10 10 0 019.95 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
         </svg>
-        <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>Carregando...</p>
+        <span className="skeleton mt-3 inline-block h-3 w-24 rounded" />
       </div>
     );
   }

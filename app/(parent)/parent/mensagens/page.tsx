@@ -11,6 +11,7 @@ import {
 import { getOrCreateConversation } from '@/lib/api/mensagens.service';
 import type { Conversation, Contact } from '@/lib/types/messaging';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 
 export default function ParentMensagensPage() {
@@ -55,9 +56,7 @@ export default function ParentMensagensPage() {
     return (
       <PlanGate module="mensagens">
         <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
-          <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-            Carregando...
-          </p>
+          <Skeleton className="h-4 w-32" />
         </div>
       </PlanGate>
     );

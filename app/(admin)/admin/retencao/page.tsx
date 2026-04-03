@@ -627,7 +627,7 @@ export default function RetencaoPage() {
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+                  <Skeleton className="mx-auto h-4 w-32" />
                 )}
               </div>
             )}
@@ -655,7 +655,7 @@ export default function RetencaoPage() {
                     </div>
                   </>
                 ) : (
-                  <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Carregando...</p>
+                  <Skeleton className="mx-auto h-4 w-32" />
                 )}
               </div>
             )}
