@@ -1,3 +1,5 @@
+import { Users, DollarSign, BarChart3, Dumbbell } from 'lucide-react';
+
 export function DashboardMockup() {
   return (
     <div
@@ -18,10 +20,10 @@ export function DashboardMockup() {
       </div>
       {/* KPI Grid */}
       <div className="grid grid-cols-2 gap-3 p-4">
-        <KPICard label="Alunos Ativos" value="45" trend="+3 este mês" icon="👥" />
-        <KPICard label="Receita" value="R$ 15.800" trend="+12% vs anterior" icon="💰" />
-        <KPICard label="Presença" value="87%" trend="Acima da média" icon="📊" />
-        <KPICard label="Turmas Hoje" value="3" trend="Próxima às 19h" icon="🥋" />
+        <KPICard label="Alunos Ativos" value="127" trend="+8 este mês" icon={<Users size={16} />} />
+        <KPICard label="Receita" value="R$ 24.800" trend="+12% vs anterior" icon={<DollarSign size={16} />} />
+        <KPICard label="Presença" value="83%" trend="Acima da média" icon={<BarChart3 size={16} />} />
+        <KPICard label="Turmas Hoje" value="12" trend="Próxima às 19h" icon={<Dumbbell size={16} />} />
       </div>
       {/* Activity preview */}
       <div className="px-4 pb-4">
@@ -29,21 +31,21 @@ export function DashboardMockup() {
           ÚLTIMOS CHECK-INS
         </div>
         <div className="space-y-2">
-          <ActivityRow name="João Pedro" time="há 5 min" belt="azul" />
-          <ActivityRow name="Maria Clara" time="há 12 min" belt="roxa" />
-          <ActivityRow name="Lucas Teen" time="há 18 min" belt="amarela" />
+          <ActivityRow name="Lucas Oliveira" time="há 5 min" belt="azul" />
+          <ActivityRow name="Ana Costa" time="há 12 min" belt="roxa" />
+          <ActivityRow name="Pedro Henrique" time="há 18 min" belt="amarela" />
         </div>
       </div>
     </div>
   );
 }
 
-function KPICard({ label, value, trend, icon }: { label: string; value: string; trend: string; icon: string }) {
+function KPICard({ label, value, trend, icon }: { label: string; value: string; trend: string; icon: React.ReactNode }) {
   return (
     <div className="rounded-xl p-3" style={{ background: 'var(--bb-depth-3)' }}>
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>{label}</span>
-        <span>{icon}</span>
+        <span style={{ color: 'var(--bb-ink-40)' }}>{icon}</span>
       </div>
       <div className="text-xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>{value}</div>
       <div className="text-xs mt-1" style={{ color: 'var(--bb-success)' }}>{trend}</div>
