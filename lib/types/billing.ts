@@ -216,6 +216,53 @@ export interface BillingData {
 
 export type AsaasSubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'suspended';
 
+// ============================================================
+// Régua de cobrança — status de billing com tolerância gradual
+// ============================================================
+
+export type SubscriptionBillingStatus =
+  | 'trial'        // período de teste
+  | 'active'       // plano ativo, pagamento em dia
+  | 'grace'        // venceu, tolerância (0-3 dias)
+  | 'warning'      // aviso enviado, faltam dias pro bloqueio (3-5 dias)
+  | 'suspended'    // acesso limitado (read-only parcial) (5-15 dias)
+  | 'blocked'      // acesso totalmente bloqueado (15+ dias)
+  | 'cancelled'    // cancelado pelo dono
+  | 'manual_free'; // liberado manualmente pelo SuperAdmin (cortesia)
+
+export const BILLING_STATUS_CONFIG: Record<SubscriptionBillingStatus, {
+  label: string;
+  color: string;
+  bg: string;
+  canAccess: boolean;
+  readOnly: boolean;
+}> = {
+  trial:        { label: 'Trial',             color: '#3B82F6', bg: 'rgba(59,130,246,0.12)',  canAccess: true,  readOnly: false },
+  active:       { label: 'Ativo',             color: '#22C55E', bg: 'rgba(34,197,94,0.12)',   canAccess: true,  readOnly: false },
+  grace:        { label: 'Tolerância',        color: '#F59E0B', bg: 'rgba(245,158,11,0.12)',  canAccess: true,  readOnly: false },
+  warning:      { label: 'Aviso',             color: '#F97316', bg: 'rgba(249,115,22,0.12)',  canAccess: true,  readOnly: false },
+  suspended:    { label: 'Suspenso',          color: '#EF4444', bg: 'rgba(239,68,68,0.12)',   canAccess: true,  readOnly: true  },
+  blocked:      { label: 'Bloqueado',         color: '#DC2626', bg: 'rgba(220,38,38,0.15)',   canAccess: false, readOnly: true  },
+  cancelled:    { label: 'Cancelado',         color: '#6B7280', bg: 'rgba(107,114,128,0.12)', canAccess: false, readOnly: true  },
+  manual_free:  { label: 'Cortesia',          color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  canAccess: true,  readOnly: false },
+};
+
+/** Compute billing status from days overdue */
+export function computeBillingStatus(
+  currentStatus: string,
+  daysOverdue: number,
+): SubscriptionBillingStatus {
+  if (currentStatus === 'manual_free') return 'manual_free';
+  if (currentStatus === 'trial') return 'trial';
+  if (currentStatus === 'cancelled') return 'cancelled';
+
+  if (daysOverdue <= 0) return 'active';
+  if (daysOverdue <= 3) return 'grace';
+  if (daysOverdue <= 5) return 'warning';
+  if (daysOverdue <= 15) return 'suspended';
+  return 'blocked';
+}
+
 export function getPlan(planId: string): AsaasPlan | undefined {
   return PLANS.find(p => p.id === planId);
 }
