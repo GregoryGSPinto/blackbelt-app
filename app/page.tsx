@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import LandingPage from '@/features/site/pages/landing-page';
 
 const ROLE_DASHBOARD: Record<string, string> = {
   superadmin: '/superadmin',
@@ -17,5 +18,11 @@ const ROLE_DASHBOARD: Record<string, string> = {
 export default function AppEntryPage() {
   const activeRole = cookies().get('bb-active-role')?.value;
 
-  redirect(activeRole ? ROLE_DASHBOARD[activeRole] ?? '/selecionar-perfil' : '/login');
+  if (activeRole && ROLE_DASHBOARD[activeRole]) {
+    redirect(ROLE_DASHBOARD[activeRole]);
+  }
+
+  // Browser (non-native): show landing page
+  // Native builds are already redirected to /login by middleware
+  return <LandingPage />;
 }

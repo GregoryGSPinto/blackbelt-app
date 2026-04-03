@@ -205,7 +205,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Block pricing/marketing routes in native builds (Apple Guideline 3.1.3a)
-  if (isNativeBuildFlag && NATIVE_BLOCKED_PATHS.includes(pathname)) {
+  if (isNativeBuildFlag && NATIVE_BLOCKED_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

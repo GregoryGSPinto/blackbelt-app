@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { FadeInSection } from '@/components/landing/FadeInSection';
@@ -92,7 +93,18 @@ function FAQItem({ item }: { item: { q: string; a: string } }) {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 export default function LandingPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Client-side fallback: if running inside Capacitor, redirect to login
+  useEffect(() => {
+    const win = window as unknown as Record<string, unknown>;
+    if (win.Capacitor && typeof (win.Capacitor as Record<string, unknown>).isNativePlatform === 'function') {
+      if ((win.Capacitor as { isNativePlatform: () => boolean }).isNativePlatform()) {
+        router.replace('/login');
+      }
+    }
+  }, [router]);
 
   return (
     <div className="landing-page w-full overflow-x-hidden" style={{ background: 'var(--bb-depth-1)', color: 'var(--bb-ink-100)' }}>
