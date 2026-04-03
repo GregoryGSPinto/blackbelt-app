@@ -36,6 +36,7 @@ import {
   TrophyIcon,
   FlaskConicalIcon,
   CrownIcon,
+  UserPlusIcon,
 } from './icons';
 
 interface SuperAdminShellProps {
@@ -63,6 +64,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: '/superadmin/prospeccao', label: 'Prospecção', icon: TargetIcon, id: 'sidebar-link-prospeccao' },
       { href: '/superadmin/pipeline', label: 'Pipeline', icon: FilterIcon, badge: 12, id: 'sidebar-link-pipeline' },
       { href: '/superadmin/academias', label: 'Academias', icon: BuildingIcon, badge: 3, id: 'sidebar-link-academias' },
+      { href: '/superadmin/leads', label: 'Leads', icon: UserPlusIcon, id: 'sidebar-link-leads' },
     ],
   },
   {
