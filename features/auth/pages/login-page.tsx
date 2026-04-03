@@ -131,7 +131,7 @@ export default function LoginPage() {
 
       {/* ═══ LEFT SIDE — VISUAL (desktop only) ═══ */}
       <div
-        className="relative hidden overflow-hidden lg:flex lg:w-[52%] lg:flex-col lg:justify-between lg:px-10 lg:py-10 xl:w-[56%] xl:px-14"
+        className="relative hidden overflow-hidden lg:flex lg:w-[40%] lg:flex-col lg:justify-between lg:px-10 lg:py-10 xl:w-[45%] xl:px-14"
         style={{ background: 'var(--bb-depth-1)' }}
       >
         {/* Gradient overlay */}
@@ -214,23 +214,25 @@ export default function LoginPage() {
       </div>
 
       {/* ═══ RIGHT SIDE — FORM ═══ */}
-      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[48%] lg:px-10 lg:py-10 xl:w-[44%] xl:px-14">
+      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[60%] lg:px-10 lg:py-10 xl:w-[55%] xl:px-14">
         <div className="flex w-full max-w-[30rem] flex-col justify-center md:max-w-[34rem] lg:max-w-[30rem] xl:max-w-[32rem]">
-          <div className="mb-5 sm:mb-6">
-            <Link
-              href="/"
-              className="inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium leading-tight transition-opacity hover:opacity-100"
-              style={{
-                color: 'var(--bb-ink-60)',
-                background: 'var(--bb-depth-2)',
-                border: '1px solid var(--bb-glass-border)',
-                opacity: 0.92,
-              }}
-            >
-              <span aria-hidden="true">←</span>
-              Voltar para a pagina inicial
-            </Link>
-          </div>
+          {!isNativeDevice && (
+            <div className="mb-5 sm:mb-6">
+              <Link
+                href="/"
+                className="inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium leading-tight transition-opacity hover:opacity-100"
+                style={{
+                  color: 'var(--bb-ink-60)',
+                  background: 'var(--bb-depth-2)',
+                  border: '1px solid var(--bb-glass-border)',
+                  opacity: 0.92,
+                }}
+              >
+                <span aria-hidden="true">←</span>
+                Voltar para a pagina inicial
+              </Link>
+            </div>
+          )}
 
           {/* Logo (mobile only) */}
           <div className="mb-7 text-center lg:hidden sm:mb-8">
