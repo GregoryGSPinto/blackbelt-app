@@ -34,6 +34,8 @@ import {
 import { getFinancialSummary, getRevenueChart, markAsManuallyPaid } from '@/lib/api/financial.service';
 import type { FinancialSummary, FinancialChartPoint } from '@/lib/types/financial';
 
+import { SensitiveValue } from '@/components/shared/SensitiveValue';
+
 const RevenueChart = dynamic(() => import('./RevenueChart'), { ssr: false });
 
 type FinanceFilter =
@@ -403,7 +405,7 @@ export default function AdminFinanceiroPage() {
                 {card.label}
               </p>
               <p className="mt-2 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
-                {card.value}
+                <SensitiveValue>{card.value}</SensitiveValue>
               </p>
               <p className="mt-2 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                 {card.hint}
@@ -431,7 +433,7 @@ export default function AdminFinanceiroPage() {
               <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
                 <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--bb-ink-40)' }}>Comparativo mensal</p>
                 <p className="mt-2 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
-                  {formatCentsToBRL(summary.revenue_this_month)}
+                  <SensitiveValue>{formatCentsToBRL(summary.revenue_this_month)}</SensitiveValue>
                 </p>
                 <p className="mt-1 text-xs" style={{ color: summary.revenue_last_month > 0 && summary.revenue_this_month >= summary.revenue_last_month ? '#22C55E' : '#EF4444' }}>
                   {summary.revenue_last_month > 0
@@ -451,7 +453,7 @@ export default function AdminFinanceiroPage() {
               <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
                 <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--bb-ink-40)' }}>Ticket médio</p>
                 <p className="mt-2 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
-                  {formatCentsToBRL(summary.ticket_medio)}
+                  <SensitiveValue>{formatCentsToBRL(summary.ticket_medio)}</SensitiveValue>
                 </p>
                 <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
                   {summary.paid_count} aluno(s) pagante(s)

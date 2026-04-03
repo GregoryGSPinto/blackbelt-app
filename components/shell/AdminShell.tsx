@@ -35,6 +35,7 @@ import {
   ShoppingBagIcon,
   MegaphoneIcon,
   EyeIcon,
+  EyeOffIcon,
   UserPlusIcon,
   AlertTriangleIcon,
   FileTextIcon,
@@ -59,6 +60,7 @@ import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BetaBadge } from '@/components/beta/BetaBadge';
 import { isNative } from '@/lib/platform';
 import { TourIntegration } from '@/components/tour/TourIntegration';
+import { useHideValues } from '@/lib/hooks/useHideValues';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -168,6 +170,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [billingAlertCount, setBillingAlertCount] = useState(0);
     const [overdueCount, setOverdueCount] = useState(0);
+    const { hidden: valuesHidden, toggle: toggleHideValues } = useHideValues();
     const [impersonating, setImpersonating] = useState(false);
     const [impersonateAcademia, setImpersonateAcademia] = useState('');
     const [native, setNative] = useState(false);
@@ -487,6 +490,17 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             </div>
             <div className="flex items-center gap-3">
               <BetaBadge />
+              <button
+                onClick={toggleHideValues}
+                className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                style={{ color: 'var(--bb-ink-60)' }}
+                title={valuesHidden ? 'Mostrar valores' : 'Ocultar valores'}
+                aria-label={valuesHidden ? 'Mostrar valores' : 'Ocultar valores'}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bb-ink-100)'; e.currentTarget.style.background = 'var(--bb-depth-4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bb-ink-60)'; e.currentTarget.style.background = 'transparent'; }}
+              >
+                {valuesHidden ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+              </button>
               <ThemeToggle />
 
               {/* Notifications */}
