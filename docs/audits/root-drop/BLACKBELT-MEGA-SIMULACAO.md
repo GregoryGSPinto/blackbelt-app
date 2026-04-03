@@ -16,7 +16,7 @@ No final, o app funciona de verdade para todos os perfis.
 ┌──────────────────────────────────┬────────────────┬───────────────┬────────────────┐
 │             Email                │     Senha      │    Perfil     │  Redireciona   │
 ├──────────────────────────────────┼────────────────┼───────────────┼────────────────┤
-│ super@blackbelt.app              │ @Greg1994      │ superadmin    │ /superadmin    │
+│ gregoryguimaraes12@gmail.com              │ @Greg1994      │ superadmin    │ /superadmin    │
 │ roberto@guerreiros.com           │ BlackBelt@2026 │ admin         │ /admin         │
 │ andre@guerreiros.com             │ BlackBelt@2026 │ professor     │ /professor     │
 │ julia@guerreiros.com             │ BlackBelt@2026 │ recepcionista │ /recepcao      │
@@ -126,7 +126,7 @@ export const ALL_USERS: UserCreds[] = [
   { email: 'miguel.kids@email.com', password: 'BlackBelt@2026', role: 'aluno_kids', baseRoute: '/kids' },
   { email: 'maria.resp@email.com', password: 'BlackBelt@2026', role: 'responsavel', baseRoute: '/responsavel' },
   { email: 'fernando@guerreiros.com', password: 'BlackBelt@2026', role: 'franqueador', baseRoute: '/franqueador' },
-  { email: 'super@blackbelt.app', password: '@Greg1994', role: 'superadmin', baseRoute: '/superadmin' },
+  { email: 'gregoryguimaraes12@gmail.com', password: '@Greg1994', role: 'superadmin', baseRoute: '/superadmin' },
 ];
 
 export async function login(page: Page, user: UserCreds): Promise<boolean> {

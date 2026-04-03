@@ -13,7 +13,7 @@ export default defineConfig({
     ['json', { outputFile: 'e2e/results.json' }],
   ],
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'https://app.blackbelt.com',
+    baseURL: process.env.E2E_BASE_URL || 'https://blackbeltv2.vercel.app',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

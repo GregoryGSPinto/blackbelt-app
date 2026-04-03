@@ -11,8 +11,8 @@ interface ComingSoonProps {
 }
 
 export function ComingSoon({
-  title = 'Em breve',
-  subtitle = 'Esta funcionalidade está sendo desenvolvida.',
+  title = 'Carregando...',
+  subtitle = 'Estamos preparando tudo para você.',
   backHref = '/admin',
   backLabel = 'Voltar ao Dashboard',
 }: ComingSoonProps) {

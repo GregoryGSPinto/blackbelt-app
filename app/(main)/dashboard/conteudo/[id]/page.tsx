@@ -660,7 +660,7 @@ export default function VideoExperiencePage() {
             <div className="absolute inset-0 bg-black/50" />
             <div className="relative z-10 text-center">
               <div className="text-5xl mb-3 opacity-40">&#127909;</div>
-              <p className="text-white/90 font-bold text-lg">Video em breve</p>
+              <p className="text-white/90 font-bold text-lg">Video indisponível</p>
               {data.progresso.progressoSegundos > 0 && (
                 <button className="mt-3 px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: 'var(--bb-brand)' }} onClick={() => seekTo(data.progresso.progressoSegundos)}>
                   Continuar de {formatTime(data.progresso.progressoSegundos)}

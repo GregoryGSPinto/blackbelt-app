@@ -85,7 +85,7 @@ const delay = () => new Promise((r) => setTimeout(r, 400));
 const BASE_DATA: Omit<ProfileSettingsData, 'role'> = {
   id: 'profile-1',
   display_name: 'Usuario BlackBelt',
-  email: 'usuario@blackbelt.com',
+  email: 'usuario@demo.blackbeltv2.app',
   phone: '(11) 99999-0000',
   cpf: '123.456.789-00',
   avatar_url: null,
@@ -174,7 +174,7 @@ const ROLE_DATA: Record<ProfileRole, Partial<ProfileSettingsData>> = {
   },
   superadmin: {
     display_name: 'Super Admin',
-    email: 'superadmin@blackbelt.com',
+    email: 'gregoryguimaraes12@gmail.com',
   },
 };
 

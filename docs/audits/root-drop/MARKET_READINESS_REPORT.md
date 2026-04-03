@@ -74,13 +74,13 @@
 3. SQL Editor → executar migrations (ver INSTRUCOES_MIGRATIONS.md)
 4. `npx tsx scripts/seed-full-academy.ts`
 5. Testar login: `roberto@guerreiros.com / BlackBelt@2026`
-6. Testar super admin: `super@blackbelt.app / @Greg1994`
+6. Testar super admin: `gregoryguimaraes12@gmail.com / @Greg1994`
 
 ### Esta semana
 7. Google Cloud Console → criar OAuth client → colar no Supabase (ver instruções do commit anterior)
 8. Apple Developer → criar Sign In with Apple → colar no Supabase
 9. Supabase → Auth → URL Configuration → adicionar redirect URLs
-10. Comprar domínio (blackbelt.app ou useblackbelt.com)
+10. Comprar domínio (blackbeltv2.vercel.app)
 11. Configurar domínio na Vercel
 12. Criar conta Asaas → API key → Vercel env vars
 13. Criar conta Resend → API key → Vercel env vars

@@ -13,7 +13,7 @@ describe('auth.service', () => {
       const { login } = await import('@/lib/api/auth.service');
 
       const result = await login({
-        email: 'admin@blackbelt.com',
+        email: 'admin@demo.blackbeltv2.app',
         password: 'senha123',
       });
 
@@ -29,7 +29,7 @@ describe('auth.service', () => {
       const { login } = await import('@/lib/api/auth.service');
 
       const result = await login({
-        email: 'admin@blackbelt.com',
+        email: 'admin@demo.blackbeltv2.app',
         password: 'senha123',
       });
 
@@ -52,7 +52,7 @@ describe('auth.service', () => {
       const { login } = await import('@/lib/api/auth.service');
 
       await expect(
-        login({ email: 'admin@blackbelt.com', password: 'errada' }),
+        login({ email: 'admin@demo.blackbeltv2.app', password: 'errada' }),
       ).rejects.toThrow();
     });
 
@@ -60,7 +60,7 @@ describe('auth.service', () => {
       const { login } = await import('@/lib/api/auth.service');
 
       const result = await login({
-        email: 'multiperfil@blackbelt.com',
+        email: 'multiperfil@demo.blackbeltv2.app',
         password: 'senha123',
       });
 
@@ -76,7 +76,7 @@ describe('auth.service', () => {
 
       const result = await register({
         name: 'Novo Aluno',
-        email: `novo-${Date.now()}@blackbelt.com`,
+        email: `novo-${Date.now()}@demo.blackbeltv2.app`,
         password: 'senha123',
       });
 
@@ -93,7 +93,7 @@ describe('auth.service', () => {
       await expect(
         register({
           name: 'Duplicado',
-          email: 'admin@blackbelt.com',
+          email: 'admin@demo.blackbeltv2.app',
           password: 'senha123',
         }),
       ).rejects.toThrow();

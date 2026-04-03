@@ -26,4 +26,4 @@ Disallow: /teen/
 Disallow: /kids/
 Disallow: /parent/
 Disallow: /selecionar-perfil
-Sitemap: https://app.blackbelt.com/sitemap.xml
+Sitemap: https://blackbeltv2.vercel.app/sitemap.xml

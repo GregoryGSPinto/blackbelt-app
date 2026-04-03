@@ -120,7 +120,7 @@ export default function TeenSeasonPage() {
           <span className="text-6xl">🏟️</span>
           <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhuma season ativa</h2>
           <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-            A proxima season sera anunciada em breve!
+            Nenhuma season ativa no momento. Fique atento ao painel para novidades!
           </p>
         </div>
       </PlanGate>

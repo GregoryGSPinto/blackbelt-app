@@ -39,7 +39,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   try {
     const resend = getResendClient();
     const fromAddress = options.from
-      || `BlackBelt <noreply@${process.env.RESEND_DOMAIN || 'blackbelt.app'}>`;
+      || `BlackBelt <${process.env.RESEND_DOMAIN ? `noreply@${process.env.RESEND_DOMAIN}` : 'gregoryguimaraes12@gmail.com'}>`;
 
     const { data, error } = await resend.emails.send({
       from: fromAddress,

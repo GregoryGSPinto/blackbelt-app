@@ -99,7 +99,7 @@ async function main() {
   // 9. Login funciona (super admin)
   await test('Login super admin', async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: 'super@blackbelt.app',
+      email: 'gregoryguimaraes12@gmail.com',
       password: '@Greg1994',
     });
     if (error) throw error;

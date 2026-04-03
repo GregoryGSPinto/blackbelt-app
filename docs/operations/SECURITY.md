@@ -66,7 +66,7 @@ Configured in `next.config.js` and `middleware.ts`:
 
 ## Vulnerability Reporting
 
-Report security issues to: security@blackbelt.app
+Report security issues to: gregoryguimaraes12@gmail.com
 
 Please include:
 1. Description of the vulnerability

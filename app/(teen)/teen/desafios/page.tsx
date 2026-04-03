@@ -116,7 +116,7 @@ export default function TeenDesafiosPage() {
           <span className="text-6xl">🎯</span>
           <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Nenhum desafio disponivel</h2>
           <p className="mt-2 text-sm text-[var(--bb-ink-60)]">
-            Novos desafios serao liberados em breve. Continue treinando!
+            Nenhum desafio ativo no momento. Continue treinando!
           </p>
         </div>
       </PlanGate>

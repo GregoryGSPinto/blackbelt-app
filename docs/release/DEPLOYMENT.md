@@ -13,7 +13,7 @@
 ```env
 # App
 NEXT_PUBLIC_USE_MOCK=false
-NEXT_PUBLIC_APP_URL=https://app.blackbelt.com
+NEXT_PUBLIC_APP_URL=https://blackbeltv2.vercel.app
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co

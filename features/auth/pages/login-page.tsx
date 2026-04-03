@@ -42,7 +42,7 @@ function DashboardPreview() {
           className="ml-3 text-xs font-mono"
           style={{ color: 'var(--bb-ink-40)' }}
         >
-          blackbelt.app/dashboard
+          blackbeltv2.vercel.app/dashboard
         </span>
       </div>
 
@@ -140,7 +140,7 @@ function DashboardPreview() {
 // ── Demo Accounts ───────────────────────────────────────────────
 
 const DEMO_ACCOUNTS = [
-  { email: 'super@blackbelt.app', label: 'Super Admin', pw: '' },
+  { email: 'gregoryguimaraes12@gmail.com', label: 'Super Admin', pw: '' },
   { email: 'roberto@guerreiros.com', label: 'Admin', pw: '' },
   { email: 'andre@guerreiros.com', label: 'Professor', pw: '' },
   { email: 'julia@guerreiros.com', label: 'Recepcionista', pw: '' },

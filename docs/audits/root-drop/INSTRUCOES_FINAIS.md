@@ -61,7 +61,7 @@ supabase functions deploy send-reminders
 
 Adicionar no Vercel Dashboard → Settings → Environment Variables:
 - `RESEND_API_KEY` = (criar em resend.com)
-- `RESEND_DOMAIN` = blackbelt.app (ou o dominio que comprar)
+- `RESEND_DOMAIN` = blackbeltv2.vercel.app (ou o dominio que comprar)
 - `ASAAS_API_KEY` = (criar em asaas.com → sandbox primeiro)
 - `ASAAS_SANDBOX` = true (trocar pra false quando for producao)
 - `ASAAS_WEBHOOK_TOKEN` = (gerar token unico pra validar webhooks)

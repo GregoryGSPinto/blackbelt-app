@@ -231,11 +231,11 @@ export default function KidsAcademiaPage() {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-extrabold text-[var(--bb-ink-100)]">
-                          {isLocked ? 'Em breve!' : friendlyTitle}
+                          {isLocked ? 'Bloqueado' : friendlyTitle}
                         </h3>
                         <p className="mt-1 text-sm text-[var(--bb-ink-60)]">
                           {isLocked
-                            ? 'Essa aventura vai ser liberada em breve!'
+                            ? 'Complete as aventuras anteriores para desbloquear!'
                             : friendlyDesc}
                         </p>
 
@@ -274,7 +274,7 @@ export default function KidsAcademiaPage() {
                         <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2">
                           <span>🔮</span>
                           <span className="text-sm font-bold text-[var(--bb-ink-60)]">
-                            Em breve!
+                            Bloqueado
                           </span>
                         </div>
                       )}

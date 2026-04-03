@@ -53,13 +53,13 @@ const SEED_PASSWORD = 'BlackBelt@2026';
 
 const MOCK_USERS: (User & { raw_password: string })[] = [
   // Original mock users (senha123)
-  { id: 'user-admin', email: 'admin@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-prof', email: 'professor@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-adulto', email: 'adulto@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-teen', email: 'teen@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-resp', email: 'responsavel@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-reviewer', email: 'reviewer@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
-  { id: 'user-multi', email: 'multiperfil@blackbelt.com', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-admin', email: 'admin@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-prof', email: 'professor@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-adulto', email: 'adulto@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-teen', email: 'teen@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-resp', email: 'responsavel@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-reviewer', email: 'reviewer@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
+  { id: 'user-multi', email: 'multiperfil@demo.blackbeltv2.app', password_hash: 'mock', raw_password: MOCK_PASSWORD, ...AUDIT },
   // Seed users matching Supabase (BlackBelt@2026)
   { id: 'user-roberto', email: 'roberto@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-andre', email: 'andre@guerreiros.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
@@ -90,7 +90,7 @@ const MOCK_USERS: (User & { raw_password: string })[] = [
   { id: 'user-carlos', email: 'carlos@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-renata', email: 'renata@email.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   // Super Admin
-  { id: 'user-superadmin', email: 'super@blackbelt.app', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
+  { id: 'user-superadmin', email: 'gregoryguimaraes12@gmail.com', password_hash: 'mock', raw_password: SEED_PASSWORD, ...AUDIT },
   { id: 'user-gregory', email: 'gregoryguimaraes12@gmail.com', password_hash: 'mock', raw_password: '@Greg1994', ...AUDIT },
 ];
 

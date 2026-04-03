@@ -14,7 +14,7 @@ import { BlackBeltSDK } from '@/lib/sdk/blackbelt-sdk';
 
 ```typescript
 const sdk = new BlackBeltSDK({
-  baseUrl: 'https://your-academy.blackbelt.app',
+  baseUrl: 'https://blackbeltv2.vercel.app',
   apiKey: 'bb_live_xxxxxxxxxxxxxxxx',
   timeout: 30000, // optional, default 30s
 });

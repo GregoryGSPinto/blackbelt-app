@@ -29,7 +29,7 @@ Estado base: código e builds validados nesta sessão
 | 4 | Conta/demo credentials de review não existem no ambiente real | externo | só existe template em `docs/release/STORE_REVIEW_CREDENTIALS_TEMPLATE.md` | Criar contas reais sem OTP/2FA e preencher o template |
 | 5 | Archive iOS depende de conta/certificados/perfis Apple | externo | `xcodebuild archive` falhou por falta de provisioning profile | Entrar com Apple Developer válida e rodar archive com `-allowProvisioningUpdates` |
 | 6 | Telefone real de suporte ainda não foi informado | externo | o app agora esconde telefone por padrão | Definir `NEXT_PUBLIC_SUPPORT_PHONE` antes do listing do Google Play |
-| 7 | Email de suporte continua dependente de operação externa real | externo | default atual é `suporte@blackbelt.app` | Garantir caixa ativa ou trocar para email comprovadamente funcional |
+| 7 | Email de suporte continua dependente de operação externa real | externo | default atual é `gregoryguimaraes12@gmail.com` | Garantir caixa ativa ou trocar para email comprovadamente funcional |
 
 ## Observação crítica
 

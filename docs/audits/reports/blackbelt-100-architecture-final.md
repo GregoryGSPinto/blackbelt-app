@@ -20,13 +20,11 @@ Topologia-alvo definida:
 
 ## 4. Domínios definidos
 
-- `blackbelt.com` e `www.blackbelt.com`: site
-- `app.blackbelt.com`: app autenticado
-- `api.blackbelt.com`: borda operacional / integrações
-- `help.blackbelt.com`: ajuda
-- `docs.blackbelt.com`: docs públicas/técnicas
-- `status.blackbelt.com`: status
-- `admin.blackbelt.com`: opcional, apenas se painel interno exigir separação real
+- `blackbeltv2.vercel.app`: site e app autenticado
+- `blackbeltv2.vercel.app/api`: borda operacional / integrações
+- `blackbeltv2.vercel.app/ajuda`: ajuda
+- `blackbeltv2.vercel.app/docs`: docs públicas/técnicas
+- `blackbeltv2.vercel.app/status`: status
 
 ## 5. Árvore do blackbelt-app
 
@@ -73,7 +71,7 @@ Preparada em `scaffolds/blackbelt-infra-private` com README e workflow base.
 ## 9. Decisões de deploy
 
 - site e app devem ter deploys separados
-- `app/api` permanece como borda temporária até eventual extração para `api.blackbelt.com`
+- `app/api` permanece como borda temporária até eventual extração para `blackbeltv2.vercel.app/api`
 - mobile continua como extensão operacional do `blackbelt-app` via Capacitor
 
 ## 10. Decisões de billing

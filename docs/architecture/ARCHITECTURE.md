@@ -88,7 +88,7 @@ All shared UI components use `forwardRef` with explicit `displayName` for React 
 - `(kids)` — aluno_kids role
 - `(parent)` — responsavel role
 - `(public-operational)` — no auth required, but still part of the product
-- `(site-marketing)` — temporary redirects to `blackbelt.com`
+- `(site-marketing)` — temporary redirects to `blackbeltv2.vercel.app`
 - `(network)` — multi-academy owner
 
 ### 5. Design Tokens

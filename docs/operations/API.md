@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://app.blackbelt.com/api/v1
+https://blackbeltv2.vercel.app/api/v1
 ```
 
 ## Authentication

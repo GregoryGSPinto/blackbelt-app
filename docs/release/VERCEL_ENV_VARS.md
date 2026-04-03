@@ -28,7 +28,7 @@ Configure no **Vercel Dashboard → Settings → Environment Variables**.
 |----------|-------|----------------|
 | `EMAIL_PROVIDER` | `resend` | — |
 | `RESEND_API_KEY` | `re_...` | Resend → API Keys |
-| `EMAIL_FROM` | `noreply@blackbelt.app` | Domínio verificado no Resend |
+| `EMAIL_FROM` | `gregoryguimaraes12@gmail.com` | Domínio verificado no Resend |
 
 ## Monitoramento (opcional)
 

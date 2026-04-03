@@ -174,7 +174,7 @@ async function cleanup() {
 
   // Delete auth users by email
   const emails = [
-    'super@blackbelt.app',
+    'gregoryguimaraes12@gmail.com',
     'roberto@guerreiros.com', 'camila@guerreiros.com',
     'andre@guerreiros.com', 'fernanda@guerreiros.com', 'thiago@guerreiros.com',
     'joao@email.com', 'marcos@email.com', 'rafael@email.com', 'bruno@email.com',
@@ -207,7 +207,7 @@ async function createSuperAdmin() {
   console.log('Criando super admin...');
 
   const { data: superAuth, error: sErr } = await supabase.auth.admin.createUser({
-    email: 'super@blackbelt.app',
+    email: 'gregoryguimaraes12@gmail.com',
     password: '@Greg1994',
     email_confirm: true,
     user_metadata: { name: 'Gregory Pinto', display_name: 'Gregory Pinto' },
@@ -238,7 +238,7 @@ async function createSuperAdmin() {
   }
 
   totalRecords += 2; // auth + profile
-  console.log('  Super Admin criado: super@blackbelt.app / @Greg1994');
+  console.log('  Super Admin criado: gregoryguimaraes12@gmail.com / @Greg1994');
 }
 
 // ── Step 1: Academy + Units + Modalities ───────────────────────────────────
@@ -1917,7 +1917,7 @@ async function main() {
   console.log(` Tempo: ${elapsed}s`);
   console.log('=================================================');
   console.log('\nCredenciais de acesso:');
-  console.log('  Super Admin: super@blackbelt.app / @Greg1994');
+  console.log('  Super Admin: gregoryguimaraes12@gmail.com / @Greg1994');
   console.log('  Admin: roberto@guerreiros.com / BlackBelt@2026');
   console.log('  Admin: camila@guerreiros.com / BlackBelt@2026');
   console.log('  Prof:  andre@guerreiros.com / fernanda@guerreiros.com / thiago@guerreiros.com');

@@ -354,7 +354,7 @@ export default function BibliotecaStreamingPage() {
           Nenhum conteúdo disponível
         </h2>
         <p className="text-sm text-[var(--bb-ink-40)] text-center mb-6">
-          A biblioteca será atualizada em breve com aulas exclusivas.
+          Nenhum conteúdo disponível no momento. Explore outras áreas do app!
         </p>
         <Link
           href="/dashboard"

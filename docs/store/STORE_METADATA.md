@@ -12,7 +12,7 @@
 - App web: https://blackbeltv2.vercel.app
 - Privacy: https://blackbeltv2.vercel.app/privacidade
 - Terms: https://blackbeltv2.vercel.app/termos
-- Support: https://blackbeltv2.vercel.app/suporte
+- Support: https://blackbeltv2.vercel.app/contato
 - Delete account: https://blackbeltv2.vercel.app/excluir-conta
 - Contact: https://blackbeltv2.vercel.app/contato
 
@@ -61,7 +61,7 @@ SEGURANCA:
 - Conformidade com LGPD
 - Perfis Kids com protecao especial
 
-Planos a partir de R$ 97/mes. Teste gratis por 7 dias com acesso completo.
+Planos a partir de R$ 79/mes. Teste gratis por 7 dias com acesso completo.
 
 ### Keywords (100 chars max):
 academia,artes marciais,bjj,jiu jitsu,judo,karate,mma,gestao,check-in,presenca,faixa,graduacao

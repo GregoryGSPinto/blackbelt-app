@@ -221,7 +221,7 @@ App Content → App Access:
 
 | Campo | Valor |
 |-------|-------|
-| Username | reviewer.admin@blackbelt.app |
+| Username | gregoryguimaraes12@gmail.com |
 | Password | BlackBelt@Review2026 |
 
 Credenciais completas: `docs/store/STORE_REVIEW_CREDENTIALS.md`
@@ -346,7 +346,7 @@ Fazer upload para cada tamanho obrigatorio:
 | **Contact Last Name** | Pinto |
 | **Contact Phone** | +55 31 XXXXX-XXXX (seu numero real) |
 | **Contact Email** | gregoryguimaraes12@gmail.com |
-| **Demo Username** | reviewer.admin@blackbelt.app |
+| **Demo Username** | gregoryguimaraes12@gmail.com |
 | **Demo Password** | BlackBelt@Review2026 |
 
 **Notes for Review** — copiar de `docs/store/STORE_METADATA.md` secao "App Review Notes". Pontos-chave:

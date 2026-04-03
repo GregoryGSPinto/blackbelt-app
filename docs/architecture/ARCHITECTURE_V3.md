@@ -134,7 +134,7 @@ lib/
 app/
   (admin)/      Admin pages
   (public-operational)/ App store, developers, marketplace, legal, support
-  (site-marketing)/     Redirects para blackbelt.com
+  (site-marketing)/     Redirects para blackbeltv2.vercel.app
   ...           Other route groups
 components/
   ui/           Badge, Button, Spinner, etc.

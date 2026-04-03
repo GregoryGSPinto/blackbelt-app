@@ -2,22 +2,22 @@
 
 ## Domínios
 
-- `blackbelt.com`: site comercial e aquisição
-- `www.blackbelt.com`: alias do site
-- `app.blackbelt.com`: aplicação autenticada
-- `api.blackbelt.com`: webhooks, integrações, health, endpoints operacionais
-- `help.blackbelt.com`: central de ajuda
-- `docs.blackbelt.com`: documentação pública e técnica
-- `status.blackbelt.com`: status page
-- `admin.blackbelt.com`: opcional, apenas se o painel interno for separado do app
+- `blackbeltv2.vercel.app`: site comercial e aquisição
+- `blackbeltv2.vercel.app (www)`: alias do site
+- `blackbeltv2.vercel.app`: aplicação autenticada
+- `blackbeltv2.vercel.app/api`: webhooks, integrações, health, endpoints operacionais
+- `blackbeltv2.vercel.app/ajuda`: central de ajuda
+- `blackbeltv2.vercel.app/docs`: documentação pública e técnica
+- `blackbeltv2.vercel.app/status`: status page
+- `blackbeltv2.vercel.app/admin`: opcional, apenas se o painel interno for separado do app
 
 ## Deploy
 
 - `blackbelt-site`: Vercel, otimizado para marketing, SEO e páginas legais
 - `blackbelt-app`: Vercel para web autenticada e rotas Next; Capacitor para iOS/Android
-- `api.blackbelt.com`: inicialmente pode coexistir no Next app via `app/api`, mas com namespace/documentação explícitos para futura extração
-- `status.blackbelt.com`: provider de status externo
-- `help.blackbelt.com`: docs/helpdesk externo ou site estático dedicado
+- `blackbeltv2.vercel.app/api`: inicialmente pode coexistir no Next app via `app/api`, mas com namespace/documentação explícitos para futura extração
+- `blackbeltv2.vercel.app/status`: provider de status externo
+- `blackbeltv2.vercel.app/ajuda`: docs/helpdesk externo ou site estático dedicado
 
 ## Billing
 
@@ -29,4 +29,4 @@
 - SaaS billing do BlackBelt fica em `features/billing`
 - cobrança operacional da academia fica em `features/finance`
 - páginas públicas que vendem o produto saem para `blackbelt-site`
-- `app.blackbelt.com` só deve expor onboarding/autenticação e produto autenticado
+- `blackbeltv2.vercel.app` só deve expor onboarding/autenticação e produto autenticado

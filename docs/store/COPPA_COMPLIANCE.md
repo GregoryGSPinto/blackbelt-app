@@ -213,6 +213,6 @@ O responsável tem os seguintes controles sobre contas de menores vinculados:
 
 | Campo | Valor |
 |-------|-------|
-| Email | suporte@blackbelt.app |
+| Email | gregoryguimaraes12@gmail.com |
 | Página | https://blackbeltv2.vercel.app/privacidade-menores |
 | Responsável | DPO / Encarregado de Dados (a ser nomeado — ver item S7 do relatório de readiness) |
