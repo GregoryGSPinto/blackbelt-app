@@ -7,6 +7,8 @@ import { getProfessorDashboard } from '@/lib/api/professor.service';
 import type { ProfessorDashboardDTO } from '@/lib/api/professor.service';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 import { Button } from '@/components/ui/Button';
 
 // ── Inline SVG icons ────────────────────────────────────────────────
@@ -117,38 +119,40 @@ export default function ProfessorPerfilPage() {
   const { profile: authProfile, isLoading: authLoading } = useAuth();
   const [data, setData] = useState<ProfessorDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
+        setError(null);
         const d = await getProfessorDashboard('prof-1');
-        setData(d);
+        if (!cancelled) setData(d);
+      } catch (err) {
+        if (!cancelled) {
+          logServiceError(err, 'ProfessorPerfilPage');
+          setError('Nao foi possivel carregar o perfil. Tente novamente.');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, []);
 
   if (loading || authLoading) {
     return <PerfilSkeleton />;
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="text-center">
-          <p className="text-4xl">&#x1F464;</p>
-          <h2
-            className="mt-4 text-lg font-bold"
-            style={{ color: 'var(--bb-ink-100)' }}
-          >
-            Perfil indisponivel
-          </h2>
-          <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-            Nao foi possivel carregar seus dados.
-          </p>
-        </div>
+      <div className="p-6">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={error || 'Nao foi possivel carregar seus dados.'}
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }

@@ -25,6 +25,8 @@ import {
 import type { UserPreferences } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -47,10 +49,6 @@ const THEME_OPTIONS: { value: ThemeOption; label: string }[] = [
   { value: 'dark', label: 'Escuro' },
   { value: 'system', label: 'Sistema' },
 ];
-
-const PLACEHOLDER_PARENT_NAME = 'Maria Silva';
-const PLACEHOLDER_PARENT_EMAIL = 'maria@email.com';
-const PLACEHOLDER_PARENT_PHONE = '(11) 96666-0000';
 
 const MOCK_CHILDREN = [
   { id: 'child-1', name: 'Pedro Silva', age: 8, belt: 'Branca', avatar: null as string | null },
@@ -85,14 +83,35 @@ export default function ParentConfiguracoesPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const profileId = profile?.id ?? '';
 
+  const loadPreferences = useCallback(async () => {
+    if (!profileId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const p = await getUserPreferences(profileId);
+      setPrefs(p);
+    } catch (err) {
+      logServiceError(err, 'ParentConfiguracoesPage');
+      setLoadError(translateError(err));
+      toast(translateError(err), 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [profileId, toast]);
+
   useEffect(() => {
     if (authLoading) return;
+    let cancelled = false;
 
     async function load() {
       if (!profileId) {
@@ -100,15 +119,23 @@ export default function ParentConfiguracoesPage() {
         return;
       }
       try {
+        setLoading(true);
+        setLoadError(null);
         const p = await getUserPreferences(profileId);
-        setPrefs(p);
+        if (!cancelled) setPrefs(p);
       } catch (err) {
-        toast(translateError(err), 'error');
+        if (!cancelled) {
+          logServiceError(err, 'ParentConfiguracoesPage');
+          setLoadError(translateError(err));
+          toast(translateError(err), 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
+
     load();
+    return () => { cancelled = true; };
   }, [authLoading, profileId, toast]);
 
   const savePref = useCallback(
@@ -145,7 +172,19 @@ export default function ParentConfiguracoesPage() {
     }
   }
 
-  if (loading || authLoading || !prefs) return <SettingsSkeleton />;
+  if (loading || authLoading) return <SettingsSkeleton />;
+
+  if (loadError || !prefs) {
+    return (
+      <div className="p-4 lg:p-6">
+        <ErrorState
+          title="Configuracoes indisponiveis"
+          description={loadError || 'Nao foi possivel carregar as configuracoes.'}
+          onRetry={loadPreferences}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 lg:p-6">
@@ -201,19 +240,22 @@ export default function ParentConfiguracoesPage() {
             <SettingsSection icon="user" title="Informacoes Pessoais">
               <SettingsInput
                 label="Nome completo"
-                value={profile?.display_name || PLACEHOLDER_PARENT_NAME}
+                value={profile?.display_name || ''}
+                placeholder="Nome completo"
                 onSave={() => toast('Nome atualizado!', 'success')}
               />
               <SettingsInput
                 label="Email"
-                value={PLACEHOLDER_PARENT_EMAIL}
+                value=""
                 type="email"
+                placeholder="Email configurado pelo responsável"
                 onSave={() => toast('Email atualizado!', 'success')}
               />
               <SettingsInput
                 label="Telefone"
-                value={PLACEHOLDER_PARENT_PHONE}
+                value=""
                 type="tel"
+                placeholder="Telefone configurado pelo responsável"
                 onSave={() => toast('Telefone atualizado!', 'success')}
               />
             </SettingsSection>

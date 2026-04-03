@@ -5,6 +5,8 @@ import { getTeenDashboard } from '@/lib/api/teen.service';
 import type { TeenDashboardDTO } from '@/lib/api/teen.service';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { translateError } from '@/lib/utils/error-translator';
 import { useToast } from '@/lib/hooks/useToast';
@@ -74,20 +76,28 @@ export default function TeenPerfilPage() {
   const { toast } = useToast();
   const [data, setData] = useState<TeenDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (studentLoading || !studentId) return;
+    let cancelled = false;
     async function load() {
       try {
+        setError(null);
         const d = await getTeenDashboard(studentId!);
-        setData(d);
+        if (!cancelled) setData(d);
       } catch (err) {
-        toast(translateError(err), 'error');
+        if (!cancelled) {
+          logServiceError(err, 'TeenPerfilPage');
+          setError('Nao foi possivel carregar o perfil.');
+          toast(translateError(err), 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading ───────────────────────────────────────────────
@@ -108,15 +118,15 @@ export default function TeenPerfilPage() {
     );
   }
 
-  // ── Empty state ───────────────────────────────────────────
-  if (!data) {
+  // ── Empty / Error state ──────────────────────────────────
+  if (error || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bb-depth-1)] px-4">
-        <span className="text-6xl">👤</span>
-        <h2 className="mt-4 text-xl font-bold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
-        <p className="mt-2 text-sm text-[var(--bb-ink-40)]">
-          Nao foi possivel carregar seus dados. Tente novamente.
-        </p>
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={error || 'Nao foi possivel carregar seus dados.'}
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }

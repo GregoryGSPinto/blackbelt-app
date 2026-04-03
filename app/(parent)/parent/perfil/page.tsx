@@ -8,9 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-
-const PLACEHOLDER_PARENT_EMAIL = 'responsavel@email.com';
-const PLACEHOLDER_PARENT_PHONE = '(11) 98765-4321';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ────────────────────────────────────────────────────────────
 // Section Components
@@ -93,7 +92,9 @@ function LinkedChildrenSection({ data }: { data: GuardianDashboardDTO }) {
   );
 }
 
-function ContactInfoSection({ email, phone }: { email: string; phone: string }) {
+function ContactInfoSection({ email, phone }: { email?: string | null; phone?: string | null }) {
+  const emailLabel = email?.trim() || 'Disponível no cadastro do responsável';
+  const phoneLabel = phone?.trim() || 'Disponível no cadastro do responsável';
   return (
     <div>
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider font-mono text-[var(--bb-ink-40)]">
@@ -109,7 +110,7 @@ function ContactInfoSection({ email, phone }: { email: string; phone: string }) 
             </div>
             <div>
               <p className="text-xs text-[var(--bb-ink-40)]">Email</p>
-              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{email}</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{emailLabel}</p>
             </div>
           </div>
         </div>
@@ -122,7 +123,7 @@ function ContactInfoSection({ email, phone }: { email: string; phone: string }) 
             </div>
             <div>
               <p className="text-xs text-[var(--bb-ink-40)]">Telefone</p>
-              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{phone}</p>
+              <p className="text-sm font-medium text-[var(--bb-ink-100)]">{phoneLabel}</p>
             </div>
           </div>
         </div>
@@ -191,22 +192,54 @@ export default function ParentPerfilPage() {
   const { profile } = useAuth();
   const [data, setData] = useState<GuardianDashboardDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const guardianId = profile?.id ?? '';
 
   const loadData = useCallback(async () => {
-    if (!guardianId) return;
+    if (!guardianId) {
+      setLoading(false);
+      return;
+    }
     try {
+      setLoading(true);
+      setError(null);
       const d = await getGuardianDashboard(guardianId);
       setData(d);
+    } catch (err) {
+      logServiceError(err, 'ParentPerfilPage');
+      setError('Nao foi possivel carregar o perfil. Tente novamente.');
     } finally {
       setLoading(false);
     }
   }, [guardianId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+
+    async function load() {
+      if (!guardianId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        const d = await getGuardianDashboard(guardianId);
+        if (!cancelled) setData(d);
+      } catch (err) {
+        if (!cancelled) {
+          logServiceError(err, 'ParentPerfilPage');
+          setError('Nao foi possivel carregar o perfil. Tente novamente.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [guardianId]);
 
   if (loading) {
     return (
@@ -223,16 +256,26 @@ export default function ParentPerfilPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-4 lg:p-6">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={error}
+          onRetry={loadData}
+        />
+      </div>
+    );
+  }
+
   if (!data) {
     return (
-      <div className="flex flex-col items-center justify-center p-8">
-        <div className="text-center">
-          <p className="text-4xl">👤</p>
-          <h2 className="mt-4 text-lg font-bold text-[var(--bb-ink-100)]">Perfil indisponivel</h2>
-          <p className="mt-1 text-sm text-[var(--bb-ink-40)]">
-            Nao foi possivel carregar seus dados.
-          </p>
-        </div>
+      <div className="p-4 lg:p-6">
+        <ErrorState
+          title="Perfil indisponivel"
+          description="Nao foi possivel carregar seus dados."
+          onRetry={loadData}
+        />
       </div>
     );
   }
@@ -244,7 +287,7 @@ export default function ParentPerfilPage() {
           <div className="lg:col-span-1">
             <ProfileHeader
               name={data.guardian_name}
-              email={PLACEHOLDER_PARENT_EMAIL}
+              email="Dados do responsável protegidos"
             />
           </div>
           <div className="lg:col-span-2 space-y-6">
@@ -252,7 +295,7 @@ export default function ParentPerfilPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ContactInfoSection email={PLACEHOLDER_PARENT_EMAIL} phone={PLACEHOLDER_PARENT_PHONE} />
+          <ContactInfoSection />
           <SettingsSection />
         </div>
 

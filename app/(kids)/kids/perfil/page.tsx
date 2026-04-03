@@ -6,6 +6,8 @@ import type { PersonalizacaoKids, MascoteOption, TituloOption, CorOption } from 
 import { getKidsProfile } from '@/lib/api/kids-estrelas.service';
 import type { KidsProfile } from '@/lib/api/kids-estrelas.service';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 import { useToast } from '@/lib/hooks/useToast';
 import { useStudentId } from '@/lib/hooks/useStudentId';
 import { translateError } from '@/lib/utils/error-translator';
@@ -17,26 +19,36 @@ export default function KidsPerfilPage() {
   const [personalizacao, setPersonalizacao] = useState<PersonalizacaoKids | null>(null);
   const [profile, setProfile] = useState<KidsProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     if (studentLoading || !studentId) return;
+    let cancelled = false;
     async function load() {
       try {
+        setError(null);
         const [pers, prof] = await Promise.all([
           getPersonalizacao(studentId!),
           getKidsProfile(studentId!),
         ]);
-        setPersonalizacao(pers);
-        setProfile(prof);
+        if (!cancelled) {
+          setPersonalizacao(pers);
+          setProfile(prof);
+        }
       } catch (err) {
-        toast(translateError(err), 'error');
+        if (!cancelled) {
+          logServiceError(err, 'KidsPerfilPage');
+          setError('Nao foi possivel carregar o perfil.');
+          toast(translateError(err), 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, [studentId, studentLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSelectMascote(mascote: MascoteOption) {
@@ -124,7 +136,17 @@ export default function KidsPerfilPage() {
     );
   }
 
-  if (!profile || !personalizacao) return null;
+  if (error || !profile || !personalizacao) {
+    return (
+      <div className="min-h-screen bg-[var(--bb-depth-1)] p-4">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={error || 'Nao foi possivel carregar seus dados.'}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   const mascoteEmoji = getCurrentMascoteEmoji();
   const corHex = getCurrentCorHex();

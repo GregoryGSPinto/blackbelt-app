@@ -12,25 +12,28 @@ import { WelcomeMessage } from '@/components/shared/WelcomeMessage';
 import { TelemetryInit } from '@/components/support/TelemetryInit';
 import { NativeBridge } from '@/components/native/NativeBridge';
 import { NativeApiRuntime } from '@/components/native/NativeApiRuntime';
+import { SessionGuard } from '@/components/shared/SessionGuard';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <PlanProvider>
-          <TutorialProvider>
-            <ToastProvider>
-              {children}
+        <SessionGuard>
+          <PlanProvider>
+            <TutorialProvider>
+              <ToastProvider>
+                {children}
               <NativeApiRuntime />
               <NativeBridge />
               <WelcomeMessage />
               <TutorialWelcome />
               <TutorialOverlay />
               <TutorialComplete />
-              <TelemetryInit />
-            </ToastProvider>
-          </TutorialProvider>
-        </PlanProvider>
+                <TelemetryInit />
+              </ToastProvider>
+            </TutorialProvider>
+          </PlanProvider>
+        </SessionGuard>
       </AuthProvider>
     </ThemeProvider>
   );

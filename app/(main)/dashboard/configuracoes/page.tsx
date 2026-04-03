@@ -23,6 +23,8 @@ import {
 import type { UserPreferences } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -85,14 +87,35 @@ export default function AlunoConfiguracoesPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const profileId = profile?.id ?? '';
 
+  const loadPreferences = useCallback(async () => {
+    if (!profileId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const p = await getUserPreferences(profileId);
+      setPrefs(p);
+    } catch (err) {
+      logServiceError(err, 'AlunoConfiguracoesPage');
+      setLoadError(translateError(err));
+      toast(translateError(err), 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [profileId, toast]);
+
   useEffect(() => {
     if (authLoading) return;
+    let cancelled = false;
 
     async function load() {
       if (!profileId) {
@@ -100,15 +123,23 @@ export default function AlunoConfiguracoesPage() {
         return;
       }
       try {
+        setLoading(true);
+        setLoadError(null);
         const p = await getUserPreferences(profileId);
-        setPrefs(p);
+        if (!cancelled) setPrefs(p);
       } catch (err) {
-        toast(translateError(err), 'error');
+        if (!cancelled) {
+          logServiceError(err, 'AlunoConfiguracoesPage');
+          setLoadError(translateError(err));
+          toast(translateError(err), 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
+
     load();
+    return () => { cancelled = true; };
   }, [authLoading, profileId, toast]);
 
   const savePref = useCallback(
@@ -145,7 +176,19 @@ export default function AlunoConfiguracoesPage() {
     }
   }
 
-  if (loading || authLoading || !prefs) return <SettingsSkeleton />;
+  if (loading || authLoading) return <SettingsSkeleton />;
+
+  if (loadError || !prefs) {
+    return (
+      <div className="p-4 sm:p-6">
+        <ErrorState
+          title="Configuracoes indisponiveis"
+          description={loadError || 'Nao foi possivel carregar as configuracoes.'}
+          onRetry={loadPreferences}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6">

@@ -27,6 +27,8 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 import { cn } from '@/lib/utils/cn';
 // types used inline
 
@@ -585,6 +587,7 @@ export default function StudentProfilePage() {
   const [profile, setProfile] = useState<StudentProfileDTO | null>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>('jornada');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Tab data states
   const [timeline, setTimeline] = useState<TimelineEventDTO[] | null>(null);
@@ -604,15 +607,23 @@ export default function StudentProfilePage() {
       setLoading(false);
       return;
     }
+    let cancelled = false;
     async function loadProfile() {
       try {
+        setError(null);
         const p = await getStudentProfile(studentId!);
-        setProfile(p);
+        if (!cancelled) setProfile(p);
+      } catch (err) {
+        if (!cancelled) {
+          logServiceError(err, 'StudentProfilePage');
+          setError('Nao foi possivel carregar o perfil. Tente novamente.');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     loadProfile();
+    return () => { cancelled = true; };
   }, [studentId, studentIdLoading]);
 
   // Load tab data on demand
@@ -676,7 +687,17 @@ export default function StudentProfilePage() {
   }, [loadTabData]);
 
   if (loading) return <ProfileSkeleton />;
-  if (!profile) return null;
+  if (error || !profile) {
+    return (
+      <div className="p-4">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={error || 'Nao foi possivel carregar seus dados.'}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   const beltGradient = BELT_GRADIENT_MAP[profile.belt] ?? BELT_GRADIENT_MAP.white;
   const beltText = BELT_TEXT_MAP[profile.belt] ?? 'text-bb-black';

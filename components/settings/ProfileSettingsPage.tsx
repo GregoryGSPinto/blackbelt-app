@@ -21,6 +21,8 @@ import {
 } from '@/lib/api/profile-settings.service';
 import type { ProfileRole, ProfileSettingsData } from '@/lib/api/profile-settings.service';
 import { translateError } from '@/lib/utils/error-translator';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -894,19 +896,42 @@ export default function ProfileSettingsPage({ role }: ProfileSettingsPageProps) 
   const { toast } = useToast();
   const [data, setData] = useState<ProfileSettingsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadSettings = useCallback(async () => {
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const result = await getProfileSettings(role);
+      setData(result);
+    } catch (err) {
+      logServiceError(err, 'ProfileSettingsPage');
+      setLoadError(translateError(err));
+      toast(translateError(err), 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [role, toast]);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
+        setLoadError(null);
         const result = await getProfileSettings(role);
-        setData(result);
+        if (!cancelled) setData(result);
       } catch (err) {
-        toast(translateError(err), 'error');
+        if (!cancelled) {
+          logServiceError(err, 'ProfileSettingsPage');
+          setLoadError(translateError(err));
+          toast(translateError(err), 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, [role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdate = useCallback(
@@ -924,16 +949,14 @@ export default function ProfileSettingsPage({ role }: ProfileSettingsPageProps) 
 
   if (loading) return <ProfileSettingsSkeleton />;
 
-  if (!data) {
+  if (loadError || !data) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center p-4">
-        <p className="text-4xl">{'⚙️'}</p>
-        <h2 className="mt-4 text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-          Perfil indisponivel
-        </h2>
-        <p className="mt-1 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-          Nao foi possivel carregar suas configuracoes.
-        </p>
+      <div className="p-4 sm:p-6">
+        <ErrorState
+          title="Perfil indisponivel"
+          description={loadError || 'Nao foi possivel carregar suas configuracoes.'}
+          onRetry={loadSettings}
+        />
       </div>
     );
   }
