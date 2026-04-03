@@ -23,7 +23,7 @@ const PREVIEW_CHECKINS = [
 function DashboardPreview() {
   return (
     <div
-      className="w-full max-w-[380px] rounded-2xl overflow-hidden shadow-2xl"
+      className="w-full max-w-[420px] rounded-2xl overflow-hidden shadow-2xl"
       style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
     >
       {/* Window bar */}
@@ -36,7 +36,7 @@ function DashboardPreview() {
         </span>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-4">
         {/* Header */}
         <div>
           <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
@@ -59,10 +59,10 @@ function DashboardPreview() {
               className="rounded-xl p-2.5 text-center"
               style={{ background: 'var(--bb-depth-3)' }}
             >
-              <p className="text-lg font-extrabold leading-none" style={{ color: kpi.color }}>
+              <p className="text-xl font-extrabold leading-none" style={{ color: kpi.color }}>
                 {kpi.value}
               </p>
-              <p className="text-[9px] font-medium mt-1 uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+              <p className="text-[10px] font-medium mt-1 uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
                 {kpi.label}
               </p>
             </div>
@@ -222,7 +222,7 @@ export default function LoginPage() {
 
       {/* ═══ LEFT SIDE — PRODUCT PREVIEW (desktop only) ═══ */}
       <div
-        className="relative hidden overflow-hidden lg:flex lg:w-[44%] lg:flex-col lg:px-10 lg:py-8 xl:w-[46%] xl:px-14"
+        className="relative hidden overflow-hidden lg:flex lg:w-[45%] lg:flex-col lg:items-center lg:justify-center lg:px-10 lg:py-8 xl:px-14"
         style={{ background: 'var(--bb-depth-1)' }}
       >
         {/* Gradient overlay */}
@@ -232,38 +232,21 @@ export default function LoginPage() {
         />
 
         {/* Logo — clickable → home */}
-        <div className="relative z-10">
+        <div className="absolute left-10 top-8 z-10 xl:left-14">
           <Link href="/" aria-label="Ir para a pagina inicial">
             <BlackBeltLogo variant="full" height={36} />
           </Link>
         </div>
 
         {/* Dashboard Preview Card */}
-        <div className="relative z-10 flex flex-1 items-center justify-center py-6">
+        <div className="relative z-10">
           <DashboardPreview />
-        </div>
-
-        {/* Features — secondary, below the preview */}
-        <div className="relative z-10 space-y-2 pb-2">
-          {[
-            'Check-in inteligente por QR Code',
-            'Gestao de turmas e professores',
-            'Controle financeiro completo',
-            'Graduacao e progressao de faixas',
-          ].map((feature) => (
-            <div key={feature} className="flex items-center gap-2.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                <path d="M20 6L9 17l-5-5" stroke="var(--bb-brand-deep)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              {feature}
-            </div>
-          ))}
         </div>
       </div>
 
       {/* ═══ RIGHT SIDE — FORM ═══ */}
-      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[56%] lg:px-10 lg:py-8 xl:w-[54%] xl:px-14">
-        <div className="flex w-full max-w-[28rem] flex-col justify-center sm:max-w-[30rem] lg:max-w-[28rem] xl:max-w-[30rem]">
+      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[55%] lg:px-10 lg:py-8 xl:px-14">
+        <div className="flex w-full max-w-md flex-col justify-center">
 
           {/* Logo (mobile only) — clickable → home */}
           <div className="mb-7 text-center lg:hidden sm:mb-8">
@@ -275,10 +258,10 @@ export default function LoginPage() {
           {/* Heading */}
           <div className="mb-6 sm:mb-7">
             <h2 className="text-2xl font-bold sm:text-[1.75rem]" style={{ color: 'var(--bb-ink-100)' }}>
-              Entrar na sua conta
+              Entrar
             </h2>
             <p className="mt-1.5 text-sm leading-6" style={{ color: 'var(--bb-ink-40)' }}>
-              Acesse sua academia com seguranca.
+              Acesse sua academia
             </p>
           </div>
 
