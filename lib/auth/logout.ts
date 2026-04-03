@@ -10,9 +10,12 @@ import { resetAnalytics } from '@/lib/analytics/posthog';
  * Usa window.location.href (hard redirect) para limpar React state completamente.
  */
 export async function performLogout(): Promise<void> {
-  // 1. Supabase signOut + clear cookies (best effort)
+  // 1. Supabase signOut with timeout (best effort — 3s max)
   try {
-    await authService.logout();
+    await Promise.race([
+      authService.logout(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('signOut timeout')), 3000)),
+    ]);
   } catch (err) {
     console.error('[logout] Erro no signOut:', err);
   }
@@ -29,7 +32,14 @@ export async function performLogout(): Promise<void> {
     clearTokens();
   }
 
-  // 4. Limpar localStorage (sb-*, bb_*, auth, profile, tour)
+  // 4. Limpar cookies diretamente (bb-token, bb-active-role, bb-academy-id)
+  if (typeof document !== 'undefined') {
+    for (const name of ['bb-token', 'bb-active-role', 'bb-academy-id']) {
+      document.cookie = `${name}=; Max-Age=0; path=/`;
+    }
+  }
+
+  // 5. Limpar localStorage (sb-*, bb_*, auth, profile, tour)
   if (typeof localStorage !== 'undefined') {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -50,12 +60,12 @@ export async function performLogout(): Promise<void> {
     keysToRemove.forEach((key) => localStorage.removeItem(key));
   }
 
-  // 5. Limpar sessionStorage
+  // 6. Limpar sessionStorage
   if (typeof sessionStorage !== 'undefined') {
     sessionStorage.clear();
   }
 
-  // 6. Hard redirect — limpa React state completamente
+  // 7. Hard redirect — limpa React state completamente
   if (typeof window !== 'undefined') {
     window.location.href = '/login';
   }

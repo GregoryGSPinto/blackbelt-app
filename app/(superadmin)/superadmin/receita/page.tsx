@@ -114,7 +114,16 @@ export default function ReceitaPage() {
 
   useEffect(() => {
     const cleanup = loadData();
-    return cleanup;
+    // Safety timeout: escape skeleton after 15s
+    const timer = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          setError('Tempo esgotado ao carregar dados de receita.');
+        }
+        return false;
+      });
+    }, 15000);
+    return () => { cleanup(); clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
