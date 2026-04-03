@@ -141,7 +141,9 @@ function PlanModal({ plan, onClose, onSave, saving }: PlanModalProps) {
               <label className="mb-1 block text-xs font-semibold" style={{ color: 'var(--bb-ink-60)' }}>Nome do Plano</label>
               <input
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value.slice(0, 50))}
+                maxLength={50}
+                placeholder="Ex: Jiu-Jitsu Plus"
                 className="w-full rounded-lg px-3 py-2 text-sm"
                 style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
               />
