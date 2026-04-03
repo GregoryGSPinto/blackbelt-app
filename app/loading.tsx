@@ -48,16 +48,22 @@ export default function Loading() {
           <span className="text-[#DC2626]">Belt</span>
         </h1>
 
-        {/* Message */}
-        <p
-          className="mt-4 text-sm text-[var(--bb-ink-40)]"
+        {/* Subtle loading indicator — no text */}
+        <div
+          className="mt-6 h-1 w-16 overflow-hidden rounded-full bg-[var(--bb-depth-3)]"
           style={{
             animation: 'bb-fade-in 0.6s ease-out 0.4s forwards',
             opacity: 0,
           }}
         >
-          Preparando seu tatame...
-        </p>
+          <div
+            className="h-full rounded-full bg-[#DC2626]"
+            style={{
+              animation: 'bb-progress 1.2s ease-in-out infinite',
+              width: '40%',
+            }}
+          />
+        </div>
 
         {/* Progress bar at bottom */}
         <div className="absolute bottom-0 left-0 h-[2px] w-full overflow-hidden bg-[var(--bb-depth-3)]">

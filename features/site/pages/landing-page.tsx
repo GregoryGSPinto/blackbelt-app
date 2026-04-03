@@ -12,6 +12,7 @@ import { ParentMockup } from '@/components/landing/ParentMockup';
 import { BillingMockup } from '@/components/landing/BillingMockup';
 import { WhatsAppFAB } from '@/components/landing/WhatsAppFAB';
 import { formatBrazilianPhone } from '@/lib/utils/validation';
+import { Building2, Award, Dumbbell, Gamepad2, Star, Users, ClipboardList, TrendingDown, BarChart3, CheckCircle2 } from 'lucide-react';
 
 /* ── FAQ Accordion ── */
 const FAQ_ITEMS = [
@@ -35,12 +36,12 @@ const PRODUCT_TABS = [
 
 /* ── Profile Cards ── */
 const PROFILES = [
-  { emoji: '🏢', name: 'Admin', keywords: 'Dashboard, turmas, financeiro' },
-  { emoji: '🥋', name: 'Professor', keywords: 'Modo aula, avaliações, técnicas' },
-  { emoji: '💪', name: 'Aluno', keywords: 'Check-in, progresso, conquistas' },
-  { emoji: '🎮', name: 'Teen', keywords: 'XP, ranking, desafios' },
-  { emoji: '⭐', name: 'Kids', keywords: 'Estrelas, figurinhas, diversão' },
-  { emoji: '👨‍👩‍👧', name: 'Pais', keywords: 'Presença, evolução, pagamentos' },
+  { icon: Building2, name: 'Admin', keywords: 'Dashboard, turmas, financeiro' },
+  { icon: Award, name: 'Professor', keywords: 'Modo aula, avaliações, técnicas' },
+  { icon: Dumbbell, name: 'Aluno', keywords: 'Check-in, progresso, conquistas' },
+  { icon: Gamepad2, name: 'Teen', keywords: 'XP, ranking, desafios' },
+  { icon: Star, name: 'Kids', keywords: 'Estrelas, figurinhas, diversão' },
+  { icon: Users, name: 'Pais', keywords: 'Presença, evolução, pagamentos' },
 ];
 
 /* ── FAQ Accordion Component ── */
@@ -179,7 +180,7 @@ export default function LandingPage() {
             <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <FadeInSection delay={0}>
                 <div className="rounded-2xl p-6 h-full" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
-                  <span className="text-3xl">📋</span>
+                  <ClipboardList className="h-8 w-8" style={{ color: 'var(--bb-brand-deep)' }} />
                   <h3 className="mt-3 text-lg font-bold">Caderno e WhatsApp</h3>
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
                     Controle de presença no papel. Cobrança por mensagem. Lista de alunos na planilha. Você sabe que precisa mudar.
@@ -188,7 +189,7 @@ export default function LandingPage() {
               </FadeInSection>
               <FadeInSection delay={100}>
                 <div className="rounded-2xl p-6 h-full" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
-                  <span className="text-3xl">💸</span>
+                  <TrendingDown className="h-8 w-8" style={{ color: 'var(--bb-brand-deep)' }} />
                   <h3 className="mt-3 text-lg font-bold">Inadimplência que dói</h3>
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
                     Todo mês é a mesma história: aluno que sumiu, mensalidade atrasada, cobrança constrangedora. Isso consome seu tempo e energia.
@@ -197,7 +198,7 @@ export default function LandingPage() {
               </FadeInSection>
               <FadeInSection delay={200}>
                 <div className="rounded-2xl p-6 h-full sm:col-span-2 lg:col-span-1" style={{ background: 'var(--bb-depth-3)', border: '1px solid var(--bb-glass-border)' }}>
-                  <span className="text-3xl">😰</span>
+                  <BarChart3 className="h-8 w-8" style={{ color: 'var(--bb-brand-deep)' }} />
                   <h3 className="mt-3 text-lg font-bold">Sem visão do negócio</h3>
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
                     Quantos alunos você tem de verdade? Qual sua taxa de retenção? Quanto entrou este mês? Se você não sabe, está voando às cegas.
@@ -295,7 +296,7 @@ export default function LandingPage() {
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(198,40,40,0.4)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--bb-glass-border)'; }}
                   >
-                    <span className="text-3xl">{profile.emoji}</span>
+                    <profile.icon className="h-7 w-7" style={{ color: 'var(--bb-brand-deep)' }} />
                     <h3 className="mt-2 text-sm font-bold">{profile.name}</h3>
                     <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-40)' }}>{profile.keywords}</p>
                   </div>
@@ -411,8 +412,10 @@ export default function LandingPage() {
                 Produto
               </h4>
               <ul className="space-y-2">
-                <li><a href="#funcionalidades" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a></li>
-                <li><a href="#faq" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a></li>
+                <li><a href="#funcionalidades" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a></li>
+                <li><Link href="/changelog" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Novidades</Link></li>
+                <li><Link href="/status" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Status do sistema</Link></li>
+                <li><a href="#faq" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a></li>
               </ul>
             </div>
 
@@ -422,8 +425,9 @@ export default function LandingPage() {
                 Legal
               </h4>
               <ul className="space-y-2">
-                <li><Link href="/termos" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Termos de Uso</Link></li>
-                <li><Link href="/privacidade" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>Privacidade</Link></li>
+                <li><Link href="/termos" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Privacidade</Link></li>
+                <li><Link href="/excluir-conta" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Excluir conta</Link></li>
               </ul>
             </div>
 
@@ -459,6 +463,9 @@ export default function LandingPage() {
           >
             <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
               &copy; 2026 BlackBelt. Todos os direitos reservados.
+            </p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              Vespasiano, MG — Brasil
             </p>
           </div>
         </div>
@@ -518,9 +525,12 @@ function TrialFormSection() {
               className="mt-8 rounded-2xl p-6"
               style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)' }}
             >
-              <p className="text-lg font-bold" style={{ color: '#22c55e' }}>
-                Cadastro realizado! 🎉
-              </p>
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle2 className="h-6 w-6" style={{ color: '#22c55e' }} />
+                <p className="text-lg font-bold" style={{ color: '#22c55e' }}>
+                  Cadastro realizado!
+                </p>
+              </div>
               <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
                 A academia entrará em contato pelo WhatsApp informado. Bem-vindo(a)!
               </p>
