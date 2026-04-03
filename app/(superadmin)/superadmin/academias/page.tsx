@@ -262,6 +262,7 @@ export default function AcademiasPage() {
 
   async function handleCreate() {
     if (!formName.trim()) { toast('Nome da academia e obrigatorio.', 'error'); return; }
+    if (!formPlanId) { toast('Selecione um plano.', 'error'); return; }
     setCreating(true);
     try {
       const payload: CreateAcademyPayload = {
@@ -987,6 +988,7 @@ export default function AcademiasPage() {
                 className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
                 style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-100)', border: '1px solid var(--bb-glass-border)' }}
               >
+                <option value="">Selecione um plano</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>{p.name} — {formatCurrency(p.price_monthly)}/mes</option>
                 ))}
@@ -1014,7 +1016,7 @@ export default function AcademiasPage() {
           </div>
           <div className="flex gap-3 pt-2">
             <Button variant="ghost" className="flex-1" onClick={resetForm}>Cancelar</Button>
-            <Button className="flex-1" disabled={!formName.trim()} loading={creating} onClick={handleCreate}>
+            <Button className="flex-1" disabled={!formName.trim() || !formPlanId} loading={creating} onClick={handleCreate}>
               Criar e Gerar Link
             </Button>
           </div>
