@@ -227,6 +227,103 @@ export async function reactivateAcademy(id: string): Promise<AcademyFull> {
   return data as AcademyFull;
 }
 
+// ── Subscription Management ──────────────────────────────────────────
+
+export type SubscriptionAction = 'extend_trial' | 'activate' | 'suspend' | 'unblock';
+
+export async function manageSubscription(
+  academyId: string,
+  action: SubscriptionAction,
+  days?: number,
+): Promise<AcademyFull> {
+  if (isMock()) {
+    const { mockGetAcademy } = await import('@/lib/mocks/superadmin.mock');
+    return (await mockGetAcademy(academyId))!;
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+
+  switch (action) {
+    case 'extend_trial': {
+      const extendDays = days ?? 7;
+      // Update academy_subscriptions trial_ends_at
+      const { data: sub } = await supabase
+        .from('academy_subscriptions')
+        .select('trial_ends_at')
+        .eq('academy_id', academyId)
+        .maybeSingle();
+
+      const currentEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : new Date();
+      const baseDate = currentEnd > new Date() ? currentEnd : new Date();
+      const newEnd = new Date(baseDate);
+      newEnd.setDate(newEnd.getDate() + extendDays);
+
+      await supabase
+        .from('academy_subscriptions')
+        .update({
+          trial_ends_at: newEnd.toISOString(),
+          status: 'trial',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('academy_id', academyId);
+
+      // Also update academy status to trial
+      const { data, error } = await supabase
+        .from('academies')
+        .update({
+          status: 'trial',
+          trial_ends_at: newEnd.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', academyId)
+        .select('*, platform_plans(*)')
+        .single();
+
+      if (error || !data) throw new Error(`[extendTrial] ${error?.message}`);
+      return data as AcademyFull;
+    }
+
+    case 'activate': {
+      await supabase
+        .from('academy_subscriptions')
+        .update({ status: 'full', updated_at: new Date().toISOString() })
+        .eq('academy_id', academyId);
+
+      const { data, error } = await supabase
+        .from('academies')
+        .update({ status: 'active', updated_at: new Date().toISOString() })
+        .eq('id', academyId)
+        .select('*, platform_plans(*)')
+        .single();
+
+      if (error || !data) throw new Error(`[activate] ${error?.message}`);
+      return data as AcademyFull;
+    }
+
+    case 'suspend': {
+      await supabase
+        .from('academy_subscriptions')
+        .update({ status: 'suspended', updated_at: new Date().toISOString() })
+        .eq('academy_id', academyId);
+
+      return suspendAcademy(academyId);
+    }
+
+    case 'unblock': {
+      await supabase
+        .from('academy_subscriptions')
+        .update({ status: 'full', updated_at: new Date().toISOString() })
+        .eq('academy_id', academyId);
+
+      return reactivateAcademy(academyId);
+    }
+
+    default:
+      throw new Error(`Acao desconhecida: ${action}`);
+  }
+}
+
 // ── Onboard Tokens ───────────────────────────────────────────────────
 
 export async function listOnboardTokens(

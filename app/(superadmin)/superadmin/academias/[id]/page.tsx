@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/lib/hooks/useToast';
 import type { AcademyFull } from '@/lib/types';
-import { getAcademy, suspendAcademy, reactivateAcademy } from '@/lib/api/superadmin.service';
+import { getAcademy, suspendAcademy, reactivateAcademy, manageSubscription } from '@/lib/api/superadmin.service';
 import { startImpersonation } from '@/lib/api/superadmin-impersonate.service';
 import { translateError } from '@/lib/utils/error-translator';
 
@@ -127,7 +127,7 @@ export default function AcademyDetailPage() {
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="ghost"
             onClick={async () => {
@@ -141,6 +141,41 @@ export default function AcademyDetailPage() {
           >
             Entrar como Admin
           </Button>
+          {(academy.status === 'trial' || academy.status === 'pending') && (
+            <>
+              {[7, 14, 30].map((days) => (
+                <Button
+                  key={days}
+                  variant="ghost"
+                  onClick={async () => {
+                    try {
+                      const updated = await manageSubscription(academy.id, 'extend_trial', days);
+                      setAcademy(updated);
+                      toast(`Trial estendido em +${days} dias.`, 'success');
+                    } catch (err) { toast(translateError(err), 'error'); }
+                  }}
+                  style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}
+                >
+                  +{days}d trial
+                </Button>
+              ))}
+            </>
+          )}
+          {academy.status !== 'active' && academy.status !== 'trial' && (
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                try {
+                  const updated = await manageSubscription(academy.id, 'activate');
+                  setAcademy(updated);
+                  toast('Plano ativado.', 'success');
+                } catch (err) { toast(translateError(err), 'error'); }
+              }}
+              style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}
+            >
+              Ativar plano
+            </Button>
+          )}
           <Button
             variant="ghost"
             onClick={handleToggleStatus}
