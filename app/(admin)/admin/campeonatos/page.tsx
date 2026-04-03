@@ -557,6 +557,15 @@ function TabResultados({ medalTable, academyResults, selected }: { medalTable: M
   if (!selected) return <EmptyState icon={AwardIcon} text="Selecione um campeonato" />;
   return (
     <div className="space-y-6">
+      {/* Analytics Button */}
+      <a
+        href={`/admin/campeonatos/${selected.id}/analytics`}
+        className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition-colors"
+        style={{ background: 'var(--bb-brand)', color: '#fff', borderRadius: 'var(--bb-radius-lg)' }}
+      >
+        <BarChartIcon className="h-4 w-4" />
+        Ver Analytics Completo
+      </a>
       <div>
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}><AwardIcon className="h-4 w-4" /> Quadro de Medalhas</h3>
         <div className="overflow-x-auto" style={{ background: 'var(--bb-depth-2)', borderRadius: 'var(--bb-radius-lg)', border: '1px solid var(--bb-glass-border)' }}>
