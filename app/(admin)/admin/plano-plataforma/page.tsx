@@ -1,26 +1,52 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getUsage, PLATFORM_PLANS, type UsageDTO } from '@/lib/api/platform-plans.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { ComingSoon } from '@/components/shared/ComingSoon';
+import { logServiceError } from '@/lib/api/errors';
 
 export default function PlanoPlataformaPage() {
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [usage, setUsage] = useState<UsageDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
-  useEffect(() => {
-    getUsage(getActiveAcademyId()).then(setUsage).finally(() => setLoading(false));
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const data = await getUsage(getActiveAcademyId());
+      setUsage(data);
+    } catch (err) {
+      logServiceError(err, 'plano-plataforma');
+      setLoadError('Nao foi possivel carregar os dados do plano.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   if (loading && comingSoonTimeout) return <ComingSoon backHref="/admin" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
-  if (!usage) return null;
+  if (loadError || !usage) {
+    return (
+      <div className="p-6">
+        <ErrorState
+          title="Plano indisponivel"
+          description={loadError || 'Nao foi possivel carregar os dados do plano.'}
+          onRetry={loadData}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, type CSSProperties } from 'react';
+import { useState, useEffect, useCallback, useMemo, type CSSProperties } from 'react';
 import {
   getAssinatura,
   getModulos,
@@ -20,6 +20,7 @@ import { handleServiceError } from '@/lib/api/errors';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { useToast } from '@/lib/hooks/useToast';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { isNative } from '@/lib/platform';
@@ -174,6 +175,7 @@ export default function AdminPlanoPage() {
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
   const [extras, setExtras] = useState<ModuloExtra[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activatingSlug, setActivatingSlug] = useState<string | null>(null);
   const [showUsoDetalhado, setShowUsoDetalhado] = useState(false);
   const [native, setNative] = useState(false);
@@ -182,27 +184,35 @@ export default function AdminPlanoPage() {
     setNative(isNative());
   }, []);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [sub, mods, billing, extrasData] = await Promise.all([
-          getAssinatura(getActiveAcademyId()),
-          getModulos(),
-          getHistoricoCobrancas(getActiveAcademyId()),
-          getModulosExtrasDescoberta(getActiveAcademyId()),
-        ]);
+  const loadData = useCallback(async () => {
+    let cancelled = false;
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const [sub, mods, billing, extrasData] = await Promise.all([
+        getAssinatura(getActiveAcademyId()),
+        getModulos(),
+        getHistoricoCobrancas(getActiveAcademyId()),
+        getModulosExtrasDescoberta(getActiveAcademyId()),
+      ]);
+      if (!cancelled) {
         setAssinatura(sub);
         setModulos(mods);
         setCobrancas(billing);
         setExtras(extrasData);
-      } catch (error) {
-        handleServiceError(error, 'plano.page');
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      handleServiceError(error, 'plano.page');
+      if (!cancelled) setLoadError('Nao foi possivel carregar os dados do plano.');
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    load();
+    return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Sorted discovery usage (extras only, by usage desc)
   const sortedUsoDescoberta = useMemo(() => {
@@ -275,7 +285,19 @@ export default function AdminPlanoPage() {
     );
   }
 
-  if (loading || !assinatura) return <PlanoPageSkeleton />;
+  if (loading) return <PlanoPageSkeleton />;
+
+  if (loadError || !assinatura) {
+    return (
+      <div className="p-4 sm:p-6">
+        <ErrorState
+          title="Plano indisponivel"
+          description={loadError || 'Nao foi possivel carregar as informacoes do plano.'}
+          onRetry={loadData}
+        />
+      </div>
+    );
+  }
 
   const discoveryProgress = assinatura.emPeriodoDescoberta
     ? ((82 - assinatura.diasRestantesDescoberta) / 82) * 100

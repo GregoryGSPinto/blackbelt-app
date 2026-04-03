@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { listPlans } from '@/lib/api/planos.service';
 import type { Plan } from '@/lib/types';
@@ -8,23 +8,50 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { ComingSoon } from '@/components/shared/ComingSoon';
+import { logServiceError } from '@/lib/api/errors';
 
 export default function PlanosPage() {
   const router = useRouter();
   const [comingSoonTimeout, setComingSoonTimeout] = useState(false);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [currentPlanId] = useState<string | null>(null);
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
-  useEffect(() => {
-    listPlans(getActiveAcademyId()).then(setPlans).finally(() => setLoading(false));
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const result = await listPlans(getActiveAcademyId());
+      setPlans(result);
+    } catch (err) {
+      logServiceError(err, 'planos.page');
+      setLoadError('Nao foi possivel carregar os planos.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   if (loading && comingSoonTimeout) return <ComingSoon backHref="/dashboard" backLabel="Voltar ao Dashboard" />;
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
+  if (loadError) {
+    return (
+      <div className="p-6">
+        <ErrorState
+          title="Planos indisponiveis"
+          description={loadError}
+          onRetry={loadData}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

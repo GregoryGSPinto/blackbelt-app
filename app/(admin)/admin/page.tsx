@@ -44,6 +44,8 @@ import { getTrialMetrics, listTrialStudents } from '@/lib/api/trial.service';
 import type { TrialMetrics, TrialStudent } from '@/lib/api/trial.service';
 import { isMock } from '@/lib/env';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Dynamic Recharts (no SSR) ──────────────────────────────────────
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -563,6 +565,7 @@ function DashboardSkeleton() {
 // ════════════════════════════════════════════════════════════════════
 
 export default function AdminDashboardPage() {
+  const { toast } = useToast();
   const { data, loading: dataLoading } = useSWRFetch<DashboardData>(
     'admin-dashboard-data',
     () => getDashboardData(getActiveAcademyId()),
@@ -705,8 +708,10 @@ export default function AdminDashboardPage() {
               const period = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
               const report = await generateMonthlyReport(getActiveAcademyId(), period);
               setMonthlyReportData(report);
+              toast('Relatorio gerado com sucesso!', 'success');
             } catch (err) {
-              console.error('[ExportPDF]', err);
+              logServiceError(err, 'dashboard.exportPDF');
+              toast('Erro ao gerar relatorio. Tente novamente.', 'error');
             } finally {
               setReportExporting(false);
             }
