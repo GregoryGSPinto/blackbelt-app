@@ -11,7 +11,7 @@ import type { DailyBriefingDTO } from '@/lib/api/painel-dia.service';
 import { useCountUp } from '@/lib/hooks/useCountUp';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FirstStepsChecklist } from '@/components/onboarding/FirstStepsChecklist';
-import { OnboardingModal } from '@/components/shared/OnboardingModal';
+// OnboardingModal removed — TutorialProvider (providers.tsx) handles per-role tutorial
 import { useSWRFetch } from '@/lib/hooks/useSWRFetch';
 import {
   UsersIcon,
@@ -643,8 +643,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen space-y-8 p-4 sm:p-6" data-stagger>
 
-      {/* Onboarding tutorial for first-time admins */}
-      <OnboardingModal />
+      {/* Tutorial handled by TutorialProvider in providers.tsx */}
 
       {/* Bank account setup banner */}
       {bankConfigured === false && (
