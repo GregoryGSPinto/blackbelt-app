@@ -115,13 +115,27 @@ export async function getFinancialSummary(academyId: string): Promise<FinancialS
       return mockGetFinancialSummary(academyId);
     }
 
-    const summary = await getStudentFinancialSummary(academyId);
-    const paidCount = (await getStudentInvoices(academyId, { reference_month: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}` }))
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonth = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}`;
+
+    const [summary, currentInvoices, lastMonthInvoices] = await Promise.all([
+      getStudentFinancialSummary(academyId),
+      getStudentInvoices(academyId, { reference_month: currentMonth }),
+      getStudentInvoices(academyId, { reference_month: lastMonth }),
+    ]);
+
+    const paidCount = currentInvoices
       .filter((invoice) => invoice.status === 'RECEIVED' || invoice.status === 'CONFIRMED').length;
+
+    const revenueLastMonth = lastMonthInvoices
+      .filter((invoice) => invoice.status === 'RECEIVED' || invoice.status === 'CONFIRMED')
+      .reduce((sum, invoice) => sum + invoice.amount, 0);
 
     return {
       revenue_this_month: summary.total_received,
-      revenue_last_month: 0,
+      revenue_last_month: revenueLastMonth,
       pending_amount: summary.total_pending,
       overdue_amount: summary.total_overdue,
       overdue_count: summary.overdue_count,

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Download, History, Pencil, Plus, RefreshCw, Send, Wallet } from 'lucide-react';
 import { PlanGate } from '@/components/plans/PlanGate';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -30,7 +31,10 @@ import {
   type StudentInvoice,
   type StudentFinancialListItem,
 } from '@/lib/api/student-billing.service';
-import { markAsManuallyPaid } from '@/lib/api/financial.service';
+import { getFinancialSummary, getRevenueChart, markAsManuallyPaid } from '@/lib/api/financial.service';
+import type { FinancialSummary, FinancialChartPoint } from '@/lib/types/financial';
+
+const RevenueChart = dynamic(() => import('./RevenueChart'), { ssr: false });
 
 type FinanceFilter =
   | 'todos'
@@ -200,6 +204,8 @@ export default function AdminFinanceiroPage() {
   const [manualPaymentOpen, setManualPaymentOpen] = useState(false);
   const [manualPaymentSaving, setManualPaymentSaving] = useState(false);
   const [manualPaymentData, setManualPaymentData] = useState<ManualPaymentData | null>(null);
+  const [summary, setSummary] = useState<FinancialSummary | null>(null);
+  const [chartData, setChartData] = useState<FinancialChartPoint[]>([]);
 
   const load = useCallback(async (showRefreshing = false) => {
     try {
@@ -208,13 +214,17 @@ export default function AdminFinanceiroPage() {
 
       await refreshFinancialProfileCaches(academyId);
 
-      const [list, executive] = await Promise.all([
+      const [list, executive, summaryData, chart] = await Promise.all([
         listStudentFinancialRows(academyId, { ...mapFilter(activeFilter), search: search || undefined }),
         getExecutiveFinancialDashboard(academyId),
+        getFinancialSummary(academyId),
+        getRevenueChart(academyId),
       ]);
 
       setRows(list);
       setDashboard(executive);
+      setSummary(summaryData);
+      setChartData(chart);
     } catch (error) {
       toast(translateError(error), 'error');
     } finally {
@@ -401,6 +411,55 @@ export default function AdminFinanceiroPage() {
             </div>
           ))}
         </section>
+
+        {/* Revenue Chart + Summary */}
+        {summary && (
+          <section className="animate-reveal grid gap-4 xl:grid-cols-[1.5fr,1fr]">
+            <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+              <h2 className="mb-4 text-base font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
+                Receita — últimos 6 meses
+              </h2>
+              {chartData.length > 0 ? (
+                <RevenueChart data={chartData.map(p => ({ month: p.month, receita: p.receita, inadimplencia: summary.total_count > 0 ? Math.round((summary.overdue_count / summary.total_count) * 100) : 0 }))} />
+              ) : (
+                <div className="flex h-64 items-center justify-center text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  Sem dados de receita para exibir.
+                </div>
+              )}
+            </div>
+            <div className="space-y-4">
+              <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--bb-ink-40)' }}>Comparativo mensal</p>
+                <p className="mt-2 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
+                  {formatCentsToBRL(summary.revenue_this_month)}
+                </p>
+                <p className="mt-1 text-xs" style={{ color: summary.revenue_last_month > 0 && summary.revenue_this_month >= summary.revenue_last_month ? '#22C55E' : '#EF4444' }}>
+                  {summary.revenue_last_month > 0
+                    ? `${summary.revenue_this_month >= summary.revenue_last_month ? '+' : ''}${Math.round(((summary.revenue_this_month - summary.revenue_last_month) / summary.revenue_last_month) * 100)}% vs mês anterior`
+                    : 'Sem dados do mês anterior'}
+                </p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--bb-ink-40)' }}>Inadimplência</p>
+                <p className="mt-2 text-2xl font-extrabold" style={{ color: summary.total_count > 0 && (summary.overdue_count / summary.total_count) > 0.1 ? '#EF4444' : 'var(--bb-ink-100)' }}>
+                  {summary.total_count > 0 ? Math.round((summary.overdue_count / summary.total_count) * 100) : 0}%
+                </p>
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  {summary.overdue_count} de {summary.total_count} faturas
+                </p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--bb-ink-40)' }}>Ticket médio</p>
+                <p className="mt-2 text-2xl font-extrabold" style={{ color: 'var(--bb-ink-100)' }}>
+                  {formatCentsToBRL(summary.ticket_medio)}
+                </p>
+                <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                  {summary.paid_count} aluno(s) pagante(s)
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="animate-reveal grid gap-4 xl:grid-cols-[1.5fr,1fr]">
           <div className="rounded-2xl p-4" style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}>
