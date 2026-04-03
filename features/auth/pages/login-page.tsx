@@ -11,6 +11,100 @@ import { resendEmailConfirmation } from '@/features/auth/services/auth.service';
 import { translateError } from '@/lib/utils/error-translator';
 import { validateEmail } from '@/lib/utils/validation';
 
+// ── Dashboard Preview (left panel) ──────────────────────────────
+
+const PREVIEW_CHECKINS = [
+  { name: 'Lucas Oliveira', belt: '#FFFFFF', time: '08:12' },
+  { name: 'Ana Costa', belt: '#2563EB', time: '08:05' },
+  { name: 'Pedro Henrique', belt: '#7C3AED', time: '07:58' },
+  { name: 'Mariana Silva', belt: '#854D0E', time: '07:51' },
+];
+
+function DashboardPreview() {
+  return (
+    <div
+      className="w-full max-w-[380px] rounded-2xl overflow-hidden shadow-2xl"
+      style={{ background: 'var(--bb-depth-2)', border: '1px solid var(--bb-glass-border)' }}
+    >
+      {/* Window bar */}
+      <div className="flex items-center gap-1.5 px-4 py-2.5" style={{ background: 'var(--bb-depth-3)' }}>
+        <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#EF4444' }} />
+        <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#F59E0B' }} />
+        <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#22C55E' }} />
+        <span className="ml-2 text-[10px] font-medium" style={{ color: 'var(--bb-ink-40)' }}>
+          blackbelt.app
+        </span>
+      </div>
+
+      <div className="p-4 space-y-4">
+        {/* Header */}
+        <div>
+          <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+            Dashboard — Guerreiros BJJ
+          </p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'var(--bb-ink-40)' }}>
+            Hoje, {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' })}
+          </p>
+        </div>
+
+        {/* KPIs */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'Alunos', value: '127', color: 'var(--bb-brand-deep)' },
+            { label: 'Presenca', value: '83%', color: '#22C55E' },
+            { label: 'Receita', value: 'R$ 24.8k', color: '#8B5CF6' },
+          ].map((kpi) => (
+            <div
+              key={kpi.label}
+              className="rounded-xl p-2.5 text-center"
+              style={{ background: 'var(--bb-depth-3)' }}
+            >
+              <p className="text-lg font-extrabold leading-none" style={{ color: kpi.color }}>
+                {kpi.value}
+              </p>
+              <p className="text-[9px] font-medium mt-1 uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
+                {kpi.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Check-ins recentes */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--bb-ink-40)' }}>
+            Check-ins recentes
+          </p>
+          <div className="space-y-1.5">
+            {PREVIEW_CHECKINS.map((c) => (
+              <div
+                key={c.name}
+                className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5"
+                style={{ background: 'var(--bb-depth-3)' }}
+              >
+                <div
+                  className="h-3 w-3 shrink-0 rounded-full ring-1"
+                  style={{
+                    background: c.belt,
+                    boxShadow: `0 0 0 1px var(--bb-glass-border)`,
+                  }}
+                />
+                <span className="flex-1 text-xs font-medium truncate" style={{ color: 'var(--bb-ink-80)' }}>
+                  {c.name}
+                </span>
+                <span className="text-[10px] tabular-nums" style={{ color: 'var(--bb-ink-40)' }}>
+                  {c.time}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Login Page ──────────────────────────────────────────────────
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, loginWithOAuth, selectProfile, isLoading: authLoading } = useAuth();
@@ -48,9 +142,6 @@ export default function LoginPage() {
       });
     } catch { /* ignore */ }
 
-    // Timeout safety — real Supabase auth + profile selection can take longer
-    // for freshly created users, so keep the guard generous enough to avoid
-    // false negatives while still surfacing genuine stalls.
     const timeout = setTimeout(() => {
       setLoading(false);
       setLocalError('Tempo esgotado. Verifique sua conexao e tente novamente.');
@@ -129,100 +220,75 @@ export default function LoginPage() {
     <div className="min-h-dvh overflow-x-hidden" style={{ background: 'var(--bb-depth-0)' }}>
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col lg:flex-row">
 
-      {/* ═══ LEFT SIDE — VISUAL (desktop only) ═══ */}
+      {/* ═══ LEFT SIDE — PRODUCT PREVIEW (desktop only) ═══ */}
       <div
-        className="relative hidden overflow-hidden lg:flex lg:w-[40%] lg:flex-col lg:justify-between lg:px-10 lg:py-10 xl:w-[45%] xl:px-14"
+        className="relative hidden overflow-hidden lg:flex lg:w-[44%] lg:flex-col lg:px-10 lg:py-8 xl:w-[46%] xl:px-14"
         style={{ background: 'var(--bb-depth-1)' }}
       >
         {/* Gradient overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(198, 40, 40, 0.08) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 30% 40%, rgba(198, 40, 40, 0.06) 0%, transparent 70%)' }}
         />
 
-        {/* Logo */}
+        {/* Logo — clickable → home */}
         <div className="relative z-10">
-          <BlackBeltLogo variant="full" height={40} />
+          <Link href="/" aria-label="Ir para a pagina inicial">
+            <BlackBeltLogo variant="full" height={36} />
+          </Link>
         </div>
 
-        {/* Brand content — clean, no fake data */}
-        <div className="relative z-10 flex flex-1 items-center justify-center py-6 xl:py-8">
-          <div className="max-w-sm px-4 text-center">
-            <h2 className="text-3xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
-              BlackBelt
-            </h2>
-            <p className="mt-3 text-base leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
-              A plataforma de gestão mais completa para academias de artes marciais.
-            </p>
-            <div className="mt-8 space-y-3 text-left">
-              {[
-                'Check-in inteligente por QR Code',
-                'Gestão de turmas e professores',
-                'Controle financeiro completo',
-                'Graduação e progressão de faixas',
-              ].map((feature) => (
-                <div key={feature} className="flex items-center gap-3 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
-                  <div className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'var(--bb-brand-deep)' }} />
-                  {feature}
-                </div>
-              ))}
+        {/* Dashboard Preview Card */}
+        <div className="relative z-10 flex flex-1 items-center justify-center py-6">
+          <DashboardPreview />
+        </div>
+
+        {/* Features — secondary, below the preview */}
+        <div className="relative z-10 space-y-2 pb-2">
+          {[
+            'Check-in inteligente por QR Code',
+            'Gestao de turmas e professores',
+            'Controle financeiro completo',
+            'Graduacao e progressao de faixas',
+          ].map((feature) => (
+            <div key={feature} className="flex items-center gap-2.5 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                <path d="M20 6L9 17l-5-5" stroke="var(--bb-brand-deep)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {feature}
             </div>
-          </div>
-        </div>
-
-        {/* Bottom text */}
-        <div className="relative z-10">
-          <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-            Gestão completa para academias de artes marciais
-          </p>
+          ))}
         </div>
       </div>
 
       {/* ═══ RIGHT SIDE — FORM ═══ */}
-      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[60%] lg:px-10 lg:py-10 xl:w-[55%] xl:px-14">
-        <div className="flex w-full max-w-[30rem] flex-col justify-center md:max-w-[34rem] lg:max-w-[30rem] xl:max-w-[32rem]">
-          {!isNativeDevice && (
-            <div className="mb-5 sm:mb-6">
-              <Link
-                href="/"
-                className="inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium leading-tight transition-opacity hover:opacity-100"
-                style={{
-                  color: 'var(--bb-ink-60)',
-                  background: 'var(--bb-depth-2)',
-                  border: '1px solid var(--bb-glass-border)',
-                  opacity: 0.92,
-                }}
-              >
-                <span aria-hidden="true">←</span>
-                Voltar para a pagina inicial
-              </Link>
-            </div>
-          )}
+      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[56%] lg:px-10 lg:py-8 xl:w-[54%] xl:px-14">
+        <div className="flex w-full max-w-[28rem] flex-col justify-center sm:max-w-[30rem] lg:max-w-[28rem] xl:max-w-[30rem]">
 
-          {/* Logo (mobile only) */}
+          {/* Logo (mobile only) — clickable → home */}
           <div className="mb-7 text-center lg:hidden sm:mb-8">
-            <div className="flex justify-center">
+            <Link href="/" className="inline-flex justify-center" aria-label="Ir para a pagina inicial">
               <BlackBeltLogo variant="full" height={44} />
-            </div>
+            </Link>
           </div>
 
           {/* Heading */}
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-2xl font-bold sm:text-[2rem]" style={{ color: 'var(--bb-ink-100)' }}>
-              Entrar
+          <div className="mb-6 sm:mb-7">
+            <h2 className="text-2xl font-bold sm:text-[1.75rem]" style={{ color: 'var(--bb-ink-100)' }}>
+              Entrar na sua conta
             </h2>
-            <p className="mt-2 max-w-[32rem] text-sm leading-6" style={{ color: 'var(--bb-ink-40)' }}>
-              Entre para acessar sua academia com seguranca.
+            <p className="mt-1.5 text-sm leading-6" style={{ color: 'var(--bb-ink-40)' }}>
+              Acesse sua academia com seguranca.
             </p>
           </div>
 
           {/* Social Login */}
-          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => handleOAuth('google')}
               disabled={isBusy || !!oauthLoading}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
               {oauthLoading === 'google' ? (
@@ -241,7 +307,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => handleOAuth('apple')}
               disabled={isBusy || !!oauthLoading}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
               {oauthLoading === 'apple' ? (
@@ -257,7 +323,7 @@ export default function LoginPage() {
           </div>
 
           {/* Divider */}
-          <div className="relative mb-6">
+          <div className="relative mb-5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full" style={{ borderTop: '1px solid var(--bb-glass-border)' }} />
             </div>
@@ -297,8 +363,16 @@ export default function LoginPage() {
                 <label className="text-xs font-medium" style={{ color: 'var(--bb-ink-60)' }}>
                   Senha
                 </label>
-                <Link href="/esqueci-senha" className="text-xs hover:underline" style={{ color: 'var(--bb-brand-deep)' }}>
-                  Esqueceu?
+                <Link
+                  href="/esqueci-senha"
+                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium transition-colors hover:underline"
+                  style={{ color: 'var(--bb-brand-deep)' }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                  </svg>
+                  Esqueceu a senha?
                 </Link>
               </div>
               <div className="relative">
@@ -394,7 +468,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+              className="w-full min-h-[44px] rounded-xl py-3 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               style={{ background: 'var(--bb-brand-deep)' }}
             >
               {isSubmitting ? (
@@ -408,23 +482,51 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Register link */}
-          <div className="mt-8 text-center">
-            {isNativeDevice ? (
+          {/* ── CTA Buttons ─────────────────────────────── */}
+          {!isNativeDevice && (
+            <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <Link
+                href="/cadastrar-academia"
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:brightness-110"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  color: 'var(--bb-ink-100)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Sou dono de academia
+              </Link>
+              <Link
+                href="/convite"
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:brightness-110"
+                style={{
+                  background: 'var(--bb-depth-2)',
+                  color: 'var(--bb-ink-100)',
+                  border: '1px solid var(--bb-glass-border)',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7" />
+                </svg>
+                Tenho um convite
+              </Link>
+            </div>
+          )}
+
+          {isNativeDevice && (
+            <div className="mt-6 text-center">
               <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 Nao tem conta? Acesse{' '}
                 <span className="font-medium" style={{ color: 'var(--bb-ink-80)' }}>blackbeltv2.vercel.app</span>{' '}
                 para se cadastrar.
               </p>
-            ) : (
-              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Nao tem conta?{' '}
-                <Link href="/cadastrar-academia" className="font-medium hover:underline" style={{ color: 'var(--bb-brand-deep)' }}>
-                  Cadastre sua academia
-                </Link>
-              </p>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Demo accounts (mock mode only) */}
           {isMock() && (
@@ -434,24 +536,24 @@ export default function LoginPage() {
               </p>
               <div className="grid grid-cols-1 gap-1.5">
                 {[
-                  { email: 'super@blackbelt.app', label: 'Super Admin', pw: '', icon: '🛡️' },
-                  { email: 'roberto@guerreiros.com', label: 'Admin', pw: '', icon: '👑' },
-                  { email: 'andre@guerreiros.com', label: 'Professor', pw: '', icon: '🥋' },
-                  { email: 'julia@guerreiros.com', label: 'Recepcionista', pw: '', icon: '📋' },
-                  { email: 'joao@email.com', label: 'Aluno', pw: '', icon: '💪' },
-                  { email: 'lucas.teen@email.com', label: 'Teen', pw: '', icon: '🎮' },
-                  { email: 'miguel.kids@email.com', label: 'Kids', pw: '', icon: '⭐' },
-                  { email: 'maria.resp@email.com', label: 'Responsável', pw: '', icon: '👨‍👧' },
-                  { email: 'fernando@guerreiros.com', label: 'Franqueador', pw: '', icon: '🏢' },
+                  { email: 'super@blackbelt.app', label: 'Super Admin', pw: '' },
+                  { email: 'roberto@guerreiros.com', label: 'Admin', pw: '' },
+                  { email: 'andre@guerreiros.com', label: 'Professor', pw: '' },
+                  { email: 'julia@guerreiros.com', label: 'Recepcionista', pw: '' },
+                  { email: 'joao@email.com', label: 'Aluno', pw: '' },
+                  { email: 'lucas.teen@email.com', label: 'Teen', pw: '' },
+                  { email: 'miguel.kids@email.com', label: 'Kids', pw: '' },
+                  { email: 'maria.resp@email.com', label: 'Responsavel', pw: '' },
+                  { email: 'fernando@guerreiros.com', label: 'Franqueador', pw: '' },
                 ].map(demo => (
                   <button
                     key={demo.email}
                     type="button"
                     onClick={() => { setEmail(demo.email); setPassword(demo.pw); }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all hover:brightness-110"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all hover:brightness-110 min-h-[44px]"
                     style={{ background: 'var(--bb-depth-3)' }}
                   >
-                    <span className="text-sm">{demo.icon}</span>
+                    <div className="h-2 w-2 rounded-full shrink-0" style={{ background: 'var(--bb-brand-deep)' }} />
                     <span className="text-xs font-medium flex-1" style={{ color: 'var(--bb-ink-80)' }}>{demo.label}</span>
                     <span className="text-[10px] hidden sm:inline" style={{ color: 'var(--bb-ink-40)' }}>{demo.email}</span>
                   </button>
@@ -460,17 +562,26 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Footer links */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center sm:mt-8">
-            <Link href="/privacidade" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
-              Privacidade
-            </Link>
-            <Link href="/termos" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
-              Termos
-            </Link>
-            <Link href="/contato" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
-              Contato
-            </Link>
+          {/* Footer — terms agreement + links */}
+          <div className="mt-6 space-y-3 sm:mt-8">
+            <p className="text-center text-[11px] leading-relaxed" style={{ color: 'var(--bb-ink-40)' }}>
+              Ao continuar, voce concorda com nossos{' '}
+              <Link href="/termos" className="underline underline-offset-2 hover:opacity-80" style={{ color: 'var(--bb-ink-60)' }}>
+                Termos de Uso
+              </Link>
+              {' '}e{' '}
+              <Link href="/privacidade" className="underline underline-offset-2 hover:opacity-80" style={{ color: 'var(--bb-ink-60)' }}>
+                Politica de Privacidade
+              </Link>.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <Link href="/contato" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
+                Contato
+              </Link>
+              <Link href="/suporte" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
+                Suporte
+              </Link>
+            </div>
           </div>
         </div>
       </div>
