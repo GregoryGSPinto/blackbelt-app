@@ -3,7 +3,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { FadeInSection } from '@/components/landing/FadeInSection';
 import { DashboardMockup } from '@/components/landing/DashboardMockup';
@@ -360,6 +359,7 @@ export default function LandingPage() {
 
       {/* ━━━ 8. CTA FINAL ━━━ */}
       <section
+        id="precos"
         className="px-4 py-24 sm:px-6 lg:py-32"
         style={{ background: 'linear-gradient(180deg, rgba(198,40,40,0.06) 0%, var(--bb-depth-1) 100%)' }}
       >
@@ -397,76 +397,56 @@ export default function LandingPage() {
       {/* ━━━ 9. FOOTER ━━━ */}
       <footer style={{ background: 'var(--bb-depth-2)', borderTop: '1px solid var(--bb-glass-border)' }}>
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Brand */}
-            <div>
-              <BlackBeltLogo variant="navbar" height={28} />
-              <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Gestão de academias de artes marciais
-              </p>
-            </div>
-
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {/* Produto */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Produto
-              </h4>
-              <ul className="space-y-2">
-                <li><a href="#funcionalidades" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Funcionalidades</a></li>
-                <li><Link href="/changelog" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Novidades</Link></li>
-                <li><Link href="/status" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Status do sistema</Link></li>
-                <li><a href="#faq" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>FAQ</a></li>
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Produto</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><a href="#funcionalidades" className="hover:underline">Funcionalidades</a></li>
+                <li><Link href="/changelog" className="hover:underline">Novidades</Link></li>
               </ul>
             </div>
-
+            {/* Suporte */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Suporte</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/contato" className="hover:underline">Contato</Link></li>
+                <li><Link href="/ajuda" className="hover:underline">Central de ajuda</Link></li>
+              </ul>
+            </div>
             {/* Legal */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Legal
-              </h4>
-              <ul className="space-y-2">
-                <li><Link href="/termos" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Termos de Uso</Link></li>
-                <li><Link href="/privacidade" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Privacidade</Link></li>
-                <li><Link href="/excluir-conta" className="text-sm hover:underline" style={{ color: 'var(--bb-ink-60)' }}>Excluir conta</Link></li>
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Legal</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/termos" className="hover:underline">Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:underline">Privacidade</Link></li>
+                <li><Link href="/excluir-conta" className="hover:underline">Excluir conta</Link></li>
               </ul>
             </div>
-
             {/* Contato */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Contato
-              </h4>
-              <ul className="space-y-2">
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Contato</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 <li>
-                  <a
-                    href="https://wa.me/5531996793625"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm"
-                    style={{ color: 'var(--bb-ink-60)' }}
-                  >
-                    WhatsApp — (31) 99679-3625
+                  <a href="https://wa.me/5531996793625" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    WhatsApp
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:gregoryguimaraes12@gmail.com" className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                  <a href="mailto:gregoryguimaraes12@gmail.com" className="hover:underline">
                     Email
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-
+          {/* Bottom bar */}
           <div
-            className="mt-10 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row"
+            className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-6 sm:flex-row"
             style={{ borderColor: 'var(--bb-glass-border)' }}
           >
-            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              &copy; 2026 BlackBelt. Todos os direitos reservados.
-            </p>
-            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Vespasiano, MG — Brasil
-            </p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>&copy; 2026 BlackBelt. Todos os direitos reservados.</p>
+            <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>Vespasiano, MG — Brasil</p>
           </div>
         </div>
       </footer>

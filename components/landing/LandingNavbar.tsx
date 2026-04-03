@@ -6,8 +6,7 @@ import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 
 const NAV_LINKS = [
   { href: '#funcionalidades', label: 'Funcionalidades' },
-  { href: '#perfis', label: 'Perfis' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '#precos', label: 'Preços' },
 ];
 
 export function LandingNavbar() {
@@ -58,18 +57,13 @@ export function LandingNavbar() {
           >
             Entrar
           </Link>
-          <div className="flex flex-col items-center">
-            <Link
-              href="/cadastrar-academia"
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: '#C62828' }}
-            >
-              Começar Grátis
-            </Link>
-            <span className="text-[11px] mt-1" style={{ color: 'var(--bb-ink-40)' }}>
-              7 dias grátis — sem cartão
-            </span>
-          </div>
+          <Link
+            href="/cadastrar-academia"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
+            style={{ background: '#C62828' }}
+          >
+            Cadastrar
+          </Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -116,7 +110,7 @@ export function LandingNavbar() {
             style={{ background: '#C62828' }}
             onClick={() => setMenuOpen(false)}
           >
-            Começar Grátis — 7 Dias
+            Cadastrar academia
           </Link>
         </div>
       )}

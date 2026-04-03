@@ -120,89 +120,39 @@ export default function PublicOperationalLayout({ children }: { children: React.
         style={{ borderColor: 'var(--bb-glass-border)', backgroundColor: 'var(--bb-depth-2)' }}
       >
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="lg:col-span-2">
-              <Link href="/login" className="flex items-center gap-2 text-xl font-bold">
-                <span
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-black text-white"
-                  style={{ background: 'var(--bb-brand-gradient)' }}
-                >
-                  BB
-                </span>
-                Black<span style={{ color: 'var(--bb-brand)' }}>Belt</span>
-              </Link>
-              <p className="mt-3 max-w-sm text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Plataforma completa de gestao para academias de artes marciais.
-                Alunos, turmas, financeiro e muito mais.
-              </p>
-            </div>
-
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            {/* Produto */}
             <div>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Produto
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  { href: '/login', label: 'Entrar' },
-                  { href: '/cadastro', label: 'Criar conta' },
-                  { href: '/cadastrar-academia', label: 'Cadastrar academia' },
-                  { href: '/contato', label: 'Contato' },
-                ].map((l) => (
-                  <li key={l.href}>
-                    <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Produto</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/login" className="hover:underline">Entrar</Link></li>
+                <li><Link href="/cadastrar-academia" className="hover:underline">Cadastrar academia</Link></li>
+                <li><Link href="/changelog" className="hover:underline">Novidades</Link></li>
               </ul>
             </div>
-
+            {/* Suporte */}
             <div>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Suporte
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  { href: '/ajuda', label: 'Ajuda' },
-                  { href: '/suporte', label: 'Fale conosco' },
-                  { href: '/feedback', label: 'Feedback' },
-                ].map((l) => (
-                  <li key={l.href}>
-                    <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Suporte</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/contato" className="hover:underline">Contato</Link></li>
+                <li><Link href="/ajuda" className="hover:underline">Central de ajuda</Link></li>
               </ul>
             </div>
-
+            {/* Legal */}
             <div>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Legal
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  { href: '/termos', label: 'Termos de Uso' },
-                  { href: '/privacidade', label: 'Privacidade' },
-                  { href: '/privacidade-menores', label: 'Privacidade de Menores' },
-                  { href: '/excluir-conta', label: 'Exclusao de Conta' },
-                ].map((l) => (
-                  <li key={l.href}>
-                    <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Legal</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/termos" className="hover:underline">Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:underline">Privacidade</Link></li>
+                <li><Link href="/excluir-conta" className="hover:underline">Excluir conta</Link></li>
               </ul>
             </div>
-
+            {/* Institucional */}
             <div>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Institucional
-              </h4>
-              <Link href="/" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                blackbelts.com.br
-              </Link>
+              <h4 className="mb-3 text-sm font-semibold" style={{ color: 'var(--bb-ink-80)' }}>Institucional</h4>
+              <ul className="space-y-2 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                <li><Link href="/" className="hover:underline">Inicio</Link></li>
+              </ul>
             </div>
           </div>
 
