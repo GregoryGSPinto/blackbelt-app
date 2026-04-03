@@ -56,7 +56,8 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
   // Guard: only auto-trigger the tutorial once per user per mount cycle.
   // This prevents re-triggering when effect deps change during the same session.
-  const autoTriggeredForRef = useRef<string | null>(null);
+  // Uses a Set to track ALL triggered tutorials, not just the last one.
+  const autoTriggeredSetRef = useRef<Set<string>>(new Set());
 
   const [state, setState] = useState<TutorialState>({
     isActive: false,
@@ -77,7 +78,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!profile?.user_id) {
       setState((prev) => ({ ...prev, progressLoaded: false }));
-      autoTriggeredForRef.current = null;
+      autoTriggeredSetRef.current.clear();
       return;
     }
 
@@ -139,7 +140,11 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
     // Only auto-trigger once per user+tutorial per mount cycle
     const triggerKey = `${profile.user_id}:${tutorialId}`;
-    if (autoTriggeredForRef.current === triggerKey) return;
+    if (autoTriggeredSetRef.current.has(triggerKey)) return;
+
+    // Also check sessionStorage to survive effect re-runs within same tab session
+    const sessionKey = `bb_tutorial_triggered_${triggerKey}`;
+    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey) === '1') return;
 
     const isCompleted = state.completedTutorials.includes(tutorialId);
     const isSkipped = state.skippedTutorials.includes(tutorialId);
@@ -149,7 +154,10 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     if (isCompleted || isSkipped) return;
 
     // Mark as triggered so we don't re-fire on subsequent renders
-    autoTriggeredForRef.current = triggerKey;
+    autoTriggeredSetRef.current.add(triggerKey);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(sessionKey, '1');
+    }
 
     const tutorial = getTutorialById(tutorialId);
     if (!tutorial) return;
@@ -332,7 +340,11 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     await tutorialService.resetTutorial(profile.user_id, tutorialId);
 
     // Clear auto-trigger guard so the tutorial can re-trigger
-    autoTriggeredForRef.current = null;
+    const triggerKey = `${profile.user_id}:${tutorialId}`;
+    autoTriggeredSetRef.current.delete(triggerKey);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(`bb_tutorial_triggered_${triggerKey}`);
+    }
 
     setState((prev) => ({
       ...prev,
