@@ -30,6 +30,8 @@ import type { UserPreferences, AcademySettings } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -92,6 +94,7 @@ export default function AdminConfiguracoesPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [academy, setAcademy] = useState<AcademySettings | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Password state
   const [senhaAtual, setSenhaAtual] = useState('');
@@ -112,6 +115,7 @@ export default function AdminConfiguracoesPage() {
       }
 
       try {
+        setLoadError(null);
         const [p, a] = await Promise.all([
           getUserPreferences(profileId),
           getAcademySettings(activeAcademyId),
@@ -119,6 +123,8 @@ export default function AdminConfiguracoesPage() {
         setPrefs(p);
         setAcademy(a);
       } catch (err) {
+        logServiceError(err, 'AdminConfiguracoesPage');
+        setLoadError(translateError(err));
         toast(translateError(err), 'error');
       } finally {
         setLoading(false);
@@ -223,7 +229,17 @@ export default function AdminConfiguracoesPage() {
     );
   }
 
-  if (!prefs || !academy) return <SettingsSkeleton />;
+  if (loadError || !prefs || !academy) {
+    return (
+      <div className="p-4 sm:p-6">
+        <ErrorState
+          title="Configuracoes indisponiveis"
+          description={loadError || 'Nao foi possivel carregar as configuracoes.'}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   // ── Render ───────────────────────────────────────────────────────
 

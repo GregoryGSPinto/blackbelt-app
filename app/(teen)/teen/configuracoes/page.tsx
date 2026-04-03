@@ -23,6 +23,8 @@ import {
 import type { UserPreferences } from '@/lib/types/preferences';
 import { translateError } from '@/lib/utils/error-translator';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -73,6 +75,7 @@ export default function TeenConfiguracoesPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('perfil');
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
@@ -88,9 +91,12 @@ export default function TeenConfiguracoesPage() {
         return;
       }
       try {
+        setLoadError(null);
         const p = await getUserPreferences(profileId);
         setPrefs(p);
       } catch (err) {
+        logServiceError(err, 'TeenConfiguracoesPage');
+        setLoadError(translateError(err));
         toast(translateError(err), 'error');
       } finally {
         setLoading(false);
@@ -133,7 +139,19 @@ export default function TeenConfiguracoesPage() {
     }
   }
 
-  if (loading || authLoading || !prefs) return <SettingsSkeleton />;
+  if (loading || authLoading) return <SettingsSkeleton />;
+
+  if (loadError || !prefs) {
+    return (
+      <div className="p-4 sm:p-6">
+        <ErrorState
+          title="Configuracoes indisponiveis"
+          description={loadError || 'Nao foi possivel carregar as configuracoes.'}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6">

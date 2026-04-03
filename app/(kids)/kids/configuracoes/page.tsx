@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/preferences.service';
 import type { UserPreferences } from '@/lib/types/preferences';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { logServiceError } from '@/lib/api/errors';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ export default function KidsConfiguracoesPage() {
 
   const [loading, setLoading] = useState(true);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const profileId = profile?.id ?? '';
 
   useEffect(() => {
@@ -74,9 +76,12 @@ export default function KidsConfiguracoesPage() {
         return;
       }
       try {
+        setLoadError(false);
         const p = await getUserPreferences(profileId);
         setPrefs(p);
-      } catch {
+      } catch (err) {
+        logServiceError(err, 'KidsConfiguracoesPage');
+        setLoadError(true);
         toast('Ops! Algo deu errado', 'error');
       } finally {
         setLoading(false);
@@ -99,7 +104,28 @@ export default function KidsConfiguracoesPage() {
     [profileId, toast],
   );
 
-  if (loading || authLoading || !prefs) return <KidsSkeleton />;
+  if (loading || authLoading) return <KidsSkeleton />;
+
+  if (loadError || !prefs) {
+    return (
+      <div className="p-4 sm:p-6 text-center">
+        <p className="text-lg font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+          Ops! Algo deu errado
+        </p>
+        <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+          Nao conseguimos carregar suas configuracoes.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-4 min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold text-white"
+          style={{ background: 'var(--bb-brand)' }}
+        >
+          Tentar de novo
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6" style={{ fontSize: '16px' }}>
