@@ -117,7 +117,7 @@ function MiniHeatmap({ diasPresentes, totalDays }: { diasPresentes: number[]; to
 function WeekCalendar({ semana }: { semana: DiaSemanaDTO[] }) {
   const today = new Date().toISOString().split('T')[0];
   return (
-    <div className="grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
       {semana.map((dia) => {
         const isToday = dia.date === today;
         return (
@@ -153,7 +153,7 @@ function DashboardSkeleton() {
       <Skeleton variant="text" className="h-8 w-3/4" />
       <Skeleton variant="card" className="h-36" />
       <Skeleton variant="card" className="h-28" />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Skeleton variant="card" className="h-24" />
         <Skeleton variant="card" className="h-24" />
       </div>
