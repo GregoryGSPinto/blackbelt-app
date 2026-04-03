@@ -209,7 +209,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
             }}
           >
             {/* Logo */}
-            <div className="flex h-16 items-center gap-3 px-6" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
+            <div className="flex h-14 items-center gap-3 px-6" style={{ borderBottom: '1px solid var(--bb-glass-border)' }}>
               <BlackBeltLogo variant="navbar" mode="dark" height={28} />
               <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: AMBER }}>
                 Platform Admin
@@ -294,7 +294,7 @@ const SuperAdminShell = forwardRef<HTMLDivElement, SuperAdminShellProps>(
           <div className="flex flex-1 flex-col">
             {/* Topbar */}
             <header
-              className="sticky top-0 z-20 flex h-16 items-center justify-between px-4 lg:px-6"
+              className="sticky top-0 z-20 flex h-14 items-center justify-between px-4 lg:px-6"
               style={{
                 background: 'var(--bb-depth-2)',
                 borderBottom: '1px solid var(--bb-glass-border)',

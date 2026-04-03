@@ -95,7 +95,7 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                 className="flex items-center gap-3 transition-colors"
                 style={{
                   padding: '12px 16px',
-                  borderRadius: 'var(--bb-radius-lg)',
+                  borderRadius: 'var(--bb-radius-sm)',
                   fontSize: '15px',
                   fontWeight: isActive ? 600 : 500,
                   ...(isActive
