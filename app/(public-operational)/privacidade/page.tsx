@@ -963,7 +963,7 @@ export default function PrivacidadePage() {
                     <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>WhatsApp:</strong> +55 (31) 99679-3625
                   </p>
                   <p>
-                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>App:</strong> https://app.blackbelt.com
+                    <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>App:</strong> https://blackbeltv2.vercel.app
                   </p>
                   <p>
                     Caso nao esteja satisfeito com a resposta da BlackBelt, voce pode apresentar reclamacao perante a Autoridade Nacional de Protecao de Dados (ANPD) em{' '}
@@ -1025,11 +1025,11 @@ export default function PrivacidadePage() {
                     <p className="mt-1">
                       <strong style={{ color: 'var(--bb-ink-100, #fff)' }}>Email:</strong>{' '}
                       <a
-                        href="mailto:privacidade@blackbelt.app"
+                        href="mailto:gregoryguimaraes12@gmail.com"
                         className="underline"
                         style={{ color: 'var(--bb-brand, #ef4444)' }}
                       >
-                        privacidade@blackbelt.app
+                        gregoryguimaraes12@gmail.com
                       </a>
                     </p>
                     <p className="mt-1">
@@ -1055,7 +1055,7 @@ export default function PrivacidadePage() {
                 className="text-xs"
                 style={{ color: 'var(--bb-ink-60, #999)' }}
               >
-                Documento mantido por Gregory Guimaraes Pinto em conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018). A versao mais atualizada pode ser encontrada em app.blackbelt.com/privacidade.
+                Documento mantido por Gregory Guimaraes Pinto em conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018). A versao mais atualizada pode ser encontrada em blackbeltv2.vercel.app/privacidade.
               </p>
             </div>
           </article>

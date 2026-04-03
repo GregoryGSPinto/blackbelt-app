@@ -58,7 +58,7 @@ const ACADEMIES: AcademyDef[] = [
 ];
 
 const MOCK_SPONSORS: Sponsor[] = [
-  { id: 'sp-1', name: 'BlackBelt Pro', logo_url: '/images/sponsors/blackbelt.png', website_url: 'https://blackbelt.com', tier: 'gold' },
+  { id: 'sp-1', name: 'BlackBelt Pro', logo_url: '/images/sponsors/blackbelt.png', website_url: 'https://blackbeltv2.vercel.app', tier: 'gold' },
   { id: 'sp-2', name: 'Fight Gear', logo_url: '/images/sponsors/fightgear.png', website_url: null, tier: 'silver' },
 ];
 

@@ -3,9 +3,10 @@
 import Script from 'next/script';
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const GA_ENABLED = process.env.NEXT_PUBLIC_ENABLE_GA === 'true';
 
 export function GoogleAnalytics() {
-  if (!GA_ID) return null;
+  if (!GA_ENABLED || !GA_ID) return null;
 
   return (
     <>

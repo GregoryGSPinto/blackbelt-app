@@ -10,7 +10,7 @@ export function welcomeEmailI18n(data: { nome: string; academia: string }, local
 <ul style="color:#333;line-height:2">${features}</ul>
 <p>${s.signoff}</p>`,
     locale,
-    'https://app.blackbelt.com/dashboard',
+    'https://blackbeltv2.vercel.app/dashboard',
     getEmailStrings(locale).accessApp,
   );
 }

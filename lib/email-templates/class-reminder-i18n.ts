@@ -7,7 +7,7 @@ export function classReminderEmailI18n(data: { nome: string; modalidade: string;
     `<p>${s.greeting(data.nome)}</p>
 <p>${s.body(data.modalidade, data.horario)}</p>`,
     locale,
-    'https://app.blackbelt.com/turmas',
+    'https://blackbeltv2.vercel.app/turmas',
     s.cta,
   );
 }

@@ -186,7 +186,7 @@ export default function PrivacidadeMenoresPage() {
           </p>
           <p className="mt-2">
             <Link
-              href="/contato"
+              href="/suporte"
               className="underline"
               style={{ color: 'var(--bb-brand)' }}
             >

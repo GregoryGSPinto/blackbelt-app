@@ -9,6 +9,8 @@ export function TelemetryInit() {
 
   useEffect(() => {
     if (!profile?.user_id) return;
+    if (profile.role === 'aluno_kids') return;
+    if (process.env.NEXT_PUBLIC_ENABLE_RUNTIME_TELEMETRY !== 'true') return;
 
     const academyId = document.cookie
       .split('; ')

@@ -40,7 +40,7 @@ export function getPushConfig(): PushConfig {
       enabled: !!(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY),
       publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null,
       privateKey: process.env.VAPID_PRIVATE_KEY ?? null,
-      subject: process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.blackbelt.com',
+      subject: process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app',
     },
   };
 }

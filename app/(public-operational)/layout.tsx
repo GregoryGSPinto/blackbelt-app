@@ -172,7 +172,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
               <ul className="space-y-3">
                 {[
                   { href: '/ajuda', label: 'Ajuda' },
-                  { href: '/contato', label: 'Contato' },
+                  { href: '/suporte', label: 'Suporte' },
                   { href: '/feedback', label: 'Feedback' },
                   { href: '/changelog', label: 'Changelog' },
                 ].map((l) => (
@@ -210,7 +210,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
                 Institucional
               </h4>
               <Link href={siteUrl} target="_blank" rel="noreferrer" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
-                blackbelt.com
+                blackbeltv2.vercel.app
               </Link>
             </div>
           </div>

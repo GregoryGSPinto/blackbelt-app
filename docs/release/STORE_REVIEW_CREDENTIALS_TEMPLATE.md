@@ -36,6 +36,8 @@ This account has administrator access to a demo academy with students, classes, 
 
 Account deletion can be requested inside the app or at https://blackbeltv2.vercel.app/excluir-conta. The request is registered immediately and final deletion occurs within up to 30 days.
 
+Public support is available at https://blackbeltv2.vercel.app/suporte.
+
 The current validated mobile runtime connects to the hosted application backend at https://blackbeltv2.vercel.app.
 ```
 

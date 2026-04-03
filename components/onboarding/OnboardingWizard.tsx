@@ -77,13 +77,13 @@ const OnboardingWizard = forwardRef<HTMLDivElement, OnboardingWizardProps>(
 
     // Step 4: Professor invite link
     const [professorLink] = useState(
-      `https://app.blackbelt.com/convite/prof-${Math.random().toString(36).slice(2, 8)}`,
+      `https://blackbeltv2.vercel.app/convite/prof-${Math.random().toString(36).slice(2, 8)}`,
     );
     const [professorLinkCopied, setProfessorLinkCopied] = useState(false);
 
     // Step 5: Student invite link
     const [studentLink] = useState(
-      `https://app.blackbelt.com/convite/aluno-${Math.random().toString(36).slice(2, 8)}`,
+      `https://blackbeltv2.vercel.app/convite/aluno-${Math.random().toString(36).slice(2, 8)}`,
     );
     const [studentLinkCopied, setStudentLinkCopied] = useState(false);
 

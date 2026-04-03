@@ -14,7 +14,7 @@ export function monthlyReportEmailI18n(
 <tr><td style="padding:12px;border:1px solid #eee;font-weight:600">${s.evaluation}</td><td style="padding:12px;border:1px solid #eee">${data.avaliacao}</td></tr>
 </table>`,
     locale,
-    'https://app.blackbelt.com/parent',
+    'https://blackbeltv2.vercel.app/parent',
     s.cta,
   );
 }

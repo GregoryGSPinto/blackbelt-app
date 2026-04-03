@@ -4,7 +4,7 @@ Allow: /termos
 Allow: /privacidade
 Allow: /privacidade-menores
 Allow: /cadastrar-academia
-Allow: /contato
+Allow: /suporte
 Allow: /ajuda
 Allow: /developers
 Allow: /compete

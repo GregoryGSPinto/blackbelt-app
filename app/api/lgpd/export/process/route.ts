@@ -16,7 +16,7 @@ function getMockExportData(profileId: string) {
     },
     person: {
       full_name: 'Usuario de Teste',
-      email: 'teste@blackbelt.app',
+      email: 'teste@exemplo.com',
       phone: '+5531999999999',
       birth_date: '1990-01-15',
     },

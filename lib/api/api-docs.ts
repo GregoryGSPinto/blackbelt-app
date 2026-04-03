@@ -6,7 +6,7 @@ export const openApiSpec = {
     title: 'BlackBelt API',
     version: '1.0.0',
     description: 'API pública para integração com a plataforma BlackBelt de gestão de academias de artes marciais.',
-    contact: { email: 'api@blackbelt.app' },
+    contact: { email: 'gregoryguimaraes12@gmail.com' },
   },
   servers: [
     { url: '/api/v1', description: 'Production' },

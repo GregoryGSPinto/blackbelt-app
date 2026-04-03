@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'email, academyName e role são obrigatórios' }, { status: 400 });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.blackbelt.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://blackbeltv2.vercel.app';
     const acceptUrl = token
       ? `${appUrl}/convite/${token}`
       : `${appUrl}/cadastrar-aluno`;

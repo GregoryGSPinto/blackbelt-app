@@ -124,11 +124,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: 'var(--bb-depth-0)' }}>
+    <div className="min-h-dvh overflow-x-hidden" style={{ background: 'var(--bb-depth-0)' }}>
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col lg:flex-row">
 
       {/* ═══ LEFT SIDE — VISUAL (desktop only) ═══ */}
       <div
-        className="hidden lg:flex lg:w-[55%] relative overflow-hidden flex-col justify-between p-12"
+        className="relative hidden overflow-hidden lg:flex lg:w-[52%] lg:flex-col lg:justify-between lg:px-10 lg:py-10 xl:w-[56%] xl:px-14"
         style={{ background: 'var(--bb-depth-1)' }}
       >
         {/* Gradient overlay */}
@@ -143,10 +144,10 @@ export default function LoginPage() {
         </div>
 
         {/* Dashboard Preview */}
-        <div className="relative z-10 flex-1 flex items-center justify-center py-8">
-          <div className="w-full max-w-md">
+        <div className="relative z-10 flex flex-1 items-center justify-center py-6 xl:py-8">
+          <div className="w-full max-w-[520px] xl:max-w-[560px]">
             <div
-              className="rounded-2xl overflow-hidden shadow-2xl border"
+              className="overflow-hidden rounded-[28px] border shadow-2xl"
               style={{ background: 'var(--bb-depth-2)', borderColor: 'var(--bb-glass-border)' }}
             >
               {/* Window bar */}
@@ -162,20 +163,20 @@ export default function LoginPage() {
                 </span>
               </div>
               {/* KPIs */}
-              <div className="grid grid-cols-3 gap-2 p-3">
+              <div className="grid grid-cols-3 gap-3 p-4">
                 {[
                   { label: 'Alunos', value: '45', color: 'var(--bb-brand)' },
                   { label: 'Presença', value: '87%', color: 'var(--bb-success)' },
                   { label: 'Receita', value: 'R$ 15.8k', color: 'var(--bb-warning)' },
                 ].map(kpi => (
-                  <div key={kpi.label} className="rounded-lg p-2.5 text-center" style={{ background: 'var(--bb-depth-3)' }}>
-                    <div className="text-[10px] mb-0.5" style={{ color: 'var(--bb-ink-40)' }}>{kpi.label}</div>
-                    <div className="text-sm font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
+                  <div key={kpi.label} className="rounded-xl p-3 text-center" style={{ background: 'var(--bb-depth-3)' }}>
+                    <div className="mb-1 text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{kpi.label}</div>
+                    <div className="text-base font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
                   </div>
                 ))}
               </div>
               {/* Activity */}
-              <div className="px-3 pb-3 space-y-1.5">
+              <div className="space-y-2 px-4 pb-4">
                 <div className="text-[9px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--bb-ink-40)' }}>
                   Check-ins recentes
                 </div>
@@ -184,9 +185,9 @@ export default function LoginPage() {
                   { name: 'Maria Clara', time: '12 min', belt: '#8B5CF6' },
                   { name: 'Lucas Teen', time: '18 min', belt: '#EAB308' },
                 ].map(row => (
-                  <div key={row.name} className="flex items-center gap-2 py-1.5 px-2 rounded-md" style={{ background: 'var(--bb-depth-4)' }}>
-                    <div className="w-1.5 h-5 rounded-full" style={{ background: row.belt }} />
-                    <span className="text-xs flex-1" style={{ color: 'var(--bb-ink-100)' }}>{row.name}</span>
+                  <div key={row.name} className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'var(--bb-depth-4)' }}>
+                    <div className="h-6 w-1.5 rounded-full" style={{ background: row.belt }} />
+                    <span className="flex-1 text-sm" style={{ color: 'var(--bb-ink-100)' }}>{row.name}</span>
                     <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>há {row.time}</span>
                   </div>
                 ))}
@@ -194,7 +195,7 @@ export default function LoginPage() {
             </div>
 
             {/* Belt colors strip */}
-            <div className="flex justify-center gap-1.5 mt-6">
+            <div className="mt-6 flex justify-center gap-1.5">
               {['#F8FAFC', '#EAB308', '#F97316', '#22C55E', '#3B82F6', '#8B5CF6', '#92400E', '#1A1A2E'].map(c => (
                 <div key={c} className="w-4 h-1.5 rounded-full" style={{ background: c, opacity: 0.6 }} />
               ))}
@@ -211,12 +212,12 @@ export default function LoginPage() {
       </div>
 
       {/* ═══ RIGHT SIDE — FORM ═══ */}
-      <div className="w-full lg:w-[45%] flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-6">
+      <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:w-[48%] lg:px-10 lg:py-10 xl:w-[44%] xl:px-14">
+        <div className="flex w-full max-w-[30rem] flex-col justify-center md:max-w-[34rem] lg:max-w-[30rem] xl:max-w-[32rem]">
+          <div className="mb-5 sm:mb-6">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-100"
+              className="inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium leading-tight transition-opacity hover:opacity-100"
               style={{
                 color: 'var(--bb-ink-60)',
                 background: 'var(--bb-depth-2)',
@@ -230,7 +231,7 @@ export default function LoginPage() {
           </div>
 
           {/* Logo (mobile only) */}
-          <div className="lg:hidden text-center mb-10">
+          <div className="mb-7 text-center lg:hidden sm:mb-8">
             <div className="flex justify-center">
               <BlackBeltLogo variant="full" height={44} />
             </div>
@@ -242,22 +243,22 @@ export default function LoginPage() {
           </div>
 
           {/* Heading */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl font-bold sm:text-[2rem]" style={{ color: 'var(--bb-ink-100)' }}>
               Entrar
             </h2>
-            <p className="text-sm mt-1" style={{ color: 'var(--bb-ink-40)' }}>
+            <p className="mt-2 max-w-[32rem] text-sm leading-6" style={{ color: 'var(--bb-ink-40)' }}>
               Entre para acessar sua academia com seguranca.
             </p>
           </div>
 
           {/* Social Login */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => handleOAuth('google')}
               disabled={isBusy || !!oauthLoading}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
               {oauthLoading === 'google' ? (
@@ -276,7 +277,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => handleOAuth('apple')}
               disabled={isBusy || !!oauthLoading}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
             >
               {oauthLoading === 'apple' ? (
@@ -316,7 +317,7 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="seu@email.com"
                 autoComplete="email"
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+                className="w-full min-w-0 rounded-xl px-4 py-3 text-sm outline-none transition-all focus:ring-2"
                 style={{
                   background: 'var(--bb-depth-2)',
                   color: 'var(--bb-ink-100)',
@@ -343,7 +344,7 @@ export default function LoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2 pr-12"
+                  className="w-full min-w-0 rounded-xl px-4 py-3 pr-12 text-sm outline-none transition-all focus:ring-2"
                   style={{
                     background: 'var(--bb-depth-2)',
                     color: 'var(--bb-ink-100)',
@@ -373,63 +374,63 @@ export default function LoginPage() {
               </div>
             </div>
 
-          {/* Error */}
-          {localError && (
-            <div
-              className="rounded-2xl px-4 py-3 text-sm"
-              role="alert"
-              style={{ background: 'color-mix(in srgb, var(--bb-danger) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-danger) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-danger) 20%, transparent)' }}
-            >
-              <div className="flex items-start gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
-                  <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
-                <div className="flex-1">
-                  <p className="font-medium">{localError}</p>
-                  {needsEmailConfirmationCta && (
-                    <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                      <button
-                        type="button"
-                        onClick={handleResendConfirmation}
-                        disabled={resendingConfirmation}
-                        className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
-                        style={{ background: 'var(--bb-brand-gradient)' }}
-                      >
-                        {resendingConfirmation ? 'Reenviando...' : 'Reenviar confirmacao'}
-                      </button>
-                      <Link
-                        href="/"
-                        className="rounded-xl px-4 py-2 text-center text-sm font-medium"
-                        style={{
-                          color: 'var(--bb-ink-80)',
-                          background: 'var(--bb-depth-2)',
-                          border: '1px solid var(--bb-glass-border)',
-                        }}
-                      >
-                        Voltar
-                      </Link>
-                    </div>
-                  )}
+            {/* Error */}
+            {localError && (
+              <div
+                className="rounded-2xl px-4 py-3 text-sm"
+                role="alert"
+                style={{ background: 'color-mix(in srgb, var(--bb-danger) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-danger) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-danger) 20%, transparent)' }}
+              >
+                <div className="flex items-start gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{localError}</p>
+                    {needsEmailConfirmationCta && (
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                        <button
+                          type="button"
+                          onClick={handleResendConfirmation}
+                          disabled={resendingConfirmation}
+                          className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
+                          style={{ background: 'var(--bb-brand-gradient)' }}
+                        >
+                          {resendingConfirmation ? 'Reenviando...' : 'Reenviar confirmacao'}
+                        </button>
+                        <Link
+                          href="/"
+                          className="rounded-xl px-4 py-2 text-center text-sm font-medium"
+                          style={{
+                            color: 'var(--bb-ink-80)',
+                            background: 'var(--bb-depth-2)',
+                            border: '1px solid var(--bb-glass-border)',
+                          }}
+                        >
+                          Voltar
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {confirmationSent && (
-            <div
-              className="rounded-2xl px-4 py-3 text-sm"
-              role="status"
-              style={{ background: 'color-mix(in srgb, var(--bb-success) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-success) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-success) 20%, transparent)' }}
-            >
-              Reenviamos a confirmacao para {email.trim()}. Verifique sua caixa de entrada e o spam.
-            </div>
-          )}
+            {confirmationSent && (
+              <div
+                className="rounded-2xl px-4 py-3 text-sm"
+                role="status"
+                style={{ background: 'color-mix(in srgb, var(--bb-success) 10%, transparent)', color: 'color-mix(in srgb, var(--bb-success) 70%, white)', border: '1px solid color-mix(in srgb, var(--bb-success) 20%, transparent)' }}
+              >
+                Reenviamos a confirmacao para {email.trim()}. Verifique sua caixa de entrada e o spam.
+              </div>
+            )}
 
             {/* Submit */}
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+              className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               style={{ background: 'var(--bb-brand-deep)' }}
             >
               {isSubmitting ? (
@@ -444,26 +445,17 @@ export default function LoginPage() {
           </form>
 
           {/* Register link */}
-          <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-            <p className="text-xs text-center mb-3" style={{ color: 'var(--bb-ink-40)' }}>
-              Ainda não tem conta?
+          <div className="mt-6 pt-5 sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+            <p className="mb-3 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+              Recebeu um convite?
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/cadastrar-academia"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-all hover:brightness-110"
-                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
-              >
-                🏛️ Sou dono de academia
-              </Link>
-              <Link
-                href="/cadastro"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-all hover:brightness-110"
-                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
-              >
-                🥋 Tenho um convite
-              </Link>
-            </div>
+            <Link
+              href="/cadastro"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-center text-xs font-medium transition-all hover:brightness-110"
+              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+            >
+              🥋 Tenho um convite
+            </Link>
           </div>
 
           {/* Demo accounts (mock mode only) */}
@@ -501,7 +493,7 @@ export default function LoginPage() {
           )}
 
           {/* Footer links */}
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center sm:mt-8">
             <Link href="/privacidade" className="text-[10px] hover:underline" style={{ color: 'var(--bb-ink-40)' }}>
               Privacidade
             </Link>
@@ -513,6 +505,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

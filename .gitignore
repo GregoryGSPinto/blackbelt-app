@@ -65,6 +65,10 @@ ios/
 *.keystore
 *.jks
 android-signing.properties
+google-services.json
+GoogleService-Info.plist
+*.mobileprovision
+*.xcarchive
 
 # prompt / spec files
 BLACKBELT_*.md

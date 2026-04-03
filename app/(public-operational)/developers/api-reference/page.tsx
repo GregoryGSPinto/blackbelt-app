@@ -170,7 +170,7 @@ export default function ApiReferencePage() {
           </nav>
           <h1 className="text-2xl font-bold text-bb-gray-900">API Reference</h1>
           <p className="mt-1 text-sm text-bb-gray-500">
-            Base URL: <code className="rounded bg-bb-gray-100 px-1.5 py-0.5">https://api.blackbelt.app/api/v1</code>
+            Base URL: <code className="rounded bg-bb-gray-100 px-1.5 py-0.5">https://blackbeltv2.vercel.app/api/v1</code>
             &nbsp;&middot;&nbsp;Autenticacao: Header <code className="rounded bg-bb-gray-100 px-1.5 py-0.5">X-API-Key</code>
           </p>
         </div>

@@ -22,6 +22,7 @@
     "cap:android": "npx cap open android",
     "mobile:build": "pnpm build:mobile",
     "mobile:sync": "pnpm cap:sync",
+    "mobile:links": "node scripts/generate-mobile-association-files.mjs",
     "mobile:ios": "pnpm build:mobile && pnpm cap:sync && pnpm cap:ios",
     "mobile:android": "pnpm build:mobile && pnpm cap:sync && pnpm cap:android",
     "mobile:prepare": "pnpm build:mobile && pnpm cap:sync",

@@ -17,7 +17,8 @@
 - `/completar-cadastro`
 - `/onboarding`
 - `/cadastrar-academia`
-- `/contato`
+- `/suporte`
+- `/contato` (alias legado para `/suporte`)
 - `/ajuda`
 - `/suporte`
 - `/status`

@@ -1,6 +1,7 @@
 import posthog from 'posthog-js';
 
 let initialized = false;
+const posthogEnabled = process.env.NEXT_PUBLIC_ENABLE_POSTHOG === 'true';
 
 /**
  * When true, analytics is completely suppressed for the current session.
@@ -33,6 +34,7 @@ export function enableAnalytics(): void {
 
 export function initAnalytics(): void {
   if (analyticsDisabled) return;
+  if (!posthogEnabled) return;
 
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
@@ -53,6 +55,7 @@ export function initAnalytics(): void {
 
 export function trackEvent(name: string, properties?: Record<string, unknown>): void {
   if (analyticsDisabled) return;
+  if (!posthogEnabled) return;
   if (!initialized && typeof window !== 'undefined') {
     initAnalytics();
   }
@@ -63,6 +66,7 @@ export function trackEvent(name: string, properties?: Record<string, unknown>): 
 
 export function identifyUser(userId: string, traits?: Record<string, unknown>): void {
   if (analyticsDisabled) return;
+  if (!posthogEnabled) return;
   if (!initialized && typeof window !== 'undefined') {
     initAnalytics();
   }
@@ -72,10 +76,12 @@ export function identifyUser(userId: string, traits?: Record<string, unknown>): 
 }
 
 export function resetAnalytics(): void {
-  if (typeof window !== 'undefined') {
-    posthog.reset();
+  if (!posthogEnabled || typeof window === 'undefined') {
     initialized = false;
+    return;
   }
+  posthog.reset();
+  initialized = false;
 }
 
 // Predefined events

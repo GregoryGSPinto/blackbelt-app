@@ -17,7 +17,7 @@ export interface SendEmailResult {
 }
 
 const EMAIL_API_KEY = process.env.EMAIL_API_KEY ?? '';
-const EMAIL_FROM = process.env.EMAIL_FROM ?? 'noreply@blackbelt.app';
+const EMAIL_FROM = process.env.EMAIL_FROM ?? 'gregoryguimaraes12@gmail.com';
 
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
   try {

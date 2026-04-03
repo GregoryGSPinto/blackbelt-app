@@ -23,7 +23,7 @@ Base: código validado nesta sessão
 | App web / runtime atual | `https://blackbeltv2.vercel.app` |
 | Privacy | `https://blackbeltv2.vercel.app/privacidade` |
 | Terms | `https://blackbeltv2.vercel.app/termos` |
-| Support | `https://blackbeltv2.vercel.app/contato` |
+| Support | `https://blackbeltv2.vercel.app/suporte` |
 | Delete account | `https://blackbeltv2.vercel.app/excluir-conta` |
 
 ## Verdade do produto para loja
@@ -114,13 +114,13 @@ Provide a review account with administrator access and seeded demo data.
 Contact email:
 
 ```text
-REPLACE_WITH_REAL_SUPPORT_EMAIL
+Define a real monitored support email before submission.
 ```
 
 Contact phone:
 
 ```text
-REPLACE_WITH_REAL_SUPPORT_PHONE
+Define a real support phone in Play Console if required by your contact policy.
 ```
 
 ## Data safety / privacy truth

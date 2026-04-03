@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/status', '/termos', '/privacidade', '/privacidade-menores', '/cadastrar-academia', '/contato', '/developers', '/compete', '/campeonatos', '/ranking', '/marketplace', '/app-store', '/ajuda'],
+        allow: ['/status', '/termos', '/privacidade', '/privacidade-menores', '/cadastrar-academia', '/suporte', '/developers', '/compete', '/campeonatos', '/ranking', '/marketplace', '/app-store', '/ajuda'],
         disallow: ['/', '/login', '/cadastro', '/convite', '/onboarding', '/admin', '/professor', '/dashboard', '/parent', '/teen', '/kids', '/network', '/api/'],
       },
     ],

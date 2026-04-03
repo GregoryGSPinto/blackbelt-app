@@ -44,14 +44,14 @@ Versao: 1.0.0 (package.json)
 
 | # | Requisito | Status | Notas |
 |---|-----------|--------|-------|
-| 9.1 | Termos de Uso | ✅ | `/app/(public)/termos/page.tsx` — completo com 11+ secoes incluindo UGC, limites de responsabilidade, SLA |
-| 9.2 | Politica de Privacidade | ✅ | `/app/(public)/privacidade/page.tsx` — 9+ secoes, cobre dados coletados, finalidades, bases legais LGPD, direitos do titular |
+| 9.1 | Termos de Uso | ✅ | `/app/(public-operational)/termos/page.tsx` — completo com secoes de uso, privacidade e operacao |
+| 9.2 | Politica de Privacidade | ✅ | `/app/(public-operational)/privacidade/page.tsx` — cobre dados coletados, finalidades, menores, retencao e direitos LGPD |
 | 9.3 | LGPD compliance | ✅ | Exportacao de dados LGPD (rota `/api/lgpd/export`), exclusao de conta (`/api/auth/delete-account` + `/excluir-conta`), pagina de privacidade do perfil (`/perfil/privacidade`), consentimento para menores |
 | 9.4 | COPPA compliance (Kids) | ✅ | Pagina dedicada `/privacidade-menores` com conformidade LGPD Art. 14 + COPPA. Sem ads para menores, sem compartilhamento de dados, sem tracking, sem UGC, consentimento parental obrigatorio |
-| 9.5 | Licenca do software | ❌ | **Nao existe arquivo LICENSE na raiz do projeto.** Necessario para submissao e protecao de IP |
+| 9.5 | Licenca do software | ✅ | `LICENSE` existe na raiz do projeto |
 | 9.6 | Termos de UGC | ✅ | Secao "11-A. Conteudo do Usuario" nos Termos de Uso cobre licenca limitada, responsabilidade do usuario, proibicoes |
 | 9.7 | Excluir conta | ✅ | Pagina publica `/excluir-conta` + API route `auth/delete-account` — exigido por Apple e Google |
-| 9.8 | Pagina de contato/suporte | ✅ | `/contato`, `/suporte`, API `/api/contato`, area admin de suporte |
+| 9.8 | Pagina de contato/suporte | ✅ | `/suporte` e a URL canonica publica; `/contato` e alias legado. Tambem existe `/api/contato` e area admin de suporte |
 
 ---
 

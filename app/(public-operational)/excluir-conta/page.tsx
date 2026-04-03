@@ -94,7 +94,7 @@ export default function ExcluirContaPage() {
             <Link href="/termos" className="rounded-2xl border px-4 py-3 text-sm font-medium text-[var(--bb-ink-100)]" style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-4)' }}>
               Termos de Uso
             </Link>
-            <Link href="/contato" className="rounded-2xl border px-4 py-3 text-sm font-medium text-[var(--bb-ink-100)]" style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-4)' }}>
+            <Link href="/suporte" className="rounded-2xl border px-4 py-3 text-sm font-medium text-[var(--bb-ink-100)]" style={{ borderColor: 'var(--bb-glass-border)', background: 'var(--bb-depth-4)' }}>
               Central de Contato e Suporte
             </Link>
           </div>

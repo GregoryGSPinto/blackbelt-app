@@ -1,6 +1,6 @@
 import { getAppUrl } from '@/lib/config/domains';
 
-const DEFAULT_SUPPORT_EMAIL = 'suporte@blackbelt.app';
+const DEFAULT_SUPPORT_EMAIL = 'gregoryguimaraes12@gmail.com';
 const DEFAULT_SUPPORT_PHONE = '';
 
 export function getPublicAppUrl(): string {

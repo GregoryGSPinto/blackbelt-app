@@ -176,7 +176,7 @@ export default function SuperadminConfiguracoesPage() {
               />
               <SettingsInput
                 label="Email"
-                value="super@blackbelt.app"
+                value="gregoryguimaraes12@gmail.com"
                 type="email"
                 onSave={() => toast('Email atualizado!', 'success')}
               />

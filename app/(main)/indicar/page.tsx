@@ -57,7 +57,7 @@ function formatDate(iso: string): string {
 
 function buildWhatsAppUrl(code: string): string {
   const message = encodeURIComponent(
-    `Quer gerenciar sua academia com a melhor plataforma? Use meu codigo de indicacao: ${code} e ganhe desconto! Acesse: https://blackbelt.app/ref/${code}`,
+    `Quer gerenciar sua academia com a melhor plataforma? Use meu codigo de indicacao: ${code} e ganhe desconto! Acesse: https://blackbeltv2.vercel.app/ref/${code}`,
   );
   return `https://wa.me/?text=${message}`;
 }
@@ -103,7 +103,7 @@ export default function IndicarPage() {
 
   const handleCopy = useCallback(async () => {
     if (!code) return;
-    const link = `https://blackbelt.app/ref/${code.code}`;
+    const link = `https://blackbeltv2.vercel.app/ref/${code.code}`;
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
@@ -135,7 +135,7 @@ export default function IndicarPage() {
     );
   }
 
-  const referralLink = code ? `https://blackbelt.app/ref/${code.code}` : '';
+  const referralLink = code ? `https://blackbeltv2.vercel.app/ref/${code.code}` : '';
 
   return (
     <div className="space-y-5 p-4 pb-24">
