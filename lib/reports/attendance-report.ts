@@ -7,6 +7,8 @@ import { isMock } from '@/lib/env';
 import { logServiceError } from '@/lib/api/errors';
 import type { AttendanceReportData } from '@/lib/types/report';
 
+const DAY_NAMES = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+
 export async function generateAttendanceReport(
   academyId: string,
   period: string,
@@ -15,7 +17,111 @@ export async function generateAttendanceReport(
     if (isMock()) {
       return getMockAttendanceReport(academyId, period);
     }
-    throw new Error('Not implemented');
+
+    const { createBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createBrowserClient();
+
+    const days = period.includes('60') ? 60 : period.includes('90') ? 90 : 30;
+    const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+
+    // Fetch academy name, classes, and attendance in parallel
+    const [academyRes, classesRes, attendanceRes, studentsRes] = await Promise.all([
+      supabase.from('academies').select('name').eq('id', academyId).maybeSingle(),
+      supabase.from('classes').select('id, name, modality:modalities!classes_modality_id_fkey(name), schedule').eq('academy_id', academyId),
+      supabase.from('attendance').select('student_id, class_id, checked_at').gte('checked_at', cutoff),
+      supabase.from('students').select('id, profiles!students_profile_id_fkey(display_name)').eq('academy_id', academyId),
+    ]);
+
+    const academyName = (academyRes.data as { name: string } | null)?.name ?? 'BlackBelt';
+    const classes = (classesRes.data ?? []) as Array<{ id: string; name: string; modality: { name: string } | null; schedule: Array<{ day_of_week: number }> | null }>;
+    const classIds = new Set(classes.map((c) => c.id));
+    const attendance = ((attendanceRes.data ?? []) as Array<{ student_id: string; class_id: string; checked_at: string }>)
+      .filter((a) => classIds.has(a.class_id));
+    const totalStudents = (studentsRes.data ?? []).length;
+
+    const totalCheckins = attendance.length;
+
+    // Count class slots in period
+    let weeklySlots = 0;
+    for (const cls of classes) {
+      weeklySlots += (cls.schedule ?? []).length;
+    }
+    const totalClasses = Math.round(weeklySlots * (days / 7));
+    const avgPerClass = totalClasses > 0 ? Math.round((totalCheckins / totalClasses) * 10) / 10 : 0;
+    const expectedAttendance = totalStudents * Math.round(3 * (days / 7));
+    const attendanceRate = expectedAttendance > 0 ? Math.min(100, Math.round((totalCheckins / expectedAttendance) * 100)) : 0;
+
+    // By day of week
+    const dayBuckets = Array.from({ length: 7 }, () => 0);
+    const weekCount = Math.ceil(days / 7);
+    for (const a of attendance) {
+      dayBuckets[new Date(a.checked_at).getDay()]++;
+    }
+    const byDayOfWeek = dayBuckets.map((count, i) => ({
+      day: DAY_NAMES[i],
+      avg_attendance: Math.round((count / weekCount) * 10) / 10,
+    }));
+    const activeDays = byDayOfWeek.filter((d) => d.avg_attendance > 0);
+    const bestDay = activeDays.length > 0 ? activeDays.reduce((a, b) => a.avg_attendance > b.avg_attendance ? a : b).day : '';
+    const worstDay = activeDays.length > 0 ? activeDays.reduce((a, b) => a.avg_attendance < b.avg_attendance ? a : b).day : '';
+
+    // By modality
+    const modalityMap = new Map<string, { classes: number; checkins: number }>();
+    for (const cls of classes) {
+      const mod = cls.modality?.name ?? 'Outro';
+      const entry = modalityMap.get(mod) ?? { classes: 0, checkins: 0 };
+      entry.classes += (cls.schedule ?? []).length * Math.ceil(days / 7);
+      modalityMap.set(mod, entry);
+    }
+    const classModalityMap = new Map<string, string>();
+    for (const cls of classes) {
+      classModalityMap.set(cls.id, cls.modality?.name ?? 'Outro');
+    }
+    for (const a of attendance) {
+      const mod = classModalityMap.get(a.class_id) ?? 'Outro';
+      const entry = modalityMap.get(mod);
+      if (entry) entry.checkins++;
+    }
+    const byModality = [...modalityMap.entries()].map(([modality, v]) => ({
+      modality,
+      classes: v.classes,
+      avg_attendance: v.classes > 0 ? Math.round((v.checkins / v.classes) * 10) / 10 : 0,
+      rate: v.classes > 0 ? Math.min(100, Math.round((v.checkins / (v.classes * totalStudents * 0.3)) * 100)) : 0,
+    }));
+
+    // Absent alerts (students not seen in 7+ days)
+    const lastSeen = new Map<string, string>();
+    for (const a of attendance) {
+      const prev = lastSeen.get(a.student_id);
+      if (!prev || a.checked_at > prev) lastSeen.set(a.student_id, a.checked_at);
+    }
+    const sevenDaysAgo = Date.now() - 7 * 86400000;
+    const absentAlerts: AttendanceReportData['absent_alerts'] = [];
+    for (const s of studentsRes.data ?? []) {
+      const student = s as { id: string; profiles: { display_name: string } | null };
+      const last = lastSeen.get(student.id);
+      if (!last || new Date(last).getTime() < sevenDaysAgo) {
+        absentAlerts.push({
+          student_name: student.profiles?.display_name ?? '',
+          days_absent: last ? Math.floor((Date.now() - new Date(last).getTime()) / 86400000) : days,
+          last_attendance: last ?? '',
+        });
+      }
+    }
+    absentAlerts.sort((a, b) => b.days_absent - a.days_absent);
+
+    return {
+      meta: {
+        academy_name: academyName,
+        generated_at: new Date().toISOString(),
+        period,
+        generated_by: 'Sistema BlackBelt',
+      },
+      summary: { total_classes: totalClasses, total_checkins: totalCheckins, avg_per_class: avgPerClass, attendance_rate: attendanceRate, best_day: bestDay, worst_day: worstDay },
+      by_modality: byModality,
+      by_day_of_week: byDayOfWeek,
+      absent_alerts: absentAlerts.slice(0, 10),
+    };
   } catch (error) {
     logServiceError(error, 'reports.attendance');
     return { meta: { academy_name: '', generated_at: '', period, generated_by: '' }, summary: { total_classes: 0, total_checkins: 0, avg_per_class: 0, attendance_rate: 0, best_day: '', worst_day: '' }, by_modality: [], by_day_of_week: [], absent_alerts: [] } as AttendanceReportData;

@@ -30,3 +30,39 @@ export interface HeatmapDay {
   date: string;
   status: 'present' | 'absent' | 'no_class';
 }
+
+// ── Analytics (enhanced report) ──────────────────────────────
+
+export interface ClassAttendanceStats {
+  classId: string;
+  className: string;
+  totalCheckins: number;
+  enrolledStudents: number;
+  attendanceRate: number;
+}
+
+export interface DayOfWeekStats {
+  day: string;
+  dayIndex: number;
+  avgCheckins: number;
+}
+
+export interface PeakHourStats {
+  hour: string;
+  checkins: number;
+}
+
+export interface StudentRanking {
+  studentId: string;
+  studentName: string;
+  checkins: number;
+  attendanceRate: number;
+}
+
+export interface AttendanceAnalytics {
+  byClass: ClassAttendanceStats[];
+  byDayOfWeek: DayOfWeekStats[];
+  peakHours: PeakHourStats[];
+  topStudents: StudentRanking[];
+  bottomStudents: StudentRanking[];
+}

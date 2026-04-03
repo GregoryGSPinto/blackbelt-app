@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import type { AttendanceRecord, AttendanceSummary, HeatmapDay } from '@/lib/types/attendance';
+import type { AttendanceRecord, AttendanceSummary, HeatmapDay, AttendanceAnalytics } from '@/lib/types/attendance';
 import { logServiceError } from '@/lib/api/errors';
 
 export async function checkIn(
@@ -321,4 +321,117 @@ export async function getAbsentAlerts(academyId: string, days: number): Promise<
   }
 
   return alerts;
+}
+
+const DAY_NAMES = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+
+export async function getAttendanceAnalytics(
+  academyId: string,
+  period: '30d' | '60d' | '90d' = '30d',
+): Promise<AttendanceAnalytics> {
+  if (isMock()) {
+    const { mockGetAttendanceAnalytics } = await import('@/lib/mocks/attendance.mock');
+    return mockGetAttendanceAnalytics(academyId, period);
+  }
+
+  const { createBrowserClient } = await import('@/lib/supabase/client');
+  const supabase = createBrowserClient();
+
+  const days = period === '30d' ? 30 : period === '60d' ? 60 : 90;
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+
+  // Fetch classes, enrollments, and attendance in parallel
+  const [classesRes, enrollmentsRes, attendanceRes] = await Promise.all([
+    supabase.from('classes').select('id, name').eq('academy_id', academyId),
+    supabase.from('class_enrollments').select('student_id, class_id').eq('status', 'active'),
+    supabase
+      .from('attendance')
+      .select('student_id, class_id, checked_at, students(profiles(display_name))')
+      .gte('checked_at', cutoff)
+      .order('checked_at', { ascending: false }),
+  ]);
+
+  const classes = (classesRes.data ?? []) as Array<{ id: string; name: string }>;
+  const enrollments = (enrollmentsRes.data ?? []) as Array<{ student_id: string; class_id: string }>;
+  const attendance = (attendanceRes.data ?? []) as Array<{
+    student_id: string;
+    class_id: string;
+    checked_at: string;
+    students: { profiles: { display_name: string } | null } | null;
+  }>;
+
+  // Filter attendance to only this academy's classes
+  const classIds = new Set(classes.map((c) => c.id));
+  const filteredAtt = attendance.filter((a) => classIds.has(a.class_id));
+
+  // ── By class ──
+  const classMap = new Map<string, { name: string; checkins: number; enrolled: number }>();
+  for (const c of classes) classMap.set(c.id, { name: c.name, checkins: 0, enrolled: 0 });
+  for (const e of enrollments) {
+    const entry = classMap.get(e.class_id);
+    if (entry) entry.enrolled++;
+  }
+  for (const a of filteredAtt) {
+    const entry = classMap.get(a.class_id);
+    if (entry) entry.checkins++;
+  }
+  const byClass = [...classMap.entries()]
+    .map(([id, v]) => ({
+      classId: id,
+      className: v.name,
+      totalCheckins: v.checkins,
+      enrolledStudents: v.enrolled,
+      attendanceRate: v.enrolled > 0 ? Math.round((v.checkins / (v.enrolled * days * 0.2)) * 100) : 0,
+    }))
+    .sort((a, b) => b.totalCheckins - a.totalCheckins);
+
+  // ── By day of week ──
+  const dayBuckets = Array.from({ length: 7 }, () => 0);
+  const weekCount = Math.ceil(days / 7);
+  for (const a of filteredAtt) {
+    const dow = new Date(a.checked_at).getDay();
+    dayBuckets[dow]++;
+  }
+  const byDayOfWeek = dayBuckets.map((count, i) => ({
+    day: DAY_NAMES[i],
+    dayIndex: i,
+    avgCheckins: Math.round((count / weekCount) * 10) / 10,
+  }));
+
+  // ── Peak hours ──
+  const hourBuckets = Array.from({ length: 24 }, () => 0);
+  for (const a of filteredAtt) {
+    const h = new Date(a.checked_at).getHours();
+    hourBuckets[h]++;
+  }
+  const peakHours = hourBuckets
+    .map((count, h) => ({ hour: `${String(h).padStart(2, '0')}:00`, checkins: count }))
+    .filter((h) => h.checkins > 0);
+
+  // ── Student ranking ──
+  const studentMap = new Map<string, { name: string; checkins: number }>();
+  for (const a of filteredAtt) {
+    const existing = studentMap.get(a.student_id);
+    if (existing) {
+      existing.checkins++;
+    } else {
+      const name = a.students?.profiles?.display_name ?? '';
+      studentMap.set(a.student_id, { name, checkins: 1 });
+    }
+  }
+  const sortedStudents = [...studentMap.entries()]
+    .map(([id, v]) => ({
+      studentId: id,
+      studentName: v.name,
+      checkins: v.checkins,
+      attendanceRate: 0,
+    }))
+    .sort((a, b) => b.checkins - a.checkins);
+
+  const topStudents = sortedStudents.slice(0, 10);
+  const bottomStudents = sortedStudents.length > 10
+    ? sortedStudents.slice(-10).reverse()
+    : [];
+
+  return { byClass, byDayOfWeek, peakHours, topStudents, bottomStudents };
 }
