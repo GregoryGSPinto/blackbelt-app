@@ -4,21 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { MenuIcon, XIcon } from '@/components/shell/icons';
-import { getSiteUrl } from '@/lib/config/domains';
-
 const NAV_LINKS = [
   { href: '/login', label: 'Entrar' },
   { href: '/cadastrar-academia', label: 'Cadastrar academia' },
-  { href: '/onboarding', label: 'Onboarding' },
-  { href: '/developers', label: 'Developers' },
-  { href: '/status', label: 'Status' },
+  { href: '/contato', label: 'Contato' },
+  { href: '/ajuda', label: 'Ajuda' },
   { href: '/termos', label: 'Termos' },
 ];
 
 export default function PublicOperationalLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const siteUrl = getSiteUrl();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bb-depth-1)', color: 'var(--bb-ink-100)' }}>
@@ -56,8 +52,8 @@ export default function PublicOperationalLayout({ children }: { children: React.
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Link href={siteUrl} target="_blank" rel="noreferrer" className="rounded-lg px-4 py-2 text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>
-              Site
+            <Link href="/" className="rounded-lg px-4 py-2 text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+              Inicio
             </Link>
             <Link
               href="/login"
@@ -97,14 +93,12 @@ export default function PublicOperationalLayout({ children }: { children: React.
               ))}
               <hr className="my-2" style={{ borderColor: 'var(--bb-glass-border)' }} />
               <Link
-                href={siteUrl}
-                target="_blank"
-                rel="noreferrer"
+                href="/"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-4 py-3 text-sm font-medium"
                 style={{ color: 'var(--bb-ink-60)' }}
               >
-                Site
+                Inicio
               </Link>
               <Link
                 href="/login"
@@ -126,7 +120,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
         style={{ borderColor: 'var(--bb-glass-border)', backgroundColor: 'var(--bb-depth-2)' }}
       >
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <Link href="/login" className="flex items-center gap-2 text-xl font-bold">
                 <span
@@ -138,8 +132,8 @@ export default function PublicOperationalLayout({ children }: { children: React.
                 Black<span style={{ color: 'var(--bb-brand)' }}>Belt</span>
               </Link>
               <p className="mt-3 max-w-sm text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-                Superficies publicas operacionais do BlackBelt app: onboarding, suporte,
-                status, legal e pontos de integracao publica do produto.
+                Plataforma completa de gestao para academias de artes marciais.
+                Alunos, turmas, financeiro e muito mais.
               </p>
             </div>
 
@@ -151,10 +145,8 @@ export default function PublicOperationalLayout({ children }: { children: React.
                 {[
                   { href: '/login', label: 'Entrar' },
                   { href: '/cadastro', label: 'Criar conta' },
-                  { href: '/cadastrar-academia', label: 'Cadastro de academia' },
-                  { href: '/developers', label: 'Developers' },
-                  { href: '/app-store', label: 'Mobile companion' },
-                  { href: '/status', label: 'Status' },
+                  { href: '/cadastrar-academia', label: 'Cadastrar academia' },
+                  { href: '/contato', label: 'Contato' },
                 ].map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
@@ -167,14 +159,13 @@ export default function PublicOperationalLayout({ children }: { children: React.
 
             <div>
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
-                Operacao
+                Suporte
               </h4>
               <ul className="space-y-3">
                 {[
                   { href: '/ajuda', label: 'Ajuda' },
-                  { href: '/suporte', label: 'Suporte' },
+                  { href: '/suporte', label: 'Fale conosco' },
                   { href: '/feedback', label: 'Feedback' },
-                  { href: '/changelog', label: 'Changelog' },
                 ].map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
@@ -209,7 +200,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>
                 Institucional
               </h4>
-              <Link href={siteUrl} target="_blank" rel="noreferrer" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
+              <Link href="/" className="text-sm transition-colors" style={{ color: 'var(--bb-ink-60)' }}>
                 blackbelts.com.br
               </Link>
             </div>
@@ -220,7 +211,7 @@ export default function PublicOperationalLayout({ children }: { children: React.
             style={{ borderColor: 'var(--bb-glass-border)' }}
           >
             <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
-              &copy; {new Date().getFullYear()} BlackBelt. App autenticado e superficies operacionais publicas.
+              &copy; {new Date().getFullYear()} BlackBelt. Todos os direitos reservados.
             </p>
           </div>
         </div>
