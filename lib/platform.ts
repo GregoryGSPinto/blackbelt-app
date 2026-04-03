@@ -53,6 +53,18 @@ export function isMobileBuild(): boolean {
   return process.env.NEXT_PUBLIC_PLATFORM === 'mobile';
 }
 
+export function isNativeBuild(): boolean {
+  return (
+    process.env.NEXT_PUBLIC_CAPACITOR === 'true' ||
+    process.env.NEXT_PUBLIC_PLATFORM === 'mobile'
+  );
+}
+
+export function isNativeApp(): boolean {
+  if (isNativeBuild()) return true;
+  return isNative();
+}
+
 export function getPlatform(): string {
   return _platform;
 }

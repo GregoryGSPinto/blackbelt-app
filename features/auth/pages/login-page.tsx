@@ -6,6 +6,7 @@ import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { isMock } from '@/lib/env';
+import { useIsNative } from '@/lib/hooks/useIsNative';
 import { resendEmailConfirmation } from '@/features/auth/services/auth.service';
 import { translateError } from '@/lib/utils/error-translator';
 import { validateEmail } from '@/lib/utils/validation';
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const [resendingConfirmation, setResendingConfirmation] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const isNativeDevice = useIsNative();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -445,18 +447,28 @@ export default function LoginPage() {
           </form>
 
           {/* Register link */}
-          <div className="mt-6 pt-5 sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-            <p className="mb-3 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-              Recebeu um convite?
-            </p>
-            <Link
-              href="/cadastro"
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-center text-xs font-medium transition-all hover:brightness-110"
-              style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
-            >
-              🥋 Tenho um convite
-            </Link>
-          </div>
+          {isNativeDevice ? (
+            <div className="mt-6 pt-5 text-center sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                Nao tem conta? Acesse{' '}
+                <span className="font-medium" style={{ color: 'var(--bb-ink-80)' }}>blackbeltv2.vercel.app</span>{' '}
+                para se cadastrar
+              </p>
+            </div>
+          ) : (
+            <div className="mt-6 pt-5 sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
+              <p className="mb-3 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                Recebeu um convite?
+              </p>
+              <Link
+                href="/cadastro"
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-center text-xs font-medium transition-all hover:brightness-110"
+                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
+              >
+                Tenho um convite
+              </Link>
+            </div>
+          )}
 
           {/* Demo accounts (mock mode only) */}
           {isMock() && (

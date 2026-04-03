@@ -12,6 +12,9 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 import { logServiceError } from '@/lib/api/errors';
+import { PricingGuard } from '@/components/shared/PricingGuard';
+import { ManageOnWebMessage } from '@/components/shared/ManageOnWebMessage';
+import { useIsNative } from '@/lib/hooks/useIsNative';
 
 export default function PlanosPage() {
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function PlanosPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentPlanId] = useState<string | null>(null);
+  const isNativeDevice = useIsNative();
 
   useEffect(() => { const t = setTimeout(() => setComingSoonTimeout(true), 4000); return () => clearTimeout(t); }, []);
 
@@ -65,6 +69,10 @@ export default function PlanosPage() {
           variant="first-time"
         />
       )}
+      {isNativeDevice && (
+        <ManageOnWebMessage feature="seu plano" />
+      )}
+      <PricingGuard>
       <div className="grid gap-6 md:grid-cols-3">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlanId;
@@ -125,6 +133,7 @@ export default function PlanosPage() {
           );
         })}
       </div>
+      </PricingGuard>
     </div>
   );
 }

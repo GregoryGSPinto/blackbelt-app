@@ -195,7 +195,20 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
   return response;
 }
 
+const isNativeBuildFlag =
+  process.env.NEXT_PUBLIC_CAPACITOR === 'true' ||
+  process.env.NEXT_PUBLIC_PLATFORM === 'mobile';
+
+const NATIVE_BLOCKED_PATHS = ['/', '/precos', '/planos', '/pricing', '/landing', '/comecar'];
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Block pricing/marketing routes in native builds (Apple Guideline 3.1.3a)
+  if (isNativeBuildFlag && NATIVE_BLOCKED_PATHS.includes(pathname)) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   const useMock = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 
   if (useMock) {
