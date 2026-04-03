@@ -145,61 +145,26 @@ export default function LoginPage() {
           <BlackBeltLogo variant="full" height={40} />
         </div>
 
-        {/* Dashboard Preview */}
+        {/* Brand content — clean, no fake data */}
         <div className="relative z-10 flex flex-1 items-center justify-center py-6 xl:py-8">
-          <div className="w-full max-w-[520px] xl:max-w-[560px]">
-            <div
-              className="overflow-hidden rounded-[28px] border shadow-2xl"
-              style={{ background: 'var(--bb-depth-2)', borderColor: 'var(--bb-glass-border)' }}
-            >
-              {/* Window bar */}
-              <div
-                className="flex items-center gap-2 px-4 py-3"
-                style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-danger)' }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-warning)' }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--bb-success)' }} />
-                <span className="text-[10px] ml-2" style={{ color: 'var(--bb-ink-40)' }}>
-                  Dashboard — Guerreiros do Tatame
-                </span>
-              </div>
-              {/* KPIs */}
-              <div className="grid grid-cols-3 gap-3 p-4">
-                {[
-                  { label: 'Alunos', value: '45', color: 'var(--bb-brand)' },
-                  { label: 'Presença', value: '87%', color: 'var(--bb-success)' },
-                  { label: 'Receita', value: 'R$ 15.8k', color: 'var(--bb-warning)' },
-                ].map(kpi => (
-                  <div key={kpi.label} className="rounded-xl p-3 text-center" style={{ background: 'var(--bb-depth-3)' }}>
-                    <div className="mb-1 text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>{kpi.label}</div>
-                    <div className="text-base font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Activity */}
-              <div className="space-y-2 px-4 pb-4">
-                <div className="text-[9px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--bb-ink-40)' }}>
-                  Check-ins recentes
+          <div className="max-w-sm px-4 text-center">
+            <h2 className="text-3xl font-bold" style={{ color: 'var(--bb-ink-100)' }}>
+              BlackBelt
+            </h2>
+            <p className="mt-3 text-base leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
+              A plataforma de gestão mais completa para academias de artes marciais.
+            </p>
+            <div className="mt-8 space-y-3 text-left">
+              {[
+                'Check-in inteligente por QR Code',
+                'Gestão de turmas e professores',
+                'Controle financeiro completo',
+                'Graduação e progressão de faixas',
+              ].map((feature) => (
+                <div key={feature} className="flex items-center gap-3 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                  <div className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'var(--bb-brand-deep)' }} />
+                  {feature}
                 </div>
-                {[
-                  { name: 'João Pedro', time: '5 min', belt: '#3B82F6' },
-                  { name: 'Maria Clara', time: '12 min', belt: '#8B5CF6' },
-                  { name: 'Lucas Teen', time: '18 min', belt: '#EAB308' },
-                ].map(row => (
-                  <div key={row.name} className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'var(--bb-depth-4)' }}>
-                    <div className="h-6 w-1.5 rounded-full" style={{ background: row.belt }} />
-                    <span className="flex-1 text-sm" style={{ color: 'var(--bb-ink-100)' }}>{row.name}</span>
-                    <span className="text-[10px]" style={{ color: 'var(--bb-ink-40)' }}>há {row.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Belt colors strip */}
-            <div className="mt-6 flex justify-center gap-1.5">
-              {['#F8FAFC', '#EAB308', '#F97316', '#22C55E', '#3B82F6', '#8B5CF6', '#92400E', '#1A1A2E'].map(c => (
-                <div key={c} className="w-4 h-1.5 rounded-full" style={{ background: c, opacity: 0.6 }} />
               ))}
             </div>
           </div>
@@ -238,11 +203,6 @@ export default function LoginPage() {
           <div className="mb-7 text-center lg:hidden sm:mb-8">
             <div className="flex justify-center">
               <BlackBeltLogo variant="full" height={44} />
-            </div>
-            <div className="flex justify-center gap-1 mt-3">
-              {['#F8FAFC', '#EAB308', '#F97316', '#22C55E', '#3B82F6', '#8B5CF6', '#92400E', '#1A1A2E'].map(c => (
-                <div key={c} className="w-3 h-1 rounded-full" style={{ background: c, opacity: 0.5 }} />
-              ))}
             </div>
           </div>
 
@@ -449,28 +409,22 @@ export default function LoginPage() {
           </form>
 
           {/* Register link */}
-          {isNativeDevice ? (
-            <div className="mt-6 pt-5 text-center sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-              <p className="text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+          <div className="mt-8 text-center">
+            {isNativeDevice ? (
+              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 Nao tem conta? Acesse{' '}
                 <span className="font-medium" style={{ color: 'var(--bb-ink-80)' }}>blackbeltv2.vercel.app</span>{' '}
-                para se cadastrar
+                para se cadastrar.
               </p>
-            </div>
-          ) : (
-            <div className="mt-6 pt-5 sm:mt-8 sm:pt-6" style={{ borderTop: '1px solid var(--bb-glass-border)' }}>
-              <p className="mb-3 text-center text-xs" style={{ color: 'var(--bb-ink-40)' }}>
-                Recebeu um convite?
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--bb-ink-40)' }}>
+                Nao tem conta?{' '}
+                <Link href="/cadastrar-academia" className="font-medium hover:underline" style={{ color: 'var(--bb-brand-deep)' }}>
+                  Cadastre sua academia
+                </Link>
               </p>
-              <Link
-                href="/cadastro"
-                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-center text-xs font-medium transition-all hover:brightness-110"
-                style={{ background: 'var(--bb-depth-2)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)' }}
-              >
-                Tenho um convite
-              </Link>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Demo accounts (mock mode only) */}
           {isMock() && (
