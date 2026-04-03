@@ -63,7 +63,7 @@ export function TrialBanner({ trialEndsAt }: TrialBannerProps) {
           </p>
           <p className="text-xs" style={{ color: 'var(--bb-ink-60)' }}>
             {daysLeft === 0
-              ? (native ? 'Entre em contato para gerenciar seu plano.' : 'Assine agora para continuar usando.')
+              ? (native ? 'Entre em contato para gerenciar seu plano.' : 'Acesse Meu Plano para manter o acesso.')
               : 'Aproveite todas as funcionalidades durante o teste.'}
           </p>
         </div>
@@ -72,11 +72,11 @@ export function TrialBanner({ trialEndsAt }: TrialBannerProps) {
       <div className="flex items-center gap-2">
         {!native && (
           <a
-            href="/planos"
+            href="/admin/plano"
             className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: 'var(--bb-brand-gradient)' }}
           >
-            Ver planos
+            Meu plano
           </a>
         )}
         <button
