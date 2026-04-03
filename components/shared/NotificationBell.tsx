@@ -88,7 +88,7 @@ export function NotificationBell({ profileId }: { profileId?: string }) {
 
       {open && (
         <div
-          className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl shadow-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl shadow-xl"
           style={{
             backgroundColor: 'var(--bb-depth-2)',
             border: '1px solid var(--bb-glass-border)',
@@ -107,7 +107,7 @@ export function NotificationBell({ profileId }: { profileId?: string }) {
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-[70vh] overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="py-8 text-center text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 Nenhuma notifica\u00E7\u00E3o
