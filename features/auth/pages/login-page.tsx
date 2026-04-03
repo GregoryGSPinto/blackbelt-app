@@ -23,7 +23,7 @@ const PREVIEW_CHECKINS = [
 function DashboardPreview() {
   return (
     <div
-      className="w-full max-w-sm rounded-xl overflow-hidden"
+      className="w-full max-w-[440px] rounded-xl overflow-hidden"
       style={{
         background: 'var(--bb-depth-2)',
         border: '1px solid var(--bb-glass-border)',
@@ -298,10 +298,10 @@ export default function LoginPage() {
 
       {/* ========== RIGHT SIDE — Login form ========== */}
       <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-16"
+        className="flex-1 lg:flex-none lg:w-[55%] flex flex-col items-center justify-center px-6 py-10 lg:px-16"
         style={{ background: 'var(--bb-depth-0)' }}
       >
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-[440px]">
           {/* Mobile logo (hidden on desktop) */}
           <div className="lg:hidden flex flex-col items-center mb-8">
             <Link href="/" aria-label="Ir para a pagina inicial">
