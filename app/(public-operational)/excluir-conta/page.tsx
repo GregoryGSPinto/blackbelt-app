@@ -37,8 +37,12 @@ export default function ExcluirContaPage() {
           Solicite a exclusão da sua conta com clareza e rastreabilidade
         </h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--bb-ink-60)] sm:text-base">
-          Esta é a página pública exigida para revisão da App Store e Google Play. Usuários adultos, responsáveis e gestores
-          podem solicitar a exclusão da conta e dos dados pessoais diretamente no app ou pelos canais oficiais de suporte.
+          Para excluir sua conta, faca login e acesse <strong className="text-[var(--bb-ink-100)]">Configuracoes → Avancado → Excluir minha conta</strong>.
+          Voce precisara confirmar sua identidade com a senha atual e digitar um texto de confirmacao.
+        </p>
+        <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--bb-ink-60)] sm:text-base">
+          Se nao conseguir acessar o app, entre em contato pelos canais abaixo.
+          Esta e a pagina publica exigida para revisao da App Store e Google Play.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {supportCards.map((item) => (
@@ -61,10 +65,12 @@ export default function ExcluirContaPage() {
         >
           <h2 className="text-xl font-semibold text-[var(--bb-ink-100)]">Como excluir sua conta</h2>
           <ol className="mt-4 space-y-4 text-sm leading-7 text-[var(--bb-ink-60)]">
-            <li>1. No app, acesse `Perfil` ou `Configurações` → `Privacidade e Dados`.</li>
-            <li>2. Toque em `Solicitar Exclusão da Conta` e confirme a solicitação.</li>
-            <li>3. Registramos o pedido com prazo padrão de 30 dias para retenção operacional e prevenção de fraude.</li>
-            <li>4. Se você for responsável por menor, a exclusão também interrompe o acesso do responsável aos dados vinculados.</li>
+            <li>1. Faca login no app e acesse <strong className="text-[var(--bb-ink-80)]">Configuracoes → Avancado</strong>.</li>
+            <li>2. Na secao &ldquo;Zona de Perigo&rdquo;, toque em <strong className="text-[var(--bb-ink-80)]">Excluir Minha Conta</strong>.</li>
+            <li>3. Confirme sua identidade digitando sua senha atual.</li>
+            <li>4. Digite <strong className="text-[var(--bb-ink-80)]">EXCLUIR MINHA CONTA</strong> para confirmar a solicitacao.</li>
+            <li>5. Registramos o pedido com prazo padrao de 30 dias para retencao operacional e prevencao de fraude.</li>
+            <li>6. Se voce for responsavel por menor, a exclusao tambem interrompe o acesso do responsavel aos dados vinculados.</li>
           </ol>
 
           <h3 className="mt-8 text-lg font-semibold text-[var(--bb-ink-100)]">Se você não conseguir entrar no app</h3>

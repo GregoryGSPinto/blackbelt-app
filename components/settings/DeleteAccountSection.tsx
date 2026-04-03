@@ -18,6 +18,9 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
     const { toast } = useToast();
     const { profile, logout } = useAuth();
     const [showModal, setShowModal] = useState(false);
+    const [password, setPassword] = useState('');
+    const [passwordVerified, setPasswordVerified] = useState(false);
+    const [verifyingPassword, setVerifyingPassword] = useState(false);
     const [confirmationText, setConfirmationText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [soloAdminBlocked, setSoloAdminBlocked] = useState(false);
@@ -62,7 +65,44 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
         return;
       }
       setSoloAdminBlocked(false);
+      setPassword('');
+      setPasswordVerified(false);
+      setConfirmationText('');
       setShowModal(true);
+    }
+
+    async function handleVerifyPassword() {
+      if (!password) {
+        toast('Digite sua senha atual.', 'error');
+        return;
+      }
+      setVerifyingPassword(true);
+      try {
+        if (isMock()) {
+          setPasswordVerified(true);
+          return;
+        }
+        const { createBrowserClient } = await import('@/lib/supabase/client');
+        const supabase = createBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.email) {
+          toast('Nao foi possivel verificar a identidade.', 'error');
+          return;
+        }
+        const { error } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password,
+        });
+        if (error) {
+          toast('Senha incorreta. Tente novamente.', 'error');
+          return;
+        }
+        setPasswordVerified(true);
+      } catch {
+        toast('Erro ao verificar senha.', 'error');
+      } finally {
+        setVerifyingPassword(false);
+      }
     }
 
     async function handleDelete() {
@@ -168,6 +208,55 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                     </button>
                   </div>
                 </>
+              ) : !passwordVerified ? (
+                <>
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--bb-danger)' }}>
+                    Confirmar identidade
+                  </h3>
+                  <p className="mt-3 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                    Para sua seguranca, digite sua senha atual antes de prosseguir com a exclusao.
+                  </p>
+
+                  <label className="mt-4 block text-sm font-medium" style={{ color: 'var(--bb-ink-60)' }}>
+                    Senha atual
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Digite sua senha"
+                    disabled={verifyingPassword}
+                    className="mt-2 w-full rounded-lg border px-3 py-2 text-sm outline-none"
+                    style={{
+                      backgroundColor: 'var(--bb-depth-1)',
+                      borderColor: 'var(--bb-glass-border)',
+                      color: 'var(--bb-ink-100)',
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyPassword(); }}
+                  />
+
+                  <div className="mt-6 flex gap-3 justify-end">
+                    <button
+                      onClick={() => {
+                        setShowModal(false);
+                        setPassword('');
+                      }}
+                      disabled={verifyingPassword}
+                      className="rounded-lg px-4 py-2 text-sm font-medium"
+                      style={{ backgroundColor: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)' }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleVerifyPassword}
+                      disabled={!password || verifyingPassword}
+                      className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+                      style={{ backgroundColor: 'var(--bb-danger)' }}
+                    >
+                      {verifyingPassword ? 'Verificando...' : 'Continuar'}
+                    </button>
+                  </div>
+                </>
               ) : (
                 <>
                   <h3 className="text-lg font-semibold" style={{ color: 'var(--bb-danger)' }}>
@@ -175,7 +264,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                   </h3>
                   <div className="mt-3 space-y-2 text-sm" style={{ color: 'var(--bb-ink-80)' }}>
                     <p className="font-semibold">Esta acao e IRREVERSIVEL.</p>
-                    <p>Sua conta sera removida definitivamente em ate 30 dias, salvo obrigacao legal de retencao.</p>
+                    <p>Todos os seus dados serao removidos em ate 30 dias, salvo obrigacao legal de retencao.</p>
                     {isParent && (
                       <p>Seus filhos vinculados continuarao na academia.</p>
                     )}
@@ -203,6 +292,8 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                       onClick={() => {
                         setShowModal(false);
                         setConfirmationText('');
+                        setPasswordVerified(false);
+                        setPassword('');
                       }}
                       disabled={isDeleting}
                       className="rounded-lg px-4 py-2 text-sm font-medium"
@@ -216,7 +307,7 @@ const DeleteAccountSection = forwardRef<HTMLDivElement, DeleteAccountSectionProp
                       className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
                       style={{ backgroundColor: 'var(--bb-danger)' }}
                     >
-                      {isDeleting ? 'Excluindo...' : 'Confirmar Exclusao'}
+                      {isDeleting ? 'Excluindo...' : 'Excluir minha conta permanentemente'}
                     </button>
                   </div>
                 </>
