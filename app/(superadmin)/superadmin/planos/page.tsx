@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { useToast } from '@/lib/hooks/useToast';
 import { getPlans, updatePlan, createPlan, togglePlanActive, deletePlan, getAcademyCountByPlan } from '@/lib/api/plans.service';
 import { ALL_FEATURES, CATEGORY_LABELS } from '@/lib/constants/plan-features';
@@ -336,6 +337,7 @@ function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: Co
 export default function PlanosPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [academyCounts, setAcademyCounts] = useState<Record<string, number>>({});
   const [modalPlan, setModalPlan] = useState<Plan | null | 'new'>(null);
@@ -344,11 +346,14 @@ export default function PlanosPage() {
 
   const loadData = useCallback(async () => {
     try {
+      setLoading(true);
+      setLoadError(null);
       const [p, counts] = await Promise.all([getPlans(), getAcademyCountByPlan()]);
       setPlans(p);
       setAcademyCounts(counts);
     } catch (err) {
       toast(translateError(err), 'error');
+      setLoadError('Nao foi possivel carregar os planos.');
     } finally {
       setLoading(false);
     }
@@ -468,6 +473,18 @@ export default function PlanosPage() {
   // ── Loading ───────────────────────────────────────────────
 
   if (loading) return <PageSkeleton />;
+
+  if (loadError && plans.length === 0) {
+    return (
+      <div className="p-6">
+        <ErrorState
+          title="Planos indisponiveis"
+          description={loadError}
+          onRetry={loadData}
+        />
+      </div>
+    );
+  }
 
   // ── Render ────────────────────────────────────────────────
 
