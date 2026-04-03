@@ -78,7 +78,7 @@ export default function SaudePage() {
         <div className="mb-4 text-5xl">&#9201;</div>
         <h2 className="text-lg font-bold text-bb-black">Conecte seu relógio</h2>
         <p className="mt-2 max-w-sm text-sm text-bb-gray-500">
-          Conecte seu Apple Watch ou WearOS para acompanhar frequência cardíaca, calorias e intensidade dos treinos em tempo real.
+          Conecte seu smartwatch ou pulseira fitness para acompanhar frequencia cardiaca, calorias e intensidade dos treinos em tempo real.
         </p>
         <Button className="mt-6" variant="primary">Conectar Dispositivo</Button>
       </div>
