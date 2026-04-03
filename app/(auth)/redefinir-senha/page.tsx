@@ -27,7 +27,7 @@ export default function RedefinirSenhaPage() {
   const passwordsMatch = password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
   const canSubmit = allRulesPass && passwordsMatch && !submitting;
 
-  // Check session on mount
+  // Check session on mount — handle both PKCE code exchange and implicit hash flow
   useEffect(() => {
     let cancelled = false;
     let unsubscribe: (() => void) | undefined;
@@ -42,6 +42,17 @@ export default function RedefinirSenhaPage() {
           }
         });
         unsubscribe = () => authListener.subscription.unsubscribe();
+
+        // PKCE flow: exchange code from URL query params
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (!cancelled && !exchangeError) {
+            setPageState('valid');
+            return;
+          }
+        }
 
         const { data } = await supabase.auth.getSession();
 

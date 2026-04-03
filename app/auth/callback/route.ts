@@ -44,6 +44,14 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
+  // Password recovery → redirect to reset form instead of dashboard
+  const type = searchParams.get('type');
+  if (type === 'recovery') {
+    destination = new URL('/redefinir-senha', origin);
+    response.headers.set('Location', destination.toString());
+    return response;
+  }
+
   // If invite token present, redirect to invite cadastro page
   if (inviteToken) {
     destination = new URL(`/cadastro/${encodeURIComponent(inviteToken)}`, origin);
