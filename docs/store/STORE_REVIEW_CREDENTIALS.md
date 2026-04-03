@@ -1,19 +1,28 @@
-# BlackBelt Store Review Credentials
+# BlackBelt — Credenciais para Review (Apple/Google)
 
-Use este arquivo apenas como ponte para o material operacional atual.
+## Conta Demo Principal (usar para App Review)
+- **Email:** roberto@guerreiros.com
+- **Password:** BlackBelt@2026
+- **Role:** Admin (Administrador da Academia)
+- **Academy:** Guerreiros do Tatame (Vespasiano, MG)
 
-## Estado atual
+## O que o reviewer pode testar:
+1. Login - Dashboard com metricas
+2. Menu lateral - Alunos (lista com dados)
+3. Menu lateral - Turmas (grade de horarios)
+4. Menu lateral - Financeiro (cobrancas e relatorios)
+5. Menu lateral - Comunicacao (mensagens internas)
+6. Perfil - Configuracoes
+7. Check-in (QR Code)
 
-- Não há credenciais reais de review versionadas neste repositório.
-- Não publique contas fake ou placeholders em metadados finais de loja.
+## Notas importantes:
+- O app e SaaS B2B — subscriptions sao gerenciadas fora do app (website)
+- Nao ha in-app purchases
+- O backend esta ativo 24/7 (Supabase + Vercel)
+- Dados de demo sao pre-populados e resetados periodicamente
 
-## Fonte de verdade
-
-- Preencha somente [`docs/release/STORE_REVIEW_CREDENTIALS_TEMPLATE.md`](../release/STORE_REVIEW_CREDENTIALS_TEMPLATE.md) com contas reais, sem OTP/2FA e com seed suficiente.
-
-## Requisitos mínimos
-
-- login funcional em ambiente real
-- conta admin com academia demo populada
-- sem troca obrigatória de senha
-- sem verificação adicional por email, OTP ou SMS
+## Requisitos minimos:
+- Login funcional em ambiente real
+- Conta admin com academia demo populada
+- Sem troca obrigatoria de senha
+- Sem verificacao adicional por email, OTP ou SMS

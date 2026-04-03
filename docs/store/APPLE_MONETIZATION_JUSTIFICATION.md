@@ -1,39 +1,48 @@
-# BlackBelt — Justificativa de Monetização (Apple Guideline 3.1.3)
+# BlackBelt — Monetization Justification
+# Apple App Store Review Guideline 3.1.3(a)
 
-## Modelo de Negócio
+## Business Model: SaaS B2B (Multi-tenant)
 
-BlackBelt é uma plataforma SaaS B2B para gestão de academias de artes marciais.
-O serviço é consumido FORA do app — a academia usa a plataforma para:
-- Gerenciar alunos, turmas e horários
-- Processar cobranças de mensalidades
-- Controlar graduações e faixas
-- Gerar relatórios financeiros e pedagógicos
+BlackBelt is a multi-tenant SaaS platform for martial arts academy management.
 
-## Enquadramento na Guideline 3.1.3(a)
+### Why In-App Purchase is NOT required:
 
-> "3.1.3(a) Reader Apps: Apps may allow a user to access previously purchased
-> content or content subscriptions (specifically: magazines, newspapers, books,
-> audio, music, video, access to professional databases, VoIP, cloud storage,
-> and approved services such as classroom management apps)."
+1. **B2B Service**: The customer is the business (academy), not the consumer.
+   Academy owners purchase subscriptions through our website to manage their business operations.
 
-BlackBelt se enquadra como:
-- **Classroom management app** (gestão de turmas/aulas)
-- **Professional database** (base de dados profissional de alunos/graduações)
-- **SaaS B2B** (serviço empresarial, não conteúdo digital)
+2. **Service consumed outside the app**: Core value is business management —
+   classes, billing, student records, reports. These are operational tools, not digital content.
 
-## Pagamento Externo
+3. **Multi-user per subscription**: One academy subscription serves the owner,
+   professors, receptionists, students, and parents. The subscription is tied
+   to the business entity, not individual app users.
 
-- Processado via Asaas (instituição autorizada pelo Banco Central, código 461)
-- PIX, boleto e cartão de crédito
-- A academia paga pela gestão do negócio, não por conteúdo dentro do app
-- Similar a: Salesforce, HubSpot, Trello, Slack (todos usam pagamento externo)
+4. **No digital content delivered**: No ebooks, no streaming video, no downloadable
+   content. The app is a management tool.
 
-## App Review Notes
+### Technical Implementation:
+- Native app (iOS/Android): Opens to login screen. No pricing displayed.
+- Web app (browser): Full landing page with pricing and signup flow.
+- `PricingGuard` component wraps all pricing UI, renders nothing on native.
+- Platform detection via `Capacitor.isNativePlatform()` + build-time env vars.
 
-Sugerimos incluir nas App Review notes:
-"BlackBelt is a B2B SaaS platform for martial arts academy management.
-Subscriptions are for business management services consumed outside the app
-(student management, class scheduling, financial reporting). Payment is
-processed via Asaas, a Brazilian payment processor authorized by the Central
-Bank. This model follows guideline 3.1.3(a) as a professional database and
-classroom management service."
+### Comparable Approved Apps:
+- Mindbody (fitness business management)
+- Glofox (gym management)
+- Zen Planner (martial arts management)
+- Slack (workplace SaaS)
+- Salesforce (CRM SaaS)
+- Monday.com (work management SaaS)
+
+### App Store Connect Review Notes Template:
+"BlackBelt is a B2B SaaS platform for martial arts academy management,
+per Guideline 3.1.3(a). Subscriptions are purchased by academy owners
+through our website (blackbeltv2.vercel.app). The app does not display
+pricing or offer in-app purchases.
+Demo: roberto@guerreiros.com / BlackBelt@2026 (Admin role)"
+
+### Payment Processing:
+- Processed via Asaas (Brazilian payment processor, Central Bank code 461)
+- PIX, boleto and credit card
+- The academy pays for business management, not content inside the app
+- Similar to: Salesforce, HubSpot, Trello, Slack (all use external payment)
