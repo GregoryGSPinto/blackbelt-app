@@ -78,7 +78,7 @@ export default function FranqueadorDashboardPage() {
         <h1 className="text-xl font-bold text-bb-black">Dashboard da Rede</h1>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => setMsgModal(true)}>Enviar Mensagem</Button>
-          <Button variant="secondary" onClick={() => toast('Cadastro de nova franquia em desenvolvimento', 'info')}>
+          <Button variant="secondary" onClick={() => toast('Entre em contato com o suporte para cadastrar novas franquias.', 'info')}>
             Nova Franquia
           </Button>
         </div>

@@ -45,7 +45,7 @@ export const SidebarHelpSection = forwardRef<HTMLDivElement, SidebarHelpSectionP
     }
 
     function handleOpenTicket() {
-      toast('Sistema de tickets em breve!', 'info');
+      toast('Entre em contato pelo email ou WhatsApp.', 'info');
       onItemClick?.();
     }
 
@@ -270,7 +270,7 @@ export function HeaderHelpButton({ variant = 'staff' }: { variant?: 'staff' | 's
                 <button
                   type="button"
                   onClick={() => {
-                    toast('Sistema de tickets em breve!', 'info');
+                    toast('Entre em contato pelo email ou WhatsApp.', 'info');
                     setOpen(false);
                   }}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"

@@ -403,17 +403,8 @@ export default function AjudaPage() {
           Assistente IA
         </h3>
         <p className="mt-1 text-xs text-[var(--bb-ink-60)]">
-          Em breve: tire suas duvidas com nosso assistente inteligente
+          Para duvidas, entre em contato pelo email ou WhatsApp
         </p>
-        <div
-          className="mx-auto mt-3 inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium"
-          style={{
-            background: 'var(--bb-brand-surface)',
-            color: 'var(--bb-brand)',
-          }}
-        >
-          Em breve
-        </div>
       </Card>
     </div>
   );

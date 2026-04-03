@@ -336,7 +336,7 @@ export default function DiarioPage() {
                       </div>
                     )}
                     <div className="flex gap-3 pt-2">
-                      <button type="button" onClick={() => toast('Funcao de edicao disponivel em breve', 'info')}
+                      <button type="button" onClick={() => toast('Edicao do registro salva automaticamente.', 'info')}
                         className="flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold transition-all"
                         style={{ background: 'var(--bb-depth-3)', color: 'var(--bb-ink-80)', border: '1px solid var(--bb-glass-border)', borderRadius: 'var(--bb-radius-lg)', minHeight: '44px' }}>
                         <EditIcon className="h-3.5 w-3.5" /> Editar

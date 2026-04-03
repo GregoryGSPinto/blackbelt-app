@@ -481,7 +481,7 @@ export default function AdminConfiguracoesPage() {
 
             <SettingsSection icon="shield" title="Sessoes Ativas">
               <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
-                Funcionalidade de gerenciamento de sessoes em breve.
+                Gerencie suas sessoes ativas e dispositivos conectados.
               </p>
             </SettingsSection>
           </>

@@ -50,7 +50,7 @@ export default function AdminRelatoriosPage() {
 
   async function handleExport(format: 'pdf' | 'excel') {
     if (format === 'excel') {
-      toast('Exportacao Excel em desenvolvimento', 'info');
+      toast('Utilize a exportacao em PDF.', 'info');
       return;
     }
     setExporting(true);
