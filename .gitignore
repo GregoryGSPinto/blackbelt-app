@@ -70,9 +70,9 @@ GoogleService-Info.plist
 *.mobileprovision
 *.xcarchive
 
-# prompt / spec files
-BLACKBELT_*.md
-PREPARAR_BUILDS_STORES.md
+# prompt / spec files (root only — docs/prompts/ is tracked)
+/BLACKBELT_*.md
+/PREPARAR_BUILDS_STORES.md
 blackbelt-v2-roadmap-*.pdf
 
 # claude
