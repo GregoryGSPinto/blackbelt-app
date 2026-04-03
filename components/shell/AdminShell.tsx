@@ -48,6 +48,7 @@ import {
   ShieldIcon,
   CheckSquareIcon,
   CreditCardIcon,
+  MoreHorizontalIcon,
 } from './icons';
 import { ProfileSwitcher } from '@/components/shared/ProfileSwitcher';
 import { LegalFooter } from './LegalFooter';
@@ -613,7 +614,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
               </div>
             </div>
           </header>
-          <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
+          <div className="flex-1 pb-16 lg:pb-0" style={{ background: 'var(--bb-depth-1)' }}>
             {isPastDue && <OverdueBanner />}
             {isCancelled && <OverdueBanner />}
             {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
@@ -622,6 +623,47 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             <LegalFooter />
           </div>
         </div>
+
+        {/* ═══ MOBILE BOTTOM NAV ═══ */}
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around lg:hidden"
+          style={{
+            background: 'var(--bb-depth-2)',
+            borderTop: '1px solid var(--bb-glass-border)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            height: '60px',
+          }}
+        >
+          {[
+            { href: '/admin/dashboard', icon: HomeIcon, label: 'Dashboard' },
+            { href: '/admin/presenca', icon: CheckSquareIcon, label: 'Check-in' },
+            { href: '/admin/financeiro', icon: DollarIcon, label: 'Financeiro' },
+            { href: '/admin/turmas', icon: UsersIcon, label: 'Turmas' },
+            { href: '#more', icon: MoreHorizontalIcon, label: 'Mais' },
+          ].map((item) => {
+            const isMore = item.href === '#more';
+            const active = !isMore && pathname.startsWith(item.href);
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  if (isMore) {
+                    setSidebarOpen(true);
+                  } else {
+                    router.push(item.href);
+                  }
+                }}
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors"
+                style={{ color: active ? 'var(--bb-brand)' : 'var(--bb-ink-40)' }}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
         {/* Command Palette (Search) */}
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} hideToggle />
