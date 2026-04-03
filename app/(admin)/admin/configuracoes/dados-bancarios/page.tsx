@@ -29,12 +29,29 @@ interface BankFormData {
   phone: string;
   birthDate: string;
   companyType: string;
+  companyTypeOther: string;
   bankCode: string;
   bankAgency: string;
   bankAccount: string;
   bankAccountDigit: string;
   bankAccountType: string;
 }
+
+const COMPANY_TYPES = [
+  { value: '', label: 'Selecione (se PJ)' },
+  { value: 'MEI', label: 'MEI — Microempreendedor Individual' },
+  { value: 'ME', label: 'ME — Microempresa' },
+  { value: 'EPP', label: 'EPP — Empresa de Pequeno Porte' },
+  { value: 'LIMITED', label: 'LTDA — Sociedade Limitada' },
+  { value: 'SA', label: 'S/A — Sociedade Anonima' },
+  { value: 'EIRELI', label: 'EIRELI' },
+  { value: 'SLU', label: 'SLU — Sociedade Limitada Unipessoal' },
+  { value: 'INDIVIDUAL', label: 'Empresa Individual' },
+  { value: 'ASSOCIATION', label: 'Associacao' },
+  { value: 'COOPERATIVA', label: 'Cooperativa' },
+  { value: 'PESSOA_FISICA', label: 'Pessoa Fisica (CPF)' },
+  { value: 'OUTRO', label: 'Outro' },
+] as const;
 
 interface AcademyBankData {
   bank_account_configured: boolean;
@@ -70,6 +87,7 @@ export default function DadosBancariosPage() {
     phone: '',
     birthDate: '',
     companyType: '',
+    companyTypeOther: '',
     bankCode: '',
     bankAgency: '',
     bankAccount: '',
@@ -359,12 +377,20 @@ export default function DadosBancariosPage() {
                 className={inputCls}
                 style={inputStyle}
               >
-                <option value="">Selecione (se PJ)</option>
-                <option value="MEI">MEI</option>
-                <option value="LIMITED">Limitada</option>
-                <option value="INDIVIDUAL">Individual</option>
-                <option value="ASSOCIATION">Associacao</option>
+                {COMPANY_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
               </select>
+              {form.companyType === 'OUTRO' && (
+                <input
+                  type="text"
+                  value={form.companyTypeOther}
+                  onChange={(e) => updateForm({ companyTypeOther: e.target.value })}
+                  placeholder="Especifique o tipo de empresa..."
+                  className={`${inputCls} mt-2`}
+                  style={inputStyle}
+                />
+              )}
             </div>
           </div>
         </div>
