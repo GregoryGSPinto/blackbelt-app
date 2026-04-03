@@ -15,6 +15,7 @@ import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { PAGE_MODULE_MAP } from '@/lib/plans/module-access';
 import { TrialBanner } from '@/components/plans/TrialBanner';
 import { DiscoveryBanner } from '@/components/plans/DiscoveryBanner';
+import { OverdueBanner } from '@/components/shared/OverdueBanner';
 import {
   HomeIcon,
   CalendarIcon,
@@ -160,7 +161,7 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
     const pathname = usePathname();
     const router = useRouter();
     const { profile, logout } = useAuth();
-    const { hasAccess, isTrial, isDiscovery, trialDaysLeft, discoveryDaysLeft } = usePlan();
+    const { hasAccess, isTrial, isDiscovery, isPastDue, isCancelled, trialDaysLeft, discoveryDaysLeft } = usePlan();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -613,6 +614,8 @@ const AdminShell = forwardRef<HTMLDivElement, AdminShellProps>(
             </div>
           </header>
           <div className="flex-1" style={{ background: 'var(--bb-depth-1)' }}>
+            {isPastDue && <OverdueBanner />}
+            {isCancelled && <OverdueBanner />}
             {isTrial && <TrialBanner daysLeft={trialDaysLeft} />}
             {isDiscovery && <DiscoveryBanner daysLeft={discoveryDaysLeft} variant="admin" />}
             <main>{children}</main>

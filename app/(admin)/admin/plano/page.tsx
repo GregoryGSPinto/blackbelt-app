@@ -451,6 +451,50 @@ export default function AdminPlanoPage() {
             </div>
           </Card>
         )}
+
+        {assinatura.status === 'past_due' && (
+          <Card variant="elevated" className="overflow-hidden">
+            <div
+              className="px-5 py-3 text-sm font-semibold"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1))',
+                color: '#EF4444',
+              }}
+            >
+              {'\u26A0\uFE0F'} PAGAMENTO PENDENTE
+            </div>
+            <div className="space-y-3 p-5">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                Sua ultima cobranca nao foi processada. Regularize para manter o acesso aos modulos contratados.
+              </p>
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Plano: <strong>R$ {formatCurrency(assinatura.precoTotal)}/mes</strong> &middot; Ciclo {assinatura.ciclo}
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {(assinatura.status === 'cancelled' || assinatura.status === 'suspended') && (
+          <Card variant="elevated" className="overflow-hidden">
+            <div
+              className="px-5 py-3 text-sm font-semibold"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1))',
+                color: '#EF4444',
+              }}
+            >
+              {'\u274C'} ASSINATURA CANCELADA
+            </div>
+            <div className="space-y-3 p-5">
+              <p className="text-sm" style={{ color: 'var(--bb-ink-100)' }}>
+                Sua assinatura foi cancelada. Os modulos contratados foram desativados.
+              </p>
+              <p className="text-sm" style={{ color: 'var(--bb-ink-60)' }}>
+                Reative seu plano para recuperar o acesso.
+              </p>
+            </div>
+          </Card>
+        )}
       </section>
 
       {/* ── Modulos Grid ────────────────────────────────────────── */}
