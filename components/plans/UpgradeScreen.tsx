@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Lock, ArrowLeft, CheckCircle2, ArrowUpRight } from 'lucide-react';
 import { MODULE_NAMES, getMinimumPlan, type ModuleId } from '@/lib/plans/module-access';
 import type { PlanDefinition } from '@/lib/plans/module-access';
+import { PricingGuard } from '@/components/shared/PricingGuard';
+import { ManageOnWebMessage } from '@/components/shared/ManageOnWebMessage';
 
 interface UpgradeScreenProps {
   module: ModuleId;
@@ -28,6 +30,7 @@ const UpgradeScreen = forwardRef<HTMLDivElement, UpgradeScreenProps>(
       .map((m) => MODULE_NAMES[m]);
 
     return (
+      <PricingGuard nativeFallback={<div ref={ref} className="p-6"><ManageOnWebMessage feature="sua assinatura" /></div>}>
       <div
         ref={ref}
         className="flex min-h-[60vh] items-center justify-center p-4"
@@ -152,6 +155,7 @@ const UpgradeScreen = forwardRef<HTMLDivElement, UpgradeScreenProps>(
           </div>
         </div>
       </div>
+      </PricingGuard>
     );
   },
 );

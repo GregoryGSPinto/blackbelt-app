@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { PricingGuard } from '@/components/shared/PricingGuard';
 import { getDashboardData } from '@/lib/api/admin-dashboard.service';
 import { trackFeatureUsage } from '@/lib/api/beta-analytics.service';
 import type { DashboardData } from '@/lib/types/admin-dashboard';
@@ -1768,20 +1769,24 @@ export default function AdminDashboardPage() {
             className="mt-4 flex items-center justify-between pt-3"
             style={{ borderTop: '1px solid var(--bb-glass-border)' }}
           >
-            <Link
-              href="/admin/plano"
-              className="text-xs font-medium transition-opacity hover:opacity-80"
-              style={{ color: 'var(--bb-brand)' }}
-            >
-              Ver detalhes →
-            </Link>
-            <Link
-              href="/admin/plano"
-              className="rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
-              style={{ background: 'var(--bb-brand)', color: '#fff' }}
-            >
-              Fazer Upgrade
-            </Link>
+            <PricingGuard>
+              <Link
+                href="/admin/plano"
+                className="text-xs font-medium transition-opacity hover:opacity-80"
+                style={{ color: 'var(--bb-brand)' }}
+              >
+                Ver detalhes →
+              </Link>
+            </PricingGuard>
+            <PricingGuard>
+              <Link
+                href="/admin/plano"
+                className="rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
+                style={{ background: 'var(--bb-brand)', color: '#fff' }}
+              >
+                Fazer Upgrade
+              </Link>
+            </PricingGuard>
           </div>
         </div>
       </section>

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { PlanGate } from '@/components/plans/PlanGate';
+import { PricingGuard } from '@/components/shared/PricingGuard';
 import { ComingSoon } from '@/components/shared/ComingSoon';
 
 export default function BattlePassPage() {
@@ -101,14 +102,16 @@ export default function BattlePassPage() {
               PREMIUM
             </span>
           ) : (
-            <Button
-              variant="secondary"
-              onClick={handleUpgrade}
-              disabled={upgrading}
-              className="!bg-yellow-400 !text-black hover:!bg-yellow-300"
-            >
-              {upgrading ? 'Processando...' : `Upgrade Premium R$ ${battlePass.premium_price.toFixed(2).replace('.', ',')}`}
-            </Button>
+            <PricingGuard>
+              <Button
+                variant="secondary"
+                onClick={handleUpgrade}
+                disabled={upgrading}
+                className="!bg-yellow-400 !text-black hover:!bg-yellow-300"
+              >
+                {upgrading ? 'Processando...' : `Upgrade Premium R$ ${battlePass.premium_price.toFixed(2).replace('.', ',')}`}
+              </Button>
+            </PricingGuard>
           )}
         </div>
 
@@ -261,20 +264,22 @@ export default function BattlePassPage() {
           </div>
         </div>
         {!battlePass.is_premium && (
-          <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
-            <p className="text-sm font-bold text-yellow-800">Desbloqueie recompensas Premium!</p>
-            <p className="mt-1 text-xs text-yellow-600">
-              Aula particular, quimono exclusivo, descontos maiores e muito mais
-            </p>
-            <Button
-              variant="primary"
-              onClick={handleUpgrade}
-              disabled={upgrading}
-              className="mt-3 !bg-yellow-500 hover:!bg-yellow-400"
-            >
-              {upgrading ? 'Processando...' : `Upgrade R$ ${battlePass.premium_price.toFixed(2).replace('.', ',')}`}
-            </Button>
-          </div>
+          <PricingGuard>
+            <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
+              <p className="text-sm font-bold text-yellow-800">Desbloqueie recompensas Premium!</p>
+              <p className="mt-1 text-xs text-yellow-600">
+                Aula particular, quimono exclusivo, descontos maiores e muito mais
+              </p>
+              <Button
+                variant="primary"
+                onClick={handleUpgrade}
+                disabled={upgrading}
+                className="mt-3 !bg-yellow-500 hover:!bg-yellow-400"
+              >
+                {upgrading ? 'Processando...' : `Upgrade R$ ${battlePass.premium_price.toFixed(2).replace('.', ',')}`}
+              </Button>
+            </div>
+          </PricingGuard>
         )}
       </Card>
     </div>

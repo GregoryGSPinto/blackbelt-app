@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import type { AppStoreItem, AppReview } from '@/lib/api/app-store.service';
 import { getApp, getAppReviews } from '@/lib/api/app-store.service';
+import { PricingGuard } from '@/components/shared/PricingGuard';
 
 function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'lg' }) {
   const sizeClass = size === 'lg' ? 'h-5 w-5' : 'h-4 w-4';
@@ -89,7 +90,7 @@ export default function AppDetailPage() {
           </div>
           <div className="shrink-0">
             <Button variant="primary">
-              {app.price === 0 ? 'Instalar Gratis' : `Comprar R$ ${app.price.toFixed(2)}/mes`}
+              {app.price === 0 ? 'Instalar Gratis' : <PricingGuard nativeFallback={<>Instalar</>}><>Comprar R$ {app.price.toFixed(2)}/mes</></PricingGuard>}
             </Button>
           </div>
         </div>
@@ -181,7 +182,7 @@ export default function AppDetailPage() {
                 <div className="flex justify-between">
                   <dt className="text-bb-gray-500">Preco</dt>
                   <dd className="font-medium text-bb-gray-900">
-                    {app.price === 0 ? 'Gratis' : `R$ ${app.price.toFixed(2)}/mes`}
+                    {app.price === 0 ? 'Gratis' : <PricingGuard nativeFallback={<>Ver no site</>}><>R$ {app.price.toFixed(2)}/mes</></PricingGuard>}
                   </dd>
                 </div>
                 <div className="flex justify-between">

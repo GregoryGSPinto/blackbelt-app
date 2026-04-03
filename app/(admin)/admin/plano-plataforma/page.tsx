@@ -8,6 +8,8 @@ import { Spinner } from '@/components/ui/Spinner';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
 import { ComingSoon } from '@/components/shared/ComingSoon';
+import { PricingGuard } from '@/components/shared/PricingGuard';
+import { ManageOnWebMessage } from '@/components/shared/ManageOnWebMessage';
 import { logServiceError } from '@/lib/api/errors';
 
 export default function PlanoPlataformaPage() {
@@ -49,6 +51,7 @@ export default function PlanoPlataformaPage() {
   }
 
   return (
+    <PricingGuard nativeFallback={<div className="p-6"><ManageOnWebMessage feature="seu plano" /></div>}>
     <div className="space-y-6 p-6">
       <h1 className="text-xl font-bold text-bb-black">Plano da Plataforma</h1>
 
@@ -111,5 +114,6 @@ export default function PlanoPlataformaPage() {
         })}
       </div>
     </div>
+    </PricingGuard>
   );
 }

@@ -7,6 +7,7 @@ import { getReviews, getAverageRating, createReview, type Review, type AverageRa
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { PricingGuard } from '@/components/shared/PricingGuard';
 
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ReviewCard, Stars } from '@/components/marketplace/ReviewCard';
@@ -129,7 +130,7 @@ export default function CourseDetailPage() {
               disabled={purchased}
               size="lg"
             >
-              {purchased ? 'Comprado' : `Comprar R$ ${course.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              {purchased ? 'Comprado' : <PricingGuard nativeFallback={<>Comprar</>}><>Comprar R$ {course.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</></PricingGuard>}
             </Button>
           </div>
         </div>
