@@ -19,6 +19,7 @@ const MOCK_SUMMARY: RetentionSummary = {
   totalActive: 187,
   totalChurned: 12,
   classWithMostChurn: 'Jiu-Jitsu Iniciante',
+  avgFrequency: 9.4,
 };
 
 const MOCK_MONTHLY: RetentionMonthData[] = [

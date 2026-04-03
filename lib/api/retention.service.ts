@@ -11,6 +11,7 @@ export interface RetentionSummary {
   totalActive: number;
   totalChurned: number;
   classWithMostChurn: string;
+  avgFrequency: number; // average check-ins per active student (last 30 days)
 }
 
 export interface RetentionMonthData {
@@ -71,7 +72,7 @@ export async function getRetentionData(
       const supabase = createBrowserClient();
 
       const emptyResult: RetentionData = {
-        summary: { currentRetention: 0, retentionGoal: 85, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' },
+        summary: { currentRetention: 0, retentionGoal: 85, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '', avgFrequency: 0 },
         monthlyData: [],
         churnReasons: [],
         atRiskStudents: [],
@@ -169,6 +170,13 @@ export async function getRetentionData(
       const currentRetention = totalStudents > 0 ? Math.round((activeCount / totalStudents) * 100) : 0;
       const churnRate = totalStudents > 0 ? Math.round((churned / totalStudents) * 100) : 0;
 
+      // Average frequency: check-ins in last 30 days / active students
+      const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const checkinsLast30 = (attendance ?? []).filter(
+        (a: { checked_at: string }) => a.checked_at >= thirtyDaysAgo,
+      ).length;
+      const avgFrequency = activeCount > 0 ? Math.round((checkinsLast30 / activeCount) * 10) / 10 : 0;
+
       // Monthly data
       const monthlyData: RetentionMonthData[] = [];
       for (let i = monthsBack - 1; i >= 0; i--) {
@@ -204,6 +212,7 @@ export async function getRetentionData(
           totalActive: activeCount,
           totalChurned: churned,
           classWithMostChurn: atRiskStudents.length > 0 ? atRiskStudents[0].className : '',
+          avgFrequency,
         },
         monthlyData,
         churnReasons: [],
@@ -211,11 +220,11 @@ export async function getRetentionData(
       };
     } catch (err) {
       logServiceError(err, 'retention');
-      return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
+      return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '', avgFrequency: 0 }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
     }
   } catch (error) {
     logServiceError(error, 'retention');
-    return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '' }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
+    return { summary: { currentRetention: 0, retentionGoal: 0, churnRate: 0, avgTimeBeforeCancel: 0, totalActive: 0, totalChurned: 0, classWithMostChurn: '', avgFrequency: 0 }, monthlyData: [], churnReasons: [], atRiskStudents: [] } as RetentionData;
   }
 }
 

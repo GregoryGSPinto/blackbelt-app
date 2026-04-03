@@ -266,10 +266,10 @@ export default function RetencaoPage() {
               variant="default"
             />
             <StatCard
-              label="Tempo Medio antes de Cancelar"
-              value={`${summary.avgTimeBeforeCancel} meses`}
-              detail="media geral"
-              variant="warning"
+              label="Frequencia Media"
+              value={`${summary.avgFrequency} treinos`}
+              detail="por aluno ativo / mes"
+              variant={summary.avgFrequency >= 8 ? 'default' : 'warning'}
             />
             <StatCard
               label="Turma com Mais Churn"
