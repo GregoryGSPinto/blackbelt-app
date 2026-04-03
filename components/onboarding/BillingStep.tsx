@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { PLANS, type AsaasPlan, type BillingData } from '@/lib/types/billing';
+import { formatCep, formatCnpj } from '@/lib/utils/validation';
+import { fetchAddressByCep } from '@/lib/utils/cep';
 
 interface BillingStepProps {
   selectedPlanId: string;
@@ -13,6 +15,7 @@ interface BillingStepProps {
 
 export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange, billingData, availablePlans }: BillingStepProps) {
   const [billingType, setBillingType] = useState<'pix' | 'boleto' | 'credit_card'>(billingData.billingType || 'pix');
+  const [cepLoading, setCepLoading] = useState(false);
 
   const planList = availablePlans ?? PLANS;
   const selectedPlan: AsaasPlan = planList.find(p => p.id === selectedPlanId) || planList[0];
@@ -136,10 +139,23 @@ export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange,
             <input
               type="text"
               value={billingData.cpfCnpj || ''}
-              onChange={(e) => update({ cpfCnpj: e.target.value })}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '');
+                if (digits.length > 11) {
+                  update({ cpfCnpj: formatCnpj(digits) });
+                } else {
+                  // CPF mask: 000.000.000-00
+                  let v = digits.slice(0, 11);
+                  if (v.length > 9) v = `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9)}`;
+                  else if (v.length > 6) v = `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6)}`;
+                  else if (v.length > 3) v = `${v.slice(0, 3)}.${v.slice(3)}`;
+                  update({ cpfCnpj: v });
+                }
+              }}
               placeholder="000.000.000-00"
               className={inputCls}
               style={inputStyle}
+              maxLength={18}
             />
           </div>
           <div>
@@ -171,13 +187,43 @@ export function BillingStep({ selectedPlanId, onPlanChange, onBillingDataChange,
           <div className="space-y-3">
             <h4 className="font-medium text-sm" style={{ color: 'var(--bb-ink-80)' }}>Endereco (obrigatorio para boleto)</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input
-                placeholder="CEP *"
-                value={billingData.address?.cep || ''}
-                onChange={(e) => update({ address: { ...billingData.address as BillingData['address'] & object, cep: e.target.value } })}
-                className={inputCls}
-                style={inputStyle}
-              />
+              <div className="relative">
+                <input
+                  placeholder="CEP *"
+                  value={billingData.address?.cep || ''}
+                  onChange={async (e) => {
+                    const formatted = formatCep(e.target.value);
+                    const addr = billingData.address as BillingData['address'] & object;
+                    update({ address: { ...addr, cep: formatted } });
+                    const digits = formatted.replace(/\D/g, '');
+                    if (digits.length === 8) {
+                      setCepLoading(true);
+                      const result = await fetchAddressByCep(digits);
+                      setCepLoading(false);
+                      if (result) {
+                        update({
+                          address: {
+                            ...addr,
+                            cep: formatted,
+                            street: result.logradouro,
+                            neighborhood: result.bairro,
+                            city: result.cidade,
+                            state: result.estado,
+                          },
+                        });
+                      }
+                    }
+                  }}
+                  className={inputCls}
+                  style={inputStyle}
+                  maxLength={9}
+                />
+                {cepLoading && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
+                    Buscando...
+                  </span>
+                )}
+              </div>
               <div className="md:col-span-2">
                 <input
                   placeholder="Rua *"
