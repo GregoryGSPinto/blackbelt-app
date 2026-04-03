@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { handleServiceError, logServiceError } from '@/lib/api/errors';
 import { deleteAccount } from '@/lib/api/preferences.service';
 import type { ProfileRole, ProfileSettingsData } from '@/lib/mocks/profile-settings.mock';
 
@@ -52,7 +52,8 @@ export async function getProfileSettings(role: ProfileRole): Promise<ProfileSett
       created_at: data.created_at,
     };
   } catch (error) {
-    handleServiceError(error, 'profileSettings.get');
+    logServiceError(error, 'profileSettings.get');
+    return null as unknown as ProfileSettingsData;
   }
 }
 
@@ -131,7 +132,8 @@ export async function exportProfileData(): Promise<object> {
     if (error) throw error;
     return { exportado_em: new Date().toISOString(), dados: data };
   } catch (error) {
-    handleServiceError(error, 'profileSettings.export');
+    logServiceError(error, 'profileSettings.export');
+    return {};
   }
 }
 

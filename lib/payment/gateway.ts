@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { handleServiceError, logServiceError } from '@/lib/api/errors';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -85,7 +85,8 @@ export async function getPaymentStatus(sessionId: string): Promise<PaymentSessio
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } catch (error) {
-    handleServiceError(error, 'payment.getStatus');
+    logServiceError(error, 'payment.getStatus');
+    return null as unknown as PaymentSession;
   }
 }
 

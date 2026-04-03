@@ -4,7 +4,7 @@
 // ============================================================
 
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { logServiceError } from '@/lib/api/errors';
 import type { FinancialReportData } from '@/lib/types/report';
 
 export async function generateFinancialReport(
@@ -17,7 +17,8 @@ export async function generateFinancialReport(
     }
     throw new Error('Not implemented');
   } catch (error) {
-    handleServiceError(error, 'reports.financial');
+    logServiceError(error, 'reports.financial');
+    return { meta: { academy_name: '', generated_at: '', period, generated_by: '' }, summary: { revenue: 0, revenue_prev: 0, revenue_change_pct: 0, pending: 0, overdue: 0, overdue_count: 0, paid_count: 0, total_count: 0, ticket_medio: 0 }, revenue_by_month: [], by_payment_method: [], overdue_list: [] } as FinancialReportData;
   }
 }
 

@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { handleServiceError, logServiceError } from '@/lib/api/errors';
 
 /**
  * Check if the user has already seen the tour for their profile.
@@ -25,7 +25,8 @@ export async function getHasSeenTour(profileId: string): Promise<boolean> {
 
     return data?.has_seen_tour ?? false;
   } catch (error) {
-    handleServiceError(error, 'tour.getHasSeenTour');
+    logServiceError(error, 'tour.getHasSeenTour');
+    return false;
   }
 }
 

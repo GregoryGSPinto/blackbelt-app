@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { handleServiceError, logServiceError } from '@/lib/api/errors';
 import type { GuardianLink, GuardianLinkCreateDTO, GuardianLinkPermissions } from '@/lib/types/guardian';
 
 // ────────────────────────────────────────────────────────────
@@ -33,7 +33,8 @@ export async function getGuardianLinks(guardianId: string): Promise<GuardianLink
       child_avatar_url: (row.child as Record<string, unknown>)?.avatar as string | null,
     })) as GuardianLink[];
   } catch (error) {
-    handleServiceError(error, 'guardian-links.getGuardianLinks');
+    logServiceError(error, 'guardian-links.getGuardianLinks');
+    return [];
   }
 }
 
@@ -64,7 +65,8 @@ export async function getChildGuardian(childId: string): Promise<GuardianLink | 
       guardian_name: (data.guardian as Record<string, unknown>)?.display_name as string,
     } as GuardianLink;
   } catch (error) {
-    handleServiceError(error, 'guardian-links.getChildGuardian');
+    logServiceError(error, 'guardian-links.getChildGuardian');
+    return null;
   }
 }
 

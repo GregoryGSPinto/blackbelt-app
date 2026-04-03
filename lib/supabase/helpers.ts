@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { ServiceError, handleServiceError } from '@/lib/api/errors';
+import { ServiceError, logServiceError } from '@/lib/api/errors';
 
 const SERVICE = 'supabase-helpers';
 
@@ -34,7 +34,8 @@ export async function getCurrentProfile(supabase: SupabaseClient) {
 
     return profile;
   } catch (error) {
-    handleServiceError(error, SERVICE);
+    logServiceError(error, SERVICE);
+    return null;
   }
 }
 
@@ -75,7 +76,8 @@ export async function getAcademyId(supabase: SupabaseClient) {
 
     return membership.academy_id as string;
   } catch (error) {
-    handleServiceError(error, SERVICE);
+    logServiceError(error, SERVICE);
+    return null;
   }
 }
 

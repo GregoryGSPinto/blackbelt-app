@@ -4,7 +4,7 @@
 // ============================================================
 
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { logServiceError } from '@/lib/api/errors';
 import type { AttendanceReportData } from '@/lib/types/report';
 
 export async function generateAttendanceReport(
@@ -17,7 +17,8 @@ export async function generateAttendanceReport(
     }
     throw new Error('Not implemented');
   } catch (error) {
-    handleServiceError(error, 'reports.attendance');
+    logServiceError(error, 'reports.attendance');
+    return { meta: { academy_name: '', generated_at: '', period, generated_by: '' }, summary: { total_classes: 0, total_checkins: 0, avg_per_class: 0, attendance_rate: 0, best_day: '', worst_day: '' }, by_modality: [], by_day_of_week: [], absent_alerts: [] } as AttendanceReportData;
   }
 }
 

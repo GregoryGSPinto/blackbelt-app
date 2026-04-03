@@ -1,5 +1,5 @@
 import { isMock } from '@/lib/env';
-import { handleServiceError } from '@/lib/api/errors';
+import { handleServiceError, logServiceError } from '@/lib/api/errors';
 import type { Plan, PlanFormData, PlanTier } from '@/lib/types/plan';
 
 export async function getPlans(): Promise<Plan[]> {
@@ -14,7 +14,8 @@ export async function getPlans(): Promise<Plan[]> {
     if (error) throw error;
     return (data ?? []) as unknown as Plan[];
   } catch (error) {
-    handleServiceError(error, 'plans.getPlans');
+    logServiceError(error, 'plans.getPlans');
+    return [];
   }
 }
 
@@ -30,7 +31,8 @@ export async function getActivePlans(): Promise<Plan[]> {
     if (error) throw error;
     return (data ?? []) as unknown as Plan[];
   } catch (error) {
-    handleServiceError(error, 'plans.getActivePlans');
+    logServiceError(error, 'plans.getActivePlans');
+    return [];
   }
 }
 
@@ -46,7 +48,8 @@ export async function getPlanById(id: string): Promise<Plan | null> {
     if (error) throw error;
     return (data ?? null) as unknown as Plan | null;
   } catch (error) {
-    handleServiceError(error, 'plans.getPlanById');
+    logServiceError(error, 'plans.getPlanById');
+    return null;
   }
 }
 
@@ -62,7 +65,8 @@ export async function getPlanByTier(tier: PlanTier): Promise<Plan | null> {
     if (error) throw error;
     return (data ?? null) as unknown as Plan | null;
   } catch (error) {
-    handleServiceError(error, 'plans.getPlanByTier');
+    logServiceError(error, 'plans.getPlanByTier');
+    return null;
   }
 }
 
@@ -141,6 +145,7 @@ export async function getAcademyCountByPlan(): Promise<Record<string, number>> {
     if (error) throw error;
     return (data ?? {}) as Record<string, number>;
   } catch (error) {
-    handleServiceError(error, 'plans.getAcademyCountByPlan');
+    logServiceError(error, 'plans.getAcademyCountByPlan');
+    return {};
   }
 }
