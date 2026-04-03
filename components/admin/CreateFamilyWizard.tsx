@@ -33,6 +33,9 @@ interface DependentData {
   password: string;
   classId: string;
   planId: string;
+  paymentMethod: string;
+  dueDay: string;
+  monthlyFee: string;
 }
 
 const STEPS = [
@@ -43,6 +46,18 @@ const STEPS = [
   'Financeiro',
   'Revisao',
 ];
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: '', label: 'Selecionar forma de pagamento' },
+  { value: 'pix', label: 'PIX' },
+  { value: 'credit_card', label: 'Cartao de credito' },
+  { value: 'debit_card', label: 'Cartao de debito' },
+  { value: 'boleto', label: 'Boleto' },
+  { value: 'cash', label: 'Dinheiro' },
+  { value: 'bank_transfer', label: 'Transferencia bancaria' },
+] as const;
+
+const DUE_DAY_OPTIONS = [5, 10, 15, 20, 25] as const;
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -73,7 +88,7 @@ const CreateFamilyWizard = forwardRef<HTMLDivElement, CreateFamilyWizardProps>(
       relationship: 'pai', isAlsoStudent: false,
     });
     const [dependents, setDependents] = useState<DependentData[]>([
-      { name: '', birthDate: '', gender: '', medicalNotes: '', hasOwnLogin: false, email: '', password: '', classId: '', planId: '' },
+      { name: '', birthDate: '', gender: '', medicalNotes: '', hasOwnLogin: false, email: '', password: '', classId: '', planId: '', paymentMethod: '', dueDay: '10', monthlyFee: '' },
     ]);
 
     const canAddMore = dependents.length < 5;
@@ -82,7 +97,7 @@ const CreateFamilyWizard = forwardRef<HTMLDivElement, CreateFamilyWizardProps>(
       if (!canAddMore) return;
       setDependents((prev) => [
         ...prev,
-        { name: '', birthDate: '', gender: '', medicalNotes: '', hasOwnLogin: false, email: '', password: '', classId: '', planId: '' },
+        { name: '', birthDate: '', gender: '', medicalNotes: '', hasOwnLogin: false, email: '', password: '', classId: '', planId: '', paymentMethod: '', dueDay: '10', monthlyFee: '' },
       ]);
     }
 
@@ -265,14 +280,51 @@ const CreateFamilyWizard = forwardRef<HTMLDivElement, CreateFamilyWizardProps>(
               <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>Pagador: <strong style={{ color: 'var(--bb-ink-100)' }}>{guardian.name || 'Responsavel'}</strong></p>
             </div>
             {dependents.filter((d) => d.name).map((dep, idx) => (
-              <div key={idx} className="flex flex-col gap-2 rounded-lg p-4" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
-                <span className="text-sm font-medium" style={{ color: 'var(--bb-ink-100)' }}>{dep.name}</span>
-                <select value={dep.planId} onChange={(e) => updateDependent(idx, 'planId', e.target.value)} className="h-12 w-full rounded-lg px-3 text-sm" style={inputStyle}>
-                  <option value="">Selecionar plano</option>
-                  <option value="plan-mensal">Mensal — R$ 149/mes</option>
-                  <option value="plan-trimestral">Trimestral — R$ 129/mes</option>
-                  <option value="plan-semestral">Semestral — R$ 109/mes</option>
-                </select>
+              <div key={idx} className="flex flex-col gap-3 rounded-lg p-4" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
+                <span className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>{dep.name}</span>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-medium" style={labelStyle}>Plano</span>
+                  <select value={dep.planId} onChange={(e) => updateDependent(idx, 'planId', e.target.value)} className="h-12 w-full rounded-lg px-3 text-sm" style={inputStyle}>
+                    <option value="">Selecionar plano</option>
+                    <option value="plan-mensal">Mensal — R$ 149/mes</option>
+                    <option value="plan-trimestral">Trimestral — R$ 129/mes</option>
+                    <option value="plan-semestral">Semestral — R$ 109/mes</option>
+                  </select>
+                </label>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-medium" style={labelStyle}>Forma de pagamento</span>
+                  <select value={dep.paymentMethod} onChange={(e) => updateDependent(idx, 'paymentMethod', e.target.value)} className="h-12 w-full rounded-lg px-3 text-sm" style={inputStyle}>
+                    {PAYMENT_METHOD_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-medium" style={labelStyle}>Dia de vencimento</span>
+                    <select value={dep.dueDay} onChange={(e) => updateDependent(idx, 'dueDay', e.target.value)} className="h-12 w-full rounded-lg px-3 text-sm" style={inputStyle}>
+                      {DUE_DAY_OPTIONS.map((d) => (
+                        <option key={d} value={String(d)}>Dia {d}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-medium" style={labelStyle}>Mensalidade (R$)</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={dep.monthlyFee}
+                      onChange={(e) => updateDependent(idx, 'monthlyFee', e.target.value.replace(/[^\d,]/g, ''))}
+                      className="h-12 w-full rounded-lg px-3 text-sm"
+                      style={inputStyle}
+                    />
+                  </label>
+                </div>
               </div>
             ))}
             {dependents.filter((d) => d.name).length >= 2 && (
@@ -295,6 +347,7 @@ const CreateFamilyWizard = forwardRef<HTMLDivElement, CreateFamilyWizardProps>(
             </div>
             {dependents.filter((d) => d.name).map((dep, idx) => {
               const age = dep.birthDate ? calcAge(dep.birthDate) : null;
+              const paymentLabel = PAYMENT_METHOD_OPTIONS.find((o) => o.value === dep.paymentMethod)?.label;
               return (
                 <div key={idx} className="rounded-lg p-4" style={{ background: 'var(--bb-depth-1)', border: '1px solid var(--bb-glass-border)' }}>
                   <p className="text-sm font-bold" style={{ color: 'var(--bb-ink-100)' }}>{dep.name}</p>
@@ -302,6 +355,13 @@ const CreateFamilyWizard = forwardRef<HTMLDivElement, CreateFamilyWizardProps>(
                     {age !== null && `${age} anos (${roleFromAge(age)})`}
                     {dep.hasOwnLogin && ' — Login proprio'}
                   </p>
+                  {(dep.paymentMethod || dep.monthlyFee) && (
+                    <p className="mt-1 text-xs" style={{ color: 'var(--bb-ink-60)' }}>
+                      {paymentLabel && `${paymentLabel}`}
+                      {dep.monthlyFee && ` — R$ ${dep.monthlyFee}`}
+                      {dep.dueDay && ` — Venc. dia ${dep.dueDay}`}
+                    </p>
+                  )}
                 </div>
               );
             })}
