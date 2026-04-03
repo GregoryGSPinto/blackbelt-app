@@ -10,6 +10,14 @@ if (dsn) {
     replaysOnErrorSampleRate: 1.0,
     environment: process.env.NODE_ENV,
     enabled: process.env.NODE_ENV === 'production',
+    ignoreErrors: [
+      'ResizeObserver loop',
+      'Network request failed',
+      'AbortError',
+      'ChunkLoadError',
+      'Loading chunk',
+      'Non-Error promise rejection',
+    ],
     // COPPA/LGPD: suppress Sentry events for aluno_kids profiles.
     // The global flag is set by disableAnalyticsForKids() in posthog.ts
     // which is called from AuthContext when a kids profile is active.

@@ -1,0 +1,32 @@
+name: Post-Deploy Check
+
+on:
+  deployment_status:
+
+jobs:
+  verify:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check site is live
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://blackbelts.com.br)
+          echo "Site status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Site not responding"
+            exit 1
+          fi
+          echo "✅ Site is live"
+
+      - name: Check critical pages
+        run: |
+          for path in /login /privacidade /termos /excluir-conta /contato; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://blackbelts.com.br$path")
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "307" ]; then
+              echo "✅ $path ($STATUS)"
+            else
+              echo "❌ $path ($STATUS)"
+            fi
+          done

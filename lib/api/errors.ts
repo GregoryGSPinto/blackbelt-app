@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { logger } from '@/lib/monitoring/logger';
 
 export class ServiceError extends Error {
@@ -14,11 +15,13 @@ export class ServiceError extends Error {
 export function handleServiceError(error: unknown, service: string): never {
   if (error instanceof ServiceError) {
     logger.error(error.message, { service, statusCode: error.statusCode });
+    Sentry.captureException(error, { tags: { source: 'service', context: service } });
     throw error;
   }
 
   const message = error instanceof Error ? error.message : 'Unknown error';
   logger.error(message, { service });
+  Sentry.captureException(error, { tags: { source: 'service', context: service } });
   throw new ServiceError(500, service, message);
 }
 
@@ -26,8 +29,10 @@ export function handleServiceError(error: unknown, service: string): never {
 export function logServiceError(error: unknown, service: string): void {
   if (error instanceof ServiceError) {
     logger.error(error.message, { service, statusCode: error.statusCode });
+    Sentry.captureException(error, { tags: { source: 'service', context: service } });
     return;
   }
   const message = error instanceof Error ? error.message : 'Unknown error';
   logger.error(message, { service });
+  Sentry.captureException(error, { tags: { source: 'service', context: service } });
 }
