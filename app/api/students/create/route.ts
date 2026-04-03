@@ -22,6 +22,11 @@ interface CreateStudentBody {
     telefone: string;
     parentesco: string;
   };
+  formaPagamento?: string;
+  diaVencimento?: number;
+  valorMensalidade?: number;
+  planoAluno?: string;
+  statusFinanceiro?: string;
 }
 
 const ROLE_MAP: Record<string, string> = {
@@ -67,6 +72,38 @@ function currentMonthReference(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
+
+const FORMA_TO_FINANCIAL_MODEL: Record<string, string> = {
+  particular: 'particular',
+  gympass: 'gympass',
+  totalpass: 'totalpass',
+  smartfit: 'convenio',
+  cortesia: 'cortesia',
+  funcionario: 'funcionario',
+  bolsista: 'bolsista',
+  avulso: 'avulso',
+};
+
+const PLANO_TO_RECURRENCE: Record<string, string> = {
+  mensal: 'monthly',
+  trimestral: 'quarterly',
+  semestral: 'semiannual',
+  anual: 'annual',
+};
+
+const PLANO_TO_MEMBERSHIP: Record<string, string> = {
+  mensal: 'mensal',
+  trimestral: 'trimestral',
+  semestral: 'semestral',
+  anual: 'anual',
+};
+
+const STATUS_TO_DB: Record<string, string> = {
+  em_dia: 'em_dia',
+  pendente: 'vence_em_breve',
+  inadimplente: 'atrasado',
+  isento: 'isento',
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -238,17 +275,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const formaPag = body.formaPagamento || 'particular';
+    const isParticular = formaPag === 'particular';
+    const dueDay = body.diaVencimento || 10;
+    const formFinancialModel = FORMA_TO_FINANCIAL_MODEL[formaPag] ?? 'particular';
+    const formRecurrence = body.planoAluno ? (PLANO_TO_MEMBERSHIP[body.planoAluno] ?? 'mensal') : normalizeMembershipRecurrence(plan?.interval);
+    const formAmount = body.valorMensalidade != null ? body.valorMensalidade : (plan?.price ?? null);
+    const formStatus = STATUS_TO_DB[body.statusFinanceiro ?? ''] ?? 'em_dia';
+
     const membershipPayload = {
       profile_id: profileId,
       academy_id: academyId,
       role,
       status: 'active',
-      monthly_amount: body.tipo === 'matricula' ? plan?.price ?? null : null,
-      billing_type: body.tipo === 'matricula' ? 'particular' : 'cortesia',
-      billing_status: body.tipo === 'matricula' ? 'em_dia' : 'cortesia',
-      payment_method: body.tipo === 'matricula' ? 'pix' : null,
-      recurrence: body.tipo === 'matricula' ? normalizeMembershipRecurrence(plan?.interval) : 'avulso',
-      billing_day: body.tipo === 'matricula' ? 10 : null,
+      monthly_amount: body.tipo === 'matricula' ? formAmount : null,
+      billing_type: body.tipo === 'matricula' ? formFinancialModel : 'cortesia',
+      billing_status: body.tipo === 'matricula' ? formStatus : 'cortesia',
+      payment_method: body.tipo === 'matricula' && isParticular ? 'pix' : null,
+      recurrence: body.tipo === 'matricula' ? formRecurrence : 'avulso',
+      billing_day: body.tipo === 'matricula' && isParticular ? dueDay : null,
     };
 
     const { data: membership, error: membershipError } = await supabase
@@ -437,8 +482,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (membership?.id) {
-      const baseAmount = body.tipo === 'matricula' ? plan?.price ?? 0 : 0;
-      const recurrence = body.tipo === 'matricula' ? normalizeRecurrence(plan?.interval) : 'none';
+      const baseAmount = body.tipo === 'matricula' ? (formAmount ?? plan?.price ?? 0) : 0;
+      const recurrence = body.tipo === 'matricula'
+        ? (body.planoAluno ? (PLANO_TO_RECURRENCE[body.planoAluno] ?? 'monthly') : normalizeRecurrence(plan?.interval))
+        : 'none';
+      const dueDayPadded = String(dueDay).padStart(2, '0');
 
       const { error: financialProfileError } = await supabase
         .from('student_financial_profiles')
@@ -447,14 +495,14 @@ export async function POST(req: NextRequest) {
             academy_id: academyId,
             membership_id: membership.id,
             profile_id: profileId,
-            financial_model: body.tipo === 'matricula' ? 'particular' : 'cortesia',
+            financial_model: body.tipo === 'matricula' ? formFinancialModel : 'cortesia',
             charge_mode: body.tipo === 'matricula' ? 'manual' : 'hybrid',
-            payment_method_default: body.tipo === 'matricula' ? 'pix' : 'none',
+            payment_method_default: body.tipo === 'matricula' && isParticular ? 'pix' : 'none',
             recurrence,
             amount_cents: baseAmount,
-            due_day: body.tipo === 'matricula' ? 10 : null,
-            next_due_date: body.tipo === 'matricula' ? `${currentMonthReference()}-10` : null,
-            financial_status: body.tipo === 'matricula' ? 'em_dia' : 'isento',
+            due_day: body.tipo === 'matricula' && isParticular ? dueDay : null,
+            next_due_date: body.tipo === 'matricula' && isParticular ? `${currentMonthReference()}-${dueDayPadded}` : null,
+            financial_status: body.tipo === 'matricula' ? formStatus : 'isento',
             monthly_checkin_minimum: 0,
           },
           { onConflict: 'membership_id' },

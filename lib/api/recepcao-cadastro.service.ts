@@ -27,6 +27,12 @@ export interface CadastroRapido {
   origem: 'walk_in' | 'indicacao' | 'site' | 'instagram' | 'whatsapp' | 'experimental';
   indicadoPor?: string;
   tipo: 'matricula' | 'experimental' | 'lead';
+  // Dados financeiros (BLOCO 08)
+  formaPagamento?: string;
+  diaVencimento?: number;
+  valorMensalidade?: number;
+  planoAluno?: string;
+  statusFinanceiro?: string;
 }
 
 export interface CadastroResult {
@@ -80,6 +86,11 @@ export async function cadastrarRapido(data: CadastroRapido): Promise<CadastroRes
         origem: data.origem,
         tipo: data.tipo,
         responsavel: data.responsavel,
+        formaPagamento: data.formaPagamento,
+        diaVencimento: data.diaVencimento,
+        valorMensalidade: data.valorMensalidade,
+        planoAluno: data.planoAluno,
+        statusFinanceiro: data.statusFinanceiro,
       }),
     });
 

@@ -76,6 +76,13 @@ export default function RecepcaoCadastroPage() {
   const [turmaId, setTurmaId] = useState('');
   const [planoId, setPlanoId] = useState('');
 
+  // Financial fields
+  const [formaPagamento, setFormaPagamento] = useState('');
+  const [diaVencimento, setDiaVencimento] = useState(0);
+  const [valorMensalidade, setValorMensalidade] = useState('');
+  const [planoAluno, setPlanoAluno] = useState('');
+  const [statusFinanceiro, setStatusFinanceiro] = useState('em_dia');
+
   // Experimental form
   const [expNome, setExpNome] = useState('');
   const [expTelefone, setExpTelefone] = useState('');
@@ -125,6 +132,11 @@ export default function RecepcaoCadastroPage() {
         nome, email, telefone, dataNascimento, cpf: cpf || undefined,
         tipoAluno, modalidadeInteresse: modalidade, turmaId, planoId,
         origem: 'walk_in', tipo: 'matricula',
+        formaPagamento: formaPagamento || undefined,
+        diaVencimento: diaVencimento || undefined,
+        valorMensalidade: valorMensalidade ? Math.round(parseFloat(valorMensalidade) * 100) : undefined,
+        planoAluno: planoAluno || undefined,
+        statusFinanceiro: statusFinanceiro || undefined,
         ...(isUnder18 ? {
           responsavel: { nome: responsavelNome, email: responsavelEmail, telefone: responsavelTelefone, parentesco: responsavelParentesco },
         } : {}),
@@ -392,6 +404,102 @@ export default function RecepcaoCadastroPage() {
                 ))}
               </div>
 
+              {/* === SECAO FINANCEIRA === */}
+              <div className="border-t pt-6 mt-6" style={{ borderColor: 'var(--bb-glass-border)' }}>
+                <h3 className="text-base font-semibold mb-4" style={{ color: 'var(--bb-ink-100)' }}>Dados Financeiros</h3>
+
+                <div className="space-y-3">
+                  {/* Forma de Pagamento */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Forma de Pagamento</label>
+                    <select
+                      value={formaPagamento}
+                      onChange={(e) => setFormaPagamento(e.target.value)}
+                      className="h-12 w-full rounded-md px-3 text-sm"
+                      style={{ backgroundColor: 'var(--bb-depth-5)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="particular">Particular (Boleto/Pix)</option>
+                      <option value="gympass">GymPass</option>
+                      <option value="totalpass">TotalPass</option>
+                      <option value="smartfit">Smart Fit</option>
+                      <option value="cortesia">Cortesia</option>
+                      <option value="funcionario">Funcionario</option>
+                      <option value="bolsista">Bolsista</option>
+                      <option value="avulso">Avulso (Aula Avulsa)</option>
+                    </select>
+                  </div>
+
+                  {/* Dia de Vencimento — so aparece se particular */}
+                  {formaPagamento === 'particular' && (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Dia de Vencimento</label>
+                      <select
+                        value={diaVencimento}
+                        onChange={(e) => setDiaVencimento(Number(e.target.value))}
+                        className="h-12 w-full rounded-md px-3 text-sm"
+                        style={{ backgroundColor: 'var(--bb-depth-5)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                      >
+                        <option value={0}>Selecione o dia...</option>
+                        {[1, 5, 10, 15, 20, 25].map((d) => (
+                          <option key={d} value={d}>Dia {d}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Valor da Mensalidade — so para particular */}
+                  {formaPagamento === 'particular' && (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Valor da Mensalidade (R$)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={valorMensalidade}
+                        onChange={(e) => setValorMensalidade(e.target.value)}
+                        placeholder="Ex: 149.90"
+                        className="h-12 w-full rounded-md px-3 text-sm"
+                        style={{ backgroundColor: 'var(--bb-depth-5)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Plano do Aluno */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Recorrencia</label>
+                    <select
+                      value={planoAluno}
+                      onChange={(e) => setPlanoAluno(e.target.value)}
+                      className="h-12 w-full rounded-md px-3 text-sm"
+                      style={{ backgroundColor: 'var(--bb-depth-5)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="mensal">Mensal</option>
+                      <option value="trimestral">Trimestral</option>
+                      <option value="semestral">Semestral</option>
+                      <option value="anual">Anual</option>
+                    </select>
+                  </div>
+
+                  {/* Status Financeiro */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Status Financeiro</label>
+                    <select
+                      value={statusFinanceiro}
+                      onChange={(e) => setStatusFinanceiro(e.target.value)}
+                      className="h-12 w-full rounded-md px-3 text-sm"
+                      style={{ backgroundColor: 'var(--bb-depth-5)', border: '1px solid var(--bb-glass-border)', color: 'var(--bb-ink-100)' }}
+                    >
+                      <option value="em_dia">Em dia</option>
+                      <option value="pendente">Pendente</option>
+                      <option value="inadimplente">Inadimplente</option>
+                      <option value="isento">Isento</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-4 flex justify-between">
                 <Button variant="ghost" onClick={() => setStep(1)}>Voltar</Button>
                 <Button
@@ -430,6 +538,29 @@ export default function RecepcaoCadastroPage() {
                     R$ {selectedPlano?.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
+                {formaPagamento && (
+                  <div className="rounded-lg p-3" style={{ background: 'var(--bb-depth-4)' }}>
+                    <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--bb-ink-40)' }}>Financeiro</p>
+                    <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                      Pagamento: <span className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{formaPagamento}</span>
+                    </p>
+                    {formaPagamento === 'particular' && diaVencimento > 0 && (
+                      <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                        Vencimento: <span className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>Dia {diaVencimento}</span>
+                      </p>
+                    )}
+                    {formaPagamento === 'particular' && valorMensalidade && (
+                      <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                        Mensalidade: <span className="font-semibold" style={{ color: '#10b981' }}>R$ {parseFloat(valorMensalidade).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      </p>
+                    )}
+                    {planoAluno && (
+                      <p className="text-sm" style={{ color: 'var(--bb-ink-80)' }}>
+                        Recorrencia: <span className="font-semibold" style={{ color: 'var(--bb-ink-100)' }}>{planoAluno}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
                 <Button variant="ghost" onClick={() => setStep(2)}>Voltar</Button>
@@ -469,7 +600,7 @@ export default function RecepcaoCadastroPage() {
             </p>
           )}
           <div className="mt-3">
-            <Button style={{ background: '#10b981' }} onClick={() => { setResult(null); setStep(1); setNome(''); setEmail(''); setTelefone(''); setCpf(''); setDataNascimento(''); setModalidade(''); setTurmaId(''); setPlanoId(''); }}>
+            <Button style={{ background: '#10b981' }} onClick={() => { setResult(null); setStep(1); setNome(''); setEmail(''); setTelefone(''); setCpf(''); setDataNascimento(''); setModalidade(''); setTurmaId(''); setPlanoId(''); setFormaPagamento(''); setDiaVencimento(0); setValorMensalidade(''); setPlanoAluno(''); setStatusFinanceiro('em_dia'); }}>
               Novo Cadastro
             </Button>
           </div>
