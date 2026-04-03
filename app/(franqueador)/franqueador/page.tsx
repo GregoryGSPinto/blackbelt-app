@@ -11,6 +11,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { sendNetworkMessage } from '@/lib/api/franchise.service';
 import { translateError } from '@/lib/utils/error-translator';
+import { BarChart3, Building2 } from 'lucide-react';
 
 const STATUS_LABEL: Record<AcademyStatus, string> = { ativa: 'Ativa', inadimplente: 'Inadimplente', suspensa: 'Suspensa', em_setup: 'Em Setup' };
 const STATUS_STYLE: Record<AcademyStatus, React.CSSProperties> = { ativa: { background: 'color-mix(in srgb, var(--bb-success) 15%, transparent)', color: 'var(--bb-success)' }, inadimplente: { background: 'color-mix(in srgb, var(--bb-danger) 15%, transparent)', color: 'var(--bb-danger)' }, suspensa: { background: 'color-mix(in srgb, var(--bb-warning) 15%, transparent)', color: 'var(--bb-warning)' }, em_setup: { background: 'color-mix(in srgb, var(--bb-brand) 15%, transparent)', color: 'var(--bb-brand)' } };
@@ -65,7 +66,7 @@ export default function FranqueadorDashboardPage() {
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
-  if (!dashboard) return <EmptyState icon="📊" title="Nenhuma rede encontrada" description="Nao foi possivel encontrar sua rede de franquias. Verifique se voce tem acesso como franqueador." variant="first-time" />;
+  if (!dashboard) return <EmptyState icon={<BarChart3 className="h-12 w-12" />} title="Nenhuma rede encontrada" description="Nao foi possivel encontrar sua rede de franquias. Verifique se voce tem acesso como franqueador." variant="first-time" />;
 
   const { kpis, academies, alerts, financials } = dashboard;
 
@@ -160,7 +161,7 @@ export default function FranqueadorDashboardPage() {
               {ranked.length === 0 && (
                 <tr><td colSpan={8}>
                   <EmptyState
-                    icon="🏢"
+                    icon={<Building2 className="h-12 w-12" />}
                     title="Nenhuma franquia cadastrada"
                     description="Cadastre franquias para visualizar o ranking da rede."
                     variant="first-time"
@@ -201,7 +202,7 @@ export default function FranqueadorDashboardPage() {
         <h2 className="mb-4 font-semibold text-bb-black">Receita por Mes (ultimos 12 meses)</h2>
         {financials.monthly_data.length === 0 && (
           <EmptyState
-            icon="📊"
+            icon={<BarChart3 className="h-12 w-12" />}
             title="Nenhum dado de receita disponível"
             description="Os dados de receita mensal aparecerão aqui conforme as franquias reportarem faturamento."
             variant="default"

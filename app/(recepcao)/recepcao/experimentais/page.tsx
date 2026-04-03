@@ -12,6 +12,7 @@ import { listExperimentais, marcarChegou, marcarNaoVeio, marcarMatriculou } from
 import type { ExperimentalRecepcao, FunnelExperimental } from '@/lib/api/recepcao-experimental.service';
 import { PlusIcon, PhoneIcon, ChevronRightIcon } from '@/components/shell/icons';
 import { translateError } from '@/lib/utils/error-translator';
+import { PartyPopper } from 'lucide-react';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -202,7 +203,7 @@ export default function RecepcaoExperimentaisPage() {
                   {exp.status === 'chegou' && (
                     <>
                       <Button size="sm" style={{ background: '#10b981' }} onClick={() => handleMatriculou(exp.id)}>
-                        🎉 Matricular!
+                        <PartyPopper className="h-4 w-4 mr-1 inline-block" /> Matricular!
                       </Button>
                       <Button size="sm" variant="secondary" onClick={() => {
                         setHoje((prev) => prev.map((e) => e.id === exp.id ? { ...e, status: 'follow_up' as const } : e));

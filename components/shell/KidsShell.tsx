@@ -24,6 +24,7 @@ import {
   UsersIcon,
   LogOutIcon,
   SearchIcon,
+  AwardIcon,
 } from './icons';
 
 interface KidsShellProps {
@@ -183,8 +184,8 @@ const KidsShell = forwardRef<HTMLDivElement, KidsShellProps>(
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
-                <span className="lg:hidden font-display text-lg font-bold" style={{ color: 'var(--bb-brand)' }}>
-                  🥋 BlackBelt Kids
+                <span className="lg:hidden font-display text-lg font-bold flex items-center gap-1.5" style={{ color: 'var(--bb-brand)' }}>
+                  <AwardIcon className="h-5 w-5" /> BlackBelt Kids
                 </span>
               </div>
               <div className="flex items-center gap-3">

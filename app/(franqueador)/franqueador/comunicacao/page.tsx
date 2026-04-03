@@ -23,6 +23,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { Megaphone, GraduationCap } from 'lucide-react';
 
 const TYPE_LABEL: Record<BroadcastType, string> = {
   comunicado: 'Comunicado',
@@ -217,7 +218,7 @@ export default function ComunicacaoPage() {
         <div className="space-y-3">
           {broadcasts.length === 0 && (
             <EmptyState
-              icon="📢"
+              icon={<Megaphone className="h-12 w-12" />}
               title="Nenhum comunicado enviado"
               description="Envie comunicados para todas as academias da rede."
               actionLabel="Novo Comunicado"
@@ -279,7 +280,7 @@ export default function ComunicacaoPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {trainings.length === 0 && (
             <EmptyState
-              icon="🎓"
+              icon={<GraduationCap className="h-12 w-12" />}
               title="Nenhum treinamento agendado"
               description="Agende treinamentos para capacitar as equipes das academias da rede."
               actionLabel="Agendar Treinamento"

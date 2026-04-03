@@ -14,6 +14,7 @@ import type { AlunoCheckin, PessoaDentro, CapacidadeInfo } from '@/lib/api/recep
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CheckCircle2, AlertTriangle, Check, XCircle, Building2 } from 'lucide-react';
 
 // ── Faixa color helper ─────────────────────────────────────────────────
 const FAIXA_COLORS: Record<string, string> = {
@@ -253,19 +254,19 @@ export default function RecepcaoCheckinPage() {
           <div className="mt-3">
             {selecionado.statusFinanceiro === 'em_dia' && (
               <div className="flex items-center gap-2 rounded-lg p-2" style={{ background: '#22c55e20' }}>
-                <span className="text-lg">✅</span>
+                <CheckCircle2 className="h-5 w-5" style={{ color: '#22c55e' }} />
                 <span className="text-sm font-medium" style={{ color: '#22c55e' }}>Financeiro em dia</span>
               </div>
             )}
             {selecionado.statusFinanceiro === 'atrasado' && (
               <div className="flex items-center gap-2 rounded-lg p-2" style={{ background: '#eab30820' }}>
-                <span className="text-lg">⚠️</span>
+                <AlertTriangle className="h-5 w-5" style={{ color: '#eab308' }} />
                 <span className="text-sm font-medium" style={{ color: '#eab308' }}>Atrasado {selecionado.diasAtraso} dias</span>
               </div>
             )}
             {selecionado.statusFinanceiro === 'inadimplente' && (
               <div className="flex items-center gap-2 rounded-lg p-2" style={{ background: '#ef444420' }}>
-                <span className="text-lg">🚫</span>
+                <XCircle className="h-5 w-5" style={{ color: '#ef4444' }} />
                 <span className="text-sm font-medium" style={{ color: '#ef4444' }}>Inadimplente — {selecionado.diasAtraso} dias de atraso</span>
               </div>
             )}
@@ -278,7 +279,7 @@ export default function RecepcaoCheckinPage() {
             className="mt-4 w-full rounded-xl py-4 text-lg font-bold text-white transition-opacity disabled:opacity-50"
             style={{ background: '#22c55e' }}
           >
-            {registrando ? 'Registrando...' : '✅ Registrar Entrada'}
+            {registrando ? 'Registrando...' : <span className="flex items-center justify-center gap-2"><Check className="h-5 w-5" /> Registrar Entrada</span>}
           </button>
         </div>
       )}
@@ -297,7 +298,7 @@ export default function RecepcaoCheckinPage() {
           </div>
         ) : dentroAgora.length === 0 ? (
           <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bb-depth-3)' }}>
-            <p className="text-2xl">🏠</p>
+            <Building2 className="h-8 w-8 mx-auto" style={{ color: 'var(--bb-ink-40)' }} />
             <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>Ninguém na academia agora</p>
           </div>
         ) : (

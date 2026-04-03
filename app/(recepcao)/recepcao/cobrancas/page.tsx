@@ -10,6 +10,7 @@ import {
 import type { Inadimplente, Pagamento } from '@/lib/api/recepcao-cobrancas.service';
 import { useToast } from '@/lib/hooks/useToast';
 import { translateError } from '@/lib/utils/error-translator';
+import { PartyPopper, Smartphone, DollarSign, ClipboardList } from 'lucide-react';
 
 const FAIXA_COLORS: Record<string, string> = {
   branca: '#f5f5f5', azul: '#2563eb', roxa: '#7c3aed', marrom: '#92400e', preta: '#1e1e1e',
@@ -119,7 +120,7 @@ export default function RecepcaoCobrancasPage() {
         </div>
       ) : inadimplentes.length === 0 ? (
         <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bb-depth-3)' }}>
-          <p className="text-2xl">🎉</p>
+          <PartyPopper className="h-8 w-8 mx-auto" style={{ color: 'var(--bb-success)' }} />
           <p className="mt-2 text-sm" style={{ color: 'var(--bb-ink-60)' }}>Nenhum inadimplente! Parabéns!</p>
         </div>
       ) : (
@@ -150,21 +151,21 @@ export default function RecepcaoCobrancasPage() {
                     className="rounded-lg px-3 py-1.5 text-xs font-medium"
                     style={{ background: '#25D36620', color: '#25D366' }}
                   >
-                    📱 WhatsApp
+                    <Smartphone className="h-3.5 w-3.5 inline-block mr-1" /> WhatsApp
                   </button>
                   <button
                     onClick={() => abrirPagamento(aluno)}
                     className="rounded-lg px-3 py-1.5 text-xs font-medium text-white"
                     style={{ background: '#22c55e' }}
                   >
-                    💰 Registrar Pagamento
+                    <DollarSign className="h-3.5 w-3.5 inline-block mr-1" /> Registrar Pagamento
                   </button>
                   <button
                     onClick={() => abrirHistorico(aluno)}
                     className="rounded-lg px-3 py-1.5 text-xs font-medium"
                     style={{ background: 'var(--bb-depth-4)', color: 'var(--bb-ink-80)' }}
                   >
-                    📋 Histórico
+                    <ClipboardList className="h-3.5 w-3.5 inline-block mr-1" /> Histórico
                   </button>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Instrument_Sans, JetBrains_Mono, Outfit, Playfair_Display } from 'next/font/google';
+import { Inter, JetBrains_Mono, Outfit } from 'next/font/google';
 import { Providers } from './providers';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { BetaWidgets } from '@/components/beta/BetaWidgets';
@@ -12,10 +12,9 @@ import '@/styles/globals.css';
 
 const appUrl = getAppUrl();
 
-const instrumentSans = Instrument_Sans({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-instrument-sans',
+  variable: '--font-sans',
   display: 'swap',
 });
 
@@ -30,13 +29,6 @@ const outfit = Outfit({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-outfit',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '600', '700', '800', '900'],
-  variable: '--font-playfair',
   display: 'swap',
 });
 
@@ -86,7 +78,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${outfit.variable} ${playfair.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
         <GoogleAnalytics />

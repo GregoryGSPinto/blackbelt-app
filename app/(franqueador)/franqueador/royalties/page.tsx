@@ -16,6 +16,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { DollarSign } from 'lucide-react';
 
 const STATUS_LABEL: Record<RoyaltyStatus, string> = { pendente: 'Pendente', pago: 'Pago', atrasado: 'Atrasado', parcial: 'Parcial' };
 const STATUS_STYLE: Record<RoyaltyStatus, React.CSSProperties> = {
@@ -222,7 +223,7 @@ export default function RoyaltiesFranqueadorPage() {
                   {filtered.length === 0 && (
                     <tr><td colSpan={7}>
                       <EmptyState
-                        icon="💰"
+                        icon={<DollarSign className="h-12 w-12" />}
                         title="Nenhum royalty encontrado"
                         description={filterStatus || filterAcademy ? "Nenhum resultado para os filtros selecionados." : "Gere cobranças mensais para visualizar o histórico de royalties."}
                         variant={filterStatus || filterAcademy ? "search" : "first-time"}

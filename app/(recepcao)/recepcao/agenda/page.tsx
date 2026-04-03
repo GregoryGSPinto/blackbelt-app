@@ -7,6 +7,7 @@ import type { WeeklyScheduleSlot } from '@/lib/api/horarios.service';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getActiveAcademyId } from '@/lib/hooks/useActiveAcademy';
+import { Calendar } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface AulaSlot {
@@ -121,7 +122,7 @@ export default function RecepcaoAgendaPage() {
       {/* Empty state */}
       {aulas.length === 0 && (
         <EmptyState
-          icon="📅"
+          icon={<Calendar className="h-12 w-12" />}
           title="Nenhuma aula na agenda"
           description="A grade semanal ainda não possui aulas cadastradas. Cadastre turmas e horários para visualizar a agenda."
           variant="first-time"

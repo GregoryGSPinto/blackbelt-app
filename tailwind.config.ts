@@ -36,8 +36,8 @@ const config: Config = {
         'belt-black': '#0A0A0A',
       },
       fontFamily: {
-        sans: ['var(--font-instrument-sans)', '"Instrument Sans"', 'system-ui', 'sans-serif'],
-        display: ['var(--font-instrument-sans)', '"Instrument Sans"', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-sans)', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['var(--font-jetbrains-mono)', '"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {

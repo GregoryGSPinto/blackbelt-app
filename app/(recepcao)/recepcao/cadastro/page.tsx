@@ -11,16 +11,18 @@ import type { CadastroRapido, CadastroResult, PlanoResumo, TurmaResumo } from '@
 import { CheckIcon } from '@/components/shell/icons';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { translateError } from '@/lib/utils/error-translator';
+import { Award, Dumbbell, Swords } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────
 
 type TabType = 'matricula' | 'experimental' | 'lead';
 
-const MODALIDADES = [
-  { id: 'bjj', label: 'BJJ', emoji: '🥋' },
-  { id: 'muay_thai', label: 'Muay Thai', emoji: '🥊' },
-  { id: 'judo', label: 'Judo', emoji: '🏋️' },
-  { id: 'mma', label: 'MMA', emoji: '👊' },
+const MODALIDADES: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: 'bjj', label: 'BJJ', icon: Award },
+  { id: 'muay_thai', label: 'Muay Thai', icon: Swords },
+  { id: 'judo', label: 'Judo', icon: Dumbbell },
+  { id: 'mma', label: 'MMA', icon: Swords },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -321,7 +323,7 @@ export default function RecepcaoCadastroPage() {
                       color: modalidade === m.id ? '#059669' : 'var(--bb-ink-60)',
                     }}
                   >
-                    <span className="text-2xl">{m.emoji}</span>
+                    <m.icon className="h-7 w-7" />
                     {m.label}
                   </button>
                 ))}
@@ -331,7 +333,7 @@ export default function RecepcaoCadastroPage() {
               <p className="mb-2 mt-4 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Turma</p>
               {turmas.length === 0 && (
                 <EmptyState
-                  icon="🥋"
+                  icon={<Award className="h-12 w-12" />}
                   title="Nenhuma turma disponível"
                   description="Cadastre turmas antes de realizar uma matrícula."
                   variant="first-time"
@@ -358,7 +360,7 @@ export default function RecepcaoCadastroPage() {
               <p className="mb-2 mt-4 text-sm font-medium" style={{ color: 'var(--bb-ink-80)' }}>Plano</p>
               {planos.length === 0 && (
                 <EmptyState
-                  icon="📋"
+                  icon={<Award className="h-12 w-12" />}
                   title="Nenhum plano disponível"
                   description="Cadastre planos antes de realizar uma matrícula."
                   variant="first-time"

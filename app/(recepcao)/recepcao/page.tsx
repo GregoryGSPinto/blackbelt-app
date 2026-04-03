@@ -18,6 +18,8 @@ import {
   AlertTriangleIcon,
   ClockIcon,
   ChevronRightIcon,
+  CheckCircleIcon,
+  CakeIcon,
 } from '@/components/shell/icons';
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -237,7 +239,7 @@ export default function RecepcaoDashboardPage() {
         </h2>
         {data.aulasHoje.length === 0 && (
           <EmptyState
-            icon="📅"
+            icon={<CalendarIcon className="h-12 w-12" />}
             title="Nenhuma aula agendada para hoje"
             description="Não há aulas programadas no dia de hoje."
             variant="default"
@@ -306,7 +308,7 @@ export default function RecepcaoDashboardPage() {
         </h2>
         {data.checkinsHoje.length === 0 && (
           <EmptyState
-            icon="✅"
+            icon={<CheckCircleIcon className="h-12 w-12" />}
             title="Nenhum check-in hoje"
             description="Ainda não houve check-ins registrados hoje."
             variant="default"
@@ -347,8 +349,8 @@ export default function RecepcaoDashboardPage() {
           <div className="space-y-2">
             {data.aniversariantes.map((a, i) => (
               <Card key={i} style={{ borderLeft: '3px solid var(--bb-success)' }}>
-                <p className="text-sm font-semibold" style={{ color: 'var(--bb-ink-100)' }}>
-                  🎂 {a.nome} faz {a.idade} anos hoje!
+                <p className="text-sm font-semibold flex items-center gap-1.5" style={{ color: 'var(--bb-ink-100)' }}>
+                  <CakeIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--bb-success)' }} /> {a.nome} faz {a.idade} anos hoje!
                 </p>
                 <div className="mt-2">
                   <Button

@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { translateError } from '@/lib/utils/error-translator';
+import { Building2 } from 'lucide-react';
 
 type UnitStatus = UnidadeFranquia['status'];
 
@@ -179,7 +180,7 @@ export default function UnidadesFranqueadorPage() {
       {/* Unit Cards */}
       {filtered.length === 0 ? (
         <EmptyState
-          icon="🏢"
+          icon={<Building2 className="h-12 w-12" />}
           title={search || filterStatus ? 'Nenhuma unidade encontrada' : 'Nenhuma unidade cadastrada'}
           description={search || filterStatus ? 'Tente ajustar os filtros para encontrar a unidade desejada.' : 'Cadastre unidades franqueadas para gerenciá-las aqui.'}
           variant={search || filterStatus ? 'search' : 'first-time'}

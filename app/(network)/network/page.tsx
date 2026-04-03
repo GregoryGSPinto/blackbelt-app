@@ -8,6 +8,7 @@ import type { NetworkDashboardDTO, ConsolidatedFinancials } from '@/lib/api/netw
 import { getNetworkDashboard, getNetworkFinancials, transferStudent } from '@/lib/api/network.service';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/lib/hooks/useToast';
+import { Building2, DollarSign } from 'lucide-react';
 
 export default function NetworkPage() {
   const [dashboard, setDashboard] = useState<NetworkDashboardDTO | null>(null);
@@ -97,7 +98,7 @@ export default function NetworkPage() {
                 {dashboard.academies.length === 0 && (
                   <tr><td colSpan={7}>
                     <EmptyState
-                      icon="🏢"
+                      icon={<Building2 className="h-12 w-12" />}
                       title="Nenhuma academia na rede"
                       description="Adicione academias para acompanhar o desempenho consolidado da rede."
                       variant="first-time"
@@ -147,7 +148,7 @@ export default function NetworkPage() {
                 {financials.byAcademy.length === 0 && (
                   <tr><td colSpan={4}>
                     <EmptyState
-                      icon="💰"
+                      icon={<DollarSign className="h-12 w-12" />}
                       title="Nenhum dado financeiro"
                       description="Os dados financeiros consolidados da rede aparecerão aqui."
                       variant="first-time"

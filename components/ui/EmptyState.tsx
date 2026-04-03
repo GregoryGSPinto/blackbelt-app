@@ -8,7 +8,7 @@ import { Button, type ButtonProps } from './Button';
 type EmptyStateVariant = 'default' | 'search' | 'error' | 'first-time';
 
 export interface EmptyStateProps extends HTMLAttributes<HTMLDivElement> {
-  icon?: string;
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   actionLabel?: string;
@@ -86,7 +86,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
         {/* Large icon */}
         <div
           style={{
-            fontSize: 48,
+            fontSize: typeof resolvedIcon === 'string' ? 48 : undefined,
             lineHeight: 1,
             marginBottom: 16,
             color: 'var(--bb-ink-40)',
