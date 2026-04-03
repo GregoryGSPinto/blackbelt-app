@@ -219,7 +219,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/50" role="button" aria-label="Fechar menu" tabIndex={0} onClick={() => setSidebarOpen(false)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSidebarOpen(false); }} />
-              <aside className="fixed left-0 top-0 bottom-0 w-64 shadow-xl" style={{ background: 'var(--bb-depth-2)' }}>
+              <aside className="fixed left-0 top-0 bottom-0 w-64 flex flex-col shadow-xl" style={{ background: 'var(--bb-depth-2)' }}>
                 <div
                   className="flex h-14 flex-col justify-center px-6"
                   style={{ borderBottom: '1px solid var(--bb-glass-border)' }}
@@ -239,7 +239,7 @@ const TeenShell = forwardRef<HTMLDivElement, TeenShellProps>(
                     />
                   </div>
                 </div>
-                <nav aria-label="Menu principal" className="overflow-y-auto p-3">
+                <nav aria-label="Menu principal" className="flex-1 overflow-y-auto pb-safe p-3">
                   {renderSidebarNav(() => setSidebarOpen(false))}
                   <SidebarHelpSection variant="student" onItemClick={() => setSidebarOpen(false)} />
                   <SidebarFeedback />
