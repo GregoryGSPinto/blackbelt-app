@@ -1,0 +1,32 @@
+{
+  "name": "@blackbelt/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "sync": "npx cap sync",
+    "open:ios": "npx cap open ios",
+    "open:android": "npx cap open android",
+    "build:ios": "cd ../web && pnpm build && cd ../mobile && npx cap sync ios",
+    "build:android": "cd ../web && pnpm build && cd ../mobile && npx cap sync android"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^7.2.0",
+    "@capacitor/android": "^7.6.1",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/browser": "^7.0.1",
+    "@capacitor/camera": "^7.0.2",
+    "@capacitor/cli": "^7.6.1",
+    "@capacitor/clipboard": "7.0.1",
+    "@capacitor/core": "^7.6.1",
+    "@capacitor/haptics": "^7.0.1",
+    "@capacitor/ios": "^7.6.1",
+    "@capacitor/keyboard": "^7.0.1",
+    "@capacitor/network": "7.0.1",
+    "@capacitor/preferences": "7.0.1",
+    "@capacitor/push-notifications": "^7.0.1",
+    "@capacitor/share": "7.0.1",
+    "@capacitor/splash-screen": "7.0.1",
+    "@capacitor/status-bar": "^7.0.1",
+    "@capacitor/toast": "7.0.1"
+  }
+}
