@@ -25,7 +25,7 @@ export function LandingNavbar() {
         scrolled ? 'py-3' : 'py-5'
       }`}
       style={{
-        background: scrolled ? 'rgba(10, 10, 14, 0.85)' : 'transparent',
+        background: scrolled ? 'color-mix(in srgb, var(--bb-depth-0) 85%, transparent)' : 'transparent',
         backdropFilter: scrolled ? 'blur(16px) saturate(180%)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(16px) saturate(180%)' : 'none',
         borderBottom: scrolled ? '1px solid var(--bb-glass-border)' : '1px solid transparent',

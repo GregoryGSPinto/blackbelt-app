@@ -1,20 +1,15 @@
 'use client';
 
-import { useTheme } from '@/lib/contexts/ThemeContext';
-
 interface BlackBeltLogoProps {
   variant?: 'full' | 'navbar' | 'icon';
-  /** Explicit colour mode. When omitted the current theme is used. */
-  mode?: 'dark' | 'light';
   className?: string;
   height?: number;
 }
 
-export function BlackBeltLogo({ variant = 'navbar', mode, className = '', height = 36 }: BlackBeltLogoProps) {
-  const { resolvedTheme } = useTheme();
-  const effectiveMode = mode ?? resolvedTheme;
-  const textColor = effectiveMode === 'dark' ? '#FFFFFF' : '#0A0A0A';
-  const goldOpacity = effectiveMode === 'dark' ? 0.6 : 0.4;
+export function BlackBeltLogo({ variant = 'navbar', className = '', height = 36 }: BlackBeltLogoProps) {
+  // Uses CSS var --bb-logo-text which adapts to prefers-color-scheme
+  const textColor = 'var(--bb-logo-text)';
+  const goldOpacity = 0.5;
 
   if (variant === 'icon') {
     return (

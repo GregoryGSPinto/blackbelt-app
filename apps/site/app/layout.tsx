@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
-      <body className="min-h-screen font-sans antialiased" style={{ margin: 0, background: '#0A0A0A', color: '#E5E7EB' }}>
+      <body className="min-h-screen font-sans antialiased" style={{ margin: 0 }}>
         {children}
       </body>
     </html>
