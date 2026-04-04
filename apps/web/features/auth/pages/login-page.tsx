@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { isMock } from '@/lib/env';
 import { useIsNative } from '@/lib/hooks/useIsNative';
@@ -23,7 +23,7 @@ const PREVIEW_CHECKINS = [
 function DashboardPreview() {
   return (
     <div
-      className="w-full max-w-[440px] rounded-xl overflow-hidden"
+      className="w-full max-w-sm rounded-xl overflow-hidden"
       style={{
         background: 'var(--bb-depth-2)',
         border: '1px solid var(--bb-glass-border)',
@@ -52,7 +52,7 @@ function DashboardPreview() {
         <div className="flex items-center justify-between">
           <span
             className="text-xs font-bold tracking-widest uppercase"
-            style={{ color: 'var(--bb-brand-deep)' }}
+            style={{ color: '#C62828' }}
           >
             Dashboard
           </span>
@@ -60,7 +60,7 @@ function DashboardPreview() {
             className="text-xs px-2 py-0.5 rounded-full font-medium"
             style={{
               background: 'rgba(198,40,40,0.12)',
-              color: 'var(--bb-brand-deep)',
+              color: '#C62828',
             }}
           >
             Guerreiros BJJ
@@ -70,7 +70,7 @@ function DashboardPreview() {
         {/* KPIs */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: 'Alunos', value: '127', color: 'var(--bb-brand-deep)' },
+            { label: 'Alunos', value: '127', color: '#C62828' },
             { label: 'Presenca', value: '83%', color: '#22C55E' },
             { label: 'Receita', value: 'R$ 24.8k', color: '#8B5CF6' },
           ].map((kpi) => (
@@ -155,6 +155,7 @@ const DEMO_ACCOUNTS = [
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, loginWithOAuth, selectProfile, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -164,7 +165,32 @@ export default function LoginPage() {
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const [resendingConfirmation, setResendingConfirmation] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [pageMessage, setPageMessage] = useState<{ type: 'info' | 'success' | 'warning'; text: string } | null>(null);
   const isNativeDevice = useIsNative();
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const authError = searchParams.get('error');
+    const emailFromParams = searchParams.get('email');
+
+    if (emailFromParams) setEmail(emailFromParams.trim().toLowerCase());
+
+    if (status === 'password-reset') {
+      setPageMessage({ type: 'success', text: 'Senha redefinida com sucesso. Faca login com a nova senha.' });
+      return;
+    }
+    if (status === 'confirmation-sent') {
+      setPageMessage({ type: 'success', text: 'Enviamos um novo email de confirmacao. Verifique sua caixa de entrada.' });
+      return;
+    }
+    if (status === 'email-confirmed') {
+      setPageMessage({ type: 'success', text: 'Email confirmado. Agora voce ja pode entrar.' });
+      return;
+    }
+    if (authError === 'auth') {
+      setPageMessage({ type: 'warning', text: 'Nao foi possivel concluir a autenticacao. Tente novamente ou entre com email e senha.' });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -239,11 +265,6 @@ export default function LoginPage() {
     }
   };
 
-  const isSubmitting = loading;
-  const isBusy = loading || authLoading;
-  const canSubmit = !isBusy && !!email.trim() && !!password.trim();
-  const needsEmailConfirmationCta = localError.toLowerCase().includes('confirm');
-
   async function handleResendConfirmation() {
     if (!validateEmail(email)) {
       setLocalError('Digite o email correto para reenviar a confirmacao.');
@@ -262,15 +283,26 @@ export default function LoginPage() {
     }
   }
 
+  const isSubmitting = loading;
+  const isBusy = loading || authLoading;
+  const canSubmit = !isBusy && !!email.trim() && !!password.trim();
+  const needsEmailConfirmationCta = localError.toLowerCase().includes('confirm');
+
+  const messageTone = pageMessage?.type === 'success'
+    ? { color: '#22C55E', background: 'rgba(34,197,94,0.12)' }
+    : pageMessage?.type === 'warning'
+      ? { color: '#EAB308', background: 'rgba(245,158,11,0.12)' }
+      : { color: '#C62828', background: 'rgba(198,40,40,0.08)' };
+
   return (
     <div className="min-h-dvh flex flex-col lg:flex-row">
       {/* ========== LEFT SIDE — Desktop only ========== */}
       <div
-        className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-10 overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-10 overflow-hidden"
         style={{
           background: `
-            radial-gradient(ellipse at 30% 20%, rgba(198,40,40,0.10) 0%, transparent 60%),
-            radial-gradient(ellipse at 70% 80%, rgba(198,40,40,0.05) 0%, transparent 50%),
+            radial-gradient(ellipse at 30% 20%, rgba(198,40,40,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse at 70% 80%, rgba(198,40,40,0.06) 0%, transparent 50%),
             var(--bb-depth-1)
           `,
         }}
@@ -298,14 +330,29 @@ export default function LoginPage() {
 
       {/* ========== RIGHT SIDE — Login form ========== */}
       <div
-        className="flex-1 lg:flex-none lg:w-[55%] flex flex-col items-center justify-center px-6 py-10 lg:px-16"
-        style={{ background: 'var(--bb-depth-0)' }}
+        className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-16"
+        style={{ background: 'var(--bb-depth-1)' }}
       >
-        <div className="w-full max-w-[440px]">
+        <div className="w-full max-w-md">
           {/* Mobile logo (hidden on desktop) */}
           <div className="lg:hidden flex flex-col items-center mb-8">
             <Link href="/" aria-label="Ir para a pagina inicial">
-              <BlackBeltLogo variant="full" height={44} />
+              <BlackBeltLogo variant="icon" height={80} />
+            </Link>
+            <p className="text-xs mt-2" style={{ color: 'var(--bb-ink-40)' }}>Gestao completa para academias de artes marciais</p>
+          </div>
+
+          {/* Back link */}
+          <div className="mb-6">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{ color: 'var(--bb-ink-60)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+              </svg>
+              Voltar para a pagina inicial
             </Link>
           </div>
 
@@ -324,6 +371,16 @@ export default function LoginPage() {
               Acesse sua academia
             </p>
           </div>
+
+          {/* Page message (password-reset, email-confirmed, etc.) */}
+          {pageMessage && (
+            <div
+              className="mb-5 rounded-xl px-4 py-3 text-sm"
+              style={messageTone}
+            >
+              {pageMessage.text}
+            </div>
+          )}
 
           {/* Social login buttons */}
           <div className="flex gap-3 mb-6">
@@ -398,19 +455,20 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                autoComplete="email"
+                required
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all focus:ring-2"
                 style={{
                   background: 'var(--bb-depth-2)',
                   color: 'var(--bb-ink-100)',
                   border: '1px solid var(--bb-glass-border)',
-                  '--tw-ring-color': 'var(--bb-brand-deep)',
+                  '--tw-ring-color': '#C62828',
                 } as React.CSSProperties}
+                placeholder="seu@email.com"
+                autoComplete="email"
               />
             </div>
 
-            {/* Password */}
+            {/* Password with toggle */}
             <div>
               <label
                 className="block text-sm font-medium mb-1.5"
@@ -423,15 +481,16 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
+                  required
                   className="w-full px-3 py-2.5 pr-10 rounded-lg text-sm outline-none transition-all focus:ring-2"
                   style={{
                     background: 'var(--bb-depth-2)',
                     color: 'var(--bb-ink-100)',
                     border: '1px solid var(--bb-glass-border)',
-                    '--tw-ring-color': 'var(--bb-brand-deep)',
+                    '--tw-ring-color': '#C62828',
                   } as React.CSSProperties}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -516,9 +575,9 @@ export default function LoginPage() {
               disabled={!canSubmit}
               className="w-full py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
               style={{
-                background: 'var(--bb-brand-deep)',
+                background: '#EF4444',
                 color: '#fff',
-                boxShadow: '0 0 20px rgba(198,40,40,0.2)',
+                boxShadow: '0 0 20px rgba(239,68,68,0.2)',
               }}
             >
               {isSubmitting && (
@@ -566,35 +625,20 @@ export default function LoginPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex gap-3">
+              <div className="flex items-center justify-center gap-4 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
                 <Link
                   href="/cadastrar-academia"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium text-center transition-opacity hover:opacity-80 min-h-[44px]"
-                  style={{
-                    background: 'var(--bb-depth-2)',
-                    color: 'var(--bb-brand-deep)',
-                    border: '1px solid var(--bb-glass-border)',
-                  }}
+                  className="underline transition-opacity hover:opacity-80"
+                  style={{ color: 'var(--bb-ink-60)' }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                  </svg>
-                  Sou dono de academia
+                  Cadastrar minha academia
                 </Link>
+                <span style={{ color: 'var(--bb-glass-border)' }}>|</span>
                 <Link
                   href="/convite"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium text-center transition-opacity hover:opacity-80 min-h-[44px]"
-                  style={{
-                    background: 'var(--bb-depth-2)',
-                    color: 'var(--bb-ink-60)',
-                    border: '1px solid var(--bb-glass-border)',
-                  }}
+                  className="underline transition-opacity hover:opacity-80"
+                  style={{ color: 'var(--bb-ink-60)' }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7" />
-                  </svg>
                   Tenho um convite
                 </Link>
               </div>
@@ -628,7 +672,7 @@ export default function LoginPage() {
                       color: 'var(--bb-ink-80)',
                     }}
                   >
-                    <div className="h-2 w-2 rounded-full shrink-0" style={{ background: 'var(--bb-brand-deep)' }} />
+                    <div className="h-2 w-2 rounded-full shrink-0" style={{ background: '#C62828' }} />
                     <span className="font-medium">{demo.label}</span>
                     <span
                       className="text-xs ml-auto truncate max-w-[180px]"
