@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BlackBeltLogo } from '@/components/brand/BlackBeltLogo';
+import { CURRENT_PLATFORM_URLS } from '@blackbelt/config';
+
+const appUrl = CURRENT_PLATFORM_URLS.app;
 
 const NAV_LINKS = [
   { href: '#funcionalidades', label: 'Funcionalidades' },
@@ -50,20 +53,20 @@ export function LandingNavbar() {
               {link.label}
             </a>
           ))}
-          <Link
-            href="/login"
+          <a
+            href={`${appUrl}/login`}
             className="text-sm transition-colors duration-200"
             style={{ color: 'var(--bb-ink-60)' }}
           >
             Entrar
-          </Link>
-          <Link
-            href="/cadastrar-academia"
+          </a>
+          <a
+            href={`${appUrl}/cadastrar-academia`}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
             style={{ background: '#C62828' }}
           >
             Cadastrar
-          </Link>
+          </a>
         </div>
 
         {/* Mobile hamburger */}
@@ -101,17 +104,17 @@ export function LandingNavbar() {
               {link.label}
             </a>
           ))}
-          <Link href="/login" className="block text-sm" style={{ color: 'var(--bb-ink-60)' }} onClick={() => setMenuOpen(false)}>
+          <a href={`${appUrl}/login`} className="block text-sm" style={{ color: 'var(--bb-ink-60)' }} onClick={() => setMenuOpen(false)}>
             Entrar
-          </Link>
-          <Link
-            href="/cadastrar-academia"
+          </a>
+          <a
+            href={`${appUrl}/cadastrar-academia`}
             className="block w-full text-center px-4 py-3 rounded-lg text-sm font-semibold text-white"
             style={{ background: '#C62828' }}
             onClick={() => setMenuOpen(false)}
           >
             Cadastrar academia
-          </Link>
+          </a>
         </div>
       )}
     </nav>

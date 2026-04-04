@@ -11,7 +11,10 @@ import { ParentMockup } from '@/components/landing/ParentMockup';
 import { BillingMockup } from '@/components/landing/BillingMockup';
 import { WhatsAppFAB } from '@/components/landing/WhatsAppFAB';
 import { formatBrazilianPhone } from '@/lib/utils/validation';
+import { CURRENT_PLATFORM_URLS } from '@blackbelt/config';
 import { Building2, Award, Dumbbell, Gamepad2, Star, Users, ClipboardList, TrendingDown, BarChart3, CheckCircle2 } from 'lucide-react';
+
+const appUrl = CURRENT_PLATFORM_URLS.app;
 
 /* ── FAQ Accordion ── */
 const FAQ_ITEMS = [
@@ -138,15 +141,15 @@ export default function LandingPage() {
             Check-in, turmas, cobranças e presença — tudo num app que seus alunos e professores vão amar.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
-            <Link
-              href="/cadastrar-academia"
+            <a
+              href={`${appUrl}/cadastrar-academia`}
               className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: '#C62828', boxShadow: '0 4px 24px rgba(198,40,40,0.3)' }}
             >
               COMEÇAR GRÁTIS — 7 DIAS
-            </Link>
-            <Link
-              href="/login"
+            </a>
+            <a
+              href={`${appUrl}/login`}
               className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 background: 'transparent',
@@ -155,7 +158,7 @@ export default function LandingPage() {
               }}
             >
               Já tenho conta
-            </Link>
+            </a>
           </div>
           <p className="mt-3 text-xs" style={{ color: 'var(--bb-ink-40)' }}>
             Sem cartão de crédito. Cancele quando quiser.
@@ -259,13 +262,13 @@ export default function LandingPage() {
                 <p className="mt-3 text-base leading-relaxed" style={{ color: 'var(--bb-ink-60)' }}>
                   {PRODUCT_TABS.find((t) => t.id === activeTab)?.desc}
                 </p>
-                <Link
-                  href="/cadastrar-academia"
+                <a
+                  href={`${appUrl}/cadastrar-academia`}
                   className="mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
                   style={{ background: '#C62828' }}
                 >
                   Testar Grátis
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -371,13 +374,13 @@ export default function LandingPage() {
             <p className="mt-4 text-base" style={{ color: 'var(--bb-ink-60)' }}>
               7 dias grátis. Sem cartão. Sem compromisso.
             </p>
-            <Link
-              href="/cadastrar-academia"
+            <a
+              href={`${appUrl}/cadastrar-academia`}
               className="mt-8 inline-flex items-center justify-center rounded-xl px-10 py-4 text-base font-bold uppercase tracking-wider text-white transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: '#C62828', boxShadow: '0 4px 24px rgba(198,40,40,0.3)' }}
             >
               COMEÇAR AGORA
-            </Link>
+            </a>
             <p className="mt-4 text-sm" style={{ color: 'var(--bb-ink-40)' }}>
               Ou{' '}
               <a
