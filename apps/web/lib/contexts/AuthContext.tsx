@@ -62,17 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Timeout safety — never stay loading for more than 5 seconds
+  // Timeout safety — never stay loading for more than 10 seconds
   useEffect(() => {
     const timeout = setTimeout(() => {
       setState((prev) => {
         if (prev.isLoading) {
-          console.warn('[Auth] Timeout 5s — forçando isLoading=false');
+          console.warn('[Auth] Timeout 10s — forçando isLoading=false');
           return { ...prev, isLoading: false };
         }
         return prev;
       });
-    }, 5000);
+    }, 10_000);
     return () => clearTimeout(timeout);
   }, []);
 
@@ -121,7 +121,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { createBrowserClient } = await import('@/lib/supabase/client');
         const supabase = createBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
+
+        console.info('[Auth] bootstrap: calling getUser()...');
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.warn('[Auth] bootstrap: getUser error:', userError.message);
+        }
+        if (!user) {
+          console.warn('[Auth] bootstrap: no user session found (cookies may be missing or expired)');
+        }
 
         if (user) {
           const { data: profiles } = await supabase

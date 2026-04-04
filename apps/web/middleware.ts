@@ -124,39 +124,43 @@ function handleMockAuth(request: NextRequest): NextResponse {
   return NextResponse.next();
 }
 
-// Real Supabase auth
+// Real Supabase auth — uses getAll/setAll pattern required by @supabase/ssr 0.9+
 async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const isPublic = isPublicPath(pathname);
-  const response = NextResponse.next({ request: { headers: request.headers } });
+
+  // Mutable response — setAll recreates it to keep cookies in sync
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: Record<string, unknown>) {
-          request.cookies.set({ name, value, ...options });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: Record<string, unknown>) {
-          request.cookies.set({ name, value: '', ...options });
-          response.cookies.set({ name, value: '', ...options });
+        setAll(cookiesToSet) {
+          // 1. Update request cookies so downstream code sees fresh values
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          // 2. Recreate response with updated request (carries cookies to browser)
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
         },
       },
     },
   );
 
+  // This refreshes the session and sets updated cookies via setAll
   const { data: { user } } = await supabase.auth.getUser();
 
   // Authenticated user on public page → redirect to dashboard
   // EXCEPT these pages — always allow (user switching accounts or browsing)
   if (isPublic && user) {
     if (isAuthEntryPath(pathname) || pathname === '/completar-cadastro') {
-      return response;
+      return supabaseResponse;
     }
     const activeRole = request.cookies.get('bb-active-role')?.value;
     if (activeRole) {
@@ -165,10 +169,10 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
         return NextResponse.redirect(new URL(dashboard, request.url));
       }
     }
-    return response;
+    return supabaseResponse;
   }
 
-  if (isPublic) return response;
+  if (isPublic) return supabaseResponse;
 
   // Protected route: no user → redirect to login
   if (!user) {
@@ -192,7 +196,7 @@ async function handleSupabaseAuth(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  return response;
+  return supabaseResponse;
 }
 
 const isNativeBuildFlag =
