@@ -10,9 +10,9 @@ export const BRAND = {
 } as const;
 
 export const CURRENT_PLATFORM_URLS = {
-  site: process.env.NEXT_PUBLIC_SITE_URL || 'https://blackbelts.com.br',
-  app: process.env.NEXT_PUBLIC_APP_URL || 'https://app.blackbelts.com.br',
-  api: process.env.NEXT_PUBLIC_API_URL || 'https://app.blackbelts.com.br/api',
+  site: process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://blackbelts.com.br'),
+  app: process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://app.blackbelts.com.br'),
+  api: process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001/api' : 'https://app.blackbelts.com.br/api'),
 } as const;
 
 export const SUPABASE_CONFIG = {
