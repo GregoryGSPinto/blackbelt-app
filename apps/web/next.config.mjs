@@ -8,6 +8,7 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://blackbelts.com.br'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@blackbelt/config', '@blackbelt/types'],
   ...(isCapacitorStaticExport
     ? {
         output: 'export',
